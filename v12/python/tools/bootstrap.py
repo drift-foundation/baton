@@ -46,6 +46,20 @@ RECORD_SCHEMA = "baton.v12.stack-bootstrap-record/1"
 # Both are `stage_execution`'s; they are named here because this module WRITES
 # that document and a second opinion about its shape would be a second contract.
 ROLES = ("implementation", "review", "integration")
+# W385695 / REC-9 (review 2026-11-23T18-55-03Z R1): THE DETERMINISTIC
+# PUBLICATION WORKER IS A FOURTH, OPTIONAL CONFIGURED ROLE. `ROLES` stays the
+# three a JOB is made of -- the every-role-served rule, the schema variant and
+# the capacity report all mean those three by it -- and a worker may
+# additionally be configured under this one. It is installed once and serves
+# only approved publication recoveries: `stage_execution.WORKER_ROLES` is the
+# consumer's spelling of the same widening, and a case holds the two equal.
+PUBLICATION_ROLE = "publication"
+WORKER_ROLES = ROLES + (PUBLICATION_ROLE,)
+# WHERE THAT WORKER'S READ-ONLY INPUT IS STAGED, under the instance's own
+# root. `tools.publication_worker.DEFAULT_STAGING` is the owner of the name
+# and a case holds this spelling equal to it; it is restated because this
+# module is what an installation runs before anything else is importable.
+PUBLICATION_STAGING = "publication-staging"
 ONE_JOB_SCHEMA = "baton.v12.stage-execution-deployment/1"
 MULTI_JOB_SCHEMA = "baton.v12.stage-execution-deployment/2"
 
@@ -203,7 +217,14 @@ ROUTING_SCHEMA = "baton.native-handoff-routing/1"
 
 # The route each stage is served on. `review_route` on a worker names where its
 # own ending hands the Work on to, which is why the last one is not a stage.
-ROUTES = {"implementation": "impl", "review": "rview", "integration": "integration"}
+ROUTES = {"implementation": "impl", "review": "rview", "integration": "integration",
+          # A RECOVERY REUSES THE FAILED JOB'S OWN WORK, which sits where its
+          # producer left it: on the implementation route. The publication
+          # worker makes the FRESH claim there, so that is the route its
+          # participant is registered on. Being a handler says who MAY claim;
+          # which stage a worker is actually offered is the scheduler's lane,
+          # and the publication lane is offered publication stages only.
+          PUBLICATION_ROLE: "impl"}
 
 
 class BootstrapRefusal(Exception):
@@ -525,9 +546,28 @@ def held(document):
     for role in (ROLES if workers_of(document) else ()):
         if role != "integration" and not by_role.get(role):
             faults.append("no worker is configured for the " + role + " stage")
-    for role in set(by_role) - set(ROLES):
-        faults.append("this deployment serves " + ", ".join(ROLES)
+    for role in set(by_role) - set(WORKER_ROLES):
+        faults.append("this deployment serves " + ", ".join(WORKER_ROLES)
                       + " and a worker names the role " + repr(role))
+    # W385695: ONE DEDICATED PUBLICATION WORKER, UNDER ITS OWN PARTICIPANT.
+    # The contract's words are "a dedicated deterministic publication
+    # worker/participant ... its own principal": a recovery's reviewer is held
+    # independent of BOTH the original producer and the publisher, which means
+    # nothing if the publisher is one of them, and the reusable capacity is
+    # installed once rather than once per recovery.
+    publishers = by_role.get(PUBLICATION_ROLE, [])
+    if len(publishers) > 1:
+        faults.append("at most one publication worker is configured; these "
+                      "are " + repr([one["worker_id"] for one in publishers]))
+    for one in publishers:
+        sharing = sorted(other["worker_id"] for other in workers_of(document)
+                         if other is not one
+                         and other["participant"] == one["participant"])
+        if sharing:
+            faults.append("the publication worker " + repr(one["worker_id"])
+                          + " shares its participant with "
+                          + ", ".join(sharing) + "; the deterministic "
+                          "publisher is a dedicated participant")
     named = [one["worker_id"] for one in workers_of(document)]
     if len(set(named)) != len(named):
         faults.append("every worker_id is distinct; these are " + repr(named))
@@ -714,6 +754,14 @@ def variant(document):
     for worker in workers_of(document):
         by_role.setdefault(worker["role"], []).append(worker["worker_id"])
     one_each = all(len(by_role.get(role, [])) == 1 for role in ROLES)
+    # W385695: AND A DEPLOYMENT THAT INSTALLS A PUBLICATION WORKER SAYS ITS
+    # BINDINGS OUT LOUD. That worker exists to serve recovery Jobs, each of
+    # which is a SECOND Job bound beside the one it recovers -- and the
+    # one-Job document derives its single binding and can name no other. So
+    # such a deployment is the multi-Job document from the start, rather than
+    # one that would have to change shape at its first recovery.
+    if by_role.get(PUBLICATION_ROLE):
+        one_each = False
     # AN INSTANCE THAT BINDS NOTHING IS THE MULTI-JOB DOCUMENT WITH AN EMPTY
     # BINDING LIST. `/1` DERIVES its single binding from its own global Work,
     # base and target, so it cannot express "none" -- the shape that can is the
@@ -1586,6 +1634,23 @@ def _safe_name(worker_id):
     return said
 
 
+def _clones_a_source(worker):
+    """Does this worker's nominated source come from a repository clone?
+
+    EVERY ROLE BUT THE PUBLICATION ONE. A publication worker reads no
+    repository: its read-only input is the approved retained output, staged
+    per recovery under `publication_staging`, so there is nothing to clone
+    for it and a clone prepared under its name would be a repository nothing
+    ever mounts.
+    """
+    return worker.get("role") != PUBLICATION_ROLE
+
+
+def publication_staging(destination):
+    """Where an instance's publication worker is delivered its staged input."""
+    return os.path.join(str(destination), PUBLICATION_STAGING)
+
+
 def repository_plan(document, places):
     """Which repositories this deployment needs, and where they go.
 
@@ -1601,7 +1666,8 @@ def repository_plan(document, places):
     planned = [("target", str(root / "target.git"), True),
                ("workspace", str(root / "workspace"), False)]
     for worker in document.get("workers") or []:
-        if type(worker) is dict and worker.get("worker_id"):
+        if type(worker) is dict and worker.get("worker_id") \
+                and _clones_a_source(worker):
             name = _safe_name(worker["worker_id"])
             planned.append(("source-" + name, str(root / ("source-" + name)),
                             False))
@@ -1640,7 +1706,9 @@ def repositories_agree(document, places):
         if type(worker) is not dict or type(worker.get("deployment")) is not dict:
             continue
         source = worker["deployment"].get("nominated_source")
-        wanted = planned["source-" + _safe_name(worker["worker_id"])]
+        wanted = (planned["source-" + _safe_name(worker["worker_id"])]
+                  if _clones_a_source(worker)
+                  else publication_staging(places["destination"]))
         if isinstance(source, str) and source and source != wanted:
             disagreements.append(
                 ("workers[" + str(worker["worker_id"]) + "].nominated_source",
@@ -2009,8 +2077,11 @@ def repositories_bound(document, places, preparing=True):
         if type(worker) is dict and worker.get("worker_id") and type(
                 worker.get("deployment")) is dict:
             deployment = dict(worker["deployment"])
-            deployment.setdefault("nominated_source",
-                                  planned["source-" + str(worker["worker_id"])])
+            deployment.setdefault(
+                "nominated_source",
+                planned["source-" + str(worker["worker_id"])]
+                if _clones_a_source(worker)
+                else publication_staging(places["destination"]))
             worker = dict(worker, deployment=deployment)
         workers.append(worker)
     document["workers"] = workers
@@ -2671,7 +2742,17 @@ def prerequisite_places(document):
         deployment = worker.get("deployment")
         if type(deployment) is not dict:
             continue
-        for name in PREREQUISITE_ROOTS:
+        # W385695: AND A PUBLICATION WORKER'S STAGING ROOT. Every other
+        # role's nominated source is a repository `prepare_worker_sources`
+        # clones; this one's is a private, initially empty directory the
+        # manager stages each approved original into, so it is prepared here
+        # with the other roots a worker needs before it first runs -- through
+        # the same pinned ancestry and at the same private mode -- rather
+        # than left for the first recovery to find missing.
+        names = PREREQUISITE_ROOTS + (
+            ("nominated_source",)
+            if worker.get("role") == PUBLICATION_ROLE else ())
+        for name in names:
             named = deployment.get(name)
             if type(named) is not str or not named or named in seen:
                 continue

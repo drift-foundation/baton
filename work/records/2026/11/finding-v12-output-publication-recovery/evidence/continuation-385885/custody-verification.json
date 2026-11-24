@@ -1,0 +1,125 @@
+{
+  "snapshot_observed_at": "2026-11-23T16:46:23.322Z",
+  "verified": [
+    {
+      "artifact": {
+        "output_name": "handoff",
+        "artifact_id": "attempt-a0620a4ebf2f5ade0ddffd03bc562c6ddb0dd7c6b7f2971ff1315dfd0d7fc697:handoff",
+        "media_type": "application/octet-stream",
+        "bytes": 69,
+        "content_digest": "sha256:69ac20eba94f14c9c774c2194ec16194345ebf4fecaa177653a6de7a8fdfb1d7",
+        "locator": "file:///home/sl/baton-instances/native-w385695-publication-2/state/workspaces/.baton-review-lines/line-4ed6f7c58cc08147bfb3e1f705c2bb4ec95f863eea01a599dc3b8701486bdc26/custody/attempt-a0620a4ebf2f5ade0ddffd03bc562c6ddb0dd7c6b7f2971ff1315dfd0d7fc697/handoff"
+      },
+      "measured": {
+        "entries": [
+          {
+            "path": "handoff.json",
+            "bytes": 69,
+            "content_digest": "sha256:54cc11b40d8e0de07f4f500df6fa862d7682d4060dada06278c1d097568133fc"
+          }
+        ],
+        "entry_count": 1,
+        "total_bytes": 69,
+        "tree_digest": "sha256:69ac20eba94f14c9c774c2194ec16194345ebf4fecaa177653a6de7a8fdfb1d7"
+      },
+      "copy": "original/handoff"
+    },
+    {
+      "artifact": {
+        "output_name": "proposal",
+        "artifact_id": "attempt-a0620a4ebf2f5ade0ddffd03bc562c6ddb0dd7c6b7f2971ff1315dfd0d7fc697:proposal",
+        "media_type": "application/octet-stream",
+        "bytes": 689247,
+        "content_digest": "sha256:1c5c4e90df8710ec424fbb6ae0027786c3884a609f129ca2cfbb8aef83f39614",
+        "locator": "file:///home/sl/baton-instances/native-w385695-publication-2/state/workspaces/.baton-review-lines/line-4ed6f7c58cc08147bfb3e1f705c2bb4ec95f863eea01a599dc3b8701486bdc26/custody/attempt-a0620a4ebf2f5ade0ddffd03bc562c6ddb0dd7c6b7f2971ff1315dfd0d7fc697/proposal"
+      },
+      "measured": {
+        "entries": [
+          {
+            "path": "change.patch",
+            "bytes": 555391,
+            "content_digest": "sha256:fb4c8cc428bb49857a96f47b92c21768ea7fe44035e1811a39ec8a39157ff95a"
+          },
+          {
+            "path": "objects.bundle",
+            "bytes": 131052,
+            "content_digest": "sha256:c6655efb2b87fbc7c2f85483b91a9f3cf303027595fb8db1be03991a721dde21"
+          },
+          {
+            "path": "result.json",
+            "bytes": 2774,
+            "content_digest": "sha256:13f7c79c0d2979f6fe20c751cf0cbf8097f30aa8da3b4a7c29a7169747290ceb"
+          },
+          {
+            "path": "verification.txt",
+            "bytes": 30,
+            "content_digest": "sha256:4825c3ea707b3ab41b2d72a0443ea35d3dd518252a6a673fac3fea418df9a133"
+          }
+        ],
+        "entry_count": 4,
+        "total_bytes": 689247,
+        "tree_digest": "sha256:1c5c4e90df8710ec424fbb6ae0027786c3884a609f129ca2cfbb8aef83f39614"
+      },
+      "copy": "original/proposal"
+    }
+  ],
+  "result": {
+    "base": "6079ad78345aa87b7148db302d48fb9b1867f940",
+    "changed_paths": [
+      "v12/python/src/baton_v12/job_manager/__init__.py",
+      "v12/python/src/baton_v12/job_manager/documents.py",
+      "v12/python/src/baton_v12/job_manager/job_control.py",
+      "v12/python/src/baton_v12/job_manager/projection.py",
+      "v12/python/src/baton_v12/job_manager/publication_execution.py",
+      "v12/python/src/baton_v12/job_manager/publication_recovery.py",
+      "v12/python/src/baton_v12/job_manager/scheduler.py",
+      "v12/python/src/baton_v12/job_manager/schema.py",
+      "v12/python/src/baton_v12/job_manager/store.py",
+      "v12/python/src/baton_v12/job_manager/templates.py",
+      "v12/python/tests/job_manager/test_documents.py",
+      "v12/python/tests/job_manager/test_job_control.py",
+      "v12/python/tests/job_manager/test_publication_recovery_admission.py",
+      "v12/python/tests/job_manager/test_publication_recovery_execution.py",
+      "v12/python/tests/job_manager/test_retained_failure_analysis.py",
+      "v12/python/tests/job_manager/test_templates.py",
+      "v12/python/tools/fresh_attempt_ports.py",
+      "v12/python/tools/parallel_test.py",
+      "v12/python/tools/publication_decision.py",
+      "v12/python/tools/publication_ports.py",
+      "v12/python/tools/publication_worker.py",
+      "work/records/2026/11/finding-v12-output-publication-recovery/PROGRESS.md",
+      "work/records/2026/11/finding-v12-output-publication-recovery/evidence/checkpoint2-385695/REPORT.md",
+      "work/records/2026/11/finding-v12-output-publication-recovery/evidence/checkpoint2-385695/focused.log"
+    ],
+    "collection": {
+      "excluded_ignored": [
+        "handoff/",
+        "v12/python/src/baton_v12/__pycache__/",
+        "v12/python/src/baton_v12/authority/__pycache__/",
+        "v12/python/src/baton_v12/contracts/__pycache__/",
+        "v12/python/src/baton_v12/integration/__pycache__/",
+        "v12/python/src/baton_v12/job_manager/__pycache__/",
+        "v12/python/src/baton_v12/source_profiles/__pycache__/",
+        "v12/python/src/baton_v12/worker_manager/__pycache__/",
+        "v12/python/tools/__pycache__/"
+      ],
+      "excluded_ignored_count": 9,
+      "excluded_special": [],
+      "excluded_special_count": 0,
+      "note": "these worktree paths were present while the task's verification ran and are NOT part of the delivered proposal; whether the verification relied on any of them is the integrator's question, disclosed rather than adjudicated here"
+    },
+    "disposition": "provider-failed",
+    "entry_head": "6079ad78345aa87b7148db302d48fb9b1867f940",
+    "head": "4e8fbe1c3b596f2f5db9f03b6c63572c9b198df7",
+    "provider": {
+      "failure_reason": "timeout",
+      "seconds_bound": 7200,
+      "seconds_bound_source": "job-selected",
+      "status": null
+    },
+    "schema": "baton.dogfood-proposal/2",
+    "task_id": "w385695-native-publication-2",
+    "verification": null,
+    "why": "the provider did not finish within 7200s"
+  }
+}

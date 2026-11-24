@@ -1,0 +1,192 @@
+{
+  "base": "6079ad78345aa87b7148db302d48fb9b1867f940",
+  "candidate_patch_sha256": "6e3935aa01c36ced8e1f79649934173ff76039b56d8f9232384078ef6131a274",
+  "delta_patch_sha256": "8312c7e639bb84081f9df2db00adbb5a2e6ed8e468dbab2063d5627ce3612559",
+  "delta_paths": [
+    "v12/python/src/baton_v12/job_manager/publication_execution.py",
+    "v12/python/tests/job_manager/test_publication_recovery_execution.py",
+    "v12/python/tests/manager/test_dependencies.py",
+    "v12/python/tools/publication_decision.py",
+    "v12/python/tools/publication_ports.py"
+  ],
+  "paths": [
+    {
+      "base_sha256": "389898d3be347a9b7879cbe27154f5b2a41b4007a90fd09fd364fe6718238a38",
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/job_manager/__init__.py",
+      "sha256": "0c063dcde74bff48642a93a454fb201ebed3ecb1b15d1f6180841c8f185498f0",
+      "size": 15926
+    },
+    {
+      "base_sha256": "4816e28beaa3d7c4598215176afa998ba9dc2e06abd24e4fe7c111349b7a5e71",
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/job_manager/documents.py",
+      "sha256": "169b9d563044aaaeaf02c15dde2c88797f037037ac2c6086b540ec58fa162a24",
+      "size": 62717
+    },
+    {
+      "base_sha256": "eb0bc34d8fa1898ab4ca7f71e4f06e99e4cbea55633013e8605e8e95ff6fc4d4",
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/job_manager/job_control.py",
+      "sha256": "d25da6d1e391025e27b53ad7636d827d1137f8248960e226613ef63a7739ab41",
+      "size": 45127
+    },
+    {
+      "base_sha256": "c8ee5f01c92126a10641a19a0ae1e26c9ebb503d429bf34ab3f795bc8506ef63",
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/job_manager/projection.py",
+      "sha256": "6a0f7249567b74ed6e9511dc706251179228f2c985e04f097b9346ca8c58ff9c",
+      "size": 66248
+    },
+    {
+      "base_sha256": null,
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/job_manager/publication_execution.py",
+      "sha256": "8da22ad872949b00d003d97e7740b2bed602347a4548c5a55a92e162036d86c4",
+      "size": 97511
+    },
+    {
+      "base_sha256": "5553da202d7f422ce5986b1aa31c0df638eee312b86d9192da4870a3c8893d74",
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/job_manager/publication_recovery.py",
+      "sha256": "9f5fd18cdb073f97d8fb86f67860120744112820d7ea5a841924f03b57dca3c5",
+      "size": 160179
+    },
+    {
+      "base_sha256": "a57768ad33be5ad60860457f920fe67a457a2c293bcb1455a32d26b5461af825",
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/job_manager/scheduler.py",
+      "sha256": "ae072a3ac90fae92854821a3bd6366badfd92e6e8f070b69e6676f1f69d3d9f4",
+      "size": 57025
+    },
+    {
+      "base_sha256": "38ba3ca2e79fe347a3e80c67304af6ccce59cc9100af59b9c0babf579f8747af",
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/job_manager/schema.py",
+      "sha256": "a90b7d84331334ffc33896f67d39ee5db870276e155b5b54a867666b7d0c4732",
+      "size": 77991
+    },
+    {
+      "base_sha256": "3e12b8c2350cd6038462a9a06872eedd06a48ae5b6b1d9a54fd4a79f7b485365",
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/job_manager/store.py",
+      "sha256": "0cf344ad13132325f945df877073ed9e8dc379c25f1c7b43a8afd6eb6a12d98b",
+      "size": 62177
+    },
+    {
+      "base_sha256": "36f7f6ac69d3b41d99ba547d9886810629f61d63f0ca9a080ecd2e76f13c51fc",
+      "mode": "0o664",
+      "path": "v12/python/src/baton_v12/job_manager/templates.py",
+      "sha256": "44f42383152d0116c2c49b0da6ab565571fb8fda62eac86364304f460766a9a0",
+      "size": 81356
+    },
+    {
+      "base_sha256": "1a8c151ae2f88a47ec8b26110fdea2a5ba0cb4197ef8c76cd8d2a46c744d82f8",
+      "mode": "0o664",
+      "path": "v12/python/tests/job_manager/test_documents.py",
+      "sha256": "2cc86dda7f35c214a7411d6e29b06f33cb341fa4de0fda78ee88a533cd0979c6",
+      "size": 15441
+    },
+    {
+      "base_sha256": "184e0e522965b8775236d02c6253b51aa0c5d5b3c1f26a1b04847df625a34966",
+      "mode": "0o664",
+      "path": "v12/python/tests/job_manager/test_job_control.py",
+      "sha256": "eaa4a9c227e17350a0fd37b47a67f026a27ecb2b8a833c18e562c51049f4527d",
+      "size": 62138
+    },
+    {
+      "base_sha256": "bb0f5bf6c5e109b326a62a7922461a1ad6e07e2014af3f53442e2ac30e983d8d",
+      "mode": "0o664",
+      "path": "v12/python/tests/job_manager/test_publication_recovery_admission.py",
+      "sha256": "982508024cebd93dcfcbda47ac6dec91d31935c9f16e6cded9962f5c9f69eb53",
+      "size": 86970
+    },
+    {
+      "base_sha256": null,
+      "mode": "0o664",
+      "path": "v12/python/tests/job_manager/test_publication_recovery_execution.py",
+      "sha256": "00ad60bf46412894793eb047521ea61fda35999834d3cf8eb1b2047e03c52abd",
+      "size": 122993
+    },
+    {
+      "base_sha256": "fa61b714611e489f37da7c75642664686c1f21efa9dfb028f04a3c8f5f0f0373",
+      "mode": "0o664",
+      "path": "v12/python/tests/job_manager/test_retained_failure_analysis.py",
+      "sha256": "76f1b61209c314a3d8292900adc8cd93b032bc44411f56e14eaf42723fa7facd",
+      "size": 141389
+    },
+    {
+      "base_sha256": "eb0e68985ad225a549ac4741cf330c91e75313e97ff01260c87301c02f84b704",
+      "mode": "0o664",
+      "path": "v12/python/tests/job_manager/test_templates.py",
+      "sha256": "8739bf61c87f1b9562bde8ef08496c531735721cf9e2e73fb66e9f61e68f8501",
+      "size": 94849
+    },
+    {
+      "base_sha256": "f080e464b4e8e2ca3b285b71cacc04e355b87517b192605ade747958be5a65ab",
+      "mode": "0o664",
+      "path": "v12/python/tests/manager/test_dependencies.py",
+      "sha256": "b8f485b0b7991a33109f3eefad7df9ae300a2542a810efc3c05730cb98ec6a4f",
+      "size": 68370
+    },
+    {
+      "base_sha256": "eddae5f2292a85a8c64b7eabc2d2380f476c4ebed48942e6faa1997c2c80cda4",
+      "mode": "0o664",
+      "path": "v12/python/tools/fresh_attempt_ports.py",
+      "sha256": "84210c5500bdc3da7b35d41b7ac19f777d559ec46275a8aa5e6220890c4ec24a",
+      "size": 35729
+    },
+    {
+      "base_sha256": "4db471ea70fcb8b70297a463bcf8b8850fd5cfcd801df8c1c66408cb8e384099",
+      "mode": "0o664",
+      "path": "v12/python/tools/parallel_test.py",
+      "sha256": "0d64e0f8fe4dda9003c75a3d18d55ee3b490772bced2b7b7590f6c3cf4403d6f",
+      "size": 111373
+    },
+    {
+      "base_sha256": "111e57c739a1445c9142b3b0da04fa4b16070866833faa1e00c1a0c1030a7eee",
+      "mode": "0o664",
+      "path": "v12/python/tools/publication_decision.py",
+      "sha256": "4480a96f01acc9bcde3544ef4869dd7af35494bfd9f07e9908880471661f7a41",
+      "size": 28440
+    },
+    {
+      "base_sha256": "ccb7604919fe885c96fa799afc1f05edf7af8a7de356c0a889b6f1e285a2176f",
+      "mode": "0o664",
+      "path": "v12/python/tools/publication_ports.py",
+      "sha256": "6bc06b5d96c112488d6fbea07d4a4e7a99c28e1e4b6cce618d94b5e4a552e457",
+      "size": 17427
+    },
+    {
+      "base_sha256": null,
+      "mode": "0o664",
+      "path": "v12/python/tools/publication_worker.py",
+      "sha256": "4cd6edbe433d2d3fac9d261764109f168a341b439d2cc4c02fd51fd3013acf07",
+      "size": 20088
+    },
+    {
+      "base_sha256": "9dc5356fb90f606857b8f16cabd3688d1a675ea4b2a63540fda97efbd25140e6",
+      "mode": "0o664",
+      "path": "work/records/2026/11/finding-v12-output-publication-recovery/PROGRESS.md",
+      "sha256": "5e8c581256be0fc64ca4f257b46c6f802deb15f057d83d514c56135f24cede20",
+      "size": 2383
+    },
+    {
+      "base_sha256": null,
+      "mode": "0o664",
+      "path": "work/records/2026/11/finding-v12-output-publication-recovery/evidence/checkpoint2-385695/REPORT.md",
+      "sha256": "eebf68c93dc4e7a94bfc441f88e2d7ff1795d3d69868f80e228ae75845759bb8",
+      "size": 7859
+    },
+    {
+      "base_sha256": null,
+      "mode": "0o664",
+      "path": "work/records/2026/11/finding-v12-output-publication-recovery/evidence/checkpoint2-385695/focused.log",
+      "sha256": "8b3e2f9b33b8b0b40fdb9cb9fcc28bc72a6452b5587f167099c7b99041d04e7d",
+      "size": 119277
+    }
+  ],
+  "reconstruction": "preserve original bundle then apply delta.patch to retained candidate, or overlay candidate-files on exact base; isolated repositories only",
+  "retained_candidate": "4e8fbe1c3b596f2f5db9f03b6c63572c9b198df7",
+  "status": "incomplete checkpoint 2; safety delta for review and continuation, not acceptance or import"
+}

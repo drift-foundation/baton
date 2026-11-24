@@ -116,6 +116,16 @@ MAX_CONFIG_BYTES = 4 * 1024 * 1024
 # text. Each one selects which accepted driver a worker is composed under, and
 # a fourth word would be a stage nobody has a driver for.
 ROLES = ("implementation", "review", "integration")
+# W385695 / REC-9: AND ONE MORE A DEPLOYMENT MAY CONFIGURE, kept OUT of
+# `ROLES` on purpose. `ROLES` is what one ordinary Job needs and what every
+# consumer of that name -- the analysis and judgment preflights, the
+# every-role-served rule -- means by it. The deterministic publication worker
+# is not one of a Job's three: it is installed once, serves only publication
+# recovery stages in its own lane, and is optional. A deployment that did not
+# install one serves exactly what it always served, and a recovery admitted
+# against it is HELD by the admission boundary naming this owner.
+PUBLICATION_ROLE = "publication"
+WORKER_ROLES = ROLES + (PUBLICATION_ROLE,)
 
 # WHICH ROLES MAY NOT SHARE A PARTICIPANT OR A PRINCIPAL. Independence is the
 # whole reason a review exists, and `attach_review` already refuses a reviewer
@@ -968,7 +978,7 @@ def _held_workers(workers, checkout, authority_uuid, *, many=False,
         worker = _document(one, "a configured worker", _WORKER_MEMBERS)
         _text(worker["worker_id"], "a worker id")
         role = _text(worker["role"], "a worker role")
-        if role not in ROLES:
+        if role not in WORKER_ROLES:
             _refuse(f"{role!r} is not a stage role; this deployment composes "
                     f"{', '.join(ROLES)}")
         # THE ROLE RULE FIRST, so the one-Job variant's refusal is the exact
@@ -995,7 +1005,7 @@ def _held_workers(workers, checkout, authority_uuid, *, many=False,
         # THE LAUNCH HALF IS `single_worker`'S OWN DOCUMENT, held by its own
         # validator. A second copy of those rules here is a second place for
         # them to drift from the composition that actually uses them.
-        deployment = single_worker._held(named, roles=ROLES)
+        deployment = single_worker._held(named, roles=WORKER_ROLES)
         # THE WORKER'S OWN ROLE AND THE STAGE IT IS CONFIGURED FOR ARE ONE
         # FACT. `_SingleWorker` holds every stage it is offered to its
         # configured `launch_role`, so a worker composed under this
@@ -1027,6 +1037,27 @@ def _held_workers(workers, checkout, authority_uuid, *, many=False,
     if missing:
         _refuse(f"this deployment serves {', '.join(ROLES)} and names no "
                 f"worker for {', '.join(missing)}")
+    # W385695 (review 2026-11-23T18-55-03Z R1): ONE DEDICATED PUBLICATION
+    # WORKER. It is the reusable capacity every approved recovery is derived
+    # for -- `publication_input_identity` and the admission both name "the"
+    # installed publication worker -- so two would be two answers to a
+    # question asked in the singular; and the contract's words for it are "a
+    # dedicated deterministic publication worker/participant ... its own
+    # principal", because a recovery's reviewer is held independent of both
+    # the original producer and the publisher. Held here, in the validator
+    # both the install path and `pool add-worker` call.
+    publishers = seen_roles.get(PUBLICATION_ROLE, [])
+    if len(publishers) > 1:
+        _refuse(f"this deployment configures {len(publishers)} publication "
+                f"workers ({', '.join(publishers)}) and serves recoveries "
+                f"through exactly one installed, reusable publisher")
+    for value, roles in list(participants.items()) + list(principals.items()):
+        if PUBLICATION_ROLE in roles and len(roles) > 1:
+            _refuse(f"{value!r} is configured for the publication worker and "
+                    f"also for {', '.join(sorted(set(roles) - {PUBLICATION_ROLE}))}; "
+                    f"the deterministic publisher is a dedicated participant "
+                    f"with its own principal", category="policy",
+                    code="denied")
     _independent(participants, "participant")
     _independent(principals, "principal")
     return held
@@ -1453,16 +1484,50 @@ class StageComposition:
                     category="refused", code="precondition")
         return held["boundary"]
 
+    def reviewer_verification_for(self, stage):
+        """W385695 (review 2026-11-24T00-28-00Z C2): the reviewer's OWN required
+        verification for a publication recovery, or `None`.
+
+        `argv` is the command the owner's decision bound -- the admitted
+        task's own verification, read from the committed decision and not
+        from a worker -- and `command_seconds` is the owner-selected
+        per-command bound. Only a publication recovery carries one: a retained
+        verification recovery exists because the task's verifier was wrong,
+        and its corrected command already ran in the manager's own stage.
+        """
+        from baton_v12.job_manager import publication_execution, publication_recovery
+        if self.role != "review":
+            return None
+        handoff = publication_execution.handoff_of(self.deployment.jobs, stage["job_id"])
+        if handoff is None:
+            return None
+        decision = publication_recovery.decision_of(self.deployment.jobs, handoff["decision_id"])
+        return {"argv": list(decision["expected"]["producer_argv"]),
+                "command_seconds": publication_recovery.SELECTED_REVIEW_COMMAND_SECONDS}
+
     def recovery_document_for(self, stage):
         from baton_v12.job_manager import retained_verification
         if self.role != "review":
             return None
         handoff = retained_verification.handoff_of(self.deployment.jobs, stage["job_id"])
+        required = None
+        if handoff is None:
+            # W385695: THE PUBLICATION RECOVERY'S HAND-OFF IS THE SAME KIND OF
+            # INPUT. A Job is one recovery or the other, never both, so the
+            # second read is asked only where the first found nothing.
+            from baton_v12.job_manager import publication_execution
+            handoff = publication_execution.handoff_of(self.deployment.jobs, stage["job_id"])
+            required = self.reviewer_verification_for(stage)
         if handoff is None:
             return None
-        return (json.dumps({"schema": "baton.recovery-review-input/1",
-                            "handoff": handoff, "handoff_digest": digest(handoff)},
-                           sort_keys=True) + "\n").encode("utf-8")
+        document = {"schema": "baton.recovery-review-input/1",
+                    "handoff": handoff, "handoff_digest": digest(handoff)}
+        if required is not None:
+            # THE REQUIREMENT TRAVELS WITH THE INPUT, so the confined adapter
+            # runs and bounds the command itself rather than being trusted to.
+            document["reviewer_verification"] = {
+                "required": True, "command_seconds": required["command_seconds"]}
+        return (json.dumps(document, sort_keys=True) + "\n").encode("utf-8")
 
     def handoff_document_for(self, stage):
         """W385331: the native handoff context THIS attempt is delivered.
@@ -1572,8 +1637,17 @@ class StageComposition:
         if recovered is not None:
             self._prepared[attempt_id] = recovered
             return recovered
-        line = deployment.line_for(stage["job_id"])
-        if self.role == "review":
+        # W385695 R1: A PUBLICATION RECOVERY'S REVIEW HAS NO LINE OF ITS OWN.
+        # Its candidate is on the ORIGINAL producer's line, so that line is
+        # asked of the line owner through the committed hand-off BEFORE any
+        # line is created or materialized for this Job -- a recovery whose
+        # original writer this store cannot find refuses here, typed, rather
+        # than materializing a second checkout nobody wrote into.
+        line = self._published_checkpoint_line(stage) if self.role == "review" else None
+        published = line is not None
+        if line is None:
+            line = deployment.line_for(stage["job_id"])
+        if self.role == "review" and not published:
             from baton_v12.job_manager import retained_verification
             handoff = retained_verification.handoff_of(deployment.jobs, stage["job_id"])
             if handoff is not None:
@@ -1617,6 +1691,39 @@ class StageComposition:
         held = dict(prepared, generation=generation)
         self._prepared[attempt_id] = held
         return held
+
+    def _published_checkpoint_line(self, stage):
+        """W385695 R1: the line holding a PUBLICATION recovery's candidate,
+        frozen for review, or `None` for a Job that is no such recovery.
+
+        The recovery Job has no implementation stage and so no line of its
+        own: the candidate is on the ORIGINAL producer's line, whose writer
+        faulted at publication and was never released. The line owner freezes
+        that exact approved candidate under its recovery fence
+        (`freeze_unreleased_recovered_checkpoint`), on its own proof of the
+        runtime's absence; this composition supplies only the committed
+        hand-off's identities and decides nothing.
+        """
+        from baton_v12.job_manager import publication_execution
+        from baton_v12.worker_manager import attempts
+        deployment = self.deployment
+        handoff = publication_execution.handoff_of(deployment.jobs, stage["job_id"])
+        if handoff is None:
+            return None
+        control = deployment.control
+        failed = handoff["failed_attempt_id"]
+        candidate = {key: handoff["candidate"][key] for key in ("base", "head")}
+        checkpoint = review_cycles.freeze_unreleased_recovered_checkpoint(
+            control, attempt_id=failed,
+            generation=attempts.assignment_of(control, failed)["generation"],
+            profile=deployment.profile, candidate=candidate,
+            retention_policy_digest=deployment.retention_policy_digest)
+        if any(checkpoint["evidence"][key] != candidate[key] for key in ("base", "head")):
+            _refuse("review checkpoint differs from the publication handoff", category="integrity", code="digest")
+        line = review_cycles.line_of(control, checkpoint["line_id"])
+        if line["current_checkpoint_id"] != checkpoint["checkpoint_id"]:
+            _refuse("the recovered publication checkpoint is no longer current", category="integrity", code="digest")
+        return line
 
     def _recovered(self, attempt_id, generation, preparing=None,
                    boundary=True):
@@ -1921,6 +2028,7 @@ class StageComposition:
                 retention_policy_digest=deployment.retention_policy_digest,
                 recovery_digest=(None if self.recovery_document_for(stage) is None else
                                  json.loads(self.recovery_document_for(stage))["handoff_digest"]),
+                reviewer_verification=self.reviewer_verification_for(stage),
                 # W275774: and the reviewer's own governed workspace, for the same
                 # reason the producer's is returned above.
                 govern=tokens.workspace_governance())
@@ -4158,6 +4266,34 @@ class Integration:
         return observed
 
 
+def _held_producer_sessions(deployment):
+    """A LOOKUP over the producer sessions this deployment ALREADY holds.
+
+    W385695 / REC-9. `_minted` mints one raw participant-bound session per
+    configured implementation worker -- the same sessions the per-producer
+    `Publication` seams are composed over -- and keeps them on
+    `deployment.sessions` under `publisher` (one producer) or
+    `publisher:<participant>` (several). This answers the one a prior
+    assignment's ending needs, by the participant the Authority reports as
+    the live handler, and `None` for anybody else.
+
+    IT MINTS NOTHING. A participant this deployment does not serve as a
+    producer has no session here, and inventing one would be the arbitrary
+    session factory REC-9's contract rules out.
+    """
+    def held(participant):
+        sessions = deployment.sessions or {}
+        for name, session in sessions.items():
+            if name != "publisher" \
+                    and not name.startswith(PUBLISHER_PREFIX):
+                continue
+            if getattr(session, "participant", None) == participant:
+                return session
+        return None
+
+    return held
+
+
 def _sole_producer(given):
     """The one implementation participant, where there is exactly one."""
     producers = sorted({one["deployment"]["participant"]
@@ -5208,6 +5344,9 @@ class StageExecution:
         # than raise out of a delegation.
         self.recovery_analysis = None
         self.recovery_verification = None
+        # W385695 / REC-9: the publication seam, bound here for the same
+        # reason -- `manager._publish` discovers it with `getattr`.
+        self.recovery_publication = None
         self.authority = authority
         self.integration = integration
         self.workers = workers
@@ -5997,6 +6136,51 @@ def _with_job_task(held, binding, job_task):
                 task_bytes=composer.delivered_bytes(job_task))
 
 
+def _manifest_for_work(manifest, work_id):
+    """One input manifest naming ANOTHER WORK of the same Authority, and
+    identifying itself.
+
+    THE AUTHORITY DOES NOT MOVE: a Work is reused inside the deployment that
+    owns it, and a manifest rebound across Authorities would be another
+    deployment's document. The digest is recomputed by section 12's rule and
+    the result is proved by its own owner before anybody is handed it, which
+    is `job_task.manifest_for`'s discipline for the other per-Job member.
+    """
+    from baton_v12.contracts.manifest import check_manifest_structure
+
+    if manifest["work_ref"]["work_id"] == work_id:
+        return manifest
+    held = dict(manifest)
+    held["work_ref"] = dict(manifest["work_ref"], work_id=work_id)
+    held["manifest_digest"] = digest(
+        {name: value for name, value in held.items()
+         if name != "manifest_digest"})
+    return check_manifest_structure(
+        held, "inputManifest",
+        what="a publication recovery's input manifest")
+
+
+def publication_input_identity(given, binding, job_task=None):
+    """The Job-scoped identity ONE recovery is submitted under, from
+    documents alone.
+
+    THE ADMISSION'S QUESTION, answered by the rule that serves the stage. The
+    installed publication worker is found by its role -- the one place a
+    deployment says which worker that is -- and the document it would serve
+    THIS binding under is `_served_deployment`'s, so what a recovery Job is
+    submitted under is by construction what the selector and the delivery
+    will hold it to. `None` when this deployment installs no such worker.
+    """
+    for one in given.get("workers") or []:
+        if one.get("role") == PUBLICATION_ROLE:
+            served = _served_deployment(given, one, binding, job_task)
+            return job_input_identity(
+                served["input_manifest"],
+                what="the installed publication worker's input for this "
+                     "recovery")
+    return None
+
+
 def _served_deployment(given, worker, binding, job_task=None):
     """The held deployment this worker actually serves THIS Job's stage under.
 
@@ -6047,6 +6231,30 @@ def _served_deployment(given, worker, binding, job_task=None):
     # against a deployment that composes none -- and its delivery is the
     # installed one exactly as before.
     held = _with_job_task(held, binding, job_task)
+    if worker["role"] == PUBLICATION_ROLE and binding["job_id"] is not None:
+        # W385695 / REC-9 (review 2026-11-23T18-55-03Z R3): THE PUBLICATION
+        # ROLE IS THE OTHER ONE THAT IS NOT CONFIGURED PER JOB. It is
+        # installed once and serves every approved recovery, so the Work its
+        # installed manifest names is the Work it was installed against and
+        # not the Work of the recovery in hand.
+        #
+        # WHAT IS PER RECOVERY IS THE WORK AND THE TASK, AND NOTHING ELSE. The
+        # Work is the binding's -- the original Job's, which a recovery
+        # reuses -- and the task is the original Job's own, substituted above
+        # by the rule every role shares. The declared outputs, the policy,
+        # the profile, the image and the source declaration stay the
+        # installed publication worker's: they are the selected publication
+        # declarations, and a recovery that could move one would be choosing
+        # its own output ceiling.
+        #
+        # ONE DERIVATION, THREE READERS. The admission asks the deployment
+        # for this document's Job-scoped identity and submits the recovery
+        # under it; `servable_workers` compares it; `_publication_operations`
+        # composes the delivery from it. `_disagreements` is unchanged and
+        # still refuses a wrong Work -- it is simply shown the document this
+        # recovery is really served under.
+        return dict(held, input_manifest=_manifest_for_work(
+            held["input_manifest"], binding["job_work_id"]))
     if worker["role"] != "integration" or binding["job_id"] is None:
         return held
     # W130224: THE MANIFEST AND THE TASK IT NAMES MOVE TOGETHER. `_held`
@@ -6137,6 +6345,15 @@ def _job_workers(deployment, stage, job=None):
     binding = deployment.binding_for(stage["job_id"])
     if job is None:
         job = job_of(deployment.jobs, stage["job_id"])
+    if stage.get("kind") == PUBLICATION_ROLE:
+        # W385695: THE TYPED PUBLICATION EDGE. A recovery Job's row carries
+        # the identity its REVIEW stage is served under; its publication stage
+        # is held to its own, the reservation's recorded publication input.
+        # `_disagreements` is unchanged and compares exactly as it always
+        # does -- it is handed the identity that is this stage's.
+        from baton_v12.job_manager import publication_recovery
+
+        job = publication_recovery.stage_job(deployment.jobs, stage, job)
     # THE JOB'S OWN HELD IDENTITY, not the deployment's global one.
     if stage.get("work_id") not in (None, binding["job_work_id"]):
         _refuse(f"stage {stage.get('stage_id')!r} names Work "
@@ -7101,8 +7318,14 @@ def _pool(given, resolved):
     for one in given["workers"]:
         deployment = one["deployment"]
         workers.append({"worker_id": one["worker_id"],
-                        "lane": "review" if one["role"] == "review"
-                                else "implementation",
+                        # W385695: AND A PUBLICATION WORKER IS IN THE
+                        # PUBLICATION LANE, explicitly. It fell through to
+                        # `implementation` here, which is the one mapping
+                        # REC-9's contract forbids by name.
+                        "lane": ("review" if one["role"] == "review"
+                                 else scheduler.PUBLICATION_LANE
+                                 if one["role"] == PUBLICATION_ROLE
+                                 else "implementation"),
                         "participant": deployment["participant"],
                         "profile_name": deployment["profile_name"],
                         "profile_digest": deployment["profile_digest"],
@@ -7326,6 +7549,70 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
                 # review exists -- so what the composition keeps is the capacity
                 # itself rather than a port built too early.
                 deployment._integration_operations = operations
+            elif one["role"] == PUBLICATION_ROLE:
+                # W385695 / REC-9: THE DETERMINISTIC PUBLICATION WORKER, on
+                # the ordinary worker lifecycle with its own stage owner.
+                #
+                # THE SAME `worker_operations` EVERY OTHER ROLE GETS, composed
+                # by `publication_worker.publication_operations` with
+                # `PublicationStage` as the mount and the ending. No provider
+                # is composed in: the preflight refused a publication worker
+                # that declares a credential slot, so `provider` is never
+                # asked.
+                #
+                # AND THE ENDING PORT IS THIS DEPLOYMENT'S OWN SESSIONS. A
+                # recovery reuses the failed Job's open Work, whose assignment
+                # the failed producer may still hold; the only session that
+                # can end it is that producer participant's, and this
+                # composition already minted it for its implementation
+                # workers. The port is handed a LOOKUP over exactly those
+                # held sessions -- it mints nothing, and answers `None` for a
+                # participant this deployment does not serve, which the port
+                # turns into the typed capability refusal.
+                from tools import publication_worker
+                from tools.fresh_attempt_ports import (HostExclusion,
+                                                       instance_identity)
+                from tools.publication_ports import HostOutput, PriorAssignment
+
+                identity = instance_identity(
+                    os.path.dirname(given["state_root"]))
+                # ONE HELD OPERAND SET PER BOUND RECOVERY (review
+                # 2026-11-23T18-55-03Z R3). The installed worker names the
+                # Work it was installed against; a recovery runs on the
+                # original Job's Work under the original Job's task, so the
+                # document each is served under is derived here by
+                # `_served_deployment` -- the same call `servable_workers`
+                # makes and the same identity the admission submitted under.
+                # ONLY RECOVERIES ARE DERIVED FOR: an ordinary Job has no
+                # publication stage, and which bound Jobs are recoveries is
+                # the recovery owner's committed lineage, not a guess from a
+                # name.
+                from baton_v12.job_manager import publication_recovery
+
+                tasks = single_worker.job_task_reader(job_store)
+                recoveries = {
+                    binding["job_id"]: _served_deployment(
+                        given, one, binding,
+                        tasks(job_id=binding["job_id"]))
+                    for binding in given["job_bindings"]
+                    if binding["job_id"] is not None
+                    and publication_recovery.prior_job_of(
+                        job_store, binding["job_id"]) is not None}
+                operations, publishing = \
+                    publication_worker.publication_operations(
+                        one["deployment"], jobs=job_store,
+                        control=control_store, authority=composed.authority,
+                        provider=provider, served=recoveries,
+                        host=HostOutput(control_store, identity),
+                        exclusion=HostExclusion(control_store,
+                                                identity=identity),
+                        identity=identity, engine_run=engine_run,
+                        clock=clock, lifetime_policy=lifetime_policy,
+                        dispose=lambda: None,
+                        ending=PriorAssignment(
+                            composed.authority, identity,
+                            sessions=_held_producer_sessions(deployment)))
+                composed.recovery_publication = publishing.seam
             else:
                 # W363066: AND THE PER-JOB TASK READER, for both ordinary
                 # roles. The worker's configuration stays the installed one --

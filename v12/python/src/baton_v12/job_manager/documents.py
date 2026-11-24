@@ -76,9 +76,12 @@ __all__ = ["ACTS", "CONTRACTS", "CORRECTION_ENDINGS", "DEPENDENCY_MEMBERS",
            "ABANDONED_RESTART_SCHEMA", "abandoned_restart",
            "EXCHANGE_ACTS", "stage_exchange",
            "JOB_MEMBERS",
-           "MAX_JOBS", "MAX_STAGES", "REPLACEABLE_ENDINGS", "STAGE_KINDS",
+           "MAX_JOBS", "MAX_STAGES", "ORDINARY_STAGE_KINDS",
+           "PUBLICATION_STAGE", "RECOVERY_STAGES",
+           "REPLACEABLE_ENDINGS", "STAGE_KINDS",
            "STAGE_MEMBERS", "STAGE_STATES", "STATUS_SCHEMA",
-           "SUBMISSION_LIMITS_SCHEMAS",
+           "SUBMISSION_CONTROL_SCHEMA", "SUBMISSION_CONTROL_SCHEMAS",
+           "SUBMISSION_LIMITS_SCHEMAS", "SUBMISSION_RECOVERY_SCHEMA",
            "SUBMISSION_MEMBERS", "SUBMISSION_SCHEMA", "SUBMISSION_SCHEMAS",
            "TERMINAL_POLICIES",
            "TERMINAL_STAGE_STATES", "act", "correction", "dependency_gate", "recovery_gate",
@@ -88,7 +91,8 @@ __all__ = ["ACTS", "CONTRACTS", "CORRECTION_ENDINGS", "DEPENDENCY_MEMBERS",
            "stage_episode", "stage_id", "stage_launch", "stage_status",
            "status",
            "fresh_attempt_admitted",
-           "publication_gate",
+           "publication_act", "publication_gate",
+           "publication_handoff",
            "recovery_analysis", "recovery_successor",
            "submission_recorded", "submission_signature", "sweep_report",
            "template_job_created"]
@@ -109,12 +113,31 @@ SUBMISSION_SCHEMA = "baton.v12.job-submission/2"
 # Job that selects a profile needs /3, for the reason /2 exists: one intent,
 # one identity.
 SUBMISSION_CONTROL_SCHEMA = "baton.v12.job-submission/3"
+# W385695 / DESIGN REC-9 added /4, and it is the ONE generation that admits a
+# `publication` stage. The version is in the name for the reason /2 and /3 are:
+# a build written against /3 would read a publication stage as a kind it does
+# not know and -- because `scheduler._lane` used to map every non-review stage
+# to the implementation lane -- would OFFER it to an implementation worker.
+# An older binary must refuse this document rather than serve it wrongly, and
+# refusing an unrecognised schema name is the only refusal it already has.
+#
+# IT IS NOT A WIDER /3. A /4 Job is one publication stage followed by one
+# review stage on the original Work, and nothing else: no implementation, no
+# verification and no integration. So the shape is checked against the
+# generation rather than against a flag, and /1 to /3 keep exactly the
+# three-kind vocabulary they shipped with.
+SUBMISSION_RECOVERY_SCHEMA = "baton.v12.job-submission/4"
 SUBMISSION_SCHEMAS = ("baton.v12.job-submission/1", SUBMISSION_SCHEMA,
-                      SUBMISSION_CONTROL_SCHEMA)
+                      SUBMISSION_CONTROL_SCHEMA, SUBMISSION_RECOVERY_SCHEMA)
 # Which submitted members each version admits. `execution_limits` is optional
 # even in /2: a Job that configures nothing is the ordinary case.
-SUBMISSION_LIMITS_SCHEMAS = (SUBMISSION_SCHEMA, SUBMISSION_CONTROL_SCHEMA)
-SUBMISSION_CONTROL_SCHEMAS = (SUBMISSION_CONTROL_SCHEMA,)
+SUBMISSION_LIMITS_SCHEMAS = (SUBMISSION_SCHEMA, SUBMISSION_CONTROL_SCHEMA,
+                             SUBMISSION_RECOVERY_SCHEMA)
+# AND /4 CARRIES A CONTROL PROFILE LIKE /3 DOES, because a recovery Job is
+# admitted under the owner-approved finite profile and a generation that could
+# not state one would be a recovery nothing bounds.
+SUBMISSION_CONTROL_SCHEMAS = (SUBMISSION_CONTROL_SCHEMA,
+                              SUBMISSION_RECOVERY_SCHEMA)
 # W73629 moved this to /2. A stage now reports the EPISODES it has been through
 # and its offer/attempt identities name the current one, so a reader written
 # against /1 would see one stage's history as the stage itself. The version is
@@ -155,7 +178,36 @@ STATUS_SCHEMA = "baton.v12.job-status/9"
 # vocabulary rather than free text because the projection below maps each one
 # onto the state an operator reads -- `reviewing` is what a claimed review
 # stage is, and a kind nobody named could only be projected as a guess.
-STAGE_KINDS = ("implementation", "review", "integration")
+#
+# W385695 / DESIGN REC-9 ADDED THE FOURTH, and it is deliberately a member of
+# the one closed vocabulary rather than a second one living beside it. A
+# publication stage is a stage this control plane carries: the projection maps
+# it onto a state an operator reads, the scheduler allocates it in a lane of
+# its own, and a kind nobody named could only be projected as a guess -- which
+# is the sentence above, unchanged.
+#
+# WHICH DOCUMENT MAY NAME IT IS A DIFFERENT QUESTION, and `ORDINARY_STAGE_KINDS`
+# is that answer: /1 to /3 and every ordinary template keep the three kinds
+# they shipped with, and `publication` is reachable only through the `/4`
+# recovery generation the output-publication-recovery owner admits.
+PUBLICATION_STAGE = "publication"
+STAGE_KINDS = ("implementation", PUBLICATION_STAGE, "review", "integration")
+ORDINARY_STAGE_KINDS = ("implementation", "review", "integration")
+# THE EXACT ORDERED SET A /4 JOB IS, compared as a SEQUENCE because the order
+# is part of the selection: publication is the producer edge the review
+# consumes, and the reverse would be a review of something nothing published.
+RECOVERY_STAGES = (PUBLICATION_STAGE, "review")
+# ONE SPELLING, PROVED AT IMPORT. `job_control` keeps the publication stage
+# kind too -- it has to, because the finite control's per-stage sub-bound is a
+# fact about that KIND and `job_control` cannot import this module without a
+# cycle. Two spellings of one identity are two chances for a sub-bound to stop
+# applying to the stage it bounds, and a failing import is the only way to be
+# told about it before a recovery runs unbounded.
+if PUBLICATION_STAGE != job_control.PUBLICATION_STAGE_KIND:  # pragma: no cover
+    raise AssertionError(
+        f"the stage vocabulary names {PUBLICATION_STAGE!r} and the control "
+        f"owner bounds {job_control.PUBLICATION_STAGE_KIND!r}; one stage kind "
+        f"has one spelling")
 
 # W71830's first-slice ruling, as a vocabulary of exactly one member: a wedged
 # or failed Job is REPORTED AND CONTAINED, and this leaf does not discard,
@@ -363,6 +415,16 @@ def owned_submission(document):
     submission_id = boundaries.identity(taken["submission_id"],
                                         "a submission id")
     jobs = _sequence(taken["jobs"], "a job submission's jobs", MAX_JOBS)
+    # W385695: AND A RECOVERY GENERATION CARRIES EXACTLY ONE JOB. The owner's
+    # selection is "exactly one publication stage followed by one review
+    # stage, ONE approved recovery selection"; a `/4` document carrying two
+    # Jobs would be two recoveries admitted on one decision, which is the
+    # duplicate effect the admission fence exists to prevent arriving one
+    # layer earlier.
+    if taken["schema"] == SUBMISSION_RECOVERY_SCHEMA and len(jobs) != 1:
+        _refuse(f"an {name_value(SUBMISSION_RECOVERY_SCHEMA)} submission "
+                f"carries exactly one Job and this one carries {len(jobs)}; "
+                f"one owner decision admits one recovery")
     owned = [_job(entry, taken["schema"]) for entry in jobs]
     _unique([one["job_id"] for one in owned], "job id", "a job submission")
     _resolvable(owned)
@@ -422,8 +484,9 @@ def _job(entry, schema=SUBMISSION_SCHEMA):
     # integrator do with the scope is W71918's and W71878's.
     scope = _paths(taken["test_scope"], job_id)
     stages = _sequence(taken["stages"], f"Job {job_id}'s stages", MAX_STAGES)
-    owned = [_stage(job_id, one) for one in stages]
+    owned = [_stage(job_id, one, schema) for one in stages]
     _unique([one["kind"] for one in owned], "stage kind", f"Job {job_id}")
+    _generation_shape(job_id, owned, schema)
     held = {"job_id": job_id, "input_digest": input_digest,
             "policy_digest": policy_digest, "test_scope": scope,
             "terminal_policy": taken["terminal_policy"], "stages": owned}
@@ -490,7 +553,52 @@ def _paths(value, job_id):
     return scope
 
 
-def _stage(job_id, entry):
+def _generation_shape(job_id, owned, schema):
+    """WHICH STAGE SET THIS SUBMISSION GENERATION ADMITS.
+
+    TWO RULES AND THEY ARE TWO. A /1 to /3 Job may not carry a publication
+    stage at all -- the kind did not exist in the vocabulary those documents
+    were written against, and admitting one would be this build reading an
+    operator's ordinary submission as a recovery. A /4 Job is EXACTLY one
+    publication stage followed by one review stage, with the review gated on
+    that publication, which is the shape the owner selected: no implementation
+    to redispatch, no verification to repeat, no integration nobody chose.
+
+    THE ORDER IS COMPARED AS A SEQUENCE, not as a set, for `RECOVERY_STAGES`'
+    reason; and the review's dependency is compared because a /4 whose review
+    gated on nothing would be a review admitted beside its own producer.
+    """
+    kinds = tuple(one["kind"] for one in owned)
+    if schema != SUBMISSION_RECOVERY_SCHEMA:
+        if PUBLICATION_STAGE in kinds:
+            _refuse(f"Job {name_value(job_id)} carries a "
+                    f"{name_value(PUBLICATION_STAGE)} stage and this "
+                    f"submission is {name_value(schema)}; a publication stage "
+                    f"is admitted only by {name_value(SUBMISSION_RECOVERY_SCHEMA)}, "
+                    f"which is the output-publication-recovery generation. An "
+                    f"ordinary Job's stages are "
+                    f"{', '.join(ORDINARY_STAGE_KINDS)}")
+        return owned
+    if kinds != RECOVERY_STAGES:
+        _refuse(f"an output-publication recovery Job carries "
+                f"{', '.join(RECOVERY_STAGES)} in that order; Job "
+                f"{name_value(job_id)} carries {', '.join(kinds) or 'nothing'}. "
+                f"A recovery publishes an existing output and hands it to "
+                f"review, and it never redispatches the work that produced it "
+                f"or repeats the producer's own verifier")
+    review = [one for one in owned if one["kind"] == "review"][0]
+    gates = {stage_id(one["job_id"], one["kind"]) for one in
+             review["depends_on"]}
+    wanted = stage_id(job_id, PUBLICATION_STAGE)
+    if gates != {wanted}:
+        _refuse(f"Job {name_value(job_id)}'s review stage gates on "
+                f"{sample_of(sorted(gates)) if gates else 'nothing'} and a "
+                f"recovery review consumes exactly {name_value(wanted)}; the "
+                f"publication is the producer edge this review is about")
+    return owned
+
+
+def _stage(job_id, entry, schema=SUBMISSION_SCHEMA):
     taken = boundaries.document(entry, f"a stage of Job {job_id}",
                                 required=STAGE_MEMBERS)
     if taken["kind"] not in STAGE_KINDS:
@@ -653,9 +761,40 @@ CONTRACTS = {
     # members because an answer that said a gate is closed without saying
     # whether anything could run, or what is still owed, is the answer that
     # reads as progress.
+    #
+    # W385695 checkpoint 2 ADDS TWO OPTIONAL MEMBERS and changes no required
+    # one. `bindings` is the exact custody/handoff binding set this gate was
+    # decided against -- which is what a closed gate owes a reader once the
+    # prerequisites ARE installed and the missing thing is a fact about one
+    # execution rather than about this build -- and `stage_id` names the
+    # review stage the gate is on. Optional, because the checkpoint-1 shape
+    # that carried neither is still a valid rendering of a gate decided before
+    # any execution existed.
     "stage.publication-gate": (("job_id", "open", "reason", "decision_id",
                                 "prior_job_id", "candidate", "runnable",
-                                "prerequisites"), ()),
+                                "prerequisites"), ("bindings", "stage_id")),
+    # W385695 checkpoint 2: THE VALIDATED PUBLICATION -> REVIEW HANDOFF, and
+    # the ONE record that opens the gate above. Every member is a binding the
+    # gate is decided on rather than a description of one: the owner decision,
+    # the ORIGINAL failed attempt and its candidate, the NEW publication
+    # attempt, the frozen result it published, the custody it entered, the
+    # intake receipt that proves it, and the review stage plus the reviewer
+    # input and servability the next stage is admitted against.
+    "stage.publication-handoff": (("decision_id", "job_id", "prior_job_id",
+                                   "review_stage_id", "publication_stage_id",
+                                   "publication_attempt_id", "failed_attempt_id",
+                                   "candidate", "output", "provenance",
+                                   "custody", "intake", "reviewer",
+                                   "deadline", "handed_at"), ()),
+    # W385695 checkpoint 2: ONE ACT of the publication execution pass. `act`
+    # is `stage`, `publish`, `custody` or `hand-off`; `outcome` is the same
+    # closed set every other level-triggered pass answers with -- did this
+    # tick perform it, hold it, or find it refused. `detail` carries only
+    # closed words this manager owns: a contained refusal's typed category and
+    # code, or the attempt the act was about. Never a refusal's prose and
+    # never a worker's message.
+    "publication.execution": (("decision_id", "job_id", "act", "outcome"),
+                              ("detail",)),
     # One attempt at admitting one stage. `ended_state` is null while it is
     # live, and the three ending members travel together because an ending
     # nobody can order against the next assertion is not one.
@@ -898,8 +1037,25 @@ def recovery_gate(**members):
 
 
 def publication_gate(**members):
-    """W385695: the CLOSED review gate of one approved publication recovery."""
+    """W385695: the review gate of one approved publication recovery.
+
+    CLOSED UNTIL A VALIDATED HANDOFF EXISTS, which is REC-9's own sentence and
+    is the whole of what this document reports: which decision it is about,
+    which candidate, and -- when it is shut -- the exact binding that is
+    missing. `open` is never a field a caller supplies: it is derived from the
+    committed handoff record by the owner that emits this.
+    """
     return _emit("stage.publication-gate", members)
+
+
+def publication_handoff(**members):
+    """W385695: the validated publication->review candidate handoff."""
+    return _emit("stage.publication-handoff", members)
+
+
+def publication_act(**members):
+    """W385695 checkpoint 2: one act of the publication execution pass."""
+    return _emit("publication.execution", members)
 
 
 def dependency_gate(**members):

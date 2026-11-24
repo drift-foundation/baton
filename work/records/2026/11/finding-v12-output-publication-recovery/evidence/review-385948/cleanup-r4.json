@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385944/probes/probe-cleanup-r4.py"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385941/v12/python",
+  "exit_status": 0,
+  "timed_out": false,
+  "wall_seconds": 61.17361279204488,
+  "unittest_summary": [
+    "10",
+    "61.127"
+  ],
+  "log_sha256": "70d94a39bcc051803144fb6845730f9408aa40336f4f38cfde081184e8267911"
+}

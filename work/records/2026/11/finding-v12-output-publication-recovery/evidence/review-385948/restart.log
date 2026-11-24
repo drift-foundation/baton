@@ -1,0 +1,45 @@
+{"cwd": "/home/sl/src/baton/work/scratch/w385695-review-385941/v12/python", "argv": ["/home/sl/.local/state/baton-v12-venv/bin/python", "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385948/probe-restart.py"], "timeout_seconds": 30, "scratch": "/home/sl/src/baton/work/scratch/w385695-review-385948-tests"}
+test_image_remove_failure_cannot_report_success (__main__.Restart.test_image_remove_failure_cannot_report_success) ... FAIL
+test_qualification_retained_start_without_operation_receipt_stays_unresolved (__main__.Restart.test_qualification_retained_start_without_operation_receipt_stays_unresolved) ... FAIL
+test_setup_retained_start_without_operation_receipt_stays_unresolved (__main__.Restart.test_setup_retained_start_without_operation_receipt_stays_unresolved) ... FAIL
+
+======================================================================
+FAIL: test_image_remove_failure_cannot_report_success (__main__.Restart.test_image_remove_failure_cannot_report_success)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385948/probe-restart.py", line 37, in test_image_remove_failure_cannot_report_success
+    self.assertNotEqual(done.returncode,0,'failed removal prints UNRESOLVED but never marks the phase unresolved')
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : failed removal prints UNRESOLVED but never marks the phase unresolved
+
+======================================================================
+FAIL: test_qualification_retained_start_without_operation_receipt_stays_unresolved (__main__.Restart.test_qualification_retained_start_without_operation_receipt_stays_unresolved)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385948/probe-restart.py", line 26, in test_qualification_retained_start_without_operation_receipt_stays_unresolved
+    def test_qualification_retained_start_without_operation_receipt_stays_unresolved(self):self.retained_intent('qualify-w385695.sh')
+                                                                                           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385948/probe-restart.py", line 21, in retained_intent
+    self.assertTrue(retained,'missing operation receipt was treated as cessation; retained intent cleared before late effect')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : missing operation receipt was treated as cessation; retained intent cleared before late effect
+
+======================================================================
+FAIL: test_setup_retained_start_without_operation_receipt_stays_unresolved (__main__.Restart.test_setup_retained_start_without_operation_receipt_stays_unresolved)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385948/probe-restart.py", line 27, in test_setup_retained_start_without_operation_receipt_stays_unresolved
+    def test_setup_retained_start_without_operation_receipt_stays_unresolved(self):self.retained_intent('option-a-setup.sh')
+                                                                                   ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385948/probe-restart.py", line 21, in retained_intent
+    self.assertTrue(retained,'missing operation receipt was treated as cessation; retained intent cleared before late effect')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : missing operation receipt was treated as cessation; retained intent cleared before late effect
+
+----------------------------------------------------------------------
+Ran 3 tests in 5.924s
+
+FAILED (failures=3)
+IMAGE_REMOVE_FAILURE {"exit": 0, "stdout": "UNRESOLVED: owned-tag could not be removed (in use?); see /home/sl/src/baton/work/scratch/w385695-review-385948-tests/tmp_2lg4lmq/cleanup.cleanup.log\ncleanup: only tags recorded in images.owned were considered; no container was touched\n"}
+MISSING_OP_RESTART {"script": "qualify-w385695.sh", "exit": 0, "retained": false, "marked_reconciled": true, "late_effect": true, "stdout": "cleanup: the instance stack positively records no live process; nothing to stop\nunresolved=[]\n"}
+MISSING_OP_RESTART {"script": "option-a-setup.sh", "exit": 0, "retained": false, "marked_reconciled": true, "late_effect": true, "stdout": "cleanup: the instance stack positively records no live process; nothing to stop\nunresolved=[]\n"}

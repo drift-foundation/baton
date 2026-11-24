@@ -1,0 +1,78 @@
+{
+  "source_manifest": "162152b462b8ab0907a43b5dd41f85e8c7c2a6218053b6a93bbf9edc1762a8dd",
+  "packet_sha256": "298b604847499d6b867f02685b258c806231ad52e437f38c9c0f29d141aff727",
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "platform": "Linux-6.17.0-41-generic-x86_64-with-glibc2.42",
+  "scope": "C5 standalone preparation probes only; no product test group selected",
+  "collected": 17,
+  "executed": 17,
+  "passed": 14,
+  "failed": 3,
+  "errors": 0,
+  "skips": 0,
+  "timeouts": 0,
+  "wall_seconds": 72.29227456497028,
+  "runs": {
+    "cleanup-r4": {
+      "argv": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385944/probes/probe-cleanup-r4.py"
+      ],
+      "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385941/v12/python",
+      "exit_status": 0,
+      "timed_out": false,
+      "wall_seconds": 61.17361279204488,
+      "unittest_summary": [
+        "10",
+        "61.127"
+      ],
+      "log_sha256": "70d94a39bcc051803144fb6845730f9408aa40336f4f38cfde081184e8267911"
+    },
+    "cleanup-cuts": {
+      "argv": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385948/probe-cleanup-cuts.py"
+      ],
+      "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385941/v12/python",
+      "exit_status": 0,
+      "timed_out": false,
+      "wall_seconds": 5.118884513969533,
+      "unittest_summary": [
+        "3",
+        "5.070"
+      ],
+      "log_sha256": "69681ebfd1b83bd52e19a1016fef5f0c4e6e1e4eee27d44fffb83e07f0c60f15"
+    },
+    "driver": {
+      "argv": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385948/probe-driver-ownership.py"
+      ],
+      "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385941/v12/python",
+      "exit_status": 0,
+      "timed_out": false,
+      "wall_seconds": 0.03154731006361544,
+      "unittest_summary": [
+        "1",
+        "0.001"
+      ],
+      "log_sha256": "c5d349af0ae89e808e257bf68bb933b3e6182e7fdb85314a85a7dd8672250a06"
+    },
+    "restart": {
+      "argv": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385948/probe-restart.py"
+      ],
+      "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385941/v12/python",
+      "exit_status": 1,
+      "timed_out": false,
+      "wall_seconds": 5.968229948892258,
+      "unittest_summary": [
+        "3",
+        "5.924"
+      ],
+      "log_sha256": "dbf93f33204178267afaa1906d4600e8d4efec6fad6761020d7c1edf542a6394"
+    }
+  }
+}

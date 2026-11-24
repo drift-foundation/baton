@@ -1,0 +1,23 @@
+{
+  "declared_base": "6079ad78345aa87b7148db302d48fb9b1867f940",
+  "instructions": "Execute the ordinary Job instructions supplied by manager create. This installed task is the reusable delivery template, not an assigned Job.",
+  "schema": "baton.dogfood-task/2",
+  "source_profile": "git-line",
+  "source_root": "source",
+  "task_id": "native-development-default",
+  "verification": [
+    "env",
+    "BATON_V12_DISK_ROOT=/scratch",
+    "BATON_V12_STACK_TEST_ROOT=/scratch",
+    "TMPDIR=/scratch",
+    "PYTHONPATH=v12/python/src:v12/python",
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.job_manager.test_publication_recovery_execution",
+    "tests.job_manager.test_publication_recovery_admission",
+    "tests.job_manager.test_retained_recovery_admission",
+    "tests.job_manager.test_role_contract"
+  ]
+}

@@ -27,7 +27,7 @@ __all__ = ["ABANDONED_CORRECTION", "ABANDONED_CORRECTION_SCHEMA",
            "RESTORE_KIND", "VERDICT_KIND",
            "abandoned_correction_of", "attach_review", "audit_checkpoint",
            "checkpoint_of",
-           "create_line", "freeze_checkpoint", "freeze_recovered_checkpoint", "grant_writer",
+           "create_line", "freeze_checkpoint", "freeze_recovered_checkpoint", "freeze_unreleased_recovered_checkpoint", "grant_writer",
            "release_writer",
            "RESTORE_SETTLED_KIND", "settle_restoration_execution",
            "integration_checkpoint", "line_of", "line_status",
@@ -574,8 +574,17 @@ def checkpoint_of(store, checkpoint_id):
             raise ContractRefusal(
                 "integrity", "digest",
                 "persisted checkpoint fence does not match its digest")
-        _committed_fence(store, taken["fence"],
-                         "the persisted checkpoint fence")
+        # THE FENCE'S KIND IS READ, NOT ASSUMED (W385695 R1, DESIGN REC-9), and
+        # each kind is authenticated by its own rule against its own
+        # committed act. A recovery fence is additionally BOUND TO THIS ROW
+        # (review 2026-11-24T00-28-00Z C1); an assignment fence is never
+        # accepted for a writer that was revoked as recovered.
+        if _fence_kind(taken["fence"]) == RECOVERY_FENCE_KIND:
+            _bound_recovery_fence(store, taken, "the persisted checkpoint")
+        else:
+            _committed_fence(store, taken["fence"],
+                             "the persisted checkpoint fence")
+            _never_recovered(store, taken, "the persisted checkpoint")
     if taken["state"] == "frozen":
         evidence = taken["evidence"]
         recorded = (taken["profile_name"], taken["base_object"],
@@ -1442,6 +1451,10 @@ def _fence(value, what):
 
 def _committed_fence(store, fence, what):
     held = _fence(fence, what)
+    # AN ASSIGNMENT FENCE AND NOTHING ELSE (W385695 R1). The intent is held to
+    # the closed finalization document, which has no `kind` member: a
+    # recovery fence handed here is refused by that reader rather than read
+    # as an assignment's.
     intent = attempts.adopt_finalization_record(held["intent"])
     operation_id = "attempt.finalize-quiescent:" + digest({
         "attempt_id": intent["attempt_id"],
@@ -1475,6 +1488,139 @@ def _current_fence(store, attempt, fence, what):
         raise ContractRefusal("integrity", "schema",
                               f"{what} is not the current attempt's committed fence")
     return held
+
+
+ASSIGNMENT_FENCE_KIND = "attempt.finalize-quiescent"
+RECOVERY_FENCE_KIND = "review-line.recovery-fence"
+RECOVER_WRITER_KIND = "review-line.recover-writer"
+RECOVERED_REVOCATION = "recovered"
+_RECOVERY_INTENT = ("kind", "operation_id", "writer_id", "line_id",
+                    "checkpoint_id", "attempt_id", "generation",
+                    "based_checkpoint_id", "candidate", "exclusion_digest")
+_RECOVERY_FENCED = ("kind", "revoked_at")
+
+
+def _fence_kind(fence):
+    """WHICH PROOF a checkpoint's fence is.
+
+    W385695 R1. Two kinds exist and no reader may treat one as the other: the
+    writer's committed assignment fence (`ASSIGNMENT_FENCE_KIND`), and the
+    recovery fence (`RECOVERY_FENCE_KIND`) under which the line owner froze an
+    owner-approved recovered candidate for a writer that was never released.
+
+    THE ENVELOPE IS THE COLUMN'S OWN CONTRACT -- `intent` and `fenced`, which
+    `LINE_CHECKPOINT_COLUMNS` and `_fence` hold every checkpoint fence to
+    before this is asked -- and the KIND is what the intent says it is. An
+    assignment intent is the closed `attempt.finalize-intent` document, which
+    has no `kind` member and refuses one; a recovery intent is the closed
+    document `_recovery_fence` reads, which names its kind and is refused by
+    the finalization reader. So neither can be read as the other.
+    """
+    intent = fence["intent"]
+    # THE PRESENCE OF A `kind` MEMBER IS THE DISCRIMINATOR, and its VALUE is
+    # then held by the recovery reader: the finalization document has no such
+    # member, so an intent that names any kind is never an assignment's, and
+    # one that names a kind this build does not read is refused there.
+    if type(intent) is dict and "kind" in intent:
+        return RECOVERY_FENCE_KIND
+    return ASSIGNMENT_FENCE_KIND
+
+
+def _recovery_fence(value, what):
+    """The closed recovery fence, every member held to its own rule."""
+    intent = boundaries.document(value["intent"], "a recovery fence intent",
+                                 required=_RECOVERY_INTENT)
+    fenced = boundaries.document(value["fenced"], "a recovery fence record",
+                                 required=_RECOVERY_FENCED)
+    boundaries.text(intent["kind"], "a recovery fence kind")
+    boundaries.text(fenced["kind"], "a recovery fence record kind")
+    if intent["kind"] != RECOVERY_FENCE_KIND or fenced["kind"] != RECOVERY_FENCE_KIND:
+        raise ContractRefusal("integrity", "schema",
+                              f"{what} names a fence kind this build does not read")
+    boundaries.text(intent["operation_id"], "a recovery fence operation")
+    boundaries.identity(intent["writer_id"], "a recovery fence writer identity")
+    boundaries.identity(intent["line_id"], "a recovery fence line identity")
+    boundaries.identity(intent["checkpoint_id"], "a recovery fence checkpoint identity")
+    boundaries.identity(intent["attempt_id"], "a recovery fence attempt identity")
+    boundaries.generation(intent["generation"], "a recovery fence generation")
+    if intent["based_checkpoint_id"] is not None:
+        boundaries.identity(intent["based_checkpoint_id"], "a recovery fence based checkpoint identity")
+    boundaries.text(intent["exclusion_digest"], "a recovery fence exclusion digest")
+    boundaries.instant(fenced["revoked_at"], "a recovery fence revocation instant")
+    candidate = boundaries.document(intent["candidate"], "a recovery fence candidate",
+                                    required=("base", "head"))
+    boundaries.text(candidate["base"], "a recovery fence candidate base")
+    boundaries.text(candidate["head"], "a recovery fence candidate head")
+    return {"intent": dict(intent, candidate=candidate), "fenced": fenced}
+
+
+def _never_recovered(store, row, what):
+    """THE CONVERSE BINDING: a writer revoked as recovered answers under its
+    recovery fence and under no other kind."""
+    writer = writer_of(store, row["writer_id"])
+    if writer["state"] == "revoked" \
+            and writer["revocation_reason"] == RECOVERED_REVOCATION:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{what} belongs to a writer revoked as recovered and does not "
+            f"carry that writer's recovery fence")
+
+
+def _bound_recovery_fence(store, row, what):
+    """AUTHENTICATE A RECOVERY FENCE AS THIS ROW'S (W385695 R1; review
+    2026-11-24T00-28-00Z C1).
+
+    Three statements, and each refuses on its own:
+
+      the fence is the closed recovery document (`_recovery_fence`);
+      it is exactly the result of the committed recovery act of THIS ROW'S
+        WRITER -- the act's identity is derived from the row's own writer and
+        never from what the fence says about itself, so a valid proof
+        transplanted from another writer names an act that is not this one's;
+      and every identity the proof fixed is the consuming row's: its
+        checkpoint, its writer and its line; the writer's own row, which must
+        be the recovered attempt's at that generation, granted on the same
+        checkpoint and revoked as recovered; and, once frozen, the sealed
+        evidence, whose base and head must be the approved candidate's.
+
+    The reviewer's probe changed only a checkpoint row's identity and the row
+    was answered with another checkpoint's untouched proof. A committed act is
+    not the same statement as "this checkpoint's act".
+    """
+    held = _recovery_fence(row["fence"], what)
+    intent = held["intent"]
+    committed = _committed_act(store, RECOVER_WRITER_KIND,
+                               RECOVER_WRITER_KIND + ":" + row["writer_id"],
+                               what)
+    if committed != row["fence"] \
+            or intent["operation_id"] != RECOVER_WRITER_KIND + ":" + row["writer_id"]:
+        raise ContractRefusal("integrity", "schema",
+                              f"{what} carries a recovery fence that is not "
+                              f"its writer's exact committed recovery act")
+    if (intent["checkpoint_id"], intent["writer_id"], intent["line_id"]) != \
+            (row["checkpoint_id"], row["writer_id"], row["line_id"]):
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{what} carries a recovery fence committed for another "
+            f"checkpoint, writer or line")
+    writer = writer_of(store, row["writer_id"])
+    if writer["state"] != "revoked" \
+            or writer["revocation_reason"] != RECOVERED_REVOCATION \
+            or writer["line_id"] != intent["line_id"] \
+            or writer["runtime_attempt_id"] != intent["attempt_id"] \
+            or writer["assignment_generation"] != intent["generation"] \
+            or writer["based_checkpoint_id"] != intent["based_checkpoint_id"]:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{what} carries a recovery fence its writer's own row does not "
+            f"agree with")
+    if row["state"] == "frozen" and (
+            row["evidence"]["base"] != intent["candidate"]["base"]
+            or row["evidence"]["head"] != intent["candidate"]["head"]):
+        raise ContractRefusal(
+            "integrity", "digest",
+            f"{what} is frozen at a candidate its recovery fence did not "
+            f"approve")
 
 
 def _review_result(value):
@@ -2184,8 +2330,8 @@ def freeze_recovered_checkpoint(store, *, attempt_id, generation, profile, candi
     it creates no assignment or writer and never reopens the original one.
     """
     candidate = boundaries.document(candidate, "the recovery checkpoint identity", required=("base", "head"))
-    for key in ("base", "head"):
-        boundaries.text(candidate[key], "the approved candidate " + key)
+    boundaries.text(candidate["base"], "the approved candidate base")
+    boundaries.text(candidate["head"], "the approved candidate head")
     writer = writer_for_attempt(store, attempt_id=attempt_id, generation=generation)
     if writer is None:
         raise ContractRefusal("refused", "precondition", "retained recovery has no original writer")
@@ -2203,6 +2349,209 @@ def freeze_recovered_checkpoint(store, *, attempt_id, generation, profile, candi
     if any(result["evidence"][key] != candidate[key] for key in ("base", "head")):
         raise ContractRefusal("integrity", "digest", "recovery checkpoint replay names another candidate")
     return result
+
+
+def _recovery_exclusion(store, attempt_id, retention_policy_digest, what):
+    """POSITIVE ABSENCE of one attempt's runtime, from the control journal.
+
+    Both statements are required and neither stands in for the other: the
+    attempt's own runtime axis says destroyed with a settled cleanup, AND
+    exactly the committed removal that says so is read back through its own
+    family reader. A column alone is a value a store edit reaches; a missing,
+    failed or uncertain removal supplies no absence, and the freeze holds.
+    """
+    from . import deadlines
+
+    state = attempts.attempt_runtime_of(store, attempt_id)
+    if state is None or state["execution_runtime"] != "destroyed" \
+            or state["cleanup"] not in ("complete", "retained"):
+        raise ContractRefusal(
+            "runtime-observation", "quiescence-unknown",
+            f"{what} is held: attempt {name_value(attempt_id)}'s runtime is "
+            f"recorded {name_value((state or {}).get('execution_runtime'))} "
+            f"with cleanup {name_value((state or {}).get('cleanup'))}; a "
+            f"never-released writer is recovered only once its runtime is "
+            f"positively absent")
+    proofs = []
+    for family, reader in (("abandoned", intake.abandonment_cleanup_of),
+                           ("ordinary", intake.cleanup_of),
+                           ("deadline", deadlines.deadline_cleanup_of)):
+        try:
+            proof = reader(store, attempt_id=attempt_id,
+                           retention_policy_digest=retention_policy_digest)
+        except ContractRefusal as refusal:
+            # THE DEADLINE READER REFUSES, RATHER THAN ANSWERING ABSENCE, for
+            # an attempt no deadline ever ended: that is "not this family"
+            # and nothing else. Every other refusal is a record that exists
+            # and cannot be read, and holds.
+            if family == "deadline" and (refusal.category, refusal.code) \
+                    == ("refused", "precondition"):
+                continue
+            raise ContractRefusal(
+                "runtime-observation", "quiescence-unknown",
+                f"{what} is held: attempt {name_value(attempt_id)}'s "
+                f"{family} cleanup record cannot be read as evidence "
+                f"({refusal.code})") from refusal
+        if proof is not None:
+            proofs.append((family, proof))
+    if len(proofs) != 1:
+        raise ContractRefusal(
+            "runtime-observation", "quiescence-unknown",
+            f"{what} is held: attempt {name_value(attempt_id)} has "
+            f"{len(proofs)} committed runtime removals on record and exactly "
+            f"one is required")
+    family, proof = proofs[0]
+    return digest({"family": family, "proof": proof})
+
+
+def freeze_unreleased_recovered_checkpoint(store, *, attempt_id, generation,
+                                           profile, candidate,
+                                           retention_policy_digest):
+    """Freeze the owner-approved recovered candidate of a NEVER-RELEASED writer.
+
+    W385695 R1 (owner, M385915; DESIGN REC-9 clarification). A producer whose
+    output publication failed never answered: it has no disposition, no
+    release and no assignment fence, and its writer grant is still the line's
+    active one. `freeze_recovered_checkpoint` proves a committed release and
+    cannot serve it. This is the one other proof under which a line checkpoint
+    may be frozen, and it is narrower, not looser:
+
+      the writer is THIS attempt's, at this generation, still `active`, and
+        the line is still `writing` at the checkpoint that writer was granted
+        on;
+      the attempt's runtime is positively absent with a settled cleanup, read
+        from this store's own committed removal (`_recovery_exclusion`);
+      no later writer was ever granted on the line;
+      the frozen head equals the approved candidate's and its base equals the
+        line's declared base.
+
+    ONE OWNER OPERATION revokes the writer and establishes the recovery fence
+    and its checkpoint row, under the store's write lock, with every mutable
+    fact re-decided inside it. The fence is its own kind, journalled as its
+    own act, and `checkpoint_of` validates it by that kind. Nothing is asked
+    of the Authority: the assignment's ending stays where it already is, and
+    no disposition is recorded for the producer. A retry returns the same
+    committed checkpoint; unknown or conflicting evidence refuses with nothing
+    changed.
+    """
+    what = "a recovered checkpoint for a never-released writer"
+    boundaries.identity(attempt_id, "a recovered writer's attempt id")
+    boundaries.generation(generation, "a recovered writer's assignment generation")
+    candidate = boundaries.document(candidate, "the unreleased recovery checkpoint identity", required=("base", "head"))
+    boundaries.text(candidate["base"], "the unreleased recovery candidate base")
+    boundaries.text(candidate["head"], "the unreleased recovery candidate head")
+    boundaries.text(retention_policy_digest, "an unreleased recovery retention policy digest")
+    profile_name = _profile(profile, ("freeze", "validate", "head_of"))
+    writer = writer_for_attempt(store, attempt_id=attempt_id, generation=generation)
+    if writer is None:
+        raise ContractRefusal("refused", "precondition", f"{what} has no original writer")
+    writer_id = writer["writer_id"]
+    line = line_of(store, writer["line_id"])
+    if line["profile_name"] != profile_name:
+        raise ContractRefusal("policy", "profile-uncertified",
+                              "the line and checkpoint profile do not match")
+    if line["declared_base"] != candidate["base"]:
+        raise ContractRefusal("integrity", "digest",
+                              f"{what} names a base that is not the line's declared base")
+    operation_id = RECOVER_WRITER_KIND + ":" + writer_id
+    operands = {"writer_id": writer_id, "generation": generation,
+                "line_id": line["line_id"], "candidate": candidate}
+    signature = manager_signature(RECOVER_WRITER_KIND, operands)
+    # THE REPLAY IS ASKED BEFORE ANY MUTABLE FACT IS PROVED, `release_writer`'s
+    # own rule: a recovery that committed answers without re-proving a line it
+    # has itself moved on.
+    found, fenced = store.replay(operation_id, signature, kind=RECOVER_WRITER_KIND)
+    if not found:
+        if store.operation_record("review-line.release-writer:" + writer_id) is not None:
+            raise ContractRefusal("refused", "precondition",
+                                  f"{what} is refused: this writer was released, and a released writer is recovered under its release")
+        if writer["state"] != "active" or line["state"] != "writing" \
+                or line["current_checkpoint_id"] != writer["based_checkpoint_id"]:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"{what} is held: the writer is {name_value(writer['state'])} and "
+                f"the line is {name_value(line['state'])}; only the line this "
+                f"writer still holds, at the checkpoint it was granted on, is recovered")
+        exclusion = _recovery_exclusion(store, attempt_id, retention_policy_digest, what)
+        # THE HEAD THE FREEZE WOULD TAKE, READ BEFORE THE WRITER IS REVOKED.
+        # The object is proved against the durable row first, as the freeze
+        # itself does; a head that is not the approved candidate's holds with
+        # the line exactly as it was.
+        proved = _consumable_line(store, line["line_id"])
+        from ..source_profiles.checkout import ProfileRefusal
+        try:
+            head = profile.head_of(proved["line_path"])
+        except ProfileRefusal as refusal:
+            # A LINE THAT IS NOT A CLEAN COMMITTED TREE is a line that moved
+            # after its writer stopped; held as this owner's typed refusal so
+            # a serving tick contains it.
+            raise ContractRefusal("integrity", "digest",
+                                  f"{what} is held: the line cannot be read as a clean committed candidate") from refusal
+        if head != candidate["head"]:
+            raise ContractRefusal("integrity", "digest",
+                                  f"{what} is held: the line is not at the approved candidate")
+        revision = line["revision"] + 1
+        checkpoint_id = _id("checkpoint", {"line_id": line["line_id"], "revision": revision})
+
+        def act(connection):
+            current = writer_of(store, writer_id)
+            held = line_of(store, line["line_id"])
+            if current["state"] != "active" or held["state"] != "writing" \
+                    or held["current_checkpoint_id"] != current["based_checkpoint_id"] \
+                    or held["revision"] != line["revision"]:
+                raise ContractRefusal("stale-assignment", "generation",
+                                      f"{what} is held: the line moved while this recovery was being decided")
+            if connection.execute(
+                    "SELECT 1 FROM line_writers WHERE line_id = ? AND writer_id != ? "
+                    "AND (state = 'active' OR granted_at > ? OR (granted_at = ? "
+                    "AND assignment_generation > ?)) LIMIT 1",
+                    (held["line_id"], writer_id, current["granted_at"],
+                     current["granted_at"], current["assignment_generation"])).fetchone():
+                raise ContractRefusal("refused", "precondition",
+                                      f"{what} is held: another writer has used the line")
+            if connection.execute("SELECT 1 FROM line_checkpoints WHERE writer_id = ? OR checkpoint_id = ?",
+                                  (writer_id, checkpoint_id)).fetchone():
+                raise ContractRefusal("refused", "precondition",
+                                      f"{what} is held: the writer already has a checkpoint")
+            # THE RUNTIME AXIS AGAIN, UNDER THE LOCK: the proof above was taken
+            # before it and a check that is not in the write is two acts.
+            state = attempts.attempt_runtime_of(store, attempt_id)
+            if state is None or state["execution_runtime"] != "destroyed" \
+                    or state["cleanup"] not in ("complete", "retained"):
+                raise ContractRefusal("runtime-observation", "quiescence-unknown",
+                                      f"{what} is held: the runtime is no longer recorded absent")
+            now = store._now()
+            fence = {"intent": {"kind": RECOVERY_FENCE_KIND, "operation_id": operation_id,
+                                "writer_id": writer_id, "line_id": held["line_id"],
+                                "checkpoint_id": checkpoint_id,
+                                "attempt_id": attempt_id, "generation": generation,
+                                "based_checkpoint_id": current["based_checkpoint_id"],
+                                "candidate": candidate, "exclusion_digest": exclusion},
+                     "fenced": {"kind": RECOVERY_FENCE_KIND, "revoked_at": now}}
+            connection.execute(
+                "UPDATE line_writers SET state = 'revoked', revoked_at = ?, "
+                "revocation_reason = ? WHERE writer_id = ? AND state = 'active'",
+                (now, RECOVERED_REVOCATION, writer_id))
+            connection.execute(
+                "INSERT INTO line_checkpoints (checkpoint_id, writer_id, line_id, revision, "
+                "profile_name, state, path_set_digest, fence, fence_digest, prepared_at) "
+                "VALUES (?, ?, ?, ?, ?, 'preparing', NULL, ?, ?, ?)",
+                (checkpoint_id, writer_id, held["line_id"], revision, profile_name,
+                 canonical_text(fence), digest(fence), now))
+            connection.execute("UPDATE review_lines SET state = 'freezing' "
+                               "WHERE line_id = ? AND state = 'writing'", (held["line_id"],))
+            return fence
+
+        fenced = store.transact(operation_id, RECOVER_WRITER_KIND, signature, act)
+    # THE COMMITTED FENCE IS HANDED ON WHOLE AND UNREAD. `_freeze_checkpoint`
+    # finds this writer's checkpoint row through `checkpoint_of`, which
+    # authenticates the row's fence as this writer's exact committed recovery
+    # act and binds it to the row; the freeze then requires that validated
+    # fence to be this very document, before and after it freezes.
+    return _freeze_checkpoint(store, writer_id=writer_id, generation=generation,
+                              profile=profile, port=None,
+                              _recovery={"release": None, "candidate": candidate,
+                                         "fence": fenced})
 
 
 def freeze_checkpoint(store, *, writer_id, generation, profile, port):
@@ -2237,6 +2586,9 @@ def _freeze_checkpoint(store, *, writer_id, generation, profile, port, _recovery
         held = checkpoint_of(store, existing_id)
         revision = held["revision"]
         checkpoint_id = held["checkpoint_id"]
+        if _recovery is not None and "fence" in _recovery \
+                and held["fence"] != _recovery["fence"]:
+            raise ContractRefusal("integrity", "digest", "the recovered writer's checkpoint does not carry its committed recovery fence")
         if held["state"] == "frozen":
             evidence = held["evidence"]
             operands = {"writer_id": writer_id, "generation": generation,

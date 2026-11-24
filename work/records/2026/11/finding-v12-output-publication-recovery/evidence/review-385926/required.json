@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "just",
+    "test-one",
+    "tests.job_manager.test_publication_recovery_execution",
+    "tests.job_manager.test_publication_recovery_admission",
+    "tests.job_manager.test_retained_recovery_admission",
+    "tests.job_manager.test_role_contract"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385926/v12/python",
+  "exit_status": 0,
+  "timed_out": false,
+  "wall_seconds": 105.25209884403739,
+  "unittest_summary": [
+    "389",
+    "104.540"
+  ],
+  "log_sha256": "5ec9a63248d4a459281d98367b30d7da83e0c25d3dde47412fa2f05f9af90618"
+}

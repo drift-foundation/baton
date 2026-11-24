@@ -1,0 +1,449 @@
+"""THE HOST SIDE OF ONE DETERMINISTIC PUBLICATION: the stage owner that runs
+the confined publication worker through the ORDINARY worker lifecycle, and the
+seam a deployment composes around it.
+
+W385695 internal checkpoint 2, under DESIGN REC-9 and the owner-selected
+contract `work/records/2026/11/finding-v12-output-publication-recovery/
+CONTRACT-PROPOSED-385720.md` sections 2 and 5.
+
+WHAT THIS REPLACED, AND WHY IT HAD TO. The first cut of this module carried a
+`PublicationWriter` whose `adopt` copied the staged bytes into the attempt's
+output root IN THE MANAGER'S OWN PROCESS, on the host, and re-checked a clock
+between its three steps. That is a host copy with a polite timer: no read-only
+`/input`, no containment, nothing a supervisor could interrupt, and no runtime
+whose stopping anybody could observe. The contract asks for the opposite on
+every count, and the writer is gone rather than kept beside the real path --
+a second way to "publish" that skips confinement is exactly what must not
+exist.
+
+WHAT IS HERE NOW, and none of it is a second launch protocol:
+
+    PublicationStage    the publication worker's MOUNT and ENDING, plugged
+                        into `single_worker.worker_operations(stage=...)`
+                        exactly as `StageComposition` and `ManagedApplyRuntime`
+                        are. Everything between the two -- the offer, the
+                        claim, the attempt, the activation, the pinned input
+                        root, the launch document, the workspace token, the
+                        journalled runtime start and its reconciliation, the
+                        command -- is the accepted composition, unchanged.
+    PublicationSeam     the five members `check_publication_seam` proves.
+    publication_operations()
+                        composes one publication worker's ordinary operations
+                        with that stage owner, over a deployment's own stores.
+    staging_root()      the private root recovery-owned staging lives under.
+
+WHAT THE STAGE OWNER DOES AT EACH END, in the order the contract fixes:
+
+  MOUNT, before any runtime exists. It asks `publication_execution.
+    prepare_launch` -- which stages the approved original READ-ONLY and
+    commits the durable launch intent -- and then delivers the staged root as
+    the worker's nominated source, the one read-only bind the engine adapter
+    composes inside `/input`. The original is never mounted and the staged
+    root is never writable in the container. It also answers the pinned
+    request document, which carries the ABSOLUTE deadline.
+  END, after the worker answered. It orders the runtime to stop and requires
+    it OBSERVED quiescent; has `record_adoption` MEASURE both output roots
+    against the approved digest; and only then runs the ordinary freeze,
+    intake and retention, releases this execution's own assignment through
+    its own session, and authorizes the ordinary cleanup -- which destroys
+    the runtime, proves it absent and returns the workspace token.
+
+IT DECIDES NOTHING. Whether an original may be staged, whether a launch may be
+committed, whether the measured bytes are the approved ones and whether review
+may be released are `job_manager.publication_execution`'s, derived from
+durable state. This module says which owner each of those acts reaches.
+
+WHAT A STOPPED OR FAILED ADOPTION LEAVES. The worker supervises its copy to
+the absolute instant and faults rather than publish; the host fences the stage
+at the same instant through `job_control` and the ordinary cancellation path
+stops the container. Neither produces an answered terminal, so this ending is
+never entered for it, nothing is frozen, and the pass journals the adoption as
+UNCERTAIN. There is no retry here and no second launch.
+"""
+
+import json
+import os
+import sys
+
+from baton_v12.contracts import ContractRefusal
+from baton_v12.contracts.errors import name_value
+from baton_v12.job_manager import (documents, episodes, publication_execution,
+                                   publication_recovery, submission)
+from baton_v12.worker_manager import source_boundary
+
+__all__ = ["PublicationStage", "PublicationSeam", "DEFAULT_STAGING",
+           "publication_operations", "publication_seam", "staging_root",
+           "main"]
+
+# WHERE A DEPLOYMENT ALLOCATES PRIVATE RECOVERY STAGING, under its own state
+# root. A sibling of the stores rather than a child of custody, which is
+# `recovery_execution.DEFAULT_WORKSPACES`' reason: a writable tree inside the
+# immutable evidence it is a copy of is a wider boundary than the contract
+# declares. And the contract's own sentence, kept by the location: "private
+# staging is not custody".
+DEFAULT_STAGING = "publication-staging"
+PRIVATE = 0o700
+
+
+def _refuse(message, *, category="refused", code="precondition"):
+    raise ContractRefusal(category, code, message)
+
+
+class PublicationSeam:
+    """The five members `check_publication_seam` proves, as one object.
+
+    IT CARRIES CONFIGURATION AND READERS: the control store the attempt and
+    its custody live in, the host owner of the original, the host's cessation
+    evidence, the private staging root, and the serving composition's read of
+    the confined worker's exchange.
+    """
+
+    def __init__(self, *, control, host, exclusion, workspaces, runtime,
+                 ending=None):
+        self.control = control
+        self.host = host
+        self.exclusion = exclusion
+        self.workspaces = workspaces
+        self.runtime = runtime
+        # THE SERVING DEPLOYMENT'S OWN PRIOR-ASSIGNMENT ENDING PORT, or
+        # `None`. Not one of the five members the execution acts decide with:
+        # it is what `manager._publish` uses to end a failed execution's
+        # still-held assignment through the producer's OWN session, which
+        # only the serving composition holds. A seam without one serves
+        # publication stages and ends nothing.
+        self.ending = ending
+
+
+class PublicationStage:
+    """One deployment's publication worker: its mount, its ending, and the
+    read of its exchange.
+
+    ONE OBJECT PER CONFIGURED PUBLICATION WORKER, holding no state a restart
+    needs: every answer is derived from the Job store's committed records and
+    the Worker Manager's own journal, so a re-entry after a crash composes the
+    same mount and the same ending.
+    """
+
+    def __init__(self, *, jobs, control, host, exclusion, identity,
+                 workspaces, clock):
+        self._jobs = jobs
+        self._control = control
+        self._identity = identity
+        self._clock = clock
+        self._operations = None
+        self.seam = PublicationSeam(control=control, host=host,
+                                    exclusion=exclusion,
+                                    workspaces=workspaces, runtime=self)
+
+    def bind(self, operations):
+        """The composed worker operations this stage owner is plugged into."""
+        self._operations = operations
+        return self
+
+    # -- the seam's `runtime` member -----------------------------------------
+
+    def instance(self):
+        return self._identity
+
+    def terminal_of(self, attempt_id):
+        """THE CONFINED WORKER'S EXCHANGE TERMINAL, or `None`. A read.
+
+        Through the composed worker's own exchange observation, which is what
+        the projection reads on every tick -- so this is not a second account
+        of the exchange. `None` means no terminal is readable: nothing was
+        launched, nothing has answered, or the episode this attempt ran under
+        is no longer the live one.
+        """
+        stage = self._stage_of(attempt_id)
+        if stage is None or self._operations is None:
+            return None
+        view = self._operations.observe(stage).get("exchange") or {}
+        terminal = view.get("terminal")
+        if terminal is None:
+            return None
+        return {one: terminal.get(one) for one in
+                ("ending", "disposition", "manifest_digest")}
+
+    def _stage_of(self, attempt_id):
+        for admitted in publication_recovery.admissions_of(self._jobs):
+            stage_id = documents.stage_id(admitted["job_id"],
+                                          documents.PUBLICATION_STAGE)
+            live = episodes.live_of(self._jobs, stage_id)
+            if live is None or live["attempt_id"] != attempt_id:
+                continue
+            for row in submission.stages_of(self._jobs, admitted["job_id"]):
+                if row["stage_id"] == stage_id:
+                    return episodes.attempting(row, live)
+        return None
+
+    def _decision(self, stage):
+        """The admitted recovery THIS stage belongs to, by its own Job."""
+        for admitted in publication_recovery.admissions_of(self._jobs):
+            if admitted["job_id"] == stage.get("job_id"):
+                return admitted["decision_id"]
+        _refuse(f"stage {name_value(stage.get('stage_id'))} belongs to no "
+                f"admitted publication recovery; the publication worker "
+                f"serves exactly the stage a recovery admission created")
+
+    # -- before a runtime starts ---------------------------------------------
+
+    def mount(self, worker, stage, roots, preparing=None):
+        """The roots and the READ-ONLY source this execution is started over.
+
+        THE LAUNCH IS DECIDED HERE, ONCE, WHILE NOTHING HAS STARTED. A runtime
+        that is anything but `not-started` already has a committed intent --
+        this is then a re-entry (a restart, or the ending re-deriving the
+        roots) and decides nothing again; it composes the same boundary over
+        the staging the record names.
+        """
+        from baton_v12.worker_manager import attempt_runtime_of
+
+        del preparing
+        decision_id = self._decision(stage)
+        state = attempt_runtime_of(self._control, stage["attempt_id"])
+        if state["execution_runtime"] == "not-started":
+            staging = publication_execution.prepare_launch(
+                self._jobs, self.seam, decision_id=decision_id,
+                now=self._clock())["staging"]
+        else:
+            staging = publication_execution.staging_of(
+                self._jobs, stage["job_id"])
+            if staging is None:
+                _refuse(f"publication attempt "
+                        f"{name_value(stage['attempt_id'])} has a runtime "
+                        f"record and no staged input; there is nothing this "
+                        f"manager staged to deliver it")
+        # THE STAGED ROOT'S PARENT IS WHAT IS NOMINATED, because the staged
+        # original and the recovery's own provenance are two sibling trees
+        # under it and the worker is delivered both -- read-only, by the one
+        # bind the adapter composes and proves.
+        locator = staging["staged"]["locator"]
+        if not str(locator).startswith("file://"):
+            _refuse(f"a staged locator is a file:// locator; this is "
+                    f"{name_value(locator)}", category="integrity",
+                    code="path")
+        delivered = os.path.dirname(str(locator)[len("file://"):])
+        return {"roots": roots,
+                "boundary": source_boundary.compose_source_boundary(
+                    source_boundary.nominate_source(delivered), roots,
+                    worker.given["workspace_capacity"])}
+
+    def publication_document_for(self, stage):
+        """The pinned request this execution's worker reads, as bytes.
+
+        CANONICAL AND DERIVED FROM RECORDS, so a restart delivers byte for
+        byte what the first composition did -- `single_worker` proves the
+        delivered document against this answer on every re-entry.
+        """
+        request = publication_execution.publication_request(
+            self._jobs, self._decision(stage))
+        if request is None:
+            return None
+        return json.dumps(request, sort_keys=True,
+                          separators=(",", ":")).encode("utf-8")
+
+    # -- after the worker answered -------------------------------------------
+
+    def historical(self, stage, assignment):
+        """An ending whose cleanup already settled is resumed from records."""
+        from baton_v12.worker_manager import attempt_runtime_of
+
+        state = attempt_runtime_of(self._control, stage["attempt_id"])
+        if state is not None and state["cleanup"] in ("complete", "retained"):
+            return {"attempt_id": stage["attempt_id"],
+                    "assignment": assignment}
+        return None
+
+    def end(self, worker, stage, job, context):
+        """THE ORDINARY ENDING, with the one measurement only this path owes.
+
+        THE ORDER IS THE CONTRACT'S AND EVERY STEP REPLAYS:
+
+          1. order the exact runtime to stop and require it OBSERVED
+             quiescent, then reconcile it -- an absent runtime is not the
+             same proof, because its writer was never seen to finish;
+          2. record the worker's own disposition;
+          3. `record_adoption` -- this manager's measurement of both output
+             roots against the approved original, the worker's zero counts,
+             and the durable result. A refusal here stops the ending with
+             NOTHING FROZEN;
+          4. the ordinary freeze, held to the terminal's own envelope digest;
+          5. the ordinary intake and the configured retention decision;
+          6. release this execution's OWN assignment through its own session,
+             so the reused Work returns to `queued` for the independent
+             reviewer; and only then
+          7. authorize the ordinary cleanup, which destroys the runtime,
+             proves it absent and returns the workspace token.
+        """
+        from baton_v12.worker_manager import (attempt_runtime_of,
+                                              authorize_cleanup,
+                                              decide_retention, load_manifest,
+                                              observe, reconcile_runtime,
+                                              request_freeze, request_intake,
+                                              tokens)
+
+        del job
+        control, attempt_id = self._control, stage["attempt_id"]
+        decision_id = self._decision(stage)
+        state = attempt_runtime_of(control, attempt_id)
+        if state["cleanup"] in ("complete", "retained"):
+            recorded = publication_execution.result_of(self._jobs,
+                                                       stage["job_id"])
+            return {"attempt_id": attempt_id, "outcome": "published"
+                    if recorded is not None else "ended",
+                    "cleanup": state["cleanup"]}
+        disposition = context["disposition"]
+        if disposition != "completed":
+            _refuse(f"publication attempt {name_value(attempt_id)}'s worker "
+                    f"answered disposition {name_value(disposition)}; a "
+                    f"deterministic adoption either completes or is not a "
+                    f"publication, and nothing is frozen for one that did "
+                    f"not", category="runtime-observation",
+                    code="quiescence-unknown")
+        adapter = context["adapter"]
+        stopped = adapter.stop({"runtime_id": state["runtime_id"],
+                                "operation_id":
+                                    f"publication-quiesce:{attempt_id}"})
+        if stopped.get("state") != "quiescent":
+            _refuse(f"publication attempt {name_value(attempt_id)}'s runtime "
+                    f"was ordered to stop and observed "
+                    f"{name_value(stopped.get('state'))}; an adoption is "
+                    f"measured and frozen only over a positively quiescent "
+                    f"runtime", category="runtime-observation",
+                    code="quiescence-unknown")
+        reconcile_runtime(control, adapter, attempt_id=attempt_id)
+        observe(control, attempt_id=attempt_id, axis="worker_disposition",
+                value=disposition)
+        adopted = publication_execution.record_adoption(
+            self._jobs, self.seam, decision_id=decision_id,
+            now=self._clock())
+        frozen = request_freeze(control, worker.port, adapter,
+                                attempt_id=attempt_id,
+                                disposition=disposition)
+        sealed = load_manifest(control, frozen["manifest_digest"],
+                               "resultManifest")
+        validated = (sealed or {}).get("completion_manifest_digest")
+        if context["terminal"]["manifest_digest"] != validated:
+            _refuse(f"publication attempt {name_value(attempt_id)}'s worker "
+                    f"answered completion manifest "
+                    f"{name_value(context['terminal']['manifest_digest'])} "
+                    f"and this manager validated {name_value(validated)}; a "
+                    f"terminal that names another envelope is not evidence "
+                    f"about the output this manager froze",
+                    category="refused", code="operation-collision")
+        receipt = request_intake(control, worker.port, adapter,
+                                 attempt_id=attempt_id)
+        decided = decide_retention(
+            control, worker.port, adapter, attempt_id=attempt_id,
+            artifact_ids=[one["artifact_id"] for one in receipt["artifacts"]],
+            disposition=worker.given["retention_disposition"],
+            retention_policy_digest=worker.given["retention_policy_digest"])
+        # THE EXECUTION ENDS BECAUSE IT FINISHED, which is ART-7 from this
+        # side: the release does not depend on anybody accepting the result.
+        # `end`, not `cancel` -- see `single_worker._AuthoritySession.end`.
+        live = worker.session.assignment_of(
+            context["assignment"]["work_ref"]["work_id"])
+        if live is not None and live == context["assignment"]:
+            worker.session.end({
+                "expect": context["assignment"],
+                "operation_id": f"publication-release:{attempt_id}",
+                "disposition": "release",
+                "reason": "deterministic publication collected"})
+        authorize_cleanup(
+            control, worker.port, adapter, attempt_id=attempt_id,
+            retention_policy_digest=worker.given["retention_policy_digest"],
+            govern=tokens.workspace_governance())
+        return {"attempt_id": attempt_id, "outcome": "published",
+                "disposition": disposition,
+                "adopted": adopted["adopted"]["tree_digest"],
+                "manifest_digest": frozen["manifest_digest"],
+                "result_id": frozen["result_id"],
+                "receipt_digest": receipt["receipt_digest"],
+                "artifacts": sorted(one["artifact_id"]
+                                    for one in receipt["artifacts"]),
+                "retention": decided["disposition"]}
+
+
+def staging_root(instance_root):
+    """The private staging root of one instance, created if absent.
+
+    0700 BECAUSE THIS MANAGER IS THE ONLY WRITER. The staged original is
+    delivered READ-ONLY to one execution, and a group-writable scratch tree
+    beside an approved original is a wider boundary than the one the contract
+    declares.
+    """
+    place = os.path.join(os.path.realpath(str(instance_root)),
+                         DEFAULT_STAGING)
+    os.makedirs(place, mode=PRIVATE, exist_ok=True)
+    os.chmod(place, PRIVATE)
+    return place
+
+
+def publication_operations(given, *, jobs, control, authority, provider,
+                           host, exclusion, identity, workspaces=None,
+                           engine_run=None, clock=None,
+                           execution_context=None, lifetime_policy=None,
+                           dispose=None, ending=None):
+    """ONE publication worker's ordinary operations, with its stage owner.
+
+    `given` IS THE WORKER'S OWN DEPLOYMENT DOCUMENT, already held by
+    `single_worker._held` under the publication role -- so its image, its
+    profile, its input manifest and its (empty) credential profile are the
+    deployment's facts and none is this function's choice.
+
+    NO PROVIDER IS COMPOSED IN. `provider` is the deployment's credential
+    provider callable and a publication worker declares no credential slot,
+    so it is never asked; it is an operand only because the worker lifecycle
+    takes one.
+    """
+    from . import single_worker
+
+    stage = PublicationStage(
+        jobs=jobs, control=control, host=host, exclusion=exclusion,
+        identity=identity,
+        workspaces=workspaces or staging_root(identity["root"]),
+        clock=clock if clock is not None else jobs._now)
+    operations = single_worker.worker_operations(
+        given, control, authority, provider, engine_run=engine_run,
+        clock=clock, stage=stage,
+        dispose=dispose if dispose is not None else (lambda: None),
+        execution_context=(execution_context if execution_context is not None
+                           else single_worker.job_execution_reader(jobs)),
+        lifetime_policy=lifetime_policy)
+    stage.bind(operations)
+    stage.seam.ending = ending
+    # THE SEAM RIDES ON THE OPERATIONS IT WAS COMPOSED WITH, which is where
+    # `manager._publish` discovers it -- so a deployment that composed a
+    # publication worker reaches the pass and one that did not reaches none.
+    operations.recovery_publication = stage.seam
+    return operations, stage
+
+
+def publication_seam(stage):
+    """The seam `advance_publication` is handed for one composed stage."""
+    return stage.seam
+
+
+def main(argv=None):                                      # pragma: no cover
+    """Print the approved publication declarations, for an operator to read.
+
+    THE ONE READ THIS MODULE OFFERS AN OPERATOR, and it is a read: the two
+    declared outputs a recovery publishes under, with the owner-selected
+    ceilings and the provenance descriptor's own bound. It records nothing,
+    stages nothing and publishes nothing.
+    """
+    taken = list(sys.argv[1:] if argv is None else argv)
+    if taken:
+        raise SystemExit("usage: publication_worker")
+    declaration = publication_recovery.corrective_declaration()
+    json.dump({"candidate": declaration["output"],
+               "declaration": declaration["descriptor"],
+               "declaration_digest": declaration["digest"],
+               "provenance": publication_recovery.PROVENANCE_OUTPUT},
+              sys.stdout, indent=2, sort_keys=True)
+    sys.stdout.write("\n")
+    return 0
+
+
+if __name__ == "__main__":                                # pragma: no cover
+    raise SystemExit(main())

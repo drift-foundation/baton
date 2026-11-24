@@ -1,0 +1,12 @@
+Pinned provider CLI (v12/worker/Dockerfile.claude ARG CLAUDE_VERSION=2.1.247), fetched from the public npm registry into scratch;
+the 250 MB binary is not retained in this packet. sha256:
+c63ff7ee01fbc82f77b6e6c6c7270b5522e19a6164834499e3930034df596710  anthropic-ai-claude-code-2.1.247.tgz
+c6697aa74f8f6c0a1167fcf800ca976b34b89c0170dead133aead97b1ed18471  anthropic-ai-claude-code-linux-x64-2.1.247.tgz
+5fb321bf417ffc5cd4e3f36e7c9c7e029bf47aaa36d5621db979fcc5e6eabe15  native/package/claude
+
+Supervisor used as CLAUDE_CODE_SHELL_PREFIX in final-run: the candidate's v12/worker/bounded_command.py, sha256:
+7754cdfb33350391032f7bddb3f57a08382a6a6f79b8d275ba39a7f57d874d14
+
+Host run, no container, no model, no credential: ANTHROPIC_BASE_URL pointed at stub.py on 127.0.0.1, a placeholder key,
+CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1, DISABLE_AUTOUPDATER=1, a fresh empty HOME. See run.sh.
+prefix-argv.log: what the CLI handed a logging prefix (one argument). kill-run: prototype supervisor (sup.py), CLI-side 2 s window.

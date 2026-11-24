@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385948/probe-restart.py"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385941/v12/python",
+  "exit_status": 1,
+  "timed_out": false,
+  "wall_seconds": 5.968229948892258,
+  "unittest_summary": [
+    "3",
+    "5.924"
+  ],
+  "log_sha256": "dbf93f33204178267afaa1906d4600e8d4efec6fad6761020d7c1edf542a6394"
+}

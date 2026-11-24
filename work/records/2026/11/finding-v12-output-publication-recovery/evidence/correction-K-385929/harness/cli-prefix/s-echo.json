@@ -1,0 +1,1 @@
+[{"command":"echo hello-from-tool; echo pid=$$ ppid=$PPID","description":"probe"}]

@@ -1,0 +1,2 @@
+2d29513c63b4677dfcd53fc8fd6515aff873d03e
+runs d-required, d-affected, d-inventory-*, registry harness and reviewer probes ran at ba5d51d8; d-stage-execution started at ba5d51d8; d-recipe (rerun) at the final head's content. The final head differs from ba5d51d8 only in v12/python/tests/tools/test_parallel_runner.py.

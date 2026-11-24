@@ -1770,7 +1770,14 @@ _DUPLICATE_COLUMN_ENTRIES = (
 _DUPLICATE_COLUMN_CHECKS = {
     _DUPLICATE_COLUMN_ENTRIES[0]: (
         "a persisted line checkpoint", "_fence", "document", "a persisted assignment fence", "LINE_CHECKPOINT_COLUMNS",
-        "sha256:fb9dae348f9d5b414b1e1dc5222e1c068f778780e58458223e39982cab4b3167",
+        # W385695 (review 2026-11-24T00-28-00Z C1): `checkpoint_of` gained one
+        # kind dispatch after the unchanged fence adoption: a recovery fence is
+        # authenticated and bound to the row consuming it (`_bound_recovery_fence`),
+        # an assignment fence by `_committed_fence` as before. The row call, the
+        # `_fence` repeat and the nullable guard this relation witnesses are the
+        # same statements (`test_row_result_flow_and_nullable_guard_match_the_
+        # reviewed_relations` still pins them); the receiver fingerprint moves.
+        "sha256:6a80d36ac09a46e27ce706a7ff5161f152822229016cbf38c477076a2b5503b2",
         "sha256:c78baefcecee401ebc78736a2d5cb234f8abb08c62cc519fa46ca16dbdde9eca",
         "sha256:be6932d1a17b8b457fd9358de46fcb812c77868707c78b1c8f2f17486a60d5e2"),
     _DUPLICATE_COLUMN_ENTRIES[1]: (
@@ -2639,6 +2646,19 @@ STATED_OWNERS = {
         "the complete row is forwarded through line_of's canonical row decoder",
     ("adopted", "review_cycles.py:attach_review", "line_writers"):
         "a SELECT 1 existence answer; no row member crosses into this manager",
+    # W385695 (review 2026-11-24T00-28-00Z C3): the recovery freeze's two
+    # exclusion questions, asked under the write lock, and the retained-output
+    # read's later-writer question. Each is an existence answer.
+    ("adopted", "review_cycles.py:freeze_unreleased_recovered_checkpoint", "line_writers"):
+        "a SELECT 1 existence answer (a later or active writer on the line holds the freeze); no row member crosses into this manager",
+    ("adopted", "review_cycles.py:freeze_unreleased_recovered_checkpoint", "line_checkpoints"):
+        "a SELECT 1 existence answer (a checkpoint already recorded for the writer or identity holds the freeze); no row member crosses into this manager",
+    ("adopted", "workspaces.py:_retained_line_home", "line_writers"):
+        "an existence read (`LIMIT 1`) of a later or active writer; the projected id and state reach only the refusal prose",
+    ("adopted", "review_cycles.py:freeze_unreleased_recovered_checkpoint", "replay"):
+        "the replayed committed fence is handed on whole and unread to `_freeze_checkpoint`, which requires the row fence `checkpoint_of` authenticated to be this exact document; no member is read here",
+    ("caller", "review_cycles.py:freeze_unreleased_recovered_checkpoint", "profile"):
+        "an injected profile aggregate whose freeze, validate and head_of capabilities are typed before use (`_profile`)",
     # W385331: the continuation-hold reader scans the journal by kind for
     # identities only, and every candidate row is then read through
     # `operation_record`, the journal's own decoder, before any member is
@@ -3526,8 +3546,11 @@ SHADOWED = {
     # set (`a persisted line checkpoint's fence needs intent` / `also carries`),
     # and a replaced `intent` fails the fence digest; `_fence`'s own document
     # rule over the decoded value never sees a damaged member first.
-    (("adopted", "review_cycles.py:checkpoint_of", "line_checkpoints.fence.intent"), "a persisted assignment fence"):
-        ("a persisted line checkpoint's fence", "test_the_checkpoint_row_refuses_a_damaged_fence_before_the_fence_owner"),
+    # (W385695, review 2026-11-24T00-28-00Z C3: the pair that stood here --
+    # `checkpoint_of` `fence.intent` under `a persisted assignment fence` -- is
+    # retired. The intent has an owner of its own now, the recovery fence's
+    # closed rule, so the envelope's label no longer covers it and there is
+    # nothing left to shadow; its probe is in `w385695_probes`.)
     # W384870 stage C: `_context_delivery` compares the delivery's attempt_id
     # with the job's (`_denied`) before the `_text` loop reaches it, and a value
     # equal to the job's text attempt id is text already.
@@ -9827,6 +9850,7 @@ class EveryProbeProvesItArrived(BoundaryCase):
                 **self.worker_entry_probes(),
                 **self.token_probes(),
                 **self.w384870_probes(),
+                **self.w385695_probes(),
                 **self.dynamic_table_probes(),
                 **self.stage_b_probes(),
                 **self.stage_c_probes()}
@@ -10658,8 +10682,10 @@ class EveryProbeProvesItArrived(BoundaryCase):
                        "review_result.artifacts.locator", "review_result.artifacts.output_name", "review_result.manifest_digest"):
             probe("review_cycles.py:_verdict_row", f"checkpoint_verdicts.{member}", "a persisted checkpoint verdict",
                   self.spoiling_review_row("_verdict_row", "checkpoint_verdicts", member))
-        probe("review_cycles.py:checkpoint_of", "line_checkpoints.fence.intent", "a persisted line checkpoint",
-              self.spoiling_review_row("checkpoint_of", "line_checkpoints", "fence.intent"))
+        # (W385695: `fence.intent` is owned by the recovery fence's own closed
+        # rule now and is probed there -- `w385695_probes`. The row-level probe
+        # that stood here spoiled the whole `fence` column, which the derived
+        # column probe for `line_checkpoints.fence` already does.)
         # (`a persisted assignment fence` for `fence.intent` is SHADOWED by the
         # row's own closed rule over the JSON column; see the witness.)
         # attempts.request_runtime_start: the governance capability and the declared mount plan
@@ -10770,6 +10796,127 @@ class EveryProbeProvesItArrived(BoundaryCase):
                        "adapter_digest", "runtime_profile_digest", "argv_policy_digest",
                        "environment_policy_digest", "layout_version", "reported_model", "model", "cwd",
                        "state_paths", "max_entries", "max_bytes", "retention_policy_digest")
+
+    def w385695_probes(self):
+        """W385695 (review 2026-11-24T00-28-00Z C3): the recovery fence's
+        members at the checkpoint reader, and the new caller operands.
+
+        ONE MEMBER SPOILED PER PROBE. The checkpoint row keeps a well-formed
+        recovery fence with a digest that agrees with it, so the refusal that
+        arrives is the spoiled member's own rule and not the row's, the
+        envelope's or the digest's.
+        """
+        store = self.store
+        found = {}
+
+        def fence():
+            return {"intent": {"kind": review_cycles.RECOVERY_FENCE_KIND,
+                               "operation_id": review_cycles.RECOVER_WRITER_KIND + ":writer-probe",
+                               "writer_id": "writer-probe", "line_id": "line-probe",
+                               "checkpoint_id": "checkpoint-probe",
+                               "attempt_id": "writer-attempt", "generation": 1,
+                               "based_checkpoint_id": None,
+                               "candidate": {"base": "a" * 40, "head": "b" * 40},
+                               "exclusion_digest": "sha256:" + "f" * 64},
+                    "fenced": {"kind": review_cycles.RECOVERY_FENCE_KIND,
+                               "revoked_at": NOW}}
+
+        def spoiling(mutate):
+            def run():
+                self.review_cycle_world()
+                held = fence()
+                mutate(held)
+                self.corrupt("UPDATE line_checkpoints SET fence = ?, fence_digest = ?",
+                             json.dumps(held, sort_keys=True, separators=(",", ":")),
+                             _contracts_digest(held))
+                review_cycles.checkpoint_of(store, "checkpoint-probe")
+            return run
+
+        def setting(part, member, value):
+            def mutate(held):
+                held[part][member] = value
+            return mutate
+
+        def dropping(part, member):
+            def mutate(held):
+                del held[part][member]
+            return mutate
+
+        def candidate(member, value):
+            def mutate(held):
+                held["intent"]["candidate"][member] = value
+            return mutate
+
+        def member(subject, label, mutate):
+            found[(("adopted", "review_cycles.py:checkpoint_of",
+                    "line_checkpoints.fence." + subject), label)] = (label, spoiling(mutate))
+
+        member("intent", "a recovery fence intent", dropping("intent", "exclusion_digest"))
+        member("fenced", "a recovery fence record", dropping("fenced", "revoked_at"))
+        member("intent.kind", "a recovery fence kind", setting("intent", "kind", ""))
+        member("fenced.kind", "a recovery fence record kind", setting("fenced", "kind", ""))
+        member("fenced.revoked_at", "a recovery fence revocation instant",
+               setting("fenced", "revoked_at", "not-an-instant"))
+        member("intent.operation_id", "a recovery fence operation", setting("intent", "operation_id", ""))
+        for name, what in (("writer_id", "writer"), ("line_id", "line"),
+                           ("checkpoint_id", "checkpoint"), ("attempt_id", "attempt"),
+                           ("based_checkpoint_id", "based checkpoint")):
+            member("intent." + name, f"a recovery fence {what} identity",
+                   setting("intent", name, self.SPOILED["identity"]))
+        member("intent.generation", "a recovery fence generation", setting("intent", "generation", "one"))
+        member("intent.exclusion_digest", "a recovery fence exclusion digest",
+               setting("intent", "exclusion_digest", ""))
+        member("intent.candidate", "a recovery fence candidate", setting("intent", "candidate", []))
+        member("intent.candidate.base", "a recovery fence candidate base", candidate("base", ""))
+        member("intent.candidate.head", "a recovery fence candidate head", candidate("head", ""))
+
+        def caller(site, subject, label, run):
+            found[(("caller", site, subject), label)] = (label, run)
+
+        good = {"attempt_id": "writer-attempt", "generation": 1, "profile": None,
+                "candidate": {"base": "a" * 40, "head": "b" * 40},
+                "retention_policy_digest": "sha256:" + "a" * 64}
+
+        def unreleased(**changed):
+            return lambda: review_cycles.freeze_unreleased_recovered_checkpoint(
+                store, **dict(good, **changed))
+
+        site = "review_cycles.py:freeze_unreleased_recovered_checkpoint"
+        caller(site, "attempt_id", "a recovered writer's attempt id", unreleased(attempt_id=SURROGATE))
+        caller(site, "generation", "a recovered writer's assignment generation", unreleased(generation="one"))
+        caller(site, "candidate", "the unreleased recovery checkpoint identity", unreleased(candidate=[]))
+        caller(site, "candidate.base", "the unreleased recovery candidate base",
+               unreleased(candidate={"base": "", "head": "b" * 40}))
+        caller(site, "candidate.head", "the unreleased recovery candidate head",
+               unreleased(candidate={"base": "a" * 40, "head": ""}))
+        caller(site, "retention_policy_digest", "an unreleased recovery retention policy digest",
+               unreleased(retention_policy_digest=""))
+
+        def released(candidate):
+            return lambda: review_cycles.freeze_recovered_checkpoint(
+                store, attempt_id="writer-attempt", generation=1, profile=None,
+                candidate=candidate)
+
+        site = "review_cycles.py:freeze_recovered_checkpoint"
+        caller(site, "candidate", "the recovery checkpoint identity", released([]))
+        caller(site, "candidate.base", "the approved candidate base",
+               released({"base": "", "head": "b" * 40}))
+        caller(site, "candidate.head", "the approved candidate head",
+               released({"base": "a" * 40, "head": ""}))
+
+        from baton_v12.worker_manager import workspaces
+        site = "workspaces.py:retained_output_of"
+        caller(site, "assignment_id", "an assignment identity",
+               lambda: workspaces.retained_output_of(store, SURROGATE))
+        caller(site, "output", "a declared retained output path",
+               lambda: workspaces.retained_output_of(store, "attempt-probe", output=7))
+        # Review 2026-11-24T01-52-00Z C4: the declaration reader the installed
+        # removal's replay gate asks.
+        from baton_v12.worker_manager import intake
+        caller("intake.py:abandonment_declared", "attempt_id", "a runtime attempt id",
+               lambda: intake.abandonment_declared(store, attempt_id=SURROGATE))
+        entries = receiving_entries()
+        return {key: value for key, value in found.items() if key[0] in entries}
 
     def w384870_probes(self):
         """W384870 S1: one probe per delegated entry added under M384898.
@@ -13261,6 +13408,15 @@ WITNESSES[("adopted", "review_cycles.py:consumption_subject", "line_writers")] =
 # profile owner has its own negative witness that reaches the entry.
 WITNESSES[("caller", "review_cycles.py:restore_abandoned_correction", "profile")] = "test_restore_abandoned_correction_profile_owner"
 WITNESSES[("caller", "review_cycles.py:settle_restoration_execution", "profile")] = "test_settle_restoration_execution_profile_owner"
+# W385695 (review 2026-11-24T01-52-00Z C3): the recovery freeze is outside the
+# lifecycle class the blanket witness runs, and its stated owners are an
+# exclusion, a replay and a profile boundary of its own. Each names the witness
+# that reaches that boundary over a world where the freeze really runs.
+WITNESSES[("adopted", "review_cycles.py:freeze_unreleased_recovered_checkpoint", "line_writers")] = "test_recovery_freeze_excludes_a_later_or_active_writer"
+WITNESSES[("adopted", "review_cycles.py:freeze_unreleased_recovered_checkpoint", "line_checkpoints")] = "test_recovery_freeze_excludes_a_writer_that_already_has_a_checkpoint"
+WITNESSES[("adopted", "review_cycles.py:freeze_unreleased_recovered_checkpoint", "replay")] = "test_recovery_freeze_replay_hands_the_committed_fence_on_unread"
+WITNESSES[("caller", "review_cycles.py:freeze_unreleased_recovered_checkpoint", "profile")] = "test_recovery_freeze_profile_owner"
+WITNESSES[("adopted", "workspaces.py:_retained_line_home", "line_writers")] = "test_retained_line_home_excludes_a_later_or_active_writer"
 WITNESSES.update({entry: _stage_c_witness(entry) for entry in STAGE_C_STATED})
 
 for _entry in DEADLINE_OWNERS:
@@ -15749,6 +15905,198 @@ class StatedRules(BoundaryCase):
         # nothing about the world (the check is step one, before the replay).
         self.assertIsInstance(fixture.restore(), dict)
         self._profile_owner_witness(lambda profile: fixture.restore(profile=profile), ("validate", "restore_checkpoint"))
+
+    # -- W385695 (review 2026-11-24T01-52-00Z C3): the recovery freeze's own
+    # witnesses. Each stated owner of `freeze_unreleased_recovered_checkpoint`
+    # and of the retained line home read is exercised AT ITS OWN BOUNDARY, over
+    # a world where the freeze really runs: a second writer granted on a
+    # reviewed line, started, declared abandoned and its gate discharged
+    # through the accepted public operations. Every witness first shows the
+    # sound world passes the boundary it is about, so the refusal that follows
+    # is that boundary's and not the world's.
+
+    def _recovery_freeze_world(self):
+        from . import test_review_cycles as cycles
+
+        fixture = self._restoration_world()
+        line = review_cycles.line_of(fixture.store, fixture.line_id)
+        head = f"{line['revision'] + 1:040x}"
+
+        class Recovering(cycles.Profile):
+            def head_of(self, repository):
+                return head
+
+        fixture.recovering = Recovering()
+
+        def freeze(**changed):
+            return review_cycles.freeze_unreleased_recovered_checkpoint(
+                fixture.store, **{
+                    "attempt_id": fixture.abandoned_attempt, "generation": 2,
+                    "profile": fixture.recovering,
+                    "candidate": {"base": line["declared_base"], "head": head},
+                    "retention_policy_digest": cycles.RETENTION, **changed})
+
+        fixture.freeze = freeze
+        return fixture
+
+    def _row_copied(self, fixture, table, key, value, **changed):
+        """One more row of `table`, a copy of the row `key = value` with the
+        named columns replaced -- a later writer or a second checkpoint is a
+        row no accepted operation will write over this world, which is the
+        point of the exclusion being probed."""
+        connection = fixture.store._connection
+        cursor = connection.execute(f"SELECT * FROM {table} WHERE {key} = ?", (value,))
+        columns = [one[0] for one in cursor.description]
+        row = dict(zip(columns, cursor.fetchone()), **changed)
+        connection.execute(
+            f"INSERT INTO {table} ({', '.join(columns)}) VALUES ({', '.join('?' * len(columns))})",
+            [row[name] for name in columns])
+        connection.commit()
+
+    def _unrecovered(self, fixture):
+        """Nothing of the recovery was committed: the writer is still active,
+        the line still writing at the checkpoint it was granted on."""
+        writer = review_cycles.writer_of(fixture.store, fixture.writer_row["writer_id"])
+        line = review_cycles.line_of(fixture.store, fixture.line_id)
+        self.assertEqual((writer["state"], line["state"], line["current_checkpoint_id"]),
+                         ("active", "writing", fixture.checkpoint["checkpoint_id"]))
+        self.assertIsNone(fixture.store.operation_record(
+            review_cycles.RECOVER_WRITER_KIND + ":" + writer["writer_id"]))
+
+    def test_recovery_freeze_excludes_a_later_or_active_writer(self):
+        """`line_writers` at the freeze: an existence answer, asked under the
+        write lock. A writer granted after this one -- revoked since or still
+        active -- holds the freeze and commits nothing; an EARLIER writer on
+        the same line (round one's, already in this world) does not."""
+        for label, changed in (
+                ("a later writer, since revoked",
+                 {"assignment_generation": 3, "state": "revoked", "revoked_at": NOW,
+                  "revocation_reason": "checkpoint"}),
+                ("another active writer", {"assignment_generation": 1})):
+            with self.subTest(label=label):
+                fixture = self._recovery_freeze_world()
+                connection = fixture.store._connection
+                if changed.get("state") != "revoked":
+                    # The table allows one active writer per line; the probe is
+                    # of the freeze's own question, so the index that would
+                    # answer it first is set aside for this one row.
+                    for (name,) in connection.execute(
+                            "SELECT name FROM sqlite_master WHERE type = 'index' AND tbl_name = 'line_writers' "
+                            "AND sql LIKE '%UNIQUE%' AND sql LIKE '%state%'").fetchall():
+                        connection.execute(f"DROP INDEX {name}")
+                fixture.attempt("writer-attempt-9", 9, "baton.impl", "writer-9")
+                self._row_copied(fixture, "line_writers", "writer_id", fixture.writer_row["writer_id"],
+                                 writer_id="writer-later-probe", runtime_attempt_id="writer-attempt-9", **changed)
+                with self.assertRaises(ContractRefusal) as caught:
+                    fixture.freeze()
+                self.assertIn("another writer has used the line", str(caught.exception))
+                self._unrecovered(fixture)
+        # THE NEGATIVE CONTROL: with only the earlier writer beside it, it freezes.
+        fixture = self._recovery_freeze_world()
+        self.assertEqual(fixture.freeze()["revision"], 2)
+
+    def test_recovery_freeze_excludes_a_writer_that_already_has_a_checkpoint(self):
+        """`line_checkpoints` at the freeze: an existence answer for this
+        writer or this checkpoint identity. Another writer's checkpoint -- the
+        reviewed round one in this world -- is not that answer."""
+        for label, changed in (
+                ("a checkpoint already recorded for this writer",
+                 lambda fixture: {"checkpoint_id": "checkpoint-probe-other", "revision": 7,
+                                  "writer_id": fixture.writer_row["writer_id"]}),
+                ("this checkpoint identity already recorded",
+                 lambda fixture: {"checkpoint_id": review_cycles._id("checkpoint", {
+                     "line_id": fixture.line_id, "revision": 2}), "revision": 7,
+                     "writer_id": "writer-earlier-probe"})):
+            with self.subTest(label=label):
+                fixture = self._recovery_freeze_world()
+                # An EARLIER writer with no checkpoint of its own, so the
+                # identity case is not answered by the later-writer question.
+                fixture.attempt("writer-attempt-9", 9, "baton.impl", "writer-9")
+                self._row_copied(fixture, "line_writers", "writer_id", fixture.writer_row["writer_id"],
+                                 writer_id="writer-earlier-probe", runtime_attempt_id="writer-attempt-9",
+                                 assignment_generation=1, state="revoked", revoked_at=NOW,
+                                 revocation_reason="checkpoint")
+                self._row_copied(
+                    fixture, "line_checkpoints", "checkpoint_id", fixture.checkpoint["checkpoint_id"],
+                    **changed(fixture))
+                with self.assertRaises(ContractRefusal) as caught:
+                    fixture.freeze()
+                self.assertIn("the writer already has a checkpoint", str(caught.exception))
+                self._unrecovered(fixture)
+        fixture = self._recovery_freeze_world()
+        self.assertEqual(fixture.freeze()["revision"], 2)
+
+    def test_recovery_freeze_replay_hands_the_committed_fence_on_unread(self):
+        """`replay` at the freeze: the committed fence is handed whole to
+        `_freeze_checkpoint`, which requires it to BE the fence the row holds.
+        A retry answers the same checkpoint without freezing again; a
+        conflicting retry is refused at the operation's own signature; and a
+        row whose fence is no longer that document is refused by the
+        checkpoint reader -- never patched up or re-derived here."""
+        fixture = self._recovery_freeze_world()
+        first = fixture.freeze()
+        frozen = list(fixture.recovering.freeze_calls)
+        self.assertEqual(fixture.freeze(), first)
+        self.assertEqual(fixture.recovering.freeze_calls, frozen)
+        with self.assertRaises(ContractRefusal):
+            fixture.freeze(candidate={"base": first["evidence"]["base"], "head": "f" * 40})
+        self.assertEqual(review_cycles.checkpoint_of(fixture.store, first["checkpoint_id"])["fence"], first["fence"])
+        # THE ROW'S FENCE MOVES; the replayed act's answer does not.
+        moved = json.loads(json.dumps(first["fence"]))
+        moved["intent"]["exclusion_digest"] = "sha256:" + "0" * 64
+        fixture.store._connection.execute(
+            "UPDATE line_checkpoints SET fence = ?, fence_digest = ? WHERE checkpoint_id = ?",
+            (json.dumps(moved, sort_keys=True, separators=(",", ":")), _contracts_digest(moved),
+             first["checkpoint_id"]))
+        fixture.store._connection.commit()
+        with patch.object(review_cycles, "_freeze_checkpoint", wraps=review_cycles._freeze_checkpoint) as delegated:
+            with self.assertRaises(ContractRefusal):
+                fixture.freeze()
+            # HANDED ON WHOLE: what the freeze passes down is the committed
+            # document, equal to the first answer's and not to the moved row's.
+            self.assertEqual(delegated.call_args.kwargs["_recovery"]["fence"], first["fence"])
+
+    def test_recovery_freeze_profile_owner(self):
+        """`profile` at the freeze: an injected aggregate whose name and whose
+        freeze, validate and head_of capabilities are typed before any use."""
+        fixture = self._recovery_freeze_world()
+        for label, profile in self._spoiled_profiles(("freeze", "validate", "head_of")):
+            with self.subTest(label=label):
+                with self.assertRaises(ContractRefusal) as caught:
+                    fixture.freeze(profile=profile)
+                self.assertIn(label, str(caught.exception))
+                self.assertEqual(fixture.recovering.freeze_calls[1:], [])
+                # THE BYPASS IS NOTICED: skip `_profile` and the same operand
+                # is not refused by that label any more.
+                try:
+                    with patch.object(review_cycles, "_profile", lambda profile, methods: "test-profile"):
+                        fixture.freeze(profile=profile)
+                except Exception as escaped:  # noqa: BLE001 -- whatever fails next
+                    self.assertNotIn(label, str(escaped), "the refusal did not come from `_profile`")
+                self._unrecovered(fixture) if label != "a checkpoint profile name" else None
+        # THE WORLD IS SOUND: the capable profile freezes it.
+        self.assertEqual(fixture.freeze()["revision"], 2)
+
+    def test_retained_line_home_excludes_a_later_or_active_writer(self):
+        """`line_writers` at the retained line home read: an existence answer
+        for a writer granted on this line after the ended attempt's. With one
+        the read refuses before any path is resolved; without one the home is
+        located and proved."""
+        from baton_v12.worker_manager import workspaces as owner
+
+        fixture = self._recovery_freeze_world()
+        line = review_cycles.line_of(fixture.store, fixture.line_id)
+        located = owner._retained_line_home(fixture.store, fixture.abandoned_attempt, None, "a witness read")
+        self.assertEqual(located[0], line["line_path"])
+        fixture.attempt("writer-attempt-9", 9, "baton.impl", "writer-9")
+        self._row_copied(fixture, "line_writers", "writer_id", fixture.writer_row["writer_id"],
+                         writer_id="writer-later-probe", runtime_attempt_id="writer-attempt-9",
+                         assignment_generation=3, state="revoked", revoked_at=NOW, revocation_reason="checkpoint")
+        with patch.object(owner, "configured_workspace_storage", side_effect=AssertionError("resolved a path")):
+            with self.assertRaises(ContractRefusal) as caught:
+                owner._retained_line_home(fixture.store, fixture.abandoned_attempt, None, "a witness read")
+        self.assertIn("was granted to another writer", str(caught.exception))
+        self.assertIn("writer-later-probe", str(caught.exception))
 
     def test_settle_restoration_execution_profile_owner(self):
         fixture = self._restoration_world()
@@ -21144,7 +21492,10 @@ class DuplicateColumnChecksRequireOwnedWitnesses(unittest.TestCase):
         self.assertEqual((caught.exception.category, caught.exception.code), ("integrity", "schema"))
         nested = ("adopted", "review_cycles.py:checkpoint_of", "line_checkpoints.fence.intent")
         self.assertNotIn(nested, _column_check_relations(self.records, {nested}, self.sources))
-        self.assertEqual(set(layer_labels(nested)), {"a persisted assignment fence", "a persisted line checkpoint"})
+        # W385695: the intent now has ONE owner of its own -- the recovery
+        # fence's closed document rule -- so the covering envelope and row
+        # labels no longer stand in for it.
+        self.assertEqual(set(layer_labels(nested)), {"a recovery fence intent"})
 
 
 class StoppedSettlementInventory(BoundaryCase):

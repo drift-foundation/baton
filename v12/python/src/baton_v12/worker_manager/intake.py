@@ -3234,6 +3234,31 @@ def _abandoned_absence(store, taken, attempt_id, operation, what):
     return cleanup
 
 
+def abandonment_declared(store, *, attempt_id):
+    """The committed abandonment DECLARATION of this exact attempt, or `None`.
+
+    W385695 (review 2026-11-24T01-52-00Z C4). An installed caller that lost
+    the reply to a removal, or was cut after the runtime was recorded
+    destroyed and before the ending settled, has to tell "this attempt's
+    abandonment already began" from "this attempt ended some other way" --
+    and the mutable axes cannot: both are `destroyed`. The journal can. This
+    answers the declaration `abandon_attempt` committed before any external
+    call, validated exactly as every other reader of it validates it, so the
+    caller can let that owner replay or finish what it started.
+
+    IT IS NOT EVIDENCE OF ABSENCE and not an ending: a declaration whose
+    removal never committed is an abandonment that has not finished.
+    `abandonment_cleanup_of` remains the one reader of the finished act.
+    It writes nothing and calls nothing.
+    """
+    boundaries.identity(attempt_id, "a runtime attempt id")
+    attempt = _attempt_of(store._connection, attempt_id)
+    if _fixed_assignment(attempt) is None:
+        return None
+    declared = _abandonment_declaration(store, attempt, attempt_id)
+    return None if declared is None else dict(declared["document"])
+
+
 def abandonment_cleanup_of(store, *, attempt_id, retention_policy_digest):
     """The committed ABANDONED cleanup for this attempt and policy, or absence.
 

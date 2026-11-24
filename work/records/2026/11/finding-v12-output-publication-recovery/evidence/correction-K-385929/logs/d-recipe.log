@@ -1,0 +1,1151 @@
+test_a_document_carrying_material_it_should_not_latches_too (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_carrying_material_it_should_not_latches_too)
+CLOSED, not an allowlist. An extra top-level member is how a second ... ok
+test_a_document_from_another_generation_latches (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches)
+W26291 REPLACED `test_an_invalid_posture_...`. The posture axis is ... ok
+test_a_document_short_a_member_or_carrying_a_bad_value_latches (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_short_a_member_or_carrying_a_bad_value_latches) ... ok
+test_a_healthy_container_keeps_answering_after_a_foreign_frame (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_healthy_container_keeps_answering_after_a_foreign_frame)
+The other half of the same move: lifting the binding out of ... ok
+test_a_latched_fault_does_not_answer_another_sessions_envelope (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_latched_fault_does_not_answer_another_sessions_envelope)
+Startup correlation does not relax the common session binding. ... ok
+test_a_latched_fault_refuses_a_foreign_protocol_the_same_way (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_latched_fault_refuses_a_foreign_protocol_the_same_way)
+The binding is protocol AND session, and both precede the latched ... ok
+test_a_latched_fault_with_no_readable_envelope_says_nothing (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_latched_fault_with_no_readable_envelope_says_nothing) ... ok
+test_a_refused_binding_on_a_latched_container_still_answers_once (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_refused_binding_on_a_latched_container_still_answers_once)
+The three properties the correction had to KEEP. Which fault a ... ok
+test_exactly_one_envelope_is_read_and_the_task_is_never_dispatched (tests.manager.test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_exactly_one_envelope_is_read_and_the_task_is_never_dispatched)
+Reading the envelope grants no task, workspace, output, tool or ... ok
+test_a_descriptor_that_is_not_the_frozen_shape_refuses (tests.manager.test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_a_descriptor_that_is_not_the_frozen_shape_refuses)
+The closed set is the contract's own. A member missing is a ... ok
+test_a_directory_link_is_not_silently_omitted_from_measurement (tests.manager.test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_a_directory_link_is_not_silently_omitted_from_measurement)
+`os.walk(..., followlinks=False)` lists a directory link in ... ok
+test_a_keyword_this_worker_does_not_implement_is_a_fault (tests.manager.test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_a_keyword_this_worker_does_not_implement_is_a_fault)
+THE PROPERTY THAT KEEPS THIS FROM BECOMING A PARAPHRASE AGAIN. ... ok
+test_a_path_that_resolves_out_of_the_root_never_reaches_the_agent (tests.manager.test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_a_path_that_resolves_out_of_the_root_never_reaches_the_agent)
+AND SEPARATED THE OTHER WAY. This spelling is perfectly canonical ... ok
+test_a_regular_file_link_is_refused_too (tests.manager.test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_a_regular_file_link_is_refused_too)
+The other half of `link_policy: forbid`. The review's case covers a ... ok
+test_a_spelling_the_grammar_refuses_never_reaches_the_agent (tests.manager.test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_a_spelling_the_grammar_refuses_never_reaches_the_agent)
+SEPARATED FROM CONTAINMENT ON PURPOSE. Each of these stays INSIDE ... ok
+test_a_stated_validator_digest_is_refused_rather_than_ignored (tests.manager.test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_a_stated_validator_digest_is_refused_rather_than_ignored)
+FAIL-CLOSED, not unimplemented. §7.2 makes `type` opaque and the ... ok
+test_a_value_matching_no_frozen_branch_is_refused (tests.manager.test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_a_value_matching_no_frozen_branch_is_refused)
+`validator_digest` is `oneOf` a digest or null, and this is the ... ok
+test_constraints_that_are_not_the_frozen_shape_refuse (tests.manager.test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_constraints_that_are_not_the_frozen_shape_refuse) ... ok
+test_descriptor_values_are_the_frozen_types_and_bounds (tests.manager.test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_descriptor_values_are_the_frozen_types_and_bounds)
+Deriving member names is not validation of the members' values. ... ok
+test_each_frozen_keyword_can_refuse_on_its_own (tests.manager.test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_each_frozen_keyword_can_refuse_on_its_own)
+W6633 twelfth review: prove each guard fails INDEPENDENTLY. ... ok
+test_one_name_is_declared_once (tests.manager.test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_one_name_is_declared_once) ... ok
+test_the_entry_ceiling_refuses_before_publication (tests.manager.test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_the_entry_ceiling_refuses_before_publication)
+The scripted agent writes one file per declared output, so a ... ok
+test_the_output_manifest_name_is_reserved (tests.manager.test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_the_output_manifest_name_is_reserved)
+`output.json` is this root's protocol document, and its presence ... ok
+test_two_declarations_cannot_name_one_tree (tests.manager.test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_two_declarations_cannot_name_one_tree)
+§7.2: the same bytes under two names are two artifacts with two ... ok
+test_an_agents_output_answer_is_held_against_the_declarations (tests.manager.test_worker_image.TheAnswerIsValidatedBeforeItIsFramed.test_an_agents_output_answer_is_held_against_the_declarations)
+W14251, closed. `workspace` is gone, and what replaces it is not a ... ok
+test_an_answer_member_that_is_not_bounded_text_is_refused (tests.manager.test_worker_image.TheAnswerIsValidatedBeforeItIsFramed.test_an_answer_member_that_is_not_bounded_text_is_refused) ... ok
+test_an_answer_missing_a_member_never_becomes_a_frame (tests.manager.test_worker_image.TheAnswerIsValidatedBeforeItIsFramed.test_an_answer_missing_a_member_never_becomes_a_frame) ... ok
+test_an_answer_with_an_extra_member_never_becomes_a_frame (tests.manager.test_worker_image.TheAnswerIsValidatedBeforeItIsFramed.test_an_answer_with_an_extra_member_never_becomes_a_frame) ... ok
+test_the_correlated_work_answer_names_outputs_only (tests.manager.test_worker_image.TheAnswerIsValidatedBeforeItIsFramed.test_the_correlated_work_answer_names_outputs_only)
+The completion envelope carries workerOutput documents; the framed ... ok
+test_the_pinned_answer_sets_are_what_the_contract_names (tests.manager.test_worker_image.TheAnswerIsValidatedBeforeItIsFramed.test_the_pinned_answer_sets_are_what_the_contract_names) ... ok
+test_the_scripted_work_answer_is_exactly_the_pinned_set (tests.manager.test_worker_image.TheAnswerIsValidatedBeforeItIsFramed.test_the_scripted_work_answer_is_exactly_the_pinned_set) ... ok
+test_a_contract_valid_input_manifest_reaches_the_agent (tests.manager.test_worker_image.TheArtifactNeutralInputIsTheFrozenManifest.test_a_contract_valid_input_manifest_reaches_the_agent)
+The reference worker consumes the contract's actual inputManifest. ... ok
+test_a_declared_output_path_cannot_escape_the_output_root (tests.manager.test_worker_image.TheArtifactNeutralInputIsTheFrozenManifest.test_a_declared_output_path_cannot_escape_the_output_root)
+The worker consumes the path, so it owns the relative-path check. ... ok
+test_declared_output_limits_hold_before_completion_publication (tests.manager.test_worker_image.TheArtifactNeutralInputIsTheFrozenManifest.test_declared_output_limits_hold_before_completion_publication)
+Constraints are assignment inputs, not manager-only commentary. ... ok
+test_a_delivery_missing_a_binding_member_refuses (tests.manager.test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument.test_a_delivery_missing_a_binding_member_refuses)
+The pair rule cannot be checked against a document that does not ... ok
+test_a_document_that_says_it_is_the_other_one_refuses (tests.manager.test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument.test_a_document_that_says_it_is_the_other_one_refuses)
+W19784 second round. The closed-member check alone would NOT catch ... ok
+test_a_malformed_assignment_document_refuses (tests.manager.test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument.test_a_malformed_assignment_document_refuses) ... ok
+test_a_mis_composed_pair_refuses_before_the_agent (tests.manager.test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument.test_a_mis_composed_pair_refuses_before_the_agent)
+Each document below is separately readable and separately ... ok
+test_a_missing_assignment_document_refuses_before_the_agent (tests.manager.test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument.test_a_missing_assignment_document_refuses_before_the_agent)
+Nothing is written, because nothing ran. A worker that dispatched an ... ok
+test_an_agent_never_runs_for_an_operation_this_runtime_refuses (tests.manager.test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument.test_an_agent_never_runs_for_an_operation_this_runtime_refuses)
+W26291 REPLACED `test_consent_reads_neither_input_document`, whose ... ok
+test_an_identity_this_worker_would_have_to_invent_refuses (tests.manager.test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument.test_an_identity_this_worker_would_have_to_invent_refuses)
+`assignment_ref` is COPIED, so a delivered value that is not exactly ... ok
+test_both_delivered_manifests_are_closed_before_dispatch (tests.manager.test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument.test_both_delivered_manifests_are_closed_before_dispatch)
+A second identity alias is invalid even when all pair bindings and ... ok
+test_both_delivered_manifests_prove_their_own_digest_before_dispatch (tests.manager.test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument.test_both_delivered_manifests_prove_their_own_digest_before_dispatch)
+The approved ruling says the worker validates both CLOSED manifests, ... ok
+test_the_envelope_carries_the_delivered_identity_exactly (tests.manager.test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument.test_the_envelope_carries_the_delivered_identity_exactly)
+The positive that closes the finding: run the whole path and read ... ok
+test_the_identity_is_not_taken_from_the_input_manifest (tests.manager.test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument.test_the_identity_is_not_taken_from_the_input_manifest)
+A worker that fell back to the input side would be reading a ... ok
+test_a_clean_end_of_input_is_an_answer (tests.manager.test_worker_image.TheChannelIsFramedAndBounded.test_a_clean_end_of_input_is_an_answer) ... ok
+test_a_frame_round_trips (tests.manager.test_worker_image.TheChannelIsFramedAndBounded.test_a_frame_round_trips) ... ok
+test_a_header_that_never_ends_is_bounded_too (tests.manager.test_worker_image.TheChannelIsFramedAndBounded.test_a_header_that_never_ends_is_bounded_too)
+A header is caller input, so the bound is on it as well as on the ... ok
+test_a_malformed_frame_has_no_identity_so_it_gets_no_answer (tests.manager.test_worker_image.TheChannelIsFramedAndBounded.test_a_malformed_frame_has_no_identity_so_it_gets_no_answer) ... ok
+test_an_oversized_frame_is_refused_before_it_is_read (tests.manager.test_worker_image.TheChannelIsFramedAndBounded.test_an_oversized_frame_is_refused_before_it_is_read) ... ok
+test_our_own_answer_is_bounded_and_keeps_its_identity (tests.manager.test_worker_image.TheChannelIsFramedAndBounded.test_our_own_answer_is_bounded_and_keeps_its_identity)
+An agent that produced an enormous recap must not make this program ... ok
+test_the_framing_is_length_prefixed_and_not_newline_delimited (tests.manager.test_worker_image.TheChannelIsFramedAndBounded.test_the_framing_is_length_prefixed_and_not_newline_delimited)
+A newline is a byte an agent's output legitimately contains, and a ... ok
+test_a_member_no_operation_names_is_named (tests.manager.test_worker_image.TheClosureIsPerOperation.test_a_member_no_operation_names_is_named)
+W19784, migrating W6633's leftover. This asserted "missing task", ... ok
+test_an_unknown_member_is_refused_rather_than_ignored (tests.manager.test_worker_image.TheClosureIsPerOperation.test_an_unknown_member_is_refused_rather_than_ignored) ... ok
+test_an_unknown_operation_is_refused_before_anything_else (tests.manager.test_worker_image.TheClosureIsPerOperation.test_an_unknown_operation_is_refused_before_anything_else) ... ok
+test_describe_does_not_accept_another_operations_member (tests.manager.test_worker_image.TheClosureIsPerOperation.test_describe_does_not_accept_another_operations_member) ... ok
+test_each_operation_names_exactly_its_own_members (tests.manager.test_worker_image.TheClosureIsPerOperation.test_each_operation_names_exactly_its_own_members) ... ok
+test_a_fault_carries_the_same_identity_and_nothing_else (tests.manager.test_worker_image.TheEnvelopeBindsEveryFrame.test_a_fault_carries_the_same_identity_and_nothing_else) ... ok
+test_a_frame_naming_another_session_is_refused (tests.manager.test_worker_image.TheEnvelopeBindsEveryFrame.test_a_frame_naming_another_session_is_refused)
+A worker answers only the session the manager minted for it. ... ok
+test_a_frame_refused_for_its_shape_never_spends_its_id (tests.manager.test_worker_image.TheEnvelopeBindsEveryFrame.test_a_frame_refused_for_its_shape_never_spends_its_id)
+The other side of the same rule, and the reason the fence sits ... ok
+test_a_frame_speaking_another_protocol_is_refused (tests.manager.test_worker_image.TheEnvelopeBindsEveryFrame.test_a_frame_speaking_another_protocol_is_refused) ... ok
+test_a_missing_identity_member_is_answered_by_no_frame_at_all (tests.manager.test_worker_image.TheEnvelopeBindsEveryFrame.test_a_missing_identity_member_is_answered_by_no_frame_at_all)
+The ruling forbids inventing an uncorrelated response shape, so a ... ok
+test_a_missing_session_identity_produces_no_frame (tests.manager.test_worker_image.TheEnvelopeBindsEveryFrame.test_a_missing_session_identity_produces_no_frame)
+Without it nothing this program says could be matched to anything, ... ok
+test_a_well_formed_request_is_answered_and_correlated (tests.manager.test_worker_image.TheEnvelopeBindsEveryFrame.test_a_well_formed_request_is_answered_and_correlated) ... ok
+test_a_worker_refuses_a_frame_minted_for_another_container (tests.manager.test_worker_image.TheEnvelopeBindsEveryFrame.test_a_worker_refuses_a_frame_minted_for_another_container)
+W26291 REPLACED the cross-POSTURE case, whose subject -- two ... ok
+test_an_id_that_reached_the_agent_is_spent_whatever_the_outcome (tests.manager.test_worker_image.TheEnvelopeBindsEveryFrame.test_an_id_that_reached_the_agent_is_spent_whatever_the_outcome)
+"It failed, so you may send it again" is exactly the reasoning a ... ok
+test_an_identity_member_that_is_not_bounded_text_is_uncorrelatable (tests.manager.test_worker_image.TheEnvelopeBindsEveryFrame.test_an_identity_member_that_is_not_bounded_text_is_uncorrelatable) ... ok
+test_an_operation_id_is_consumed_once_within_a_session (tests.manager.test_worker_image.TheEnvelopeBindsEveryFrame.test_an_operation_id_is_consumed_once_within_a_session) ... ok
+test_a_missing_optional_output_is_not_named_as_produced (tests.manager.test_worker_image.TheFramedAnswerIsNotTheCompletionEnvelope.test_a_missing_optional_output_is_not_named_as_produced)
+The member is what was PRODUCED. An output answered ... ok
+test_an_entry_wider_than_a_frame_is_not_bounded_text (tests.manager.test_worker_image.TheFramedAnswerIsNotTheCompletionEnvelope.test_an_entry_wider_than_a_frame_is_not_bounded_text)
+A list of unbounded strings is unbounded text with extra steps. ... ok
+test_the_rule_has_no_exemption_for_outputs (tests.manager.test_worker_image.TheFramedAnswerIsNotTheCompletionEnvelope.test_the_rule_has_no_exemption_for_outputs)
+`check_answer` is a boundary and is exercised as one. The member ... ok
+test_the_cache_is_removed_before_the_worker_is_imported (tests.manager.test_worker_image.TheGateCannotRunAgainstStaleBytecode.test_the_cache_is_removed_before_the_worker_is_imported)
+Ordering is the whole content: a removal after the import would ... ok
+test_the_module_under_test_is_the_file_on_disk (tests.manager.test_worker_image.TheGateCannotRunAgainstStaleBytecode.test_the_module_under_test_is_the_file_on_disk)
+Not that a cache is absent -- that what this suite has loaded IS the ... ok
+test_a_directory_at_the_launch_path_is_refused_by_the_descriptor (tests.manager.test_worker_image.TheLaunchReadIsBoundedNoFollowAndProved.test_a_directory_at_the_launch_path_is_refused_by_the_descriptor) ... ok
+test_a_document_wider_than_the_ceiling_is_refused_before_it_parses (tests.manager.test_worker_image.TheLaunchReadIsBoundedNoFollowAndProved.test_a_document_wider_than_the_ceiling_is_refused_before_it_parses) ... ok
+test_a_link_at_the_launch_path_is_not_followed (tests.manager.test_worker_image.TheLaunchReadIsBoundedNoFollowAndProved.test_a_link_at_the_launch_path_is_not_followed)
+`O_NOFOLLOW`. A link is how a path this contract FIXED becomes a ... ok
+test_a_pipe_at_the_launch_path_does_not_block (tests.manager.test_worker_image.TheLaunchReadIsBoundedNoFollowAndProved.test_a_pipe_at_the_launch_path_does_not_block)
+`O_NONBLOCK`, and the case BOUNDS ITSELF for the reason W26283's ... ok
+test_a_whole_document_at_the_fixed_path_is_read (tests.manager.test_worker_image.TheLaunchReadIsBoundedNoFollowAndProved.test_a_whole_document_at_the_fixed_path_is_read) ... ok
+test_a_writable_document_is_refused_however_good_its_bytes_are (tests.manager.test_worker_image.TheLaunchReadIsBoundedNoFollowAndProved.test_a_writable_document_is_refused_however_good_its_bytes_are)
+A launch document this worker could rewrite is one it could change ... ok
+test_an_absent_document_says_nothing_at_all (tests.manager.test_worker_image.TheLaunchReadIsBoundedNoFollowAndProved.test_an_absent_document_says_nothing_at_all) ... ok
+test_no_environment_value_stands_in_for_the_document (tests.manager.test_worker_image.TheLaunchReadIsBoundedNoFollowAndProved.test_no_environment_value_stands_in_for_the_document)
+THE SUPERSESSION'S OWN CLAUSE. `serve` takes no environment operand ... ok
+test_the_read_takes_at_most_the_ceiling_plus_one_byte (tests.manager.test_worker_image.TheLaunchReadIsBoundedNoFollowAndProved.test_the_read_takes_at_most_the_ceiling_plus_one_byte)
+W26283's rule, applied to the one file this program reads. ... ok
+test_a_falsey_injected_agent_is_still_the_injected_agent (tests.manager.test_worker_image.TheProviderInjectionSeam.test_a_falsey_injected_agent_is_still_the_injected_agent)
+Injection is an explicit optional value, not a truthiness test. ... ok
+test_an_injected_agent_needs_no_scripted_default_module (tests.manager.test_worker_image.TheProviderInjectionSeam.test_an_injected_agent_needs_no_scripted_default_module)
+An override must not import the unused thing it overrides. ... ok
+test_none_still_constructs_the_scripted_default (tests.manager.test_worker_image.TheProviderInjectionSeam.test_none_still_constructs_the_scripted_default) ... ok
+test_no_secret_or_assignment_material_enters_a_layer (tests.manager.test_worker_image.TheRecipeIsInspectableWithoutADaemon.test_no_secret_or_assignment_material_enters_a_layer)
+An EXHAUSTIVE list, so a layer cannot carry an assignment, a bearer ... ok
+test_the_base_is_pinned_by_digest_and_never_by_tag (tests.manager.test_worker_image.TheRecipeIsInspectableWithoutADaemon.test_the_base_is_pinned_by_digest_and_never_by_tag) ... ok
+test_the_entrypoint_is_exec_form_with_no_shell (tests.manager.test_worker_image.TheRecipeIsInspectableWithoutADaemon.test_the_entrypoint_is_exec_form_with_no_shell)
+No shell in the process tree, so nothing interprets a signal or a ... ok
+test_the_image_announces_no_network_or_health_surface (tests.manager.test_worker_image.TheRecipeIsInspectableWithoutADaemon.test_the_image_announces_no_network_or_health_surface) ... ok
+test_the_image_defaults_to_no_posture_and_no_session (tests.manager.test_worker_image.TheRecipeIsInspectableWithoutADaemon.test_the_image_defaults_to_no_posture_and_no_session) ... ok
+test_the_runtime_user_is_a_fixed_non_root_numeric_id (tests.manager.test_worker_image.TheRecipeIsInspectableWithoutADaemon.test_the_runtime_user_is_a_fixed_non_root_numeric_id) ... ok
+test_the_shipped_contract_is_data_and_not_a_second_program (tests.manager.test_worker_image.TheRecipeIsInspectableWithoutADaemon.test_the_shipped_contract_is_data_and_not_a_second_program)
+The one thing that would make the third COPY a mistake: if it were ... ok
+test_the_user_agrees_with_the_adapters_own_restriction (tests.manager.test_worker_image.TheRecipeIsInspectableWithoutADaemon.test_the_user_agrees_with_the_adapters_own_restriction)
+Two places agreeing because they were written from one decision. ... ok
+test_a_closed_channel_is_the_manager_closing_it_and_not_cancellation (tests.manager.test_worker_image.TheScriptedFixtures.test_a_closed_channel_is_the_manager_closing_it_and_not_cancellation)
+SUPERSEDED FIXTURE, and the ruling is why. An input stream empty ... ok
+test_an_agent_fault_is_a_frame_and_carries_no_traceback (tests.manager.test_worker_image.TheScriptedFixtures.test_an_agent_fault_is_a_frame_and_carries_no_traceback)
+A traceback would carry paths from inside the image out through the ... ok
+test_execution_completes_and_recaps (tests.manager.test_worker_image.TheScriptedFixtures.test_execution_completes_and_recaps)
+W19784, migrating W6633's leftover. This read `answer["workspace"]` ... ok
+test_the_same_request_produces_the_same_bytes (tests.manager.test_worker_image.TheScriptedFixtures.test_the_same_request_produces_the_same_bytes)
+DETERMINISTIC is what makes a reproducibility case possible. ... ok
+test_the_scripted_consider_is_deterministic_and_reads_the_document (tests.manager.test_worker_image.TheScriptedFixtures.test_the_scripted_consider_is_deterministic_and_reads_the_document)
+ASKED OF THE AGENT DIRECTLY, and W26291 is why. ... ok
+test_the_entry_point_imports_nothing_from_the_distribution (tests.manager.test_worker_image.TheWorkerHoldsNoneOfTheManagersCapabilities.test_the_entry_point_imports_nothing_from_the_distribution)
+A worker that could import the manager is a worker one bug away ... ok
+test_the_operation_set_is_the_one_runtimes (tests.manager.test_worker_image.TheWorkerHoldsNoneOfTheManagersCapabilities.test_the_operation_set_is_the_one_runtimes)
+W26291 REPLACED `test_the_two_postures_are_the_whole_set`. ... ok
+test_the_protocol_name_is_the_only_thing_it_announces (tests.manager.test_worker_image.TheWorkerHoldsNoneOfTheManagersCapabilities.test_the_protocol_name_is_the_only_thing_it_announces) ... ok
+test_material_cannot_arrive_inside_a_frame (tests.manager.test_worker_image.ThisRuntimeAnswersOnlyItsOwnOperations.test_material_cannot_arrive_inside_a_frame) ... ok
+test_the_entitlement_is_checked_on_every_operation (tests.manager.test_worker_image.ThisRuntimeAnswersOnlyItsOwnOperations.test_the_entitlement_is_checked_on_every_operation)
+A check that ran once at start is a check a later message walks ... ok
+test_the_refusal_names_a_real_operation_rather_than_an_unknown_word (tests.manager.test_worker_image.ThisRuntimeAnswersOnlyItsOwnOperations.test_the_refusal_names_a_real_operation_rather_than_an_unknown_word)
+The distinction is the whole reason `consider` is kept. An unknown ... ok
+test_there_is_no_message_that_widens_this_runtime (tests.manager.test_worker_image.ThisRuntimeAnswersOnlyItsOwnOperations.test_there_is_no_message_that_widens_this_runtime) ... ok
+test_this_runtime_is_not_asked_to_consider (tests.manager.test_worker_image.ThisRuntimeAnswersOnlyItsOwnOperations.test_this_runtime_is_not_asked_to_consider) ... ok
+test_a_path_is_not_a_selection (tests.manager.test_verifier_topology.TheAdapterBindsTheSelectionToItsOwnIdentity.test_a_path_is_not_a_selection) ... ok
+test_a_selection_under_another_resolved_identity_refuses (tests.manager.test_verifier_topology.TheAdapterBindsTheSelectionToItsOwnIdentity.test_a_selection_under_another_resolved_identity_refuses)
+EACH MEMBER, SEPARATELY, so none of the four is merely along for ... ok
+test_no_selection_is_the_unchanged_default (tests.manager.test_verifier_topology.TheAdapterBindsTheSelectionToItsOwnIdentity.test_no_selection_is_the_unchanged_default)
+Every existing construction path is byte-for-byte unaffected. ... ok
+test_the_matching_selection_is_held (tests.manager.test_verifier_topology.TheAdapterBindsTheSelectionToItsOwnIdentity.test_the_matching_selection_is_held) ... ok
+test_a_workspace_at_the_floor_still_refuses (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_a_workspace_at_the_floor_still_refuses)
+The floor is strictly above the aggregate, as it was before. ... ok
+test_both_tables_hold_the_same_aggregate (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_both_tables_hold_the_same_aggregate)
+So a deployment neither gains nor loses room by selecting the new ... ok
+test_every_per_root_limit_is_the_selected_one (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_every_per_root_limit_is_the_selected_one) ... ok
+test_no_root_is_in_the_unconditional_restrictions (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_no_root_is_in_the_unconditional_restrictions)
+Review [3]: `oci.RESTRICTIONS` is applied to EVERY run, so a ... ok
+test_the_aggregate_and_the_workspace_floor_are_unchanged (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_the_aggregate_and_the_workspace_floor_are_unchanged) ... ok
+test_the_floor_is_derived_from_the_aggregate (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_the_floor_is_derived_from_the_aggregate)
+And the aggregate is asserted equal across both tables, so the ... ok
+test_the_legacy_table_is_exactly_what_it_always_was (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_the_legacy_table_is_exactly_what_it_always_was)
+The preserved path, by value: two mounts at their original sizes ... ok
+test_the_shared_scratch_gave_up_exactly_what_the_roots_took (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_the_shared_scratch_gave_up_exactly_what_the_roots_took)
+A REDISTRIBUTION, not extra capacity -- and ON THE SELECTED PATH ... ok
+test_the_total_tmpfs_is_ninety_six_mebibytes (tests.manager.test_verifier_topology.TheCapacityPartitionIsTheOneThePacketSelected.test_the_total_tmpfs_is_ninety_six_mebibytes)
+80 MiB of scratch plus the existing 16 MiB legacy log decoy, which ... ok
+test_a_document_from_another_topology_refuses_at_the_worker (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_a_document_from_another_topology_refuses_at_the_worker) ... ok
+test_a_marker_from_another_topology_refuses_at_the_worker (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_a_marker_from_another_topology_refuses_at_the_worker) ... ok
+test_a_new_image_with_no_document_refuses (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_a_new_image_with_no_document_refuses)
+A marker and no delivery: the gap absence used to swallow. ... ok
+test_a_truncated_document_is_not_legacy (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_a_truncated_document_is_not_legacy) ... ok
+test_a_truncated_marker_is_not_an_old_image (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_a_truncated_marker_is_not_an_old_image) ... ok
+test_an_old_image_with_a_new_document_refuses (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_an_old_image_with_a_new_document_refuses)
+No marker: the image has no scaffolding to honour the selection. ... ok
+test_neither_document_is_legacy_and_reads_no_mount_table (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_neither_document_is_legacy_and_reads_no_mount_table)
+Supported, unchanged, and it costs nothing. ... ok
+test_the_manager_refuses_a_marker_from_another_topology (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_the_manager_refuses_a_marker_from_another_topology)
+A new image built from a DIFFERENT topology, caught at compose. ... ok
+test_the_manager_refuses_a_named_identity (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_the_manager_refuses_a_named_identity)
+THE REVIEW'S CORRECTION, DRIVEN: "Bind selected topology and ... ok
+test_the_manager_refuses_to_compose_for_an_old_image (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_the_manager_refuses_to_compose_for_an_old_image)
+THE MANAGER-SIDE REFUSAL the review asked for by name. ... ok
+test_the_managers_document_carries_no_unexpected_member (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_the_managers_document_carries_no_unexpected_member)
+The worker refuses extras, so the composer may not add one. ... ok
+test_the_managers_document_is_accepted_by_the_worker (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_the_managers_document_is_accepted_by_the_worker)
+ONE SELECTION, END TO END, with nothing in between. ... ok
+test_the_trusted_identity_is_the_minted_one (tests.manager.test_verifier_topology.TheComposedPairIsAcceptedAndIncompatibleOnesRefuse.test_the_trusted_identity_is_the_minted_one)
+TASK.md: "not hardcoded 65532, not ambient login group." ... ok
+test_a_changed_selection_at_the_name_refuses (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_a_changed_selection_at_the_name_refuses)
+Live runtimes were started against the bytes on disk. ... ok
+test_a_consent_runtime_composes_no_root_either (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_a_consent_runtime_composes_no_root_either)
+It refuses the selection, so it cannot acquire the roots by a side ... ok
+test_a_consent_runtime_takes_no_selection (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_a_consent_runtime_takes_no_selection)
+It mounts nothing and runs no verifier, so a selection there is a ... ok
+test_a_delivery_whose_document_is_gone_refuses (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_a_delivery_whose_document_is_gone_refuses)
+The type proof is about the OBJECT and is taken when the vector is ... ok
+test_a_document_bound_to_another_image_refuses (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_a_document_bound_to_another_image_refuses) ... ok
+test_a_document_naming_another_identity_refuses (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_a_document_naming_another_identity_refuses)
+It would describe roots this container cannot own, and the worker ... ok
+test_a_link_at_the_name_refuses_rather_than_being_read_through (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_a_link_at_the_name_refuses_rather_than_being_read_through) ... ok
+test_a_pair_of_paths_is_not_a_delivery (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_a_pair_of_paths_is_not_a_delivery)
+A path operand would be a caller-selected locator for the one ... ok
+test_an_assignment_mount_over_the_document_refuses (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_an_assignment_mount_over_the_document_refuses)
+Nobody else may decide what the worker proves its roots against. ... ok
+test_no_delivery_composes_no_mount (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_no_delivery_composes_no_mount)
+An explicitly legacy deployment is argv-identical to today. ... ok
+test_the_delivered_document_is_readable_and_not_writable (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_delivered_document_is_readable_and_not_writable)
+The container's execution identity must be able to READ it, and ... ok
+test_the_delivery_is_the_fixed_target (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_delivery_is_the_fixed_target) ... ok
+test_the_document_names_the_identity_the_argv_composes (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_document_names_the_identity_the_argv_composes)
+THE ONE OPINION, NOT TWO. `--user` and the document's uid/gid come ... ok
+test_the_engine_binds_it_read_only (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_engine_binds_it_read_only)
+IMMUTABILITY IS NOT A PARAMETER: a worker that could rewrite its ... ok
+test_the_materialized_bytes_are_the_composed_ones (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_materialized_bytes_are_the_composed_ones) ... ok
+test_the_mode_is_the_one_the_worker_proves (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_mode_is_the_one_the_worker_proves) ... ok
+test_the_mounted_identity_is_the_one_the_document_names (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_mounted_identity_is_the_one_the_document_names)
+One capability, three places: the document, the `--user` flag and ... ok
+test_the_same_selection_twice_adopts_the_same_bytes (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_same_selection_twice_adopts_the_same_bytes)
+A per-deployment selection, not a per-attempt one: refusing the ... ok
+test_the_selected_roots_carry_the_identity_and_mode_promised (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_selected_roots_carry_the_identity_and_mode_promised)
+REVIEW [2], DRIVEN. The worker's `_proved_root` refuses a root ... ok
+test_the_selected_vector_redistributes_rather_than_adding_room (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_selected_vector_redistributes_rather_than_adding_room)
+The shared scratch gives up exactly what the roots take, so the ... ok
+test_the_unselected_vector_gains_no_root_and_keeps_its_scratch (tests.manager.test_verifier_topology.TheDocumentIsDeliveredReadOnlyAtItsFixedTarget.test_the_unselected_vector_gains_no_root_and_keeps_its_scratch)
+REVIEW [3], DRIVEN: the legacy runtime is argv-identical to before ... ok
+test_every_launch_containment_list_also_carries_the_layout (tests.manager.test_verifier_topology.TheFixedTargetIsFIXEDForEveryFamily.test_every_launch_containment_list_also_carries_the_layout)
+THE SYMMETRY, STRUCTURALLY. A first cut composed the layout mount ... ok
+test_no_other_fixed_target_contains_the_document (tests.manager.test_verifier_topology.TheFixedTargetIsFIXEDForEveryFamily.test_no_other_fixed_target_contains_the_document)
+THE PROPERTY the containment entries protect, over the constants. ... ok
+test_the_four_verifier_roots_are_not_a_family_target_either (tests.manager.test_verifier_topology.TheFixedTargetIsFIXEDForEveryFamily.test_the_four_verifier_roots_are_not_a_family_target_either)
+The roots are MOUNTED BY THE IMAGE POSTURE, not by a delivery, so ... ok
+test_the_marker_bytes_are_the_composed_ones (tests.manager.test_verifier_topology.TheImageRecipeScaffoldsAndDeclaresTheTopology.test_the_marker_bytes_are_the_composed_ones)
+THE AGREEMENT, PROVED ON THE SHIPPED FILE. ... ok
+test_the_marker_is_copied_to_the_path_the_worker_reads (tests.manager.test_verifier_topology.TheImageRecipeScaffoldsAndDeclaresTheTopology.test_the_marker_is_copied_to_the_path_the_worker_reads) ... ok
+test_the_marker_is_not_owned_by_the_runtime_identity (tests.manager.test_verifier_topology.TheImageRecipeScaffoldsAndDeclaresTheTopology.test_the_marker_is_not_owned_by_the_runtime_identity)
+It is image bytes in a read-only rootfs, so a worker cannot ... ok
+test_the_recipe_scaffolds_every_root (tests.manager.test_verifier_topology.TheImageRecipeScaffoldsAndDeclaresTheTopology.test_the_recipe_scaffolds_every_root) ... ok
+test_the_scaffolding_is_made_before_privilege_drops (tests.manager.test_verifier_topology.TheImageRecipeScaffoldsAndDeclaresTheTopology.test_the_scaffolding_is_made_before_privilege_drops)
+Root-owned 0755 image directories: an unprivileged layer could not ... ok
+test_the_scaffolding_is_not_chowned_to_the_runtime_identity (tests.manager.test_verifier_topology.TheImageRecipeScaffoldsAndDeclaresTheTopology.test_the_scaffolding_is_not_chowned_to_the_runtime_identity)
+A writable ancestor is a directory a process sharing this uid can ... ok
+test_the_shipped_marker_is_accepted_by_the_worker (tests.manager.test_verifier_topology.TheImageRecipeScaffoldsAndDeclaresTheTopology.test_the_shipped_marker_is_accepted_by_the_worker)
+The adapter reads the file the image will actually carry. ... ok
+test_a_legacy_configuration_delivers_nothing (tests.manager.test_verifier_topology.TheSupportedDeploymentSelectsAndDeliversIt.test_a_legacy_configuration_delivers_nothing)
+EXPLICITLY LEGACY, and it costs nothing: no document is composed, ... ok
+test_a_marker_from_another_topology_refuses_at_the_deployment (tests.manager.test_verifier_topology.TheSupportedDeploymentSelectsAndDeliversIt.test_a_marker_from_another_topology_refuses_at_the_deployment)
+Before any runtime starts, rather than at a worker mid-run. ... ok
+test_the_configured_pair_delivers_the_document_the_worker_reads (tests.manager.test_verifier_topology.TheSupportedDeploymentSelectsAndDeliversIt.test_the_configured_pair_delivers_the_document_the_worker_reads)
+THE JOINED PATH: the deployment composes, materializes and delivers, ... ok
+test_the_delivered_identity_is_the_deployments_minted_one (tests.manager.test_verifier_topology.TheSupportedDeploymentSelectsAndDeliversIt.test_the_delivered_identity_is_the_deployments_minted_one) ... ok
+test_the_delivery_is_what_the_adapter_accepts (tests.manager.test_verifier_topology.TheSupportedDeploymentSelectsAndDeliversIt.test_the_delivery_is_what_the_adapter_accepts)
+The adapter binds it to its own resolved identity, so a delivery ... ok
+test_the_three_supported_schemas (tests.manager.test_verifier_topology.TheSupportedDeploymentSelectsAndDeliversIt.test_the_three_supported_schemas)
+`/4` and `/5` are untouched and `/6` is the one that selects. ... ok
+test_the_document_members_agree (tests.manager.test_verifier_topology.TheTopologyIsOneSelectionOnBothSides.test_the_document_members_agree) ... ok
+test_the_filesystem_options_and_mode_agree (tests.manager.test_verifier_topology.TheTopologyIsOneSelectionOnBothSides.test_the_filesystem_options_and_mode_agree) ... ok
+test_the_fixed_roots_are_the_same_four_paths_on_both_sides (tests.manager.test_verifier_topology.TheTopologyIsOneSelectionOnBothSides.test_the_fixed_roots_are_the_same_four_paths_on_both_sides) ... ok
+test_the_fixed_roots_are_the_topology_the_packet_names (tests.manager.test_verifier_topology.TheTopologyIsOneSelectionOnBothSides.test_the_fixed_roots_are_the_topology_the_packet_names)
+`preparation-325908/TASK.md`: fixed ... ok
+test_the_four_roots_are_disjoint (tests.manager.test_verifier_topology.TheTopologyIsOneSelectionOnBothSides.test_the_four_roots_are_disjoint)
+Review [R1]: "The same mounted directory could be named for all ... ok
+test_the_two_schemas_and_targets_agree (tests.manager.test_verifier_topology.TheTopologyIsOneSelectionOnBothSides.test_the_two_schemas_and_targets_agree) ... ok
+test_a_command_that_deletes_a_source_path_cannot_reach_the_candidate (tests.manager.test_verification_views.NothingRetainedIsReachableFromTheCommand.test_a_command_that_deletes_a_source_path_cannot_reach_the_candidate) ... ok
+test_a_command_that_writes_a_source_path_cannot_reach_the_candidate (tests.manager.test_verification_views.NothingRetainedIsReachableFromTheCommand.test_a_command_that_writes_a_source_path_cannot_reach_the_candidate) ... ok
+test_the_sealed_inputs_are_byte_unchanged_afterwards (tests.manager.test_verification_views.NothingRetainedIsReachableFromTheCommand.test_the_sealed_inputs_are_byte_unchanged_afterwards) ... ok
+test_the_view_is_removed_and_the_candidate_is_not (tests.manager.test_verification_views.NothingRetainedIsReachableFromTheCommand.test_the_view_is_removed_and_the_candidate_is_not) ... ok
+test_a_declared_input_the_seal_does_not_hold_refuses (tests.manager.test_verification_views.StageARefusesBeforeAnythingHappens.test_a_declared_input_the_seal_does_not_hold_refuses) ... ok
+test_a_three_task_with_no_seal_at_all_refuses_the_assignment (tests.manager.test_verification_views.StageARefusesBeforeAnythingHappens.test_a_three_task_with_no_seal_at_all_refuses_the_assignment) ... ok
+test_an_absolute_path_refuses_and_no_provider_ran (tests.manager.test_verification_views.StageARefusesBeforeAnythingHappens.test_an_absolute_path_refuses_and_no_provider_ran) ... ok
+test_an_input_destination_inside_the_candidate_refuses (tests.manager.test_verification_views.StageARefusesBeforeAnythingHappens.test_an_input_destination_inside_the_candidate_refuses) ... ok
+test_an_observation_in_the_sealed_task_refuses (tests.manager.test_verification_views.StageARefusesBeforeAnythingHappens.test_an_observation_in_the_sealed_task_refuses)
+"A sealed task cannot carry what the turn has not done yet. ... ok
+test_nothing_was_materialized (tests.manager.test_verification_views.StageARefusesBeforeAnythingHappens.test_nothing_was_materialized) ... ok
+test_the_detail_names_a_member_and_never_a_value (tests.manager.test_verification_views.StageARefusesBeforeAnythingHappens.test_the_detail_names_a_member_and_never_a_value) ... ok
+test_a_drifted_in_candidate_pin_is_materialization (tests.manager.test_verification_views.StageBRefusesInTheView.test_a_drifted_in_candidate_pin_is_materialization)
+The pinned fixture, drifted in the candidate, refuses rather than ... ok
+test_an_absent_import_root_is_invalid_layout (tests.manager.test_verification_views.StageBRefusesInTheView.test_an_absent_import_root_is_invalid_layout) ... ok
+test_an_absent_required_path_is_missing_input (tests.manager.test_verification_views.StageBRefusesInTheView.test_an_absent_required_path_is_missing_input) ... ok
+test_an_absent_working_directory_is_invalid_layout (tests.manager.test_verification_views.StageBRefusesInTheView.test_an_absent_working_directory_is_invalid_layout) ... ok
+test_the_retained_candidate_and_the_seal_survive_a_refusal (tests.manager.test_verification_views.StageBRefusesInTheView.test_the_retained_candidate_and_the_seal_survive_a_refusal) ... ok
+test_the_view_is_gone_after_a_view_refusal (tests.manager.test_verification_views.StageBRefusesInTheView.test_the_view_is_gone_after_a_view_refusal) ... ok
+test_a_deletion_is_reported_and_stays_absent_in_the_view (tests.manager.test_verification_views.TheChangedCandidateIsWhatRuns.test_a_deletion_is_reported_and_stays_absent_in_the_view) ... ok
+test_an_edit_that_fails_is_read_as_failing (tests.manager.test_verification_views.TheChangedCandidateIsWhatRuns.test_an_edit_that_fails_is_read_as_failing) ... ok
+test_an_edit_that_passes_is_read_as_passing (tests.manager.test_verification_views.TheChangedCandidateIsWhatRuns.test_an_edit_that_passes_is_read_as_passing) ... ok
+test_the_turns_measured_changes_travel_with_the_result (tests.manager.test_verification_views.TheChangedCandidateIsWhatRuns.test_the_turns_measured_changes_travel_with_the_result) ... ok
+test_a_command_that_cannot_start_is_a_start_failure (tests.manager.test_verification_views.TheCleanupBoundaryHoldsOnEveryEnding.test_a_command_that_cannot_start_is_a_start_failure) ... ok
+test_a_partial_materialization_leaves_no_half_built_view (tests.manager.test_verification_views.TheCleanupBoundaryHoldsOnEveryEnding.test_a_partial_materialization_leaves_no_half_built_view) ... ok
+test_a_timed_out_command_leaves_no_view_and_no_verdict (tests.manager.test_verification_views.TheCleanupBoundaryHoldsOnEveryEnding.test_a_timed_out_command_leaves_no_view_and_no_verdict) ... ok
+test_a_clean_turn_reports_ready_and_not_run (tests.manager.test_verification_views.TheDurableOutcomesAreSafeAndClosed.test_a_clean_turn_reports_ready_and_not_run)
+No command was attempted, which is not a refusal: the context was ... ok
+test_a_legacy_result_is_never_reinterpreted (tests.manager.test_verification_views.TheDurableOutcomesAreSafeAndClosed.test_a_legacy_result_is_never_reinterpreted) ... ok
+test_every_illegal_combination_is_refused_before_it_is_durable (tests.manager.test_verification_views.TheDurableOutcomesAreSafeAndClosed.test_every_illegal_combination_is_refused_before_it_is_durable)
+The publisher asks `check_outcome`, so a malformed combination ... ok
+test_the_record_carries_no_child_output_and_no_host_path (tests.manager.test_verification_views.TheDurableOutcomesAreSafeAndClosed.test_the_record_carries_no_child_output_and_no_host_path) ... ok
+test_the_record_is_exactly_the_fresh_generations_member_set (tests.manager.test_verification_views.TheDurableOutcomesAreSafeAndClosed.test_the_record_is_exactly_the_fresh_generations_member_set) ... ok
+test_a_legacy_task_carrying_the_new_member_refuses (tests.manager.test_verification_views.TheGenerationsRefuseEachOthersSemantics.test_a_legacy_task_carrying_the_new_member_refuses) ... ok
+test_a_legacy_task_is_still_staged_exactly_as_it_was (tests.manager.test_verification_views.TheGenerationsRefuseEachOthersSemantics.test_a_legacy_task_is_still_staged_exactly_as_it_was)
+`/2` IS FROZEN. The frozen generation still produces the record it ... ok
+test_a_new_task_without_the_member_refuses (tests.manager.test_verification_views.TheGenerationsRefuseEachOthersSemantics.test_a_new_task_without_the_member_refuses) ... ok
+test_a_task_from_another_generation_still_refuses_by_equality (tests.manager.test_verification_views.TheGenerationsRefuseEachOthersSemantics.test_a_task_from_another_generation_still_refuses_by_equality) ... ok
+test_the_two_generations_are_the_pair_the_contract_names (tests.manager.test_verification_views.TheGenerationsRefuseEachOthersSemantics.test_the_two_generations_are_the_pair_the_contract_names) ... ok
+test_the_argv_carries_no_environment_assignment (tests.manager.test_verification_views.TheImportPathIsDerivedAndClosed.test_the_argv_carries_no_environment_assignment)
+An argv carrying one would be a second, disagreeing source of the ... ok
+test_the_derived_path_is_the_roots_joined_to_the_working_directory (tests.manager.test_verification_views.TheImportPathIsDerivedAndClosed.test_the_derived_path_is_the_roots_joined_to_the_working_directory) ... ok
+test_the_command_ran_in_a_private_view_and_not_in_the_candidate (tests.manager.test_verification_views.TheNamedGatePassesInTheWorkersOwnView.test_the_command_ran_in_a_private_view_and_not_in_the_candidate)
+THE WHOLE DIFFERENCE, asserted rather than described. ... ok
+test_the_gate_passes_in_the_view_with_no_skips_and_no_errors (tests.manager.test_verification_views.TheNamedGatePassesInTheWorkersOwnView.test_the_gate_passes_in_the_view_with_no_skips_and_no_errors) ... ok
+test_the_gate_still_passes_with_a_hostile_ambient_import_path (tests.manager.test_verification_views.TheNamedGatePassesInTheWorkersOwnView.test_the_gate_still_passes_with_a_hostile_ambient_import_path)
+Ambient independence. The adapter composes the whole environment ... ok
+test_an_absent_byte_path_answers_materialization (tests.manager.test_verification_views.TheSharedPlanIsAskedRatherThanRespelled.test_an_absent_byte_path_answers_materialization) ... ok
+test_the_plan_asks_layout_then_missing_input_then_bytes (tests.manager.test_verification_views.TheSharedPlanIsAskedRatherThanRespelled.test_the_plan_asks_layout_then_missing_input_then_bytes) ... ok
+test_a_link_in_the_candidate_refuses (tests.manager.test_verification_views.TheViewCopierKeepsItsDiscipline.test_a_link_in_the_candidate_refuses) ... ok
+test_an_empty_candidate_refuses_rather_than_producing_an_empty_view (tests.manager.test_verification_views.TheViewCopierKeepsItsDiscipline.test_an_empty_candidate_refuses_rather_than_producing_an_empty_view) ... ok
+test_the_ceiling_is_the_views_own_and_is_larger (tests.manager.test_verification_views.TheViewCopierKeepsItsDiscipline.test_the_ceiling_is_the_views_own_and_is_larger) ... ok
+test_every_pinned_build_artifact_carries_a_hash (tests.authority.test_boundary.Distribution.test_every_pinned_build_artifact_carries_a_hash) ... ok
+test_the_authority_slice_still_reaches_for_no_validator (tests.authority.test_boundary.Distribution.test_the_authority_slice_still_reaches_for_no_validator) ... ok
+test_the_distribution_declares_the_python_it_requires (tests.authority.test_boundary.Distribution.test_the_distribution_declares_the_python_it_requires) ... ok
+test_the_runtime_lock_says_which_slice_its_pins_are_for (tests.authority.test_boundary.Distribution.test_the_runtime_lock_says_which_slice_its_pins_are_for) ... ok
+test_every_caller_text_family_is_bounded (tests.authority.test_boundary.EveryCallerTextFamilyIsBounded.test_every_caller_text_family_is_bounded) ... ok
+test_the_digest_and_receipt_collision_families_are_bounded (tests.authority.test_boundary.EveryCallerTextFamilyIsBounded.test_the_digest_and_receipt_collision_families_are_bounded) ... ok
+test_the_store_path_family_is_bounded (tests.authority.test_boundary.EveryCallerTextFamilyIsBounded.test_the_store_path_family_is_bounded) ... ok
+test_a_named_site_does_not_travel (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_a_named_site_does_not_travel) ... ok
+test_a_named_site_does_not_travel_between_same_named_functions (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_a_named_site_does_not_travel_between_same_named_functions) ... ok
+test_every_named_site_covers_the_paths_it_was_written_for (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_every_named_site_covers_the_paths_it_was_written_for)
+The unique LEXICAL identity, pinned. ... ok
+test_every_named_site_is_actually_there (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_every_named_site_is_actually_there) ... ok
+test_no_refusal_renders_an_unbounded_value (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_no_refusal_renders_an_unbounded_value) ... ok
+test_origin_proof_respects_modules_scopes_and_control_flow (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_origin_proof_respects_modules_scopes_and_control_flow) ... ok
+test_the_analyzer_refuses_what_it_cannot_prove (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_the_analyzer_refuses_what_it_cannot_prove)
+The conservative half, stated as cases rather than as intent. ... ok
+test_the_check_itself_is_not_vacuous (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_the_check_itself_is_not_vacuous) ... ok
+test_the_classifier_accepts_only_the_exact_bounded_shape (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_the_classifier_accepts_only_the_exact_bounded_shape) ... ok
+test_the_shapes_the_classifier_must_still_reject (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_the_shapes_the_classifier_must_still_reject) ... ok
+test_a_later_cut_adds_methods_rather_than_stubs (tests.authority.test_boundary.ExportedSurface.test_a_later_cut_adds_methods_rather_than_stubs) ... ok
+test_no_exported_name_is_a_store_a_path_or_a_way_to_run_sql (tests.authority.test_boundary.ExportedSurface.test_no_exported_name_is_a_store_a_path_or_a_way_to_run_sql) ... ok
+test_the_bootstrap_face_configures_and_reads_and_never_acts (tests.authority.test_boundary.ExportedSurface.test_the_bootstrap_face_configures_and_reads_and_never_acts) ... ok
+test_the_exported_names_are_the_promise (tests.authority.test_boundary.ExportedSurface.test_the_exported_names_are_the_promise) ... ok
+test_an_in_container_declaration_is_not_a_reach (tests.authority.test_boundary.Isolation.test_an_in_container_declaration_is_not_a_reach)
+W384870 B5: `opt/baton` is forbidden because it is where a v11 ... ok
+test_nothing_reaches_for_v11_the_node_host_or_a_dossier (tests.authority.test_boundary.Isolation.test_nothing_reaches_for_v11_the_node_host_or_a_dossier) ... 
+  test_nothing_reaches_for_v11_the_node_host_or_a_dossier (tests.authority.test_boundary.Isolation.test_nothing_reaches_for_v11_the_node_host_or_a_dossier) (source='publication_recovery.py', word='work/records') ... FAIL
+test_the_authority_imports_nothing_but_the_standard_library_and_itself (tests.authority.test_boundary.Isolation.test_the_authority_imports_nothing_but_the_standard_library_and_itself) ... ok
+test_the_authority_schema_carries_no_manager_or_control_facts (tests.authority.test_boundary.Isolation.test_the_authority_schema_carries_no_manager_or_control_facts) ... ok
+test_a_cleanup_refusal_becomes_a_named_unresolved_fact (tests.tools.test_dogfood_operator.ARecoveryThatBeganAlwaysLeavesAnAccount.test_a_cleanup_refusal_becomes_a_named_unresolved_fact)
+An EXPECTED cleanup refusal is an account, not a fault: the record ... ok
+test_an_unexpected_fault_still_writes_a_bounded_record (tests.tools.test_dogfood_operator.ARecoveryThatBeganAlwaysLeavesAnAccount.test_an_unexpected_fault_still_writes_a_bounded_record) ... ok
+test_a_locator_owner_defect_propagates (tests.tools.test_dogfood_operator.AnOwnerDefectIsNotABadGrant.test_a_locator_owner_defect_propagates) ... ok
+test_a_network_owner_defect_propagates (tests.tools.test_dogfood_operator.AnOwnerDefectIsNotABadGrant.test_a_network_owner_defect_propagates) ... ok
+test_the_typed_outcome_is_still_a_collected_fault (tests.tools.test_dogfood_operator.AnOwnerDefectIsNotABadGrant.test_the_typed_outcome_is_still_a_collected_fault)
+The other half: an invalid VALUE is still the operator's to fix. ... ok
+test_a_failed_pass_still_requests_manager_settlement (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_a_failed_pass_still_requests_manager_settlement)
+Approver ruling M46497 item 6, and WHY it is safe. ... ok
+test_a_matching_record_reaches_the_capability_path (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_a_matching_record_reaches_the_capability_path)
+The binding is a gate and not a wall: an agreeing record proceeds. ... ok
+test_a_pass_answer_for_another_assignment_is_not_adopted (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_a_pass_answer_for_another_assignment_is_not_adopted)
+The authority answer must prove the exact generation ended. ... ok
+test_a_pass_answer_that_did_not_queue_ungated_is_not_adopted (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_a_pass_answer_that_did_not_queue_ungated_is_not_adopted)
+Every carried ending fact is held, not merely required by name. ... ok
+test_a_refused_pass_is_unresolved_and_still_reaches_the_ending (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_a_refused_pass_is_unresolved_and_still_reaches_the_ending)
+The pass is fallible and it is inside the guarded body. ... ok
+test_a_retry_refuses_when_the_launch_delivery_cannot_be_adopted (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_a_retry_refuses_when_the_launch_delivery_cannot_be_adopted)
+W47225 [P0]: absence is ordinary for the component and ... ok
+test_a_session_that_cannot_pass_is_refused_before_anything_is_staged (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_a_session_that_cannot_pass_is_refused_before_anything_is_staged)
+The capability is held with the other grants, not discovered late. ... ok
+test_a_successful_attempt_is_passed_to_review_before_cleanup (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_a_successful_attempt_is_passed_to_review_before_cleanup)
+Approver ruling M44657, in one case. ... ok
+test_an_empty_intake_receipt_still_authorizes_cleanup (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_an_empty_intake_receipt_still_authorizes_cleanup)
+A committed receipt is the authorization even when it is empty. ... ok
+test_conversation_failures_still_reach_the_abandonment_ending (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_conversation_failures_still_reach_the_abandonment_ending)
+The older case's PROPERTY, under the measure W44716 left it. ... ok
+test_editable_evidence_does_not_mint_durable_freeze_and_retention (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_editable_evidence_does_not_mint_durable_freeze_and_retention)
+Presence in the retained JSON is not a committed manager fact. ... ok
+test_editable_evidence_must_match_every_recorded_manager_fact (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_editable_evidence_must_match_every_recorded_manager_fact)
+A partial comparison still lets the file rewrite committed facts. ... ok
+test_editable_review_pass_cannot_suppress_the_authority_replay (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_editable_review_pass_cannot_suppress_the_authority_replay)
+The file identifies a pass; the authority proves it committed. ... ok
+test_failed_independent_verification_never_passes_to_review (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_failed_independent_verification_never_passes_to_review)
+Deriving a status is not the same as requiring it to succeed. ... ok
+test_malformed_nested_evidence_is_a_refusal_not_a_python_fault (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_malformed_nested_evidence_is_a_refusal_not_a_python_fault)
+An editable record must be held before its members are consumed. ... ok
+test_receiptless_abandonment_does_not_stop_before_the_fence (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_receiptless_abandonment_does_not_stop_before_the_fence)
+The composite manager operation owns fence-before-runtime order. ... ok
+test_retry_root_proof_refuses_a_symlink_alias (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_retry_root_proof_refuses_a_symlink_alias)
+Restart lookup keeps allocation's no-alias containment proof. ... ok
+test_the_narrow_retry_converges_after_the_handoff_succeeds (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_the_narrow_retry_converges_after_the_handoff_succeeds)
+Old handoff failures are history, not permanent current gates. ... ok
+test_the_narrow_retry_hands_on_a_trusted_result_and_nothing_else (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_the_narrow_retry_hands_on_a_trusted_result_and_nothing_else)
+Approver ruling item 7: retry the machinery, not the work. ... ok
+test_the_narrow_retry_refuses_an_attempt_with_no_trusted_result (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_the_narrow_retry_refuses_an_attempt_with_no_trusted_result)
+Its whole licence is that a result worth preserving exists. ... ok
+test_the_narrow_retry_refuses_evidence_for_another_attempt_first (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_the_narrow_retry_refuses_evidence_for_another_attempt_first)
+A closed member set does not bind a retained result to grants. ... ok
+test_the_narrow_retry_replays_an_already_committed_pass (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_the_narrow_retry_replays_an_already_committed_pass)
+Idempotence is at the AUTHORITY, not at this deployment. ... ok
+test_the_narrow_retry_requires_a_committed_retention_decision (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_the_narrow_retry_requires_a_committed_retention_decision)
+A verified custody receipt is not yet the retained handoff result. ... ok
+test_the_retry_binding_covers_every_identity_the_handoff_uses (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_the_retry_binding_covers_every_identity_the_handoff_uses)
+Cross-attempt, cross-work, cross-generation and changed image or ... ok
+test_the_route_kept_is_the_one_the_authority_recorded (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_the_route_kept_is_the_one_the_authority_recorded)
+An authority that put the Work somewhere else is not a pass. ... ok
+test_transport_and_disposition_failures_do_not_return_around_ending (tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding.test_transport_and_disposition_failures_do_not_return_around_ending)
+Both receiptless failures enter the ending and report its result. ... ok
+test_a_session_missing_an_operation_is_refused_at_construction (tests.tools.test_dogfood_operator.OneSession.test_a_session_missing_an_operation_is_refused_at_construction)
+`AuthorityPort` checks its seven at construction for the reason ... ok
+test_publishing_an_answer_is_a_typed_refusal (tests.tools.test_dogfood_operator.OneSession.test_publishing_an_answer_is_a_typed_refusal)
+This pilot runs no `inquire`, so a no-op would answer 'published' ... ok
+test_the_bound_identity_is_read_from_the_session (tests.tools.test_dogfood_operator.OneSession.test_the_bound_identity_is_read_from_the_session)
+Read rather than configured: a deployment that named a participant ... ok
+test_the_facade_carries_every_operation_the_port_names (tests.tools.test_dogfood_operator.OneSession.test_the_facade_carries_every_operation_the_port_names)
+The port's list is the contract; a facade that fell behind it would ... ok
+test_the_facade_refuses_when_the_minted_session_cannot_pass (tests.tools.test_dogfood_operator.OneSession.test_the_facade_refuses_when_the_minted_session_cannot_pass)
+A callable facade method is not an underlying capability. ... ok
+test_the_pass_is_not_one_of_the_operations_the_port_requires (tests.tools.test_dogfood_operator.OneSession.test_the_pass_is_not_one_of_the_operations_the_port_requires)
+It is the deployment's act, not the manager's, and the seven the ... ok
+test_the_refusal_is_not_a_contract_refusal (tests.tools.test_dogfood_operator.OneSession.test_the_refusal_is_not_a_contract_refusal)
+A deployment saying it does not carry a capability is a different ... ok
+test_the_review_pass_delegates_like_every_other_member (tests.tools.test_dogfood_operator.OneSession.test_the_review_pass_delegates_like_every_other_member)
+Approver ruling M44657 added an EIGHTH member, and it is not the ... ok
+test_the_six_operations_delegate_to_the_minted_session (tests.tools.test_dogfood_operator.OneSession.test_the_six_operations_delegate_to_the_minted_session) ... ok
+test_a_complete_execution_ending_is_unresolved_for_every_policy (tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision.test_a_complete_execution_ending_is_unresolved_for_every_policy)
+No disposition authorizes automatic workspace removal at ending. ... ok
+test_a_discard_policy_still_preserves_the_execution_workspace (tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision.test_a_discard_policy_still_preserves_the_execution_workspace)
+Execution ending preserves workspace for every retention policy. ... ok
+test_a_keep_whose_locator_this_operator_cannot_open_is_not_resolved (tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision.test_a_keep_whose_locator_this_operator_cannot_open_is_not_resolved)
+A scheme is refused as loudly as an absence. ... ok
+test_a_keep_whose_material_is_gone_is_not_resolved (tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision.test_a_keep_whose_material_is_gone_is_not_resolved)
+The disk is asked, AFTER the removal, and it decides. ... ok
+test_a_keep_whose_material_is_there_passes_the_same_proof (tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision.test_a_keep_whose_material_is_there_passes_the_same_proof)
+The positive half, so the cases above are not passing on absence. ... ok
+test_a_locator_naming_a_file_is_not_a_retained_candidate (tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision.test_a_locator_naming_a_file_is_not_a_retained_candidate)
+`O_DIRECTORY` is what answers this, in the same act as the open. ... ok
+test_a_retained_directory_that_cannot_be_opened_is_not_resolved (tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision.test_a_retained_directory_that_cannot_be_opened_is_not_resolved)
+W51473 review [P1], as its own regression. ... ok
+test_a_retained_directory_that_cannot_be_traversed_is_not_resolved (tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision.test_a_retained_directory_that_cannot_be_traversed_is_not_resolved)
+The other half of "openable", and the one a read-only mode hides. ... ok
+test_a_retained_proposal_with_no_candidate_is_not_resolved (tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision.test_a_retained_proposal_with_no_candidate_is_not_resolved)
+The empty-root gap, which the old positive fixture hid. ... ok
+test_a_retained_regular_file_that_cannot_be_read_is_not_resolved (tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision.test_a_retained_regular_file_that_cannot_be_read_is_not_resolved)
+W51473 review [P1], as its own regression. ... ok
+test_a_retained_subtree_that_cannot_be_opened_is_not_resolved (tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision.test_a_retained_subtree_that_cannot_be_opened_is_not_resolved)
+The walk DESCENDS, because the documented uses do. ... ok
+test_a_retry_cannot_quietly_select_a_different_worker_image (tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision.test_a_retry_cannot_quietly_select_a_different_worker_image)
+W55361: the digest is part of the retry binding, executably. ... ok
+test_a_retry_may_not_redecide_what_happens_to_the_material (tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision.test_a_retry_may_not_redecide_what_happens_to_the_material)
+The record and the grants are held to the COMMITTED decision. ... ok
+test_a_retry_that_agrees_with_the_committed_decision_proceeds (tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision.test_a_retry_that_agrees_with_the_committed_decision_proceeds)
+The gate is a gate and not a wall. ... ok
+test_a_wholly_empty_retained_root_is_not_resolved (tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision.test_a_wholly_empty_retained_root_is_not_resolved)
+The same gap in its barest form, named separately. ... ok
+test_an_absent_or_invented_disposition_is_refused_by_name (tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision.test_an_absent_or_invented_disposition_is_refused_by_name)
+No default, and no near-miss accepted. ... ok
+test_an_entry_the_diff_cannot_read_is_refused_by_kind (tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision.test_an_entry_the_diff_cannot_read_is_refused_by_kind)
+Not a regular file and not a directory is not skipped. ... ok
+test_an_intended_keep_ending_retained_is_resolved (tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision.test_an_intended_keep_ending_retained_is_resolved)
+THE HALF A LITERAL SWAP WOULD HAVE MISSED. ... ok
+test_every_retained_artifact_is_asked_about (tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision.test_every_retained_artifact_is_asked_about)
+One failure does not stop the others. ... ok
+test_preflight_refuses_before_anything_is_staged_or_started (tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision.test_preflight_refuses_before_anything_is_staged_or_started)
+Beside the network and the review route, and for the same reason. ... ok
+test_the_disposition_is_the_managers_vocabulary_and_not_a_copy (tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision.test_the_disposition_is_the_managers_vocabulary_and_not_a_copy)
+One vocabulary, imported -- not a second tuple spelled here. ... ok
+test_the_grant_is_what_reaches_the_manager (tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision.test_the_grant_is_what_reaches_the_manager)
+The operand is USED, not merely validated. ... ok
+test_the_proof_changes_nothing_about_the_material (tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision.test_the_proof_changes_nothing_about_the_material)
+A proof that mutated the candidate would be worse than the gap. ... ok
+test_a_fresh_attempt_receives_fresh_roots (tests.tools.test_dogfood_operator.TheArcIsEffectivelyOnceAndAFreshAttemptIsFresh.test_a_fresh_attempt_receives_fresh_roots)
+The other half: a NEW attempt is not a replay of the old one. ... ok
+test_a_fresh_attempt_receives_fresh_roots_and_fresh_credentials (tests.tools.test_dogfood_operator.TheArcIsEffectivelyOnceAndAFreshAttemptIsFresh.test_a_fresh_attempt_receives_fresh_roots_and_fresh_credentials)
+Acceptance: fresh ROOTS and fresh CREDENTIALS, both observed. ... ok
+test_an_exact_replay_starts_no_second_runtime_or_provider_turn (tests.tools.test_dogfood_operator.TheArcIsEffectivelyOnceAndAFreshAttemptIsFresh.test_an_exact_replay_starts_no_second_runtime_or_provider_turn)
+THE ACCEPTANCE, and HOW this deployment actually delivers it. ... ok
+test_a_launcher_with_no_abandonment_path_says_so (tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_a_launcher_with_no_abandonment_path_says_so) ... ok
+test_a_recovery_asks_for_no_credential (tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_a_recovery_asks_for_no_credential)
+A recovery delivers nothing, and asking for a bearer in order to ... ok
+test_an_unrecorded_orphan_refuses_before_any_act (tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_an_unrecorded_orphan_refuses_before_any_act)
+The window this fixture reproduces is CLOSED at the launcher now. ... ok
+test_ending_an_attempt_and_finishing_one_are_not_one_command (tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_ending_an_attempt_and_finishing_one_are_not_one_command) ... ok
+test_the_declaration_is_required_and_is_the_operators_own (tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_declaration_is_required_and_is_the_operators_own) ... ok
+test_the_documented_retry_adopts_through_the_granted_owner (tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_documented_retry_adopts_through_the_granted_owner)
+W55758 review (2026-09-01T10:56:54Z) [P1], PLAN item 65. ... ok
+test_the_documented_retry_recovers_a_handoff_the_command_failed (tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_documented_retry_recovers_a_handoff_the_command_failed)
+THE ACCEPTANCE, and the failure is produced rather than composed. ... ok
+test_the_factory_runs_after_activation_and_before_runtime_start (tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_factory_runs_after_activation_and_before_runtime_start) ... ok
+test_the_same_recovery_without_the_operand_reaches_its_builder (tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation.test_the_same_recovery_without_the_operand_reaches_its_builder)
+NOT VACUOUS. Without the operand the abandonment goes on to build ... ok
+test_a_record_written_by_this_recovery_carries_no_bearer (tests.tools.test_dogfood_operator.TheAttachedRecoveryEndsThroughTheRuledAbandonment.test_a_record_written_by_this_recovery_carries_no_bearer) ... ok
+test_a_refused_ending_is_recorded_rather_than_raised (tests.tools.test_dogfood_operator.TheAttachedRecoveryEndsThroughTheRuledAbandonment.test_a_refused_ending_is_recorded_rather_than_raised)
+An attempt whose worker answered cannot be abandoned, and the ... ok
+test_an_attached_attempt_ends_and_its_credential_is_torn_down (tests.tools.test_dogfood_operator.TheAttachedRecoveryEndsThroughTheRuledAbandonment.test_an_attached_attempt_ends_and_its_credential_is_torn_down)
+THE WHOLE POINT: `torn-down`, never `not-delivered`. ... ok
+test_an_attempt_that_delivered_nothing_still_says_not_delivered (tests.tools.test_dogfood_operator.TheAttachedRecoveryEndsThroughTheRuledAbandonment.test_an_attempt_that_delivered_nothing_still_says_not_delivered)
+The old word is true exactly when nothing was ever delivered. ... ok
+test_an_ending_reporting_no_credential_teardown_is_unresolved (tests.tools.test_dogfood_operator.TheAttachedRecoveryEndsThroughTheRuledAbandonment.test_an_ending_reporting_no_credential_teardown_is_unresolved)
+The gap said out loud rather than papered over: this recovery holds ... ok
+test_the_exported_operation_takes_no_projection_from_a_caller (tests.tools.test_dogfood_operator.TheAttachedRecoveryEndsThroughTheRuledAbandonment.test_the_exported_operation_takes_no_projection_from_a_caller)
+W55758 review (2026-09-01T10:56:54Z) [P1]: the door built to close ... ok
+test_the_public_read_is_what_the_branch_turns_on (tests.tools.test_dogfood_operator.TheAttachedRecoveryEndsThroughTheRuledAbandonment.test_the_public_read_is_what_the_branch_turns_on)
+`attempt_runtime_of`, and a branch that does not read prose. ... ok
+test_a_chatty_session_still_ends_and_its_window_stays_bounded (tests.tools.test_dogfood_operator.TheChannelDrainsAndNoLongerCountsAnything.test_a_chatty_session_still_ends_and_its_window_stays_bounded)
+The drain's own job is unchanged: far more than a pipe buffer is ... ok
+test_the_channel_takes_no_observer_and_publishes_no_count (tests.tools.test_dogfood_operator.TheChannelDrainsAndNoLongerCountsAnything.test_the_channel_takes_no_observer_and_publishes_no_count)
+The whole seam is gone rather than left unused. A channel that ... ok
+test_the_ending_still_carries_what_the_window_kept (tests.tools.test_dogfood_operator.TheChannelDrainsAndNoLongerCountsAnything.test_the_ending_still_carries_what_the_window_kept) ... ok
+test_this_deployment_records_no_activity_for_its_attempt (tests.tools.test_dogfood_operator.TheChannelDrainsAndNoLongerCountsAnything.test_this_deployment_records_no_activity_for_its_attempt)
+END TO END FOR THE NEGATIVE: a session that produced plenty of outer ... ok
+test_a_launcher_with_no_abandonment_path_says_so (tests.tools.test_dogfood_operator.TheCredentialIsMaterializedAfterActivationAndNotBefore.test_a_launcher_with_no_abandonment_path_says_so) ... ok
+test_a_recovery_asks_for_no_credential (tests.tools.test_dogfood_operator.TheCredentialIsMaterializedAfterActivationAndNotBefore.test_a_recovery_asks_for_no_credential)
+A recovery delivers nothing, and asking for a bearer in order to ... ok
+test_an_unrecorded_orphan_refuses_before_any_act (tests.tools.test_dogfood_operator.TheCredentialIsMaterializedAfterActivationAndNotBefore.test_an_unrecorded_orphan_refuses_before_any_act)
+The window this fixture reproduces is CLOSED at the launcher now. ... ok
+test_ending_an_attempt_and_finishing_one_are_not_one_command (tests.tools.test_dogfood_operator.TheCredentialIsMaterializedAfterActivationAndNotBefore.test_ending_an_attempt_and_finishing_one_are_not_one_command) ... ok
+test_nothing_is_on_the_host_until_the_factory_is_called (tests.tools.test_dogfood_operator.TheCredentialIsMaterializedAfterActivationAndNotBefore.test_nothing_is_on_the_host_until_the_factory_is_called) ... ok
+test_the_declaration_is_required_and_is_the_operators_own (tests.tools.test_dogfood_operator.TheCredentialIsMaterializedAfterActivationAndNotBefore.test_the_declaration_is_required_and_is_the_operators_own) ... ok
+test_the_documented_retry_adopts_through_the_granted_owner (tests.tools.test_dogfood_operator.TheCredentialIsMaterializedAfterActivationAndNotBefore.test_the_documented_retry_adopts_through_the_granted_owner)
+W55758 review (2026-09-01T10:56:54Z) [P1], PLAN item 65. ... ok
+test_the_documented_retry_recovers_a_handoff_the_command_failed (tests.tools.test_dogfood_operator.TheCredentialIsMaterializedAfterActivationAndNotBefore.test_the_documented_retry_recovers_a_handoff_the_command_failed)
+THE ACCEPTANCE, and the failure is produced rather than composed. ... ok
+test_the_factory_materializes_exactly_once_through_the_owned_home (tests.tools.test_dogfood_operator.TheCredentialIsMaterializedAfterActivationAndNotBefore.test_the_factory_materializes_exactly_once_through_the_owned_home)
+And the adapter receives THAT delivery and the SAME granted home -- ... ok
+test_the_same_recovery_without_the_operand_reaches_its_builder (tests.tools.test_dogfood_operator.TheCredentialIsMaterializedAfterActivationAndNotBefore.test_the_same_recovery_without_the_operand_reaches_its_builder)
+NOT VACUOUS. Without the operand the abandonment goes on to build ... ok
+test_a_conflicting_declaration_through_the_command_is_refused (tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges.test_a_conflicting_declaration_through_the_command_is_refused)
+Calling the command IS the declaration, so a second one naming a ... ok
+test_a_fault_between_the_two_teardowns_leaves_an_account (tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges.test_a_fault_between_the_two_teardowns_leaves_an_account) ... ok
+test_a_launcher_with_no_abandonment_path_says_so (tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges.test_a_launcher_with_no_abandonment_path_says_so) ... ok
+test_a_recovery_asks_for_no_credential (tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges.test_a_recovery_asks_for_no_credential)
+A recovery delivers nothing, and asking for a bearer in order to ... ok
+test_a_restart_after_a_fault_at_any_boundary_converges (tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges.test_a_restart_after_a_fault_at_any_boundary_converges)
+RESTART IS THE POINT, and every one of these is a fresh process's ... ok
+test_a_runtime_created_before_its_record_is_still_ended (tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges.test_a_runtime_created_before_its_record_is_still_ended)
+The matrix row between runtime creation and lifecycle publication. ... ok
+test_a_runtime_the_engine_still_reports_running_settles_nothing (tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges.test_a_runtime_the_engine_still_reports_running_settles_nothing)
+The removal was ordered and the engine says the container is UP. ... ok
+test_a_terminal_refusal_still_reports_what_already_happened (tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges.test_a_terminal_refusal_still_reports_what_already_happened)
+W55758 review (2026-09-01T05:54:54Z) [P1]: the PARTIAL ACCOUNT. ... ok
+test_an_attempt_with_no_fixed_assignment_refuses_before_any_act (tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges.test_an_attempt_with_no_fixed_assignment_refuses_before_any_act)
+Activation is what fixes an assignment, and a grants file cannot be ... ok
+test_an_engine_answering_about_another_runtime_is_not_evidence (tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges.test_an_engine_answering_about_another_runtime_is_not_evidence)
+The wrong-label shape at the identity that matters: an inspection ... ok
+test_an_engine_that_cannot_be_asked_settles_nothing (tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges.test_an_engine_that_cannot_be_asked_settles_nothing)
+`unresolved` is an answer. A runtime this manager cannot say is ... ok
+test_an_exact_retry_of_the_command_replays_the_same_ending (tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges.test_an_exact_retry_of_the_command_replays_the_same_ending) ... ok
+test_an_inspection_naming_two_runtimes_is_not_evidence_either (tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges.test_an_inspection_naming_two_runtimes_is_not_evidence_either)
+The duplicate shape. One exact identity has one answer. ... ok
+test_an_uncertain_runtime_settles_nothing_and_keeps_the_bearer (tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges.test_an_uncertain_runtime_settles_nothing_and_keeps_the_bearer)
+The engine ANSWERS, and what it answers is about something else. ... ok
+test_an_unrecorded_orphan_refuses_before_any_act (tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges.test_an_unrecorded_orphan_refuses_before_any_act)
+The window this fixture reproduces is CLOSED at the launcher now. ... ok
+test_ending_an_attempt_and_finishing_one_are_not_one_command (tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges.test_ending_an_attempt_and_finishing_one_are_not_one_command) ... ok
+test_the_declaration_is_required_and_is_the_operators_own (tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges.test_the_declaration_is_required_and_is_the_operators_own) ... ok
+test_the_documented_command_ends_real_attached_state (tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges.test_the_documented_command_ends_real_attached_state)
+PLAN ITEM 7's centre: `main --abandon`, end to end, over an attempt ... ok
+test_the_documented_retry_adopts_through_the_granted_owner (tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges.test_the_documented_retry_adopts_through_the_granted_owner)
+W55758 review (2026-09-01T10:56:54Z) [P1], PLAN item 65. ... ok
+test_the_documented_retry_recovers_a_handoff_the_command_failed (tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges.test_the_documented_retry_recovers_a_handoff_the_command_failed)
+THE ACCEPTANCE, and the failure is produced rather than composed. ... ok
+test_the_fixture_really_leaves_an_attached_interrupted_attempt (tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges.test_the_fixture_really_leaves_an_attached_interrupted_attempt)
+The premise, proved before anything is built on it. ... ok
+test_the_narrow_retry_adopts_through_the_granted_credential_owner (tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges.test_the_narrow_retry_adopts_through_the_granted_credential_owner)
+W55758's option (a), at the OTHER builder. ... ok
+test_the_same_recovery_without_the_operand_reaches_its_builder (tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges.test_the_same_recovery_without_the_operand_reaches_its_builder)
+NOT VACUOUS. Without the operand the abandonment goes on to build ... ok
+test_a_bearer_pasted_into_the_grants_file_is_refused (tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_a_bearer_pasted_into_the_grants_file_is_refused)
+A grants file is a durable surface an operator edits by hand, and ... ok
+test_a_complete_grants_file_is_read_back_whole (tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_a_complete_grants_file_is_read_back_whole) ... ok
+test_a_fault_carrying_no_record_propagates_without_a_file (tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_a_fault_carrying_no_record_propagates_without_a_file)
+A fault BEFORE the arc composed one has nothing to write, and ... ok
+test_a_file_that_is_not_a_json_object_is_refused (tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_a_file_that_is_not_a_json_object_is_refused) ... ok
+test_a_member_this_build_does_not_read_is_refused (tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_a_member_this_build_does_not_read_is_refused)
+A member sitting in a file looking like it was honoured is worse ... ok
+test_a_missing_grant_is_named_rather_than_defaulted (tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_a_missing_grant_is_named_rather_than_defaulted) ... ok
+test_a_partial_build_disposes_the_authority_it_already_opened (tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_a_partial_build_disposes_the_authority_it_already_opened)
+The same property, with the wrapper actually INSTALLED. ... ok
+test_a_post_start_fault_still_leaves_durable_unresolved_evidence (tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_a_post_start_fault_still_leaves_durable_unresolved_evidence)
+Approver ruling item 8, at the boundary that actually writes. ... ok
+test_help_names_the_credential_source_the_launcher_requires (tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_help_names_the_credential_source_the_launcher_requires)
+An explicit input hidden from both the command and its help is ... ok
+test_the_command_exits_nonzero_for_an_unresolved_attempt (tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_the_command_exits_nonzero_for_an_unresolved_attempt)
+`0` is a resolved attempt and nothing else: an operator scripting ... ok
+test_the_command_writes_the_record_of_a_resolved_attempt_and_exits_0 (tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_the_command_writes_the_record_of_a_resolved_attempt_and_exits_0) ... ok
+test_the_documented_grant_members_are_the_members_this_build_reads (tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_the_documented_grant_members_are_the_members_this_build_reads)
+The prose says the file is the whole of what an operator decides. ... ok
+test_the_documented_shell_command_reaches_its_grants_boundary (tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_the_documented_shell_command_reaches_its_grants_boundary)
+The documented invocation must execute, not only define helpers. ... ok
+test_the_launcher_builds_the_seven_capabilities_it_promises (tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_the_launcher_builds_the_seven_capabilities_it_promises)
+The positive launcher-boundary case: the real construction runs. ... ok
+test_the_launcher_closes_a_partial_build_when_a_later_open_fails (tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile.test_the_launcher_closes_a_partial_build_when_a_later_open_fails)
+Ownership starts when a handle opens, not when the bundle returns. ... ok
+test_a_conflicting_declaration_through_the_command_is_refused (tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_a_conflicting_declaration_through_the_command_is_refused)
+Calling the command IS the declaration, so a second one naming a ... ok
+test_a_launcher_with_no_abandonment_path_says_so (tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_a_launcher_with_no_abandonment_path_says_so) ... ok
+test_a_recovery_asks_for_no_credential (tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_a_recovery_asks_for_no_credential)
+A recovery delivers nothing, and asking for a bearer in order to ... ok
+test_a_runtime_created_before_its_record_is_still_ended (tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_a_runtime_created_before_its_record_is_still_ended)
+The matrix row between runtime creation and lifecycle publication. ... ok
+test_a_terminal_refusal_still_reports_what_already_happened (tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_a_terminal_refusal_still_reports_what_already_happened)
+W55758 review (2026-09-01T05:54:54Z) [P1]: the PARTIAL ACCOUNT. ... ok
+test_an_engine_that_cannot_be_asked_settles_nothing (tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_an_engine_that_cannot_be_asked_settles_nothing)
+`unresolved` is an answer. A runtime this manager cannot say is ... ok
+test_an_exact_retry_of_the_command_replays_the_same_ending (tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_an_exact_retry_of_the_command_replays_the_same_ending) ... ok
+test_an_uncertain_runtime_settles_nothing_and_keeps_the_bearer (tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_an_uncertain_runtime_settles_nothing_and_keeps_the_bearer)
+The engine ANSWERS, and what it answers is about something else. ... ok
+test_an_unrecorded_orphan_refuses_before_any_act (tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_an_unrecorded_orphan_refuses_before_any_act)
+The window this fixture reproduces is CLOSED at the launcher now. ... ok
+test_ending_an_attempt_and_finishing_one_are_not_one_command (tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_ending_an_attempt_and_finishing_one_are_not_one_command) ... ok
+test_the_declaration_is_required_and_is_the_operators_own (tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_the_declaration_is_required_and_is_the_operators_own) ... ok
+test_the_documented_command_ends_real_attached_state (tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_the_documented_command_ends_real_attached_state)
+PLAN ITEM 7's centre: `main --abandon`, end to end, over an attempt ... ok
+test_the_documented_retry_adopts_through_the_granted_owner (tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_the_documented_retry_adopts_through_the_granted_owner)
+W55758 review (2026-09-01T10:56:54Z) [P1], PLAN item 65. ... ok
+test_the_documented_retry_recovers_a_handoff_the_command_failed (tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_the_documented_retry_recovers_a_handoff_the_command_failed)
+THE ACCEPTANCE, and the failure is produced rather than composed. ... ok
+test_the_fixture_really_leaves_an_attached_interrupted_attempt (tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_the_fixture_really_leaves_an_attached_interrupted_attempt)
+The premise, proved before anything is built on it. ... ok
+test_the_same_recovery_without_the_operand_reaches_its_builder (tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState.test_the_same_recovery_without_the_operand_reaches_its_builder)
+NOT VACUOUS. Without the operand the abandonment goes on to build ... ok
+test_a_complete_record_is_written_and_reads_back (tests.tools.test_dogfood_operator.TheEvidenceRecordIsHeldBeforeItIsDurable.test_a_complete_record_is_written_and_reads_back) ... ok
+test_a_live_bearer_anywhere_in_the_record_refuses_the_write (tests.tools.test_dogfood_operator.TheEvidenceRecordIsHeldBeforeItIsDurable.test_a_live_bearer_anywhere_in_the_record_refuses_the_write)
+Section 13, over the WHOLE document at any depth. ... ok
+test_a_live_bearer_in_a_retained_record_refuses_before_retry (tests.tools.test_dogfood_operator.TheEvidenceRecordIsHeldBeforeItIsDurable.test_a_live_bearer_in_a_retained_record_refuses_before_retry)
+The read boundary needs the write boundary's whole-document ... ok
+test_a_member_nobody_decided_to_keep_is_refused (tests.tools.test_dogfood_operator.TheEvidenceRecordIsHeldBeforeItIsDurable.test_a_member_nobody_decided_to_keep_is_refused)
+An upstream member added without thought would otherwise ride out ... ok
+test_a_missing_member_is_refused_rather_than_written_partial (tests.tools.test_dogfood_operator.TheEvidenceRecordIsHeldBeforeItIsDurable.test_a_missing_member_is_refused_rather_than_written_partial) ... ok
+test_a_refused_record_leaves_no_scratch_file_either (tests.tools.test_dogfood_operator.TheEvidenceRecordIsHeldBeforeItIsDurable.test_a_refused_record_leaves_no_scratch_file_either) ... ok
+test_an_unbounded_record_is_refused_before_the_write (tests.tools.test_dogfood_operator.TheEvidenceRecordIsHeldBeforeItIsDurable.test_an_unbounded_record_is_refused_before_the_write)
+A durable write driven by a failure path is bounded like every ... ok
+test_the_write_replaces_atomically_and_leaves_no_scratch (tests.tools.test_dogfood_operator.TheEvidenceRecordIsHeldBeforeItIsDurable.test_the_write_replaces_atomically_and_leaves_no_scratch)
+A reader never sees a partial record, and a crash mid-write leaves ... ok
+test_a_missing_member_is_refused (tests.tools.test_dogfood_operator.TheFrozenTaskIsReadOnTheWayIn.test_a_missing_member_is_refused) ... ok
+test_a_task_from_another_generation_is_refused (tests.tools.test_dogfood_operator.TheFrozenTaskIsReadOnTheWayIn.test_a_task_from_another_generation_is_refused) ... ok
+test_a_task_that_selects_another_source_root_is_refused (tests.tools.test_dogfood_operator.TheFrozenTaskIsReadOnTheWayIn.test_a_task_that_selects_another_source_root_is_refused)
+The staged name is a constant of this deployment, exactly as it is ... ok
+test_an_absent_task_is_refused (tests.tools.test_dogfood_operator.TheFrozenTaskIsReadOnTheWayIn.test_an_absent_task_is_refused) ... ok
+test_an_extra_member_is_refused (tests.tools.test_dogfood_operator.TheFrozenTaskIsReadOnTheWayIn.test_an_extra_member_is_refused) ... ok
+test_every_task_member_is_held_before_the_container_starts (tests.tools.test_dogfood_operator.TheFrozenTaskIsReadOnTheWayIn.test_every_task_member_is_held_before_the_container_starts) ... ok
+test_the_document_is_not_json_is_refused (tests.tools.test_dogfood_operator.TheFrozenTaskIsReadOnTheWayIn.test_the_document_is_not_json_is_refused) ... ok
+test_the_operators_own_document_is_answered_whole (tests.tools.test_dogfood_operator.TheFrozenTaskIsReadOnTheWayIn.test_the_operators_own_document_is_answered_whole) ... ok
+test_a_conflicting_declaration_through_the_command_is_refused (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_a_conflicting_declaration_through_the_command_is_refused)
+Calling the command IS the declaration, so a second one naming a ... ok
+test_a_launcher_with_no_abandonment_path_says_so (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_a_launcher_with_no_abandonment_path_says_so) ... ok
+test_a_recovery_asks_for_no_credential (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_a_recovery_asks_for_no_credential)
+A recovery delivers nothing, and asking for a bearer in order to ... ok
+test_a_restart_after_a_fault_at_any_boundary_converges (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_a_restart_after_a_fault_at_any_boundary_converges)
+RESTART IS THE POINT, and every one of these is a fresh process's ... ok
+test_a_runtime_created_before_its_record_is_still_ended (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_a_runtime_created_before_its_record_is_still_ended)
+The matrix row between runtime creation and lifecycle publication. ... ok
+test_a_runtime_the_engine_still_reports_running_settles_nothing (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_a_runtime_the_engine_still_reports_running_settles_nothing)
+The removal was ordered and the engine says the container is UP. ... ok
+test_a_terminal_refusal_still_reports_what_already_happened (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_a_terminal_refusal_still_reports_what_already_happened)
+W55758 review (2026-09-01T05:54:54Z) [P1]: the PARTIAL ACCOUNT. ... ok
+test_an_engine_answering_about_another_runtime_is_not_evidence (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_an_engine_answering_about_another_runtime_is_not_evidence)
+The wrong-label shape at the identity that matters: an inspection ... ok
+test_an_engine_that_cannot_be_asked_settles_nothing (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_an_engine_that_cannot_be_asked_settles_nothing)
+`unresolved` is an answer. A runtime this manager cannot say is ... ok
+test_an_exact_retry_of_the_command_replays_the_same_ending (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_an_exact_retry_of_the_command_replays_the_same_ending) ... ok
+test_an_inspection_naming_two_runtimes_is_not_evidence_either (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_an_inspection_naming_two_runtimes_is_not_evidence_either)
+The duplicate shape. One exact identity has one answer. ... ok
+test_an_uncertain_runtime_settles_nothing_and_keeps_the_bearer (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_an_uncertain_runtime_settles_nothing_and_keeps_the_bearer)
+The engine ANSWERS, and what it answers is about something else. ... ok
+test_an_unrecorded_orphan_refuses_before_any_act (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_an_unrecorded_orphan_refuses_before_any_act)
+The window this fixture reproduces is CLOSED at the launcher now. ... ok
+test_ending_an_attempt_and_finishing_one_are_not_one_command (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_ending_an_attempt_and_finishing_one_are_not_one_command) ... ok
+test_every_assignment_member_refuses_with_nothing_touched (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_every_assignment_member_refuses_with_nothing_touched) ... ok
+test_grants_naming_another_attempt_never_reach_an_act (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_grants_naming_another_attempt_never_reach_an_act)
+A grants file naming an attempt this manager never recorded. ... ok
+test_matching_grants_still_end_the_attempt (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_matching_grants_still_end_the_attempt)
+The positive half, so the refusals above are not passing because ... ok
+test_the_declaration_is_required_and_is_the_operators_own (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_the_declaration_is_required_and_is_the_operators_own) ... ok
+test_the_documented_command_ends_real_attached_state (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_the_documented_command_ends_real_attached_state)
+PLAN ITEM 7's centre: `main --abandon`, end to end, over an attempt ... ok
+test_the_documented_retry_adopts_through_the_granted_owner (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_the_documented_retry_adopts_through_the_granted_owner)
+W55758 review (2026-09-01T10:56:54Z) [P1], PLAN item 65. ... ok
+test_the_documented_retry_recovers_a_handoff_the_command_failed (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_the_documented_retry_recovers_a_handoff_the_command_failed)
+THE ACCEPTANCE, and the failure is produced rather than composed. ... ok
+test_the_fixture_really_leaves_an_attached_interrupted_attempt (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_the_fixture_really_leaves_an_attached_interrupted_attempt)
+The premise, proved before anything is built on it. ... ok
+test_the_narrow_retry_adopts_through_the_granted_credential_owner (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_the_narrow_retry_adopts_through_the_granted_credential_owner)
+W55758's option (a), at the OTHER builder. ... ok
+test_the_same_recovery_without_the_operand_reaches_its_builder (tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment.test_the_same_recovery_without_the_operand_reaches_its_builder)
+NOT VACUOUS. Without the operand the abandonment goes on to build ... ok
+test_a_command_whose_grants_are_sound_still_reaches_the_builder (tests.tools.test_dogfood_operator.TheHumanContractIsHeldBeforeAnySideEffect.test_a_command_whose_grants_are_sound_still_reaches_the_builder)
+The boundary is a gate and not a wall. ... ok
+test_a_contract_that_is_not_a_document_is_refused_by_type (tests.tools.test_dogfood_operator.TheHumanContractIsHeldBeforeAnySideEffect.test_a_contract_that_is_not_a_document_is_refused_by_type) ... ok
+test_a_locator_the_manifest_accepts_is_accepted_here (tests.tools.test_dogfood_operator.TheHumanContractIsHeldBeforeAnySideEffect.test_a_locator_the_manifest_accepts_is_accepted_here)
+The positive half, so the case above is not passing on everything. ... ok
+test_a_query_or_fragment_is_refused_by_the_shape_owner (tests.tools.test_dogfood_operator.TheHumanContractIsHeldBeforeAnySideEffect.test_a_query_or_fragment_is_refused_by_the_shape_owner)
+The two the SCHEMA already owns, kept apart from the case above. ... ok
+test_an_owner_defect_is_not_reported_as_a_bad_grant (tests.tools.test_dogfood_operator.TheHumanContractIsHeldBeforeAnySideEffect.test_an_owner_defect_is_not_reported_as_a_bad_grant)
+Only a typed contract judgement says the operator's grant is wrong. ... ok
+test_the_arc_refuses_before_a_single_side_effect (tests.tools.test_dogfood_operator.TheHumanContractIsHeldBeforeAnySideEffect.test_the_arc_refuses_before_a_single_side_effect)
+The acceptance, and it is about ORDER rather than about a message. ... ok
+test_the_command_boundary_holds_every_grant_it_can_judge (tests.tools.test_dogfood_operator.TheHumanContractIsHeldBeforeAnySideEffect.test_the_command_boundary_holds_every_grant_it_can_judge)
+Not only the human contract: the same owners, in one place. ... ok
+test_the_command_refuses_before_it_builds_a_capability (tests.tools.test_dogfood_operator.TheHumanContractIsHeldBeforeAnySideEffect.test_the_command_refuses_before_it_builds_a_capability)
+W51476 review [P1], and it is the defect one layer further out. ... ok
+test_the_composer_applies_the_same_hold (tests.tools.test_dogfood_operator.TheHumanContractIsHeldBeforeAnySideEffect.test_the_composer_applies_the_same_hold)
+One function, two call sites, so the two cannot drift. ... ok
+test_the_incident_locator_is_refused_at_the_preflight (tests.tools.test_dogfood_operator.TheHumanContractIsHeldBeforeAnySideEffect.test_the_incident_locator_is_refused_at_the_preflight)
+The exact value that got through, and where it now stops. ... ok
+test_the_narrower_manifest_grammar_is_the_one_applied (tests.tools.test_dogfood_operator.TheHumanContractIsHeldBeforeAnySideEffect.test_the_narrower_manifest_grammar_is_the_one_applied)
+Every form `artifactRef` admits and `check_uri` does not. ... ok
+test_the_shape_comes_from_the_frozen_schema (tests.tools.test_dogfood_operator.TheHumanContractIsHeldBeforeAnySideEffect.test_the_shape_comes_from_the_frozen_schema)
+Exactly `artifactRef`'s members, and its value rules. ... ok
+test_a_malformed_policy_container_refuses_at_the_composer_too (tests.tools.test_dogfood_operator.TheIdentityHoldIsAppliedTwice.test_a_malformed_policy_container_refuses_at_the_composer_too) ... ok
+test_the_composer_refuses_the_same_malformed_identities (tests.tools.test_dogfood_operator.TheIdentityHoldIsAppliedTwice.test_the_composer_refuses_the_same_malformed_identities) ... ok
+test_every_present_proposal_member_is_read_below_the_uri (tests.tools.test_dogfood_operator.TheIndependentDerivationReadsReceiptLocators.test_every_present_proposal_member_is_read_below_the_uri) ... ok
+test_a_failing_verification_shows_the_operator_the_diagnostic (tests.tools.test_dogfood_operator.TheIndependentRerunNeverChangesWhatItMeasures.test_a_failing_verification_shows_the_operator_the_diagnostic)
+W85497: `DEVNULL` threw away the line, caret and `SyntaxError`. ... ok
+test_a_large_file_is_digested_without_being_held_whole (tests.tools.test_dogfood_operator.TheIndependentRerunNeverChangesWhatItMeasures.test_a_large_file_is_digested_without_being_held_whole)
+W85497 review [P1]: `reading.read()` made this operator's memory a ... ok
+test_a_path_that_changes_kind_is_a_change_too (tests.tools.test_dogfood_operator.TheIndependentRerunNeverChangesWhatItMeasures.test_a_path_that_changes_kind_is_a_change_too)
+A digest comparison alone reads this as 'the name is still there'. ... ok
+test_a_real_compileall_leaves_the_retained_candidate_untouched (tests.tools.test_dogfood_operator.TheIndependentRerunNeverChangesWhatItMeasures.test_a_real_compileall_leaves_the_retained_candidate_untouched)
+THE DEFECT ITSELF, with the actual command the retry ran. ... ok
+test_a_rerun_that_rewrites_a_file_in_place_is_refused_too (tests.tools.test_dogfood_operator.TheIndependentRerunNeverChangesWhatItMeasures.test_a_rerun_that_rewrites_a_file_in_place_is_refused_too)
+Paths alone would miss this: the set is identical afterwards. ... ok
+test_a_rerun_that_writes_into_the_candidate_is_refused (tests.tools.test_dogfood_operator.TheIndependentRerunNeverChangesWhatItMeasures.test_a_rerun_that_writes_into_the_candidate_is_refused)
+THE PROOF IS TAKEN, NOT ASSUMED. ... ok
+test_ambient_temp_selection_cannot_put_ephemera_in_the_proposal (tests.tools.test_dogfood_operator.TheIndependentRerunNeverChangesWhatItMeasures.test_ambient_temp_selection_cannot_put_ephemera_in_the_proposal)
+Review 2026-09-04T14:44:23Z: ambient is not a boundary. ... ok
+test_an_empty_cache_directory_is_a_change_the_snapshot_sees (tests.tools.test_dogfood_operator.TheIndependentRerunNeverChangesWhatItMeasures.test_an_empty_cache_directory_is_a_change_the_snapshot_sees)
+W85497 review [P1]: directories were not recorded at all. ... ok
+test_cleanup_obstruction_is_a_typed_failure_with_the_residue_named (tests.tools.test_dogfood_operator.TheIndependentRerunNeverChangesWhatItMeasures.test_cleanup_obstruction_is_a_typed_failure_with_the_residue_named)
+Child-controlled residue cannot be silently accepted as success. ... ok
+test_post_command_special_entries_are_refused_without_hanging (tests.tools.test_dogfood_operator.TheIndependentRerunNeverChangesWhatItMeasures.test_post_command_special_entries_are_refused_without_hanging)
+The post-success snapshot is inside the verifier's time bound. ... ok
+test_special_entries_are_typed_without_opening_or_hanging (tests.tools.test_dogfood_operator.TheIndependentRerunNeverChangesWhatItMeasures.test_special_entries_are_typed_without_opening_or_hanging)
+FIFO/socket output is a change, never something to hash. ... ok
+test_the_capture_is_bounded_and_not_only_the_printing (tests.tools.test_dogfood_operator.TheIndependentRerunNeverChangesWhatItMeasures.test_the_capture_is_bounded_and_not_only_the_printing)
+W85497 review 2026-09-04T13-56-04Z [P1]: a DIFFERENT bound. ... ok
+test_the_ephemeral_root_is_outside_the_proposal_and_is_removed (tests.tools.test_dogfood_operator.TheIndependentRerunNeverChangesWhatItMeasures.test_the_ephemeral_root_is_outside_the_proposal_and_is_removed)
+Where the bytecode DID go, and that nothing was left behind. ... ok
+test_the_shown_diagnostic_is_bounded (tests.tools.test_dogfood_operator.TheIndependentRerunNeverChangesWhatItMeasures.test_the_shown_diagnostic_is_bounded)
+A shouting command cannot fill a supervising terminal. ... ok
+test_a_path_the_frozen_grammar_refuses_never_reaches_staging (tests.tools.test_dogfood_operator.TheLocatorGrammarHasONEOwner.test_a_path_the_frozen_grammar_refuses_never_reaches_staging) ... ok
+test_a_root_the_frozen_grammar_refuses_never_reaches_staging (tests.tools.test_dogfood_operator.TheLocatorGrammarHasONEOwner.test_a_root_the_frozen_grammar_refuses_never_reaches_staging) ... ok
+test_an_owner_defect_is_not_relabelled_as_bad_operator_input (tests.tools.test_dogfood_operator.TheLocatorGrammarHasONEOwner.test_an_owner_defect_is_not_relabelled_as_bad_operator_input)
+Only an owner's typed contract judgement says the supplied grant ... ok
+test_the_frozen_definitions_are_what_refuses (tests.tools.test_dogfood_operator.TheLocatorGrammarHasONEOwner.test_the_frozen_definitions_are_what_refuses)
+Asserted through the module rather than restated: a case that ... ok
+test_the_refusal_carries_the_contracts_own_sentence (tests.tools.test_dogfood_operator.TheLocatorGrammarHasONEOwner.test_the_refusal_carries_the_contracts_own_sentence)
+A class name would send an operator reading the operator's source ... ok
+test_this_tool_keeps_no_second_locator_grammar (tests.tools.test_dogfood_operator.TheLocatorGrammarHasONEOwner.test_this_tool_keeps_no_second_locator_grammar)
+`posixpath` was imported only to hand-roll the path rule, so the ... ok
+test_both_ends_accept_the_same_well_formed_pairs (tests.tools.test_dogfood_operator.TheOperatorAndTheWorkerAgreeOnTheTasksCONSTANTS.test_both_ends_accept_the_same_well_formed_pairs)
+The negative cases above prove nothing on their own if everything ... ok
+test_both_ends_refuse_a_numeric_task_id (tests.tools.test_dogfood_operator.TheOperatorAndTheWorkerAgreeOnTheTasksCONSTANTS.test_both_ends_refuse_a_numeric_task_id)
+SUPERSEDED AND INVERTED, and it is worth saying why twice over. ... ok
+test_both_ends_refuse_a_profile_and_base_that_do_not_pair (tests.tools.test_dogfood_operator.TheOperatorAndTheWorkerAgreeOnTheTasksCONSTANTS.test_both_ends_refuse_a_profile_and_base_that_do_not_pair)
+The rule neither end spells: it belongs to the profile package. ... ok
+test_both_ends_refuse_the_new_members_malformed (tests.tools.test_dogfood_operator.TheOperatorAndTheWorkerAgreeOnTheTasksCONSTANTS.test_both_ends_refuse_the_new_members_malformed)
+W71917 second review [P1]: `/2` added two members to the closed set ... ok
+test_the_closed_member_set_is_one_set (tests.tools.test_dogfood_operator.TheOperatorAndTheWorkerAgreeOnTheTasksCONSTANTS.test_the_closed_member_set_is_one_set) ... ok
+test_the_program_execd_is_the_image_s_own_entrypoint (tests.tools.test_dogfood_operator.TheOperatorAndTheWorkerAgreeOnTheTasksCONSTANTS.test_the_program_execd_is_the_image_s_own_entrypoint)
+The seam the image documents, not the module underneath it. ... ok
+test_the_schema_is_one_schema (tests.tools.test_dogfood_operator.TheOperatorAndTheWorkerAgreeOnTheTasksCONSTANTS.test_the_schema_is_one_schema) ... ok
+test_the_staged_source_name_is_one_name (tests.tools.test_dogfood_operator.TheOperatorAndTheWorkerAgreeOnTheTasksCONSTANTS.test_the_staged_source_name_is_one_name)
+The operator stages it and the adapter reads it by equality; two ... ok
+test_the_task_identity_pattern_text_is_one_pattern (tests.tools.test_dogfood_operator.TheOperatorAndTheWorkerAgreeOnTheTasksCONSTANTS.test_the_task_identity_pattern_text_is_one_pattern)
+The PATTERN, which is not the same claim as the predicate — see ... ok
+test_a_complete_set_of_grants_passes (tests.tools.test_dogfood_operator.ThePreflightRunsBeforeAnythingIsStaged.test_a_complete_set_of_grants_passes) ... ok
+test_a_held_task_cannot_be_mutated_between_its_two_reads (tests.tools.test_dogfood_operator.ThePreflightRunsBeforeAnythingIsStaged.test_a_held_task_cannot_be_mutated_between_its_two_reads)
+`frozen_task` answers an ordinary writable dict. Preflight must ... ok
+test_a_mutable_image_tag_is_not_a_digest (tests.tools.test_dogfood_operator.ThePreflightRunsBeforeAnythingIsStaged.test_a_mutable_image_tag_is_not_a_digest)
+There is no mutable image tag anywhere in this module, and this is ... ok
+test_a_non_document_policy_set_is_a_typed_preflight_refusal (tests.tools.test_dogfood_operator.ThePreflightRunsBeforeAnythingIsStaged.test_a_non_document_policy_set_is_a_typed_preflight_refusal)
+A public boundary reports a composition fault; it does not leak a ... ok
+test_a_policy_value_that_is_not_a_digest_is_refused (tests.tools.test_dogfood_operator.ThePreflightRunsBeforeAnythingIsStaged.test_a_policy_value_that_is_not_a_digest_is_refused)
+The other half of the finding: the first cut validated the seven ... ok
+test_a_review_route_that_was_not_named_is_refused (tests.tools.test_dogfood_operator.ThePreflightRunsBeforeAnythingIsStaged.test_a_review_route_that_was_not_named_is_refused)
+Approver ruling M44657 makes the pass part of the arc, so WHERE the ... ok
+test_a_task_from_another_generation_is_refused_here_too (tests.tools.test_dogfood_operator.ThePreflightRunsBeforeAnythingIsStaged.test_a_task_from_another_generation_is_refused_here_too) ... ok
+test_an_incomplete_policy_set_is_refused (tests.tools.test_dogfood_operator.ThePreflightRunsBeforeAnythingIsStaged.test_an_incomplete_policy_set_is_refused) ... ok
+test_an_unnamed_network_is_a_grant_nobody_made (tests.tools.test_dogfood_operator.ThePreflightRunsBeforeAnythingIsStaged.test_an_unnamed_network_is_a_grant_nobody_made) ... ok
+test_every_other_digest_operand_is_held_too (tests.tools.test_dogfood_operator.ThePreflightRunsBeforeAnythingIsStaged.test_every_other_digest_operand_is_held_too) ... ok
+test_one_refusal_reports_the_whole_preflight (tests.tools.test_dogfood_operator.ThePreflightRunsBeforeAnythingIsStaged.test_one_refusal_reports_the_whole_preflight)
+Named faults are collected rather than raised one at a time, so an ... ok
+test_record_binding_locators_use_the_frozen_manifest_grammar (tests.tools.test_dogfood_operator.ThePreflightRunsBeforeAnythingIsStaged.test_record_binding_locators_use_the_frozen_manifest_grammar)
+A looser handwritten locator check only moves part of the frozen ... ok
+test_record_binding_values_are_held_before_staging (tests.tools.test_dogfood_operator.ThePreflightRunsBeforeAnythingIsStaged.test_record_binding_values_are_held_before_staging)
+Four right key names are not a binding: both digests and both ... ok
+test_the_network_is_held_to_the_engine_grammar_before_staging (tests.tools.test_dogfood_operator.ThePreflightRunsBeforeAnythingIsStaged.test_the_network_is_held_to_the_engine_grammar_before_staging)
+Merely non-empty defers this refusal to `run_vector`, after the ... ok
+test_the_record_binding_is_exactly_its_four_members (tests.tools.test_dogfood_operator.ThePreflightRunsBeforeAnythingIsStaged.test_the_record_binding_is_exactly_its_four_members) ... ok
+test_a_policy_value_that_is_not_a_digest_is_refused_here (tests.tools.test_dogfood_operator.TheProtocolDocumentsAreComposedHere.test_a_policy_value_that_is_not_a_digest_is_refused_here) ... ok
+test_an_incomplete_policy_set_is_refused_before_the_manager_sees_it (tests.tools.test_dogfood_operator.TheProtocolDocumentsAreComposedHere.test_an_incomplete_policy_set_is_refused_before_the_manager_sees_it)
+The frozen schema requires all seven, so an operator learns about a ... ok
+test_exactly_one_output_is_declared (tests.tools.test_dogfood_operator.TheProtocolDocumentsAreComposedHere.test_exactly_one_output_is_declared)
+The parent finding's own ruling: the proposal is one directory ... ok
+test_manifest_paths_are_relative_to_the_two_fixed_roots (tests.tools.test_dogfood_operator.TheProtocolDocumentsAreComposedHere.test_manifest_paths_are_relative_to_the_two_fixed_roots)
+A source destination is below `/input` and an output path is below ... ok
+test_the_assignment_binds_the_input_manifest_it_was_minted_against (tests.tools.test_dogfood_operator.TheProtocolDocumentsAreComposedHere.test_the_assignment_binds_the_input_manifest_it_was_minted_against) ... ok
+test_the_assignment_seals_its_own_digest (tests.tools.test_dogfood_operator.TheProtocolDocumentsAreComposedHere.test_the_assignment_seals_its_own_digest) ... ok
+test_the_input_manifest_seals_its_own_digest (tests.tools.test_dogfood_operator.TheProtocolDocumentsAreComposedHere.test_the_input_manifest_seals_its_own_digest) ... ok
+test_the_sources_entry_carries_the_copiers_own_manifest (tests.tools.test_dogfood_operator.TheProtocolDocumentsAreComposedHere.test_the_sources_entry_carries_the_copiers_own_manifest)
+Not a second measurement. A deployment that measured the tree twice ... ok
+test_the_task_does_not_travel_in_the_protocol_document (tests.tools.test_dogfood_operator.TheProtocolDocumentsAreComposedHere.test_the_task_does_not_travel_in_the_protocol_document)
+The schema's ruling, not a preference. A first cut added `task_id` ... ok
+test_the_two_documents_compose_a_real_input_root (tests.tools.test_dogfood_operator.TheProtocolDocumentsAreComposedHere.test_the_two_documents_compose_a_real_input_root)
+THE ONE THAT MATTERS: the manager's own composer accepts them. ... ok
+test_a_launcher_with_no_abandonment_path_says_so (tests.tools.test_dogfood_operator.ThePublicRecoveryEndsAnInterruptedAttempt.test_a_launcher_with_no_abandonment_path_says_so) ... ok
+test_a_recovery_asks_for_no_credential (tests.tools.test_dogfood_operator.ThePublicRecoveryEndsAnInterruptedAttempt.test_a_recovery_asks_for_no_credential)
+A recovery delivers nothing, and asking for a bearer in order to ... ok
+test_an_unrecorded_orphan_refuses_before_any_act (tests.tools.test_dogfood_operator.ThePublicRecoveryEndsAnInterruptedAttempt.test_an_unrecorded_orphan_refuses_before_any_act)
+The window this fixture reproduces is CLOSED at the launcher now. ... ok
+test_ending_an_attempt_and_finishing_one_are_not_one_command (tests.tools.test_dogfood_operator.ThePublicRecoveryEndsAnInterruptedAttempt.test_ending_an_attempt_and_finishing_one_are_not_one_command) ... ok
+test_the_declaration_is_required_and_is_the_operators_own (tests.tools.test_dogfood_operator.ThePublicRecoveryEndsAnInterruptedAttempt.test_the_declaration_is_required_and_is_the_operators_own) ... ok
+test_the_documented_retry_adopts_through_the_granted_owner (tests.tools.test_dogfood_operator.ThePublicRecoveryEndsAnInterruptedAttempt.test_the_documented_retry_adopts_through_the_granted_owner)
+W55758 review (2026-09-01T10:56:54Z) [P1], PLAN item 65. ... ok
+test_the_documented_retry_recovers_a_handoff_the_command_failed (tests.tools.test_dogfood_operator.ThePublicRecoveryEndsAnInterruptedAttempt.test_the_documented_retry_recovers_a_handoff_the_command_failed)
+THE ACCEPTANCE, and the failure is produced rather than composed. ... ok
+test_the_same_recovery_without_the_operand_reaches_its_builder (tests.tools.test_dogfood_operator.ThePublicRecoveryEndsAnInterruptedAttempt.test_the_same_recovery_without_the_operand_reaches_its_builder)
+NOT VACUOUS. Without the operand the abandonment goes on to build ... ok
+test_the_documented_retry_recovers_a_handoff_the_command_failed (tests.tools.test_dogfood_operator.ThePublicRetryRunsFromRealDurableState.test_the_documented_retry_recovers_a_handoff_the_command_failed)
+THE ACCEPTANCE, and the failure is produced rather than composed. ... ok
+test_a_conflicting_declaration_is_recorded_not_forced (tests.tools.test_dogfood_operator.TheRecoveryIsRetryableAndRefusesAConflictingDeclaration.test_a_conflicting_declaration_is_recorded_not_forced)
+Calling the command IS the declaration, so a second one naming a ... ok
+test_a_record_written_by_this_recovery_carries_no_bearer (tests.tools.test_dogfood_operator.TheRecoveryIsRetryableAndRefusesAConflictingDeclaration.test_a_record_written_by_this_recovery_carries_no_bearer) ... ok
+test_a_refused_ending_is_recorded_rather_than_raised (tests.tools.test_dogfood_operator.TheRecoveryIsRetryableAndRefusesAConflictingDeclaration.test_a_refused_ending_is_recorded_rather_than_raised)
+An attempt whose worker answered cannot be abandoned, and the ... ok
+test_an_attached_attempt_ends_and_its_credential_is_torn_down (tests.tools.test_dogfood_operator.TheRecoveryIsRetryableAndRefusesAConflictingDeclaration.test_an_attached_attempt_ends_and_its_credential_is_torn_down)
+THE WHOLE POINT: `torn-down`, never `not-delivered`. ... ok
+test_an_attempt_that_delivered_nothing_still_says_not_delivered (tests.tools.test_dogfood_operator.TheRecoveryIsRetryableAndRefusesAConflictingDeclaration.test_an_attempt_that_delivered_nothing_still_says_not_delivered)
+The old word is true exactly when nothing was ever delivered. ... ok
+test_an_ending_reporting_no_credential_teardown_is_unresolved (tests.tools.test_dogfood_operator.TheRecoveryIsRetryableAndRefusesAConflictingDeclaration.test_an_ending_reporting_no_credential_teardown_is_unresolved)
+The gap said out loud rather than papered over: this recovery holds ... ok
+test_an_exact_retry_replays_without_a_second_external_act (tests.tools.test_dogfood_operator.TheRecoveryIsRetryableAndRefusesAConflictingDeclaration.test_an_exact_retry_replays_without_a_second_external_act) ... ok
+test_an_uncertain_runtime_settles_nothing_and_keeps_the_bearer (tests.tools.test_dogfood_operator.TheRecoveryIsRetryableAndRefusesAConflictingDeclaration.test_an_uncertain_runtime_settles_nothing_and_keeps_the_bearer)
+`unresolved` is an answer, and it is the one that matters most: a ... ok
+test_the_exported_operation_takes_no_projection_from_a_caller (tests.tools.test_dogfood_operator.TheRecoveryIsRetryableAndRefusesAConflictingDeclaration.test_the_exported_operation_takes_no_projection_from_a_caller)
+W55758 review (2026-09-01T10:56:54Z) [P1]: the door built to close ... ok
+test_the_public_read_is_what_the_branch_turns_on (tests.tools.test_dogfood_operator.TheRecoveryIsRetryableAndRefusesAConflictingDeclaration.test_the_public_read_is_what_the_branch_turns_on)
+`attempt_runtime_of`, and a branch that does not read prose. ... ok
+test_a_conflicting_declaration_through_the_command_is_refused (tests.tools.test_dogfood_operator.TheRecoveryMatrixOverDurableAttachedState.test_a_conflicting_declaration_through_the_command_is_refused)
+Calling the command IS the declaration, so a second one naming a ... ok
+test_a_launcher_with_no_abandonment_path_says_so (tests.tools.test_dogfood_operator.TheRecoveryMatrixOverDurableAttachedState.test_a_launcher_with_no_abandonment_path_says_so) ... ok
+test_a_recovery_asks_for_no_credential (tests.tools.test_dogfood_operator.TheRecoveryMatrixOverDurableAttachedState.test_a_recovery_asks_for_no_credential)
+A recovery delivers nothing, and asking for a bearer in order to ... ok
+test_a_restart_after_a_fault_at_any_boundary_converges (tests.tools.test_dogfood_operator.TheRecoveryMatrixOverDurableAttachedState.test_a_restart_after_a_fault_at_any_boundary_converges)
+RESTART IS THE POINT, and every one of these is a fresh process's ... ok
+test_a_runtime_created_before_its_record_is_still_ended (tests.tools.test_dogfood_operator.TheRecoveryMatrixOverDurableAttachedState.test_a_runtime_created_before_its_record_is_still_ended)
+The matrix row between runtime creation and lifecycle publication. ... ok
+test_a_runtime_the_engine_still_reports_running_settles_nothing (tests.tools.test_dogfood_operator.TheRecoveryMatrixOverDurableAttachedState.test_a_runtime_the_engine_still_reports_running_settles_nothing)
+The removal was ordered and the engine says the container is UP. ... ok
+test_a_terminal_refusal_still_reports_what_already_happened (tests.tools.test_dogfood_operator.TheRecoveryMatrixOverDurableAttachedState.test_a_terminal_refusal_still_reports_what_already_happened)
+W55758 review (2026-09-01T05:54:54Z) [P1]: the PARTIAL ACCOUNT. ... ok
+test_an_engine_answering_about_another_runtime_is_not_evidence (tests.tools.test_dogfood_operator.TheRecoveryMatrixOverDurableAttachedState.test_an_engine_answering_about_another_runtime_is_not_evidence)
+The wrong-label shape at the identity that matters: an inspection ... ok
+test_an_engine_that_cannot_be_asked_settles_nothing (tests.tools.test_dogfood_operator.TheRecoveryMatrixOverDurableAttachedState.test_an_engine_that_cannot_be_asked_settles_nothing)
+`unresolved` is an answer. A runtime this manager cannot say is ... ok
+test_an_exact_retry_of_the_command_replays_the_same_ending (tests.tools.test_dogfood_operator.TheRecoveryMatrixOverDurableAttachedState.test_an_exact_retry_of_the_command_replays_the_same_ending) ... ok
+test_an_inspection_naming_two_runtimes_is_not_evidence_either (tests.tools.test_dogfood_operator.TheRecoveryMatrixOverDurableAttachedState.test_an_inspection_naming_two_runtimes_is_not_evidence_either)
+The duplicate shape. One exact identity has one answer. ... ok
+test_an_uncertain_runtime_settles_nothing_and_keeps_the_bearer (tests.tools.test_dogfood_operator.TheRecoveryMatrixOverDurableAttachedState.test_an_uncertain_runtime_settles_nothing_and_keeps_the_bearer)
+The engine ANSWERS, and what it answers is about something else. ... ok
+test_an_unrecorded_orphan_refuses_before_any_act (tests.tools.test_dogfood_operator.TheRecoveryMatrixOverDurableAttachedState.test_an_unrecorded_orphan_refuses_before_any_act)
+The window this fixture reproduces is CLOSED at the launcher now. ... ok
+test_ending_an_attempt_and_finishing_one_are_not_one_command (tests.tools.test_dogfood_operator.TheRecoveryMatrixOverDurableAttachedState.test_ending_an_attempt_and_finishing_one_are_not_one_command) ... ok
+test_the_declaration_is_required_and_is_the_operators_own (tests.tools.test_dogfood_operator.TheRecoveryMatrixOverDurableAttachedState.test_the_declaration_is_required_and_is_the_operators_own) ... ok
+test_the_documented_command_ends_real_attached_state (tests.tools.test_dogfood_operator.TheRecoveryMatrixOverDurableAttachedState.test_the_documented_command_ends_real_attached_state)
+PLAN ITEM 7's centre: `main --abandon`, end to end, over an attempt ... ok
+test_the_documented_retry_adopts_through_the_granted_owner (tests.tools.test_dogfood_operator.TheRecoveryMatrixOverDurableAttachedState.test_the_documented_retry_adopts_through_the_granted_owner)
+W55758 review (2026-09-01T10:56:54Z) [P1], PLAN item 65. ... ok
+test_the_documented_retry_recovers_a_handoff_the_command_failed (tests.tools.test_dogfood_operator.TheRecoveryMatrixOverDurableAttachedState.test_the_documented_retry_recovers_a_handoff_the_command_failed)
+THE ACCEPTANCE, and the failure is produced rather than composed. ... ok
+test_the_fixture_really_leaves_an_attached_interrupted_attempt (tests.tools.test_dogfood_operator.TheRecoveryMatrixOverDurableAttachedState.test_the_fixture_really_leaves_an_attached_interrupted_attempt)
+The premise, proved before anything is built on it. ... ok
+test_the_narrow_retry_adopts_through_the_granted_credential_owner (tests.tools.test_dogfood_operator.TheRecoveryMatrixOverDurableAttachedState.test_the_narrow_retry_adopts_through_the_granted_credential_owner)
+W55758's option (a), at the OTHER builder. ... ok
+test_the_same_recovery_without_the_operand_reaches_its_builder (tests.tools.test_dogfood_operator.TheRecoveryMatrixOverDurableAttachedState.test_the_same_recovery_without_the_operand_reaches_its_builder)
+NOT VACUOUS. Without the operand the abandonment goes on to build ... ok
+test_a_changed_reason_collides_and_never_fences_again (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_changed_reason_collides_and_never_fences_again)
+THE DECLARATION IS THE ACT, so a different reason is a different ... ok
+test_a_conflicting_declaration_through_the_command_is_refused (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_conflicting_declaration_through_the_command_is_refused)
+Calling the command IS the declaration, so a second one naming a ... ok
+test_a_fence_that_did_not_fence_leaves_everything_unresolved (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_fence_that_did_not_fence_leaves_everything_unresolved)
+THE PAIRED REFUSAL. A fence answer that is absent, false or about ... ok
+test_a_fresh_incarnation_ends_the_exactly_identified_old_runtime (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_fresh_incarnation_ends_the_exactly_identified_old_runtime)
+The attempt was attached under one incarnation and the recovery ... ok
+test_a_launcher_with_no_abandonment_path_says_so (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_launcher_with_no_abandonment_path_says_so) ... ok
+test_a_mismatched_pre_attach_candidate_is_reported_not_stopped (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_mismatched_pre_attach_candidate_is_reported_not_stopped)
+The other half: one runtime carries this attempt's labels and the ... ok
+test_a_pre_attach_abandonment_resolves_and_releases_the_assignment (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_pre_attach_abandonment_resolves_and_releases_the_assignment)
+THE DEFINING OUTCOME. `--abandon` over an activated attempt whose ... ok
+test_a_pre_attach_identity_listed_twice_is_one_zombie_row (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_pre_attach_identity_listed_twice_is_one_zombie_row)
+The same canonicalization, through the OTHER composer's branch. ... ok
+test_a_pre_attach_retry_replays_the_same_fence (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_pre_attach_retry_replays_the_same_fence)
+An exact retry adopts the same declaration and answers the SAME ... ok
+test_a_recovery_asks_for_no_credential (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_recovery_asks_for_no_credential)
+A recovery delivers nothing, and asking for a bearer in order to ... ok
+test_a_requested_start_refuses_the_pre_attach_fence (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_requested_start_refuses_the_pre_attach_fence)
+THE RACE, in the order where the start won. ... ok
+test_a_resource_refusal_after_the_fence_keeps_it_and_then_retries (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_resource_refusal_after_the_fence_keeps_it_and_then_retries)
+CUT TWO, and the recovery that follows it. The fence commits, the ... ok
+test_a_restart_after_a_fault_at_any_boundary_converges (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_restart_after_a_fault_at_any_boundary_converges)
+RESTART IS THE POINT, and every one of these is a fresh process's ... ok
+test_a_running_runtime_is_reported_rather_than_resumed (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_running_runtime_is_reported_rather_than_resumed) ... ok
+test_a_runtime_created_before_its_record_is_still_ended (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_runtime_created_before_its_record_is_still_ended)
+The matrix row between runtime creation and lifecycle publication. ... ok
+test_a_runtime_the_engine_still_reports_running_settles_nothing (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_runtime_the_engine_still_reports_running_settles_nothing)
+The removal was ordered and the engine says the container is UP. ... ok
+test_a_terminal_refusal_still_reports_what_already_happened (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_terminal_refusal_still_reports_what_already_happened)
+W55758 review (2026-09-01T05:54:54Z) [P1]: the PARTIAL ACCOUNT. ... ok
+test_a_wrong_participant_refuses_before_any_fence_or_cleanup (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_wrong_participant_refuses_before_any_fence_or_cleanup)
+IDENTITY IS HELD FIRST. The port requires the session's own ... ok
+test_ambiguous_pre_attach_candidates_are_reported_not_stopped (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_ambiguous_pre_attach_candidates_are_reported_not_stopped)
+W55758 review (2026-09-01T10:56:54Z) [P1], PLAN item 63. ... ok
+test_an_ambiguous_answer_reports_every_candidate_it_named (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_an_ambiguous_answer_reports_every_candidate_it_named)
+The duplicate shape, which the first report omitted entirely: the ... ok
+test_an_engine_answering_about_another_runtime_is_not_evidence (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_an_engine_answering_about_another_runtime_is_not_evidence)
+The wrong-label shape at the identity that matters: an inspection ... ok
+test_an_engine_that_cannot_be_asked_settles_nothing (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_an_engine_that_cannot_be_asked_settles_nothing)
+`unresolved` is an answer. A runtime this manager cannot say is ... ok
+test_an_exact_retry_of_the_command_replays_the_same_ending (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_an_exact_retry_of_the_command_replays_the_same_ending) ... ok
+test_an_inspection_naming_two_runtimes_is_not_evidence_either (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_an_inspection_naming_two_runtimes_is_not_evidence_either)
+The duplicate shape. One exact identity has one answer. ... ok
+test_an_interruption_after_the_fence_resumes_one_authority_effect (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_an_interruption_after_the_fence_resumes_one_authority_effect)
+CUT TWO, for real: the fence COMMITS at the authority and the ... ok
+test_an_interruption_after_the_intent_resumes_the_same_fence (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_an_interruption_after_the_intent_resumes_the_same_fence)
+CUT ONE: the declaration commits and the process dies before the ... ok
+test_an_uncertain_runtime_settles_nothing_and_keeps_the_bearer (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_an_uncertain_runtime_settles_nothing_and_keeps_the_bearer)
+The engine ANSWERS, and what it answers is about something else. ... ok
+test_an_unidentifiable_runtime_is_reported_and_left_alone (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_an_unidentifiable_runtime_is_reported_and_left_alone)
+The other half. An engine answering about another id cannot ... ok
+test_an_unrecorded_orphan_refuses_before_any_act (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_an_unrecorded_orphan_refuses_before_any_act)
+The window this fixture reproduces is CLOSED at the launcher now. ... ok
+test_ending_an_attempt_and_finishing_one_are_not_one_command (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_ending_an_attempt_and_finishing_one_are_not_one_command) ... ok
+test_every_assignment_member_refuses_with_nothing_touched (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_every_assignment_member_refuses_with_nothing_touched) ... ok
+test_grants_naming_another_attempt_never_reach_an_act (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_grants_naming_another_attempt_never_reach_an_act)
+A grants file naming an attempt this manager never recorded. ... ok
+test_matching_grants_still_end_the_attempt (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_matching_grants_still_end_the_attempt)
+The positive half, so the refusals above are not passing because ... ok
+test_one_identity_answered_twice_in_agreement_is_one_zombie_row (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_one_identity_answered_twice_in_agreement_is_one_zombie_row)
+The other half of the same rule: an engine repeating itself is one ... ok
+test_one_identity_answered_twice_in_conflict_is_one_zombie_row (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_one_identity_answered_twice_in_conflict_is_one_zombie_row)
+W55758 review (2026-09-01T11:38:25Z) [P1], PLAN item 68. ... ok
+test_the_abandonment_wins_and_a_public_start_can_no_longer_pass (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_the_abandonment_wins_and_a_public_start_can_no_longer_pass)
+THE OTHER PUBLIC ORDER. The declaration commits and moves the axis ... ok
+test_the_declaration_is_required_and_is_the_operators_own (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_the_declaration_is_required_and_is_the_operators_own) ... ok
+test_the_documented_command_ends_real_attached_state (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_the_documented_command_ends_real_attached_state)
+PLAN ITEM 7's centre: `main --abandon`, end to end, over an attempt ... ok
+test_the_documented_command_fences_a_pre_attach_assignment (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_the_documented_command_fences_a_pre_attach_assignment)
+W63255's centre: `main --abandon` over an attempt that ACTIVATED and ... ok
+test_the_documented_retry_adopts_through_the_granted_owner (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_the_documented_retry_adopts_through_the_granted_owner)
+W55758 review (2026-09-01T10:56:54Z) [P1], PLAN item 65. ... ok
+test_the_documented_retry_recovers_a_handoff_the_command_failed (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_the_documented_retry_recovers_a_handoff_the_command_failed)
+THE ACCEPTANCE, and the failure is produced rather than composed. ... ok
+test_the_ending_decides_nothing_about_output_or_custody (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_the_ending_decides_nothing_about_output_or_custody)
+THE RETAINED NON-EFFECTS. This operation answers the assignment ... ok
+test_the_fence_adopts_the_declarations_own_operation_and_reason (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_the_fence_adopts_the_declarations_own_operation_and_reason)
+THE ADOPTED VALUES, not freshly derived ones. A resumed call must ... ok
+test_the_fixture_really_leaves_an_attached_interrupted_attempt (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_the_fixture_really_leaves_an_attached_interrupted_attempt)
+The premise, proved before anything is built on it. ... ok
+test_the_narrow_retry_adopts_through_the_granted_credential_owner (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_the_narrow_retry_adopts_through_the_granted_credential_owner)
+W55758's option (a), at the OTHER builder. ... ok
+test_the_original_reason_replays_one_durable_declaration (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_the_original_reason_replays_one_durable_declaration)
+A same-reason retry adopts the committed declaration through ... ok
+test_the_same_recovery_without_the_operand_reaches_its_builder (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_the_same_recovery_without_the_operand_reaches_its_builder)
+NOT VACUOUS. Without the operand the abandonment goes on to build ... ok
+test_two_uncertain_accounts_for_one_identity_keep_both (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_two_uncertain_accounts_for_one_identity_keep_both)
+W55758 review (2026-09-01T11:53:38Z) [P1], PLAN item 70. ... ok
+test_a_link_in_the_source_is_refused (tests.tools.test_dogfood_operator.TheSourceIsStagedBoundedAndOnce.test_a_link_in_the_source_is_refused)
+The bound is the manager's no-follow rule, reached through this ... ok
+test_a_source_past_the_byte_ceiling_is_refused (tests.tools.test_dogfood_operator.TheSourceIsStagedBoundedAndOnce.test_a_source_past_the_byte_ceiling_is_refused) ... ok
+test_a_source_past_the_entry_ceiling_is_refused (tests.tools.test_dogfood_operator.TheSourceIsStagedBoundedAndOnce.test_a_source_past_the_entry_ceiling_is_refused) ... ok
+test_staging_twice_into_one_input_root_is_refused (tests.tools.test_dogfood_operator.TheSourceIsStagedBoundedAndOnce.test_staging_twice_into_one_input_root_is_refused)
+An attempt stages its source once. A second staging would replace ... ok
+test_the_exact_subset_lands_under_the_fixed_name (tests.tools.test_dogfood_operator.TheSourceIsStagedBoundedAndOnce.test_the_exact_subset_lands_under_the_fixed_name) ... ok
+test_the_manifest_describes_what_was_copied (tests.tools.test_dogfood_operator.TheSourceIsStagedBoundedAndOnce.test_the_manifest_describes_what_was_copied)
+Answered by the manager's own copier rather than measured again: ... ok
+test_a_caller_may_narrow_its_own_delivery (tests.tools.test_dogfood_operator.TheStatedCeilingsAreACeiling.test_a_caller_may_narrow_its_own_delivery) ... ok
+test_a_caller_may_not_widen_the_operators_ceiling (tests.tools.test_dogfood_operator.TheStatedCeilingsAreACeiling.test_a_caller_may_not_widen_the_operators_ceiling) ... ok
+test_a_narrower_ceiling_is_a_positive_whole_number (tests.tools.test_dogfood_operator.TheStatedCeilingsAreACeiling.test_a_narrower_ceiling_is_a_positive_whole_number)
+Bool, zero and text currently reach comparisons or the copier as ... ok
+test_a_task_changed_after_its_first_read_does_not_pass_preflight (tests.tools.test_dogfood_operator.TheTaskIsHeldEverywhereItIsBelieved.test_a_task_changed_after_its_first_read_does_not_pass_preflight) ... ok
+test_a_task_changed_after_preflight_is_not_the_task_copied (tests.tools.test_dogfood_operator.TheTaskIsHeldEverywhereItIsBelieved.test_a_task_changed_after_preflight_is_not_the_task_copied)
+The third application, immediately before the write, is what makes ... ok
+test_one_function_answers_at_all_three_places (tests.tools.test_dogfood_operator.TheTaskIsHeldEverywhereItIsBelieved.test_one_function_answers_at_all_three_places)
+A second spelling of the hold is a second chance to disagree. ... ok
+test_a_directory_takes_the_one_instant (tests.tools.test_worker_image_build.InsideTheRewrittenLayerOnlyTheClockMoves.test_a_directory_takes_the_one_instant) ... ok
+test_every_member_time_is_the_one_instant (tests.tools.test_worker_image_build.InsideTheRewrittenLayerOnlyTheClockMoves.test_every_member_time_is_the_one_instant)
+REVISED under review [P1]'s explicit confirmation, and the old ... ok
+test_normalizing_the_clock_did_not_normalize_the_content (tests.tools.test_worker_image_build.InsideTheRewrittenLayerOnlyTheClockMoves.test_normalizing_the_clock_did_not_normalize_the_content)
+The other half, and the one that would make this correction a ... ok
+test_the_member_order_is_stable_and_the_bytes_survive (tests.tools.test_worker_image_build.InsideTheRewrittenLayerOnlyTheClockMoves.test_the_member_order_is_stable_and_the_bytes_survive) ... ok
+test_the_owner_names_go_and_the_numeric_ids_stay (tests.tools.test_worker_image_build.InsideTheRewrittenLayerOnlyTheClockMoves.test_the_owner_names_go_and_the_numeric_ids_stay)
+A name is a lookup in whatever passwd file the builder had; the ... ok
+test_two_checkouts_of_one_revision_reach_one_identity (tests.tools.test_worker_image_build.InsideTheRewrittenLayerOnlyTheClockMoves.test_two_checkouts_of_one_revision_reach_one_identity)
+The property the mtime rule exists for, stated at the level a ... ok
+test_a_layout_carrying_two_manifests_refuses (tests.tools.test_worker_image_build.OnlyTheRecipesOwnWorkIsRewritten.test_a_layout_carrying_two_manifests_refuses)
+One built image is one identity. A layout with two is not an ... ok
+test_a_layout_sharing_no_layer_with_the_base_refuses (tests.tools.test_worker_image_build.OnlyTheRecipesOwnWorkIsRewritten.test_a_layout_sharing_no_layer_with_the_base_refuses)
+The other degenerate answer, and it is the more alarming one: the ... ok
+test_a_layout_whose_layers_are_all_the_bases_refuses (tests.tools.test_worker_image_build.OnlyTheRecipesOwnWorkIsRewritten.test_a_layout_whose_layers_are_all_the_bases_refuses)
+Nothing was recognised as this recipe's own, so there is nothing to ... ok
+test_a_partial_base_layer_match_refuses (tests.tools.test_worker_image_build.OnlyTheRecipesOwnWorkIsRewritten.test_a_partial_base_layer_match_refuses)
+Set membership is not image ancestry. ... ok
+test_the_bases_layer_travels_byte_for_byte (tests.tools.test_worker_image_build.OnlyTheRecipesOwnWorkIsRewritten.test_the_bases_layer_travels_byte_for_byte)
+A normalizer that rewrote the base would be describing a different ... ok
+test_the_recipes_layer_is_rewritten (tests.tools.test_worker_image_build.OnlyTheRecipesOwnWorkIsRewritten.test_the_recipes_layer_is_rewritten) ... ok
+test_a_cleanup_exception_cannot_replace_an_earlier_failure (tests.tools.test_worker_image_build.TheBuildVectorIsClosed.test_a_cleanup_exception_cannot_replace_an_earlier_failure)
+The cleanup process can fail to start or time out as well as ... ok
+test_a_failed_stage_removal_cannot_report_a_successful_build (tests.tools.test_worker_image_build.TheBuildVectorIsClosed.test_a_failed_stage_removal_cannot_report_a_successful_build)
+The unnormalized image is not an optional temporary resource. ... ok
+test_a_recipe_with_no_base_refuses (tests.tools.test_worker_image_build.TheBuildVectorIsClosed.test_a_recipe_with_no_base_refuses) ... ok
+test_a_refused_cleanup_does_not_replace_an_earlier_failure (tests.tools.test_worker_image_build.TheBuildVectorIsClosed.test_a_refused_cleanup_does_not_replace_an_earlier_failure)
+A build that failed and then could not clean up is reported as the ... ok
+test_a_refused_cleanup_is_attached_to_the_earlier_failure (tests.tools.test_worker_image_build.TheBuildVectorIsClosed.test_a_refused_cleanup_is_attached_to_the_earlier_failure)
+Preserving the primary exception is only half the requirement. ... ok
+test_an_allocated_stage_still_names_its_destination (tests.tools.test_worker_image_build.TheBuildVectorIsClosed.test_an_allocated_stage_still_names_its_destination)
+Unique, and still readable. A leftover stage has to say which ... ok
+test_concurrent_builds_for_one_destination_have_distinct_stages (tests.tools.test_worker_image_build.TheBuildVectorIsClosed.test_concurrent_builds_for_one_destination_have_distinct_stages)
+One build's cleanup must not remove another build's input. ... ok
+test_one_invocation_builds_saves_and_removes_ONE_stage (tests.tools.test_worker_image_build.TheBuildVectorIsClosed.test_one_invocation_builds_saves_and_removes_ONE_stage)
+The thread-through, which is what the uniqueness is for. Review ... ok
+test_the_base_is_read_from_the_recipe_and_pinned_by_digest (tests.tools.test_worker_image_build.TheBuildVectorIsClosed.test_the_base_is_read_from_the_recipe_and_pinned_by_digest)
+One place names the base. A second copy of the digest in the tool ... ok
+test_the_staging_tag_is_never_the_artefact (tests.tools.test_worker_image_build.TheBuildVectorIsClosed.test_the_staging_tag_is_never_the_artefact) ... ok
+test_the_vector_is_exact (tests.tools.test_worker_image_build.TheBuildVectorIsClosed.test_the_vector_is_exact) ... ok
+test_the_applied_configuration_is_untouched (tests.tools.test_worker_image_build.TheReceiptsAreRemovedAndTheContentIsNot.test_the_applied_configuration_is_untouched)
+The receipts go; what the engine will APPLY stays, because that is ... ok
+test_the_bases_history_keeps_its_own_provenance (tests.tools.test_worker_image_build.TheReceiptsAreRemovedAndTheContentIsNot.test_the_bases_history_keeps_its_own_provenance)
+Only entries newer than the base's `Created` are this build's. ... ok
+test_the_build_receipts_are_gone (tests.tools.test_worker_image_build.TheReceiptsAreRemovedAndTheContentIsNot.test_the_build_receipts_are_gone) ... ok
+test_a_real_difference_still_makes_two_identities (tests.tools.test_worker_image_build.TwoBuildsReachOneIdentity.test_a_real_difference_still_makes_two_identities)
+The other half. A normalizer that answered one digest for two ... ok
+test_layouts_differing_only_in_receipts_normalize_to_one_digest (tests.tools.test_worker_image_build.TwoBuildsReachOneIdentity.test_layouts_differing_only_in_receipts_normalize_to_one_digest)
+The property the whole step exists for. ... ok
+test_source_checkout_mtime_is_not_part_of_the_image_identity (tests.tools.test_worker_image_build.TwoBuildsReachOneIdentity.test_source_checkout_mtime_is_not_part_of_the_image_identity)
+Git carries the file bytes and executable bit, not its mtime. ... ok
+test_a_class_level_error_leaves_its_tests_unaccounted_and_names_the_fixture (tests.tools.test_parallel_runner.AClassFixtureThatNeverStartsItsTestsLeavesThemUnaccounted.test_a_class_level_error_leaves_its_tests_unaccounted_and_names_the_fixture) ... ok
+test_two_class_level_skips_stay_two_events_and_are_required_unless_optional (tests.tools.test_parallel_runner.AClassFixtureThatNeverStartsItsTestsLeavesThemUnaccounted.test_two_class_level_skips_stay_two_events_and_are_required_unless_optional) ... ok
+test_a_failed_shard_does_not_orphan_a_descendant_when_its_leader_exits (tests.tools.test_parallel_runner.AFailingRunAlsoLeavesNothingBehind.test_a_failed_shard_does_not_orphan_a_descendant_when_its_leader_exits) ... ok
+test_a_refused_run_removes_it_too (tests.tools.test_parallel_runner.AFailingRunAlsoLeavesNothingBehind.test_a_refused_run_removes_it_too) ... ok
+test_the_result_root_is_removed_when_the_suite_fails (tests.tools.test_parallel_runner.AFailingRunAlsoLeavesNothingBehind.test_the_result_root_is_removed_when_the_suite_fails) ... ok
+test_a_failed_parallel_phase_never_reaches_the_serial_registry (tests.tools.test_parallel_runner.AFailingShardIsReportedAndStopsTheLaterPhases.test_a_failed_parallel_phase_never_reaches_the_serial_registry) ... ok
+test_a_failing_sibling_never_abandons_the_other_shards (tests.tools.test_parallel_runner.AFailingShardIsReportedAndStopsTheLaterPhases.test_a_failing_sibling_never_abandons_the_other_shards) ... ok
+test_the_failure_propagates_to_the_exit_code_and_the_summary (tests.tools.test_parallel_runner.AFailingShardIsReportedAndStopsTheLaterPhases.test_the_failure_propagates_to_the_exit_code_and_the_summary) ... ok
+test_a_group_runs_its_modules_and_an_unknown_group_refuses (tests.tools.test_parallel_runner.AGroupSelectsExactlyItsModules.test_a_group_runs_its_modules_and_an_unknown_group_refuses) ... ok
+test_the_registry_is_checked_before_the_group_narrows_it (tests.tools.test_parallel_runner.AGroupSelectsExactlyItsModules.test_the_registry_is_checked_before_the_group_narrows_it) ... ok
+test_a_shard_that_kills_its_own_interpreter_is_reported_as_an_error (tests.tools.test_parallel_runner.AShardThatDiesWithoutAReportIsAFailure.test_a_shard_that_kills_its_own_interpreter_is_reported_as_an_error) ... ok
+test_a_clean_run_is_passed_plus_optional_skips_equals_collected (tests.tools.test_parallel_runner.AccountingDerivesPassedFromWhatRan.test_a_clean_run_is_passed_plus_optional_skips_equals_collected) ... ok
+test_a_required_skip_an_unaccounted_id_and_a_duplicate_each_fail (tests.tools.test_parallel_runner.AccountingDerivesPassedFromWhatRan.test_a_required_skip_an_unaccounted_id_and_a_duplicate_each_fail) ... ok
+test_a_subtest_failure_fails_its_test_and_a_stray_error_is_visible (tests.tools.test_parallel_runner.AccountingDerivesPassedFromWhatRan.test_a_subtest_failure_fails_its_test_and_a_stray_error_is_visible) ... ok
+test_explicit_summary_distinguishes_outcomes_without_changing_ledger (tests.tools.test_parallel_runner.AccountingDerivesPassedFromWhatRan.test_explicit_summary_distinguishes_outcomes_without_changing_ledger) ... ok
+test_a_shard_that_dies_leaves_its_ids_unaccounted (tests.tools.test_parallel_runner.AnAccountedRunProvesEveryIdRan.test_a_shard_that_dies_leaves_its_ids_unaccounted) ... ok
+test_a_skip_is_required_unless_the_registry_says_optional (tests.tools.test_parallel_runner.AnAccountedRunProvesEveryIdRan.test_a_skip_is_required_unless_the_registry_says_optional) ... ok
+test_collected_equals_executed_and_the_ledger_is_written (tests.tools.test_parallel_runner.AnAccountedRunProvesEveryIdRan.test_collected_equals_executed_and_the_ledger_is_written) ... ok
+test_keep_going_runs_the_serial_phase_after_a_parallel_failure (tests.tools.test_parallel_runner.AnAccountedRunProvesEveryIdRan.test_keep_going_runs_the_serial_phase_after_a_parallel_failure) ... ok
+test_a_signal_during_final_cleanup_is_recorded_until_cleanup_finishes (tests.tools.test_parallel_runner.AnInterruptLeavesNothingBehind.test_a_signal_during_final_cleanup_is_recorded_until_cleanup_finishes) ... ok
+test_an_interrupt_after_spawn_cannot_cross_the_registration_gap (tests.tools.test_parallel_runner.AnInterruptLeavesNothingBehind.test_an_interrupt_after_spawn_cannot_cross_the_registration_gap) ... ok
+test_an_interrupt_during_retirement_cannot_cross_a_tracking_gap (tests.tools.test_parallel_runner.AnInterruptLeavesNothingBehind.test_an_interrupt_during_retirement_cannot_cross_a_tracking_gap) ... ok
+test_it_kills_a_term_ignoring_descendant_after_its_shard_leader_exits (tests.tools.test_parallel_runner.AnInterruptLeavesNothingBehind.test_it_kills_a_term_ignoring_descendant_after_its_shard_leader_exits) ... ok
+test_it_reaps_its_shards_descendants_and_removes_its_result_root (tests.tools.test_parallel_runner.AnInterruptLeavesNothingBehind.test_it_reaps_its_shards_descendants_and_removes_its_result_root) ... ok
+test_an_unimportable_module_stops_the_run_rather_than_becoming_one_failure (tests.tools.test_parallel_runner.CollectionRefusesAModuleItCannotLoad.test_an_unimportable_module_stops_the_run_rather_than_becoming_one_failure) ... ok
+test_an_imported_test_class_is_named_at_the_module_that_binds_it (tests.tools.test_parallel_runner.CollectionRefusesAModuleThatBindsAnotherModulesTests.test_an_imported_test_class_is_named_at_the_module_that_binds_it) ... ok
+test_inverting_which_shard_finishes_first_changes_nothing_in_stdout (tests.tools.test_parallel_runner.OutputDoesNotDependOnCompletionOrder.test_inverting_which_shard_finishes_first_changes_nothing_in_stdout) ... ok
+test_one_worker_and_the_default_agree_on_ids_and_on_outcome (tests.tools.test_parallel_runner.OutputDoesNotDependOnCompletionOrder.test_one_worker_and_the_default_agree_on_ids_and_on_outcome) ... ok
+test_the_collected_ids_are_the_same_at_any_worker_count (tests.tools.test_parallel_runner.OutputDoesNotDependOnCompletionOrder.test_the_collected_ids_are_the_same_at_any_worker_count) ... ok
+test_a_duplicate_collected_id_is_refused_rather_than_run_twice (tests.tools.test_parallel_runner.PartitioningLosesAndInventsNothing.test_a_duplicate_collected_id_is_refused_rather_than_run_twice) ... ok
+test_a_named_class_is_split_one_test_method_per_shard (tests.tools.test_parallel_runner.PartitioningLosesAndInventsNothing.test_a_named_class_is_split_one_test_method_per_shard) ... ok
+test_every_collected_id_lands_in_exactly_one_shard (tests.tools.test_parallel_runner.PartitioningLosesAndInventsNothing.test_every_collected_id_lands_in_exactly_one_shard) ... ok
+test_the_order_does_not_depend_on_the_order_ids_arrived_in (tests.tools.test_parallel_runner.PartitioningLosesAndInventsNothing.test_the_order_does_not_depend_on_the_order_ids_arrived_in) ... ok
+test_the_ordinary_shard_is_one_concrete_class (tests.tools.test_parallel_runner.PartitioningLosesAndInventsNothing.test_the_ordinary_shard_is_one_concrete_class) ... ok
+test_no_synthetic_id_and_no_passed_parent (tests.tools.test_parallel_runner.SubtestOutcomesBindToTheirParent.test_no_synthetic_id_and_no_passed_parent) ... ok
+test_subjects_are_read_from_the_result_objects (tests.tools.test_parallel_runner.SubtestOutcomesBindToTheirParent.test_subjects_are_read_from_the_result_objects) ... ok
+test_configured_status_evidence_refuses_before_collection_or_output (tests.tools.test_parallel_runner.SupervisedSelectionFailsClosed.test_configured_status_evidence_refuses_before_collection_or_output) ... ok
+test_custom_loader_can_import_safe_supervised_definitions (tests.tools.test_parallel_runner.SupervisedSelectionFailsClosed.test_custom_loader_can_import_safe_supervised_definitions) ... ok
+test_default_and_all_refuse_even_with_supervisor_environment (tests.tools.test_parallel_runner.SupervisedSelectionFailsClosed.test_default_and_all_refuse_even_with_supervisor_environment) ... ok
+test_duplicates_in_every_category_and_stale_supervised_entries_refuse (tests.tools.test_parallel_runner.SupervisedSelectionFailsClosed.test_duplicates_in_every_category_and_stale_supervised_entries_refuse) ... ok
+test_empty_evidence_destination_allows_the_leaf_and_serial_does_not_import_it (tests.tools.test_parallel_runner.SupervisedSelectionFailsClosed.test_empty_evidence_destination_allows_the_leaf_and_serial_does_not_import_it) ... ok
+test_evidence_guard_is_limited_to_the_selected_parallel_leaf (tests.tools.test_parallel_runner.SupervisedSelectionFailsClosed.test_evidence_guard_is_limited_to_the_selected_parallel_leaf) ... ok
+test_leaked_supervised_ids_refuse_the_whole_collection_before_shards (tests.tools.test_parallel_runner.SupervisedSelectionFailsClosed.test_leaked_supervised_ids_refuse_the_whole_collection_before_shards) ... ok
+test_print_ids_requires_explicit_parallel_and_runs_no_test (tests.tools.test_parallel_runner.SupervisedSelectionFailsClosed.test_print_ids_requires_explicit_parallel_and_runs_no_test) ... ok
+test_scoped_parallel_runs_ordinary_tests_and_names_the_unselected_gate (tests.tools.test_parallel_runner.SupervisedSelectionFailsClosed.test_scoped_parallel_runs_ordinary_tests_and_names_the_unselected_gate) ... ok
+test_scoped_serial_does_not_collect_parallel_or_supervised_modules (tests.tools.test_parallel_runner.SupervisedSelectionFailsClosed.test_scoped_serial_does_not_collect_parallel_or_supervised_modules) ... ok
+test_supervised_classification_does_not_hide_an_unclassified_module (tests.tools.test_parallel_runner.SupervisedSelectionFailsClosed.test_supervised_classification_does_not_hide_an_unclassified_module) ... ok
+test_supervised_metadata_is_closed_and_validated_before_side_effects (tests.tools.test_parallel_runner.SupervisedSelectionFailsClosed.test_supervised_metadata_is_closed_and_validated_before_side_effects) ... ok
+test_every_declared_input_names_its_consumers_and_is_not_a_whole_dossier (tests.tools.test_parallel_runner.TheDeclaredInputsCoverWhatTheTestsRead.test_every_declared_input_names_its_consumers_and_is_not_a_whole_dossier) ... ok
+test_every_record_path_in_the_tree_is_declared_or_synthetic (tests.tools.test_parallel_runner.TheDeclaredInputsCoverWhatTheTestsRead.test_every_record_path_in_the_tree_is_declared_or_synthetic) ... ok
+test_the_sweep_reads_the_three_spellings_and_skips_prose (tests.tools.test_parallel_runner.TheDeclaredInputsCoverWhatTheTestsRead.test_the_sweep_reads_the_three_spellings_and_skips_prose) ... ok
+test_a_module_carved_twice_or_unmapped_is_refused (tests.tools.test_parallel_runner.TheGroupsAreAnExactPartitionOfTheRealTree.test_a_module_carved_twice_or_unmapped_is_refused) ... ok
+test_every_optional_skip_names_a_real_test (tests.tools.test_parallel_runner.TheGroupsAreAnExactPartitionOfTheRealTree.test_every_optional_skip_names_a_real_test) ... ok
+test_every_registered_module_has_exactly_one_known_group (tests.tools.test_parallel_runner.TheGroupsAreAnExactPartitionOfTheRealTree.test_every_registered_module_has_exactly_one_known_group) ... ok
+test_ids_resolve_to_their_module (tests.tools.test_parallel_runner.TheGroupsAreAnExactPartitionOfTheRealTree.test_ids_resolve_to_their_module) ... ok
+test_the_carved_groups_are_disjoint_and_registered (tests.tools.test_parallel_runner.TheGroupsAreAnExactPartitionOfTheRealTree.test_the_carved_groups_are_disjoint_and_registered) ... ok
+test_the_engine_group_is_exactly_the_serial_engine_gates (tests.tools.test_parallel_runner.TheGroupsAreAnExactPartitionOfTheRealTree.test_the_engine_group_is_exactly_the_serial_engine_gates) ... ok
+test_an_override_lowers_and_is_still_capped_by_ready_shards (tests.tools.test_parallel_runner.TheJobsBoundIsLowerOnly.test_an_override_lowers_and_is_still_capped_by_ready_shards) ... ok
+test_anything_that_is_not_a_whole_number_is_refused (tests.tools.test_parallel_runner.TheJobsBoundIsLowerOnly.test_anything_that_is_not_a_whole_number_is_refused) ... ok
+test_raising_the_count_above_the_host_is_refused (tests.tools.test_parallel_runner.TheJobsBoundIsLowerOnly.test_raising_the_count_above_the_host_is_refused) ... ok
+test_the_default_is_every_available_cpu_capped_by_ready_shards (tests.tools.test_parallel_runner.TheJobsBoundIsLowerOnly.test_the_default_is_every_available_cpu_capped_by_ready_shards) ... ok
+test_the_refusal_is_against_the_host_and_never_the_shard_count (tests.tools.test_parallel_runner.TheJobsBoundIsLowerOnly.test_the_refusal_is_against_the_host_and_never_the_shard_count) ... ok
+test_every_method_split_target_is_a_real_class_in_a_parallel_module (tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_every_method_split_target_is_a_real_class_in_a_parallel_module) ... ok
+test_every_v12_test_module_is_registered_exactly_once (tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_every_v12_test_module_is_registered_exactly_once) ... ok
+test_the_deadline_engine_has_only_supervised_metadata (tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_the_deadline_engine_has_only_supervised_metadata) ... ok
+test_the_serial_modules_are_the_ones_that_own_an_engine (tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_the_serial_modules_are_the_ones_that_own_an_engine) ... ok
+test_this_module_registered_itself (tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_this_module_registered_itself) ... ok
+test_a_module_in_both_registries_stops_the_run (tests.tools.test_parallel_runner.TheRegistryFailsClosed.test_a_module_in_both_registries_stops_the_run) ... ok
+test_a_module_in_neither_registry_stops_the_run (tests.tools.test_parallel_runner.TheRegistryFailsClosed.test_a_module_in_neither_registry_stops_the_run) ... ok
+test_a_registered_module_that_is_not_in_the_tree_stops_the_run (tests.tools.test_parallel_runner.TheRegistryFailsClosed.test_a_registered_module_that_is_not_in_the_tree_stops_the_run) ... ok
+test_discovery_uses_unittests_own_pattern_and_not_a_narrower_one (tests.tools.test_parallel_runner.TheRegistryFailsClosed.test_discovery_uses_unittests_own_pattern_and_not_a_narrower_one) ... ok
+test_serial_modules_run_after_the_parallel_phase_and_one_at_a_time (tests.tools.test_parallel_runner.TheSerialRegistryOverlapsNothing.test_serial_modules_run_after_the_parallel_phase_and_one_at_a_time) ... ok
+test_the_summary_reports_the_two_phases_separately (tests.tools.test_parallel_runner.TheSerialRegistryOverlapsNothing.test_the_summary_reports_the_two_phases_separately) ... ok
+
+======================================================================
+FAIL: test_nothing_reaches_for_v11_the_node_host_or_a_dossier (tests.authority.test_boundary.Isolation.test_nothing_reaches_for_v11_the_node_host_or_a_dossier) (source='publication_recovery.py', word='work/records')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/repo/v12/python/tests/authority/test_boundary.py", line 329, in test_nothing_reaches_for_v11_the_node_host_or_a_dossier
+    self.assertNotIn(word, literal)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 'work/records' unexpectedly found in 'W385695; work/records/2026/11/finding-v12-output-publication-recovery/FINDING.md: Consolidated owner selection — 2026-11-22'
+
+----------------------------------------------------------------------
+Ran 705 tests in 34.297s
+
+FAILED (failures=1)
+error: Recipe `test-one` failed with exit code 1

@@ -1,0 +1,26 @@
+{
+ "cli_version": "2.1.247",
+ "left_after_cleanup": [],
+ "owned_at_cleanup": [
+  {
+   "argv": [
+    "/bin/bash",
+    "-c",
+    "source /home/sl/src/baton/work/scratch/w385695-K-385944/driver-run/work-unbounded/home/.claude/shell-snapshots/snapshot-bash-1795497555665-4h3jdb.sh 2>/dev/null || true && { shopt -u extglob || setopt NO_EXTENDED_GLOB NO_BARE_GLOB_QUAL; } >/dev/null 2>&1 || true && { \\builtin unalias -- 'unsetenv'; \\builtin unset -f -- 'unsetenv'; } >/dev/null 2>&1 || true && eval 'sleep 300; echo never' < /dev/null && pwd -P >| /home/sl/src/baton/work/scratch/w385695-K-385944/driver-run/work-unbounded/tmp/claude-a418-cwd"
+   ],
+   "pid": 1580326
+  },
+  {
+   "argv": [
+    "sleep",
+    "300"
+   ],
+   "pid": 1580328
+  }
+ ],
+ "supervisor_sha256": "a9b2f6c79c4dc4f4d89d44b4e79e371b49b76cbfe4bbe1eb2080fcd060d8e066",
+ "verdict": "fail",
+ "why": [
+  "TimeoutExpired: Command '['/home/sl/src/baton/work/scratch/w385695-K-385929/cli/native/package/claude', '--print', '--dangerously-skip-permissions', '--output-format', 'json', 'run the scripted commands']' timed out after 240 seconds"
+ ]
+}

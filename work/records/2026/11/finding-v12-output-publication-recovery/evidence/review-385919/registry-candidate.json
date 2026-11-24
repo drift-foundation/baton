@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385919/probe-registry-delta.py"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385919/v12/python",
+  "exit_status": 1,
+  "timed_out": false,
+  "wall_seconds": 5.668964294018224,
+  "unittest_summary": null,
+  "log_sha256": "09252cf96df7ed11d00bff7f6a9afa19a987ec0f14a3975fd63ca53b22070b5e"
+}

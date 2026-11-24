@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "just",
+    "test-one",
+    "tests.manager.test_boundary_inventory.EveryStatedOwnerHasAWitness",
+    "tests.manager.test_boundary_inventory.StatedRules.test_recovery_freeze_excludes_a_later_or_active_writer",
+    "tests.manager.test_boundary_inventory.StatedRules.test_recovery_freeze_excludes_a_writer_that_already_has_a_checkpoint",
+    "tests.manager.test_boundary_inventory.StatedRules.test_recovery_freeze_replay_hands_the_committed_fence_on_unread",
+    "tests.manager.test_boundary_inventory.StatedRules.test_recovery_freeze_profile_owner",
+    "tests.manager.test_boundary_inventory.StatedRules.test_retained_line_home_excludes_a_later_or_active_writer"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385934/v12/python",
+  "exit_status": 0,
+  "timed_out": false,
+  "wall_seconds": 0.6140837059356272,
+  "unittest_summary": [
+    "6",
+    "0.293"
+  ],
+  "log_sha256": "ca83c5335d828b0c3787024be75f2c8197c410c459b481ff115f434c3219f529"
+}

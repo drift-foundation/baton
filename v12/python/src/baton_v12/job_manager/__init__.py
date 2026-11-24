@@ -136,6 +136,22 @@ from .publication_recovery import SELECTED_STAGES as PUBLICATION_STAGES
 from .publication_recovery import decide as decide_publication
 from .publication_recovery import decision_of as publication_decision_of
 from .publication_recovery import held_admission_of as publication_held_of
+from .publication_recovery import admission_of as publication_admission_of
+# W385695 checkpoint 2: THE DETERMINISTIC PUBLICATION'S OWN SURFACE. The four
+# acts, the seam a deployment composes them over, the absolute deadline read
+# and the gate -- and deliberately not the journal identities or the record
+# readers, which are reached through `job_manager.publication_execution` by
+# the cases and the owner-facing readers that want them.
+from .publication_execution import (PUBLICATION_SEAM, advance_publication,
+                                    check_publication_seam, deadline_of as
+                                    publication_deadline_of,
+                                    execution_gate as publication_review_gate,
+                                    hand_off as hand_off_publication,
+                                    publication_readiness,
+                                    publish as publish_recovery,
+                                    stage_input as stage_publication_input,
+                                    take_custody as
+                                    take_publication_custody)
 from .episodes import (CORRECT_KIND, advance_correction, attempting,
                        correction_operation_id, episode_by_offer, episode_of,
                        episodes_of, live_of)
@@ -212,6 +228,12 @@ __all__ = ["ACTS", "ACT_OUTCOMES", "ALLOCATION_STATES", "CANONICAL_OPERATIONS",
            "decide_publication", "inspect_publication",
            "publication_decision_of", "publication_gate_of",
            "publication_held_of", "publication_prerequisites",
+           "publication_admission_of", "PUBLICATION_SEAM",
+           "advance_publication", "check_publication_seam",
+           "publication_deadline_of", "publication_review_gate",
+           "hand_off_publication", "publication_readiness",
+           "publish_recovery", "stage_publication_input",
+           "take_publication_custody",
            "attempting", "canonical_operation",
            "check_binding", "correction_operation_id", "end_implementation",
            "end_review", "episode_by_offer", "episode_of", "episodes_of",

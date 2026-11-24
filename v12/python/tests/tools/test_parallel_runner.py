@@ -1366,6 +1366,11 @@ SYNTHETIC_RECORD_PATHS = {
     # test_pool.record_in, test_bootstrap.composed_for and test_connected_creation
     # write FINDING.md/PLAN.md themselves in disposable checkouts, not from this tree.
     "work/records/2026/08/finding-v12-work-tags/findings/finding-v12-work-label-protocol-cli",
+    # W385695: the publication-recovery cases (test_bootstrap's publisher fixture and
+    # test_publication_recovery_execution's pooled fixture) bind a Work to this record
+    # LOCATOR and write its FINDING.md/PLAN.md themselves inside their own disposable
+    # checkout; nothing is read from this tree's dossier of the same name.
+    "work/records/2026/11/finding-v12-output-publication-recovery",
     # the runner's supervisor-locator grammar, a pattern rather than a path
     r"work/records/[0-9]{4}/(?:0[1-9]|1[0-2])/(?:[A-Za-z0-9_.-]+/)+[A-Za-z0-9_.-]+\.py",
     # a reference each dossier case creates inside its own temporary repository

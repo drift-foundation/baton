@@ -42,9 +42,9 @@ from baton_v12.worker_manager import retained_output_of
 
 from tools.fresh_attempt_ports import _required
 
-__all__ = ["HostOutput", "SourceCorrespondence", "BUNDLE_ENTRY",
-           "COMMAND_SECONDS", "bare_repository_vector", "publication_owners",
-           "runner_for"]
+__all__ = ["HostOutput", "PriorAssignment", "SourceCorrespondence",
+           "BUNDLE_ENTRY", "COMMAND_SECONDS", "bare_repository_vector",
+           "publication_owners", "runner_for"]
 
 # HOW LONG ONE CORRESPONDENCE COMMAND MAY RUN. This port's own bound rather
 # than the recovery profile's: the profile's 900 s is the REVIEWER's per
@@ -94,7 +94,7 @@ class HostOutput:
     def instance(self):
         return self._identity
 
-    def output_of(self, attempt_id, *, read=()):
+    def output_of(self, attempt_id, *, read=(), output=None):
         """The proved, measured original, with the named entries' bytes.
 
         ONE COHERENT BOUNDARY, `HostExclusion.evidence_of`'s rule: the
@@ -104,10 +104,83 @@ class HostOutput:
         outside any transaction, which is the contract's own requirement.
         """
         with self._control.snapshot() as control:
+            # `output` IS THE DECLARED OUTPUT'S OWN PATH, from the selected
+            # declaration and never from an operator: the owner then proves
+            # and measures that one directory of the attempt's writable root
+            # -- or of its development line -- rather than the root itself.
             return retained_output_of(
-                control, attempt_id, names=tuple(read),
+                control, attempt_id, names=tuple(read), output=output,
                 what=f"the original output of attempt "
                      f"{name_value(attempt_id)}")
+
+
+class PriorAssignment:
+    """THE SUPPORTED ENDING OF THE ASSIGNMENT A RECOVERY'S WORK ALREADY HOLDS.
+
+    W385695 checkpoint 2, and this is the "minimal public seam" the contract
+    names. A publication recovery REUSES the original open Work, and a fresh
+    assignment on a reused Work requires the previous one to be ended through
+    "the Authority's existing exact-expect transition" -- `Session.end`, whose
+    release dispositions are `release` and `recovered`. There is no other
+    route: a host-only stopped-settlement receipt does not release an
+    Authority claim, and this deployment holds no raw SQL path to the
+    Authority's tables.
+
+    THE SESSION IS THE HOLDER'S OWN AND IS NOT MINTED HERE. `Authority.end`
+    compares-and-swaps the exact assignment, and a session refuses to act on
+    one naming somebody else -- so the only session that can end the producer's
+    claim is the producer participant's, which the deployment already mints for
+    that worker. This adapter therefore takes a SESSION FACTORY keyed by
+    participant and asks it for the holder of the assignment it was told to
+    end. It cannot impersonate: it can only ask for the session of the
+    participant the Authority itself reports as the live handler, and if the
+    deployment does not hold one, the admission is refused with the exact held
+    assignment rather than worked around.
+
+    IT DECIDES NOTHING. Whether the live assignment is the failed execution's,
+    whether the host proved cessation and whether the ending may happen at all
+    are `job_manager.publication_recovery`'s, enforced inside the operation.
+    This adapter reads one projection and performs one transition.
+    """
+
+    def __init__(self, authority, identity, *, sessions=None):
+        self._authority = authority
+        self._identity = _required(identity, "a prior-assignment port")
+        # Only an already-held participant session may end its assignment.
+        self._sessions = sessions
+
+    def instance(self):
+        return self._identity
+
+    def assignment_of(self, work_id):
+        """The Work's LIVE assignment, or `None`. A read."""
+        return self._authority.assignment_of(work_id)
+
+    def end(self, expect, *, operation_id, disposition="recovered",
+            reason=None):
+        """End exactly this assignment, through its own holder's session.
+
+        THE OPERATION IDENTITY IS THE MANAGER'S and is passed through
+        unchanged: the Authority replays its own transition under it, so a
+        lost reply reaching this adapter twice ends one assignment once.
+        """
+        participant = expect["participant"]
+        if self._sessions is None:
+            raise ContractRefusal(
+                "refused", "capability",
+                f"no held session is available for {name_value(participant)}; "
+                "the current assignment must be ended by its existing holder")
+        session = self._sessions(participant)
+        who = getattr(session, "participant", None)
+        if who != participant:
+            raise ContractRefusal(
+                "refused", "capability",
+                f"this deployment answered a session for "
+                f"{name_value(who)} and the assignment to end is "
+                f"{name_value(participant)}'s; an assignment is ended by its "
+                f"own holder and this adapter does not impersonate one")
+        return session.end({"expect": expect, "operation_id": operation_id,
+                            "disposition": disposition, "reason": reason})
 
 
 def bare_repository_vector(place):
@@ -168,9 +241,19 @@ class SourceCorrespondence:
       a private BARE repository is created under this port's own scratch root,
         so nothing is read into, or written beside, any repository that
         matters;
-      the candidate and the base are FETCHED FROM THE MEASURED BUNDLE, by the
-        path the trust-root owner measured -- not from a nominated checkout,
-        not from a remote and not from a path a caller named;
+      the CANDIDATE is fetched FROM THE MEASURED BUNDLE, by the path the
+        trust-root owner measured -- not from a remote and not from a path a
+        caller named;
+      the BASE is fetched from that same bundle when the original has no line
+        record (the first cut's rule, unchanged); and, by owner selection
+        M385913, FROM THE LINE'S OWN DURABLY RECORDED SOURCE REPOSITORY when
+        the host owner answered one. A real producer's bundle is a thin
+        `base..HEAD` transport and does not carry its base, so bundle-only
+        could correspond no real output. The source is used only after its
+        recorded `device:inode` is proved again HERE, the base is asked for
+        by its exact full object name, that name must be the base the line
+        was declared on, and there is no fallback -- not a branch tip, not
+        the producer's writable line home and not a caller's path;
       both are RESOLVED, which is what proves the objects are really there and
         are really commits with trees, rather than names somebody wrote down;
       and the two trees are listed and compared, which is what produces the
@@ -190,6 +273,10 @@ class SourceCorrespondence:
 
     def instance(self):
         return self._identity
+
+    @staticmethod
+    def _base_origin(request, bundle):
+        return _base_origin_of(request, bundle)
 
     def correspondence_of(self, request):
         root = request["root"]
@@ -215,11 +302,20 @@ class SourceCorrespondence:
                     "refused", "precondition",
                     "this port could not create a private object store for "
                     "the correspondence read; nothing was read")
-            for revision in (request["base"], request["candidate"]):
-                vectors.append(git_profile.import_vector(repository, bundle,
-                                                        revision))
+            origin = self._base_origin(request, bundle)
+            for revision, origin_of in ((request["base"], origin),
+                                        (request["candidate"], bundle)):
+                vectors.append(git_profile.import_vector(repository,
+                                                        origin_of, revision))
                 held = self._engine(tuple(vectors[-1]))
                 if type(held) is not dict or held.get("returncode") != 0:
+                    if origin_of != bundle:
+                        raise ContractRefusal(
+                            "refused", "precondition",
+                            f"the line's recorded source does not hold the "
+                            f"admitted base {name_value(revision)}; a base "
+                            f"that cannot be read from the recorded source "
+                            f"holds, and it is not looked for anywhere else")
                     raise ContractRefusal(
                         "refused", "precondition",
                         f"the measured bundle does not carry "
@@ -248,6 +344,69 @@ class SourceCorrespondence:
                 "vectors": [list(one) for one in vectors]}
 
 
+def _base_origin_of(request, bundle):
+    """WHERE THE DECLARED BASE IS IMPORTED FROM for this request.
+
+    THE BUNDLE, when the host owner answered no line source: the attempt
+    layout, unchanged. THE LINE'S RECORDED SOURCE otherwise, and only when
+    every one of these holds -- each a refusal that leaves the inspection
+    HELD:
+
+      the owner said the source is still the recorded object;
+      the object at that path, asked again here immediately before use, has
+        that same `device:inode` and is a real directory, not a link;
+      the base being asked for is the exact base the line was declared on --
+        so a result naming another base is not given the source's objects;
+      and it is a FULL object name. A short name is a search, and a search
+        can be answered by more than one object.
+    """
+    source = request.get("base_source")
+    if source is None:
+        return bundle
+    members = ("path", "identity", "declared_base", "verified", "why")
+    if type(source) is not dict or sorted(source) != sorted(members):
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"the line's recorded source is exactly {', '.join(members)}")
+    taken = dict(source)
+    if taken["verified"] is not True:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"the declared base cannot be read: "
+            f"{taken['why'] or 'the line source is unverified'}; a missing, "
+            f"replaced or unverifiable source holds")
+    place = taken["path"]
+    if type(place) is not str or not os.path.isabs(place) \
+            or os.path.islink(place) or not os.path.isdir(place) \
+            or os.path.realpath(place) != place:
+        raise ContractRefusal(
+            "refused", "precondition",
+            "the line's recorded source is no longer its own directory; a "
+            "replaced source holds")
+    found = os.lstat(place)
+    if f"{found.st_dev}:{found.st_ino}" != taken["identity"]:
+        raise ContractRefusal(
+            "runtime-observation", "identity-mismatch",
+            f"the line's recorded source was object "
+            f"{name_value(taken['identity'])} and the entry there now is "
+            f"another; a replaced source holds")
+    base = request["base"]
+    if type(base) is not str or len(base) not in (40, 64) \
+            or any(one not in "0123456789abcdef" for one in base):
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"the declared base {name_value(base)} is not one full object "
+            f"name; a base is imported by its exact name or not at all")
+    if base != taken["declared_base"]:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"the retained result declares base {name_value(base)} and its "
+            f"line was declared on {name_value(taken['declared_base'])}; the "
+            f"recorded source is read for the line's own admitted base and "
+            f"for no other revision")
+    return place
+
+
 def publication_owners(request):
     """The two ports beside the four a recovery admission already composes.
 
@@ -257,7 +416,18 @@ def publication_owners(request):
     this file deciding it for every installation.
     """
     identity = request["identity"]
-    return {"host": HostOutput(request["control_handle"], identity),
+    held = {"host": HostOutput(request["control_handle"], identity),
             "source": SourceCorrespondence(identity,
                                            scratch=request.get("scratch"),
                                            engine=request.get("engine"))}
+    # W385695 checkpoint 2: AND THE ENDING PORT, when this deployment supplied
+    # an Authority handle to compose it over. It is conditional rather than
+    # required because `publication-inspect` and `publication-decide` perform
+    # no assignment transition at all, and a factory that demanded an
+    # Authority for a read-only inspection would be asking for a capability
+    # that read does not use.
+    if request.get("authority") is not None:
+        held["ending"] = PriorAssignment(
+            request["authority"], identity,
+            sessions=request.get("sessions"))
+    return held

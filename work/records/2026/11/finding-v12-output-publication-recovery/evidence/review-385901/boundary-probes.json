@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385901/probe-boundaries.py"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385901/v12/python",
+  "exit_status": 1,
+  "timed_out": false,
+  "wall_seconds": 0.4638595550204627,
+  "unittest_summary": [
+    "3",
+    "0.236"
+  ],
+  "log_sha256": "21630d7d13c1dd7de332f8d6a835bef4bd5102b7049e65b10428a2a3a1dc4042"
+}

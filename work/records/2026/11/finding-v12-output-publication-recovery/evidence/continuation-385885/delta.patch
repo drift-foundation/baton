@@ -1,0 +1,374 @@
+diff --git a/v12/python/src/baton_v12/job_manager/publication_execution.py b/v12/python/src/baton_v12/job_manager/publication_execution.py
+index 6ce93d62..1ce77b2a 100644
+--- a/v12/python/src/baton_v12/job_manager/publication_execution.py
++++ b/v12/python/src/baton_v12/job_manager/publication_execution.py
+@@ -670,43 +670,19 @@ def _staging_root(seam, held):
+ 
+ 
+ def _cleared(place):
+-    """An interrupted staging tree is REMOVED before a second pass, never
+-    merged into.
+-
+-    `copied_manifest` opens every destination `O_EXCL`, so a partial tree from
+-    an interrupted pass would refuse the retry at whichever entry it got to --
+-    and merging into it would be building a staged original out of two
+-    different reads of the source. The staged root is this manager's own
+-    private tree, so clearing it destroys no evidence: the ORIGINAL is
+-    untouched and is what the next pass reads again.
+-    """
+-    import shutil
++    """Preserve an interrupted tree before allocating a fresh staging target."""
++    import tempfile
+ 
+     if os.path.lexists(place):
+         if os.path.islink(place) or not os.path.isdir(place):
+-            _refuse(f"{name_value(place)} is not a directory this manager "
+-                    f"created for staging", category="integrity", code="path")
+-        _writable(place)
+-        shutil.rmtree(place)
++            _refuse(f"{name_value(place)} is not a staging directory",
++                    category="integrity", code="path")
++        retained = tempfile.mkdtemp(prefix="interrupted-", dir=os.path.dirname(place))
++        os.rename(place, os.path.join(retained, os.path.basename(place)))
+     os.makedirs(place, mode=PRIVATE)
+     return place
+ 
+ 
+-def _writable(place):
+-    """Make this manager's own private tree removable again after a freeze."""
+-    for base, directories, files in os.walk(place):
+-        os.chmod(base, PRIVATE)
+-        for one in directories:
+-            full = os.path.join(base, one)
+-            if not os.path.islink(full):
+-                os.chmod(full, PRIVATE)
+-        for one in files:
+-            full = os.path.join(base, one)
+-            if not os.path.islink(full):
+-                os.chmod(full, 0o600)
+-    return place
+-
+-
+ def _frozen(place):
+     """The staged tree, made READ-ONLY on disk.
+ 
+@@ -735,7 +711,7 @@ def _frozen(place):
+     return place
+ 
+ 
+-def _staging_lock(root):
++def _staging_lock(root, *, name=STAGING_LOCK):
+     """ONE STAGER OF ONE RECOVERY'S ORIGINAL, in this host.
+ 
+     `retained_verification._exclusive`'s rule and its reason: a journal
+@@ -749,14 +725,21 @@ def _staging_lock(root):
+     import contextlib
+     import fcntl
+ 
+-    place = os.path.join(root, STAGING_LOCK)
++    place = os.path.join(root, name)
+ 
+     @contextlib.contextmanager
+     def holding():
+-        descriptor = os.open(place, os.O_RDWR | os.O_CREAT | os.O_CLOEXEC,
++        descriptor = os.open(place, os.O_RDWR | os.O_CREAT | os.O_CLOEXEC | os.O_NOFOLLOW,
+                              0o600)
+         try:
+-            fcntl.flock(descriptor, fcntl.LOCK_EX)
++            if not stat.S_ISREG(os.fstat(descriptor).st_mode):
++                _refuse("publication lock must be a regular file",
++                        category="integrity", code="path")
++            try:
++                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
++            except BlockingIOError:
++                _refuse("publication execution is already active; no second effect starts",
++                        category="runtime-observation", code="quiescence-unknown")
+             yield
+         finally:
+             os.close(descriptor)
+@@ -895,6 +878,20 @@ def provenance_document(held, assignment, *, staged, staged_at):
+ 
+ 
+ def stage_input(store, seam, *, decision_id, now=None):
++    """Serialize the effect and its durable result for this recovery."""
++    taken = check_publication_seam(seam)
++    held = _admitted(store, decision_id)
++    # Lock outside the frozen input tree, before changing its permissions.
++    lock_root = os.path.join(taken["workspaces"], ".execution-locks")
++    if os.path.islink(lock_root):
++        _refuse("publication lock root must not be a symlink",
++                category="integrity", code="path")
++    os.makedirs(lock_root, mode=PRIVATE, exist_ok=True)
++    with _staging_lock(lock_root, name=held["job_id"]):
++        return _stage_input(store, seam, decision_id=decision_id, now=now)
++
++
++def _stage_input(store, seam, *, decision_id, now=None):
+     """ACT ONE: the approved original, staged READ-ONLY into a recovery-owned
+     input root.
+ 
+@@ -1127,6 +1124,20 @@ def _adopted(answer, *, what):
+ 
+ 
+ def publish(store, seam, *, decision_id, now=None):
++    """Serialize the effect and its durable result for this recovery."""
++    taken = check_publication_seam(seam)
++    held = _admitted(store, decision_id)
++    # Lock outside the frozen input tree, before changing its permissions.
++    lock_root = os.path.join(taken["workspaces"], ".execution-locks")
++    if os.path.islink(lock_root):
++        _refuse("publication lock root must not be a symlink",
++                category="integrity", code="path")
++    os.makedirs(lock_root, mode=PRIVATE, exist_ok=True)
++    with _staging_lock(lock_root, name=held["job_id"]):
++        return _publish(store, seam, decision_id=decision_id, now=now)
++
++
++def _publish(store, seam, *, decision_id, now=None):
+     """ACT TWO: adopt the exact staged bytes, under this execution's own
+     assignment, inside the absolute bound.
+ 
+@@ -1174,13 +1185,11 @@ def publish(store, seam, *, decision_id, now=None):
+     #    manager cannot account for, and the only safe act is to look again
+     #    rather than to call the writer a second time.
+     standing = launch_of(store, job_id)
+-    uncertain = hold_of(store, job_id)
+-    if standing is not None and uncertain is not None:
++    if standing is not None:
+         _refuse(f"recovery {name_value(job_id)}'s adoption of attempt "
+                 f"{name_value(standing['attempt_id'])} is UNCERTAIN: a "
+                 f"durable intent was committed and the writer did not answer "
+-                f"whether it finished ({uncertain['outcome']} at "
+-                f"{uncertain['held_at']}). No second adoption is started "
++                f"whether it finished. No second adoption is started "
+                 f"while the first is unaccounted for; the staged input, the "
+                 f"original and every record are retained",
+                 category="runtime-observation", code="quiescence-unknown")
+@@ -1766,7 +1775,7 @@ def publication_readiness(store, decision_id):
+     adopted = result_of(store, job_id)
+     custody = custody_of(store, job_id)
+     handoff = handoff_of(store, job_id)
+-    uncertain = hold_of(store, job_id)
++    uncertain = hold_of(store, job_id) or launch_of(store, job_id)
+     owed = None
+     if uncertain is not None and adopted is None:
+         owed = None
+diff --git a/v12/python/tests/job_manager/test_publication_recovery_execution.py b/v12/python/tests/job_manager/test_publication_recovery_execution.py
+index bce396b9..6b17ae6f 100644
+--- a/v12/python/tests/job_manager/test_publication_recovery_execution.py
++++ b/v12/python/tests/job_manager/test_publication_recovery_execution.py
+@@ -322,17 +322,14 @@ class PublicationExecutionCase(checkpoint1.PublicationCase):
+     def ending_port(self, sessions=None):
+         """THE PRODUCTION ENDING ADAPTER over this case's real Authority.
+ 
+-        `sessions` defaults to the Authority's own `session`, which is the
+-        production route and the only one that can end the producer's claim:
+-        the transition is a compare-and-swap performed by the participant that
+-        HOLDS the assignment, so a deployment holding no session for that
+-        participant cannot end it and the admission says so.
++        The fixture supplies the producer session that actually claimed Work.
+         """
+         from tools.publication_ports import PriorAssignment
+ 
+         return PriorAssignment(self.authority,
+                                checkpoint1.CURRENT["identity"],
+-                               sessions=sessions)
++                               sessions=sessions if sessions is not None else
++                               lambda who: self.producer_session if who == PRODUCER else None)
+ 
+     def admit(self, *, decision_id="D1", now=ADMITTED, **changed):
+         held = self.ported()
+@@ -531,31 +528,16 @@ class PublicationExecutionCase(checkpoint1.PublicationCase):
+         return {"attempt_id": attempt_id, "assignment": assignment,
+                 "roots": roots, "input_digest": input_digest}
+ 
+-    def admit_stage(self, *, seconds=0, now=None):
+-        """The publication stage's PERSISTED EXECUTION ADMISSION, which is what
+-        its absolute bound runs from.
+-
+-        `job_control.stage_origin_in` reads the owner's instant out of this
+-        store's own `admit` receipt, so the origin is a receipt rather than a
+-        clock this fixture picked. The receipt is recorded exactly as the
+-        manager's delegation records one, which is what makes the derived
+-        deadline the product's own.
+-        """
+-        from baton_v12.job_manager import documents as emitted
++    def admit_stage(self):
++        """Adopt the real owner admission through the manager's receipt path."""
++        from baton_v12.job_manager import manager
+ 
++        manager.sweep(self.jobs, self.acts(), now=CLAIMED)
+         stage_id = documents.stage_id(self.recovery_job_id,
+                                       documents.PUBLICATION_STAGE)
+-        live = episodes.live_of(self.jobs, stage_id)
+-        at = now if now is not None else CLAIMED
+-        self.jobs._connection.execute(
+-            "INSERT INTO receipts (operation_id, stage_id, episode, act, "
+-            "state, detail, recorded_at, incarnation) VALUES (?, ?, ?, "
+-            "'admit', 'performed', ?, ?, ?)",
+-            (f"offer.issue:{live['offer_id']}", stage_id, live["episode"],
+-             json.dumps({"settled_at": at}), at, self.jobs.incarnation))
+-        self.jobs._connection.commit()
+-        del emitted
+-        return at
++        origin = job_control.stage_origin_in(self.jobs._connection, stage_id)
++        self.assertIsNotNone(origin)
++        return origin
+ 
+     # -- the publication seam ----------------------------------------------
+ 
+@@ -815,6 +797,16 @@ class ThePriorAssignmentIsEndedThroughTheAuthority(PublicationExecutionCase):
+         self.assertEqual(causes[-1], publication_recovery.ENDING_DISPOSITION)
+         self.assertIn("claimed", causes)
+ 
++    def test_missing_held_session_does_not_mint_authority(self):
++        from tools.publication_ports import PriorAssignment
++        from unittest.mock import patch
++        port = PriorAssignment(self.authority, checkpoint1.CURRENT["identity"])
++        with patch.object(self.authority, "session", side_effect=AssertionError("must not mint")):
++            caught = self.refusal(port.end, self.held_assignment,
++                                  operation_id="missing-held-session")
++        self.assertEqual(caught.code, "capability")
++        self.assertEqual(self.authority.assignment_of(WORK_A), self.held_assignment)
++
+     def test_the_ending_is_journalled_once_and_replays(self):
+         self.approve_and_admit()
+         held = publication_recovery.ending_of(self.jobs, "D1")
+@@ -1508,6 +1500,72 @@ class LostWriter:
+ class UncertaintyHoldsAndNeverPublishesTwice(PublicationExecutionCase):
+     """A lost or unanswered adoption is reconciled, not retried."""
+ 
++    def test_overlapping_publication_cannot_invoke_another_writer(self):
++        self.ready()
++        self.staged()
++        outer = self
++        class ReentrantWriter(LostWriter):
++            def adopt(self, request):
++                self.calls.append(request)
++                caught = outer.refusal(outer.published_once, writer=self)
++                outer.assertEqual(caught.code, "quiescence-unknown")
++                raise OSError("lost answer")
++        writer = ReentrantWriter(checkpoint1.CURRENT["identity"])
++        self.refusal(self.published_once, writer=writer)
++        self.assertEqual(len(writer.calls), 1)
++
++    def test_interrupted_staging_bytes_are_preserved_on_retry(self):
++        from pathlib import Path
++        from unittest.mock import patch
++        self.ready()
++        def interrupted(source, destination, **limits):
++            Path(destination, "partial-evidence").write_bytes(b"retained partial bytes")
++            raise OSError("copy interrupted")
++        with patch.object(publication_execution, "copied_manifest", interrupted):
++            with self.assertRaises(OSError):
++                self.staged()
++        staged = self.staged()
++        retained = list(Path(self.staging).rglob("partial-evidence"))
++        self.assertEqual(len(retained), 1)
++        self.assertEqual(retained[0].read_bytes(), b"retained partial bytes")
++        self.assertIn("interrupted-", str(retained[0]))
++        self.assertEqual(staged["staged"]["tree_digest"], self.original["tree_digest"])
++
++    def test_overlapping_stager_cannot_replace_input_before_commit(self):
++        from unittest.mock import patch
++        self.ready()
++        copy_original = publication_execution.copied_manifest
++        calls = []
++        def competing_copy(*args, **kwargs):
++            calls.append(args)
++            caught = self.refusal(self.staged)
++            self.assertEqual(caught.code, "quiescence-unknown")
++            return copy_original(*args, **kwargs)
++        with patch.object(publication_execution, "copied_manifest", competing_copy):
++            staged = self.staged()
++        self.assertEqual(len(calls), 1)
++        self.assertEqual(self.staged(), staged)
++        self.assertEqual(self.original_bytes(), self.original["tree_digest"])
++
++    def test_process_loss_after_intent_never_repeats_the_writer(self):
++        self.ready()
++        self.staged()
++        lost = LostWriter(checkpoint1.CURRENT["identity"],
++                          raises=KeyboardInterrupt("process stopped"))
++        with self.assertRaises(KeyboardInterrupt):
++            self.published_once(writer=lost)
++        self.assertIsNotNone(publication_execution.launch_of(
++            self.jobs, self.recovery_job_id))
++        self.assertIsNone(publication_execution.hold_of(
++            self.jobs, self.recovery_job_id))
++        again = self.refusal(self.published_once, writer=lost)
++        self.assertEqual(again.code, "quiescence-unknown")
++        self.assertEqual(len(lost.calls), 1)
++        readiness = publication_execution.publication_readiness(
++            self.jobs, "D1")
++        self.assertTrue(readiness["uncertain"])
++        self.assertIsNone(readiness["owed"])
++
+     def test_a_lost_reply_is_journalled_as_uncertain_and_holds(self):
+         self.ready()
+         self.staged()
+diff --git a/v12/python/tests/manager/test_dependencies.py b/v12/python/tests/manager/test_dependencies.py
+index 77d665a7..86be91ca 100644
+--- a/v12/python/tests/manager/test_dependencies.py
++++ b/v12/python/tests/manager/test_dependencies.py
+@@ -398,6 +398,9 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
+     # deriving "is this an operand" from a name is the guessing this case exists
+     # to stop -- and an entry here is a claim somebody has to make deliberately.
+     OPERANDS = {
++        # The retained checkpoint passed to freeze_recovered_checkpoint is an
++        # externally selected candidate, not traversal bookkeeping.
++        "candidate",
+         # W275774 child A: the shared resource token's own operands. Declared rather than
+         # the check weakened -- each names a fact the token owner is given, not internal
+         # state it carries: the governed conflict DOMAIN and its RESOURCE_KIND, the
+diff --git a/v12/python/tools/publication_decision.py b/v12/python/tools/publication_decision.py
+index 2124b6b0..bc789360 100644
+--- a/v12/python/tools/publication_decision.py
++++ b/v12/python/tools/publication_decision.py
+@@ -150,13 +150,9 @@ def owners(request):
+         "owner": OwnerAuthorization(authority,
+                                     participant=request["participant"]),
+         "host": HostOutput(request["control_handle"], identity),
+-        # W385695 checkpoint 2: THE SUPPORTED ENDING, composed over the SAME
+-        # Authority handle every other port here reads. It is composed on a
+-        # READ-ONLY handle, which is deliberate and is not a gap: the
+-        # transition goes through a participant-bound SESSION, and a
+-        # deployment that mints none for the holder of the live assignment
+-        # cannot end it -- which is the refusal the admission is owed rather
+-        # than a takeover this surface invents.
++        # Inspection owns no producer session. A held assignment therefore
++        # remains held until its existing serving owner ends it; this default
++        # must never mint a session for the participant it happens to read.
+         "ending": PriorAssignment(authority, identity),
+         "exclusion": HostExclusion(request["control_handle"],
+                                    identity=identity),
+diff --git a/v12/python/tools/publication_ports.py b/v12/python/tools/publication_ports.py
+index b1f5d845..4765088c 100644
+--- a/v12/python/tools/publication_ports.py
++++ b/v12/python/tools/publication_ports.py
+@@ -142,11 +142,8 @@ class PriorAssignment:
+     def __init__(self, authority, identity, *, sessions=None):
+         self._authority = authority
+         self._identity = _required(identity, "a prior-assignment port")
+-        # THE SESSION FACTORY, supplied rather than assumed. A deployment that
+-        # mints sessions through its own registry passes it; the default is the
+-        # Authority's own `session`, which is the production route.
+-        self._sessions = (sessions if sessions is not None
+-                          else authority.session)
++        # Only an already-held participant session may end its assignment.
++        self._sessions = sessions
+ 
+     def instance(self):
+         return self._identity
+@@ -164,6 +161,11 @@ class PriorAssignment:
+         lost reply reaching this adapter twice ends one assignment once.
+         """
+         participant = expect["participant"]
++        if self._sessions is None:
++            raise ContractRefusal(
++                "refused", "capability",
++                f"no held session is available for {name_value(participant)}; "
++                "the current assignment must be ended by its existing holder")
+         session = self._sessions(participant)
+         who = getattr(session, "participant", None)
+         if who != participant:

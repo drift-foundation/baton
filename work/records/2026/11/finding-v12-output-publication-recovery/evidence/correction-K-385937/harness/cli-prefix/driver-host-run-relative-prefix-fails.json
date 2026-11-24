@@ -1,0 +1,42 @@
+{
+ "checks": {
+  "a command over the bound was ended at it": false,
+  "a detached descendant's command still answered": false,
+  "an ordinary command kept its own status": false,
+  "at least the over-bound and the background command timed out": false,
+  "every command went through the supervisor, start and finish": false,
+  "every scripted command was answered": true,
+  "every supervisor saw its descendants gone": true,
+  "no scripted process survived": true,
+  "the CLI ended its turn cleanly": true,
+  "the selected bound is the one each supervisor used": false
+ },
+ "cli_exit": 0,
+ "cli_version": "2.1.247",
+ "ledger": {
+  "bounds": [],
+  "descendants_gone": true,
+  "finished": 0,
+  "started": 0,
+  "timed_out": 0
+ },
+ "supervisor_sha256": "bf0b03f46c5ca66f7aa919c5e46abf72179c046899c102514f55b34ccfb0d2aa",
+ "survivors": [],
+ "tool_results": [
+  "\"Exit code 127\\n/bin/bash: line 1: ../w385695-K-385897/repo/v12/worker/bounded_command.py: No such file or directory\"",
+  "\"Exit code 127\\n/bin/bash: line 1: ../w385695-K-385897/repo/v12/worker/bounded_command.py: No such file or directory\"",
+  "\"Exit code 127\\n/bin/bash: line 1: ../w385695-K-385897/repo/v12/worker/bounded_command.py: No such file or directory\"",
+  "\"Command running in background with ID: bon9qh22e. Output is being written to: /home/sl/src/baton/work/scratch/w385695-K-385929/driver-run/work/tmp/claude-1000/",
+  "\"Exit code 127\\n/bin/bash: line 1: ../w385695-K-385897/repo/v12/worker/bounded_command.py: No such file or directory\"",
+  "\"Exit code 127\\n/bin/bash: line 1: ../w385695-K-385897/repo/v12/worker/bounded_command.py: No such file or directory\""
+ ],
+ "verdict": "fail",
+ "why": [
+  "every command went through the supervisor, start and finish",
+  "an ordinary command kept its own status",
+  "a command over the bound was ended at it",
+  "a detached descendant's command still answered",
+  "at least the over-bound and the background command timed out",
+  "the selected bound is the one each supervisor used"
+ ]
+}

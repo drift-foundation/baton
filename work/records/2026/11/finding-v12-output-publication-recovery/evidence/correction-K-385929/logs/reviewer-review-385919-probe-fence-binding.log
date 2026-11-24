@@ -1,0 +1,25 @@
+test_committed_recovery_fence_must_bind_its_checkpoint_row (__main__.Fence.test_committed_recovery_fence_must_bind_its_checkpoint_row) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                9ee5c2dc3ca89ef7bb0dd94fa0589b5bc1e2639f established from line_declared_base
+configuration /var/tmp/k695b/v12-w71917-s_qerl_1/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/k695b/v12-w71917-s_qerl_1/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/k695b/v12-w71917-s_qerl_1/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/k695b/v12-w71917-s_qerl_1/publication-instance/deployment.json"
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.676s
+
+OK

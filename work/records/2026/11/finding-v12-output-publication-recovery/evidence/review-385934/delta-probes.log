@@ -1,0 +1,63 @@
+{"cwd": "/home/sl/src/baton/work/scratch/w385695-review-385934/v12/python", "argv": ["/home/sl/.local/state/baton-v12-venv/bin/python", "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385934/probe-delta.py"], "timeout_seconds": 90, "scratch": "/home/sl/src/baton/work/scratch/w385695-review-385934-tests"}
+test_detached_child_is_absent_after_pass (__main__.Corrected.test_detached_child_is_absent_after_pass) ... ok
+test_copy_crossing_remaining_deadline_runs_nothing (__main__.Corrected.test_copy_crossing_remaining_deadline_runs_nothing) ... ok
+test_completion_observed_after_deadline_does_not_report_success (__main__.Deadline.test_completion_observed_after_deadline_does_not_report_success) ... FAIL
+test_removal_exact_replay_remains_eligible (__main__.Removal.test_removal_exact_replay_remains_eligible) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                fcd054ff36df2b492a269a3ec4aeb58dc798981c established from line_declared_base
+configuration /home/sl/src/baton/work/scratch/w385695-review-385934-tests/v12-w71917-qerjqe9h/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/home/sl/src/baton/work/scratch/w385695-review-385934-tests/v12-w71917-qerjqe9h/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/home/sl/src/baton/work/scratch/w385695-review-385934-tests/v12-w71917-qerjqe9h/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/home/sl/src/baton/work/scratch/w385695-review-385934-tests/v12-w71917-qerjqe9h/publication-instance/deployment.json"
+authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /home/sl/src/baton/work/scratch/w385695-review-385934-tests/v12-w71917-qerjqe9h/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a", "publication-C1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/home/sl/src/baton/work/scratch/w385695-review-385934-tests/v12-w71917-qerjqe9h/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/home/sl/src/baton/work/scratch/w385695-review-385934-tests/v12-w71917-qerjqe9h/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/home/sl/src/baton/work/scratch/w385695-review-385934-tests/v12-w71917-qerjqe9h/publication-instance/deployment.json"
+ok
+
+======================================================================
+FAIL: test_completion_observed_after_deadline_does_not_report_success (__main__.Deadline.test_completion_observed_after_deadline_does_not_report_success)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385934/probe-delta.py", line 43, in test_completion_observed_after_deadline_does_not_report_success
+    self.assertNotEqual(status,0,'completion observed after absolute bound was recorded as success')
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : completion observed after absolute bound was recorded as success
+
+----------------------------------------------------------------------
+Ran 4 tests in 3.559s
+
+FAILED (failures=1)
+DETACHED_CORRECTED {"argv": ["/home/sl/.local/state/baton-v12-venv/bin/python", "-c", "import subprocess,sys,time,pathlib\nc=subprocess.Popen([sys.executable,\"-c\",'import os,time;open(\\'/home/sl/src/baton/work/scratch/w385695-review-385934-tests/tmp692d0rnu/escaped.ready\\',\"w\").write(str(os.getpid()));time.sleep(60)'],start_new_session=True)\npathlib.Path('/home/sl/src/baton/work/scratch/w385695-review-385934-tests/tmp692d0rnu/escaped.pid').write_text(str(c.pid))\nwhile not pathlib.Path('/home/sl/src/baton/work/scratch/w385695-review-385934-tests/tmp692d0rnu/escaped.ready').exists(): time.sleep(0.01)\n"], "seconds_bound": 2, "outcome": "passed", "status": 0, "seconds": 0.114, "descendants_gone": true}
+COPY_CORRECTED {"argv": ["/home/sl/.local/state/baton-v12-venv/bin/python", "-c", "open('/home/sl/src/baton/work/scratch/w385695-review-385934-tests/tmpkmye46hi/should-not-run',\"w\")"], "seconds_bound": 0, "outcome": "not-run", "status": null, "seconds": null, "descendants_gone": null}
+LATE_COMPLETION {"exit": 0, "record": {"descendants_ended": 0, "descendants_gone": true, "label": "check", "outcome": "exited", "schema": "baton.bounded-command/1", "seconds": 2.0, "seconds_bound": 1, "status": 0}}

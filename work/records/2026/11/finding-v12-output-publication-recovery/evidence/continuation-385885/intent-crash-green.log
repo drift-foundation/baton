@@ -1,0 +1,14 @@
+{"cwd": "/home/sl/src/baton/work/scratch/w385695-385885/v12/python", "argv": ["just", "test-one", "tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice"], "timeout_seconds": 60, "scratch": "/home/sl/src/baton/work/scratch/w385695-385885/work/scratch/verification"}
+test_a_lost_reply_is_journalled_as_uncertain_and_holds (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_a_lost_reply_is_journalled_as_uncertain_and_holds) ... ok
+test_a_writer_that_cannot_say_it_finished_holds (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_a_writer_that_cannot_say_it_finished_holds) ... ok
+test_a_writer_that_claims_a_model_or_a_verifier_is_denied (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_a_writer_that_claims_a_model_or_a_verifier_is_denied) ... ok
+test_an_uncertain_adoption_opens_no_gate_and_offers_no_review (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_an_uncertain_adoption_opens_no_gate_and_offers_no_review) ... ok
+test_every_act_replays_across_a_restart_without_a_second_effect (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_every_act_replays_across_a_restart_without_a_second_effect)
+THE WHOLE PATH, RE-ENTERED ON A SECOND INCARNATION. Each act finds ... ok
+test_no_second_adoption_is_started_while_the_first_is_unaccounted (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_no_second_adoption_is_started_while_the_first_is_unaccounted) ... ok
+test_process_loss_after_intent_never_repeats_the_writer (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_process_loss_after_intent_never_repeats_the_writer) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.539s
+
+OK

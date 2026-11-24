@@ -1,0 +1,2 @@
+--- argc=1 ppid=1440907
+ARG<source /home/sl/src/baton/work/scratch/w385695-K-385929/probe/runs/echo/home/.claude/shell-snapshots/snapshot-bash-1795486049078-3uvw51.sh 2>/dev/null || true && { shopt -u extglob || setopt NO_EXTENDED_GLOB NO_BARE_GLOB_QUAL; } >/dev/null 2>&1 || true && { \builtin unalias -- 'unsetenv'; \builtin unset -f -- 'unsetenv'; } >/dev/null 2>&1 || true && eval 'echo hello-from-tool; echo pid=$$ ppid=$PPID' < /dev/null && pwd -P >| /home/sl/src/baton/work/scratch/w385695-K-385929/probe/runs/echo/tmp/claude-1f51-cwd>

@@ -1,0 +1,22 @@
+{"cwd": "/home/sl/src/baton/work/scratch/w385695-review-385908/v12/python", "argv": ["/home/sl/.local/state/baton-v12-venv/bin/python", "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385908/probe-pooled.py"], "timeout_seconds": 90, "scratch": "/home/sl/src/baton/work/scratch/w385695-review-385908-tests"}
+test_overflow (__main__.Explore.test_overflow) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.741s
+
+OK
+TURN rc 1
+STATES {'implementation': 'exceptional', 'review': 'blocked', 'integration': 'blocked'}
+FROZEN None
+RUNTIME {'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'runtime_id': 'runtime-single-1', 'execution_runtime': 'running', 'cleanup': 'pending', 'assignment': {'work_ref': {'authority_uuid': '0000000a000000000000000000000000', 'work_id': '0000000a-W1'}, 'participant': 'baton.impl-a', 'generation': 1}}
+ASSIGN {'work_ref': {'authority_uuid': '0000000a000000000000000000000000', 'work_id': '0000000a-W1'}, 'participant': 'baton.impl-a', 'generation': 1}
+WS ['.git', 'big.txt', 'harness.py', 'proposal', 'worker-task.txt']
+  proposal ['change.patch', 'objects.bundle', 'result.json', 'verification.txt']
+  .git ['COMMIT_EDITMSG', 'HEAD', 'config', 'description', 'hooks', 'index', 'info', 'logs', 'objects', 'packed-refs']
+STATES2 {'implementation': 'exceptional', 'review': 'blocked', 'integration': 'blocked'}
+RUNTIME2 {'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'runtime_id': 'runtime-single-1', 'execution_runtime': 'quiescent', 'cleanup': 'pending', 'assignment': {'work_ref': {'authority_uuid': '0000000a000000000000000000000000', 'work_id': '0000000a-W1'}, 'participant': 'baton.impl-a', 'generation': 1}}
+SUPPORTED_SETTLEMENT {"intent": {"attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "assignment": {"work_ref": {"authority_uuid": "0000000a000000000000000000000000", "work_id": "0000000a-W1"}, "participant": "baton.impl-a", "generation": 1}, "runtime_id": "runtime-single-1", "decision": "abandoned", "authority_operation_id": "authority.abandon-fence:bfb5307dc65cc79d6bb85396233121ab322f5f54b9c4e4fcbe26a30482db4302", "reason": "review deterministic failed publication settlement"}, "fenced": {"cause": "cancelled", "assignment": {"work_ref": {"authority_uuid": "0000000a000000000000000000000000", "work_id": "0000000a-W1"}, "participant": "baton.impl-a", "generation": 1}, "phase": "block", "gate": "runtime-quiescence:1", "fenced": true}, "cleanup": {"attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "cleanup": "retained", "state": "absent", "why": "the engine answered that this exact identity does not exist", "kept": [], "operation": {"operation_id": "runtime.destroy-abandoned:0975e11c830f07d527e9ecb77c00154eb3a4cab29ec2aec9fb2127ada12bca25", "signature_digest": "sha256:73c291f01cf7b4ea87b822afb72bab62f48b2fe5d8390ed8f33f353cf799bb15"}, "directory_custody": null}}
+RUNTIME_AFTER_SETTLEMENT {"attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "runtime_id": "runtime-single-1", "execution_runtime": "destroyed", "cleanup": "retained", "assignment": {"work_ref": {"authority_uuid": "0000000a000000000000000000000000", "work_id": "0000000a-W1"}, "participant": "baton.impl-a", "generation": 1}}
+INSPECT 0
+ELIGIBLE False
+HOLD refused precondition the original output of attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1… is refused: attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s completed preparation states workspace layout 'line', and this read reconstructs the attempt layout only; an identity compa

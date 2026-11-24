@@ -1,0 +1,53 @@
+{"cwd": "/home/sl/src/baton/work/scratch/w385695-385885/v12/python", "argv": ["just", "test-one", "tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_process_loss_after_intent_never_repeats_the_writer"], "timeout_seconds": 60, "scratch": "/home/sl/src/baton/work/scratch/w385695-385885/work/scratch/verification"}
+test_process_loss_after_intent_never_repeats_the_writer (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_process_loss_after_intent_never_repeats_the_writer) ... Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/usr/lib/python3.13/unittest/__main__.py", line 18, in <module>
+    main(module=None)
+    ~~~~^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/main.py", line 104, in __init__
+    self.runTests()
+    ~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/unittest/main.py", line 270, in runTests
+    self.result = testRunner.run(self.test)
+                  ~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/runner.py", line 240, in run
+    test(result)
+    ~~~~^^^^^^^^
+  File "/usr/lib/python3.13/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+           ~~~~~~~~^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/suite.py", line 122, in run
+    test(result)
+    ~~~~^^^^^^^^
+  File "/usr/lib/python3.13/unittest/suite.py", line 84, in __call__
+    return self.run(*args, **kwds)
+           ~~~~~~~~^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/suite.py", line 122, in run
+    test(result)
+    ~~~~^^^^^^^^
+  File "/usr/lib/python3.13/unittest/case.py", line 707, in __call__
+    return self.run(*args, **kwds)
+           ~~~~~~~~^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/case.py", line 651, in run
+    self._callTestMethod(testMethod)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/case.py", line 606, in _callTestMethod
+    if method() is not None:
+       ~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w385695-385885/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 1522, in test_process_loss_after_intent_never_repeats_the_writer
+    again = self.refusal(self.published_once, writer=lost)
+  File "/home/sl/src/baton/work/scratch/w385695-385885/v12/python/tests/job_manager/test_publication_recovery_admission.py", line 632, in refusal
+    call(*operands, **named)
+    ~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-385885/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 365, in published_once
+    return publication_execution.publish(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.jobs, self.seam(**changed), decision_id="D1", now=now)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-385885/v12/python/src/baton_v12/job_manager/publication_execution.py", line 1207, in publish
+    answer = taken["writer"].adopt(request)
+  File "/home/sl/src/baton/work/scratch/w385695-385885/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 1499, in adopt
+    raise self._raises
+KeyboardInterrupt: process stopped
+error: Recipe `test-one` was terminated by signal 2

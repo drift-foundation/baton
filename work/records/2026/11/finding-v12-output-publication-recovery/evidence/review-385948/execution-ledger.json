@@ -1,0 +1,115 @@
+{
+  "cleanup-r4": {
+    "collected": [
+      "__main__.PauseStateIsPositiveOrUnresolved.test_a_phase_that_succeeded_with_unresolved_cleanup_does_not_exit_zero",
+      "__main__.PauseStateIsPositiveOrUnresolved.test_an_engine_that_answers_on_a_later_try_is_believed",
+      "__main__.PauseStateIsPositiveOrUnresolved.test_an_inspection_that_failed_is_not_absence",
+      "__main__.PauseStateIsPositiveOrUnresolved.test_an_unpause_that_failed_and_left_it_paused_is_unresolved",
+      "__main__.PauseStateIsPositiveOrUnresolved.test_an_unpause_whose_read_back_fails_is_unresolved_even_when_it_was_acknowledged_or_not",
+      "__main__.PauseStateIsPositiveOrUnresolved.test_an_unpause_whose_reply_was_lost_is_released_by_the_read_back",
+      "__main__.PauseStateIsPositiveOrUnresolved.test_paused_and_released_is_read_back",
+      "__main__.PauseStateIsPositiveOrUnresolved.test_positively_absent_is_the_engine_listing_nothing_for_that_id",
+      "__main__.PauseStateIsPositiveOrUnresolved.test_positively_not_paused_is_left_alone",
+      "__main__.TheDriverEndsOnlyWhatItsOwnTurnStarted.test_of_two_same_named_processes_only_the_token_bearer_is_selected_and_ended"
+    ],
+    "results": [
+      {
+        "id": "__main__.PauseStateIsPositiveOrUnresolved.test_a_phase_that_succeeded_with_unresolved_cleanup_does_not_exit_zero",
+        "outcome": "passed"
+      },
+      {
+        "id": "__main__.PauseStateIsPositiveOrUnresolved.test_an_engine_that_answers_on_a_later_try_is_believed",
+        "outcome": "passed"
+      },
+      {
+        "id": "__main__.PauseStateIsPositiveOrUnresolved.test_an_inspection_that_failed_is_not_absence",
+        "outcome": "passed"
+      },
+      {
+        "id": "__main__.PauseStateIsPositiveOrUnresolved.test_an_unpause_that_failed_and_left_it_paused_is_unresolved",
+        "outcome": "passed"
+      },
+      {
+        "id": "__main__.PauseStateIsPositiveOrUnresolved.test_an_unpause_whose_read_back_fails_is_unresolved_even_when_it_was_acknowledged_or_not",
+        "outcome": "passed"
+      },
+      {
+        "id": "__main__.PauseStateIsPositiveOrUnresolved.test_an_unpause_whose_reply_was_lost_is_released_by_the_read_back",
+        "outcome": "passed"
+      },
+      {
+        "id": "__main__.PauseStateIsPositiveOrUnresolved.test_paused_and_released_is_read_back",
+        "outcome": "passed"
+      },
+      {
+        "id": "__main__.PauseStateIsPositiveOrUnresolved.test_positively_absent_is_the_engine_listing_nothing_for_that_id",
+        "outcome": "passed"
+      },
+      {
+        "id": "__main__.PauseStateIsPositiveOrUnresolved.test_positively_not_paused_is_left_alone",
+        "outcome": "passed"
+      },
+      {
+        "id": "__main__.TheDriverEndsOnlyWhatItsOwnTurnStarted.test_of_two_same_named_processes_only_the_token_bearer_is_selected_and_ended",
+        "outcome": "passed"
+      }
+    ],
+    "unaccounted": []
+  },
+  "cleanup-cuts": {
+    "collected": [
+      "__main__.Cleanup.test_failed_inspection_is_reported_as_unresolved",
+      "__main__.Cleanup.test_qualification_signal_after_start_effect_is_cleaned",
+      "__main__.Cleanup.test_setup_signal_after_start_effect_is_cleaned"
+    ],
+    "results": [
+      {
+        "id": "__main__.Cleanup.test_failed_inspection_is_reported_as_unresolved",
+        "outcome": "passed"
+      },
+      {
+        "id": "__main__.Cleanup.test_qualification_signal_after_start_effect_is_cleaned",
+        "outcome": "passed"
+      },
+      {
+        "id": "__main__.Cleanup.test_setup_signal_after_start_effect_is_cleaned",
+        "outcome": "passed"
+      }
+    ],
+    "unaccounted": []
+  },
+  "driver": {
+    "collected": [
+      "__main__.Driver.test_survivor_cleanup_does_not_select_a_process_outside_the_driver"
+    ],
+    "results": [
+      {
+        "id": "__main__.Driver.test_survivor_cleanup_does_not_select_a_process_outside_the_driver",
+        "outcome": "passed"
+      }
+    ],
+    "unaccounted": []
+  },
+  "restart": {
+    "collected": [
+      "__main__.Restart.test_image_remove_failure_cannot_report_success",
+      "__main__.Restart.test_qualification_retained_start_without_operation_receipt_stays_unresolved",
+      "__main__.Restart.test_setup_retained_start_without_operation_receipt_stays_unresolved"
+    ],
+    "results": [
+      {
+        "id": "__main__.Restart.test_image_remove_failure_cannot_report_success",
+        "outcome": "failed"
+      },
+      {
+        "id": "__main__.Restart.test_qualification_retained_start_without_operation_receipt_stays_unresolved",
+        "outcome": "failed"
+      },
+      {
+        "id": "__main__.Restart.test_setup_retained_start_without_operation_receipt_stays_unresolved",
+        "outcome": "failed"
+      }
+    ],
+    "unaccounted": []
+  }
+}

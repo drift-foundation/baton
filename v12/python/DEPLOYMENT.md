@@ -1224,6 +1224,153 @@ exec-form Python entrypoint. Select a base digest through the deployment's own
 qualification process. There is no certified managed-flow image digest supplied
 here: configuration selects behavior and does not prove an image is provisioned.
 
+### Deterministic publication worker (REC-9)
+
+An approved retained-output publication recovery is served by one dedicated
+worker in the publication lane. It invokes no provider and is delivered no
+credential. Install it once per instance:
+
+1. Compose its worker document with
+   `pool compose-worker --role publication --deployment <deployment.json>
+   --worker-id <id> --participant <dedicated participant> --image-reference
+   <image> --image-digest <sha256:…> --workspace-group <gid> --task-document
+   <absolute path> --record <dossier path> --into <new file>`. The provider
+   operands (`--cli-build`, `--network`, `--credential-sources`,
+   `--credential`, the verifier-layout selection) are refused for this role.
+2. Name that document in the instance's install document and run the ordinary
+   one-operand bootstrap repeat. The repeat prepares the worker's private
+   staging root (`<instance>/publication-staging`, mode 0700) with its other
+   roots and registers the participant on the implementation route, where a
+   recovery makes its fresh claim on the failed Job's Work. Naming the worker
+   in the install document matters: a recovery's Job binding is prepared from
+   that document, and a worker admitted only with `pool add-worker` is not
+   carried across that preparation.
+
+A deployment configures at most one publication worker, under a participant no
+other worker uses. The installed worker names the Work it was installed
+against; each recovery is served under its own Work and the original Job's
+task, derived per recovery and never written back to the configuration.
+
+`v12/worker/Dockerfile.publication` is the recipe: the reference image's pinned
+Python base, the ordinary worker, `publication_entry.py` and the frozen control
+schema, UID/GID 65532, exec-form entry, no provider runtime. No image digest is
+supplied or certified here; building and selecting one is a separate
+deployment act.
+
+A recovery Job is submitted under the ORIGINAL Job's input identity, which is
+what the Work's ordinarily configured reviewer serves; no reviewer is
+reconfigured for a recovery. The publication stage alone is held to its own
+identity (the installed publisher's declarations bound to this recovery's Work
+and original task), recorded on the admission. An instance with no servable
+reviewer stops the admission, reserved and incomplete, naming the review stage.
+
+**The supported sequence, from decision to verdict.** A running manager serves
+the bindings it started with; there is no hot reload.
+
+1. `manager publication-inspect`, then `manager publication-decide --approve`
+   with the exact values the inspection returned. The approval records the
+   decision, admits one linked recovery Job and amends the installed
+   configuration with that Job's binding.
+2. Restart the manager (`just start`). The new incarnation serves the amended
+   configuration. Nothing is lost by the restart: every act below is derived
+   from committed records.
+3. The publisher claims the reused Work, adopts the approved original and
+   answers. The manager measures and records the adoption, freezes and takes
+   custody, and ends the publication by PASSING the Work to the review route.
+4. The hand-off commits and the review gate opens. The Work's ordinary
+   reviewer is offered the review stage and claims it on the review route.
+5. Before the reviewer is started, the development-line owner freezes the
+   approved candidate as a review checkpoint under its recovery fence (DESIGN
+   REC-9, owner clarification 2026-11-23): the original producer never
+   answered and was never released, so the freeze rests on the committed
+   removal of its runtime, no later writer, an unmoved line and the exact
+   approved head and base. The producer's writer is revoked in that operation.
+6. The reviewer is delivered `recovery-review.json` (the hand-off, its digest
+   and the reviewer-verification requirement) beside the read-only candidate.
+   The whole review invocation runs against ONE absolute 3600-second
+   deadline measured from the moment the worker begins it: source
+   observation, scratch preparation, the private copy, the required check and
+   the provider are all charged to it, and what remains is re-read
+   immediately before each launch. Ending a command's descendants may take
+   up to 5 seconds, and that grace is charged too: every command's own
+   deadline is 5 seconds short of the invocation's.
+   EVERY command of the review runs under the worker image's command
+   supervisor (`/opt/baton/bounded_command.py`, in the read-only root):
+   the worker's own run of the task's verification command in a private
+   copy; the provider itself; and each shell-tool command the provider
+   chooses to run. The provider CLI is started with that supervisor as its
+   shell prefix, so it hands every such command to it -- foreground,
+   backgrounded, or moved to the background by the CLI -- and each is ended
+   at the owner-selected 900-second per-command bound or the invocation
+   deadline, whichever is sooner. A supervisor adopts every descendant of its
+   command, including one that left the command's session, ends them all at
+   the bound and after an ordinary exit, and records whether a scan of the
+   process table then found none; a background process does not outlive the
+   command that started it. A supervisor that started and left no finish
+   record is an unfinished command. A command still running when its bound
+   passes is a timeout whatever status it then leaves: the supervisor reads
+   the clock after it sees the command ended and before it believes that
+   ending, and the worker applies its own clock to the supervisor's answer.
+   This is a bound on work, not a sandbox, and it is not a security boundary
+   against the reviewer: the supervisor runs as the same user as the command.
+   A supervisor that is killed leaves a start with no finish, which is
+   counted; a command that rewrites the supervisors' records is NOT detected
+   by them. What still bounds such a command is the provider's own
+   supervisor, the invocation deadline and the
+   container's cessation. A worker image without the supervisor refuses a
+   required review rather than running it unbounded.
+   The provider is told the check's outcome. The report must claim the
+   hand-off digest. An `accepted` verdict is published only when the required
+   command passed and every command of the review was observed to have ended
+   with its descendants; the manager additionally holds an acceptance whose
+   frozen result does not carry the worker's own passed, bounded run of the
+   approved command and a clean account of its commands. Any other verdict is
+   the reviewer's own.
+7. `manager publication-status --decision-id …` reports the original failure,
+   the recovery, the custody, the review (stage, reviewer, recorded verdict)
+   and any owner item as separate statements.
+
+**A stopped original must be removed before it can be recovered.**
+`settle-stopped` is retain-only: it returns the workspace token and leaves the
+producer's stopped container, its pending cleanup and its line's active
+writer. `publication-inspect` therefore reports such an original as NOT
+eligible, before any approval, and its answer carries a `continuation` naming
+the next command. With the manager stopped:
+
+    manager settlement-remove --instance <instance.json> \
+      --job JOB --stage STAGE --episode N --reason "why"
+
+This runs the serving composition's own abandonment ending for that exact
+attempt: the runtime is removed and proved absent, the workspace is retained
+and the token returned. A first removal refuses an attempt whose runtime is
+not recorded `quiescent`, and the command exits non-zero unless the runtime
+is then recorded destroyed with settled cleanup. Repeat `publication-inspect`;
+an eligible answer no longer carries a `continuation`. A producer that
+faulted and was never settled is ended the same way.
+
+The command is safe to repeat. Its ending is declared in the control store
+before anything is removed, so the same command given again -- because the
+reply was lost, or because it was interrupted after the removal and before
+the ending settled -- finds that declaration, answers `"replayed": true`, and
+either returns the committed result or finishes the ending it started. It
+uses the declaration's own reason (reported as `reason`), declares nothing a
+second time and removes nothing twice. An attempt that is not `quiescent` and
+carries no such declaration -- running, uncertain, never started, another
+episode, or ended some other way -- is still refused. A serving manager, in
+this or any other process, excludes the command: it takes the instance's
+manager guard exactly as serving does and is refused before it declares or
+removes anything.
+
+**When the review does not conclude.** A recovery cancelled or expired during
+review stops the reviewer through the ordinary cancellation pass. Once the
+reviewer is positively stopped the owner who decided is delivered one
+`publication.review-item`: the published custody and frozen candidate are
+retained, no verdict exists and nothing is retried. Its `remaining` member
+spells the `settlement-remove` invocation for the stopped review attempt,
+which is the same command as above. A review-only continuation from a
+completed publication is not a command of this build; it needs a new owner
+decision.
+
 ### From preparation to an honest final result
 
 The scheduler reserves one integration actor. The composition registers one root
@@ -1903,15 +2050,13 @@ selection digest. The same decision id with the same operands replays; with
 different operands it collides. One failed publication has one approved
 recovery.
 
-**An approval admits nothing in this checkpoint, and says so.** The boundary
-composes the real owner ports, re-establishes the trust root, reuses the
-original open Work, and returns a HELD PREREQUISITE naming the publication
-stage vocabulary (`baton.v12.job-submission/4`), the publication lane
-(`baton.v12.worker-pool/2`), Job store generation 10, the deterministic
-publication worker and the enforced `output-publication-review/1` control
-profile — none of which this build installs. No Job identity is reserved, no
-binding is published, no submission is recorded and no offer is issued; the
-review gate is closed and non-runnable. Do not read a returned Job id as a Job:
-`reserved` is `false`. Ordinary `create`, `submit` and `fresh-attempt` cannot
+**An approval admits one linked recovery Job when the instance can serve it.**
+The boundary composes the real owner ports, re-establishes the trust root and
+reuses the original open Work. With a deterministic publication worker
+installed and a servable reviewer it reserves, submits and binds one recovery
+Job (see "Deterministic publication worker" above for what follows). Without
+them it returns a HELD PREREQUISITE naming what is missing: no Job identity is
+reserved, no binding is published and no offer is issued, and `reserved` is
+`false` — do not read a returned Job id as a Job. Ordinary `create`, `submit` and `fresh-attempt` cannot
 name the recovery profile, template or stage vocabulary; each is refused by
 name by the owner that holds it.

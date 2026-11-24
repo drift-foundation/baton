@@ -1,0 +1,87 @@
+{
+ "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python via just",
+ "final_source": "671ee3a3b664089c8e73c82632edc08d6ed82ca7",
+ "runs": [
+  {
+   "name": "baseline-required (531ddac1 reconstruction)",
+   "collected": 307,
+   "passed": 307,
+   "failed": 0,
+   "errors": 0,
+   "skipped": 0,
+   "seconds": 16.317,
+   "log": "logs/baseline-required.log"
+  },
+  {
+   "name": "final-required",
+   "argv": "just test-one tests.job_manager.test_publication_recovery_execution tests.job_manager.test_publication_recovery_admission tests.job_manager.test_retained_recovery_admission tests.job_manager.test_role_contract",
+   "collected": 326,
+   "passed": 326,
+   "failed": 0,
+   "errors": 0,
+   "skipped": 0,
+   "seconds": 27.962,
+   "wall": 28.21,
+   "exit": 0,
+   "log": "logs/final-required.log"
+  },
+  {
+   "name": "final-stage-execution",
+   "argv": "just test-one tests.tools.test_stage_execution",
+   "collected": 514,
+   "passed": 514,
+   "failed": 0,
+   "errors": 0,
+   "skipped": 0,
+   "seconds": 357.277,
+   "exit": 0,
+   "log": "logs/final-stage-execution.log"
+  },
+  {
+   "name": "final-group-job_manager",
+   "argv": "just test-group job_manager",
+   "collected": 2228,
+   "passed": 2225,
+   "failed": 3,
+   "errors": 0,
+   "skipped": 0,
+   "unaccounted": 0,
+   "wall": 34.12,
+   "exit": 1,
+   "log": "logs/final-group-job_manager.log",
+   "note": "3 long-scratch-path message cases; pass under a short path"
+  },
+  {
+   "name": "short-path-three",
+   "argv": "just test-one tests.job_manager.test_tool tests.job_manager.test_store_readonly",
+   "collected": 103,
+   "passed": 103,
+   "failed": 0,
+   "errors": 0,
+   "seconds": 1.174,
+   "exit": 0,
+   "log": "logs/short-path-three.log"
+  },
+  {
+   "name": "final-affected",
+   "collected": 589,
+   "passed": 568,
+   "failed": 0,
+   "errors": 21,
+   "seconds": 101.898,
+   "exit": 1,
+   "log": "logs/final-affected.log",
+   "note": "all 21 errors in tests.tools.test_managed_apply; identical 21 of 32 on base 6079ad78 and on 531ddac1 (temporary worktrees, logs not retained)"
+  },
+  {
+   "name": "intermediate full stage-execution (before ROLES correction)",
+   "collected": 514,
+   "passed": 507,
+   "failed": 7,
+   "seconds": 357.459,
+   "exit": 1,
+   "log": "logs/intermediate-stage-execution.log",
+   "note": "superseded by final-stage-execution"
+  }
+ ]
+}

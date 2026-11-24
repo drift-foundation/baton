@@ -1,0 +1,21 @@
+{"cwd": "/home/sl/src/baton/work/scratch/w385695-385885/v12/python", "argv": ["just", "test-one", "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle", "tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_the_successor_materializes_publishes_and_completes"], "timeout_seconds": 120, "scratch": "/home/sl/src/baton/work/scratch/w385695-385885-verification"}
+test_committed_handoff_recovers_before_local_acknowledgement (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_committed_handoff_recovers_before_local_acknowledgement) ... ok
+test_foreign_receipt_or_lease_cannot_authorize_terminal_handoff (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_foreign_receipt_or_lease_cannot_authorize_terminal_handoff) ... ok
+test_fresh_process_observes_owned_completion_after_serving_closes (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_fresh_process_observes_owned_completion_after_serving_closes) ... ok
+test_lost_pass_answer_remains_completed_after_a_later_assignment (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_lost_pass_answer_remains_completed_after_a_later_assignment) ... ok
+test_one_job_completes_correction_integration_and_terminal_handoff (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_one_job_completes_correction_integration_and_terminal_handoff) ... ok
+test_running_integrator_result_cannot_end_its_assignment (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_running_integrator_result_cannot_end_its_assignment) ... ok
+test_serving_observation_reads_only_existing_owners (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_serving_observation_reads_only_existing_owners) ... ok
+test_the_accepted_checkpoint_is_the_corrections_and_its_pin_holds (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_the_accepted_checkpoint_is_the_corrections_and_its_pin_holds)
+W119114: one line, two rounds, and the pin the integration reads. ... ok
+test_the_corrected_rounds_retained_bytes_reopen_at_their_locator (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_the_corrected_rounds_retained_bytes_reopen_at_their_locator)
+W119114: the mandatory custody check, on the JOINED chain. ... ok
+test_the_recovered_job_finishes_and_its_manifest_reopens (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_the_recovered_job_finishes_and_its_manifest_reopens)
+[P1] THE RECOVERED JOB, DRIVEN TO ITS TERMINAL HANDOFF, and then ... ok
+test_uncertain_integration_effect_stays_held (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_uncertain_integration_effect_stays_held) ... ok
+test_the_successor_materializes_publishes_and_completes (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_the_successor_materializes_publishes_and_completes) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 25.055s
+
+OK

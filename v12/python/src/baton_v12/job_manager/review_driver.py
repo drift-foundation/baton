@@ -1551,7 +1551,8 @@ def end_review(control, port, adapter, *, attachment_id, disposition, verdict,
 def end_review_from_result(control, port, adapter, *, attachment_id,
                            disposition, terminal, profile,
                            retention_disposition, retention_policy_digest,
-                           govern=None, recovery_digest=None):
+                           govern=None, recovery_digest=None,
+                           reviewer_verification=None):
     """End one review attempt on the verdict its own frozen output carries.
 
     W110772. THE PRODUCTION ENTRY POINT, and the whole of its difference from
@@ -1614,7 +1615,8 @@ def end_review_from_result(control, port, adapter, *, attachment_id,
         retention_disposition=retention_disposition,
         retention_policy_digest=retention_policy_digest, govern=govern,
         resolve=lambda _frozen: review_verdict_from_result(
-            control, attachment_id=attachment_id, recovery_digest=recovery_digest)["verdict"])
+            control, attachment_id=attachment_id, recovery_digest=recovery_digest,
+            reviewer_verification=reviewer_verification)["verdict"])
 
 
 def end_response_from_result(control, port, adapter, *, attachment_id,
@@ -2046,7 +2048,11 @@ def _review_claim(result):
     return claim
 
 
-def review_verdict_from_result(control, *, attachment_id, recovery_digest=None):
+REVIEWER_VERIFICATION_CLAIM = "baton.reviewer-verification/1"
+
+
+def review_verdict_from_result(control, *, attachment_id, recovery_digest=None,
+                               reviewer_verification=None):
     """The verdict a completed review actually recorded in its frozen output.
 
     READ-ONLY AND PUBLIC. It opens nothing, writes nothing, reads no mutable
@@ -2115,6 +2121,43 @@ def review_verdict_from_result(control, *, attachment_id, recovery_digest=None):
                 f"attempt's assignment is generation {fixed['generation']}",
                 category="stale-assignment", code="generation")
     claim = _review_claim(result)
+    if reviewer_verification is not None and claim["verdict"] == "accepted":
+        # W385695 (review 2026-11-24T00-28-00Z C2): AN ACCEPTANCE OF THIS
+        # RECOVERY CARRIES THE REVIEWER'S OWN PASSED VERIFICATION, as the
+        # confined adapter observed it: the approved command, run under a
+        # bound no larger than the owner-selected one, exit 0, its process
+        # group gone. A worker that does not supervise the command publishes
+        # no such claim, and its acceptance is held rather than collected.
+        seen = _claim_output(result, FINDINGS_OUTPUT)["result_metadata"].get(
+            REVIEWER_VERIFICATION_CLAIM)
+        bound = seen.get("seconds_bound") if type(seen) is dict else None
+        # AND EVERY COMMAND THE REVIEW RAN WAS SUPERVISED TO ITS END (review
+        # 2026-11-24T01-52-00Z C2): the worker counts the provider's own
+        # shell-tool commands under the same per-command bound, none started
+        # without a finish record, and each supervisor -- the check's, the
+        # provider's and every command's -- saw its descendants gone. An
+        # empty process group is not that observation and is not accepted
+        # as one.
+        commands = seen.get("commands") if type(seen) is dict else None
+        counted = [commands.get(name) if type(commands) is dict else None
+                   for name in ("supervised", "timed_out", "unfinished")]
+        if type(seen) is not dict \
+                or seen.get("argv") != list(reviewer_verification["argv"]) \
+                or seen.get("outcome") != "passed" or seen.get("status") != 0 \
+                or seen.get("descendants_gone") is not True \
+                or type(commands) is not dict \
+                or set(commands) != {"supervised", "timed_out", "unfinished",
+                                     "descendants_gone"} \
+                or any(type(each) is not int or type(each) is bool
+                       or each < 0 for each in counted) \
+                or commands["unfinished"] != 0 \
+                or commands["timed_out"] > commands["supervised"] \
+                or commands["descendants_gone"] is not True \
+                or type(bound) is not int or type(bound) is bool \
+                or not 1 <= bound <= reviewer_verification["command_seconds"]:
+            _refuse("the reviewer accepted without a passed, bounded run of "
+                    "the required verification command by its own worker",
+                    category="integrity", code="digest")
     checkpoint = review_cycles.checkpoint_of(control,
                                              attachment["checkpoint_id"])
     evidence = checkpoint["evidence"]

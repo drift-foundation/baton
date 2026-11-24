@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "just",
+    "test-one",
+    "tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_process_loss_after_intent_never_repeats_the_writer"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385695-385885/v12/python",
+  "exit_status": 1,
+  "timed_out": false,
+  "wall_seconds": 0.36398904997622594,
+  "unittest_summary": [
+    "1",
+    "0.103"
+  ],
+  "log_sha256": "f295194a84086a6d0b4f1246ea843f53251dae767ae5c65be28d015948c88252"
+}

@@ -1,0 +1,38 @@
+{"cwd": "/home/sl/src/baton/work/scratch/w385695-review-385926/v12/python", "argv": ["just", "test-one", "tests.manager.test_boundary_inventory.EveryStatedOwnerHasAWitness", "tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses"], "timeout_seconds": 60, "scratch": "/home/sl/src/baton/work/scratch/w385695-review-385926-tests"}
+test_every_stated_owner_names_a_witness_that_exists (tests.manager.test_boundary_inventory.EveryStatedOwnerHasAWitness.test_every_stated_owner_names_a_witness_that_exists) ... FAIL
+test_a_relation_without_its_claimed_row_cannot_discharge_the_repeat (tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses.test_a_relation_without_its_claimed_row_cannot_discharge_the_repeat) ... ok
+test_an_unrelated_same_label_call_and_another_origin_cannot_borrow_the_link (tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses.test_an_unrelated_same_label_call_and_another_origin_cannot_borrow_the_link) ... ok
+test_exact_delegate_queries_keep_their_existing_selection (tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses.test_exact_delegate_queries_keep_their_existing_selection) ... ok
+test_identity_column_and_later_rule_are_identical_and_the_row_owns_a_fresh_value (tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses.test_identity_column_and_later_rule_are_identical_and_the_row_owns_a_fresh_value) ... ok
+test_missing_declaration_or_source_witness_refuses (tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses.test_missing_declaration_or_source_witness_refuses) ... ok
+test_missing_or_ambiguous_row_or_later_occurrence_refuses (tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses.test_missing_or_ambiguous_row_or_later_occurrence_refuses) ... ok
+test_outer_document_equivalence_does_not_cover_nested_intent_validation (tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses.test_outer_document_equivalence_does_not_cover_nested_intent_validation) ... ok
+test_row_result_flow_and_nullable_guard_match_the_reviewed_relations (tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses.test_row_result_flow_and_nullable_guard_match_the_reviewed_relations) ... ok
+test_source_changes_require_fresh_review_instead_of_refreshing_witnesses (tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses.test_source_changes_require_fresh_review_instead_of_refreshing_witnesses) ... ok
+test_two_exact_entries_use_the_same_row_in_labels_and_accounting (tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses.test_two_exact_entries_use_the_same_row_in_labels_and_accounting) ... ok
+test_unchanged_ast_uses_current_call_spans_and_ambiguous_sources_refuse (tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses.test_unchanged_ast_uses_current_call_spans_and_ambiguous_sources_refuse) ... ok
+
+======================================================================
+FAIL: test_every_stated_owner_names_a_witness_that_exists (tests.manager.test_boundary_inventory.EveryStatedOwnerHasAWitness.test_every_stated_owner_names_a_witness_that_exists)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-review-385926/v12/python/tests/manager/test_boundary_inventory.py", line 13426, in test_every_stated_owner_names_a_witness_that_exists
+    self.assertEqual(sorted(WITNESSES), sorted(STATED_OWNERS))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('ad[6463 chars]), ('caller', 'attempt_logs.py:AttemptLogs.pla[56672 chars]nd')] != [('ad[6463 chars]), ('adopted', 'workspaces.py:_retained_line_h[56738 chars]nd')]
+
+First differing element 99:
+('caller', 'attempt_logs.py:AttemptLogs.place', 'stream')
+('adopted', 'workspaces.py:_retained_line_home', 'line_writers')
+
+Second list contains 1 additional elements.
+First extra element 983:
+('injected', 'sessions.py:reconcile_agent_session', 'agent.observe_session.kind')
+
+Diff is 66793 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 12 tests in 8.333s
+
+FAILED (failures=1)
+error: Recipe `test-one` failed with exit code 1

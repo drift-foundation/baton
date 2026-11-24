@@ -1,0 +1,470 @@
+[
+  {
+    "entry": [
+      "adopted",
+      "review_cycles.py:_one_by_attempt",
+      "line_writers.granted_at"
+    ],
+    "claims": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "labels": [
+      "the line writer for attempt {name_value(attempt_id)} generation {generation}"
+    ]
+  },
+  {
+    "entry": [
+      "adopted",
+      "review_cycles.py:checkpoint_of",
+      "line_checkpoints.fence.fenced"
+    ],
+    "claims": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "labels": [
+      "a recovery fence record"
+    ]
+  },
+  {
+    "entry": [
+      "adopted",
+      "review_cycles.py:checkpoint_of",
+      "line_checkpoints.fence.fenced.kind"
+    ],
+    "claims": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "labels": [
+      "a recovery fence record kind"
+    ]
+  },
+  {
+    "entry": [
+      "adopted",
+      "review_cycles.py:checkpoint_of",
+      "line_checkpoints.fence.fenced.revoked_at"
+    ],
+    "claims": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "labels": [
+      "a recovery fence revocation instant"
+    ]
+  },
+  {
+    "entry": [
+      "adopted",
+      "review_cycles.py:checkpoint_of",
+      "line_checkpoints.fence.intent.attempt_id"
+    ],
+    "claims": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "labels": [
+      "a recovery fence attempt identity"
+    ]
+  },
+  {
+    "entry": [
+      "adopted",
+      "review_cycles.py:checkpoint_of",
+      "line_checkpoints.fence.intent.based_checkpoint_id"
+    ],
+    "claims": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "labels": [
+      "a recovery fence based checkpoint identity"
+    ]
+  },
+  {
+    "entry": [
+      "adopted",
+      "review_cycles.py:checkpoint_of",
+      "line_checkpoints.fence.intent.candidate"
+    ],
+    "claims": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "labels": [
+      "a recovery fence candidate"
+    ]
+  },
+  {
+    "entry": [
+      "adopted",
+      "review_cycles.py:checkpoint_of",
+      "line_checkpoints.fence.intent.candidate.base"
+    ],
+    "claims": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "labels": [
+      "a recovery fence candidate base"
+    ]
+  },
+  {
+    "entry": [
+      "adopted",
+      "review_cycles.py:checkpoint_of",
+      "line_checkpoints.fence.intent.candidate.head"
+    ],
+    "claims": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "labels": [
+      "a recovery fence candidate head"
+    ]
+  },
+  {
+    "entry": [
+      "adopted",
+      "review_cycles.py:checkpoint_of",
+      "line_checkpoints.fence.intent.checkpoint_id"
+    ],
+    "claims": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "labels": [
+      "a recovery fence checkpoint identity"
+    ]
+  },
+  {
+    "entry": [
+      "adopted",
+      "review_cycles.py:checkpoint_of",
+      "line_checkpoints.fence.intent.exclusion_digest"
+    ],
+    "claims": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "labels": [
+      "a recovery fence exclusion digest"
+    ]
+  },
+  {
+    "entry": [
+      "adopted",
+      "review_cycles.py:checkpoint_of",
+      "line_checkpoints.fence.intent.generation"
+    ],
+    "claims": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "labels": [
+      "a recovery fence generation"
+    ]
+  },
+  {
+    "entry": [
+      "adopted",
+      "review_cycles.py:checkpoint_of",
+      "line_checkpoints.fence.intent.kind"
+    ],
+    "claims": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "labels": [
+      "a recovery fence kind"
+    ]
+  },
+  {
+    "entry": [
+      "adopted",
+      "review_cycles.py:checkpoint_of",
+      "line_checkpoints.fence.intent.line_id"
+    ],
+    "claims": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "labels": [
+      "a recovery fence line identity"
+    ]
+  },
+  {
+    "entry": [
+      "adopted",
+      "review_cycles.py:checkpoint_of",
+      "line_checkpoints.fence.intent.operation_id"
+    ],
+    "claims": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "labels": [
+      "a recovery fence operation"
+    ]
+  },
+  {
+    "entry": [
+      "adopted",
+      "review_cycles.py:checkpoint_of",
+      "line_checkpoints.fence.intent.writer_id"
+    ],
+    "claims": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "labels": [
+      "a recovery fence writer identity"
+    ]
+  },
+  {
+    "entry": [
+      "adopted",
+      "review_cycles.py:freeze_unreleased_recovered_checkpoint",
+      "line_checkpoints"
+    ],
+    "claims": [
+      false,
+      true,
+      false,
+      false
+    ],
+    "labels": []
+  },
+  {
+    "entry": [
+      "adopted",
+      "review_cycles.py:freeze_unreleased_recovered_checkpoint",
+      "line_writers"
+    ],
+    "claims": [
+      false,
+      true,
+      false,
+      false
+    ],
+    "labels": []
+  },
+  {
+    "entry": [
+      "adopted",
+      "review_cycles.py:freeze_unreleased_recovered_checkpoint",
+      "replay"
+    ],
+    "claims": [
+      false,
+      true,
+      false,
+      false
+    ],
+    "labels": []
+  },
+  {
+    "entry": [
+      "adopted",
+      "review_cycles.py:writer_of",
+      "line_writers.based_checkpoint_id"
+    ],
+    "claims": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "labels": [
+      "a persisted line writer"
+    ]
+  },
+  {
+    "entry": [
+      "adopted",
+      "workspaces.py:_retained_line_home",
+      "line_writers"
+    ],
+    "claims": [
+      false,
+      true,
+      false,
+      false
+    ],
+    "labels": []
+  },
+  {
+    "entry": [
+      "caller",
+      "review_cycles.py:freeze_unreleased_recovered_checkpoint",
+      "attempt_id"
+    ],
+    "claims": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "labels": [
+      "a recovered writer's attempt id"
+    ]
+  },
+  {
+    "entry": [
+      "caller",
+      "review_cycles.py:freeze_unreleased_recovered_checkpoint",
+      "candidate"
+    ],
+    "claims": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "labels": [
+      "the unreleased recovery checkpoint identity"
+    ]
+  },
+  {
+    "entry": [
+      "caller",
+      "review_cycles.py:freeze_unreleased_recovered_checkpoint",
+      "candidate.base"
+    ],
+    "claims": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "labels": [
+      "the unreleased recovery candidate base"
+    ]
+  },
+  {
+    "entry": [
+      "caller",
+      "review_cycles.py:freeze_unreleased_recovered_checkpoint",
+      "candidate.head"
+    ],
+    "claims": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "labels": [
+      "the unreleased recovery candidate head"
+    ]
+  },
+  {
+    "entry": [
+      "caller",
+      "review_cycles.py:freeze_unreleased_recovered_checkpoint",
+      "generation"
+    ],
+    "claims": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "labels": [
+      "a recovered writer's assignment generation"
+    ]
+  },
+  {
+    "entry": [
+      "caller",
+      "review_cycles.py:freeze_unreleased_recovered_checkpoint",
+      "profile"
+    ],
+    "claims": [
+      false,
+      true,
+      false,
+      false
+    ],
+    "labels": []
+  },
+  {
+    "entry": [
+      "caller",
+      "review_cycles.py:freeze_unreleased_recovered_checkpoint",
+      "retention_policy_digest"
+    ],
+    "claims": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "labels": [
+      "an unreleased recovery retention policy digest"
+    ]
+  },
+  {
+    "entry": [
+      "caller",
+      "review_cycles.py:freeze_unreleased_recovered_checkpoint",
+      "store"
+    ],
+    "claims": [
+      false,
+      false,
+      false,
+      true
+    ],
+    "labels": []
+  },
+  {
+    "entry": [
+      "caller",
+      "workspaces.py:retained_output_of",
+      "output"
+    ],
+    "claims": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "labels": [
+      "a declared retained output path"
+    ]
+  }
+]

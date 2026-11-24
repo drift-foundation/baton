@@ -1,0 +1,270 @@
+diff --git a/v12/python/DEPLOYMENT.md b/v12/python/DEPLOYMENT.md
+index 75395dcffac781b47ca89d80d22f76643d015a11..df489e2df0f902c7442c9dde0b953cf51e9e5c5a 100644
+--- a/v12/python/DEPLOYMENT.md
++++ b/v12/python/DEPLOYMENT.md
+@@ -1307,10 +1307,16 @@ the bindings it started with; there is no hot reload.
+    the bound and after an ordinary exit, and records whether a scan of the
+    process table then found none; a background process does not outlive the
+    command that started it. A supervisor that started and left no finish
+-   record is an unfinished command. This is a bound on work, not a sandbox:
+-   the supervisor runs as the same user as the command, and a command that
+-   attacks its own supervisor is caught by the unfinished record, by the
+-   provider's own supervisor, by the invocation deadline and by the
++   record is an unfinished command. A command still running when its bound
++   passes is a timeout whatever status it then leaves: the supervisor reads
++   the clock after it sees the command ended and before it believes that
++   ending, and the worker applies its own clock to the supervisor's answer.
++   This is a bound on work, not a sandbox, and it is not a security boundary
++   against the reviewer: the supervisor runs as the same user as the command.
++   A supervisor that is killed leaves a start with no finish, which is
++   counted; a command that rewrites the supervisors' records is NOT detected
++   by them. What still bounds such a command is the provider's own
++   supervisor, the invocation deadline and the
+    container's cessation. A worker image without the supervisor refuses a
+    required review rather than running it unbounded.
+    The provider is told the check's outcome. The report must claim the
+diff --git a/v12/python/tests/job_manager/test_publication_recovery_execution.py b/v12/python/tests/job_manager/test_publication_recovery_execution.py
+index 4db13120674546c7f8ac319e47f12e8f10304264..527de5407cd5cd215bd0eaeaeed1b3764870f5bd 100644
+--- a/v12/python/tests/job_manager/test_publication_recovery_execution.py
++++ b/v12/python/tests/job_manager/test_publication_recovery_execution.py
+@@ -5104,6 +5104,143 @@ class TheReviewersRequiredVerificationIsSupervisedAndBounded(
+                           seen["descendants_gone"]), ("timed-out", None, True))
+         self.assertTrue(self.gone(marker))
+ 
++    # -- the bound dominates a late completion (review 03-03-48Z C2) ---------
++
++    def supervised_under_a_clock(self, release_at, bound=1, late_setup=None):
++        """The REAL supervisor over a REAL child, with only the clock and the
++        moment the child is released under control. The child cannot end
++        until a release file exists; the wait that would observe it first
++        moves the clock to `release_at`, writes the file and reaps the child.
++        Nothing here sleeps to make a point."""
++        import signal
++        from unittest import mock
++
++        import bounded_command
++
++        ledger = os.path.join(self.root, f"ledger-clock-{release_at}")
++        os.makedirs(ledger)
++        release = os.path.join(self.root, f"release-{release_at}")
++        clock, first, actual = [0.0], [True], os.waitpid
++
++        def wait(pid, flags):
++            if pid > 0 and first[0]:
++                first[0] = False
++                clock[0] = release_at
++                open(release, "w").close()
++                return actual(pid, 0)
++            return actual(pid, flags)
++
++        def written(*operands, **named):
++            if late_setup is not None and operands[1].endswith(".started"):
++                clock[0] = late_setup
++            return kept(*operands, **named)
++
++        kept = bounded_command._written
++        handlers = {number: signal.getsignal(number) for number in (
++            signal.SIGTERM, signal.SIGINT, signal.SIGHUP)}
++        child = ("import os, time\n"
++                 f"while not os.path.exists({release!r}): time.sleep(0.001)\n")
++        try:
++            with mock.patch.object(bounded_command.time, "monotonic",
++                                   lambda: clock[0]), \
++                    mock.patch.object(bounded_command.os, "waitpid", wait), \
++                    mock.patch.object(bounded_command, "_written", written):
++                status = bounded_command.supervise(
++                    [sys.executable, "-c", child], label="check",
++                    seconds=bound, deadline=float(bound), ledger=ledger)
++        finally:
++            for number, handler in handlers.items():
++                signal.signal(number, handler)
++            open(release, "w").close()
++        return status, next(iter(bounded_command.account(ledger).values()))
++
++    def test_a_command_that_ends_inside_its_bound_is_its_own_status(self):
++        status, record = self.supervised_under_a_clock(0.5)
++        self.assertEqual((status, record["outcome"], record["status"]),
++                         (0, "exited", 0))
++
++    def test_a_command_that_ends_after_its_bound_is_a_timeout_not_a_success(
++            self):
++        """The child is released only AFTER the clock has crossed the bound.
++        It then exits 0 -- and the supervisor answers 124, records
++        `timed-out` and publishes no status."""
++        import bounded_command
++
++        for release_at in (1.0, 2.0):
++            with self.subTest(release_at=release_at):
++                status, record = self.supervised_under_a_clock(release_at)
++                self.assertEqual(
++                    (status, record["outcome"], record["status"],
++                     record["descendants_gone"]),
++                    (bounded_command.TIMED_OUT, "timed-out", None, True))
++
++    def test_a_bound_that_expires_while_the_supervisor_sets_up_runs_nothing(
++            self):
++        """The allowance is re-read at the launch: the clock crosses the
++        bound while the start record is being left, and no child exists."""
++        import bounded_command
++        from unittest import mock
++
++        with mock.patch.object(bounded_command.os, "fork",
++                               side_effect=AssertionError("launched")):
++            status, record = self.supervised_under_a_clock(
++                0.5, late_setup=1.5)
++        self.assertEqual((status, record["outcome"]),
++                         (bounded_command.TIMED_OUT, "not-run"))
++
++    def test_a_supervisor_that_answers_after_the_deadline_is_not_a_pass(self):
++        """THE ADAPTER'S OWN CLOCK. The supervisor's record says the check
++        exited 0; the adapter's clock says its supervisor answered after the
++        invocation deadline. The check is `timed-out`, never `passed`."""
++        from unittest import mock
++
++        actual, clock, moved = subprocess.Popen, [None], []
++
++        class Waited:
++            def __init__(self, child):
++                self.child = child
++                self.pid = child.pid
++
++            def wait(self, timeout=None):
++                answer = self.child.wait(timeout=timeout)
++                if not moved:
++                    moved.append(True)
++                    clock[0] = time.monotonic() + 7200
++                return answer
++
++        def now():
++            return clock[0] if clock[0] is not None else monotonic()
++
++        monotonic = time.monotonic
++        with mock.patch.object(self.module.subprocess, "Popen",
++                               lambda *a, **k: Waited(actual(*a, **k))), \
++                mock.patch.object(self.module.time, "monotonic", now):
++            seen = self.checked("pass")
++        self.assertEqual((seen["outcome"], seen["status"]),
++                         ("timed-out", None))
++
++    def test_a_provider_whose_supervisor_answers_late_is_a_timeout(self):
++        """The same rule for the provider: a clean exit recorded by its
++        supervisor, observed by the adapter after the one invocation
++        deadline, is a timed-out turn."""
++        from unittest import mock
++
++        monotonic, jump = time.monotonic, [0.0]
++        ran = self.agent._ran_provider
++
++        def late(*operands, **named):
++            answer = ran(*operands, **named)
++            jump[0] = 7200.0
++            return answer
++
++        with mock.patch.object(self.agent, "_ran_provider", late), \
++                mock.patch.object(self.module.time, "monotonic",
++                                  lambda: monotonic() + jump[0]):
++            answer, account = self.provided("pass\n")
++        self.assertEqual(account["provider"]["outcome"], "exited")
++        self.assertEqual((answer["ok"], answer["failure_reason"]),
++                         (False, self.module.PROVIDER_TIMED_OUT))
++
+     def test_a_missing_supervisor_refuses_instead_of_running_unbounded(self):
+         marker = os.path.join(self.root, "ran")
+         self.module.COMMAND_SUPERVISOR = os.path.join(self.root, "absent")
+diff --git a/v12/worker/bounded_command.py b/v12/worker/bounded_command.py
+index 03e5ef9cb8b332cd6b227c9d476dabcd55286091..0ef30d8dcdb66e824b0d04d188b72897252892af 100755
+--- a/v12/worker/bounded_command.py
++++ b/v12/worker/bounded_command.py
+@@ -26,11 +26,13 @@ writes a start record before the command exists and a finish record after its
+ descendants are gone, so a supervisor that was itself killed leaves a start
+ with no finish, which the adapter reads as unfinished rather than as success.
+ 
+-WHAT IT DOES NOT CLAIM. It runs as the same user as the command, so a command
+-that deliberately attacks its own supervisor (kills it, rewrites the ledger)
+-is not prevented here; it is caught by the start-without-finish record, by the
+-outer supervisor the provider runs under, by the invocation deadline and by
+-the container's own cessation. This is a bound on work, not a sandbox.
++WHAT IT DOES NOT CLAIM. It runs as the same user as the command, so it is not
++a security boundary against that command. A supervisor that is KILLED leaves a
++start with no finish, which the adapter counts as unfinished. A command that
++REWRITES the ledger is not detected here at all. What still bounds such a
++command is the outer supervisor the provider runs under, the invocation
++deadline and the container's own cessation. This is a bound on work, not a
++sandbox.
+ 
+ Standard library only: it runs in the worker image beside the adapter.
+ """
+@@ -154,6 +156,16 @@ def supervise(argv, *, label, seconds, deadline, ledger):
+     stop = []
+     for number in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
+         signal.signal(number, lambda received, _frame: stop.append(received))
++    # THE BOUND IS RE-READ AT THE LAUNCH. Adopting descendants and leaving the
++    # start record took time; a command whose allowance ran out during them
++    # is not started on the allowance it had before.
++    if time.monotonic() - began >= allowed:
++        _written(ledger, name + ".json",
++                 dict(record, outcome="not-run", seconds=0.0,
++                      descendants_gone=True))
++        sys.stderr.write("baton: this command was not run: no time remained "
++                         "of the review invocation\n")
++        return TIMED_OUT
+     try:
+         child = os.fork()
+         if child == 0:
+@@ -175,7 +187,16 @@ def supervise(argv, *, label, seconds, deadline, ledger):
+         except ChildProcessError:
+             pid, raw = child, 0
+         if pid:
+-            status = os.waitstatus_to_exitcode(raw)
++            # THE BOUND DOMINATES A LATE COMPLETION (review
++            # 2026-11-24T03-03-48Z C2). The clock is read AFTER the child is
++            # seen ended and before its ending is believed: a command that
++            # was still running when its bound passed did not finish inside
++            # it, whatever status it then left, and that status is not
++            # published. Only an ending observed inside the bound is `exited`.
++            if time.monotonic() - began >= allowed:
++                record["outcome"] = "timed-out"
++            else:
++                status = os.waitstatus_to_exitcode(raw)
+             break
+         if stop:
+             record["outcome"] = "signalled"
+diff --git a/v12/worker/claude_agent.py b/v12/worker/claude_agent.py
+index 6b44eb1f9866cb9ff85c5fc59059e77bf21f78db..6aa6e2bcfbf2986c01727e26d856bd6c6bf8d195 100644
+--- a/v12/worker/claude_agent.py
++++ b/v12/worker/claude_agent.py
+@@ -4536,7 +4536,11 @@ class ClaudeAgent:
+                 scratch=scratch, env=launched, umask=PROVIDER_UMASK)
+             if supervised is not None:
+                 ended = _commands_account(supervised["ledger"])["provider"]
+-                if ended is None or ended["outcome"] == "timed-out":
++                # AND THIS ADAPTER'S OWN CLOCK: a provider whose supervisor
++                # answered after the one invocation deadline is a timeout,
++                # whatever that record says.
++                if ended is None or ended["outcome"] == "timed-out" \
++                        or time.monotonic() > supervised["deadline"]:
+                     raise subprocess.TimeoutExpired(argv, seconds)
+         except subprocess.TimeoutExpired:
+             return {"ok": False, "status": None,
+@@ -5559,12 +5563,19 @@ class ClaudeAgent:
+             except (ProcessLookupError, PermissionError):
+                 pass
+             child.wait()
+-        record["seconds"] = round(time.monotonic() - began, 3)
++        returned = time.monotonic()
++        record["seconds"] = round(returned - began, 3)
+         seen = _commands_account(ledger)["check"]
+         if seen is None:
+             return dict(record, outcome="unsupervised")
+         record["descendants_gone"] = seen["descendants_gone"] is True
+-        if seen["outcome"] == "exited":
++        if returned > deadline:
++            # THIS ADAPTER'S OWN CLOCK, independently of the supervisor's
++            # word (review 2026-11-24T03-03-48Z C2): a check whose supervisor
++            # answered after the invocation deadline did not finish inside
++            # it, and no status it reports is read as a pass.
++            record["outcome"] = "timed-out"
++        elif seen["outcome"] == "exited":
+             record.update(outcome="passed" if seen["status"] == 0
+                           else "failed", status=seen["status"])
+             if seen["status"] == 127 and seen["descendants_ended"] == 0 \

@@ -1,0 +1,8 @@
+{
+  "manifest_sha256": "6816e935776369ac3064b1c53ff71f3fd298cc38f31271d11b2a1596b8962838",
+  "base": "6079ad78345aa87b7148db302d48fb9b1867f940",
+  "verified_packet_count": 76,
+  "verified_paths": 42,
+  "root": "/home/sl/src/baton/work/scratch/w385695-review-385919",
+  "packet_sha256": "3923a303b529c7c169cda5ba99be6279332c2edf64f234d3e179312e332a516e"
+}

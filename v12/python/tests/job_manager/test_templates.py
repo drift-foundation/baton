@@ -1881,12 +1881,22 @@ class TheOutputNamesAgreeWithTheirOwners(unittest.TestCase):
 
     def test_the_two_resolved_kinds_are_the_pools_two_lanes(self):
         """A STAGE IS ALLOCATED BY ITS LANE, and this template's two kinds are
-        exactly the two lanes `scheduler` installs workers for."""
+        exactly the two ORDINARY lanes `scheduler` installs workers for.
+
+        W385695 added a third lane -- the deterministic publication lane
+        `baton.v12.worker-pool/2` declares -- which an ORDINARY template does
+        not name and cannot reach. So the comparison is against the ordinary
+        pair, and the property that matters is asserted directly: each of this
+        template's kinds is routed to a lane of its own name.
+        """
         kinds = tuple(role["kind"]
                       for role in TEMPLATES[IMPLEMENTATION_REVIEW]["roles"])
-        self.assertEqual(kinds, scheduler.LANES)
+        self.assertEqual(kinds, scheduler.ORDINARY_LANES)
+        self.assertEqual(scheduler.LANES,
+                         ("implementation", "publication", "review"))
         for kind in kinds:
             self.assertIn(kind, STAGE_KINDS)
+            self.assertEqual(scheduler.lane_of(kind), kind)
 
 
 if __name__ == "__main__":

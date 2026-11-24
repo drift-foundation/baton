@@ -1,0 +1,1756 @@
+diff --git a/v12/python/DEPLOYMENT.md b/v12/python/DEPLOYMENT.md
+index fe86da5658e0a2376c0ffafcc1eeb17a629613ec..5aee3944c94a932577225a7368a96ef3a2ca10d0 100644
+--- a/v12/python/DEPLOYMENT.md
++++ b/v12/python/DEPLOYMENT.md
+@@ -1257,10 +1257,52 @@ schema, UID/GID 65532, exec-form entry, no provider runtime. No image digest is
+ supplied or certified here; building and selecting one is a separate
+ deployment act.
+ 
+-A recovery's review stage is held to the same Job input identity as its
+-publication stage, so it is admitted only where the Work's configured reviewer
+-is servable under that identity; otherwise the admission stops, reserved and
+-incomplete, naming the review stage.
++A recovery Job is submitted under the ORIGINAL Job's input identity, which is
++what the Work's ordinarily configured reviewer serves; no reviewer is
++reconfigured for a recovery. The publication stage alone is held to its own
++identity (the installed publisher's declarations bound to this recovery's Work
++and original task), recorded on the admission. An instance with no servable
++reviewer stops the admission, reserved and incomplete, naming the review stage.
++
++**The supported sequence, from decision to verdict.** A running manager serves
++the bindings it started with; there is no hot reload.
++
++1. `manager publication-inspect`, then `manager publication-decide --approve`
++   with the exact values the inspection returned. The approval records the
++   decision, admits one linked recovery Job and amends the installed
++   configuration with that Job's binding.
++2. Restart the manager (`just start`). The new incarnation serves the amended
++   configuration. Nothing is lost by the restart: every act below is derived
++   from committed records.
++3. The publisher claims the reused Work, adopts the approved original and
++   answers. The manager measures and records the adoption, freezes and takes
++   custody, and ends the publication by PASSING the Work to the review route.
++4. The hand-off commits and the review gate opens. The Work's ordinary
++   reviewer is offered the review stage and claims it on the review route.
++5. Before the reviewer is started, the development-line owner freezes the
++   approved candidate as a review checkpoint under its recovery fence (DESIGN
++   REC-9, owner clarification 2026-11-23): the original producer never
++   answered and was never released, so the freeze rests on the committed
++   removal of its runtime, no later writer, an unmoved line and the exact
++   approved head and base. The producer's writer is revoked in that operation.
++   A producer that was only stopped (`settle-stopped`) and whose runtime was
++   not removed does not satisfy it; the review start is refused and held.
++6. The reviewer is delivered `recovery-review.json` (the hand-off and its
++   digest) beside the read-only candidate, performs its own verification, and
++   must claim that digest in its report. The verdict is collected by the
++   ordinary review ending. A report that does not claim the digest is held.
++7. `manager publication-status --decision-id …` reports the original failure,
++   the recovery, the custody, the review (stage, reviewer, recorded verdict)
++   and any owner item as separate statements.
++
++**When the review does not conclude.** A recovery cancelled or expired during
++review stops the reviewer through the ordinary cancellation pass. Once the
++reviewer is positively stopped the owner who decided is delivered one
++`publication.review-item`: the published custody and frozen candidate are
++retained, no verdict exists, nothing is retried, and the reviewer's stopped
++runtime remains for the ordinary operator settlement. A review-only
++continuation from a completed publication is not a command of this build; it
++needs a new owner decision.
+ 
+ ### From preparation to an honest final result
+ 
+@@ -1941,15 +1983,13 @@ selection digest. The same decision id with the same operands replays; with
+ different operands it collides. One failed publication has one approved
+ recovery.
+ 
+-**An approval admits nothing in this checkpoint, and says so.** The boundary
+-composes the real owner ports, re-establishes the trust root, reuses the
+-original open Work, and returns a HELD PREREQUISITE naming the publication
+-stage vocabulary (`baton.v12.job-submission/4`), the publication lane
+-(`baton.v12.worker-pool/2`), Job store generation 10, the deterministic
+-publication worker and the enforced `output-publication-review/1` control
+-profile — none of which this build installs. No Job identity is reserved, no
+-binding is published, no submission is recorded and no offer is issued; the
+-review gate is closed and non-runnable. Do not read a returned Job id as a Job:
+-`reserved` is `false`. Ordinary `create`, `submit` and `fresh-attempt` cannot
++**An approval admits one linked recovery Job when the instance can serve it.**
++The boundary composes the real owner ports, re-establishes the trust root and
++reuses the original open Work. With a deterministic publication worker
++installed and a servable reviewer it reserves, submits and binds one recovery
++Job (see "Deterministic publication worker" above for what follows). Without
++them it returns a HELD PREREQUISITE naming what is missing: no Job identity is
++reserved, no binding is published and no offer is issued, and `reserved` is
++`false` — do not read a returned Job id as a Job. Ordinary `create`, `submit` and `fresh-attempt` cannot
+ name the recovery profile, template or stage vocabulary; each is refused by
+ name by the owner that holds it.
+diff --git a/v12/python/REVIEW-CYCLES.md b/v12/python/REVIEW-CYCLES.md
+index 3f955d0545afc2d1ef691c506ad99654485b6154..e019e910cbe8892678f4f0cbc0386638fc995f84 100644
+--- a/v12/python/REVIEW-CYCLES.md
++++ b/v12/python/REVIEW-CYCLES.md
+@@ -139,6 +139,26 @@ restart resumes that checkout and changed recovery operands refuse. Exact
+ operation retries replay, while reuse with changed operands refuses as an
+ operation collision.
+ 
++A checkpoint's fence is one of two kinds, and every reader validates the kind
++it finds against that kind's own committed act (`fence_kind`). The ordinary
++kind is the writer's assignment finalization. The other is the recovery fence
++(`review-line.recovery-fence`, DESIGN REC-9 owner clarification 2026-11-23),
++under which `freeze_unreleased_recovered_checkpoint` freezes the exact
++owner-approved candidate of a writer that was never released because its
++producer faulted at output publication. That operation requires the writer to
++be the attempt's own, still active, on a line still at the checkpoint it was
++granted on; the attempt's runtime positively absent with a settled cleanup and
++exactly one committed removal read back through its own family reader; no
++later writer; and the clean checkout's head equal to the approved candidate
++and its base equal to the line's declared base. One transaction revokes the
++writer (reason `recovered`), writes the fenced `preparing` checkpoint row and
++moves the line to `freezing`; the profile freeze then completes exactly as an
++ordinary one does, and a retry resumes the same checkpoint. A hold changes
++nothing. The recovery fence ends no assignment and installs no gate, is never
++an attempt's own current fence, and is not accepted where the writer's own
++assignment fence is required (provider-context finalization). The released
++case keeps `freeze_recovered_checkpoint` and its committed release.
++
+ After successful ordinary cleanup, eligibility and exact review-ending replay
+ read retained history instead of asking the destroyed runtime to become
+ quiescent. This requires the exact ended attachment, committed verdict and fence,
+diff --git a/v12/python/src/baton_v12/checkpoint_profiles.py b/v12/python/src/baton_v12/checkpoint_profiles.py
+index fe8d1d1f1ef2f04c49f985efe273bb94e8c850d3..ef120b40ebb637101a4f9fccc037985a323a754a 100644
+--- a/v12/python/src/baton_v12/checkpoint_profiles.py
++++ b/v12/python/src/baton_v12/checkpoint_profiles.py
+@@ -425,6 +425,17 @@ class GitCheckpointProfile:
+         self._clean(repository)
+         return {"profile": GIT_PROFILE, "base": base, "head": head}
+ 
++    def head_of(self, repository):
++        """The clean checkout's current commit, read and nothing else.
++
++        W385695 R1. A recovery freeze must know the head it would freeze BEFORE
++        it revokes a writer, and `freeze` retains a reference as it answers.
++        This runs the same two reads `freeze` starts with and writes nothing.
++        """
++        repository = _path(repository, "a private line repository")
++        self._clean(repository)
++        return self._head(repository)
++
+     def freeze(self, repository, *, line_id, revision, declared_base):
+         repository = _path(repository, "a private line repository")
+         base = check_declared_base(declared_base)
+diff --git a/v12/python/src/baton_v12/job_manager/publication_execution.py b/v12/python/src/baton_v12/job_manager/publication_execution.py
+index eba956b0d815d35257d67dbff0c1b9c5b12b44ab..57936bcabcf23d4b593f21158907257fd7480c47 100644
+--- a/v12/python/src/baton_v12/job_manager/publication_execution.py
++++ b/v12/python/src/baton_v12/job_manager/publication_execution.py
+@@ -148,6 +148,8 @@ __all__ = ["PUBLICATION_SEAM", "HOST_OUTPUT", "HOST_EXCLUSION",
+            "SETTLED_KIND", "SETTLED_MEMBERS", "settlement_of",
+            "OWNER_ITEM_KIND", "OWNER_ITEM_MEMBERS", "owner_item_of",
+            "owner_items_of", "settle",
++           "REVIEW_ITEM_KIND", "REVIEW_ITEM_MEMBERS", "REVIEW_OUTCOMES",
++           "review_item_of", "review_stage_of", "deliver_review_item",
+            "ACTS", "ACT_OUTCOMES"]
+ 
+ 
+@@ -439,6 +441,24 @@ def handoff_operation_id(job_id):
+     return _operation_id(HANDOFF_KIND, job_id)
+ 
+ 
++# THE OWNER ITEM OF A PUBLISHED RECOVERY WHOSE REVIEW DID NOT REACH A VERDICT.
++# A different record from `publication.owner-item`, because it says a
++# different thing: the publication SUCCEEDED and is in custody, and what ended
++# was the independent review. Contract section "Limits": a failed or expired
++# recovery retains all evidence and holds an owner item with no automatic
++# retry, and a later review-only continuation from a completed publication is
++# NOT a command of this slice -- so the item says exactly that.
++REVIEW_ITEM_KIND = "publication.review-item"
++REVIEW_OUTCOMES = ("review-failed", "review-expired", "review-cancelled")
++REVIEW_ITEM_MEMBERS = ("decision_id", "job_id", "prior_job_id", "outcome",
++                       "cause", "destination", "evidence", "remaining",
++                       "continuation", "automatic_retry", "delivered_at")
++
++
++def review_item_operation_id(job_id):
++    return _operation_id(REVIEW_ITEM_KIND, job_id)
++
++
+ def _committed(store, kind, operation_id, members, *, named=None, value=None):
+     """One committed record of this store's journal, PROVED to be the one
+     asked for. `publication_recovery._committed`'s rule: a signature is not
+@@ -539,6 +559,12 @@ def handoff_of(store, job_id):
+                       HANDOFF_MEMBERS, named="job_id", value=job_id)
+ 
+ 
++def review_item_of(store, job_id):
++    return _committed(store, REVIEW_ITEM_KIND,
++                      review_item_operation_id(job_id), REVIEW_ITEM_MEMBERS,
++                      named="job_id", value=job_id)
++
++
+ # -- 3. the admitted recovery this act is about ------------------------------
+ 
+ def _admitted(store, decision_id):
+@@ -2504,17 +2530,208 @@ def _delivered(store, held, ended, settled, intent, at):
+         lambda connection: record)
+ 
+ 
++# -- 10b. the review this recovery released ----------------------------------
++
++def review_stage_of(store, held, at=None, *, control=None):
++    """WHERE THE RECOVERY'S REVIEW STAGE STANDS, from this store's own rows.
++
++    A READ. `state` is one of: `not-started` (no episode was ever opened),
++    `in-progress` (an episode is open), or the terminal state its last episode
++    ended in. `ended` is set only for a review that ENDED WITHOUT A VERDICT
++    PATH OF ITS OWN -- an exceptional ending, or a recovery whose own control
++    closed before any episode opened -- and names what closed it. A completed
++    or changes-requested review is the reviewer's own outcome and is read from
++    the review owner, never classified here.
++    """
++    stage_id = held["review_stage_id"]
++    history = episodes.episodes_of(store, stage_id)
++    last = history[-1] if history else None
++    state = ("not-started" if last is None else
++             "in-progress" if last["ended_state"] is None else
++             last["ended_state"])
++    at = store._now() if at is None else at
++    own = cancellation.fenced(store._connection, held["job_id"])
++    closed = job_control.closed_of(store, held["job_id"], at, any_stage=True)
++    closure = None
++    if own is not None:
++        expired = own.get("trigger", "operator") != "operator"
++        closure = {"outcome": "review-expired" if expired
++                   else "review-cancelled",
++                   "cause": f"this recovery was "
++                            f"{'expired' if expired else 'cancelled'} at "
++                            f"{own['requested_at']} ({own['reason']})"}
++    elif closed is not None and closed["cause"] == "deadline":
++        first = closed["first"]
++        closure = {"outcome": "review-expired",
++                   "cause": f"this recovery reached its {first['trigger']} "
++                            f"at {first['deadline_at']}"}
++    ended = None
++    if state == "exceptional":
++        ended = closure or {
++            "outcome": "review-failed",
++            "cause": "the review stage ended exceptionally with no verdict"}
++    elif state in ("not-started", "in-progress") and closure is not None:
++        # CLOSED BY THIS RECOVERY'S OWN CONTROL. An open episode is not
++        # reopened by anything after the fence; whether its reviewer has
++        # positively stopped, and whether it left a verdict of its own, are
++        # the control store's facts and `deliver_review_item` asks them.
++        ended = closure
++    elif state == "in-progress" and control is not None \
++            and last["attempt_id"] is not None:
++        # A REVIEW THAT COULD NOT BE STARTED. The deployment's post-claim
++        # preparation refused -- for a recovery, typically the line owner
++        # holding the recovered checkpoint -- and journalled that as this
++        # attempt's ending. The episode stays open in this store, so the
++        # Worker Manager's own record is what says the review is over; it is
++        # read only where a caller supplied that store.
++        from ..worker_manager import attempt_preparation_failure_of
++
++        failed = attempt_preparation_failure_of(control, last["attempt_id"])
++        if failed is not None:
++            ended = {"outcome": "review-failed",
++                     "cause": "the review could not be started: its "
++                              "preparation was refused and recorded as this "
++                              "attempt's ending; read the attempt for the "
++                              "typed refusal"}
++    return {"stage_id": stage_id,
++            "episode": None if last is None else last["episode"],
++            "attempt_id": None if last is None else last["attempt_id"],
++            "state": state, "ended": ended}
++
++
++def _review_verdict(seam, state, attempt_id):
++    """The review owner's committed verdict act for this attempt, or `None`."""
++    from ..worker_manager import review_cycles
++
++    if state is None or state.get("assignment") is None:
++        return None
++    attachment = review_cycles.review_for_attempt(
++        seam["control"], attempt_id=attempt_id,
++        generation=state["assignment"]["generation"])
++    if attachment is None:
++        return None
++    act = seam["control"].operation_record(
++        review_cycles.VERDICT_KIND + ":" + attachment["attachment_id"])
++    if act is None or act["state"] != "committed":
++        return None
++    return act
++
++
++def deliver_review_item(store, seam, *, decision_id, now=None):
++    """ACT SIX: tell the owner a PUBLISHED recovery's review did not conclude.
++
++    REPLAYS ITS COMMITTED ITEM. Refuses -- held, changing nothing -- while the
++    review is still open, has a verdict path of its own, or its attempt's
++    runtime is not yet positively gone: an item is not delivered as settled
++    over a reviewer that may still be running.
++
++    IT STARTS NOTHING. No retry, no second review, no analysis and no
++    re-admission; the published custody and the frozen candidate checkpoint
++    stay exactly as they are, and the item says which continuation this build
++    does not offer.
++    """
++    taken = check_publication_seam(seam)
++    _agreeing_instance(taken, what="this review item")
++    held = _admitted(store, decision_id)
++    job_id = held["job_id"]
++    delivered = review_item_of(store, job_id)
++    if delivered is not None:
++        return delivered
++    handoff = handoff_of(store, job_id)
++    if handoff is None:
++        _refuse(f"recovery {name_value(job_id)} handed nothing to review; "
++                f"a publication that did not complete is settled by its own "
++                f"act")
++    at = boundaries.instant(now if now is not None else store._now(),
++                            "a review item instant")
++    review = review_stage_of(store, held, at, control=taken["control"])
++    if review["ended"] is None:
++        _refuse(f"recovery {name_value(job_id)}'s review is "
++                f"{name_value(review['state'])}; an item is delivered only "
++                f"for a review that ended without a verdict",
++                category="runtime-observation", code="quiescence-unknown")
++    remaining = []
++    answered = None
++    if review["attempt_id"] is not None:
++        state = _runtime_of(taken, review["attempt_id"])
++        started = state is not None and state["runtime_id"] is not None
++        gone = started and state["execution_runtime"] == "destroyed" \
++            and state["cleanup"] in ("complete", "retained")
++        if started and not gone \
++                and state["execution_runtime"] != "quiescent":
++            _refuse(f"review attempt {name_value(review['attempt_id'])}'s "
++                    f"runtime is recorded "
++                    f"{name_value(state['execution_runtime'])} with cleanup "
++                    f"{name_value(state['cleanup'])}; the review's ending is "
++                    f"reported to the owner once its execution has "
++                    f"positively ceased",
++                    category="runtime-observation", code="quiescence-unknown")
++        if _review_verdict(taken, state, review["attempt_id"]) is not None:
++            _refuse(f"review attempt {name_value(review['attempt_id'])} "
++                    f"recorded a verdict; a review with its own outcome is "
++                    f"read from the review owner and is not reported as one "
++                    f"that did not conclude")
++        if started and not gone:
++            remaining.append(
++                "the review attempt's runtime is stopped and retained; its "
++                "settlement is the ordinary supported operator settlement "
++                "of a stopped attempt")
++        if not started and state is not None \
++                and state.get("assignment") is not None:
++            remaining.append(
++                "the review attempt claimed the Work and started no runtime; "
++                "ending that assignment is the ordinary supported settlement "
++                "of an unstarted attempt")
++        frozen = frozen_output_of(taken["control"], review["attempt_id"])
++        answered = None if frozen is None else frozen["result_id"]
++    decision = publication_recovery.decision_of(store, decision_id)
++    record = {
++        "decision_id": decision_id, "job_id": job_id,
++        "prior_job_id": held["prior_job_id"],
++        "outcome": review["ended"]["outcome"],
++        "cause": review["ended"]["cause"],
++        "destination": ((decision or {}).get("owner") or {}).get("endpoint"),
++        "evidence": {
++            "original": "the failed Job's retained output, unchanged",
++            "publication": {
++                "attempt_id": handoff["publication_attempt_id"],
++                "result_id": handoff["custody"]["result_id"],
++                "manifest_digest": handoff["custody"]["manifest_digest"],
++                "artifact_id": handoff["custody"]["artifact_id"],
++                "state": "published and in custody; retained"},
++            "candidate": {"base": handoff["candidate"]["base"],
++                          "head": handoff["candidate"]["head"]},
++            "handoff_digest": digest(handoff),
++            "review": {"stage_id": review["stage_id"],
++                       "episode": review["episode"],
++                       "attempt_id": review["attempt_id"],
++                       "answered_result_id": answered,
++                       "verdict": None}},
++        "remaining": remaining,
++        "continuation": "a review-only continuation from this completed "
++                        "publication is not a supported command of this "
++                        "build; the custody above is retained and a new "
++                        "owner decision is required",
++        "automatic_retry": False,
++        "delivered_at": at}
++    return store.transact(
++        review_item_operation_id(job_id), REVIEW_ITEM_KIND,
++        job_signature(REVIEW_ITEM_KIND, {"decision_id": decision_id,
++                                         "job_id": job_id}),
++        lambda connection: record)
++
++
+ # -- 11. the level-triggered pass --------------------------------------------
+ #
+ # WHICH ACT ONE TICK PERFORMS, DERIVED FROM DURABLE ROWS and never from a
+ # process's memory. `retained_verification.advance_verification`'s shape and
+ # its reason: a restarted manager must owe exactly what the records say is
+ # owed, and a pass that remembered where it was would owe something else.
+-ACTS = ("stage", "publish", "custody", "hand-off", "settle")
++ACTS = ("stage", "publish", "custody", "hand-off", "settle", "review-item")
+ ACT_OUTCOMES = ("performed", "held", "refused")
+ 
+ 
+-def publication_readiness(store, decision_id):
++def publication_readiness(store, decision_id, *, control=None):
+     """WHICH ACT THIS RECOVERY OWES NEXT, and what has already happened.
+ 
+     THE WHOLE ANSWER IS DERIVED, so the same question asked by a status
+@@ -2554,6 +2771,16 @@ def publication_readiness(store, decision_id):
+         owed = "custody"
+     elif handoff is None:
+         owed = "hand-off"
++    review = None
++    review_item = None
++    if handoff is not None:
++        # AFTER THE HAND-OFF THE REVIEW IS THE ORDINARY PIPELINE'S, with one
++        # thing still owed here: a review that ENDED WITHOUT A VERDICT is
++        # reported to the owner who decided this recovery, once.
++        review = review_stage_of(store, held, control=control)
++        review_item = review_item_of(store, job_id)
++        if review["ended"] is not None and review_item is None:
++            owed = "review-item"
+     # WHAT IS KNOWN ABOUT THE RUNTIME, said so a reader cannot take the last
+     # recorded axis for current knowledge (review 2026-11-23T20-28-00Z). A
+     # failed observation stands until a settlement or a result supersedes it.
+@@ -2588,7 +2815,18 @@ def publication_readiness(store, decision_id):
+                 "outcome": item["outcome"],
+                 "delivered_at": item["delivered_at"],
+                 "remaining": list(item["remaining"])},
+-            "review": "runnable" if handoff is not None else "blocked",
++            "review": ("blocked" if handoff is None else
++                       "runnable" if review["state"] in ("not-started",
++                                                         "in-progress")
++                       and review["ended"] is None else
++                       review["ended"]["outcome"] if review["ended"]
++                       is not None else "ended: " + review["state"]),
++            "review_stage": review,
++            "review_item": None if review_item is None else {
++                "destination": review_item["destination"],
++                "outcome": review_item["outcome"],
++                "delivered_at": review_item["delivered_at"],
++                "continuation": review_item["continuation"]},
+             "owed": owed,
+             "original_job": "failed; unchanged by this recovery",
+             "detail": ("the published candidate is in custody and the review "
+@@ -2629,7 +2867,8 @@ def advance_publication(store, seam, *, now=None):
+         decision_id = admitted["decision_id"]
+         job_id = admitted["job_id"]
+         try:
+-            owed = publication_readiness(store, decision_id)["owed"]
++            owed = publication_readiness(store, decision_id,
++                                         control=taken["control"])["owed"]
+         except ContractRefusal as refusal:                # pragma: no cover
+             acts.append(_act(decision_id, job_id, "stage", "refused",
+                              {"category": refusal.category,
+@@ -2639,7 +2878,8 @@ def advance_publication(store, seam, *, now=None):
+             continue
+         performer = {"stage": stage_input, "publish": publish,
+                      "custody": take_custody, "hand-off": hand_off,
+-                     "settle": settle}[owed]
++                     "settle": settle,
++                     "review-item": deliver_review_item}[owed]
+         try:
+             answer = performer(store, taken, decision_id=decision_id, now=at)
+         except ContractRefusal as refusal:
+diff --git a/v12/python/src/baton_v12/worker_manager/provider_context.py b/v12/python/src/baton_v12/worker_manager/provider_context.py
+index 3d6dae9f3f922edfd83daf26c2c9395330b377aa..f7d5aae98a169cd7c9215a1da1960ffdb670ea7a 100644
+--- a/v12/python/src/baton_v12/worker_manager/provider_context.py
++++ b/v12/python/src/baton_v12/worker_manager/provider_context.py
+@@ -1038,6 +1038,11 @@ def _finalize_context_use(control, jobs, authority, *, attempt_id, storage, rece
+     checkpoint = review_cycles.checkpoint_of(control, checkpoint_reader(attempt_id, writer["writer_id"]))
+     if writer["state"] != "revoked" or checkpoint["writer_id"] != writer["writer_id"] or checkpoint["state"] != "frozen" or checkpoint["fence"] is None:
+         _refuse("old writer checkpoint is not fenced")
++    if review_cycles.fence_kind(checkpoint["fence"]) != review_cycles.ASSIGNMENT_FENCE_KIND:
++        # W385695 R1: a recovery fence proves a never-released writer's runtime
++        # absent for REVIEW of its candidate. It is not the writer's own
++        # completed assignment fence, and context finalization reads only that.
++        _refuse("old writer checkpoint carries a recovery fence, not its own assignment fence")
+     try:
+         receipt_digest = _receipt(control, admitted, receipt_reader)
+     except ContractRefusal:
+diff --git a/v12/python/src/baton_v12/worker_manager/review_cycles.py b/v12/python/src/baton_v12/worker_manager/review_cycles.py
+index 51da684f07e5035ea7d85fed31bb66d058d639a9..5efcb792f6630b30abbbc97025c197a295942197 100644
+--- a/v12/python/src/baton_v12/worker_manager/review_cycles.py
++++ b/v12/python/src/baton_v12/worker_manager/review_cycles.py
+@@ -27,7 +27,7 @@ __all__ = ["ABANDONED_CORRECTION", "ABANDONED_CORRECTION_SCHEMA",
+            "RESTORE_KIND", "VERDICT_KIND",
+            "abandoned_correction_of", "attach_review", "audit_checkpoint",
+            "checkpoint_of",
+-           "create_line", "freeze_checkpoint", "freeze_recovered_checkpoint", "grant_writer",
++           "create_line", "fence_kind", "freeze_checkpoint", "freeze_recovered_checkpoint", "freeze_unreleased_recovered_checkpoint", "grant_writer",
+            "release_writer",
+            "RESTORE_SETTLED_KIND", "settle_restoration_execution",
+            "integration_checkpoint", "line_of", "line_status",
+@@ -1442,6 +1442,13 @@ def _fence(value, what):
+ 
+ def _committed_fence(store, fence, what):
+     held = _fence(fence, what)
++    # THE FENCE'S KIND IS READ, NOT ASSUMED (W385695 R1, DESIGN REC-9). Every
++    # reader of a checkpoint fence comes through here, and a fence is evidence
++    # under exactly one of two proofs, each validated by its own rule against
++    # its own committed act: the writer's assignment finalization below, or
++    # the recovery act a never-released writer's recovered checkpoint carries.
++    if fence_kind(held) == RECOVERY_FENCE_KIND:
++        return _committed_recovery_fence(store, held, what), held["intent"]
+     intent = attempts.adopt_finalization_record(held["intent"])
+     operation_id = "attempt.finalize-quiescent:" + digest({
+         "attempt_id": intent["attempt_id"],
+@@ -1462,6 +1469,11 @@ def _committed_fence(store, fence, what):
+ 
+ 
+ def _current_fence(store, attempt, fence, what):
++    if fence_kind(_fence(fence, what)) != ASSIGNMENT_FENCE_KIND:
++        # A RECOVERY FENCE ENDS NO ASSIGNMENT: it is never an attempt's own
++        # current fence, whatever attempt is asked about.
++        raise ContractRefusal("integrity", "schema",
++                              f"{what} is a recovery fence, not an attempt's committed assignment fence")
+     held, intent = _committed_fence(store, fence, what)
+     assignment = intent["assignment"]
+     current = {"participant": attempt["assignment_participant"],
+@@ -1477,6 +1489,82 @@ def _current_fence(store, attempt, fence, what):
+     return held
+ 
+ 
++ASSIGNMENT_FENCE_KIND = "attempt.finalize-quiescent"
++RECOVERY_FENCE_KIND = "review-line.recovery-fence"
++RECOVER_WRITER_KIND = "review-line.recover-writer"
++RECOVERED_REVOCATION = "recovered"
++_RECOVERY_INTENT = ("kind", "operation_id", "writer_id", "line_id",
++                    "checkpoint_id", "attempt_id", "generation",
++                    "based_checkpoint_id", "candidate", "exclusion_digest")
++_RECOVERY_FENCED = ("kind", "revoked_at", "gate")
++
++
++def fence_kind(record):
++    """WHICH PROOF a checkpoint's fence is, for a reader that must say.
++
++    W385695 R1. Two kinds exist and no reader may treat one as the other: the
++    writer's committed assignment fence (`ASSIGNMENT_FENCE_KIND`), and the
++    recovery fence (`RECOVERY_FENCE_KIND`) under which the line owner froze an
++    owner-approved recovered candidate for a writer that was never released.
++
++    THE ENVELOPE IS THE COLUMN'S OWN CONTRACT -- `intent` and `fenced`, which
++    `LINE_CHECKPOINT_COLUMNS` and `_fence` both hold every checkpoint fence to
++    -- and the KIND is what the intent says it is. An assignment intent is the
++    closed `attempt.finalize-intent` document, which has no `kind` member and
++    refuses one; a recovery intent is the closed document below, which names
++    its kind and is refused by the finalization reader. So neither can be
++    read as the other, and a document of neither shape refuses.
++    """
++    if type(record) is not dict or set(record) != {"intent", "fenced"}:
++        raise ContractRefusal("integrity", "schema",
++                              "a checkpoint fence is of no kind this build reads")
++    intent = record["intent"]
++    if type(intent) is dict and intent.get("kind") == RECOVERY_FENCE_KIND:
++        return RECOVERY_FENCE_KIND
++    return ASSIGNMENT_FENCE_KIND
++
++
++def _recovery_fence(value, what):
++    taken = _fence(value, what)
++    intent = boundaries.document(taken["intent"], what + "'s recovery intent",
++                                 required=_RECOVERY_INTENT)
++    fenced = boundaries.document(taken["fenced"], what + "'s recovery record",
++                                 required=_RECOVERY_FENCED)
++    if intent["kind"] != RECOVERY_FENCE_KIND or fenced["kind"] != RECOVERY_FENCE_KIND \
++            or fenced["gate"] is not None:
++        raise ContractRefusal("integrity", "schema",
++                              f"{what} is not a recovery fence")
++    boundaries.text(intent["operation_id"], what + "'s operation")
++    candidate = boundaries.document(intent["candidate"], what + "'s candidate",
++                                    required=("base", "head"))
++    for key in ("base", "head"):
++        boundaries.text(candidate[key], what + "'s candidate " + key)
++    return taken
++
++
++def _committed_recovery_fence(store, fence, what, *, writer_id=None,
++                              checkpoint_id=None):
++    """A recovery fence is evidence only as the committed act that wrote it.
++
++    The act's identity is derived from the writer the fence itself names, the
++    committed result must be this exact document, and a caller holding the
++    row the fence was read from binds it to that row's writer and checkpoint.
++    """
++    held = _recovery_fence(fence, what)
++    intent = held["intent"]
++    if intent["operation_id"] != RECOVER_WRITER_KIND + ":" + intent["writer_id"] \
++            or (writer_id is not None and intent["writer_id"] != writer_id) \
++            or (checkpoint_id is not None and intent["checkpoint_id"] != checkpoint_id):
++        raise ContractRefusal("integrity", "schema",
++                              f"{what} belongs to another writer or checkpoint")
++    committed = _committed_act(store, RECOVER_WRITER_KIND,
++                               intent["operation_id"], what)
++    if committed != held:
++        raise ContractRefusal("integrity", "schema",
++                              f"{what} has no exact committed recovery act")
++    return held
++
++
+ def _review_result(value):
+     taken = boundaries.document(
+         value, "a frozen review result",
+@@ -2205,6 +2293,208 @@ def freeze_recovered_checkpoint(store, *, attempt_id, generation, profile, candi
+     return result
+ 
+ 
++def _recovery_exclusion(store, attempt_id, retention_policy_digest, what):
++    """POSITIVE ABSENCE of one attempt's runtime, from the control journal.
++
++    Both statements are required and neither stands in for the other: the
++    attempt's own runtime axis says destroyed with a settled cleanup, AND
++    exactly the committed removal that says so is read back through its own
++    family reader. A column alone is a value a store edit reaches; a missing,
++    failed or uncertain removal supplies no absence, and the freeze holds.
++    """
++    from . import deadlines
++
++    state = attempts.attempt_runtime_of(store, attempt_id)
++    if state is None or state["execution_runtime"] != "destroyed" \
++            or state["cleanup"] not in ("complete", "retained"):
++        raise ContractRefusal(
++            "runtime-observation", "quiescence-unknown",
++            f"{what} is held: attempt {name_value(attempt_id)}'s runtime is "
++            f"recorded {name_value((state or {}).get('execution_runtime'))} "
++            f"with cleanup {name_value((state or {}).get('cleanup'))}; a "
++            f"never-released writer is recovered only once its runtime is "
++            f"positively absent")
++    proofs = []
++    for family, reader in (("abandoned", intake.abandonment_cleanup_of),
++                           ("ordinary", intake.cleanup_of),
++                           ("deadline", deadlines.deadline_cleanup_of)):
++        try:
++            proof = reader(store, attempt_id=attempt_id,
++                           retention_policy_digest=retention_policy_digest)
++        except ContractRefusal as refusal:
++            # THE DEADLINE READER REFUSES, RATHER THAN ANSWERING ABSENCE, for
++            # an attempt no deadline ever ended: that is "not this family"
++            # and nothing else. Every other refusal is a record that exists
++            # and cannot be read, and holds.
++            if family == "deadline" and (refusal.category, refusal.code) \
++                    == ("refused", "precondition"):
++                continue
++            raise ContractRefusal(
++                "runtime-observation", "quiescence-unknown",
++                f"{what} is held: attempt {name_value(attempt_id)}'s "
++                f"{family} cleanup record cannot be read as evidence "
++                f"({refusal.code})") from refusal
++        if proof is not None:
++            proofs.append((family, proof))
++    if len(proofs) != 1:
++        raise ContractRefusal(
++            "runtime-observation", "quiescence-unknown",
++            f"{what} is held: attempt {name_value(attempt_id)} has "
++            f"{len(proofs)} committed runtime removals on record and exactly "
++            f"one is required")
++    family, proof = proofs[0]
++    return digest({"family": family, "proof": proof})
++
++
++def freeze_unreleased_recovered_checkpoint(store, *, attempt_id, generation,
++                                           profile, candidate,
++                                           retention_policy_digest):
++    """Freeze the owner-approved recovered candidate of a NEVER-RELEASED writer.
++
++    W385695 R1 (owner, M385915; DESIGN REC-9 clarification). A producer whose
++    output publication failed never answered: it has no disposition, no
++    release and no assignment fence, and its writer grant is still the line's
++    active one. `freeze_recovered_checkpoint` proves a committed release and
++    cannot serve it. This is the one other proof under which a line checkpoint
++    may be frozen, and it is narrower, not looser:
++
++      the writer is THIS attempt's, at this generation, still `active`, and
++        the line is still `writing` at the checkpoint that writer was granted
++        on;
++      the attempt's runtime is positively absent with a settled cleanup, read
++        from this store's own committed removal (`_recovery_exclusion`);
++      no later writer was ever granted on the line;
++      the frozen head equals the approved candidate's and its base equals the
++        line's declared base.
++
++    ONE OWNER OPERATION revokes the writer and establishes the recovery fence
++    and its checkpoint row, under the store's write lock, with every mutable
++    fact re-decided inside it. The fence is its own kind, journalled as its
++    own act, and `checkpoint_of` validates it by that kind. Nothing is asked
++    of the Authority: the assignment's ending stays where it already is, and
++    no disposition is recorded for the producer. A retry returns the same
++    committed checkpoint; unknown or conflicting evidence refuses with nothing
++    changed.
++    """
++    profile_name = _profile(profile, ("freeze", "validate", "head_of"))
++    what = "a recovered checkpoint for a never-released writer"
++    candidate = boundaries.document(candidate, "the recovery checkpoint identity", required=("base", "head"))
++    for key in ("base", "head"):
++        boundaries.text(candidate[key], "the approved candidate " + key)
++    boundaries.text(retention_policy_digest, "a retention policy digest")
++    writer = writer_for_attempt(store, attempt_id=attempt_id, generation=generation)
++    if writer is None:
++        raise ContractRefusal("refused", "precondition", f"{what} has no original writer")
++    writer_id = writer["writer_id"]
++    line = line_of(store, writer["line_id"])
++    if line["profile_name"] != profile_name:
++        raise ContractRefusal("policy", "profile-uncertified",
++                              "the line and checkpoint profile do not match")
++    if line["declared_base"] != candidate["base"]:
++        raise ContractRefusal("integrity", "digest",
++                              f"{what} names a base that is not the line's declared base")
++    operation_id = RECOVER_WRITER_KIND + ":" + writer_id
++    operands = {"writer_id": writer_id, "generation": generation,
++                "line_id": line["line_id"], "candidate": candidate}
++    signature = manager_signature(RECOVER_WRITER_KIND, operands)
++    # THE REPLAY IS ASKED BEFORE ANY MUTABLE FACT IS PROVED, `release_writer`'s
++    # own rule: a recovery that committed answers without re-proving a line it
++    # has itself moved on.
++    found, fenced = store.replay(operation_id, signature, kind=RECOVER_WRITER_KIND)
++    if not found:
++        if store.operation_record("review-line.release-writer:" + writer_id) is not None:
++            raise ContractRefusal("refused", "precondition",
++                                  f"{what} is refused: this writer was released, and a released writer is recovered under its release")
++        if writer["state"] != "active" or line["state"] != "writing" \
++                or line["current_checkpoint_id"] != writer["based_checkpoint_id"]:
++            raise ContractRefusal(
++                "refused", "precondition",
++                f"{what} is held: the writer is {name_value(writer['state'])} and "
++                f"the line is {name_value(line['state'])}; only the line this "
++                f"writer still holds, at the checkpoint it was granted on, is recovered")
++        exclusion = _recovery_exclusion(store, attempt_id, retention_policy_digest, what)
++        # THE HEAD THE FREEZE WOULD TAKE, READ BEFORE THE WRITER IS REVOKED.
++        # The object is proved against the durable row first, as the freeze
++        # itself does; a head that is not the approved candidate's holds with
++        # the line exactly as it was.
++        proved = _consumable_line(store, line["line_id"])
++        from ..source_profiles.checkout import ProfileRefusal
++        try:
++            head = profile.head_of(proved["line_path"])
++        except ProfileRefusal as refusal:
++            # A LINE THAT IS NOT A CLEAN COMMITTED TREE is a line that moved
++            # after its writer stopped; held as this owner's typed refusal so
++            # a serving tick contains it.
++            raise ContractRefusal("integrity", "digest",
++                                  f"{what} is held: the line cannot be read as a clean committed candidate") from refusal
++        if head != candidate["head"]:
++            raise ContractRefusal("integrity", "digest",
++                                  f"{what} is held: the line is not at the approved candidate")
++        revision = line["revision"] + 1
++        checkpoint_id = _id("checkpoint", {"line_id": line["line_id"], "revision": revision})
++
++        def act(connection):
++            current = writer_of(store, writer_id)
++            held = line_of(store, line["line_id"])
++            if current["state"] != "active" or held["state"] != "writing" \
++                    or held["current_checkpoint_id"] != current["based_checkpoint_id"] \
++                    or held["revision"] != line["revision"]:
++                raise ContractRefusal("stale-assignment", "generation",
++                                      f"{what} is held: the line moved while this recovery was being decided")
++            if connection.execute(
++                    "SELECT 1 FROM line_writers WHERE line_id = ? AND writer_id != ? "
++                    "AND (state = 'active' OR granted_at > ? OR (granted_at = ? "
++                    "AND assignment_generation > ?)) LIMIT 1",
++                    (held["line_id"], writer_id, current["granted_at"],
++                     current["granted_at"], current["assignment_generation"])).fetchone():
++                raise ContractRefusal("refused", "precondition",
++                                      f"{what} is held: another writer has used the line")
++            if connection.execute("SELECT 1 FROM line_checkpoints WHERE writer_id = ? OR checkpoint_id = ?",
++                                  (writer_id, checkpoint_id)).fetchone():
++                raise ContractRefusal("refused", "precondition",
++                                      f"{what} is held: the writer already has a checkpoint")
++            # THE RUNTIME AXIS AGAIN, UNDER THE LOCK: the proof above was taken
++            # before it and a check that is not in the write is two acts.
++            state = attempts.attempt_runtime_of(store, attempt_id)
++            if state is None or state["execution_runtime"] != "destroyed" \
++                    or state["cleanup"] not in ("complete", "retained"):
++                raise ContractRefusal("runtime-observation", "quiescence-unknown",
++                                      f"{what} is held: the runtime is no longer recorded absent")
++            now = store._now()
++            fence = {"intent": {"kind": RECOVERY_FENCE_KIND, "operation_id": operation_id,
++                                "writer_id": writer_id, "line_id": held["line_id"],
++                                "checkpoint_id": checkpoint_id,
++                                "attempt_id": attempt_id, "generation": generation,
++                                "based_checkpoint_id": current["based_checkpoint_id"],
++                                "candidate": candidate, "exclusion_digest": exclusion},
++                     "fenced": {"kind": RECOVERY_FENCE_KIND, "revoked_at": now, "gate": None}}
++            connection.execute(
++                "UPDATE line_writers SET state = 'revoked', revoked_at = ?, "
++                "revocation_reason = ? WHERE writer_id = ? AND state = 'active'",
++                (now, RECOVERED_REVOCATION, writer_id))
++            connection.execute(
++                "INSERT INTO line_checkpoints (checkpoint_id, writer_id, line_id, revision, "
++                "profile_name, state, path_set_digest, fence, fence_digest, prepared_at) "
++                "VALUES (?, ?, ?, ?, ?, 'preparing', NULL, ?, ?, ?)",
++                (checkpoint_id, writer_id, held["line_id"], revision, profile_name,
++                 canonical_text(fence), digest(fence), now))
++            connection.execute("UPDATE review_lines SET state = 'freezing' "
++                               "WHERE line_id = ? AND state = 'writing'", (held["line_id"],))
++            return fence
++
++        fenced = store.transact(operation_id, RECOVER_WRITER_KIND, signature, act)
++    _committed_recovery_fence(store, fenced, what, writer_id=writer_id)
++    held = checkpoint_of(store, fenced["intent"]["checkpoint_id"])
++    if held["writer_id"] != writer_id or held["fence"] != fenced:
++        raise ContractRefusal("integrity", "schema", f"{what}'s checkpoint row does not carry its committed recovery fence")
++    result = _freeze_checkpoint(store, writer_id=writer_id, generation=generation,
++                                profile=profile, port=None,
++                                _recovery={"release": None, "candidate": candidate})
++    if result["fence"] != fenced or any(result["evidence"][key] != candidate[key] for key in ("base", "head")):
++        raise ContractRefusal("integrity", "digest", "recovery checkpoint replay names another candidate or fence")
++    return result
++
++
+ def freeze_checkpoint(store, *, writer_id, generation, profile, port):
+     """Revoke and authority-fence the quiescent writer before freezing."""
+     return _freeze_checkpoint(store, writer_id=writer_id, generation=generation,
+diff --git a/v12/python/tests/job_manager/test_publication_recovery_execution.py b/v12/python/tests/job_manager/test_publication_recovery_execution.py
+index 5e0cc0c19d82947d6c96d3aef41940582e9fbdef..805da84ec929f4382c6d321cd16d25a0fcaa9630 100644
+--- a/v12/python/tests/job_manager/test_publication_recovery_execution.py
++++ b/v12/python/tests/job_manager/test_publication_recovery_execution.py
+@@ -86,6 +86,7 @@ in every incomplete state, and that this manager writes no verdict.
+ import copy
+ import json
+ import os
++import subprocess
+ 
+ import sys
+ 
+@@ -4850,6 +4851,27 @@ class OneInstalledPublisherServesRecoveriesOnTwoWorks(_InstalledFixture):
+             [row[0] for row in self.jobs._connection.execute(
+                 "SELECT worker_id FROM stage_allocations WHERE stage_id = ?",
+                 (review,))], ["review-a"])
++        # THIS FIXTURE'S FAILED EXECUTION IS FIXTURE-WRITTEN: no producer ever
++        # ran, so the line owner holds no writer for it and cannot freeze a
++        # candidate nobody wrote. The reviewer's start is REFUSED by that
++        # owner, no reviewer runtime is started, and the owner who decided is
++        # told once that the review did not conclude. (The real path is
++        # `TheConnectedRecoveryFromARealPooledProducer`.)
++        decision = next(one["decision_id"] for one in
++                        publication_recovery.admissions_of(self.jobs)
++                        if one["job_id"] == job_id)
++        for _ in range(4):
++            self.tick()
++        ready = publication_execution.publication_readiness(
++            self.jobs, decision, control=self.control)
++        self.assertEqual((ready["outcome"], ready["review"]),
++                         ("published", "review-failed"))
++        self.assertIsNone(attempt_runtime_of(
++            self.control, ready["review_stage"]["attempt_id"])["runtime_id"])
++        item = publication_execution.review_item_of(self.jobs, job_id)
++        self.assertEqual(item["outcome"], "review-failed")
++        self.assertEqual(len(item["remaining"]), 1)
++        self.assertIsNone(item["evidence"]["review"]["verdict"])
+ 
+ 
+ # -- 15c. a really pooled producer's failed output, through its line ---------
+@@ -5341,7 +5363,7 @@ class TheConnectedRecoveryFromARealPooledProducer(
+             for module, name, value in held:
+                 setattr(module, name, value)
+ 
+-    def failed_at_publication(self):
++    def failed_at_publication(self, settle=True):
+         """Create, serve, overflow and settle. Answers the failed Job id."""
+         job_id = self.created()
+         self.jobs, self.control, self.operations = self.serving()
+@@ -5353,9 +5375,12 @@ class TheConnectedRecoveryFromARealPooledProducer(
+         self.engine.stopped = True
+         for _ in range(6):
+             manager.sweep(self.jobs, self.operations, now=self.now)
+-        self.operations.abandon_attempt(
+-            attempt_id=self.attempt, stage=stage,
+-            reason="the producer's publication failed; settled for recovery")
++        self.producer_stage = stage
++        if settle:
++            self.operations.abandon_attempt(
++                attempt_id=self.attempt, stage=stage,
++                reason="the producer's publication failed; settled for "
++                       "recovery")
+         return job_id
+ 
+     def inspected(self, job_id):
+@@ -5390,9 +5415,21 @@ class TheConnectedRecoveryFromARealPooledProducer(
+                  for word in publication_recovery.SELECTED_STAGES]
+         return self.cli(*argv)
+ 
+-    def restarted(self):
++    def restarted(self, same_engine=False):
++        """A new manager incarnation. `same_engine` keeps the ENGINE double
++        across it, which is what a real restart does: the daemon and the
++        containers it holds outlive the manager process. Without it the
++        double is new and every start is counted from zero."""
+         self.operations.close()
+-        self.jobs, self.control, self.operations = self.serving()
++        if same_engine:
++            held, fresh = self.engine, self.quiescing
++            self.quiescing = lambda: held
++            try:
++                self.jobs, self.control, self.operations = self.serving()
++            finally:
++                self.quiescing = fresh
++        else:
++            self.jobs, self.control, self.operations = self.serving()
+ 
+     def publication_turn(self, decision):
+         import baton_worker
+@@ -5439,8 +5476,434 @@ class TheConnectedRecoveryFromARealPooledProducer(
+             for name, value in held:
+                 setattr(baton_worker, name, value)
+ 
++    # -- the ordinary reviewer's turn -------------------------------------------
++
++    def provider(self, edits=None, status=0):
++        """THE REVIEWER'S PROVIDER, at the provider boundary and LABELLED: the
++        model is scripted. What it does before answering is real -- it reads
++        the candidate and the hand-off the deployment delivered, and it RUNS
++        the task's verification command as a real child against the delivered
++        read-only source. That run is counted, and nothing else is."""
++        import pathlib
++        import subprocess
++        import sys
++
++        import claude_agent
++
++        actual = super().provider(edits=edits, status=status)
++
++        def run(argv, **options):
++            if argv[0] == claude_agent.PROVIDER_PROGRAM \
++                    and "review-report.json" in (edits or {}):
++                inputs = pathlib.Path(claude_agent.INPUT_ROOT)
++                delivered = json.loads(
++                    (inputs / "recovery-review.json").read_text())
++                self.assertEqual(delivered["handoff_digest"],
++                                 digest(delivered["handoff"]))
++                self.assertIn(delivered["handoff_digest"], " ".join(argv))
++                self.assertEqual(
++                    (inputs / "source" / "big.txt").stat().st_size,
++                    1048576 + 4096)
++                ran = subprocess.run(
++                    [sys.executable, "-B", "harness.py"],
++                    cwd=str(inputs / "source"), stdout=subprocess.PIPE,
++                    stderr=subprocess.PIPE)
++                self.reviewer_verifications.append(
++                    {"argv": ["python3", "harness.py"],
++                     "status": ran.returncode,
++                     "handoff": delivered["handoff"]})
++            return actual(argv, **options)
++
++        return run
++
++    def review_turn(self, recovery, verdict="accepted", claim="valid"):
++        """ONE REAL REVIEW TURN by the pool's ordinary reviewer, over the
++        launch this deployment composed for the recovery's review stage."""
++        import pathlib
++
++        import baton_worker
++        import claude_agent
++
++        stage = self.stage_of(recovery, "review")
++        attempt_id = stage["attempt_id"]
++        worker = self.worker_of(self.operations, "review")
++        delivered = worker._adopted(stage)
++        self._composed = self.operations
++        roots = self.mounted_view(
++            "review", attempt_id,
++            self.mounted(self.operations, "review", attempt_id))
++        document = pathlib.Path(roots["inputs"], "recovery-review.json")
++        if document.is_symlink():
++            # A REAL INPUT MOUNT HOLDS A REGULAR FILE; the daemon-free view is
++            # composed of links, which the workload refuses for this document.
++            data = document.read_bytes()
++            document.unlink()
++            document.write_bytes(data)
++        handoff = publication_execution.handoff_of(self.jobs, recovery)
++        self.assertEqual(json.loads(document.read_text()),
++                         {"schema": "baton.recovery-review-input/1",
++                          "handoff": handoff,
++                          "handoff_digest": digest(handoff)})
++        report = {"schema": "baton.review-report/1", "verdict": verdict,
++                  "findings": "Scripted review: read the published candidate "
++                              "and ran the task's verification."}
++        if claim != "missing":
++            report["recovery_digest"] = (digest(handoff) if claim == "valid"
++                                         else "sha256:" + "0" * 64)
++        credentials = os.path.join(self.root,
++                                   "credential-" + attempt_id[:12])
++        os.makedirs(credentials, exist_ok=True)
++        self.write(os.path.join(credentials, "claude"), "not-a-credential\n")
++        held = []
++        for module, name, value in (
++                (baton_worker, "INPUT_ROOT", roots["inputs"]),
++                (baton_worker, "OUTPUT_ROOT", roots["workspace"]),
++                (claude_agent, "INPUT_ROOT", roots["inputs"]),
++                (claude_agent, "OUTPUT_ROOT", roots["workspace"]),
++                (claude_agent, "CREDENTIAL_ROOT", credentials)):
++            held.append((module, name, getattr(module, name)))
++            setattr(module, name, value)
++        try:
++            scratch = os.path.join(self.root, "scratch-" + attempt_id[:12])
++            os.makedirs(scratch, exist_ok=True)
++            seen = launch.payload_of(delivered.document)
++            return baton_worker.serve_exchange(
++                claude_agent.ClaudeAgent(
++                    run=self.provider(
++                        edits={"review-report.json": json.dumps(report)}),
++                    home=scratch),
++                seen, seen["session"], delivered.exchange.command_root,
++                delivered.exchange.event_root), stage, handoff
++        finally:
++            for module, name, value in held:
++                setattr(module, name, value)
++
++    def published(self, decision="C1"):
++        """Carry a real failed producer to the publication hand-off."""
++        job_id = self.failed_at_publication()
++        read = self.inspected(job_id)
++        code, answer = self.decided(job_id, read, decision=decision)
++        self.assertEqual(code, 0, answer)
++        recovery = answer["admission"]["job_id"]
++        self.restarted()
++        for _ in range(8):
++            manager.sweep(self.jobs, self.operations, now=self.now)
++            stage = self.stage_of(recovery, "publication")
++            state = attempt_runtime_of(self.control, stage["attempt_id"])
++            if state is not None \
++                    and state["execution_runtime"] == "running":
++                break
++        code, _, _ = self.publication_turn(decision)
++        self.assertEqual(code, 0)
++        return job_id, recovery, read
++
++    def review_running(self, recovery, ticks=8):
++        for _ in range(ticks):
++            manager.sweep(self.jobs, self.operations, now=self.now)
++            stage = self.stage_of(recovery, "review")
++            state = attempt_runtime_of(self.control, stage["attempt_id"])
++            if state is not None \
++                    and state["execution_runtime"] == "running":
++                return stage
++        self.fail("the review stage never started")
++
++    def verdict_of(self, stage):
++        from baton_v12.worker_manager import review_cycles
++
++        attachment = review_cycles.review_for_attempt(
++            self.control, attempt_id=stage["attempt_id"],
++            generation=attempt_runtime_of(
++                self.control, stage["attempt_id"])["assignment"]["generation"])
++        if attachment is None:
++            return None
++        act = self.control.operation_record(
++            review_cycles.VERDICT_KIND + ":" + attachment["attachment_id"])
++        return None if act is None else review_cycles.verdict_of(
++            self.control, json.loads(act["result"])["verdict_id"])
++
+     # -- the connected cases ----------------------------------------------------
+ 
++    def status(self, decision="C1"):
++        code, status = self.cli(
++            "publication-status", "--store", self.places["job_store"],
++            "--authority-uuid", self.config["authority_uuid"],
++            "--incarnation", "cli-1",
++            "--control", self.places["control_store"],
++            "--decision-id", decision)
++        self.assertEqual(code, 0, status)
++        return status
++
++    def reviewed(self, verdict="accepted", claim="valid"):
++        job_id, recovery, read = self.published()
++        self.reviewer_verifications = []
++        self.review_running(recovery)
++        code, stage, handoff = self.review_turn(recovery, verdict=verdict,
++                                                claim=claim)
++        self.assertEqual(code, 0)
++        for _ in range(8):
++            manager.sweep(self.jobs, self.operations, now=self.now)
++        return job_id, recovery, read, stage, handoff
++
++    def line_facts(self):
++        """The producer's writer, its line and the line's current checkpoint,
++        through the line owner's own readers."""
++        from baton_v12.worker_manager import attempts, review_cycles
++
++        writer = review_cycles.writer_for_attempt(
++            self.control, attempt_id=self.attempt,
++            generation=attempts.assignment_of(
++                self.control, self.attempt)["generation"])
++        line = review_cycles.line_of(self.control, writer["line_id"])
++        checkpoint = None
++        if line["current_checkpoint_id"] is not None:
++            checkpoint = review_cycles.checkpoint_of(
++                self.control, line["current_checkpoint_id"])
++        return writer, line, checkpoint
++
++    def test_the_ordinary_reviewer_runs_and_its_verdict_is_collected(self):
++        """publication -> custody -> hand-off -> the Work's ORDINARY reviewer,
++        its own verification run, and its verdict collected -- with no
++        implementation run, no producer verifier repeated, and the original
++        Job untouched."""
++        from baton_v12.worker_manager import review_cycles
++
++        original = None
++        job_id, recovery, read, stage, handoff = self.reviewed()
++        original = submission.job_of(self.jobs, job_id)
++        verdict = self.verdict_of(stage)
++        self.assertIsNotNone(verdict)
++        self.assertEqual(verdict["disposition"], "accepted")
++        self.assertEqual(verdict["head_object"], read["producer"]["head"])
++        self.assertEqual(verdict["head_object"], handoff["candidate"]["head"])
++        # THE REVIEWER RAN ITS OWN VERIFICATION, once, as a real child over
++        # the delivered read-only candidate -- and the recovery pipeline ran
++        # neither a provider nor the producer's verifier.
++        self.assertEqual(
++            [(one["argv"], one["status"])
++             for one in self.reviewer_verifications],
++            [(["python3", "harness.py"], 0)])
++        self.assertEqual(
++            publication_execution.result_of(self.jobs, recovery)[
++                "invocations"],
++            {"provider": 0, "verifier": 0, "commands": 0})
++        # INDEPENDENCE: the reviewer is neither the original producer nor the
++        # publisher, by participant and by principal.
++        reviewer = attempt_runtime_of(self.control, stage["attempt_id"])
++        producer = attempt_runtime_of(self.control, self.attempt)
++        publisher = attempt_runtime_of(
++            self.control, handoff["publication_attempt_id"])
++        self.assertEqual(
++            len({one["assignment"]["participant"]
++                 for one in (reviewer, producer, publisher)}), 3)
++        # AND THE ALLOCATION RULE EXCLUDES BOTH PRODUCERS OF THIS CANDIDATE,
++        # the failed Job's implementer and this Job's publisher.
++        from baton_v12.job_manager import scheduler
++        row = next(one for one in submission.stages_of(self.jobs, recovery)
++                   if one["kind"] == "review")
++        workers, participants, principals = scheduler._exclusions(
++            self.jobs._connection, row, None)
++        self.assertEqual(workers, {"impl-a", "publisher"})
++        self.assertEqual(participants,
++                         {producer["assignment"]["participant"],
++                          POOLED_PUBLISHER})
++        self.assertNotIn("baton.reviewer", participants)
++        # ONE PUBLISHER CONTAINER AND ONE REVIEWER CONTAINER since the
++        # restart, and the implementation stage was never opened again.
++        self.assertEqual(len(self.engine.starts), 2)
++        self.assertEqual(
++            len(episodes.episodes_of(
++                self.jobs, documents.stage_id(job_id, "implementation"))), 1)
++        self.assertEqual(
++            [one["kind"] for one in submission.stages_of(self.jobs,
++                                                         recovery)],
++            ["publication", "review"])
++        # THE LINE OWNER'S RECOVERY, AS RULED (R1): the never-released writer
++        # is revoked as recovered, the checkpoint carries the recovery fence
++        # and no assignment fence, and nothing was fabricated for the
++        # producer -- no disposition, no release.
++        writer, line, checkpoint = self.line_facts()
++        self.assertEqual((writer["state"], writer["revocation_reason"]),
++                         ("revoked", "recovered"))
++        self.assertEqual(review_cycles.fence_kind(checkpoint["fence"]),
++                         review_cycles.RECOVERY_FENCE_KIND)
++        self.assertEqual(checkpoint["fence"]["intent"]["candidate"],
++                         {"base": self.base,
++                          "head": read["producer"]["head"]})
++        self.assertEqual(checkpoint["head_object"], read["producer"]["head"])
++        self.assertIsNone(self.control.operation_record(
++            "review-line.release-writer:" + writer["writer_id"]))
++        self.assertEqual(producer["execution_runtime"], "destroyed")
++        from baton_v12.worker_manager import attempts, frozen_output_of
++        self.assertEqual(
++            attempts._require_attempt(self.control,
++                                      self.attempt)["worker_disposition"],
++            "none")
++        self.assertIsNone(frozen_output_of(self.control, self.attempt))
++        # THE ORIGINAL JOB IS STILL THE FAILED JOB IT WAS.
++        self.assertEqual(submission.job_of(self.jobs, job_id), original)
++        # THE STATUS COMMAND REPORTS THE REVIEW AS ITS OWN STATEMENT.
++        status = self.status()
++        self.assertEqual(status["review"]["reviewer"], "baton.reviewer")
++        self.assertEqual(status["review"]["verdict"]["disposition"],
++                         "accepted")
++        self.assertTrue(
++            status["review"]["verdict"]["candidate_is_the_approved_original"])
++        self.assertIsNone(status["review_item"])
++        self.assertIsNone(status["owner_item"])
++        self.assertIn("failed at output publication",
++                      status["original"]["state"])
++        self.assertIsNone(
++            publication_execution.publication_readiness(
++                self.jobs, "C1")["owed"])
++
++    def test_a_rejection_is_the_reviewers_own_outcome(self):
++        job_id, recovery, read, stage, handoff = self.reviewed(
++            verdict="rejected")
++        verdict = self.verdict_of(stage)
++        self.assertEqual(verdict["disposition"], "rejected")
++        self.assertEqual(self.status()["review"]["verdict"]["disposition"],
++                         "rejected")
++        # A REJECTION IS NOT A FAILED RECOVERY: no owner item of either kind,
++        # and the publication stays published.
++        ready = publication_execution.publication_readiness(self.jobs, "C1")
++        self.assertEqual((ready["outcome"], ready["review_item"],
++                          ready["owner_item"], ready["owed"]),
++                         ("published", None, None, None))
++
++    def test_a_verdict_not_bound_to_this_handoff_is_not_collected(self):
++        """A report that does not claim THIS hand-off's digest is held, and
++        when the recovery then expires the owner is told once."""
++        for claim in ("missing", "wrong"):
++            with self.subTest(claim=claim):
++                if claim == "wrong":
++                    self.tearDown()
++                    self.setUp()
++                job_id, recovery, read, stage, handoff = self.reviewed(
++                    claim=claim)
++                self.assertIsNone(self.verdict_of(stage))
++                self.assertIsNone(self.status()["review"]["verdict"])
++                self.assertEqual(len(self.engine.starts), 2)
++        self.now = "2026-09-02T04:00:00.000Z"
++        for _ in range(6):
++            manager.sweep(self.jobs, self.operations, now=self.now)
++        item = publication_execution.review_item_of(self.jobs, recovery)
++        self.assertEqual(item["outcome"], "review-expired")
++        self.assertIsNotNone(item["evidence"]["review"]["answered_result_id"])
++        self.assertIsNone(item["evidence"]["review"]["verdict"])
++
++    def closed_during_review(self, close):
++        job_id, recovery, read = self.published()
++        stage = self.review_running(recovery)
++        custody = publication_execution.custody_of(self.jobs, recovery)
++        result = publication_execution.result_of(self.jobs, recovery)
++        close(recovery)
++        for _ in range(8):
++            manager.sweep(self.jobs, self.operations, now=self.now)
++        item = publication_execution.review_item_of(self.jobs, recovery)
++        self.assertIsNotNone(item)
++        # ONE ITEM, to the owner who decided, and nothing retried.
++        self.assertEqual(item["destination"], POOLED_OWNER)
++        self.assertFalse(item["automatic_retry"])
++        self.assertIn("not a supported command", item["continuation"])
++        self.assertEqual(item["evidence"]["publication"]["result_id"],
++                         custody["frozen"]["result_id"])
++        self.assertEqual(item["evidence"]["candidate"]["head"],
++                         read["producer"]["head"])
++        self.assertIsNone(item["evidence"]["review"]["verdict"])
++        # THE REVIEWER IS POSITIVELY STOPPED and its runtime retained for
++        # the ordinary operator settlement, which the item names.
++        runtime = attempt_runtime_of(self.control, stage["attempt_id"])
++        self.assertEqual(runtime["execution_runtime"], "quiescent")
++        self.assertEqual(len(item["remaining"]), 1)
++        # EVERYTHING PUBLISHED IS RETAINED UNCHANGED, no verdict exists, no
++        # third container was started and no second item is written.
++        self.assertEqual(publication_execution.custody_of(self.jobs,
++                                                          recovery), custody)
++        self.assertEqual(publication_execution.result_of(self.jobs,
++                                                         recovery), result)
++        self.assertIsNone(self.verdict_of(stage))
++        for _ in range(4):
++            manager.sweep(self.jobs, self.operations, now=self.now)
++        self.assertEqual(
++            publication_execution.review_item_of(self.jobs, recovery), item)
++        self.assertEqual(len(self.engine.starts), 2)
++        self.assertIsNone(publication_execution.owner_item_of(self.jobs,
++                                                             recovery))
++        status = self.status()
++        self.assertEqual(status["review_item"], item)
++        self.assertEqual(status["recovery"]["outcome"], "published")
++        self.assertEqual(status["recovery"]["review"], item["outcome"])
++        self.assertIsNone(status["review"]["verdict"])
++        return item
++
++    def test_a_cancellation_during_review_stops_it_and_tells_the_owner(self):
++        from baton_v12.job_manager import cancellation
++
++        item = self.closed_during_review(
++            lambda recovery: cancellation.request(
++                self.jobs, job_id=recovery,
++                reason="operator stop during review"))
++        self.assertEqual(item["outcome"], "review-cancelled")
++
++    def test_an_expiry_during_review_stops_it_and_tells_the_owner(self):
++        def late(recovery):
++            self.now = "2026-09-02T04:00:00.000Z"
++
++        item = self.closed_during_review(late)
++        self.assertEqual(item["outcome"], "review-expired")
++
++    def test_a_restart_between_handoff_and_review_starts_one_reviewer(self):
++        """THE REVIEW-GATE CUT: the manager dies after the hand-off commits
++        and before the reviewer is started. The next incarnation starts ONE
++        reviewer, over the SAME checkpoint."""
++        job_id, recovery, read = self.published()
++        for _ in range(8):
++            manager.sweep(self.jobs, self.operations, now=self.now)
++            if publication_execution.handoff_of(self.jobs,
++                                                recovery) is not None:
++                break
++        handoff = publication_execution.handoff_of(self.jobs, recovery)
++        self.assertIsNotNone(handoff)
++        self.restarted()
++        stage = self.review_running(recovery)
++        first = self.line_facts()[2]
++        # AND AGAIN, WITH THE REVIEWER RUNNING: nothing is started twice and
++        # the checkpoint the reviewer mounts is the one already frozen.
++        self.assertEqual(len(self.engine.starts), 1)
++        self.restarted(same_engine=True)
++        for _ in range(4):
++            manager.sweep(self.jobs, self.operations, now=self.now)
++        self.assertEqual(len(self.engine.starts), 1)
++        self.assertEqual(self.line_facts()[2], first)
++        self.assertEqual(publication_execution.handoff_of(self.jobs,
++                                                          recovery), handoff)
++        self.assertEqual(self.stage_of(recovery, "review")["attempt_id"],
++                         stage["attempt_id"])
++
++    def test_a_restart_after_the_review_turn_collects_one_verdict(self):
++        """THE VERDICT-REPLY CUT: the reviewer answered and the manager died
++        before collecting it. The next incarnation collects that one verdict,
++        and the original Job is still failed."""
++        job_id, recovery, read = self.published()
++        original = submission.job_of(self.jobs, job_id)
++        self.reviewer_verifications = []
++        self.review_running(recovery)
++        code, stage, handoff = self.review_turn(recovery)
++        self.assertEqual(code, 0)
++        self.restarted(same_engine=True)
++        for _ in range(8):
++            manager.sweep(self.jobs, self.operations, now=self.now)
++        verdict = self.verdict_of(stage)
++        self.assertEqual(verdict["disposition"], "accepted")
++        self.restarted(same_engine=True)
++        for _ in range(4):
++            manager.sweep(self.jobs, self.operations, now=self.now)
++        self.assertEqual(self.verdict_of(stage), verdict)
++        self.assertEqual(len(self.reviewer_verifications), 1)
++        # ONE PUBLISHER AND ONE REVIEWER CONTAINER, across both restarts.
++        self.assertEqual(len(self.engine.starts), 2)
++        self.assertEqual(submission.job_of(self.jobs, job_id), original)
++
+     def test_the_commands_carry_a_real_failed_producer_to_the_handoff(self):
+         from baton_v12.worker_manager import workspaces as owner
+ 
+@@ -5547,15 +6010,202 @@ class TheConnectedRecoveryFromARealPooledProducer(
+             [row[0] for row in self.jobs._connection.execute(
+                 "SELECT worker_id FROM stage_allocations WHERE stage_id = ?",
+                 (review,))], ["review-a"])
+-        # WHERE THIS STOPS, ASSERTED AS WHAT IT IS. The reviewer's container
+-        # is not started: its mount needs a frozen line checkpoint of the
+-        # candidate, and the review line freezes a recovered checkpoint only
+-        # for a writer that was RELEASED. This producer's writer never was.
++        # AND THE REVIEWER'S CONTAINER IS STARTED over the line owner's
++        # recovered checkpoint of the exact approved candidate (owner ruling
++        # R1, M385915): one more container, and it is the reviewer's.
+         review_stage = self.stage_of(recovery, "review")
+-        self.assertIsNone(attempt_runtime_of(
+-            self.control, review_stage["attempt_id"])
+-            and attempt_runtime_of(
+-                self.control, review_stage["attempt_id"])["runtime_id"])
++        runtime = attempt_runtime_of(self.control, review_stage["attempt_id"])
++        self.assertEqual(runtime["execution_runtime"], "running")
++        self.assertEqual(runtime["assignment"]["participant"],
++                         "baton.reviewer")
++        self.assertEqual(len(self.engine.starts), 2)
++
++    # -- the line owner's recovery freeze (owner ruling R1) ---------------------
++
++    def recovery_operands(self, **changed):
++        from baton_v12.worker_manager import attempts
++
++        deployment = self.worker_of(self.operations,
++                                    "review").stage.deployment
++        head = subprocess.run(
++            ["git", "-C", self.line_facts()[1]["line_path"], "rev-parse",
++             "HEAD"], env=self.environment(), check=True,
++            stdout=subprocess.PIPE).stdout.decode().strip()
++        operands = {
++            "attempt_id": self.attempt,
++            "generation": attempts.assignment_of(
++                self.control, self.attempt)["generation"],
++            "profile": deployment.profile,
++            "candidate": {"base": self.base, "head": head},
++            "retention_policy_digest": deployment.retention_policy_digest}
++        operands.update(changed)
++        return operands
++
++    def unrecovered(self):
++        """Nothing of the line moved: the writer is still the active one, the
++        line is still `writing` and no checkpoint exists."""
++        writer, line, checkpoint = self.line_facts()
++        self.assertEqual((writer["state"], line["state"], checkpoint),
++                         ("active", "writing", None))
++        self.assertIsNone(self.control.operation_record(
++            "review-line.recover-writer:" + writer["writer_id"]))
++
++    def test_the_recovery_freeze_revokes_fences_and_replays(self):
++        from baton_v12.worker_manager import review_cycles
++
++        self.failed_at_publication()
++        operands = self.recovery_operands()
++        self.unrecovered()
++        frozen = review_cycles.freeze_unreleased_recovered_checkpoint(
++            self.control, **operands)
++        writer, line, checkpoint = self.line_facts()
++        self.assertEqual((writer["state"], writer["revocation_reason"],
++                          line["state"]),
++                         ("revoked", "recovered", "review-ready"))
++        self.assertEqual(checkpoint["checkpoint_id"],
++                         frozen["checkpoint_id"])
++        self.assertEqual(frozen["evidence"]["head"],
++                         operands["candidate"]["head"])
++        # ITS OWN KIND, ITS OWN COMMITTED ACT, and no assignment fence.
++        fence = checkpoint["fence"]
++        self.assertEqual(review_cycles.fence_kind(fence),
++                         review_cycles.RECOVERY_FENCE_KIND)
++        self.assertEqual(fence, frozen["fence"])
++        self.assertEqual(fence["intent"]["attempt_id"], self.attempt)
++        self.assertIsNone(fence["fenced"]["gate"])
++        act = self.control.operation_record(fence["intent"]["operation_id"])
++        self.assertEqual((act["kind"], act["state"]),
++                         (review_cycles.RECOVER_WRITER_KIND, "committed"))
++        self.assertEqual(json.loads(act["result"]), fence)
++        # A RETRY IS THE SAME COMMITTED CHECKPOINT, with no new record.
++        count = self.control._connection.execute(
++            "SELECT COUNT(*) FROM operations").fetchone()[0]
++        self.assertEqual(review_cycles.freeze_unreleased_recovered_checkpoint(
++            self.control, **operands), frozen)
++        self.assertEqual(self.control._connection.execute(
++            "SELECT COUNT(*) FROM operations").fetchone()[0], count)
++        # ANOTHER CANDIDATE UNDER THE SAME WRITER COLLIDES.
++        with self.assertRaises(ContractRefusal):
++            review_cycles.freeze_unreleased_recovered_checkpoint(
++                self.control, **dict(operands, candidate={
++                    "base": self.base, "head": "f" * 40}))
++        # A RECOVERY FENCE IS NEVER AN ATTEMPT'S OWN ASSIGNMENT FENCE.
++        from baton_v12.worker_manager import attempts
++        with self.assertRaises(ContractRefusal) as caught:
++            review_cycles._current_fence(
++                self.control,
++                attempts._require_attempt(self.control, self.attempt), fence,
++                "a probe")
++        self.assertIn("recovery fence", str(caught.exception))
++        # AND A FENCE THE JOURNAL DOES NOT HOLD IS NOT EVIDENCE: the row's
++        # fence altered in place, with a digest that agrees with itself.
++        forged = json.loads(json.dumps(fence))
++        forged["intent"]["candidate"]["head"] = "e" * 40
++        self.control._connection.execute(
++            "UPDATE line_checkpoints SET fence = ?, fence_digest = ? WHERE "
++            "checkpoint_id = ?",
++            (json.dumps(forged, sort_keys=True, separators=(",", ":")),
++             digest(forged), checkpoint["checkpoint_id"]))
++        with self.assertRaises(ContractRefusal) as caught:
++            review_cycles.checkpoint_of(self.control,
++                                        checkpoint["checkpoint_id"])
++        self.assertEqual((caught.exception.category, caught.exception.code),
++                         ("integrity", "schema"))
++
++    def test_the_recovery_freeze_holds_on_unproved_or_conflicting_evidence(
++            self):
++        """EACH HOLD CHANGES NOTHING: the writer stays active, the line stays
++        `writing`, and no recovery act or checkpoint is recorded."""
++        from baton_v12.worker_manager import review_cycles
++
++        self.failed_at_publication(settle=False)
++        freeze = review_cycles.freeze_unreleased_recovered_checkpoint
++        # THE RUNTIME IS NOT POSITIVELY ABSENT: stopped, and never removed.
++        with self.assertRaises(ContractRefusal) as caught:
++            freeze(self.control, **self.recovery_operands())
++        self.assertEqual(caught.exception.code, "quiescence-unknown")
++        self.unrecovered()
++        self.operations.abandon_attempt(
++            attempt_id=self.attempt, stage=self.producer_stage,
++            reason="the producer's publication failed; settled for recovery")
++        operands = self.recovery_operands()
++        line_path = self.line_facts()[1]["line_path"]
++        for label, changed, code in (
++                ("a removal this journal did not commit under that policy",
++                 {"retention_policy_digest": "sha256:" + "1" * 64},
++                 "quiescence-unknown"),
++                ("another head",
++                 {"candidate": {"base": self.base, "head": "f" * 40}},
++                 "digest"),
++                ("another base",
++                 {"candidate": {"base": "e" * 40,
++                                "head": operands["candidate"]["head"]}},
++                 "digest"),
++                ("another generation",
++                 {"generation": operands["generation"] + 1}, None)):
++            with self.subTest(label):
++                if code is None:
++                    with self.assertRaises(ContractRefusal) as caught:
++                        freeze(self.control, **dict(operands, **changed))
++                    self.assertIn("no original writer",
++                                  str(caught.exception))
++                else:
++                    with self.assertRaises(ContractRefusal) as caught:
++                        freeze(self.control, **dict(operands, **changed))
++                    self.assertEqual(caught.exception.code, code)
++                self.unrecovered()
++        # THE LINE MOVED AFTER THE APPROVAL: an uncommitted change, then a
++        # commit the approved candidate does not name.
++        self.write(os.path.join(line_path, "late.txt"), "late\n")
++        with self.assertRaises(ContractRefusal) as caught:
++            freeze(self.control, **operands)
++        self.assertEqual(caught.exception.code, "digest")
++        self.unrecovered()
++        for argv in (["add", "late.txt"],
++                     ["-c", "user.name=x", "-c", "user.email=x@example.invalid",
++                      "commit", "-q", "-m", "late"]):
++            subprocess.run(["git", "-C", line_path, *argv],
++                           env=self.environment(), check=True,
++                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
++        with self.assertRaises(ContractRefusal) as caught:
++            freeze(self.control, **operands)
++        self.assertEqual(caught.exception.code, "digest")
++        self.unrecovered()
++
++    def test_a_recovery_freeze_cut_after_the_revocation_finishes_once(self):
++        """THE CUT INSIDE THE OWNER OPERATION: the writer is revoked and the
++        fenced checkpoint row exists, and the process dies before the profile
++        retained the reference. The retry freezes THAT checkpoint."""
++        from baton_v12.worker_manager import review_cycles
++
++        self.failed_at_publication()
++        operands = self.recovery_operands()
++        profile = operands["profile"]
++
++        class Dying:
++            name = profile.name
++            head_of = staticmethod(profile.head_of)
++            validate = staticmethod(profile.validate)
++
++            @staticmethod
++            def freeze(*arguments, **named):
++                raise RuntimeError("the manager died here")
++
++        with self.assertRaises(RuntimeError):
++            review_cycles.freeze_unreleased_recovered_checkpoint(
++                self.control, **dict(operands, profile=Dying))
++        writer, line, _ = self.line_facts()
++        self.assertEqual((writer["state"], writer["revocation_reason"],
++                          line["state"], line["current_checkpoint_id"]),
++                         ("revoked", "recovered", "freezing", None))
++        fence = json.loads(self.control.operation_record(
++            "review-line.recover-writer:" + writer["writer_id"])["result"])
++        frozen = review_cycles.freeze_unreleased_recovered_checkpoint(
++            self.control, **operands)
++        self.assertEqual(frozen["fence"], fence)
++        self.assertEqual(frozen["checkpoint_id"],
++                         fence["intent"]["checkpoint_id"])
++        self.assertEqual(self.line_facts()[1]["state"], "review-ready")
+ 
+     def test_the_decision_command_is_refused_on_changed_evidence(self):
+         """EXACT BINDING, through the command: a decision naming another
+diff --git a/v12/python/tests/manager/test_dependencies.py b/v12/python/tests/manager/test_dependencies.py
+index 86be91ca9b8d11324a6e5c686c0498aceb43bded..adaa84c7cc5d55097c3ef1331d8f8c7bf28e620e 100644
+--- a/v12/python/tests/manager/test_dependencies.py
++++ b/v12/python/tests/manager/test_dependencies.py
+@@ -401,6 +401,10 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
+         # The retained checkpoint passed to freeze_recovered_checkpoint is an
+         # externally selected candidate, not traversal bookkeeping.
+         "candidate",
++        # W385695: `OUTPUT` is the declared output's own relative path, which the
++        # caller selects from the admitted declaration so the retained-output read
++        # measures that directory and never a whole writable root.
++        "output",
+         # W275774 child A: the shared resource token's own operands. Declared rather than
+         # the check weakened -- each names a fact the token owner is given, not internal
+         # state it carries: the governed conflict DOMAIN and its RESOURCE_KIND, the
+diff --git a/v12/python/tools/publication_decision.py b/v12/python/tools/publication_decision.py
+index fbb62eac5c5d5b2262d07c95af947717c413eebc..9ec2e94c516f38a446c5d921c67cc5c2b2f7e333 100644
+--- a/v12/python/tools/publication_decision.py
++++ b/v12/python/tools/publication_decision.py
+@@ -355,6 +355,46 @@ def _decide(taken, clock, stream):
+         return _say(answer, stream)
+ 
+ 
++def _review(jobs, control, admitted, ready):
++    """The recovery's review: stage state, reviewer and recorded verdict."""
++    from baton_v12.worker_manager import attempt_runtime_of, review_cycles
++
++    stage = ready.get("review_stage")
++    if stage is None:
++        return {"state": "blocked: no publication custody and hand-off yet",
++                "verdict": None}
++    answer = {"stage_id": stage["stage_id"], "episode": stage["episode"],
++              "attempt_id": stage["attempt_id"], "state": stage["state"],
++              "ended_without_verdict": stage["ended"],
++              "reviewer": None, "verdict": None}
++    if stage["attempt_id"] is None:
++        return answer
++    recorded = attempt_runtime_of(control, stage["attempt_id"])
++    if recorded is None or recorded.get("assignment") is None:
++        return answer
++    answer["reviewer"] = recorded["assignment"]["participant"]
++    attachment = review_cycles.review_for_attempt(
++        control, attempt_id=stage["attempt_id"],
++        generation=recorded["assignment"]["generation"])
++    if attachment is None:
++        return answer
++    # THE VERDICT'S OWN COMMITTED ACT, by the identity the review owner
++    # journals it under; the owner then validates the whole record.
++    act = control.operation_record(
++        review_cycles.VERDICT_KIND + ":" + attachment["attachment_id"])
++    if act is not None and act["state"] == "committed" and act["result"]:
++        verdict = review_cycles.verdict_of(
++            control, json.loads(act["result"])["verdict_id"])
++        answer["verdict"] = {
++            "disposition": verdict["disposition"],
++            "checkpoint_id": verdict["checkpoint_id"],
++            "head": verdict["head_object"],
++            "recorded_at": verdict["recorded_at"],
++            "candidate_is_the_approved_original":
++                verdict["head_object"] == admitted["candidate"]["head"]}
++    return answer
++
++
+ def _status(taken, clock, stream):
+     """WHERE ONE DECIDED RECOVERY STANDS. READ-ONLY, and it takes no
+     participant: it reports operational facts under the local instance's
+@@ -421,7 +461,7 @@ def _status(taken, clock, stream):
+                                "admitted_at": admitted["admitted_at"],
+                                "input_digest": admitted["input_digest"]}
+         ready = publication_execution.publication_readiness(
+-            jobs, taken.decision_id)
++            jobs, taken.decision_id, control=control)
+         answer["recovery"] = ready
+         deadline = publication_execution.deadline_of(
+             jobs, taken.decision_id, now=answer["observed_at"])
+@@ -441,6 +481,12 @@ def _status(taken, clock, stream):
+                 "runtime_knowledge": ready["runtime_knowledge"]}
+         item = publication_execution.owner_item_of(jobs, job_id)
+         answer["owner_item"] = item
++        # THE REVIEW, AS ITS OWN STATEMENT. Where the stage stands is this
++        # store's; the verdict is the review owner's record and is read from
++        # it, never inferred from the stage having ended. No findings text.
++        answer["review"] = _review(jobs, control, admitted, ready)
++        answer["review_item"] = publication_execution.review_item_of(
++            jobs, job_id)
+         answer["gate"] = publication_execution.execution_gate(jobs, job_id)
+         return _say(answer, stream)
+ 
+diff --git a/v12/python/tools/publication_worker.py b/v12/python/tools/publication_worker.py
+index a6bcd7f911b0441485fed5b6e32246e62d59b466..c24ad435bc11b8c2ea795a1e649efb987d649a50 100644
+--- a/v12/python/tools/publication_worker.py
++++ b/v12/python/tools/publication_worker.py
+@@ -344,9 +344,9 @@ class PublicationStage:
+           3. record the worker's own disposition, now that it is accepted;
+           4. the ordinary freeze, held to the terminal's own envelope digest;
+           5. the ordinary intake and the configured retention decision;
+-          6. release this execution's OWN assignment through its own session,
+-             so the reused Work returns to `queued` for the independent
+-             reviewer; and only then
++          6. pass the reused Work to the review route through this
++             execution's OWN session, which ends its assignment and leaves
++             the Work `queued` for the independent reviewer; and only then
+           7. authorize the ordinary cleanup, which destroys the runtime,
+              proves it absent and returns the workspace token.
+         """
+@@ -423,14 +423,16 @@ class PublicationStage:
+         # THE EXECUTION ENDS BECAUSE IT FINISHED, which is ART-7 from this
+         # side: the release does not depend on anybody accepting the result.
+         # `end`, not `cancel` -- see `single_worker._AuthoritySession.end`.
+-        live = worker.session.assignment_of(
+-            context["assignment"]["work_ref"]["work_id"])
+-        if live is not None and live == context["assignment"]:
+-            worker.session.end({
+-                "expect": context["assignment"],
+-                "operation_id": f"publication-release:{attempt_id}",
+-                "disposition": "release",
+-                "reason": "deterministic publication collected"})
++        #
++        # AND IT ENDS BY PASSING THE WORK TO THE REVIEW ROUTE, the ordinary
++        # producer ending's own act (`single_worker._passed`): one Authority
++        # transaction ends this assignment and moves the Work to the route its
++        # independent reviewer is served on, queued and ungated. A plain
++        # release left the Work on the route the publisher claimed it from,
++        # where the reviewer's claim is refused -- observed in the connected
++        # run (checkpoint 2). The pass replays by this attempt's own
++        # operation identity, and its answer is held to this assignment.
++        passed = worker._passed(attempt_id, context["assignment"])
+         authorize_cleanup(
+             control, worker.port, adapter, attempt_id=attempt_id,
+             retention_policy_digest=worker.given["retention_policy_digest"],
+@@ -443,7 +445,8 @@ class PublicationStage:
+                 "receipt_digest": receipt["receipt_digest"],
+                 "artifacts": sorted(one["artifact_id"]
+                                     for one in receipt["artifacts"]),
+-                "retention": decided["disposition"]}
++                "retention": decided["disposition"],
++                "review_route": passed["route"]}
+ 
+ 
+ def staging_root(instance_root):
+diff --git a/v12/python/tools/stage_execution.py b/v12/python/tools/stage_execution.py
+index 29a838050158140a58fb031ada18cbd769bc0c09..70809dca09cb6e85563d82af801fcd99934d0c1a 100644
+--- a/v12/python/tools/stage_execution.py
++++ b/v12/python/tools/stage_execution.py
+@@ -1489,6 +1489,12 @@ class StageComposition:
+         if self.role != "review":
+             return None
+         handoff = retained_verification.handoff_of(self.deployment.jobs, stage["job_id"])
++        if handoff is None:
++            # W385695: THE PUBLICATION RECOVERY'S HAND-OFF IS THE SAME KIND OF
++            # INPUT. A Job is one recovery or the other, never both, so the
++            # second read is asked only where the first found nothing.
++            from baton_v12.job_manager import publication_execution
++            handoff = publication_execution.handoff_of(self.deployment.jobs, stage["job_id"])
+         if handoff is None:
+             return None
+         return (json.dumps({"schema": "baton.recovery-review-input/1",
+@@ -1603,8 +1609,17 @@ class StageComposition:
+         if recovered is not None:
+             self._prepared[attempt_id] = recovered
+             return recovered
+-        line = deployment.line_for(stage["job_id"])
+-        if self.role == "review":
++        # W385695 R1: A PUBLICATION RECOVERY'S REVIEW HAS NO LINE OF ITS OWN.
++        # Its candidate is on the ORIGINAL producer's line, so that line is
++        # asked of the line owner through the committed hand-off BEFORE any
++        # line is created or materialized for this Job -- a recovery whose
++        # original writer this store cannot find refuses here, typed, rather
++        # than materializing a second checkout nobody wrote into.
++        line = self._published_checkpoint_line(stage) if self.role == "review" else None
++        published = line is not None
++        if line is None:
++            line = deployment.line_for(stage["job_id"])
++        if self.role == "review" and not published:
+             from baton_v12.job_manager import retained_verification
+             handoff = retained_verification.handoff_of(deployment.jobs, stage["job_id"])
+             if handoff is not None:
+@@ -1649,6 +1664,39 @@ class StageComposition:
+         self._prepared[attempt_id] = held
+         return held
+ 
++    def _published_checkpoint_line(self, stage):
++        """W385695 R1: the line holding a PUBLICATION recovery's candidate,
++        frozen for review, or `None` for a Job that is no such recovery.
++
++        The recovery Job has no implementation stage and so no line of its
++        own: the candidate is on the ORIGINAL producer's line, whose writer
++        faulted at publication and was never released. The line owner freezes
++        that exact approved candidate under its recovery fence
++        (`freeze_unreleased_recovered_checkpoint`), on its own proof of the
++        runtime's absence; this composition supplies only the committed
++        hand-off's identities and decides nothing.
++        """
++        from baton_v12.job_manager import publication_execution
++        from baton_v12.worker_manager import attempts
++        deployment = self.deployment
++        handoff = publication_execution.handoff_of(deployment.jobs, stage["job_id"])
++        if handoff is None:
++            return None
++        control = deployment.control
++        failed = handoff["failed_attempt_id"]
++        candidate = {key: handoff["candidate"][key] for key in ("base", "head")}
++        checkpoint = review_cycles.freeze_unreleased_recovered_checkpoint(
++            control, attempt_id=failed,
++            generation=attempts.assignment_of(control, failed)["generation"],
++            profile=deployment.profile, candidate=candidate,
++            retention_policy_digest=deployment.retention_policy_digest)
++        if any(checkpoint["evidence"][key] != candidate[key] for key in ("base", "head")):
++            _refuse("review checkpoint differs from the publication handoff", category="integrity", code="digest")
++        line = review_cycles.line_of(control, checkpoint["line_id"])
++        if line["current_checkpoint_id"] != checkpoint["checkpoint_id"]:
++            _refuse("the recovered publication checkpoint is no longer current", category="integrity", code="digest")
++        return line
++
+     def _recovered(self, attempt_id, generation, preparing=None,
+                    boundary=True):
+         """This attempt's already-granted record, or absence before there is

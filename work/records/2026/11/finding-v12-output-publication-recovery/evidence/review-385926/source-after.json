@@ -1,0 +1,186 @@
+[
+  {
+    "path": "v12/python/DEPLOYMENT.md",
+    "sha256": "8c07acc85bbcd56c88351992033a62c609cb34637df5fd77be7fae7ebe5fce72"
+  },
+  {
+    "path": "v12/python/REVIEW-CYCLES.md",
+    "sha256": "d5c7c66edaca8100b7adb0a7dd5dd025b4edc1d6cbadd548849a941a9384a52b"
+  },
+  {
+    "path": "v12/python/src/baton_v12/checkpoint_profiles.py",
+    "sha256": "53e16443f2ad2e3e0e4df97cab0550849b196580b688427561a03f7ca9dd3c51"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/__init__.py",
+    "sha256": "0c063dcde74bff48642a93a454fb201ebed3ecb1b15d1f6180841c8f185498f0"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/delegation.py",
+    "sha256": "7da38ee1c32c91a692de2a2039ee11c0ec37a4b67b80102bbbaeac993668c993"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/documents.py",
+    "sha256": "169b9d563044aaaeaf02c15dde2c88797f037037ac2c6086b540ec58fa162a24"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/job_control.py",
+    "sha256": "d25da6d1e391025e27b53ad7636d827d1137f8248960e226613ef63a7739ab41"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/manager.py",
+    "sha256": "001953c62e89b539096dcf0bc6153bafa425d75e975625f0f08ff5b5178afa4c"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/projection.py",
+    "sha256": "ea2128afdecf6f30ea8a33cc9064885564c3759240b23deadb317c3e16ea8253"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/publication_execution.py",
+    "sha256": "a3b18e42fdd639bfcd86408e2ba00ab54e0378fd76baedc02510325b882a9cc5"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/publication_recovery.py",
+    "sha256": "f40178e5b53593f98f2af6c990c6616addbb8c43d15f65df12bf018020171e1a"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/review_driver.py",
+    "sha256": "39c8e0ec9bfa52f8ef72c8b8c2db97c7798194808be3689a9159909643b715d8"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/scheduler.py",
+    "sha256": "7b2c0a82ea850706f681331f0f458a585dc615383764a5f619b250c96c1a6c55"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/schema.py",
+    "sha256": "a90b7d84331334ffc33896f67d39ee5db870276e155b5b54a867666b7d0c4732"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/store.py",
+    "sha256": "0cf344ad13132325f945df877073ed9e8dc379c25f1c7b43a8afd6eb6a12d98b"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/templates.py",
+    "sha256": "44f42383152d0116c2c49b0da6ab565571fb8fda62eac86364304f460766a9a0"
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/provider_context.py",
+    "sha256": "15bf3ae0da359c3f0c3310090b1176d21f3a09a5cca02979e48ae0ff8cbf9765"
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+    "sha256": "b89a644aa384d047d060f0abd0d613bc3fdd82da788fa3fd44672f02e256672d"
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+    "sha256": "cda02795a97e86eedecb96b98b454f55010f6bda4fc2569ad48ed90b936c7d36"
+  },
+  {
+    "path": "v12/python/tests/job_manager/test_documents.py",
+    "sha256": "2cc86dda7f35c214a7411d6e29b06f33cb341fa4de0fda78ee88a533cd0979c6"
+  },
+  {
+    "path": "v12/python/tests/job_manager/test_job_control.py",
+    "sha256": "eaa4a9c227e17350a0fd37b47a67f026a27ecb2b8a833c18e562c51049f4527d"
+  },
+  {
+    "path": "v12/python/tests/job_manager/test_publication_recovery_admission.py",
+    "sha256": "979d640abf9e7e2c4eb35416226b97116376c7f0c41e537c1801ea9d8660b986"
+  },
+  {
+    "path": "v12/python/tests/job_manager/test_publication_recovery_execution.py",
+    "sha256": "2ea905857b616689016ced1a6df1ae36ecdb044110bf78f00ce48b921f77626a"
+  },
+  {
+    "path": "v12/python/tests/job_manager/test_retained_failure_analysis.py",
+    "sha256": "76f1b61209c314a3d8292900adc8cd93b032bc44411f56e14eaf42723fa7facd"
+  },
+  {
+    "path": "v12/python/tests/job_manager/test_templates.py",
+    "sha256": "8739bf61c87f1b9562bde8ef08496c531735721cf9e2e73fb66e9f61e68f8501"
+  },
+  {
+    "path": "v12/python/tests/manager/test_boundary_inventory.py",
+    "sha256": "4b4a315958c14ee865a85e74c0470056d061f9e6ca5559e9b6447767ff950594"
+  },
+  {
+    "path": "v12/python/tests/manager/test_dependencies.py",
+    "sha256": "6eaac62d6e37a0ec45dcdf55b83a44070dac01fa2a43ae0f4e1013a11cfcff9b"
+  },
+  {
+    "path": "v12/python/tests/manager/test_worker_packaging.py",
+    "sha256": "494a64ba1f3b1238f3c66ac28157a95bd00bb3e778c0e8602db535456e833006"
+  },
+  {
+    "path": "v12/python/tests/tools/test_bootstrap.py",
+    "sha256": "7071c239f3563da8124fa7e598fa741e737880a54ec7d7369e2040561414e2a7"
+  },
+  {
+    "path": "v12/python/tests/tools/test_pool.py",
+    "sha256": "bf27cb4af492b44bc68f642a826d4826350f36748c95331f2b562f291572cb5d"
+  },
+  {
+    "path": "v12/python/tests/tools/test_stage_execution.py",
+    "sha256": "4aa617aa0928fb8367d8e6955ad82919be0a98c6859c42178e97dab197c3187d"
+  },
+  {
+    "path": "v12/python/tools/bootstrap.py",
+    "sha256": "e14e1c7b789464a3fe868732bb25223da3aa1c04c26f4a5de17c87cd1bd750e0"
+  },
+  {
+    "path": "v12/python/tools/fresh_attempt_ports.py",
+    "sha256": "be4a20af02e6bd236626d64af85ab1af10bf72878cf94cc1fb7b878bb27924c2"
+  },
+  {
+    "path": "v12/python/tools/job_manager.py",
+    "sha256": "e88ec9d80bc774ab8d1091345dd068fb19bfca5c38ef6fe29deec613a8300cff"
+  },
+  {
+    "path": "v12/python/tools/parallel_test.py",
+    "sha256": "0d64e0f8fe4dda9003c75a3d18d55ee3b490772bced2b7b7590f6c3cf4403d6f"
+  },
+  {
+    "path": "v12/python/tools/pool.py",
+    "sha256": "c56825e9b7f6ef9699dec00f839e84dbe5e1bbf6e5c39fd3731ec7aef49035a4"
+  },
+  {
+    "path": "v12/python/tools/publication_decision.py",
+    "sha256": "c5cc5817ac5499ad511612d157eed3eab1fa8a538c4c5fb38835a77b636262a3"
+  },
+  {
+    "path": "v12/python/tools/publication_ports.py",
+    "sha256": "5ae22edb2201909a15ed39928025143c9e0bfd45725d33f5934de685cec8f198"
+  },
+  {
+    "path": "v12/python/tools/publication_worker.py",
+    "sha256": "1d3d8a13e15a5eb8d39989053a7b6a2ba50ea293ec623942f0f57cec3a6235de"
+  },
+  {
+    "path": "v12/python/tools/single_worker.py",
+    "sha256": "6b16b933e99b3c8dec831b4620d7b25280f6a196691f59235218af375040709c"
+  },
+  {
+    "path": "v12/python/tools/stage_execution.py",
+    "sha256": "c30dc3568527628770d5e2baf2bb05aeedbcc380eba33af9a4b481652acee9f2"
+  },
+  {
+    "path": "v12/python/tools/stopped_settlement.py",
+    "sha256": "53b21a2c24eb1e91a67e57c8b45a998c9c8dc8657b7222b0365dc107269c05dd"
+  },
+  {
+    "path": "v12/worker/Dockerfile.publication",
+    "sha256": "77fd45f586e1445c86659d5a6c282c12a92fb5fcf92d928f73f0d8cc31af51ec"
+  },
+  {
+    "path": "v12/worker/baton_worker.py",
+    "sha256": "e1d54c85b9b434dbbf5e187e6720f43bffb138d99b0b76f8c2e4f33b6469d596"
+  },
+  {
+    "path": "v12/worker/claude_agent.py",
+    "sha256": "4832621a084b7228b5793c08ea61778b26e6871d6b201640f06132dc80c3197b"
+  },
+  {
+    "path": "v12/worker/publication_entry.py",
+    "sha256": "7136bc7a779520d68f814d58ebf3bb18aa158d905cfeaec002b7a01aaecfdd2b"
+  }
+]

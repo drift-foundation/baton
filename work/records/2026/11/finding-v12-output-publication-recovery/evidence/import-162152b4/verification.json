@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "just",
+    "test-one",
+    "tests.job_manager.test_publication_recovery_execution",
+    "tests.job_manager.test_publication_recovery_admission",
+    "tests.job_manager.test_retained_recovery_admission",
+    "tests.job_manager.test_role_contract"
+  ],
+  "cwd": "/home/sl/src/baton/v12",
+  "returncode": 0,
+  "seconds": 137.74544902401976,
+  "scratch": "/var/tmp/baton-695-import-0fwlxidt"
+}

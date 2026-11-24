@@ -1,0 +1,5 @@
+('caller', 'intake.py:abandonment_declared', 'attempt_id') owner ('layer', ['a runtime attempt id']) labels/stated/delegated (True, False, False)
+('caller', 'intake.py:abandonment_declared', 'store') owner ('constructed', 'store.py:ControlStore.open') labels/stated/delegated (False, False, False)
+ENTRIES 2
+unprobed 0
+unowned 0

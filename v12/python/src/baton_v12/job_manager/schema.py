@@ -22,6 +22,7 @@ from ..contracts import ContractRefusal
 from ..worker_manager.boundaries import Column
 
 __all__ = ["ALLOCATION_COLUMNS", "AFFINITY_COLUMNS", "EPISODE_COLUMNS",
+           "REBUILT_OBJECTS", "REBUILD_VERBS",
            "DEFERRAL_COLUMNS", "FRESH_ATTEMPT_COLUMNS", "FRESH_ATTEMPT_STATES",
            "TEMPLATE_JOB_COLUMNS", "TEMPLATE_JOB_STATES",
            "GENERATION_COLUMNS", "MIGRATIONS", "POOL_WORKER_COLUMNS", "SCHEMA", "SCHEMA_VERSION",
@@ -91,7 +92,18 @@ def check_authority(value, *, what):
 # manager-owned fresh attempt is admitted under. CREATE ONLY, for the
 # reason every step after 3 is: `_schema_three_shape` subtracts what the
 # later migrations create, and an ALTER could not be subtracted.
-SCHEMA_VERSION = 9
+# Ten. W385695 / DESIGN REC-9 widened the LANE vocabulary of the three
+# scheduler relations -- pool membership, per-stage allocation and lane
+# affinity -- to admit the deterministic PUBLICATION lane `baton.v12.worker-
+# pool/2` declares. It is the first step that does not only create, and it is
+# a store generation rather than a tolerated value for the reason the pool
+# revision is a new name: a build at schema 9 cannot hold a publication
+# allocation at all, so a store that carries one must not be opened by it.
+# The three tables are REBUILT, their rows copied forward unchanged, and the
+# constraint is the only thing that moves -- which is why `REBUILT_OBJECTS`
+# names them and `store._created_name` is told, instead of this step
+# pretending to be a create.
+SCHEMA_VERSION = 10
 
 # W197661 review 2026-09-18T02-59-56Z [R2]: `deferrals` was in `SCHEMA` and in
 # the migration and NOT here, and `JobStore`'s required-table validation reads
@@ -267,7 +279,7 @@ CREATE TABLE pool_generations (
 CREATE TABLE pool_workers (
   generation INTEGER NOT NULL REFERENCES pool_generations(generation),
   worker_id TEXT NOT NULL,
-  lane TEXT NOT NULL CHECK (lane IN ('implementation', 'review')),
+  lane TEXT NOT NULL CHECK (lane IN ('implementation', 'publication', 'review')),
   participant TEXT NOT NULL,
   canonical_principal TEXT NOT NULL,
   profile_name TEXT NOT NULL,
@@ -284,7 +296,7 @@ CREATE TABLE stage_allocations (
   episode INTEGER NOT NULL,
   generation INTEGER NOT NULL,
   worker_id TEXT NOT NULL,
-  lane TEXT NOT NULL CHECK (lane IN ('implementation', 'review')),
+  lane TEXT NOT NULL CHECK (lane IN ('implementation', 'publication', 'review')),
   participant TEXT NOT NULL,
   canonical_principal TEXT NOT NULL,
   preferred_worker_id TEXT,
@@ -454,7 +466,7 @@ CREATE UNIQUE INDEX capacity_one_active_member
   WHERE state IN ('admitted', 'recovery-required');
 CREATE TABLE worker_affinity (
   development_line TEXT NOT NULL,
-  lane TEXT NOT NULL CHECK (lane IN ('implementation', 'review')),
+  lane TEXT NOT NULL CHECK (lane IN ('implementation', 'publication', 'review')),
   worker_id TEXT NOT NULL,
   recorded_at TEXT NOT NULL,
   PRIMARY KEY (development_line, lane)
@@ -1274,7 +1286,135 @@ CREATE UNIQUE INDEX fresh_attempts_one_successor
   -- subtraction OF, and a statement whose first word is `--` is refused.
   ON fresh_attempts (prior_job_id);
 """,
+    # W385695 / DESIGN REC-9: THE PUBLICATION LANE, under the new store
+    # generation and with every existing row carried forward unchanged.
+    #
+    # WHY THIS IS A REBUILD AND NOT A CREATE. The lane vocabulary of these
+    # three relations is a table `CHECK`, which SQLite cannot alter in place --
+    # so the only way to widen it is to build the relation beside itself, copy
+    # the rows, drop the old one and rename. Every step after 3 until now only
+    # created, and `store._created_name` refused anything else precisely so a
+    # change like this could not slip in unannounced. It is announced:
+    # `REBUILT_OBJECTS` below names exactly the objects this step replaces,
+    # every one of them already created by the 3 -> 4 step, so the schema-3
+    # expectation `_schema_three_shape` derives is unchanged by it.
+    #
+    # NO ROW IS REINTERPRETED. The copies are column-for-column and the
+    # widened constraint admits a value nothing has yet written: an existing
+    # deployment's allocations and affinities mean exactly what they meant.
+    #
+    # `legacy_alter_table` IS ON FOR THE RENAMES, because a rename with the
+    # modern behaviour re-parses the whole schema and a sibling relation that
+    # still references the just-dropped table would make a correct migration
+    # look like a corrupt one. Foreign keys are already off for the duration
+    # (`JobStore._migrate`), and the finished shape carries the right
+    # references because the new definitions spell them.
+    9: """
+PRAGMA legacy_alter_table=ON;
+CREATE TABLE pool_workers_10 (
+  generation INTEGER NOT NULL REFERENCES pool_generations(generation),
+  worker_id TEXT NOT NULL,
+  lane TEXT NOT NULL CHECK (lane IN ('implementation', 'publication', 'review')),
+  participant TEXT NOT NULL,
+  canonical_principal TEXT NOT NULL,
+  profile_name TEXT NOT NULL,
+  profile_digest TEXT NOT NULL,
+  eligible_kinds TEXT NOT NULL,
+  PRIMARY KEY (generation, worker_id),
+  UNIQUE (generation, participant),
+  UNIQUE (generation, worker_id, lane, participant, canonical_principal)
+);
+INSERT INTO pool_workers_10 (generation, worker_id, lane, participant,
+                             canonical_principal, profile_name, profile_digest,
+                             eligible_kinds)
+  SELECT generation, worker_id, lane, participant, canonical_principal,
+         profile_name, profile_digest, eligible_kinds FROM pool_workers;
+DROP TABLE pool_workers;
+ALTER TABLE pool_workers_10 RENAME TO pool_workers;
+CREATE TABLE stage_allocations_10 (
+  assignment_id TEXT PRIMARY KEY,
+  stage_id TEXT NOT NULL,
+  episode INTEGER NOT NULL,
+  generation INTEGER NOT NULL,
+  worker_id TEXT NOT NULL,
+  lane TEXT NOT NULL CHECK (lane IN ('implementation', 'publication', 'review')),
+  participant TEXT NOT NULL,
+  canonical_principal TEXT NOT NULL,
+  preferred_worker_id TEXT,
+  selection_outcome TEXT NOT NULL CHECK (selection_outcome IN
+    ('initial', 'preferred', 'fallback')),
+  allocation_state TEXT NOT NULL CHECK (allocation_state IN
+    ('reserved', 'recovery-required', 'released')),
+  reserved_at TEXT NOT NULL,
+  recovery_required_at TEXT,
+  released_at TEXT,
+  release_reason TEXT,
+  FOREIGN KEY (stage_id, episode) REFERENCES episodes(stage_id, episode),
+  FOREIGN KEY (generation, worker_id, lane, participant, canonical_principal)
+    REFERENCES pool_workers(generation, worker_id, lane, participant,
+                            canonical_principal),
+  CHECK ((allocation_state = 'reserved' AND recovery_required_at IS NULL
+          AND released_at IS NULL AND release_reason IS NULL)
+      OR (allocation_state = 'recovery-required'
+          AND recovery_required_at IS NOT NULL AND released_at IS NULL
+          AND release_reason IS NULL)
+      OR (allocation_state = 'released' AND released_at IS NOT NULL
+          AND release_reason IS NOT NULL))
+);
+INSERT INTO stage_allocations_10 (assignment_id, stage_id, episode, generation,
+                                  worker_id, lane, participant,
+                                  canonical_principal, preferred_worker_id,
+                                  selection_outcome, allocation_state,
+                                  reserved_at, recovery_required_at,
+                                  released_at, release_reason)
+  SELECT assignment_id, stage_id, episode, generation, worker_id, lane,
+         participant, canonical_principal, preferred_worker_id,
+         selection_outcome, allocation_state, reserved_at,
+         recovery_required_at, released_at, release_reason
+    FROM stage_allocations;
+DROP TABLE stage_allocations;
+ALTER TABLE stage_allocations_10 RENAME TO stage_allocations;
+CREATE UNIQUE INDEX allocations_one_live_per_worker
+  ON stage_allocations(worker_id)
+  WHERE allocation_state IN ('reserved', 'recovery-required');
+CREATE UNIQUE INDEX allocations_one_live_per_principal
+  ON stage_allocations(canonical_principal)
+  WHERE allocation_state IN ('reserved', 'recovery-required');
+CREATE UNIQUE INDEX allocations_one_live_per_stage_episode
+  ON stage_allocations(stage_id, episode)
+  WHERE allocation_state IN ('reserved', 'recovery-required');
+CREATE TABLE worker_affinity_10 (
+  development_line TEXT NOT NULL,
+  lane TEXT NOT NULL CHECK (lane IN ('implementation', 'publication', 'review')),
+  worker_id TEXT NOT NULL,
+  recorded_at TEXT NOT NULL,
+  PRIMARY KEY (development_line, lane)
+);
+INSERT INTO worker_affinity_10 (development_line, lane, worker_id, recorded_at)
+  SELECT development_line, lane, worker_id, recorded_at FROM worker_affinity;
+DROP TABLE worker_affinity;
+ALTER TABLE worker_affinity_10 RENAME TO worker_affinity;
+PRAGMA legacy_alter_table=OFF;
+""",
 }
+
+# W385695: WHICH OBJECTS A NON-CREATING STEP REPLACES, declared rather than
+# parsed. `store._created_name` subtracts what every step after 3 CREATES to
+# derive the schema-3 expectation, and it refuses an unrecognised verb so that
+# a step changing an existing object cannot be subtracted wrongly. A rebuild
+# step is admitted exactly when every object it replaces was already created
+# by an earlier step -- which is what makes the subtraction still correct --
+# and `store` proves that rather than taking this table's word for it.
+REBUILT_OBJECTS = {
+    9: ("pool_workers", "stage_allocations", "worker_affinity",
+        "allocations_one_live_per_worker", "allocations_one_live_per_principal",
+        "allocations_one_live_per_stage_episode"),
+}
+# The verbs a declared rebuild step may use, and nothing wider. There is no
+# `UPDATE` here on purpose: a step that rewrote a row's MEANING would be this
+# build reinterpreting durable history, and every rebuild in this table copies
+# column for column.
+REBUILD_VERBS = ("CREATE", "INSERT", "DROP", "ALTER", "PRAGMA")
 
 OPERATION_COLUMNS = {
     "operation_id": Column("identity"),

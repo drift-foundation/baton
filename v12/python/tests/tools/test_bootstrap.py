@@ -240,6 +240,162 @@ class AnInstanceMayNameItsSourceWithoutAJob(ValidFixture):
                 self.assertIn("Nothing was changed", str(caught.exception))
 
 
+class ADeploymentMayInstallOnePublicationWorker(ValidFixture):
+    """W385695 / REC-9, review 2026-11-23T18-55-03Z R1: the install document
+    may name the deterministic publication worker, once.
+
+    THE DOCUMENT IS THE INSTALLER'S OWN. `tools.pool.composed` composes the
+    worker against this instance and these cases name it in the bootstrap
+    input, which is how an installed instance is reconfigured -- and which is
+    the document a recovery's additive binding is later prepared from, so a
+    publisher named anywhere else would not survive its first recovery.
+    """
+
+    PUBLISHER = "baton.publisher"
+    RECORD = "work/records/2026/11/finding-v12-output-publication-recovery"
+
+    def setUp(self):
+        from tools import pool
+
+        super().setUp()
+        document = self.document()
+        document.pop("jobs", None)
+        with open(os.devnull, "w") as quiet:
+            first = bootstrap.prepare(document, stream=quiet)
+        record = Path(self.checkout, self.RECORD)
+        record.mkdir(parents=True, exist_ok=True)
+        (record / "FINDING.md").write_text("# Finding\n")
+        (record / "PLAN.md").write_text("# Plan\n")
+        task = os.path.join(self.root, "publication-task.json")
+        Path(task).write_text(json.dumps(
+            {"schema": pool.PUBLICATION_TASK_SCHEMA,
+             "task_id": "publication-idle",
+             "instructions": "adopt the approved retained output"},
+            sort_keys=True))
+        self.composing = lambda **changes: pool.composed(
+            first["configuration"], **dict(dict(
+                worker_id="publisher", role="publication",
+                participant=self.PUBLISHER,
+                image_reference="baton-v12-publication:test",
+                image_digest="sha256:" + "c" * 64, cli_build=None,
+                network=None, credential_sources=None, credentials=None,
+                workspace_group=self.config["workspace_group"],
+                task_document=task, record_path=self.RECORD,
+                checkout=self.checkout, now="2026-11-23T00:00:00.000Z"),
+                **changes))["worker"]
+        self.publisher = self.composing()
+        self.staging = bootstrap.publication_staging(self.state)
+
+    def installing(self, *extra):
+        document = self.document(
+            workers=self.workers() + [self.publisher] + list(extra))
+        document.pop("jobs", None)
+        return document
+
+    def test_the_repeat_installs_it_on_the_route_a_recovery_claims_from(self):
+        from baton_v12.authority import Authority
+        from tools import publication_worker, stage_execution
+
+        document = self.installing()
+        # ITS STAGING ROOT IS ONE OF THE ROOTS A WORKER NEEDS BEFORE IT RUNS,
+        # and is prepared with them; no repository is planned for it.
+        self.assertEqual(self.publisher["deployment"]["nominated_source"],
+                         self.staging)
+        self.assertEqual(bootstrap.PUBLICATION_STAGING,
+                         publication_worker.DEFAULT_STAGING)
+        self.assertIn(("publisher", "nominated_source", self.staging),
+                      bootstrap.prerequisite_places(document))
+        from tools import instance
+
+        places = instance.layout(self.state)
+        self.assertNotIn("source-publisher", [
+            name for name, _place, _mirror in
+            bootstrap.repository_plan(document, places)])
+        os.makedirs(self.staging, mode=0o700)
+        with open(os.devnull, "w") as quiet:
+            installed = bootstrap.prepare(document, stream=quiet)
+        configured = installed["configuration"]
+        held = [one for one in configured["workers"]
+                if one["role"] == "publication"]
+        self.assertEqual([one["worker_id"] for one in held], ["publisher"])
+        self.assertEqual(held[0]["deployment"]["launch_role"], "publication")
+        self.assertEqual(held[0]["deployment"]["principal"],
+                         installed["principals"][self.PUBLISHER])
+        stage_execution.held_configuration(configured, checkout=self.checkout)
+        # THE THREE A JOB IS MADE OF ARE STILL THE THREE.
+        self.assertEqual(sorted(installed["capacity"]["workers_by_role"]),
+                         sorted(bootstrap.ROLES))
+        authority = Authority.open_readonly(
+            installed["places"]["authority_store"],
+            expected_authority_uuid=installed["authority_uuid"])
+        try:
+            # A RECOVERY REUSES THE FAILED JOB'S WORK WHERE ITS PRODUCER LEFT
+            # IT, so the publisher is a handler of the implementation route.
+            self.assertTrue(authority.handles_route(
+                bootstrap.ROUTES["implementation"], self.PUBLISHER))
+            self.assertFalse(authority.handles_route(
+                bootstrap.ROUTES["review"], self.PUBLISHER))
+        finally:
+            authority.dispose()
+
+    def test_a_deployment_with_a_publisher_says_its_bindings_out_loud(self):
+        """ONE JOB, ONE WORKER PER ROLE, AND A PUBLISHER is still the
+        multi-Job document: every recovery it serves is a second Job bound
+        beside the one it recovers, which the one-Job document cannot name."""
+        document = dict(self.installing(),
+                        jobs=[self.job(work_id=self.work)])
+        self.assertEqual(bootstrap.variant(document),
+                         bootstrap.MULTI_JOB_SCHEMA)
+        self.assertEqual(bootstrap.variant(self.document()),
+                         bootstrap.ONE_JOB_SCHEMA)
+
+    def test_one_dedicated_publisher_and_no_other_role_word(self):
+        os.makedirs(self.staging, mode=0o700)
+        second = self.composing(worker_id="publisher-2",
+                                participant="baton.publisher-2")
+        for document, said in (
+                (self.installing(second),
+                 "at most one publication worker"),
+                (dict(self.installing(), workers=self.workers() + [dict(
+                    self.publisher, participant="baton.reviewer")]),
+                 "dedicated participant"),
+                (dict(self.installing(), workers=self.workers() + [dict(
+                    self.publisher, role="verification")]),
+                 "implementation, review, integration, publication")):
+            with self.subTest(said=said):
+                with self.assertRaises(bootstrap.BootstrapRefusal) as caught:
+                    bootstrap.held(bootstrap.without_installer_members(
+                        document))
+                self.assertIn(said, str(caught.exception))
+
+    def test_a_prepared_install_derives_its_staging_and_clones_nothing(self):
+        """THE DESTINATION INSTALL'S DERIVATIONS: a publication worker that
+        names no nominated source is given the instance's staging root, one
+        that names another is refused, and every other worker still gets its
+        own repository."""
+        from tools import instance
+
+        places = instance.layout(self.state)
+        bare = dict(self.publisher, deployment={
+            name: value
+            for name, value in self.publisher["deployment"].items()
+            if name != "nominated_source"})
+        document = dict(self.installing(), workers=self.workers() + [bare])
+        bound = bootstrap.repositories_bound(document, places)
+        named = {one["worker_id"]: one["deployment"]["nominated_source"]
+                 for one in bound["workers"]}
+        self.assertEqual(named["publisher"], self.staging)
+        elsewhere = dict(self.publisher, deployment=dict(
+            self.publisher["deployment"],
+            nominated_source=os.path.join(self.root, "elsewhere")))
+        with self.assertRaises(bootstrap.BootstrapRefusal) as caught:
+            bootstrap.repositories_agree(
+                dict(self.installing(),
+                     workers=[elsewhere]), places)
+        self.assertIn("workers[publisher].nominated_source",
+                      str(caught.exception))
+
+
 class ARepeatProvisionsTheWorkerSourcesItNames(ValidFixture):
     """W321608: the one-operand repeat clones each NEW worker's nominated
     source from the instance's own target and proves it, under the same lock

@@ -546,7 +546,9 @@ class PublicationCase(unittest.TestCase):
             with open(os.path.join((roots or self.roots)["workspace"],
                                    "output.json"), "wb") as handle:
                 handle.write(b"{}")
-        return workspaces.directory_manifest((roots or self.roots)["workspace"])
+        # THE ORIGINAL IS THE DECLARED OUTPUT DIRECTORY, which is what the
+        # host owner proves and measures (review 2026-11-23T20-28-00Z F1).
+        return workspaces.directory_manifest(place)
 
     # -- the installed command ----------------------------------------------
 
@@ -660,8 +662,9 @@ class PublicationCase(unittest.TestCase):
             return hashlib.sha256(handle.read()).hexdigest()
 
     def original_digest(self):
-        return workspaces.directory_manifest(
-            self.roots["workspace"])["tree_digest"]
+        return workspaces.directory_manifest(os.path.join(
+            self.roots["workspace"],
+            role_contract.CANDIDATE_OUTPUT))["tree_digest"]
 
     def ported(self):
         """The product's own ports, composed exactly as the command does."""
@@ -754,7 +757,9 @@ class TheOwnerInspectsTheOriginalAndDecidesIt(PublicationCase):
                          self.original["total_bytes"])
         self.assertTrue(read["output"]["exceeded"])
         self.assertTrue(read["output"]["fits_corrective"])
-        self.assertIn("proposal/result.json", read["output"]["paths"])
+        # PATHS INSIDE THE DECLARED OUTPUT DIRECTORY, which is the original.
+        self.assertIn("result.json", read["output"]["paths"])
+        self.assertNotIn("proposal/result.json", read["output"]["paths"])
 
     def test_the_producer_account_is_qualified_and_is_not_acceptance(self):
         read = self.read()
@@ -910,6 +915,19 @@ class TheApprovalReachesAClosedAdmissionBoundary(PublicationCase):
                       admission["readiness"]["detail"])
 
     def test_every_missing_prerequisite_is_named_with_the_owner_that_holds_it(self):
+        """WHAT THIS INSTANCE CANNOT SERVE, named by the owner that holds it.
+
+        W385695 checkpoint 2 INSTALLED THIS BUILD'S FOUR -- the `/4`
+        generation, the publication lane under `baton.v12.worker-pool/2`,
+        store generation 10 and the enforced control profile -- so this case
+        no longer asserts their absence. What it asserts instead is the
+        property that outlives them: the answer is read from the owner that
+        holds each fact, so the ONE this fixture's deployment does not hold
+        is the one reported missing. THIS FIXTURE'S BINDING PORT ANSWERS FOR
+        NO PUBLICATION WORKER, which is a real deployment state -- an
+        instance that has not installed the reusable worker -- and it is
+        exactly what must keep an admission held.
+        """
         read = self.read()
         _code, answer = self.decide(read)
         owed = {one["name"]: one for one in
@@ -918,18 +936,21 @@ class TheApprovalReachesAClosedAdmissionBoundary(PublicationCase):
                          ["job-store-generation", "publication-control-profile",
                           "publication-lane", "publication-stage-vocabulary",
                           "publication-worker"])
-        self.assertTrue(all(not one["available"] for one in owed.values()))
+        self.assertEqual(sorted(name for name, one in owed.items()
+                                if not one["available"]),
+                         ["publication-worker"])
         self.assertTrue(all(one["checkpoint"] == 2 for one in owed.values()))
-        # THE LANE IS THE ONE THAT MATTERS, and the fact behind it is read
-        # from the scheduler rather than asserted: this build maps every
-        # non-review stage to the implementation lane, which is exactly what
-        # "never map publication to implementation" forbids.
-        self.assertNotIn("publication", scheduler.LANES)
-        self.assertIn("implementation",
-                      owed["publication-lane"]["observed"])
-        self.assertNotIn("publication", documents.STAGE_KINDS)
-        self.assertNotIn(publication_recovery.RECOVERY_SUBMISSION,
-                         documents.SUBMISSION_SCHEMAS)
+        # THE LANE IS THE ONE THAT MATTERS, and the fact behind it is still
+        # read from the scheduler rather than asserted: the stage-to-lane map
+        # now sends a publication stage to its OWN lane, which is what
+        # "never map publication to implementation" requires.
+        self.assertIn("publication", scheduler.LANES)
+        self.assertEqual(scheduler.lane_of("publication"), "publication")
+        self.assertIn("'publication'", owed["publication-lane"]["observed"])
+        self.assertIn("publication", documents.STAGE_KINDS)
+        self.assertNotIn("publication", documents.ORDINARY_STAGE_KINDS)
+        self.assertIn(publication_recovery.RECOVERY_SUBMISSION,
+                      documents.SUBMISSION_SCHEMAS)
         self.assertEqual(
             owed["publication-worker"]["observed"][:9], "not asked")
 
@@ -944,11 +965,12 @@ class TheApprovalReachesAClosedAdmissionBoundary(PublicationCase):
         self.assertEqual(gate["decision_id"], "D1")
         self.assertEqual(gate["prior_job_id"], self.job_id)
         self.assertEqual(gate["candidate"]["head"], HEAD)
+        # ONE PREREQUISITE, because this fixture's deployment installs no
+        # publication worker; the other four are this build's and checkpoint 2
+        # installed them. The gate is shut either way, and `runnable` is False
+        # either way, which is the property this case is about.
         self.assertEqual(sorted(gate["prerequisites"]),
-                         ["job-store-generation",
-                          "publication-control-profile", "publication-lane",
-                          "publication-stage-vocabulary",
-                          "publication-worker"])
+                         ["publication-worker"])
 
     def test_the_whole_path_starts_nothing_and_reserves_no_identity(self):
         """ZERO publication, reviewer and provider starts, proved by absence.
@@ -1273,10 +1295,17 @@ class TheCandidateMustCorrespondThroughTheSourceOwner(PublicationCase):
                                "objects.bundle.keep"))
         import shutil
 
+        # A SECOND BUNDLE OF THE SAME NAME INSIDE THE ORIGINAL, one level
+        # down. It used to be placed at the writable root beside the declared
+        # output, which is no longer part of what is measured.
+        os.mkdir(os.path.join(self.roots["workspace"],
+                              role_contract.CANDIDATE_OUTPUT, "second"))
         shutil.copyfile(
             os.path.join(self.roots["workspace"],
                          role_contract.CANDIDATE_OUTPUT, "objects.bundle"),
-            os.path.join(self.roots["workspace"], "objects.bundle"))
+            os.path.join(self.roots["workspace"],
+                         role_contract.CANDIDATE_OUTPUT, "second",
+                         "objects.bundle"))
         read = self.read()
         self.assertFalse(read["eligible"])
         self.assertIn("exactly one measured file",
@@ -1315,13 +1344,42 @@ class OnlyTheAuthorizedOwnerDecidesAndOnlyInTheWorksScope(PublicationCase):
                       caught.message)
 
     def test_the_scope_is_the_works_own_and_is_not_an_operand(self):
-        """There is no `--scope` and no `--actor` on this surface at all."""
+        """There is no `--scope` and no `--actor` on this surface at all.
+
+        W385695 checkpoint 2 CORRECTED THIS CASE, and the correction is the
+        point of reading it. The loop below used to search
+        `publication_decision.main.__module__`, which is the string
+        `'tools.publication_decision'` -- a module NAME. Every assertion in it
+        was vacuously true: `'--scope '` is not a substring of a dotted module
+        path and never could be, so a surface that really did grow an
+        `--actor` operand would have passed unchanged. The native reviewer
+        named it and it is fixed here rather than carried forward.
+
+        WHAT IT SEARCHES NOW IS THE SOURCE, read through `inspect.getsource`
+        so the bytes examined are the ones the interpreter loaded. And the
+        search is over the ARGUMENT PARSER's own operands rather than over the
+        whole file: this module's prose names `--scope` and `--actor` in order
+        to say it has neither, so a naive substring search over the source
+        would fail on the documentation that promises the property.
+        """
+        import inspect
+
         from tools import publication_decision
 
         self.assertIn("THERE IS NO `--actor`, NO `--scope` AND NO "
                       "`--output-path`", publication_decision.__doc__)
-        for word in ("--actor", "--scope", "--output-path", "--attempt"):
-            self.assertNotIn(word + " ", publication_decision.main.__module__)
+        source = inspect.getsource(publication_decision)
+        self.assertIn("def main", source)          # the real source, not a name
+        declared = set()
+        for line in source.split("\n"):
+            for word in line.split('"'):
+                if word.startswith("--"):
+                    declared.add(word.split()[0])
+        self.assertIn("--participant", declared)
+        self.assertIn("--job", declared)
+        for word in ("--actor", "--scope", "--output-path", "--attempt",
+                     "--candidate", "--digest"):
+            self.assertNotIn(word, declared)
         read = self.read("--participant", OWNER)
         self.assertEqual(read["authorization"]["effective_scope"], WORK_SCOPE)
         self.assertNotEqual(WORK_SCOPE, "scope:deployment")
@@ -1581,8 +1639,18 @@ class OrdinaryAdmissionCannotNameTheRecoveryContracts(PublicationCase):
                                   "depends_on": []}]}]})
         self.assertIn(publication_recovery.PUBLICATION_PROFILE,
                       caught.message)
-        self.assertNotIn(publication_recovery.PUBLICATION_PROFILE,
-                         job_control.PROFILES)
+        # AND THE GUARD THAT REFUSED IT IS THE CONTROL OWNER'S, over EVERY
+        # recovery profile rather than over one. Checkpoint 1 asserted that
+        # this build held no such profile at all, which was true then and is
+        # the wrong property now: checkpoint 2 enforces it, so what must hold
+        # is that an ordinary submission still cannot name it.
+        self.assertIn(publication_recovery.PUBLICATION_PROFILE,
+                      job_control.PROFILES)
+        self.assertIn(publication_recovery.PUBLICATION_PROFILE,
+                      job_control.RECOVERY_PROFILES)
+        with self.assertRaises(ContractRefusal):
+            job_control.require_ordinary_profile(
+                {"profile": publication_recovery.PUBLICATION_PROFILE})
 
     def test_an_ordinary_creation_naming_the_recovery_template_is_refused(self):
         caught = self.refusal(
@@ -1614,8 +1682,15 @@ class OrdinaryAdmissionCannotNameTheRecoveryContracts(PublicationCase):
                                   "profile_name": "reference",
                                   "profile_digest": "sha256:" + "b" * 64,
                                   "depends_on": []}]}]})
-        self.assertIn("a stage kind is one of", caught.message)
-        self.assertNotIn("publication", documents.STAGE_KINDS)
+        # THE REFUSAL IS THE GENERATION'S, not "unknown kind". Checkpoint 2
+        # added `publication` to the one closed vocabulary and admitted it
+        # ONLY through the `/4` recovery generation, so an ordinary `/2`
+        # submission naming it is refused as the wrong GENERATION -- which is
+        # a stronger statement than "this build has never heard of it".
+        self.assertIn(documents.SUBMISSION_RECOVERY_SCHEMA, caught.message)
+        self.assertIn("admitted only by", caught.message)
+        self.assertIn("publication", documents.STAGE_KINDS)
+        self.assertNotIn("publication", documents.ORDINARY_STAGE_KINDS)
 
 
 # -- 7. what this checkpoint is, said out loud -------------------------------
@@ -1684,4 +1759,16 @@ class TheBuildHoldsTheOwnerSelectionsItClaimsTo(unittest.TestCase):
         self.assertEqual(readiness["publication"], "unavailable")
         self.assertEqual(readiness["review"], "blocked")
         self.assertEqual(readiness["offers"], 0)
-        self.assertIn("checkpoint 2", readiness["owed_by"])
+        self.assertIn("prerequisites", readiness["owed_by"])
+        self.assertIn("reserved no Job identity", readiness["detail"])
+        # AND THE OTHER SHAPE SAYS THE OTHER TRUTH, which is the half this
+        # case exists to keep honest: an ADMITTED recovery has published
+        # nothing either, and its own readiness says so rather than letting a
+        # Job id read as progress.
+        admitted = publication_recovery.admission_readiness(
+            {"state": "admitted"})
+        self.assertEqual(admitted["admission"], "admitted")
+        self.assertEqual(admitted["publication"], "queued")
+        self.assertEqual(admitted["review"], "blocked")
+        self.assertEqual(admitted["offers"], 0)
+        self.assertIn("NOTHING HAS BEEN PUBLISHED", admitted["detail"])

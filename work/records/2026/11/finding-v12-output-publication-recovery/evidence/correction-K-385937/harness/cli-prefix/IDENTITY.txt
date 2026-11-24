@@ -1,0 +1,9 @@
+Pinned provider CLI 2.1.247 (v12/worker/Dockerfile.claude), public npm package, fetched into scratch; the binary is not retained here. sha256:
+c6697aa74f8f6c0a1167fcf800ca976b34b89c0170dead133aead97b1ed18471  anthropic-ai-claude-code-linux-x64-2.1.247.tgz
+5fb321bf417ffc5cd4e3f36e7c9c7e029bf47aaa36d5621db979fcc5e6eabe15  native/package/claude
+
+driver-host-run.json: cli-in-image-driver.py run ON THE HOST (no container) with that binary, stub.py and the candidate's
+v12/worker/bounded_command.py (sha256 below) as CLAUDE_CODE_SHELL_PREFIX. No model, no credential.
+828b20fe3ea6910824582325dfe86036d6a1126e6aa59411d3e32f23eb4e85f7
+driver-host-run-relative-prefix-fails.json: the same with a prefix the CLI cannot execute; every command fails closed.
+prefix-argv.log: what the CLI hands a logging prefix (one argument).

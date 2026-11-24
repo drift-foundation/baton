@@ -1,0 +1,2 @@
+[{"command":"setsid nohup sleep 311 >/dev/null 2>&1 & sleep 312","description":"cli-side timeout","timeout":2000},
+ {"command":"sleep 4; pgrep -af 'sleep 31[0-9]' | grep -v pgrep || echo none-alive","description":"observe"}]

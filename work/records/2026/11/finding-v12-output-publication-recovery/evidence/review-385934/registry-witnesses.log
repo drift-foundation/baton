@@ -1,0 +1,17 @@
+{"cwd": "/home/sl/src/baton/work/scratch/w385695-review-385934/v12/python", "argv": ["just", "test-one", "tests.manager.test_boundary_inventory.EveryStatedOwnerHasAWitness", "tests.manager.test_boundary_inventory.StatedRules.test_recovery_freeze_excludes_a_later_or_active_writer", "tests.manager.test_boundary_inventory.StatedRules.test_recovery_freeze_excludes_a_writer_that_already_has_a_checkpoint", "tests.manager.test_boundary_inventory.StatedRules.test_recovery_freeze_replay_hands_the_committed_fence_on_unread", "tests.manager.test_boundary_inventory.StatedRules.test_recovery_freeze_profile_owner", "tests.manager.test_boundary_inventory.StatedRules.test_retained_line_home_excludes_a_later_or_active_writer"], "timeout_seconds": 90, "scratch": "/home/sl/src/baton/work/scratch/w385695-review-385934-tests"}
+test_every_stated_owner_names_a_witness_that_exists (tests.manager.test_boundary_inventory.EveryStatedOwnerHasAWitness.test_every_stated_owner_names_a_witness_that_exists) ... ok
+test_recovery_freeze_excludes_a_later_or_active_writer (tests.manager.test_boundary_inventory.StatedRules.test_recovery_freeze_excludes_a_later_or_active_writer)
+`line_writers` at the freeze: an existence answer, asked under the ... ok
+test_recovery_freeze_excludes_a_writer_that_already_has_a_checkpoint (tests.manager.test_boundary_inventory.StatedRules.test_recovery_freeze_excludes_a_writer_that_already_has_a_checkpoint)
+`line_checkpoints` at the freeze: an existence answer for this ... ok
+test_recovery_freeze_replay_hands_the_committed_fence_on_unread (tests.manager.test_boundary_inventory.StatedRules.test_recovery_freeze_replay_hands_the_committed_fence_on_unread)
+`replay` at the freeze: the committed fence is handed whole to ... ok
+test_recovery_freeze_profile_owner (tests.manager.test_boundary_inventory.StatedRules.test_recovery_freeze_profile_owner)
+`profile` at the freeze: an injected aggregate whose name and whose ... ok
+test_retained_line_home_excludes_a_later_or_active_writer (tests.manager.test_boundary_inventory.StatedRules.test_retained_line_home_excludes_a_later_or_active_writer)
+`line_writers` at the retained line home read: an existence answer ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.293s
+
+OK

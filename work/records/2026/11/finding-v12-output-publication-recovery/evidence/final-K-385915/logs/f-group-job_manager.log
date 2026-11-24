@@ -1,0 +1,1016 @@
+[collect] start 1/35 tests.job_manager.test_accepted_offer_retirement
+[collect] start 2/35 tests.job_manager.test_delegation
+[collect] start 3/35 tests.job_manager.test_documents
+[collect] start 4/35 tests.job_manager.test_ending
+[collect] start 5/35 tests.job_manager.test_exchange
+[collect] start 6/35 tests.job_manager.test_launch
+[collect] start 7/35 tests.job_manager.test_recovery
+[collect] start 8/35 tests.job_manager.test_restart
+[collect] start 9/35 tests.job_manager.test_scheduling
+[collect] start 10/35 tests.job_manager.test_status
+[collect] start 11/35 tests.job_manager.test_store
+[collect] start 12/35 tests.job_manager.test_submission
+[collect] start 13/35 tests.job_manager.test_sweep
+[collect] start 14/35 tests.job_manager.test_tool
+[collect] start 15/35 tests.job_manager.test_final_allocation_release
+[collect] start 16/35 tests.job_manager.test_execution_limits
+[collect] start 17/35 tests.job_manager.test_managed_integration_capacity
+[collect] start 18/35 tests.job_manager.test_creation
+[collect] start 19/35 tests.job_manager.test_fresh_attempt
+[collect] start 20/35 tests.job_manager.test_native_handoffs
+[collect] start 21/35 tests.job_manager.test_native_permission
+[collect] start 22/35 tests.job_manager.test_native_stop_restart
+[collect] start 23/35 tests.job_manager.test_retained_failure_analysis
+[collect] start 24/35 tests.job_manager.test_retained_recovery_admission
+[collect] start 25/35 tests.job_manager.test_retained_recovery_execution
+[collect] start 26/35 tests.job_manager.test_publication_recovery_admission
+[collect] start 27/35 tests.job_manager.test_publication_recovery_execution
+[collect] start 28/35 tests.job_manager.test_job_cancellation
+[collect] start 29/35 tests.job_manager.test_job_control
+[collect] start 30/35 tests.job_manager.test_role_capability
+[collect] start 31/35 tests.job_manager.test_role_contract
+[collect] start 32/35 tests.job_manager.test_proposal_output_limit
+[collect] done  1/35 tests.job_manager.test_delegation rc=0 in 0.32s
+[collect] start 33/35 tests.job_manager.test_serving_renewal
+[collect] done  2/35 tests.job_manager.test_exchange rc=0 in 0.32s
+[collect] start 34/35 tests.job_manager.test_store_readonly
+[collect] done  3/35 tests.job_manager.test_scheduling rc=0 in 0.33s
+[collect] done  4/35 tests.job_manager.test_status rc=0 in 0.33s
+[collect] done  5/35 tests.job_manager.test_sweep rc=0 in 0.33s
+[collect] done  6/35 tests.job_manager.test_final_allocation_release rc=0 in 0.33s
+[collect] done  7/35 tests.job_manager.test_execution_limits rc=0 in 0.33s
+[collect] done  8/35 tests.job_manager.test_creation rc=0 in 0.33s
+[collect] start 35/35 tests.job_manager.test_templates
+[collect] done  9/35 tests.job_manager.test_publication_recovery_admission rc=0 in 0.34s
+[collect] done  10/35 tests.job_manager.test_recovery rc=0 in 0.35s
+[collect] done  11/35 tests.job_manager.test_restart rc=0 in 0.35s
+[collect] done  12/35 tests.job_manager.test_accepted_offer_retirement rc=0 in 0.36s
+[collect] done  13/35 tests.job_manager.test_documents rc=0 in 0.36s
+[collect] done  14/35 tests.job_manager.test_launch rc=0 in 0.36s
+[collect] done  15/35 tests.job_manager.test_submission rc=0 in 0.36s
+[collect] done  16/35 tests.job_manager.test_native_permission rc=0 in 0.36s
+[collect] done  17/35 tests.job_manager.test_native_stop_restart rc=0 in 0.36s
+[collect] done  18/35 tests.job_manager.test_tool rc=0 in 0.37s
+[collect] done  19/35 tests.job_manager.test_job_cancellation rc=0 in 0.37s
+[collect] done  20/35 tests.job_manager.test_managed_integration_capacity rc=0 in 0.38s
+[collect] done  21/35 tests.job_manager.test_retained_recovery_admission rc=0 in 0.38s
+[collect] done  22/35 tests.job_manager.test_store rc=0 in 0.39s
+[collect] done  23/35 tests.job_manager.test_native_handoffs rc=0 in 0.39s
+[collect] done  24/35 tests.job_manager.test_retained_failure_analysis rc=0 in 0.39s
+[collect] done  25/35 tests.job_manager.test_fresh_attempt rc=0 in 0.39s
+[collect] done  26/35 tests.job_manager.test_retained_recovery_execution rc=0 in 0.40s
+[collect] done  27/35 tests.job_manager.test_publication_recovery_execution rc=0 in 0.41s
+[collect] done  28/35 tests.job_manager.test_proposal_output_limit rc=0 in 0.43s
+[collect] done  29/35 tests.job_manager.test_ending rc=0 in 0.47s
+[collect] done  30/35 tests.job_manager.test_role_capability rc=0 in 0.46s
+[collect] done  31/35 tests.job_manager.test_role_contract rc=0 in 0.46s
+[collect] done  32/35 tests.job_manager.test_job_control rc=0 in 0.50s
+[collect] done  33/35 tests.job_manager.test_templates rc=0 in 0.21s
+[collect] done  34/35 tests.job_manager.test_serving_renewal rc=0 in 0.23s
+[collect] done  35/35 tests.job_manager.test_store_readonly rc=0 in 0.23s
+[collect-serial] start 1/1 tests.job_manager.test_review_driver
+[collect-serial] done  1/1 tests.job_manager.test_review_driver rc=0 in 0.20s
+[parallel] start 1/309 tests.job_manager.test_accepted_offer_retirement.AcceptedOfferRetirement
+[parallel] start 2/309 tests.job_manager.test_creation.ChangedIntent
+[parallel] start 3/309 tests.job_manager.test_creation.CreateTimeWorkLabelsAreAppliedByTheActThatMakesTheWork
+[parallel] start 4/309 tests.job_manager.test_creation.InterruptionAndRecovery
+[parallel] start 5/309 tests.job_manager.test_creation.OneIdentityHasOneOwnerAcrossEveryEntryPoint
+[parallel] start 6/309 tests.job_manager.test_creation.ReplayAndIdentity
+[parallel] start 7/309 tests.job_manager.test_creation.TheCommandRequestsTheOperation
+[parallel] start 8/309 tests.job_manager.test_creation.TheCreation
+[parallel] start 9/309 tests.job_manager.test_creation.TheGenerationAgreement
+[parallel] start 10/309 tests.job_manager.test_creation.TheReplayIsTheCallersIntent
+[parallel] start 11/309 tests.job_manager.test_creation.TheRequestedVerificationIsTheJobsOwn
+[parallel] start 12/309 tests.job_manager.test_creation.TheRetryContractIsPreserved
+[parallel] start 13/309 tests.job_manager.test_creation.TheSelectedResultContractIsAdmittedBeforeAnyEffect
+[parallel] start 14/309 tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect
+[parallel] start 15/309 tests.job_manager.test_delegation.Binding
+[parallel] start 16/309 tests.job_manager.test_delegation.CanonicalIdentities
+[parallel] start 17/309 tests.job_manager.test_delegation.Observation
+[parallel] start 18/309 tests.job_manager.test_delegation.TheBearer
+[parallel] start 19/309 tests.job_manager.test_delegation.TheIntegrationObservationIsBoundBeforeItIsRead
+[parallel] start 20/309 tests.job_manager.test_documents.Dependencies
+[parallel] start 21/309 tests.job_manager.test_documents.Identity
+[parallel] start 22/309 tests.job_manager.test_documents.SubmissionShape
+[parallel] start 23/309 tests.job_manager.test_documents.TheExclusionEndingIsItsOwnClosedVocabulary
+[parallel] start 24/309 tests.job_manager.test_ending.ACorrectionRoundDoesNotStrandTheEndingItReplaced
+[parallel] start 25/309 tests.job_manager.test_ending.APresentInvalidRecordIsNotAbsence
+[parallel] start 26/309 tests.job_manager.test_ending.ARecordIsProvedAgainstTheRowsThisStoreHolds
+[parallel] start 27/309 tests.job_manager.test_ending.ARegisteredEndingStaysOwedAfterTerminalCleanup
+[parallel] start 28/309 tests.job_manager.test_ending.ASignatureIsNotOwnership
+[parallel] start 29/309 tests.job_manager.test_ending.ATYPEDCheckpointRefusalDoesNotEndTheLOOPHereEither
+[parallel] start 30/309 tests.job_manager.test_ending.NoCallerDocumentStandsInForAStoredRecord
+[parallel] start 31/309 tests.job_manager.test_ending.TheObligationIsOneClosedCorrelatedRecord
+[parallel] start 32/309 tests.job_manager.test_ending.TheOrdinaryTickAsksAgainUntilItSettles
+[parallel] done  1/309 tests.job_manager.test_documents.SubmissionShape rc=0 in 0.32s
+[parallel] start 33/309 tests.job_manager.test_ending.TheWholePayloadIsOwnedOnTheWayOutToo
+[parallel] done  2/309 tests.job_manager.test_delegation.TheIntegrationObservationIsBoundBeforeItIsRead rc=0 in 0.34s
+[parallel] done  3/309 tests.job_manager.test_documents.Identity rc=0 in 0.34s
+[parallel] start 34/309 tests.job_manager.test_ending.WhatAWriteWillNotAcceptEither
+[parallel] start 35/309 tests.job_manager.test_exchange.ACHECKPOINTPROFILESOwnRefusalDoesNotEndTheLoop
+[parallel] done  4/309 tests.job_manager.test_creation.TheRetryContractIsPreserved rc=0 in 0.35s
+[parallel] start 36/309 tests.job_manager.test_exchange.AReaderWithNoExchangeStillTellsTheTruth
+[parallel] done  5/309 tests.job_manager.test_documents.TheExclusionEndingIsItsOwnClosedVocabulary rc=0 in 0.37s
+[parallel] start 37/309 tests.job_manager.test_exchange.AStartedContainerIsNotWorkInProgress
+[parallel] done  6/309 tests.job_manager.test_creation.TheCommandRequestsTheOperation rc=0 in 0.39s
+[parallel] start 38/309 tests.job_manager.test_exchange.AnIntegrationStageOwesConcludeAndNeverDispatch
+[parallel] done  7/309 tests.job_manager.test_creation.InterruptionAndRecovery rc=0 in 0.40s
+[parallel] done  8/309 tests.job_manager.test_creation.TheRequestedVerificationIsTheJobsOwn rc=0 in 0.40s
+[parallel] done  9/309 tests.job_manager.test_documents.Dependencies rc=0 in 0.39s
+[parallel] done  10/309 tests.job_manager.test_ending.ARecordIsProvedAgainstTheRowsThisStoreHolds rc=0 in 0.39s
+[parallel] start 39/309 tests.job_manager.test_exchange.TheCommandIsLevelTriggered
+[parallel] start 40/309 tests.job_manager.test_exchange.TheEndingIsLevelTriggeredToo
+[parallel] start 41/309 tests.job_manager.test_execution_limits.ANewDefaultCannotReinterpretAnAdmittedJob
+[parallel] start 42/309 tests.job_manager.test_execution_limits.TheJobOwnerComposesItsOwnLaunchContext
+[parallel] done  11/309 tests.job_manager.test_delegation.TheBearer rc=0 in 0.41s
+[parallel] start 43/309 tests.job_manager.test_execution_limits.TheMigrationLeavesOldJobsMeaningExactlyWhatTheyMeant
+[parallel] done  12/309 tests.job_manager.test_creation.TheGenerationAgreement rc=0 in 0.42s
+[parallel] start 44/309 tests.job_manager.test_execution_limits.TheSettingsAreOwnedBeforeAnythingIsStored
+[parallel] done  13/309 tests.job_manager.test_creation.TheSelectedResultContractIsAdmittedBeforeAnyEffect rc=0 in 0.44s
+[parallel] start 45/309 tests.job_manager.test_execution_limits.TheStoreKeepsWhatTheJobAskedFor
+[parallel] done  14/309 tests.job_manager.test_delegation.CanonicalIdentities rc=0 in 0.46s
+[parallel] done  15/309 tests.job_manager.test_delegation.Observation rc=0 in 0.46s
+[parallel] done  16/309 tests.job_manager.test_ending.ACorrectionRoundDoesNotStrandTheEndingItReplaced rc=0 in 0.46s
+[parallel] start 46/309 tests.job_manager.test_execution_limits.TheSubmissionCarriesThemOnlyWhereItsVersionSaysSo
+[parallel] start 47/309 tests.job_manager.test_final_allocation_release.AnUnprovenEndingKeepsItsCapacity
+[parallel] start 48/309 tests.job_manager.test_final_allocation_release.TheEndingTickReturnsTheCapacity
+[parallel] done  17/309 tests.job_manager.test_creation.TheReplayIsTheCallersIntent rc=0 in 0.47s
+[parallel] done  18/309 tests.job_manager.test_delegation.Binding rc=0 in 0.47s
+[parallel] done  19/309 tests.job_manager.test_ending.APresentInvalidRecordIsNotAbsence rc=0 in 0.47s
+[parallel] done  20/309 tests.job_manager.test_ending.ASignatureIsNotOwnership rc=0 in 0.47s
+[parallel] start 49/309 tests.job_manager.test_final_allocation_release.TheFreedCapacityServesTheNextJob
+[parallel] start 50/309 tests.job_manager.test_final_allocation_release.TheSettlementHappensExactlyOnce
+[parallel] start 51/309 tests.job_manager.test_fresh_attempt.EveryOwnerSaysWhichInstance
+[parallel] start 52/309 tests.job_manager.test_fresh_attempt.ExclusiveInvocation
+[parallel] done  21/309 tests.job_manager.test_creation.ChangedIntent rc=0 in 0.48s
+[parallel] done  22/309 tests.job_manager.test_ending.ARegisteredEndingStaysOwedAfterTerminalCleanup rc=0 in 0.47s
+[parallel] start 53/309 tests.job_manager.test_fresh_attempt.OneCoherentOwnershipRule
+[parallel] start 54/309 tests.job_manager.test_fresh_attempt.OwnershipAcrossTheEffects
+[parallel] done  23/309 tests.job_manager.test_creation.ReplayAndIdentity rc=0 in 0.49s
+[parallel] start 55/309 tests.job_manager.test_fresh_attempt.ReplayAndUniqueness
+[parallel] done  24/309 tests.job_manager.test_ending.NoCallerDocumentStandsInForAStoredRecord rc=0 in 0.54s
+[parallel] done  25/309 tests.job_manager.test_ending.TheObligationIsOneClosedCorrelatedRecord rc=0 in 0.54s
+[parallel] start 56/309 tests.job_manager.test_fresh_attempt.TheAdmission
+[parallel] start 57/309 tests.job_manager.test_fresh_attempt.TheBorrowIsAtomic
+[parallel] done  26/309 tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect rc=0 in 0.56s
+[parallel] done  27/309 tests.job_manager.test_ending.TheOrdinaryTickAsksAgainUntilItSettles rc=0 in 0.55s
+[parallel] start 58/309 tests.job_manager.test_fresh_attempt.TheCommandRequestsTheOperation
+[parallel] start 59/309 tests.job_manager.test_fresh_attempt.TheConnectedRetry
+[parallel] done  28/309 tests.job_manager.test_creation.OneIdentityHasOneOwnerAcrossEveryEntryPoint rc=0 in 0.62s
+[parallel] start 60/309 tests.job_manager.test_fresh_attempt.TheDeploymentRule
+[parallel] done  29/309 tests.job_manager.test_ending.WhatAWriteWillNotAcceptEither rc=0 in 0.33s
+[parallel] start 61/309 tests.job_manager.test_fresh_attempt.TheExclusionOutlivesEveryBorrower
+[parallel] done  30/309 tests.job_manager.test_creation.TheCreation rc=0 in 0.69s
+[parallel] start 62/309 tests.job_manager.test_fresh_attempt.TheFinalReleaseIsOneTransition
+[parallel] done  31/309 tests.job_manager.test_exchange.AReaderWithNoExchangeStillTellsTheTruth rc=0 in 0.35s
+[parallel] done  32/309 tests.job_manager.test_execution_limits.TheSettingsAreOwnedBeforeAnythingIsStored rc=0 in 0.29s
+[parallel] start 63/309 tests.job_manager.test_fresh_attempt.TheForkedChildIsNotStuck
+[parallel] start 64/309 tests.job_manager.test_fresh_attempt.TheHostIsThisInstanceS
+[parallel] done  33/309 tests.job_manager.test_ending.ATYPEDCheckpointRefusalDoesNotEndTheLOOPHereEither rc=0 in 0.71s
+[parallel] start 65/309 tests.job_manager.test_fresh_attempt.TheIntendedSubmissionIsImmutable
+[parallel] done  34/309 tests.job_manager.test_exchange.ACHECKPOINTPROFILESOwnRefusalDoesNotEndTheLoop rc=0 in 0.40s
+[parallel] start 66/309 tests.job_manager.test_fresh_attempt.TheJobStoreBelongsToTheInstance
+[parallel] done  35/309 tests.job_manager.test_execution_limits.ANewDefaultCannotReinterpretAnAdmittedJob rc=0 in 0.37s
+[parallel] done  36/309 tests.job_manager.test_execution_limits.TheJobOwnerComposesItsOwnLaunchContext rc=0 in 0.37s
+[parallel] start 67/309 tests.job_manager.test_fresh_attempt.TheJournalOwnsTheSubmissionIdentity
+[parallel] start 68/309 tests.job_manager.test_fresh_attempt.TheRealBindingAdapter
+[parallel] done  37/309 tests.job_manager.test_execution_limits.TheSubmissionCarriesThemOnlyWhereItsVersionSaysSo rc=0 in 0.32s
+[parallel] start 69/309 tests.job_manager.test_fresh_attempt.TheRealHostAdapter
+[parallel] done  38/309 tests.job_manager.test_exchange.AnIntegrationStageOwesConcludeAndNeverDispatch rc=0 in 0.40s
+[parallel] start 70/309 tests.job_manager.test_fresh_attempt.TheRealInstanceGuard
+[parallel] done  39/309 tests.job_manager.test_final_allocation_release.TheFreedCapacityServesTheNextJob rc=0 in 0.34s
+[parallel] start 71/309 tests.job_manager.test_fresh_attempt.TheSubmissionIdentityIsOwnedToo
+[parallel] done  40/309 tests.job_manager.test_creation.CreateTimeWorkLabelsAreAppliedByTheActThatMakesTheWork rc=0 in 0.84s
+[parallel] done  41/309 tests.job_manager.test_execution_limits.TheStoreKeepsWhatTheJobAskedFor rc=0 in 0.40s
+[parallel] start 72/309 tests.job_manager.test_fresh_attempt.UnknownResourceIsNotPermission
+[parallel] start 73/309 tests.job_manager.test_fresh_attempt.WhatItRefuses
+[parallel] done  42/309 tests.job_manager.test_fresh_attempt.EveryOwnerSaysWhichInstance rc=0 in 0.39s
+[parallel] start 74/309 tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets
+[parallel] done  43/309 tests.job_manager.test_ending.TheWholePayloadIsOwnedOnTheWayOutToo rc=0 in 0.56s
+[parallel] done  44/309 tests.job_manager.test_exchange.TheCommandIsLevelTriggered rc=0 in 0.48s
+[parallel] start 75/309 tests.job_manager.test_job_cancellation.NoSuccessorThroughAFreshAttempt
+[parallel] start 76/309 tests.job_manager.test_job_cancellation.QueuedAndOfferedTargets
+[parallel] done  45/309 tests.job_manager.test_execution_limits.TheMigrationLeavesOldJobsMeaningExactlyWhatTheyMeant rc=0 in 0.48s
+[parallel] start 77/309 tests.job_manager.test_job_cancellation.TheRequest
+[parallel] done  46/309 tests.job_manager.test_final_allocation_release.TheEndingTickReturnsTheCapacity rc=0 in 0.43s
+[parallel] start 78/309 tests.job_manager.test_job_cancellation.TheWriteSideFences
+[parallel] done  47/309 tests.job_manager.test_fresh_attempt.ExclusiveInvocation rc=0 in 0.43s
+[parallel] start 79/309 tests.job_manager.test_job_control.NoSuccessorThroughAFreshAttempt
+[parallel] done  48/309 tests.job_manager.test_fresh_attempt.TheCommandRequestsTheOperation rc=0 in 0.36s
+[parallel] start 80/309 tests.job_manager.test_job_control.TheAdmission
+[parallel] done  49/309 tests.job_manager.test_final_allocation_release.TheSettlementHappensExactlyOnce rc=0 in 0.47s
+[parallel] start 81/309 tests.job_manager.test_job_control.TheClocks
+[parallel] done  50/309 tests.job_manager.test_exchange.TheEndingIsLevelTriggeredToo rc=0 in 0.56s
+[parallel] start 82/309 tests.job_manager.test_job_control.TheCreationPath
+[parallel] done  51/309 tests.job_manager.test_fresh_attempt.ReplayAndUniqueness rc=0 in 0.47s
+[parallel] start 83/309 tests.job_manager.test_job_control.TheExpiryFence
+[parallel] done  52/309 tests.job_manager.test_exchange.AStartedContainerIsNotWorkInProgress rc=0 in 0.61s
+[parallel] done  53/309 tests.job_manager.test_final_allocation_release.AnUnprovenEndingKeepsItsCapacity rc=0 in 0.53s
+[parallel] start 84/309 tests.job_manager.test_job_control.TheHeavyNativeProfile
+[parallel] start 85/309 tests.job_manager.test_job_control.TheOwnersEvidence
+[parallel] done  54/309 tests.job_manager.test_fresh_attempt.OwnershipAcrossTheEffects rc=0 in 0.53s
+[parallel] start 86/309 tests.job_manager.test_job_control.TheSelection
+[parallel] done  55/309 tests.job_manager.test_fresh_attempt.TheDeploymentRule rc=0 in 0.45s
+[parallel] start 87/309 tests.job_manager.test_job_control.TheTemplatePath
+[parallel] done  56/309 tests.job_manager.test_fresh_attempt.TheAdmission rc=0 in 0.54s
+[parallel] done  57/309 tests.job_manager.test_fresh_attempt.TheIntendedSubmissionIsImmutable rc=0 in 0.37s
+[parallel] start 88/309 tests.job_manager.test_job_control.TheTrustedClock
+[parallel] start 89/309 tests.job_manager.test_job_control.TheWriteSideGuards
+[parallel] done  58/309 tests.job_manager.test_accepted_offer_retirement.AcceptedOfferRetirement rc=0 in 1.20s
+[parallel] start 90/309 tests.job_manager.test_launch.AFailedStartIsContainedAndExceptional
+[parallel] done  59/309 tests.job_manager.test_fresh_attempt.TheJournalOwnsTheSubmissionIdentity rc=0 in 0.47s
+[parallel] start 91/309 tests.job_manager.test_launch.TheLaunchIsLevelTriggered
+[parallel] done  60/309 tests.job_manager.test_fresh_attempt.TheSubmissionIdentityIsOwnedToo rc=0 in 0.43s
+[parallel] start 92/309 tests.job_manager.test_launch.TheLaunchSurvivesTheClaimCrashWindow
+[parallel] done  61/309 tests.job_manager.test_job_cancellation.QueuedAndOfferedTargets rc=0 in 0.40s
+[parallel] start 93/309 tests.job_manager.test_launch.TheStartFailureRead
+[parallel] done  62/309 tests.job_manager.test_fresh_attempt.UnknownResourceIsNotPermission rc=0 in 0.45s
+[parallel] start 94/309 tests.job_manager.test_managed_integration_capacity.ADecisionIsJournalledBeforeTheWorkExists
+[parallel] done  63/309 tests.job_manager.test_job_cancellation.NoSuccessorThroughAFreshAttempt rc=0 in 0.43s
+[parallel] start 95/309 tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization
+[parallel] done  64/309 tests.job_manager.test_job_cancellation.TheRequest rc=0 in 0.44s
+[parallel] done  65/309 tests.job_manager.test_job_control.TheAdmission rc=0 in 0.40s
+[parallel] start 96/309 tests.job_manager.test_managed_integration_capacity.TheCompletionBranchDoesNotSpeakForTheExecutions
+[parallel] start 97/309 tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved
+[parallel] done  66/309 tests.job_manager.test_fresh_attempt.TheRealHostAdapter rc=0 in 0.56s
+[parallel] start 98/309 tests.job_manager.test_managed_integration_capacity.TheOfferIdentityIsComplete
+[parallel] done  67/309 tests.job_manager.test_job_control.TheSelection rc=0 in 0.35s
+[parallel] start 99/309 tests.job_manager.test_managed_integration_capacity.ThePersistedEvidenceIsOwnedEndToEnd
+[parallel] done  68/309 tests.job_manager.test_job_cancellation.TheWriteSideFences rc=0 in 0.48s
+[parallel] done  69/309 tests.job_manager.test_job_control.NoSuccessorThroughAFreshAttempt rc=0 in 0.47s
+[parallel] done  70/309 tests.job_manager.test_job_control.TheCreationPath rc=0 in 0.42s
+[parallel] start 100/309 tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial
+[parallel] start 101/309 tests.job_manager.test_managed_integration_capacity.ThePreparationIsAdmittedBeforeTheParentOffer
+[parallel] start 102/309 tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd
+[parallel] done  71/309 tests.job_manager.test_job_control.TheTemplatePath rc=0 in 0.37s
+[parallel] start 103/309 tests.job_manager.test_managed_integration_capacity.TheRacesUnderOneReservation
+[parallel] done  72/309 tests.job_manager.test_fresh_attempt.WhatItRefuses rc=0 in 0.65s
+[parallel] start 104/309 tests.job_manager.test_managed_integration_capacity.TheRegisteredRootHoldsItsCapacity
+[parallel] done  73/309 tests.job_manager.test_job_control.TheClocks rc=0 in 0.58s
+[parallel] start 105/309 tests.job_manager.test_managed_integration_capacity.TheRootNamesCapacityItDidNotCreate
+[parallel] done  74/309 tests.job_manager.test_job_control.TheTrustedClock rc=0 in 0.45s
+[parallel] start 106/309 tests.job_manager.test_managed_integration_capacity.TheStartIsBehindTheAdmission
+[parallel] done  75/309 tests.job_manager.test_job_control.TheWriteSideGuards rc=0 in 0.47s
+[parallel] start 107/309 tests.job_manager.test_managed_integration_capacity.TheUncertainExecutionHoldsItsCapacity
+[parallel] done  76/309 tests.job_manager.test_launch.TheLaunchSurvivesTheClaimCrashWindow rc=0 in 0.35s
+[parallel] start 108/309 tests.job_manager.test_managed_integration_capacity.TwoStoresContendForOneReservation
+[parallel] done  77/309 tests.job_manager.test_launch.TheLaunchIsLevelTriggered rc=0 in 0.38s
+[parallel] start 109/309 tests.job_manager.test_native_handoffs.AReplyIsBoundToTheRequestItWasDelivered
+[parallel] done  78/309 tests.job_manager.test_launch.TheStartFailureRead rc=0 in 0.36s
+[parallel] start 110/309 tests.job_manager.test_native_handoffs.AResponseIsNotAVerdict
+[parallel] done  79/309 tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets rc=0 in 0.80s
+[parallel] start 111/309 tests.job_manager.test_native_handoffs.AResponseReEntersBehindADestroyedRuntime
+[parallel] done  80/309 tests.job_manager.test_job_control.TheOwnersEvidence rc=0 in 0.74s
+[parallel] start 112/309 tests.job_manager.test_native_handoffs.AYieldIsNeverTaskSuccess
+[parallel] done  81/309 tests.job_manager.test_launch.AFailedStartIsContainedAndExceptional rc=0 in 0.54s
+[parallel] start 113/309 tests.job_manager.test_native_handoffs.TheClassificationHappensBeforePublication
+[parallel] done  82/309 tests.job_manager.test_fresh_attempt.TheConnectedRetry rc=0 in 1.26s
+[parallel] start 114/309 tests.job_manager.test_native_handoffs.TheContinuationIsTheSameAdmittedTask
+[parallel] done  83/309 tests.job_manager.test_managed_integration_capacity.ThePreparationIsAdmittedBeforeTheParentOffer rc=0 in 0.46s
+[parallel] start 115/309 tests.job_manager.test_native_handoffs.TheContinuationRetryIsBoundToItsOriginalYield
+[parallel] done  84/309 tests.job_manager.test_job_control.TheExpiryFence rc=0 in 0.91s
+[parallel] start 116/309 tests.job_manager.test_native_handoffs.TheDeliveredContextIsReadFromOwners
+[parallel] done  85/309 tests.job_manager.test_managed_integration_capacity.TheOfferIdentityIsComplete rc=0 in 0.57s
+[parallel] start 117/309 tests.job_manager.test_native_handoffs.TheDependencyWindowOpensOnlyForAResponse
+[parallel] done  86/309 tests.job_manager.test_fresh_attempt.TheRealBindingAdapter rc=0 in 1.24s
+[parallel] done  87/309 tests.job_manager.test_managed_integration_capacity.ThePersistedEvidenceIsOwnedEndToEnd rc=0 in 0.66s
+[parallel] done  88/309 tests.job_manager.test_managed_integration_capacity.TheRootNamesCapacityItDidNotCreate rc=0 in 0.49s
+[parallel] start 118/309 tests.job_manager.test_native_handoffs.TheHoldIsRecordedOnceAndRereadForever
+[parallel] start 119/309 tests.job_manager.test_native_handoffs.TheRetainedContinuationIsReadOutOfCustody
+[parallel] start 120/309 tests.job_manager.test_native_handoffs.TheReviewStageAnsweredIsNotACompletedReview
+[parallel] done  89/309 tests.job_manager.test_job_control.TheHeavyNativeProfile rc=0 in 1.07s
+[parallel] start 121/309 tests.job_manager.test_native_permission.ARevokedGenerationPermitsNoEffects
+[parallel] done  90/309 tests.job_manager.test_managed_integration_capacity.TheCompletionBranchDoesNotSpeakForTheExecutions rc=0 in 0.76s
+[parallel] start 122/309 tests.job_manager.test_native_permission.NativeAcquisition
+[parallel] done  91/309 tests.job_manager.test_managed_integration_capacity.TheRacesUnderOneReservation rc=0 in 0.67s
+[parallel] start 123/309 tests.job_manager.test_native_permission.NativeProductionLaunch
+[parallel] done  92/309 tests.job_manager.test_managed_integration_capacity.TheRegisteredRootHoldsItsCapacity rc=0 in 0.63s
+[parallel] start 124/309 tests.job_manager.test_native_permission.NativeStageComposition
+[parallel] done  93/309 tests.job_manager.test_managed_integration_capacity.TheUncertainExecutionHoldsItsCapacity rc=0 in 0.61s
+[parallel] start 125/309 tests.job_manager.test_native_permission.NativeTwoStageAcquisition
+[parallel] done  94/309 tests.job_manager.test_fresh_attempt.TheJobStoreBelongsToTheInstance rc=0 in 1.49s
+[parallel] start 126/309 tests.job_manager.test_native_permission.TheDisconnectedTwoStageComposition
+[parallel] done  95/309 tests.job_manager.test_managed_integration_capacity.TwoStoresContendForOneReservation rc=0 in 0.66s
+[parallel] start 127/309 tests.job_manager.test_native_permission.TheOwnerFailureReachesTheReportThroughStatus
+[parallel] done  96/309 tests.job_manager.test_native_permission.ARevokedGenerationPermitsNoEffects rc=0 in 0.39s
+[parallel] start 128/309 tests.job_manager.test_native_stop_restart.NativeStopRestart
+[parallel] done  97/309 tests.job_manager.test_managed_integration_capacity.ADecisionIsJournalledBeforeTheWorkExists rc=0 in 1.16s
+[parallel] start 129/309 tests.job_manager.test_proposal_output_limit.ProposalRevision
+[parallel] done  98/309 tests.job_manager.test_native_handoffs.AResponseReEntersBehindADestroyedRuntime rc=0 in 0.79s
+[parallel] start 130/309 tests.job_manager.test_proposal_output_limit.WorkerAndManagerMeasurement
+[parallel] done  99/309 tests.job_manager.test_fresh_attempt.TheHostIsThisInstanceS rc=0 in 1.77s
+[parallel] start 131/309 tests.job_manager.test_publication_recovery_admission.EveryEffectReplaysAndNothingHappensTwice
+[parallel] done  100/309 tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial rc=0 in 1.11s
+[parallel] start 132/309 tests.job_manager.test_publication_recovery_admission.OnlyTheAuthorizedOwnerDecidesAndOnlyInTheWorksScope
+[parallel] done  101/309 tests.job_manager.test_native_permission.NativeStageComposition rc=0 in 0.38s
+[parallel] start 133/309 tests.job_manager.test_publication_recovery_admission.OrdinaryAdmissionCannotNameTheRecoveryContracts
+[parallel] done  102/309 tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd rc=0 in 1.24s
+[parallel] start 134/309 tests.job_manager.test_publication_recovery_admission.TheApprovalReachesAClosedAdmissionBoundary
+[parallel] done  103/309 tests.job_manager.test_native_handoffs.TheHoldIsRecordedOnceAndRereadForever rc=0 in 0.62s
+[parallel] start 135/309 tests.job_manager.test_publication_recovery_admission.TheBuildHoldsTheOwnerSelectionsItClaimsTo
+[parallel] done  104/309 tests.job_manager.test_native_permission.NativeAcquisition rc=0 in 0.60s
+[parallel] start 136/309 tests.job_manager.test_publication_recovery_admission.TheBytesAreJudgedAgainstTheExactDeclarations
+[parallel] done  105/309 tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved rc=0 in 1.37s
+[parallel] start 137/309 tests.job_manager.test_publication_recovery_admission.TheCandidateMustCorrespondThroughTheSourceOwner
+[parallel] done  106/309 tests.job_manager.test_native_permission.NativeProductionLaunch rc=0 in 0.61s
+[parallel] done  107/309 tests.job_manager.test_proposal_output_limit.ProposalRevision rc=0 in 0.27s
+[parallel] start 138/309 tests.job_manager.test_publication_recovery_admission.TheDecisionBindsExactlyWhatTheOwnerRead
+[parallel] start 139/309 tests.job_manager.test_publication_recovery_admission.TheOriginalIsTheTrustRootAndNothingElseIs
+[parallel] done  108/309 tests.job_manager.test_native_handoffs.TheReviewStageAnsweredIsNotACompletedReview rc=0 in 0.78s
+[parallel] start 140/309 tests.job_manager.test_publication_recovery_admission.TheOwnerInspectsTheOriginalAndDecidesIt
+[parallel] done  109/309 tests.job_manager.test_native_handoffs.TheDependencyWindowOpensOnlyForAResponse rc=0 in 0.92s
+[parallel] start 141/309 tests.job_manager.test_publication_recovery_admission.TheProducerAttributionIsQualifiedOrItHolds
+[parallel] done  110/309 tests.job_manager.test_publication_recovery_admission.TheBuildHoldsTheOwnerSelectionsItClaimsTo rc=0 in 0.23s
+[parallel] start 142/309 tests.job_manager.test_publication_recovery_admission.TheSelectorsNameTheExactExecutionOrNothing
+[parallel] done  111/309 tests.job_manager.test_native_handoffs.TheRetainedContinuationIsReadOutOfCustody rc=0 in 0.87s
+[parallel] start 143/309 tests.job_manager.test_publication_recovery_execution.AMaliciousOrOversizedOriginalIsRefusedByItsOwner
+[parallel] done  112/309 tests.job_manager.test_managed_integration_capacity.TheStartIsBehindTheAdmission rc=0 in 1.35s
+[parallel] start 144/309 tests.job_manager.test_publication_recovery_execution.APooledProducersFailedOutputIsReadThroughItsLine
+[parallel] done  113/309 tests.job_manager.test_native_handoffs.AResponseIsNotAVerdict rc=0 in 1.28s
+[parallel] start 145/309 tests.job_manager.test_publication_recovery_execution.ARecoveryThatDoesNotPublishIsFencedSettledAndReported
+[parallel] done  114/309 tests.job_manager.test_native_handoffs.TheDeliveredContextIsReadFromOwners rc=0 in 1.07s
+[parallel] start 146/309 tests.job_manager.test_publication_recovery_execution.CancellationStopsNewEffectsAndRetainsEverything
+[parallel] done  115/309 tests.job_manager.test_native_handoffs.TheContinuationRetryIsBoundToItsOriginalYield rc=0 in 1.12s
+[parallel] start 147/309 tests.job_manager.test_publication_recovery_execution.IncompleteCustodyNeverOffersAReview
+[parallel] done  116/309 tests.job_manager.test_publication_recovery_admission.OrdinaryAdmissionCannotNameTheRecoveryContracts rc=0 in 0.58s
+[parallel] start 148/309 tests.job_manager.test_publication_recovery_execution.OneFailedPublicationHasOneApprovedRecovery
+[parallel] done  117/309 tests.job_manager.test_publication_recovery_admission.OnlyTheAuthorizedOwnerDecidesAndOnlyInTheWorksScope rc=0 in 0.60s
+[parallel] start 149/309 tests.job_manager.test_publication_recovery_execution.OneInstalledPublisherServesRecoveriesOnTwoWorks
+[parallel] done  118/309 tests.job_manager.test_native_stop_restart.NativeStopRestart rc=0 in 0.67s
+[parallel] done  119/309 tests.job_manager.test_proposal_output_limit.WorkerAndManagerMeasurement rc=0 in 0.65s
+[parallel] start 150/309 tests.job_manager.test_publication_recovery_execution.OneTickOwesOneActAndDerivesItFromRows
+[parallel] start 151/309 tests.job_manager.test_publication_recovery_execution.OrdinaryJobsAndOldProfilesAreUnchanged
+[parallel] done  120/309 tests.job_manager.test_native_handoffs.TheClassificationHappensBeforePublication rc=0 in 1.45s
+[parallel] start 152/309 tests.job_manager.test_publication_recovery_execution.TheApprovalNowReachesARealAdmission
+[parallel] done  121/309 tests.job_manager.test_publication_recovery_admission.TheCandidateMustCorrespondThroughTheSourceOwner rc=0 in 0.51s
+[parallel] start 153/309 tests.job_manager.test_publication_recovery_execution.TheApprovedOriginalIsStagedReadOnly
+[parallel] done  122/309 tests.job_manager.test_publication_recovery_admission.TheBytesAreJudgedAgainstTheExactDeclarations rc=0 in 0.53s
+[parallel] start 154/309 tests.job_manager.test_publication_recovery_execution.TheBaseIsReadFromTheRecordedSourceOrNotAtAll
+[parallel] done  123/309 tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization rc=0 in 1.92s
+[parallel] start 155/309 tests.job_manager.test_publication_recovery_execution.TheBoundCoversMeasurementAndCompletion
+[parallel] done  124/309 tests.job_manager.test_native_handoffs.AReplyIsBoundToTheRequestItWasDelivered rc=0 in 1.69s
+[parallel] done  125/309 tests.job_manager.test_native_permission.TheDisconnectedTwoStageComposition rc=0 in 1.08s
+[parallel] start 156/309 tests.job_manager.test_publication_recovery_execution.TheConnectedRecoveryFromARealPooledProducer
+[parallel] start 157/309 tests.job_manager.test_publication_recovery_execution.TheNineHundredSecondBoundIsAbsoluteAndEnforcedTwice
+[parallel] done  126/309 tests.job_manager.test_native_permission.TheOwnerFailureReachesTheReportThroughStatus rc=0 in 1.11s
+[parallel] start 158/309 tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority
+[parallel] done  127/309 tests.job_manager.test_native_handoffs.AYieldIsNeverTaskSuccess rc=0 in 1.70s
+[parallel] start 159/309 tests.job_manager.test_publication_recovery_execution.ThePublishedCandidateEntersOrdinaryCustody
+[parallel] done  128/309 tests.job_manager.test_publication_recovery_admission.TheSelectorsNameTheExactExecutionOrNothing rc=0 in 0.59s
+[parallel] start 160/309 tests.job_manager.test_publication_recovery_execution.TheRetainedBytesAreAdoptedDeterministically
+[parallel] done  129/309 tests.job_manager.test_publication_recovery_admission.EveryEffectReplaysAndNothingHappensTwice rc=0 in 1.06s
+[parallel] start 161/309 tests.job_manager.test_publication_recovery_execution.TheReviewGateOpensOnTheHandoffAndOnNothingWeaker
+[parallel] done  130/309 tests.job_manager.test_publication_recovery_admission.TheApprovalReachesAClosedAdmissionBoundary rc=0 in 0.93s
+[parallel] start 162/309 tests.job_manager.test_publication_recovery_execution.TheShippedOwnersRunOnABootstrappedInstance
+[parallel] done  131/309 tests.job_manager.test_publication_recovery_admission.TheOriginalIsTheTrustRootAndNothingElseIs rc=0 in 0.85s
+[parallel] start 163/309 tests.job_manager.test_publication_recovery_execution.TheWorkerAndTheManagerSpellOneContract
+[parallel] done  132/309 tests.job_manager.test_publication_recovery_admission.TheOwnerInspectsTheOriginalAndDecidesIt rc=0 in 0.81s
+[parallel] start 164/309 tests.job_manager.test_publication_recovery_execution.ThisCheckpointIsPartialEvidenceAndNeverResumeSupported
+[parallel] done  133/309 tests.job_manager.test_fresh_attempt.TheRealInstanceGuard rc=0 in 2.91s
+[parallel] start 165/309 tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice
+[parallel] done  134/309 tests.job_manager.test_publication_recovery_execution.TheBaseIsReadFromTheRecordedSourceOrNotAtAll rc=0 in 0.50s
+[parallel] start 166/309 tests.job_manager.test_recovery.AClaimedStageGatesItsSuccessor
+[parallel] done  135/309 tests.job_manager.test_native_permission.NativeTwoStageAcquisition rc=0 in 1.56s
+[parallel] start 167/309 tests.job_manager.test_recovery.DeliveryIsAtLeastOnce
+[parallel] done  136/309 tests.job_manager.test_fresh_attempt.TheForkedChildIsNotStuck rc=0 in 3.08s
+[parallel] start 168/309 tests.job_manager.test_recovery.EndingsOutsideTheReplaceableSet
+[parallel] done  137/309 tests.job_manager.test_publication_recovery_admission.TheDecisionBindsExactlyWhatTheOwnerRead rc=0 in 1.09s
+[parallel] start 169/309 tests.job_manager.test_recovery.OneAbandonedCorrectionEpisodeIsReplaced
+[parallel] done  138/309 tests.job_manager.test_publication_recovery_execution.OneFailedPublicationHasOneApprovedRecovery rc=0 in 0.79s
+[parallel] start 170/309 tests.job_manager.test_recovery.OneReplacementPerEnding
+[parallel] done  139/309 tests.job_manager.test_publication_recovery_execution.OrdinaryJobsAndOldProfilesAreUnchanged rc=0 in 0.80s
+[parallel] start 171/309 tests.job_manager.test_recovery.ReadOnlyStatusAppliesNothing
+[parallel] done  140/309 tests.job_manager.test_publication_recovery_admission.TheProducerAttributionIsQualifiedOrItHolds rc=0 in 1.20s
+[parallel] start 172/309 tests.job_manager.test_recovery.TheEventPump
+[parallel] done  141/309 tests.job_manager.test_recovery.AClaimedStageGatesItsSuccessor rc=0 in 0.42s
+[parallel] start 173/309 tests.job_manager.test_recovery.ThePublisher
+[parallel] done  142/309 tests.job_manager.test_recovery.EndingsOutsideTheReplaceableSet rc=0 in 0.37s
+[parallel] start 174/309 tests.job_manager.test_recovery.TheRealRestart
+[parallel] done  143/309 tests.job_manager.test_recovery.DeliveryIsAtLeastOnce rc=0 in 0.52s
+[parallel] start 175/309 tests.job_manager.test_restart.AnUnclaimedAttempt
+[parallel] done  144/309 tests.job_manager.test_recovery.OneReplacementPerEnding rc=0 in 0.41s
+[parallel] start 176/309 tests.job_manager.test_restart.OneControlStoreAndTwoJobStores
+[parallel] done  145/309 tests.job_manager.test_publication_recovery_execution.TheApprovalNowReachesARealAdmission rc=0 in 1.15s
+[parallel] done  146/309 tests.job_manager.test_recovery.ReadOnlyStatusAppliesNothing rc=0 in 0.43s
+[parallel] start 177/309 tests.job_manager.test_restart.RealComposition
+[parallel] start 178/309 tests.job_manager.test_restart.RecoveryIsTheManagers
+[parallel] done  147/309 tests.job_manager.test_publication_recovery_execution.TheShippedOwnersRunOnABootstrappedInstance rc=0 in 0.81s
+[parallel] start 179/309 tests.job_manager.test_restart.TheReadCallWindow
+[parallel] done  148/309 tests.job_manager.test_native_handoffs.TheContinuationIsTheSameAdmittedTask rc=0 in 2.62s
+[parallel] done  149/309 tests.job_manager.test_publication_recovery_execution.AMaliciousOrOversizedOriginalIsRefusedByItsOwner rc=0 in 1.55s
+[parallel] done  150/309 tests.job_manager.test_recovery.TheEventPump rc=0 in 0.41s
+[parallel] start 180/309 tests.job_manager.test_restart.TwoOffersOneAttempt
+[parallel] start 181/309 tests.job_manager.test_retained_failure_analysis.ADeploymentThatDeclaresNoAnalystAnalysesNothing
+[parallel] start 182/309 tests.job_manager.test_retained_failure_analysis.AFiniteAnalysisEndsOnceAndGoesDirectlyToTheOwner
+[parallel] done  151/309 tests.job_manager.test_recovery.ThePublisher rc=0 in 0.44s
+[parallel] done  152/309 tests.job_manager.test_restart.AnUnclaimedAttempt rc=0 in 0.32s
+[parallel] start 183/309 tests.job_manager.test_retained_failure_analysis.AValidRetainedFailureEarnsOneAnalysisAndOneOwnerItem
+[parallel] start 184/309 tests.job_manager.test_retained_failure_analysis.NoRecursiveAnalysisIsEverLaunched
+[parallel] done  153/309 tests.job_manager.test_publication_recovery_execution.TheWorkerAndTheManagerSpellOneContract rc=0 in 1.09s
+[parallel] done  154/309 tests.job_manager.test_restart.RecoveryIsTheManagers rc=0 in 0.31s
+[parallel] start 185/309 tests.job_manager.test_retained_failure_analysis.NoRecursiveAnalysisIsReachableFromTheTick
+[parallel] start 186/309 tests.job_manager.test_retained_failure_analysis.NothingHereMutatesTheCandidateVerifierOrExecution
+[parallel] done  155/309 tests.job_manager.test_restart.OneControlStoreAndTwoJobStores rc=0 in 0.43s
+[parallel] start 187/309 tests.job_manager.test_retained_failure_analysis.OneEndingIsOneAnalysisHoweverManyTicksRun
+[parallel] done  156/309 tests.job_manager.test_restart.TheReadCallWindow rc=0 in 0.36s
+[parallel] start 188/309 tests.job_manager.test_retained_failure_analysis.OneEndingIsOneAnalysisHoweverOftenItIsObserved
+[parallel] done  157/309 tests.job_manager.test_fresh_attempt.TheBorrowIsAtomic rc=0 in 4.22s
+[parallel] start 189/309 tests.job_manager.test_retained_failure_analysis.OnlyASettledProducerFailureIsObserved
+[parallel] done  158/309 tests.job_manager.test_recovery.TheRealRestart rc=0 in 0.69s
+[parallel] start 190/309 tests.job_manager.test_retained_failure_analysis.TheAnalysisOwnAdmittedBoundIsWhatExpiresIt
+[parallel] done  159/309 tests.job_manager.test_restart.TwoOffersOneAttempt rc=0 in 0.42s
+[parallel] start 191/309 tests.job_manager.test_retained_failure_analysis.TheAnalysisReEntersFromEveryCutPointWithoutRepeatingAnEffect
+[parallel] done  160/309 tests.job_manager.test_publication_recovery_execution.IncompleteCustodyNeverOffersAReview rc=0 in 1.94s
+[parallel] start 192/309 tests.job_manager.test_retained_failure_analysis.TheAnalysisRoleIsDeclaredConfigurationAndNotAProvider
+[parallel] done  161/309 tests.job_manager.test_restart.RealComposition rc=0 in 0.61s
+[parallel] start 193/309 tests.job_manager.test_retained_failure_analysis.TheAnalystReceivesTheFixedInputAndNothingElse
+[parallel] done  162/309 tests.job_manager.test_fresh_attempt.OneCoherentOwnershipRule rc=0 in 4.63s
+[parallel] start 194/309 tests.job_manager.test_retained_failure_analysis.TheDeploymentProducesTheDeclaredWorkerAndProfile
+[parallel] done  163/309 tests.job_manager.test_retained_failure_analysis.NoRecursiveAnalysisIsEverLaunched rc=0 in 0.54s
+[parallel] start 195/309 tests.job_manager.test_retained_failure_analysis.TheDerivedAnalysisIdentityIsStableAcrossEveryReEntry
+[parallel] done  164/309 tests.job_manager.test_retained_failure_analysis.ADeploymentThatDeclaresNoAnalystAnalysesNothing rc=0 in 0.69s
+[parallel] start 196/309 tests.job_manager.test_retained_failure_analysis.TheFiniteEndingsAreReachedByTheTickItself
+[parallel] done  165/309 tests.job_manager.test_publication_recovery_execution.TheApprovedOriginalIsStagedReadOnly rc=0 in 2.03s
+[parallel] start 197/309 tests.job_manager.test_retained_failure_analysis.TheFiniteProfileIsTheOwnersExactPublishedDefinition
+[parallel] done  166/309 tests.job_manager.test_retained_failure_analysis.NoRecursiveAnalysisIsReachableFromTheTick rc=0 in 0.58s
+[parallel] start 198/309 tests.job_manager.test_retained_failure_analysis.TheOriginalCessationTravelsWithItsQualification
+[parallel] done  167/309 tests.job_manager.test_publication_recovery_execution.OneTickOwesOneActAndDerivesItFromRows rc=0 in 2.15s
+[parallel] start 199/309 tests.job_manager.test_retained_failure_analysis.TheProductionPassMutatesNothingItReads
+[parallel] done  168/309 tests.job_manager.test_retained_failure_analysis.TheDeploymentProducesTheDeclaredWorkerAndProfile rc=0 in 0.29s
+[parallel] start 200/309 tests.job_manager.test_retained_failure_analysis.TheRealTickTriggersDispatchesAndDeliversWithoutACourier
+[parallel] done  169/309 tests.job_manager.test_retained_failure_analysis.NothingHereMutatesTheCandidateVerifierOrExecution rc=0 in 0.76s
+[parallel] done  170/309 tests.job_manager.test_retained_failure_analysis.TheAnalysisOwnAdmittedBoundIsWhatExpiresIt rc=0 in 0.58s
+[parallel] done  171/309 tests.job_manager.test_retained_failure_analysis.TheDerivedAnalysisIdentityIsStableAcrossEveryReEntry rc=0 in 0.30s
+[parallel] start 201/309 tests.job_manager.test_retained_failure_analysis.TheSeamContractIsOwnedBeforeAnythingIsSpent
+[parallel] start 202/309 tests.job_manager.test_retained_failure_analysis.TheTickReportIsAClosedDocumentAndNotProse
+[parallel] start 203/309 tests.job_manager.test_retained_failure_analysis.TheTriggerIsRefusedExplicitlyAndNeverSilentlyUsed
+[parallel] done  172/309 tests.job_manager.test_retained_failure_analysis.TheFiniteProfileIsTheOwnersExactPublishedDefinition rc=0 in 0.26s
+[parallel] start 204/309 tests.job_manager.test_retained_failure_analysis.TheWrongBindingIsRefusedBeforeAnythingIsWritten
+[parallel] done  173/309 tests.job_manager.test_publication_recovery_execution.ThePublishedCandidateEntersOrdinaryCustody rc=0 in 2.11s
+[parallel] start 205/309 tests.job_manager.test_retained_recovery_admission.ADecisionIsRefusedBeforeItRecordsAnything
+[parallel] done  174/309 tests.job_manager.test_publication_recovery_execution.ThisCheckpointIsPartialEvidenceAndNeverResumeSupported rc=0 in 1.99s
+[parallel] start 206/309 tests.job_manager.test_retained_recovery_admission.EveryCutBetweenTheOwnersResumes
+[parallel] done  175/309 tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority rc=0 in 2.27s
+[parallel] start 207/309 tests.job_manager.test_retained_recovery_admission.NothingHereRedispatchesImplementationOrTouchesTheOriginal
+[parallel] done  176/309 tests.job_manager.test_retained_failure_analysis.OnlyASettledProducerFailureIsObserved rc=0 in 0.89s
+[parallel] start 208/309 tests.job_manager.test_retained_recovery_admission.OneDecisionProducesOneEffectHoweverOftenItIsAsked
+[parallel] done  177/309 tests.job_manager.test_retained_failure_analysis.TheAnalystReceivesTheFixedInputAndNothingElse rc=0 in 0.71s
+[parallel] start 209/309 tests.job_manager.test_retained_recovery_admission.RecoveryAdmissionIsNotRunnable
+[parallel] done  178/309 tests.job_manager.test_publication_recovery_execution.CancellationStopsNewEffectsAndRetainsEverything rc=0 in 2.78s
+[parallel] start 210/309 tests.job_manager.test_retained_recovery_admission.ReviewOnlyRecoveryNeedsExactlyValidEvidence
+[parallel] done  179/309 tests.job_manager.test_retained_failure_analysis.TheOriginalCessationTravelsWithItsQualification rc=0 in 0.50s
+[parallel] start 211/309 tests.job_manager.test_retained_recovery_admission.ShippedOwnersComposeOverAnInstalledInstance
+[parallel] done  180/309 tests.job_manager.test_fresh_attempt.TheFinalReleaseIsOneTransition rc=0 in 5.08s
+[parallel] done  181/309 tests.job_manager.test_retained_failure_analysis.OneEndingIsOneAnalysisHoweverManyTicksRun rc=0 in 1.07s
+[parallel] start 212/309 tests.job_manager.test_retained_recovery_admission.TheCommandRefusesAnIncompleteRequestBeforeItOpensAnything
+[parallel] start 213/309 tests.job_manager.test_retained_recovery_admission.TheOwnerReadsTheItemAndTheApprovalAdmitsOneSuccessor
+[parallel] done  182/309 tests.job_manager.test_retained_failure_analysis.TheAnalysisReEntersFromEveryCutPointWithoutRepeatingAnEffect rc=0 in 0.96s
+[parallel] done  183/309 tests.job_manager.test_retained_failure_analysis.TheAnalysisRoleIsDeclaredConfigurationAndNotAProvider rc=0 in 0.93s
+[parallel] start 214/309 tests.job_manager.test_retained_recovery_admission.UnknownIsAHoldAndACancelledExecutionIsNeverRevived
+[parallel] start 215/309 tests.job_manager.test_retained_recovery_execution.ARenewedFailureEarnsOneAnalysisAndOneOwnerItemAndNoSuccessor
+[parallel] done  184/309 tests.job_manager.test_retained_failure_analysis.OneEndingIsOneAnalysisHoweverOftenItIsObserved rc=0 in 1.14s
+[parallel] start 216/309 tests.job_manager.test_retained_recovery_execution.CancellationAndUnknownNeverReleaseAReview
+[parallel] done  185/309 tests.job_manager.test_retained_failure_analysis.TheProductionPassMutatesNothingItReads rc=0 in 0.69s
+[parallel] start 217/309 tests.job_manager.test_retained_recovery_execution.EveryCutBetweenTheActsResumesAndRepeatsNoEffect
+[parallel] done  186/309 tests.job_manager.test_retained_failure_analysis.TheSeamContractIsOwnedBeforeAnythingIsSpent rc=0 in 0.56s
+[parallel] start 218/309 tests.job_manager.test_retained_recovery_execution.ExpiryAfterAPassedVerificationHoldsAndNeverAnalyses
+[parallel] done  187/309 tests.job_manager.test_retained_failure_analysis.AFiniteAnalysisEndsOnceAndGoesDirectlyToTheOwner rc=0 in 1.56s
+[parallel] start 219/309 tests.job_manager.test_retained_recovery_execution.OneApprovedRecoveryVerifiesTheRetainedBytesAndReachesReview
+[parallel] done  188/309 tests.job_manager.test_retained_failure_analysis.AValidRetainedFailureEarnsOneAnalysisAndOneOwnerItem rc=0 in 1.54s
+[parallel] start 220/309 tests.job_manager.test_retained_recovery_execution.OnlyTheApprovedCommandRunsAndOnlyOnce
+[parallel] done  189/309 tests.job_manager.test_retained_recovery_admission.ShippedOwnersComposeOverAnInstalledInstance rc=0 in 0.39s
+[parallel] start 221/309 tests.job_manager.test_retained_recovery_execution.RetainedRecoveryReachesTheIndependentReviewer
+[parallel] done  190/309 tests.job_manager.test_retained_failure_analysis.TheTickReportIsAClosedDocumentAndNotProse rc=0 in 0.92s
+[parallel] start 222/309 tests.job_manager.test_retained_recovery_execution.ReviewOnlyRecoveryReusesTheEvidenceAndNeverReVerifies
+[parallel] done  191/309 tests.job_manager.test_retained_failure_analysis.TheFiniteEndingsAreReachedByTheTickItself rc=0 in 1.43s
+[parallel] start 223/309 tests.job_manager.test_retained_recovery_execution.TheApprovedBoundsAreTheOwnersExactPublishedDefinition
+[parallel] done  192/309 tests.job_manager.test_retained_failure_analysis.TheRealTickTriggersDispatchesAndDeliversWithoutACourier rc=0 in 1.23s
+[parallel] start 224/309 tests.job_manager.test_retained_recovery_execution.TheApprovedContextIsADocumentAndItsDigestIsItsIdentity
+[parallel] done  193/309 tests.job_manager.test_publication_recovery_execution.TheReviewGateOpensOnTheHandoffAndOnNothingWeaker rc=0 in 3.11s
+[parallel] start 225/309 tests.job_manager.test_retained_recovery_execution.TheCandidatesSourceIsValidatedBeforeAnyByteIsCopied
+[parallel] done  194/309 tests.job_manager.test_retained_failure_analysis.TheWrongBindingIsRefusedBeforeAnythingIsWritten rc=0 in 1.20s
+[parallel] start 226/309 tests.job_manager.test_retained_recovery_execution.TheGateTheSchedulerAndTheStatusSurfaceAgree
+[parallel] done  195/309 tests.job_manager.test_retained_recovery_admission.EveryCutBetweenTheOwnersResumes rc=0 in 1.15s
+[parallel] start 227/309 tests.job_manager.test_retained_recovery_execution.TheJoinedAcceptanceRunsTheShippedOwnersOnABootstrappedInstance
+[parallel] done  196/309 tests.job_manager.test_retained_recovery_admission.UnknownIsAHoldAndACancelledExecutionIsNeverRevived rc=0 in 1.00s
+[parallel] start 228/309 tests.job_manager.test_retained_recovery_execution.ThisManagerManufacturesNoVerdictAndReviewMayStillReject
+[parallel] done  197/309 tests.job_manager.test_retained_recovery_admission.TheCommandRefusesAnIncompleteRequestBeforeItOpensAnything rc=0 in 1.07s
+[parallel] start 229/309 tests.job_manager.test_retained_recovery_execution.VerifierOutputNeverBecomesACandidate
+[parallel] done  198/309 tests.job_manager.test_retained_recovery_execution.TheApprovedBoundsAreTheOwnersExactPublishedDefinition rc=0 in 0.30s
+[parallel] start 230/309 tests.job_manager.test_role_capability.TheApprovedVectorIsTheOneThisBuildCarries
+[parallel] done  199/309 tests.job_manager.test_retained_recovery_execution.TheApprovedContextIsADocumentAndItsDigestIsItsIdentity rc=0 in 0.31s
+[parallel] start 231/309 tests.job_manager.test_role_capability.TheClosedShapeRefusesEverythingElse
+[parallel] done  200/309 tests.job_manager.test_retained_recovery_admission.OneDecisionProducesOneEffectHoweverOftenItIsAsked rc=0 in 1.28s
+[parallel] done  201/309 tests.job_manager.test_retained_recovery_execution.TheCandidatesSourceIsValidatedBeforeAnyByteIsCopied rc=0 in 0.29s
+[parallel] start 232/309 tests.job_manager.test_role_capability.TheOwnedDataBoundaryIsComplete
+[parallel] start 233/309 tests.job_manager.test_role_capability.ThePredicateIsPureAndNarrow
+[parallel] done  202/309 tests.job_manager.test_retained_recovery_admission.TheOwnerReadsTheItemAndTheApprovalAdmitsOneSuccessor rc=0 in 1.18s
+[parallel] start 234/309 tests.job_manager.test_role_capability.TheTaskMediaTypeIsOneContractInTwoPlaces
+[parallel] done  203/309 tests.job_manager.test_fresh_attempt.TheExclusionOutlivesEveryBorrower rc=0 in 6.39s
+[parallel] start 235/309 tests.job_manager.test_role_capability.TheTwoTaskReadersAgree
+[parallel] done  204/309 tests.job_manager.test_role_capability.TheApprovedVectorIsTheOneThisBuildCarries rc=0 in 0.27s
+[parallel] start 236/309 tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix
+[parallel] done  205/309 tests.job_manager.test_role_capability.TheClosedShapeRefusesEverythingElse rc=0 in 0.26s
+[parallel] start 237/309 tests.job_manager.test_role_contract.TheApprovedVectorIsTheOneThisBuildCarries
+[parallel] done  206/309 tests.job_manager.test_role_capability.ThePredicateIsPureAndNarrow rc=0 in 0.26s
+[parallel] start 238/309 tests.job_manager.test_role_contract.TheBoundedReaderHoldsTheEncodedBounds
+[parallel] done  207/309 tests.job_manager.test_retained_failure_analysis.TheTriggerIsRefusedExplicitlyAndNeverSilentlyUsed rc=0 in 1.80s
+[parallel] done  208/309 tests.job_manager.test_role_capability.TheTaskMediaTypeIsOneContractInTwoPlaces rc=0 in 0.26s
+[parallel] start 239/309 tests.job_manager.test_role_contract.TheConsumerIdsAreTheirOwnersNamespaces
+[parallel] start 240/309 tests.job_manager.test_role_contract.TheExactBoundsAreTheApprovedOnes
+[parallel] done  209/309 tests.job_manager.test_publication_recovery_execution.TheRetainedBytesAreAdoptedDeterministically rc=0 in 3.83s
+[parallel] start 241/309 tests.job_manager.test_role_contract.TheRegistryBindsTwoRevisionsAndPreservesTheFirst
+[parallel] done  210/309 tests.job_manager.test_publication_recovery_execution.APooledProducersFailedOutputIsReadThroughItsLine rc=0 in 4.43s
+[parallel] start 242/309 tests.job_manager.test_scheduling.AFreshJobComposesBesideAReservedAllocation
+[parallel] done  211/309 tests.job_manager.test_role_capability.TheTwoTaskReadersAgree rc=0 in 0.30s
+[parallel] start 243/309 tests.job_manager.test_scheduling.Capacity
+[parallel] done  212/309 tests.job_manager.test_retained_recovery_execution.CancellationAndUnknownNeverReleaseAReview rc=0 in 1.53s
+[parallel] start 244/309 tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes
+[parallel] done  213/309 tests.job_manager.test_publication_recovery_execution.TheBoundCoversMeasurementAndCompletion rc=0 in 4.18s
+[parallel] start 245/309 tests.job_manager.test_scheduling.ClaimBinding
+[parallel] done  214/309 tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix rc=0 in 0.28s
+[parallel] start 246/309 tests.job_manager.test_scheduling.FourEffectiveClaimsAreLiveTogether
+[parallel] done  215/309 tests.job_manager.test_role_contract.TheApprovedVectorIsTheOneThisBuildCarries rc=0 in 0.26s
+[parallel] start 247/309 tests.job_manager.test_scheduling.PoolComposition
+[parallel] done  216/309 tests.job_manager.test_role_contract.TheBoundedReaderHoldsTheEncodedBounds rc=0 in 0.28s
+[parallel] start 248/309 tests.job_manager.test_scheduling.PoolDocuments
+[parallel] done  217/309 tests.job_manager.test_role_contract.TheExactBoundsAreTheApprovedOnes rc=0 in 0.29s
+[parallel] start 249/309 tests.job_manager.test_scheduling.SelectionAndSettlement
+[parallel] done  218/309 tests.job_manager.test_role_contract.TheRegistryBindsTwoRevisionsAndPreservesTheFirst rc=0 in 0.25s
+[parallel] start 250/309 tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom
+[parallel] done  219/309 tests.job_manager.test_retained_recovery_admission.NothingHereRedispatchesImplementationOrTouchesTheOriginal rc=0 in 1.89s
+[parallel] start 251/309 tests.job_manager.test_scheduling.TheReaderSurvivesARetiredGenerationsSettledAllocation
+[parallel] done  220/309 tests.job_manager.test_retained_recovery_execution.ExpiryAfterAPassedVerificationHoldsAndNeverAnalyses rc=0 in 1.62s
+[parallel] start 252/309 tests.job_manager.test_scheduling.TheReviewedSchedulerGaps
+[parallel] done  221/309 tests.job_manager.test_scheduling.AFreshJobComposesBesideAReservedAllocation rc=0 in 0.33s
+[parallel] start 253/309 tests.job_manager.test_serving_renewal.AuthoringComposition
+[parallel] done  222/309 tests.job_manager.test_scheduling.Capacity rc=0 in 0.33s
+[parallel] start 254/309 tests.job_manager.test_serving_renewal.ProductionLaunch
+[parallel] done  223/309 tests.job_manager.test_scheduling.ClaimBinding rc=0 in 0.30s
+[parallel] start 255/309 tests.job_manager.test_serving_renewal.ServingPermission
+[parallel] done  224/309 tests.job_manager.test_scheduling.PoolComposition rc=0 in 0.34s
+[parallel] start 256/309 tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation
+[parallel] done  225/309 tests.job_manager.test_scheduling.PoolDocuments rc=0 in 0.34s
+[parallel] start 257/309 tests.job_manager.test_status.ConcurrentSubmission
+[parallel] done  226/309 tests.job_manager.test_retained_recovery_execution.OnlyTheApprovedCommandRunsAndOnlyOnce rc=0 in 1.71s
+[parallel] start 258/309 tests.job_manager.test_status.Locators
+[parallel] done  227/309 tests.job_manager.test_retained_recovery_execution.ThisManagerManufacturesNoVerdictAndReviewMayStillReject rc=0 in 1.03s
+[parallel] start 259/309 tests.job_manager.test_status.ObservingInsideACallersBoundary
+[parallel] done  228/309 tests.job_manager.test_retained_recovery_admission.RecoveryAdmissionIsNotRunnable rc=0 in 2.20s
+[parallel] start 260/309 tests.job_manager.test_status.Shape
+[parallel] done  229/309 tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes rc=0 in 0.55s
+[parallel] done  230/309 tests.job_manager.test_scheduling.FourEffectiveClaimsAreLiveTogether rc=0 in 0.52s
+[parallel] done  231/309 tests.job_manager.test_scheduling.TheReaderSurvivesARetiredGenerationsSettledAllocation rc=0 in 0.40s
+[parallel] start 261/309 tests.job_manager.test_status.States
+[parallel] start 262/309 tests.job_manager.test_store.Journal
+[parallel] start 263/309 tests.job_manager.test_store.MigratingFromSchemaOne
+[parallel] done  232/309 tests.job_manager.test_scheduling.SelectionAndSettlement rc=0 in 0.46s
+[parallel] start 264/309 tests.job_manager.test_store.MigratingPinsTheAuthorityWithoutRenamingAnything
+[parallel] done  233/309 tests.job_manager.test_retained_recovery_execution.ReviewOnlyRecoveryReusesTheEvidenceAndNeverReVerifies rc=0 in 1.65s
+[parallel] start 265/309 tests.job_manager.test_store.Ownership
+[parallel] done  234/309 tests.job_manager.test_retained_recovery_execution.ARenewedFailureEarnsOneAnalysisAndOneOwnerItemAndNoSuccessor rc=0 in 2.21s
+[parallel] done  235/309 tests.job_manager.test_scheduling.TheReviewedSchedulerGaps rc=0 in 0.45s
+[parallel] start 266/309 tests.job_manager.test_store.TheStoreIsBoundToOneAuthority
+[parallel] start 267/309 tests.job_manager.test_store.WalIsAPostOwnershipRequest
+[parallel] done  236/309 tests.job_manager.test_serving_renewal.AuthoringComposition rc=0 in 0.40s
+[parallel] start 268/309 tests.job_manager.test_store_readonly.EveryFailurePathRELEASESItsHandle
+[parallel] done  237/309 tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom rc=0 in 0.55s
+[parallel] start 269/309 tests.job_manager.test_store_readonly.ItCREATESNothingAndINITIALIZESNothing
+[parallel] done  238/309 tests.job_manager.test_status.Locators rc=0 in 0.31s
+[parallel] start 270/309 tests.job_manager.test_store_readonly.ItMIGRATESNothing
+[parallel] done  239/309 tests.job_manager.test_serving_renewal.ProductionLaunch rc=0 in 0.46s
+[parallel] start 271/309 tests.job_manager.test_store_readonly.ItREADSAStoreThisBuildOwns
+[parallel] done  240/309 tests.job_manager.test_retained_recovery_execution.VerifierOutputNeverBecomesACandidate rc=0 in 1.34s
+[parallel] done  241/309 tests.job_manager.test_role_contract.TheConsumerIdsAreTheirOwnersNamespaces rc=0 in 0.96s
+[parallel] start 272/309 tests.job_manager.test_store_readonly.ItREFUSESToWrite
+[parallel] start 273/309 tests.job_manager.test_store_readonly.ItREFUSESWhatIsNotItsOwn
+[parallel] done  242/309 tests.job_manager.test_status.Shape rc=0 in 0.34s
+[parallel] start 274/309 tests.job_manager.test_store_readonly.SQLiteManagedSidecarsAreNOTDatabaseMutation
+[parallel] done  243/309 tests.job_manager.test_retained_recovery_admission.ReviewOnlyRecoveryNeedsExactlyValidEvidence rc=0 in 2.51s
+[parallel] start 275/309 tests.job_manager.test_store_readonly.TheORDINARYOpenerIsUNCHANGED
+[parallel] done  244/309 tests.job_manager.test_retained_recovery_execution.OneApprovedRecoveryVerifiesTheRetainedBytesAndReachesReview rc=0 in 2.27s
+[parallel] start 276/309 tests.job_manager.test_submission.Idempotence
+[parallel] done  245/309 tests.job_manager.test_recovery.OneAbandonedCorrectionEpisodeIsReplaced rc=0 in 4.49s
+[parallel] done  246/309 tests.job_manager.test_store.Ownership rc=0 in 0.32s
+[parallel] start 277/309 tests.job_manager.test_submission.IdentitiesAreNamespacedByAuthority
+[parallel] start 278/309 tests.job_manager.test_submission.Persistence
+[parallel] done  247/309 tests.job_manager.test_store.Journal rc=0 in 0.38s
+[parallel] start 279/309 tests.job_manager.test_submission.Recording
+[parallel] done  248/309 tests.job_manager.test_store.TheStoreIsBoundToOneAuthority rc=0 in 0.29s
+[parallel] start 280/309 tests.job_manager.test_sweep.ADeferredActSaysWHYAndForWHICHAttempt
+[parallel] done  249/309 tests.job_manager.test_status.ConcurrentSubmission rc=0 in 0.52s
+[parallel] start 281/309 tests.job_manager.test_sweep.ADeferredFINALIZATIONIsVisibleToo
+[parallel] done  250/309 tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation rc=0 in 0.57s
+[parallel] done  251/309 tests.job_manager.test_store_readonly.EveryFailurePathRELEASESItsHandle rc=0 in 0.31s
+[parallel] done  252/309 tests.job_manager.test_store_readonly.ItCREATESNothingAndINITIALIZESNothing rc=0 in 0.29s
+[parallel] start 282/309 tests.job_manager.test_sweep.AFailureToRecordTheREASONIsNotASuccess
+[parallel] start 283/309 tests.job_manager.test_sweep.ARETAINEDReasonIsNotAnOUTSTANDINGOne
+[parallel] start 284/309 tests.job_manager.test_sweep.Containment
+[parallel] done  253/309 tests.job_manager.test_status.ObservingInsideACallersBoundary rc=0 in 0.51s
+[parallel] done  254/309 tests.job_manager.test_status.States rc=0 in 0.44s
+[parallel] start 285/309 tests.job_manager.test_sweep.Delegation
+[parallel] start 286/309 tests.job_manager.test_sweep.Eligibility
+[parallel] done  255/309 tests.job_manager.test_store.WalIsAPostOwnershipRequest rc=0 in 0.36s
+[parallel] start 287/309 tests.job_manager.test_sweep.OrdinarySuccess
+[parallel] done  256/309 tests.job_manager.test_store_readonly.ItREADSAStoreThisBuildOwns rc=0 in 0.31s
+[parallel] start 288/309 tests.job_manager.test_sweep.Persistence
+[parallel] done  257/309 tests.job_manager.test_store_readonly.ItREFUSESToWrite rc=0 in 0.29s
+[parallel] start 289/309 tests.job_manager.test_sweep.Refusals
+[parallel] done  258/309 tests.job_manager.test_retained_recovery_execution.TheGateTheSchedulerAndTheStatusSurfaceAgree rc=0 in 1.78s
+[parallel] done  259/309 tests.job_manager.test_store_readonly.ItREFUSESWhatIsNotItsOwn rc=0 in 0.30s
+[parallel] start 290/309 tests.job_manager.test_sweep.TheEngineIsAskedBeforeAnythingIsProjected
+[parallel] start 291/309 tests.job_manager.test_templates.TheAnswerIsSelfDescribing
+[parallel] done  260/309 tests.job_manager.test_store_readonly.ItMIGRATESNothing rc=0 in 0.36s
+[parallel] start 292/309 tests.job_manager.test_templates.TheConsumerBoundary
+[parallel] done  261/309 tests.job_manager.test_serving_renewal.ServingPermission rc=0 in 0.81s
+[parallel] done  262/309 tests.job_manager.test_store_readonly.SQLiteManagedSidecarsAreNOTDatabaseMutation rc=0 in 0.30s
+[parallel] start 293/309 tests.job_manager.test_templates.TheConsumptionContract
+[parallel] start 294/309 tests.job_manager.test_templates.TheFrozenTable
+[parallel] done  263/309 tests.job_manager.test_store_readonly.TheORDINARYOpenerIsUNCHANGED rc=0 in 0.29s
+[parallel] start 295/309 tests.job_manager.test_templates.TheOutputNamesAgreeWithTheirOwners
+[parallel] done  264/309 tests.job_manager.test_store.MigratingFromSchemaOne rc=0 in 0.60s
+[parallel] start 296/309 tests.job_manager.test_templates.TheOverrides
+[parallel] done  265/309 tests.job_manager.test_publication_recovery_execution.TheNineHundredSecondBoundIsAbsoluteAndEnforcedTwice rc=0 in 5.25s
+[parallel] start 297/309 tests.job_manager.test_templates.TheRegisteredTemplateCannotBeWrittenTo
+[parallel] done  266/309 tests.job_manager.test_retained_recovery_execution.EveryCutBetweenTheActsResumesAndRepeatsNoEffect rc=0 in 2.65s
+[parallel] start 298/309 tests.job_manager.test_templates.TheRequestIsOwned
+[parallel] done  267/309 tests.job_manager.test_submission.IdentitiesAreNamespacedByAuthority rc=0 in 0.31s
+[parallel] start 299/309 tests.job_manager.test_templates.TheResolutionInputIsOwned
+[parallel] done  268/309 tests.job_manager.test_submission.Idempotence rc=0 in 0.36s
+[parallel] start 300/309 tests.job_manager.test_templates.TheResolvedStages
+[parallel] done  269/309 tests.job_manager.test_submission.Persistence rc=0 in 0.35s
+[parallel] start 301/309 tests.job_manager.test_templates.TheSelection
+[parallel] done  270/309 tests.job_manager.test_sweep.Containment rc=0 in 0.31s
+[parallel] start 302/309 tests.job_manager.test_templates.TheTwoScopes
+[parallel] done  271/309 tests.job_manager.test_retained_recovery_execution.TheJoinedAcceptanceRunsTheShippedOwnersOnABootstrappedInstance rc=0 in 1.94s
+[parallel] start 303/309 tests.job_manager.test_tool.Reading
+[parallel] done  272/309 tests.job_manager.test_submission.Recording rc=0 in 0.38s
+[parallel] done  273/309 tests.job_manager.test_sweep.ARETAINEDReasonIsNotAnOUTSTANDINGOne rc=0 in 0.34s
+[parallel] start 304/309 tests.job_manager.test_tool.Submitting
+[parallel] start 305/309 tests.job_manager.test_tool.TheFactoryHandleIsReleased
+[parallel] done  274/309 tests.job_manager.test_role_capability.TheOwnedDataBoundaryIsComplete rc=0 in 1.78s
+[parallel] start 306/309 tests.job_manager.test_tool.TheLoop
+[parallel] done  275/309 tests.job_manager.test_sweep.AFailureToRecordTheREASONIsNotASuccess rc=0 in 0.39s
+[parallel] done  276/309 tests.job_manager.test_sweep.OrdinarySuccess rc=0 in 0.35s
+[parallel] done  277/309 tests.job_manager.test_templates.TheAnswerIsSelfDescribing rc=0 in 0.27s
+[parallel] start 307/309 tests.job_manager.test_tool.TheRecoveryPassVisitsTheUNCERTAINTokensToo
+[parallel] start 308/309 tests.job_manager.test_tool.TheStatusSurfaceMayReadIntegrationAndStillActOnNothing
+[parallel] start 309/309 tests.job_manager.test_tool.TheStatusSurfaceOpensBothStoresReadOnly
+[parallel] done  278/309 tests.job_manager.test_sweep.Persistence rc=0 in 0.31s
+[parallel] done  279/309 tests.job_manager.test_retained_recovery_admission.ADecisionIsRefusedBeforeItRecordsAnything rc=0 in 3.24s
+[parallel] done  280/309 tests.job_manager.test_templates.TheFrozenTable rc=0 in 0.27s
+[parallel] done  281/309 tests.job_manager.test_sweep.ADeferredFINALIZATIONIsVisibleToo rc=0 in 0.45s
+[parallel] done  282/309 tests.job_manager.test_sweep.Eligibility rc=0 in 0.43s
+[parallel] done  283/309 tests.job_manager.test_sweep.Refusals rc=0 in 0.36s
+[parallel] done  284/309 tests.job_manager.test_templates.TheOverrides rc=0 in 0.29s
+[parallel] done  285/309 tests.job_manager.test_sweep.ADeferredActSaysWHYAndForWHICHAttempt rc=0 in 0.51s
+[parallel] done  286/309 tests.job_manager.test_sweep.Delegation rc=0 in 0.47s
+[parallel] done  287/309 tests.job_manager.test_templates.TheOutputNamesAgreeWithTheirOwners rc=0 in 0.33s
+[parallel] done  288/309 tests.job_manager.test_templates.TheRegisteredTemplateCannotBeWrittenTo rc=0 in 0.30s
+[parallel] done  289/309 tests.job_manager.test_templates.TheConsumerBoundary rc=0 in 0.38s
+[parallel] done  290/309 tests.job_manager.test_templates.TheRequestIsOwned rc=0 in 0.31s
+[parallel] done  291/309 tests.job_manager.test_templates.TheResolvedStages rc=0 in 0.27s
+[parallel] done  292/309 tests.job_manager.test_templates.TheSelection rc=0 in 0.25s
+[parallel] done  293/309 tests.job_manager.test_templates.TheResolutionInputIsOwned rc=0 in 0.30s
+[parallel] done  294/309 tests.job_manager.test_templates.TheConsumptionContract rc=0 in 0.41s
+[parallel] done  295/309 tests.job_manager.test_templates.TheTwoScopes rc=0 in 0.27s
+[parallel] done  296/309 tests.job_manager.test_tool.Submitting rc=0 in 0.29s
+[parallel] done  297/309 tests.job_manager.test_tool.TheFactoryHandleIsReleased rc=0 in 0.31s
+[parallel] done  298/309 tests.job_manager.test_sweep.TheEngineIsAskedBeforeAnythingIsProjected rc=0 in 0.54s
+[parallel] done  299/309 tests.job_manager.test_store.MigratingPinsTheAuthorityWithoutRenamingAnything rc=0 in 1.08s
+[parallel] done  300/309 tests.job_manager.test_tool.TheLoop rc=0 in 0.33s
+[parallel] done  301/309 tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice rc=0 in 5.36s
+[parallel] done  302/309 tests.job_manager.test_tool.Reading rc=0 in 0.44s
+[parallel] done  303/309 tests.job_manager.test_tool.TheStatusSurfaceOpensBothStoresReadOnly rc=0 in 0.48s
+[parallel] done  304/309 tests.job_manager.test_tool.TheRecoveryPassVisitsTheUNCERTAINTokensToo rc=0 in 0.63s
+[parallel] done  305/309 tests.job_manager.test_tool.TheStatusSurfaceMayReadIntegrationAndStillActOnNothing rc=0 in 0.89s
+[parallel] done  306/309 tests.job_manager.test_publication_recovery_execution.ARecoveryThatDoesNotPublishIsFencedSettledAndReported rc=0 in 7.56s
+[parallel] done  307/309 tests.job_manager.test_publication_recovery_execution.OneInstalledPublisherServesRecoveriesOnTwoWorks rc=0 in 14.20s
+[parallel] done  308/309 tests.job_manager.test_retained_recovery_execution.RetainedRecoveryReachesTheIndependentReviewer rc=0 in 18.85s
+[parallel] done  309/309 tests.job_manager.test_publication_recovery_execution.TheConnectedRecoveryFromARealPooledProducer rc=0 in 35.58s
+[group] job_manager: 35 parallel, 1 serial, 0 supervised modules
+[collect-serial] 1 serial modules -> 163 tests
+[collect] 35 parallel modules -> 2114 tests in 309 shards
+[parallel] jobs=32 (available CPUs 32)
+--- parallel source ---
+[pass] tests.job_manager.test_accepted_offer_retirement.AcceptedOfferRetirement (11 tests)
+[pass] tests.job_manager.test_creation.ChangedIntent (6 tests)
+[pass] tests.job_manager.test_creation.CreateTimeWorkLabelsAreAppliedByTheActThatMakesTheWork (22 tests)
+[pass] tests.job_manager.test_creation.InterruptionAndRecovery (4 tests)
+[pass] tests.job_manager.test_creation.OneIdentityHasOneOwnerAcrossEveryEntryPoint (8 tests)
+[pass] tests.job_manager.test_creation.ReplayAndIdentity (9 tests)
+[pass] tests.job_manager.test_creation.TheCommandRequestsTheOperation (8 tests)
+[pass] tests.job_manager.test_creation.TheCreation (16 tests)
+[pass] tests.job_manager.test_creation.TheGenerationAgreement (4 tests)
+[pass] tests.job_manager.test_creation.TheReplayIsTheCallersIntent (6 tests)
+[pass] tests.job_manager.test_creation.TheRequestedVerificationIsTheJobsOwn (2 tests)
+[pass] tests.job_manager.test_creation.TheRetryContractIsPreserved (2 tests)
+[pass] tests.job_manager.test_creation.TheSelectedResultContractIsAdmittedBeforeAnyEffect (5 tests)
+[pass] tests.job_manager.test_creation.WhatItRefusesBeforeAnyEffect (15 tests)
+[pass] tests.job_manager.test_delegation.Binding (4 tests)
+[pass] tests.job_manager.test_delegation.CanonicalIdentities (4 tests)
+[pass] tests.job_manager.test_delegation.Observation (7 tests)
+[pass] tests.job_manager.test_delegation.TheBearer (3 tests)
+[pass] tests.job_manager.test_delegation.TheIntegrationObservationIsBoundBeforeItIsRead (26 tests)
+[pass] tests.job_manager.test_documents.Dependencies (5 tests)
+[pass] tests.job_manager.test_documents.Identity (5 tests)
+[pass] tests.job_manager.test_documents.SubmissionShape (16 tests)
+[pass] tests.job_manager.test_documents.TheExclusionEndingIsItsOwnClosedVocabulary (5 tests)
+[pass] tests.job_manager.test_ending.ACorrectionRoundDoesNotStrandTheEndingItReplaced (4 tests)
+[pass] tests.job_manager.test_ending.APresentInvalidRecordIsNotAbsence (5 tests)
+[pass] tests.job_manager.test_ending.ARecordIsProvedAgainstTheRowsThisStoreHolds (5 tests)
+[pass] tests.job_manager.test_ending.ARegisteredEndingStaysOwedAfterTerminalCleanup (5 tests)
+[pass] tests.job_manager.test_ending.ASignatureIsNotOwnership (6 tests)
+[pass] tests.job_manager.test_ending.ATYPEDCheckpointRefusalDoesNotEndTheLOOPHereEither (7 tests)
+[pass] tests.job_manager.test_ending.NoCallerDocumentStandsInForAStoredRecord (4 tests)
+[pass] tests.job_manager.test_ending.TheObligationIsOneClosedCorrelatedRecord (7 tests)
+[pass] tests.job_manager.test_ending.TheOrdinaryTickAsksAgainUntilItSettles (3 tests)
+[pass] tests.job_manager.test_ending.TheWholePayloadIsOwnedOnTheWayOutToo (5 tests)
+[pass] tests.job_manager.test_ending.WhatAWriteWillNotAcceptEither (3 tests)
+[pass] tests.job_manager.test_exchange.ACHECKPOINTPROFILESOwnRefusalDoesNotEndTheLoop (5 tests)
+[pass] tests.job_manager.test_exchange.AReaderWithNoExchangeStillTellsTheTruth (4 tests)
+[pass] tests.job_manager.test_exchange.AStartedContainerIsNotWorkInProgress (14 tests)
+[pass] tests.job_manager.test_exchange.AnIntegrationStageOwesConcludeAndNeverDispatch (5 tests)
+[pass] tests.job_manager.test_exchange.TheCommandIsLevelTriggered (8 tests)
+[pass] tests.job_manager.test_exchange.TheEndingIsLevelTriggeredToo (10 tests)
+[pass] tests.job_manager.test_execution_limits.ANewDefaultCannotReinterpretAnAdmittedJob (5 tests)
+[pass] tests.job_manager.test_execution_limits.TheJobOwnerComposesItsOwnLaunchContext (5 tests)
+[pass] tests.job_manager.test_execution_limits.TheMigrationLeavesOldJobsMeaningExactlyWhatTheyMeant (3 tests)
+[pass] tests.job_manager.test_execution_limits.TheSettingsAreOwnedBeforeAnythingIsStored (11 tests)
+[pass] tests.job_manager.test_execution_limits.TheStoreKeepsWhatTheJobAskedFor (6 tests)
+[pass] tests.job_manager.test_execution_limits.TheSubmissionCarriesThemOnlyWhereItsVersionSaysSo (7 tests)
+[pass] tests.job_manager.test_final_allocation_release.AnUnprovenEndingKeepsItsCapacity (5 tests)
+[pass] tests.job_manager.test_final_allocation_release.TheEndingTickReturnsTheCapacity (4 tests)
+[pass] tests.job_manager.test_final_allocation_release.TheFreedCapacityServesTheNextJob (2 tests)
+[pass] tests.job_manager.test_final_allocation_release.TheSettlementHappensExactlyOnce (3 tests)
+[pass] tests.job_manager.test_fresh_attempt.EveryOwnerSaysWhichInstance (4 tests)
+[pass] tests.job_manager.test_fresh_attempt.ExclusiveInvocation (2 tests)
+[pass] tests.job_manager.test_fresh_attempt.OneCoherentOwnershipRule (9 tests)
+[pass] tests.job_manager.test_fresh_attempt.OwnershipAcrossTheEffects (7 tests)
+[pass] tests.job_manager.test_fresh_attempt.ReplayAndUniqueness (7 tests)
+[pass] tests.job_manager.test_fresh_attempt.TheAdmission (9 tests)
+[pass] tests.job_manager.test_fresh_attempt.TheBorrowIsAtomic (8 tests)
+[pass] tests.job_manager.test_fresh_attempt.TheCommandRequestsTheOperation (1 tests)
+[pass] tests.job_manager.test_fresh_attempt.TheConnectedRetry (6 tests)
+[pass] tests.job_manager.test_fresh_attempt.TheDeploymentRule (5 tests)
+[pass] tests.job_manager.test_fresh_attempt.TheExclusionOutlivesEveryBorrower (12 tests)
+[pass] tests.job_manager.test_fresh_attempt.TheFinalReleaseIsOneTransition (9 tests)
+[pass] tests.job_manager.test_fresh_attempt.TheForkedChildIsNotStuck (8 tests)
+[pass] tests.job_manager.test_fresh_attempt.TheHostIsThisInstanceS (11 tests)
+[pass] tests.job_manager.test_fresh_attempt.TheIntendedSubmissionIsImmutable (3 tests)
+[pass] tests.job_manager.test_fresh_attempt.TheJobStoreBelongsToTheInstance (8 tests)
+[pass] tests.job_manager.test_fresh_attempt.TheJournalOwnsTheSubmissionIdentity (6 tests)
+[pass] tests.job_manager.test_fresh_attempt.TheRealBindingAdapter (8 tests)
+[pass] tests.job_manager.test_fresh_attempt.TheRealHostAdapter (5 tests)
+[pass] tests.job_manager.test_fresh_attempt.TheRealInstanceGuard (6 tests)
+[pass] tests.job_manager.test_fresh_attempt.TheSubmissionIdentityIsOwnedToo (6 tests)
+[pass] tests.job_manager.test_fresh_attempt.UnknownResourceIsNotPermission (4 tests)
+[pass] tests.job_manager.test_fresh_attempt.WhatItRefuses (15 tests)
+[pass] tests.job_manager.test_job_cancellation.ClaimedAndRunningTargets (11 tests)
+[pass] tests.job_manager.test_job_cancellation.NoSuccessorThroughAFreshAttempt (3 tests)
+[pass] tests.job_manager.test_job_cancellation.QueuedAndOfferedTargets (3 tests)
+[pass] tests.job_manager.test_job_cancellation.TheRequest (5 tests)
+[pass] tests.job_manager.test_job_cancellation.TheWriteSideFences (5 tests)
+[pass] tests.job_manager.test_job_control.NoSuccessorThroughAFreshAttempt (3 tests)
+[pass] tests.job_manager.test_job_control.TheAdmission (4 tests)
+[pass] tests.job_manager.test_job_control.TheClocks (6 tests)
+[pass] tests.job_manager.test_job_control.TheCreationPath (2 tests)
+[pass] tests.job_manager.test_job_control.TheExpiryFence (10 tests)
+[pass] tests.job_manager.test_job_control.TheHeavyNativeProfile (7 tests)
+[pass] tests.job_manager.test_job_control.TheOwnersEvidence (6 tests)
+[pass] tests.job_manager.test_job_control.TheSelection (4 tests)
+[pass] tests.job_manager.test_job_control.TheTemplatePath (1 tests)
+[pass] tests.job_manager.test_job_control.TheTrustedClock (4 tests)
+[pass] tests.job_manager.test_job_control.TheWriteSideGuards (5 tests)
+[pass] tests.job_manager.test_launch.AFailedStartIsContainedAndExceptional (7 tests)
+[pass] tests.job_manager.test_launch.TheLaunchIsLevelTriggered (4 tests)
+[pass] tests.job_manager.test_launch.TheLaunchSurvivesTheClaimCrashWindow (2 tests)
+[pass] tests.job_manager.test_launch.TheStartFailureRead (3 tests)
+[pass] tests.job_manager.test_managed_integration_capacity.ADecisionIsJournalledBeforeTheWorkExists (15 tests)
+[pass] tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization (16 tests)
+[pass] tests.job_manager.test_managed_integration_capacity.TheCompletionBranchDoesNotSpeakForTheExecutions (7 tests)
+[pass] tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved (16 tests)
+[pass] tests.job_manager.test_managed_integration_capacity.TheOfferIdentityIsComplete (4 tests)
+[pass] tests.job_manager.test_managed_integration_capacity.ThePersistedEvidenceIsOwnedEndToEnd (6 tests)
+[pass] tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial (11 tests)
+[pass] tests.job_manager.test_managed_integration_capacity.ThePreparationIsAdmittedBeforeTheParentOffer (4 tests)
+[pass] tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd (15 tests)
+[pass] tests.job_manager.test_managed_integration_capacity.TheRacesUnderOneReservation (5 tests)
+[pass] tests.job_manager.test_managed_integration_capacity.TheRegisteredRootHoldsItsCapacity (6 tests)
+[pass] tests.job_manager.test_managed_integration_capacity.TheRootNamesCapacityItDidNotCreate (4 tests)
+[pass] tests.job_manager.test_managed_integration_capacity.TheStartIsBehindTheAdmission (20 tests)
+[pass] tests.job_manager.test_managed_integration_capacity.TheUncertainExecutionHoldsItsCapacity (5 tests)
+[pass] tests.job_manager.test_managed_integration_capacity.TwoStoresContendForOneReservation (6 tests)
+[pass] tests.job_manager.test_native_handoffs.AReplyIsBoundToTheRequestItWasDelivered (9 tests)
+[pass] tests.job_manager.test_native_handoffs.AResponseIsNotAVerdict (6 tests)
+[pass] tests.job_manager.test_native_handoffs.AResponseReEntersBehindADestroyedRuntime (3 tests)
+[pass] tests.job_manager.test_native_handoffs.AYieldIsNeverTaskSuccess (11 tests)
+[pass] tests.job_manager.test_native_handoffs.TheClassificationHappensBeforePublication (10 tests)
+[pass] tests.job_manager.test_native_handoffs.TheContinuationIsTheSameAdmittedTask (14 tests)
+[pass] tests.job_manager.test_native_handoffs.TheContinuationRetryIsBoundToItsOriginalYield (5 tests)
+[pass] tests.job_manager.test_native_handoffs.TheDeliveredContextIsReadFromOwners (7 tests)
+[pass] tests.job_manager.test_native_handoffs.TheDependencyWindowOpensOnlyForAResponse (5 tests)
+[pass] tests.job_manager.test_native_handoffs.TheHoldIsRecordedOnceAndRereadForever (2 tests)
+[pass] tests.job_manager.test_native_handoffs.TheRetainedContinuationIsReadOutOfCustody (7 tests)
+[pass] tests.job_manager.test_native_handoffs.TheReviewStageAnsweredIsNotACompletedReview (3 tests)
+[pass] tests.job_manager.test_native_permission.ARevokedGenerationPermitsNoEffects (2 tests)
+[pass] tests.job_manager.test_native_permission.NativeAcquisition (9 tests)
+[pass] tests.job_manager.test_native_permission.NativeProductionLaunch (2 tests)
+[pass] tests.job_manager.test_native_permission.NativeStageComposition (1 tests)
+[pass] tests.job_manager.test_native_permission.NativeTwoStageAcquisition (2 tests)
+[pass] tests.job_manager.test_native_permission.TheDisconnectedTwoStageComposition (1 tests)
+[pass] tests.job_manager.test_native_permission.TheOwnerFailureReachesTheReportThroughStatus (3 tests)
+[pass] tests.job_manager.test_native_stop_restart.NativeStopRestart (6 tests)
+[pass] tests.job_manager.test_proposal_output_limit.ProposalRevision (3 tests)
+[pass] tests.job_manager.test_proposal_output_limit.WorkerAndManagerMeasurement (5 tests)
+[pass] tests.job_manager.test_publication_recovery_admission.EveryEffectReplaysAndNothingHappensTwice (7 tests)
+[pass] tests.job_manager.test_publication_recovery_admission.OnlyTheAuthorizedOwnerDecidesAndOnlyInTheWorksScope (4 tests)
+[pass] tests.job_manager.test_publication_recovery_admission.OrdinaryAdmissionCannotNameTheRecoveryContracts (4 tests)
+[pass] tests.job_manager.test_publication_recovery_admission.TheApprovalReachesAClosedAdmissionBoundary (6 tests)
+[pass] tests.job_manager.test_publication_recovery_admission.TheBuildHoldsTheOwnerSelectionsItClaimsTo (5 tests)
+[pass] tests.job_manager.test_publication_recovery_admission.TheBytesAreJudgedAgainstTheExactDeclarations (3 tests)
+[pass] tests.job_manager.test_publication_recovery_admission.TheCandidateMustCorrespondThroughTheSourceOwner (3 tests)
+[pass] tests.job_manager.test_publication_recovery_admission.TheDecisionBindsExactlyWhatTheOwnerRead (7 tests)
+[pass] tests.job_manager.test_publication_recovery_admission.TheOriginalIsTheTrustRootAndNothingElseIs (7 tests)
+[pass] tests.job_manager.test_publication_recovery_admission.TheOwnerInspectsTheOriginalAndDecidesIt (6 tests)
+[pass] tests.job_manager.test_publication_recovery_admission.TheProducerAttributionIsQualifiedOrItHolds (10 tests)
+[pass] tests.job_manager.test_publication_recovery_admission.TheSelectorsNameTheExactExecutionOrNothing (4 tests)
+[pass] tests.job_manager.test_publication_recovery_execution.AMaliciousOrOversizedOriginalIsRefusedByItsOwner (6 tests)
+[pass] tests.job_manager.test_publication_recovery_execution.APooledProducersFailedOutputIsReadThroughItsLine (6 tests)
+[pass] tests.job_manager.test_publication_recovery_execution.ARecoveryThatDoesNotPublishIsFencedSettledAndReported (11 tests)
+[pass] tests.job_manager.test_publication_recovery_execution.CancellationStopsNewEffectsAndRetainsEverything (6 tests)
+[pass] tests.job_manager.test_publication_recovery_execution.IncompleteCustodyNeverOffersAReview (3 tests)
+[pass] tests.job_manager.test_publication_recovery_execution.OneFailedPublicationHasOneApprovedRecovery (4 tests)
+[pass] tests.job_manager.test_publication_recovery_execution.OneInstalledPublisherServesRecoveriesOnTwoWorks (6 tests)
+[pass] tests.job_manager.test_publication_recovery_execution.OneTickOwesOneActAndDerivesItFromRows (4 tests)
+[pass] tests.job_manager.test_publication_recovery_execution.OrdinaryJobsAndOldProfilesAreUnchanged (6 tests)
+[pass] tests.job_manager.test_publication_recovery_execution.TheApprovalNowReachesARealAdmission (6 tests)
+[pass] tests.job_manager.test_publication_recovery_execution.TheApprovedOriginalIsStagedReadOnly (10 tests)
+[pass] tests.job_manager.test_publication_recovery_execution.TheBaseIsReadFromTheRecordedSourceOrNotAtAll (2 tests)
+[pass] tests.job_manager.test_publication_recovery_execution.TheBoundCoversMeasurementAndCompletion (11 tests)
+[pass] tests.job_manager.test_publication_recovery_execution.TheConnectedRecoveryFromARealPooledProducer (13 tests)
+[pass] tests.job_manager.test_publication_recovery_execution.TheNineHundredSecondBoundIsAbsoluteAndEnforcedTwice (8 tests)
+[pass] tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority (15 tests)
+[pass] tests.job_manager.test_publication_recovery_execution.ThePublishedCandidateEntersOrdinaryCustody (4 tests)
+[pass] tests.job_manager.test_publication_recovery_execution.TheRetainedBytesAreAdoptedDeterministically (8 tests)
+[pass] tests.job_manager.test_publication_recovery_execution.TheReviewGateOpensOnTheHandoffAndOnNothingWeaker (6 tests)
+[pass] tests.job_manager.test_publication_recovery_execution.TheShippedOwnersRunOnABootstrappedInstance (4 tests)
+[pass] tests.job_manager.test_publication_recovery_execution.TheWorkerAndTheManagerSpellOneContract (3 tests)
+[pass] tests.job_manager.test_publication_recovery_execution.ThisCheckpointIsPartialEvidenceAndNeverResumeSupported (4 tests)
+[pass] tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice (12 tests)
+[pass] tests.job_manager.test_recovery.AClaimedStageGatesItsSuccessor (1 tests)
+[pass] tests.job_manager.test_recovery.DeliveryIsAtLeastOnce (9 tests)
+[pass] tests.job_manager.test_recovery.EndingsOutsideTheReplaceableSet (4 tests)
+[pass] tests.job_manager.test_recovery.OneAbandonedCorrectionEpisodeIsReplaced (21 tests)
+[pass] tests.job_manager.test_recovery.OneReplacementPerEnding (3 tests)
+[pass] tests.job_manager.test_recovery.ReadOnlyStatusAppliesNothing (3 tests)
+[pass] tests.job_manager.test_recovery.TheEventPump (5 tests)
+[pass] tests.job_manager.test_recovery.ThePublisher (3 tests)
+[pass] tests.job_manager.test_recovery.TheRealRestart (7 tests)
+[pass] tests.job_manager.test_restart.AnUnclaimedAttempt (2 tests)
+[pass] tests.job_manager.test_restart.OneControlStoreAndTwoJobStores (3 tests)
+[pass] tests.job_manager.test_restart.RealComposition (8 tests)
+[pass] tests.job_manager.test_restart.RecoveryIsTheManagers (2 tests)
+[pass] tests.job_manager.test_restart.TheReadCallWindow (4 tests)
+[pass] tests.job_manager.test_restart.TwoOffersOneAttempt (4 tests)
+[pass] tests.job_manager.test_retained_failure_analysis.ADeploymentThatDeclaresNoAnalystAnalysesNothing (4 tests)
+[pass] tests.job_manager.test_retained_failure_analysis.AFiniteAnalysisEndsOnceAndGoesDirectlyToTheOwner (13 tests)
+[pass] tests.job_manager.test_retained_failure_analysis.AValidRetainedFailureEarnsOneAnalysisAndOneOwnerItem (10 tests)
+[pass] tests.job_manager.test_retained_failure_analysis.NoRecursiveAnalysisIsEverLaunched (2 tests)
+[pass] tests.job_manager.test_retained_failure_analysis.NoRecursiveAnalysisIsReachableFromTheTick (2 tests)
+[pass] tests.job_manager.test_retained_failure_analysis.NothingHereMutatesTheCandidateVerifierOrExecution (4 tests)
+[pass] tests.job_manager.test_retained_failure_analysis.OneEndingIsOneAnalysisHoweverManyTicksRun (3 tests)
+[pass] tests.job_manager.test_retained_failure_analysis.OneEndingIsOneAnalysisHoweverOftenItIsObserved (7 tests)
+[pass] tests.job_manager.test_retained_failure_analysis.OnlyASettledProducerFailureIsObserved (5 tests)
+[pass] tests.job_manager.test_retained_failure_analysis.TheAnalysisOwnAdmittedBoundIsWhatExpiresIt (2 tests)
+[pass] tests.job_manager.test_retained_failure_analysis.TheAnalysisReEntersFromEveryCutPointWithoutRepeatingAnEffect (6 tests)
+[pass] tests.job_manager.test_retained_failure_analysis.TheAnalysisRoleIsDeclaredConfigurationAndNotAProvider (10 tests)
+[pass] tests.job_manager.test_retained_failure_analysis.TheAnalystReceivesTheFixedInputAndNothingElse (3 tests)
+[pass] tests.job_manager.test_retained_failure_analysis.TheDeploymentProducesTheDeclaredWorkerAndProfile (6 tests)
+[pass] tests.job_manager.test_retained_failure_analysis.TheDerivedAnalysisIdentityIsStableAcrossEveryReEntry (3 tests)
+[pass] tests.job_manager.test_retained_failure_analysis.TheFiniteEndingsAreReachedByTheTickItself (7 tests)
+[pass] tests.job_manager.test_retained_failure_analysis.TheFiniteProfileIsTheOwnersExactPublishedDefinition (6 tests)
+[pass] tests.job_manager.test_retained_failure_analysis.TheOriginalCessationTravelsWithItsQualification (2 tests)
+[pass] tests.job_manager.test_retained_failure_analysis.TheProductionPassMutatesNothingItReads (2 tests)
+[pass] tests.job_manager.test_retained_failure_analysis.TheRealTickTriggersDispatchesAndDeliversWithoutACourier (6 tests)
+[pass] tests.job_manager.test_retained_failure_analysis.TheSeamContractIsOwnedBeforeAnythingIsSpent (4 tests)
+[pass] tests.job_manager.test_retained_failure_analysis.TheTickReportIsAClosedDocumentAndNotProse (6 tests)
+[pass] tests.job_manager.test_retained_failure_analysis.TheTriggerIsRefusedExplicitlyAndNeverSilentlyUsed (18 tests)
+[pass] tests.job_manager.test_retained_failure_analysis.TheWrongBindingIsRefusedBeforeAnythingIsWritten (9 tests)
+[pass] tests.job_manager.test_retained_recovery_admission.ADecisionIsRefusedBeforeItRecordsAnything (18 tests)
+[pass] tests.job_manager.test_retained_recovery_admission.EveryCutBetweenTheOwnersResumes (5 tests)
+[pass] tests.job_manager.test_retained_recovery_admission.NothingHereRedispatchesImplementationOrTouchesTheOriginal (9 tests)
+[pass] tests.job_manager.test_retained_recovery_admission.OneDecisionProducesOneEffectHoweverOftenItIsAsked (5 tests)
+[pass] tests.job_manager.test_retained_recovery_admission.RecoveryAdmissionIsNotRunnable (10 tests)
+[pass] tests.job_manager.test_retained_recovery_admission.ReviewOnlyRecoveryNeedsExactlyValidEvidence (11 tests)
+[pass] tests.job_manager.test_retained_recovery_admission.ShippedOwnersComposeOverAnInstalledInstance (1 tests)
+[pass] tests.job_manager.test_retained_recovery_admission.TheCommandRefusesAnIncompleteRequestBeforeItOpensAnything (5 tests)
+[pass] tests.job_manager.test_retained_recovery_admission.TheOwnerReadsTheItemAndTheApprovalAdmitsOneSuccessor (6 tests)
+[pass] tests.job_manager.test_retained_recovery_admission.UnknownIsAHoldAndACancelledExecutionIsNeverRevived (4 tests)
+[pass] tests.job_manager.test_retained_recovery_execution.ARenewedFailureEarnsOneAnalysisAndOneOwnerItemAndNoSuccessor (9 tests)
+[pass] tests.job_manager.test_retained_recovery_execution.CancellationAndUnknownNeverReleaseAReview (7 tests)
+[pass] tests.job_manager.test_retained_recovery_execution.EveryCutBetweenTheActsResumesAndRepeatsNoEffect (11 tests)
+[pass] tests.job_manager.test_retained_recovery_execution.ExpiryAfterAPassedVerificationHoldsAndNeverAnalyses (6 tests)
+[pass] tests.job_manager.test_retained_recovery_execution.OneApprovedRecoveryVerifiesTheRetainedBytesAndReachesReview (9 tests)
+[pass] tests.job_manager.test_retained_recovery_execution.OnlyTheApprovedCommandRunsAndOnlyOnce (7 tests)
+[pass] tests.job_manager.test_retained_recovery_execution.RetainedRecoveryReachesTheIndependentReviewer (7 tests)
+[pass] tests.job_manager.test_retained_recovery_execution.ReviewOnlyRecoveryReusesTheEvidenceAndNeverReVerifies (5 tests)
+[pass] tests.job_manager.test_retained_recovery_execution.TheApprovedBoundsAreTheOwnersExactPublishedDefinition (4 tests)
+[pass] tests.job_manager.test_retained_recovery_execution.TheApprovedContextIsADocumentAndItsDigestIsItsIdentity (8 tests)
+[pass] tests.job_manager.test_retained_recovery_execution.TheCandidatesSourceIsValidatedBeforeAnyByteIsCopied (5 tests)
+[pass] tests.job_manager.test_retained_recovery_execution.TheGateTheSchedulerAndTheStatusSurfaceAgree (8 tests)
+[pass] tests.job_manager.test_retained_recovery_execution.TheJoinedAcceptanceRunsTheShippedOwnersOnABootstrappedInstance (7 tests)
+[pass] tests.job_manager.test_retained_recovery_execution.ThisManagerManufacturesNoVerdictAndReviewMayStillReject (3 tests)
+[pass] tests.job_manager.test_retained_recovery_execution.VerifierOutputNeverBecomesACandidate (5 tests)
+[pass] tests.job_manager.test_role_capability.TheApprovedVectorIsTheOneThisBuildCarries (5 tests)
+[pass] tests.job_manager.test_role_capability.TheClosedShapeRefusesEverythingElse (11 tests)
+[pass] tests.job_manager.test_role_capability.TheOwnedDataBoundaryIsComplete (38 tests)
+[pass] tests.job_manager.test_role_capability.ThePredicateIsPureAndNarrow (10 tests)
+[pass] tests.job_manager.test_role_capability.TheTaskMediaTypeIsOneContractInTwoPlaces (3 tests)
+[pass] tests.job_manager.test_role_capability.TheTwoTaskReadersAgree (5 tests)
+[pass] tests.job_manager.test_role_contract.EveryRefusalInTheApprovedMatrix (37 tests)
+[pass] tests.job_manager.test_role_contract.TheApprovedVectorIsTheOneThisBuildCarries (7 tests)
+[pass] tests.job_manager.test_role_contract.TheBoundedReaderHoldsTheEncodedBounds (7 tests)
+[pass] tests.job_manager.test_role_contract.TheConsumerIdsAreTheirOwnersNamespaces (3 tests)
+[pass] tests.job_manager.test_role_contract.TheExactBoundsAreTheApprovedOnes (10 tests)
+[pass] tests.job_manager.test_role_contract.TheRegistryBindsTwoRevisionsAndPreservesTheFirst (13 tests)
+[pass] tests.job_manager.test_scheduling.AFreshJobComposesBesideAReservedAllocation (4 tests)
+[pass] tests.job_manager.test_scheduling.Capacity (4 tests)
+[pass] tests.job_manager.test_scheduling.CapacityReturnsWhenAnIntegrationCompletes (16 tests)
+[pass] tests.job_manager.test_scheduling.ClaimBinding (2 tests)
+[pass] tests.job_manager.test_scheduling.FourEffectiveClaimsAreLiveTogether (3 tests)
+[pass] tests.job_manager.test_scheduling.PoolComposition (3 tests)
+[pass] tests.job_manager.test_scheduling.PoolDocuments (5 tests)
+[pass] tests.job_manager.test_scheduling.SelectionAndSettlement (9 tests)
+[pass] tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom (9 tests)
+[pass] tests.job_manager.test_scheduling.TheReaderSurvivesARetiredGenerationsSettledAllocation (7 tests)
+[pass] tests.job_manager.test_scheduling.TheReviewedSchedulerGaps (10 tests)
+[pass] tests.job_manager.test_serving_renewal.AuthoringComposition (1 tests)
+[pass] tests.job_manager.test_serving_renewal.ProductionLaunch (1 tests)
+[pass] tests.job_manager.test_serving_renewal.ServingPermission (12 tests)
+[pass] tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation (15 tests)
+[pass] tests.job_manager.test_status.ConcurrentSubmission (16 tests)
+[pass] tests.job_manager.test_status.Locators (4 tests)
+[pass] tests.job_manager.test_status.ObservingInsideACallersBoundary (13 tests)
+[pass] tests.job_manager.test_status.Shape (5 tests)[serial] start 1/1 tests.job_manager.test_review_driver
+[serial] done  1/1 tests.job_manager.test_review_driver rc=0 in 9.64s
+
+[pass] tests.job_manager.test_status.States (12 tests)
+[pass] tests.job_manager.test_store.Journal (9 tests)
+[pass] tests.job_manager.test_store.MigratingFromSchemaOne (6 tests)
+[pass] tests.job_manager.test_store.MigratingPinsTheAuthorityWithoutRenamingAnything (13 tests)
+[pass] tests.job_manager.test_store.Ownership (9 tests)
+[pass] tests.job_manager.test_store.TheStoreIsBoundToOneAuthority (5 tests)
+[pass] tests.job_manager.test_store.WalIsAPostOwnershipRequest (5 tests)
+[pass] tests.job_manager.test_store_readonly.EveryFailurePathRELEASESItsHandle (6 tests)
+[pass] tests.job_manager.test_store_readonly.ItCREATESNothingAndINITIALIZESNothing (5 tests)
+[pass] tests.job_manager.test_store_readonly.ItMIGRATESNothing (3 tests)
+[pass] tests.job_manager.test_store_readonly.ItREADSAStoreThisBuildOwns (4 tests)
+[pass] tests.job_manager.test_store_readonly.ItREFUSESToWrite (2 tests)
+[pass] tests.job_manager.test_store_readonly.ItREFUSESWhatIsNotItsOwn (5 tests)
+[pass] tests.job_manager.test_store_readonly.SQLiteManagedSidecarsAreNOTDatabaseMutation (3 tests)
+[pass] tests.job_manager.test_store_readonly.TheORDINARYOpenerIsUNCHANGED (3 tests)
+[pass] tests.job_manager.test_submission.Idempotence (6 tests)
+[pass] tests.job_manager.test_submission.IdentitiesAreNamespacedByAuthority (5 tests)
+[pass] tests.job_manager.test_submission.Persistence (3 tests)
+[pass] tests.job_manager.test_submission.Recording (8 tests)
+[pass] tests.job_manager.test_sweep.ADeferredActSaysWHYAndForWHICHAttempt (9 tests)
+[pass] tests.job_manager.test_sweep.ADeferredFINALIZATIONIsVisibleToo (5 tests)
+[pass] tests.job_manager.test_sweep.AFailureToRecordTheREASONIsNotASuccess (4 tests)
+[pass] tests.job_manager.test_sweep.ARETAINEDReasonIsNotAnOUTSTANDINGOne (3 tests)
+[pass] tests.job_manager.test_sweep.Containment (1 tests)
+[pass] tests.job_manager.test_sweep.Delegation (5 tests)
+[pass] tests.job_manager.test_sweep.Eligibility (6 tests)
+[pass] tests.job_manager.test_sweep.OrdinarySuccess (1 tests)
+[pass] tests.job_manager.test_sweep.Persistence (1 tests)
+[pass] tests.job_manager.test_sweep.Refusals (3 tests)
+[pass] tests.job_manager.test_sweep.TheEngineIsAskedBeforeAnythingIsProjected (10 tests)
+[pass] tests.job_manager.test_templates.TheAnswerIsSelfDescribing (6 tests)
+[pass] tests.job_manager.test_templates.TheConsumerBoundary (10 tests)
+[pass] tests.job_manager.test_templates.TheConsumptionContract (14 tests)
+[pass] tests.job_manager.test_templates.TheFrozenTable (16 tests)
+[pass] tests.job_manager.test_templates.TheOutputNamesAgreeWithTheirOwners (4 tests)
+[pass] tests.job_manager.test_templates.TheOverrides (11 tests)
+[pass] tests.job_manager.test_templates.TheRegisteredTemplateCannotBeWrittenTo (8 tests)
+[pass] tests.job_manager.test_templates.TheRequestIsOwned (15 tests)
+[pass] tests.job_manager.test_templates.TheResolutionInputIsOwned (14 tests)
+[pass] tests.job_manager.test_templates.TheResolvedStages (8 tests)
+[pass] tests.job_manager.test_templates.TheSelection (9 tests)
+[pass] tests.job_manager.test_templates.TheTwoScopes (7 tests)
+[pass] tests.job_manager.test_tool.Reading (11 tests)
+[pass] tests.job_manager.test_tool.Submitting (4 tests)
+[pass] tests.job_manager.test_tool.TheFactoryHandleIsReleased (3 tests)
+[pass] tests.job_manager.test_tool.TheLoop (6 tests)
+[pass] tests.job_manager.test_tool.TheRecoveryPassVisitsTheUNCERTAINTokensToo (9 tests)
+[pass] tests.job_manager.test_tool.TheStatusSurfaceMayReadIntegrationAndStillActOnNothing (20 tests)
+[pass] tests.job_manager.test_tool.TheStatusSurfaceOpensBothStoresReadOnly (19 tests)
+[parallel source] 309 shards, 2114 tests, 0 failures, 0 errors, 0 skipped -> OK
+[serial] 1 source modules, one at a time
+--- serial source ---
+[pass] tests.job_manager.test_review_driver (163 tests)
+[serial source] 1 shards, 163 tests, 0 failures, 0 errors, 0 skipped -> OK
+[summary] parallel source: 2114 tests, 0 failed, 0 skipped | serial source: 163 tests, 0 failed, 0 skipped -> OK
+[groups] authority=0, job_manager=2277, manager-pure=0, manager-engine=0, integration=0, tools-pure=0, tools-packaged=0, supervised=0, scans=0
+--- accounting ---
+collected 2277, executed 2277, passed 2277, optional skipped 0, required skipped 0, failed 0, errors 0, fixture skips 0, fixture errors 0, duplicates 0, unaccounted 0
+[accounting] 2277 collected: 2277 passed, 0 optional skips, 0 failures, 0 errors, 0 unaccounted -> OK

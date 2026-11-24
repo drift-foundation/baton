@@ -1,0 +1,13 @@
+--- a/v12/DESIGN.md
++++ b/v12/DESIGN.md
+@@ -915,6 +915,10 @@
+ 
+ Admission and all effects MUST have stable replay identities, durable intent and defined restart reconciliation. Cancellation, expired authority, uncertain cessation, invalid or unknown evidence MUST prevent new conflicting effects and be reported explicitly. Old clocks MUST NOT reset. Failed/expired recovery retains evidence and returns an owner item without automatic retry or recursive analysis. Status MUST distinguish original failure, recovery progress, custody and review outcome. ART-7 execution release remains independent of result acceptance; ART-8 explicit adoption, DB-3 through DB-5 and REC-1 through REC-6 continue to apply.
+ 
++Owner clarification (W385695, 2026-11-23): for this recovery only, the development-line owner MAY freeze the exact owner-approved recovered candidate as a review checkpoint for the original writer although that writer was never released, under a separately typed recovery fence. Required before the freeze: the original attempt's runtime is positively absent with settled cleanup, read through the control owner; no later writer was granted on the line; the line is still at the checkpoint that writer was granted on; the candidate head equals the approved original's and its base equals the line's declared base. The old writer is revoked in the same owner operation that establishes the fence and checkpoint, with atomic exclusion; a retry returns the same committed checkpoint without new effects. Unknown or conflicting evidence MUST hold. Checkpoint readers MUST validate this fence kind explicitly. The original failure and the existing Authority-side assignment ending are preserved; no producer disposition or success is fabricated. This adds one recovery proof beside ART-4's released-writer proof and does not weaken ordinary checkpoint rules.
++
++Decision record: [W385695 R1 approval](../work/records/2026/11/finding-v12-output-publication-recovery/FINDING.md), section "2026-11-23 — owner approves R1 recovered line checkpoint (M385914)".
++
+ Decision record: [W385695 consolidated owner selection](../work/records/2026/11/finding-v12-output-publication-recovery/FINDING.md#consolidated-owner-selection--2026-11-22).
+ 
+ ## 13. Security, credentials and trust

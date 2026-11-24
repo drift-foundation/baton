@@ -1,0 +1,8 @@
+test_child_exits_only_after_the_absolute_deadline (__main__.Late.test_child_exits_only_after_the_absolute_deadline) ... baton: this command was ended at its 1s bound
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.015s
+
+OK
+{"exit": 124, "record": {"descendants_ended": 0, "descendants_gone": true, "label": "check", "outcome": "timed-out", "schema": "baton.bounded-command/1", "seconds": 2.0, "seconds_bound": 1, "status": null}, "release_at": 2, "deadline": 1}

@@ -1,0 +1,877 @@
+test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET)
+W131409'S WHOLE POINT, driven through the ordinary configured tick. ... ok
+test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT)
+W103068's P1: the production composition supplies its own port. ... ok
+test_a_coherent_stage_of_the_same_job_still_reaches_its_receipt (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_a_coherent_stage_of_the_same_job_still_reaches_its_receipt)
+The positive half of the control above, so an absent receipt is ... ok
+test_a_completed_integration_returns_the_integrator_to_the_next_job (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_a_completed_integration_returns_the_integrator_to_the_next_job)
+W131187, driven end to end: the capacity comes back. ... ok
+test_a_configured_consumer_composes_and_resolves_its_judges (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_a_configured_consumer_composes_and_resolves_its_judges)
+W103068: the consumer's configuration survives a REAL composition. ... ok
+test_a_consumer_for_an_unbound_job_is_refused (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_a_consumer_for_an_unbound_job_is_refused)
+A derived result belongs to one Job's line and target. ... ok
+test_a_correction_reopens_only_its_own_jobs_line (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_a_correction_reopens_only_its_own_jobs_line)
+A CHANGES-REQUESTED VERDICT IS A JOB'S OWN FACT. ... ok
+test_a_declared_analyst_composes_and_exposes_the_recovery_seam (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_a_declared_analyst_composes_and_exposes_the_recovery_seam)
+W385623: THE SEAM THE JOB MANAGER'S TICK ACTUALLY REACHES. ... ok
+test_a_deployment_that_configures_no_instructions_is_refused (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_a_deployment_that_configures_no_instructions_is_refused)
+And an unconfigured one says which member is missing rather than ... ok
+test_a_deployment_that_declares_no_analyst_is_unchanged (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_a_deployment_that_declares_no_analyst_is_unchanged)
+Absent is an answer, and every accepted document predates this. ... ok
+test_a_deployment_without_a_consumer_is_unchanged (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_a_deployment_without_a_consumer_is_unchanged)
+Absent is an answer, and every accepted document predates this. ... ok
+test_a_deployment_without_an_analyst_exposes_no_seam (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_a_deployment_without_an_analyst_exposes_no_seam) ... ok
+test_a_job_never_reserves_another_jobs_review_worker (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_a_job_never_reserves_another_jobs_review_worker)
+W130216 review [P1], exactly: job-b/review on the second Work must ... ok
+test_a_job_with_no_configured_consumer_selects_none (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_a_job_with_no_configured_consumer_selects_none)
+A Job whose derived branch has no consumer has no way to obtain ... ok
+test_a_judgment_execution_for_another_participant_is_refused (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_a_judgment_execution_for_another_participant_is_refused)
+The execution and the judge are ONE fact: an execution configured for ... ok
+test_a_judgment_identity_that_collides_with_a_stage_worker_refuses (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_a_judgment_identity_that_collides_with_a_stage_worker_refuses)
+A judgment execution is its own identity and not a stage worker's -- ... ok
+test_a_judgment_work_this_authority_does_not_project_is_refused (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_a_judgment_work_this_authority_does_not_project_is_refused)
+A judgment acquires its authorized assignment through the Work its ... ok
+test_a_missing_declared_fact_refuses_before_anything_is_opened (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_a_missing_declared_fact_refuses_before_anything_is_opened) ... ok
+test_a_recorded_allocation_that_cannot_serve_the_job_is_not_admitted (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_a_recorded_allocation_that_cannot_serve_the_job_is_not_admitted)
+`_allocation` consults the pre-reserve callback ONLY when it creates ... ok
+test_a_review_work_that_differs_from_the_implementation_is_refused (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_a_review_work_that_differs_from_the_implementation_is_refused)
+One development line carries one Work, and `attach_review` binds the ... ok
+test_a_role_worker_on_another_work_reaches_no_allocation (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_a_role_worker_on_another_work_reaches_no_allocation)
+THE MEASURED BOUNDARY. With job-b's review worker left on Work A, ... ok
+test_a_source_worker_this_deployment_does_not_configure_is_refused (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_a_source_worker_this_deployment_does_not_configure_is_refused) ... ok
+test_a_stage_with_no_allocation_is_refused_rather_than_guessed (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_a_stage_with_no_allocation_is_refused_rather_than_guessed) ... ok
+test_a_supplied_port_takes_precedence_over_construction (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_a_supplied_port_takes_precedence_over_construction)
+AN OPERATOR'S INJECTED CAPABILITY STAYS THE ONE IN USE, measured by ... ok
+test_a_workspace_aliasing_the_target_fetches_and_writes_nothing (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_a_workspace_aliasing_the_target_fetches_and_writes_nothing)
+W133129: THE BRANCH-LEVEL no-fetch/no-write CONTROL. ... ok
+test_a_workspace_that_is_the_target_is_the_same_repository (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_a_workspace_that_is_the_target_is_the_same_repository)
+The alias no-write control for the pre-write isolation guard: the ... ok
+test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool)
+THE TERMINAL HALF, driven inside a deployment serving two Jobs. ... ok
+test_an_analysis_identity_that_collides_with_a_stage_worker_refuses (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_an_analysis_identity_that_collides_with_a_stage_worker_refuses) ... ok
+test_an_analysis_report_that_is_not_retained_is_refused (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_an_analysis_report_that_is_not_retained_is_refused) ... ok
+test_an_analyst_that_launches_another_role_is_refused (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_an_analyst_that_launches_another_role_is_refused) ... ok
+test_an_analyst_that_serves_a_stage_is_refused (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_an_analyst_that_serves_a_stage_is_refused)
+An analysis is not attributed to the participant that produced the ... ok
+test_an_incompatible_stage_does_not_consume_capacity_a_job_needs (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_an_incompatible_stage_does_not_consume_capacity_a_job_needs)
+FAULT CAPACITY, AT THE WORKER THE FAULT ACTUALLY THREATENED. ... ok
+test_an_unbound_job_is_refused_before_any_line_is_made (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_an_unbound_job_is_refused_before_any_line_is_made) ... ok
+test_both_jobs_code_at_once_on_their_own_workers_and_lines (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_both_jobs_code_at_once_on_their_own_workers_and_lines)
+THE FIRST THING A TWO-JOB DEPLOYMENT OWES, and every operand of it ... ok
+test_derived_judges_reconstruct_after_dispatch_without_second_launch (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_derived_judges_reconstruct_after_dispatch_without_second_launch) ... ok
+test_each_job_binds_its_own_source_base_works_and_target (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_each_job_binds_its_own_source_base_works_and_target) ... ok
+test_each_job_reaches_its_own_worker_for_every_role (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_each_job_reaches_its_own_worker_for_every_role)
+The whole of this cut in one assertion per role. Job B's stages are ... ok
+test_each_jobs_integration_binds_its_own_producer_task_and_port (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_each_jobs_integration_binds_its_own_producer_task_and_port)
+NO GLOBAL FALLBACK LEFT IN THE INTEGRATION OPERANDS. ... ok
+test_foreign_frozen_candidate_cannot_authorize_derived_receipts (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_foreign_frozen_candidate_cannot_authorize_derived_receipts) ... ok
+test_instructions_that_do_not_match_the_pinned_digest_are_refused (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_instructions_that_do_not_match_the_pinned_digest_are_refused)
+The pin is what makes reading a configured file safe: bytes that ... ok
+test_one_integrator_serves_two_jobs_serially_and_says_so (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_one_integrator_serves_two_jobs_serially_and_says_so)
+AND THE CAPACITY IS STILL ONE, which is the honest half of the ... ok
+test_one_job_reviews_while_the_other_is_still_coding (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_one_job_reviews_while_the_other_is_still_coding)
+THE OVERLAP, and it is the whole reason a pool exists. ... ok
+test_one_line_asked_of_a_two_job_deployment_names_its_job (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_one_line_asked_of_a_two_job_deployment_names_its_job)
+`line()` is the one-Job spelling and says so: a line belongs to a ... ok
+test_policy_drift_cannot_reuse_or_redispatch_derived_judgments (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_policy_drift_cannot_reuse_or_redispatch_derived_judgments) ... ok
+test_readonly_integration_observation_keeps_the_bound_job (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_readonly_integration_observation_keeps_the_bound_job)
+The public observer reaches the real two-producer completion account. ... ok
+test_readonly_reconciled_completion_without_runtime_reaches_outer_observer (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_readonly_reconciled_completion_without_runtime_reaches_outer_observer)
+A model-free import reaches status through the public read-only owner. ... ok
+test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs) ... W103068 genuine consumer evidence {"derived_proposal": "proposal-result-791e8bdf3725bc946399464b2e57d60b5aaf7913fbba9f2b4c636f6689d2b828", "derived_result": "result-791e8bdf3725bc946399464b2e57d60b5aaf7913fbba9f2b4c636f6689d2b828", "jobs": {"job-a": {"implementation": "completed", "integration": "completed", "review": "completed"}, "job-b": {"implementation": "completed", "integration": "completed", "review": "completed"}}, "judgments": [{"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.verifier", "principal": "principal:baton.verifier", "runtime_attempt_id": "judgment-144c711665dbd192c46cf79db089be0702e997f5a34f17e6317a929a2f4d7ebf", "work_id": "0000000a-W3"}, "attempt_id": "judgment-144c711665dbd192c46cf79db089be0702e997f5a34f17e6317a929a2f4d7ebf", "receipt_digest": "sha256:93021b1f507a60947560f5f9ecc3ad79e02064ae216ef4a60ebc7f75a83147ae", "result_digest": "sha256:b8b38af41f61b3399e23e56c2f93258641295f6f59f87ae335ad24309ba5c93b", "result_id": "result-judgment-144c711665dbd192c46cf79db089be0702e997f5a34f17e6317a929a2f4d7ebf", "subject": {"candidate": "aead1baf92f28e307a6a7bbfe608f86bfa99cf3c", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "9282623a579858ff3a6bf02b33865a78e7cb9368", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "aead1baf92f28e307a6a7bbfe608f86bfa99cf3c", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "f46d384659d8ef453474e8974433630028b6d67e", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-791e8bdf3725bc946399464b2e57d60b5aaf7913fbba9f2b4c636f6689d2b828", "derived_result_digest": "sha256:33ed1fae3372bc76fa238e231d42ba1f11e5bd2fcd85f422d33d6429b185646b", "derived_result_id": "derived-result-791e8bdf3725bc946399464b2e57d60b5aaf7913fbba9f2b4c636f6689d2b828", "job_id": "job-b", "kind": "verification", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-791e8bdf3725bc946399464b2e57d60b5aaf7913fbba9f2b4c636f6689d2b828", "source_base": "9282623a579858ff3a6bf02b33865a78e7cb9368", "source_candidate": "f46d384659d8ef453474e8974433630028b6d67e", "source_proposal_id": "integration-driver.proposal:9d9af59d7d8d59b361a2556d61497dff370f0ebdd38d74cca1e590c2353aad00", "target_revision": "dbe491bb379f2c4518f16257ae9710b74d7b4c60", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}, {"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.approver-review", "principal": "principal:baton.approver-review", "runtime_attempt_id": "judgment-eb74e999d04859e9d383cf4c3d762614fda835d27ca068239d4c24c2196e1664", "work_id": "0000000a-W4"}, "attempt_id": "judgment-eb74e999d04859e9d383cf4c3d762614fda835d27ca068239d4c24c2196e1664", "receipt_digest": "sha256:2a7f1867efe657776a19ec93bc22ac2db136e8efdcdf826bda15e07a353a7aa3", "result_digest": "sha256:bb3f77a296c8649764bb9b55af4f204781bed42a159781980990c0635e296d75", "result_id": "result-judgment-eb74e999d04859e9d383cf4c3d762614fda835d27ca068239d4c24c2196e1664", "subject": {"candidate": "aead1baf92f28e307a6a7bbfe608f86bfa99cf3c", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "9282623a579858ff3a6bf02b33865a78e7cb9368", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "aead1baf92f28e307a6a7bbfe608f86bfa99cf3c", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "f46d384659d8ef453474e8974433630028b6d67e", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-791e8bdf3725bc946399464b2e57d60b5aaf7913fbba9f2b4c636f6689d2b828", "derived_result_digest": "sha256:33ed1fae3372bc76fa238e231d42ba1f11e5bd2fcd85f422d33d6429b185646b", "derived_result_id": "derived-result-791e8bdf3725bc946399464b2e57d60b5aaf7913fbba9f2b4c636f6689d2b828", "job_id": "job-b", "kind": "review", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-791e8bdf3725bc946399464b2e57d60b5aaf7913fbba9f2b4c636f6689d2b828", "source_base": "9282623a579858ff3a6bf02b33865a78e7cb9368", "source_candidate": "f46d384659d8ef453474e8974433630028b6d67e", "source_proposal_id": "integration-driver.proposal:9d9af59d7d8d59b361a2556d61497dff370f0ebdd38d74cca1e590c2353aad00", "target_revision": "dbe491bb379f2c4518f16257ae9710b74d7b4c60", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}, {"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.approver", "principal": "principal:baton.approver", "runtime_attempt_id": "judgment-dc1dce8896162a81292903accbf1d6f6dea69445911bda75adb27d1494df1213", "work_id": "0000000a-W5"}, "attempt_id": "judgment-dc1dce8896162a81292903accbf1d6f6dea69445911bda75adb27d1494df1213", "receipt_digest": "sha256:0f74daa55857ea454ab9a01063700d1ee2e4c301ebc3eff336e7ab7b42afb5e9", "result_digest": "sha256:28a2148666f089c6d1ee07a65f9ab9e789068fde404618a93790f4ede47a241f", "result_id": "result-judgment-dc1dce8896162a81292903accbf1d6f6dea69445911bda75adb27d1494df1213", "subject": {"candidate": "aead1baf92f28e307a6a7bbfe608f86bfa99cf3c", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "9282623a579858ff3a6bf02b33865a78e7cb9368", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "aead1baf92f28e307a6a7bbfe608f86bfa99cf3c", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "f46d384659d8ef453474e8974433630028b6d67e", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-791e8bdf3725bc946399464b2e57d60b5aaf7913fbba9f2b4c636f6689d2b828", "derived_result_digest": "sha256:33ed1fae3372bc76fa238e231d42ba1f11e5bd2fcd85f422d33d6429b185646b", "derived_result_id": "derived-result-791e8bdf3725bc946399464b2e57d60b5aaf7913fbba9f2b4c636f6689d2b828", "job_id": "job-b", "kind": "approval", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-791e8bdf3725bc946399464b2e57d60b5aaf7913fbba9f2b4c636f6689d2b828", "source_base": "9282623a579858ff3a6bf02b33865a78e7cb9368", "source_candidate": "f46d384659d8ef453474e8974433630028b6d67e", "source_proposal_id": "integration-driver.proposal:9d9af59d7d8d59b361a2556d61497dff370f0ebdd38d74cca1e590c2353aad00", "target_revision": "dbe491bb379f2c4518f16257ae9710b74d7b4c60", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}], "receipts": [{"actor": "baton.verifier", "candidate_digest": "aead1baf92f28e307a6a7bbfe608f86bfa99cf3c", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.verifier", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.verifier", "role": "verify"}, "disposition": "passed", "kind": "verification", "policy_generation": null, "proposal_id": "proposal-result-791e8bdf3725bc946399464b2e57d60b5aaf7913fbba9f2b4c636f6689d2b828", "receipt_id": "judgment-706fdc500f97aa967460125baeaba79a98cd64eda4286dc07f6ef3abddf7b699", "recorded_at": "2026-11-23T21:16:31.440Z", "target": "dbe491bb379f2c4518f16257ae9710b74d7b4c60"}, {"actor": "baton.approver-review", "candidate_digest": "aead1baf92f28e307a6a7bbfe608f86bfa99cf3c", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.approver-review", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.approver-review", "role": "review"}, "disposition": "accepted", "kind": "review", "policy_generation": null, "proposal_id": "proposal-result-791e8bdf3725bc946399464b2e57d60b5aaf7913fbba9f2b4c636f6689d2b828", "receipt_id": "judgment-52c80070ce03623f3417c0c5d168b1b3ed8e063f414604d0e382adfa3c93be88", "recorded_at": "2026-11-23T21:16:31.442Z", "target": "dbe491bb379f2c4518f16257ae9710b74d7b4c60"}, {"actor": "baton.approver", "candidate_digest": "aead1baf92f28e307a6a7bbfe608f86bfa99cf3c", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.approver", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.approver", "role": "approve"}, "disposition": "approved", "kind": "approval", "policy_generation": 15, "proposal_id": "proposal-result-791e8bdf3725bc946399464b2e57d60b5aaf7913fbba9f2b4c636f6689d2b828", "receipt_id": "judgment-7795dc75aeea9cc2f2acb71117899c9dd7915adae7103b14311bcad6d378ab8e", "recorded_at": "2026-11-23T21:16:31.443Z", "target": "dbe491bb379f2c4518f16257ae9710b74d7b4c60"}, {"actor": "baton.integrator", "candidate_digest": "aead1baf92f28e307a6a7bbfe608f86bfa99cf3c", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.integrator", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.integrator", "role": "integrate"}, "disposition": "integrated", "kind": "integration", "policy_generation": null, "proposal_id": "proposal-result-791e8bdf3725bc946399464b2e57d60b5aaf7913fbba9f2b4c636f6689d2b828", "receipt_id": "integration-driver.integration-receipt:a70302aa762d4eb9c1fc72e04f87ed7ee254e6a3ae08f61fbe3e4521a2d7b747", "recorded_at": "2026-11-23T21:16:31.624Z", "target": "dbe491bb379f2c4518f16257ae9710b74d7b4c60"}], "target": "aead1baf92f28e307a6a7bbfe608f86bfa99cf3c"}ok
+test_rejected_derived_judgment_cannot_authorize_import (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_rejected_derived_judgment_cannot_authorize_import) ... ok
+test_the_accepted_candidate_seeds_job_b_on_the_same_stores (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_the_accepted_candidate_seeds_job_b_on_the_same_stores) ... ok
+test_the_configured_judgment_executions_are_held_per_job (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_the_configured_judgment_executions_are_held_per_job)
+W103068: THE CONSUMER'S EXECUTION CONFIGURATION, proved and selected. ... ok
+test_the_constructed_port_is_the_same_one_through_completion (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_the_constructed_port_is_the_same_one_through_completion)
+W103068: ONE CAPACITY FOR ONE JOB'S INTEGRATION, end to end. ... ok
+test_the_declared_analysis_worker_is_held_and_its_declaration_made (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_the_declared_analysis_worker_is_held_and_its_declaration_made)
+W385623: the DEPLOYMENT PRODUCER, proved before anything is opened. ... ok
+test_the_direct_integration_finalizes_the_dedicated_target (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_the_direct_integration_finalizes_the_dedicated_target)
+W133129, owner return137905: the transition the witness FOUND ... ok
+test_the_first_jobs_integration_reaches_the_configured_integrator (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_the_first_jobs_integration_reaches_the_configured_integrator)
+The control the second Job's case is read against: the one-Job ... ok
+test_the_judgment_subject_is_the_derived_candidate (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_the_judgment_subject_is_the_derived_candidate)
+W103068: WHAT A JUDGE IS ASKED ABOUT, read from the coordinator's own ... ok
+test_the_one_job_document_carries_no_bindings (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_the_one_job_document_carries_no_bindings)
+Two places for one fact is how they drift: `/1` says these things ... ok
+test_the_one_job_document_still_derives_its_own_binding (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_the_one_job_document_still_derives_its_own_binding)
+`/1` is not asked for a new member; its binding is derived from what ... ok
+test_the_same_job_reaches_the_same_line_every_time (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_the_same_job_reaches_the_same_line_every_time)
+`create_line` is create-or-recover by that derived identity, so a ... ok
+test_the_second_job_reaches_its_own_reviewer_and_verdict (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_the_second_job_reaches_its_own_reviewer_and_verdict)
+THE OTHER HALF OF THE OVERLAP, driven rather than assumed. ... ok
+test_the_second_jobs_integration_reaches_the_same_integrator (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_the_second_jobs_integration_reaches_the_same_integrator)
+W130216 review [P1], AND THE ACCEPTED POSITIVE THIS CHILD OWED. ... ok
+test_the_second_jobs_published_proposal_survives_the_advance (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_the_second_jobs_published_proposal_survives_the_advance)
+W133129: THE FIRST HALF OF THE BOUNDARY THIS TRAVERSAL FOUND. ... ok
+test_the_worker_for_a_stage_is_the_scheduler_s_allocation (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_the_worker_for_a_stage_is_the_scheduler_s_allocation)
+Actual allocation evidence selects a worker; list order never ... ok
+test_two_accepted_jobs_share_one_integrator_one_at_a_time (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_two_accepted_jobs_share_one_integrator_one_at_a_time)
+SAME-TARGET SERIALIZATION, measured where the owners decide it. ... ok
+test_two_bindings_for_one_job_are_refused (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_two_bindings_for_one_job_are_refused) ... ok
+test_two_jobs_materialize_two_distinct_persistent_lines (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_two_jobs_materialize_two_distinct_persistent_lines)
+THE LIMITATION, GONE. `create_line` derives its identity from ... ok
+test_two_of_three_judgments_are_refused (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_two_of_three_judgments_are_refused)
+Two judgments out of three is not an authorization. ... ok
+test_unusable_judge_report_cannot_authorize_derived_receipts (tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores.test_unusable_judge_report_cannot_authorize_derived_receipts) ... ok
+test_a_fresh_port_prepares_that_delivery_and_then_starts_it (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_fresh_port_prepares_that_delivery_and_then_starts_it)
+W103083 review 2026-09-08T12:41:47Z [P1], and the whole of W119113. ... ok
+test_a_runtime_this_execution_did_not_start_is_still_held (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_runtime_this_execution_did_not_start_is_still_held)
+The hold this correction must not spend: a started attempt is NOT ... ok
+test_a_second_tick_in_the_same_execution_starts_nothing_again (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_second_tick_in_the_same_execution_starts_nothing_again)
+The same-execution case: this port holds the marker it made, so the ... ok
+test_an_interrupted_first_admission_leaves_a_never_started_delivery (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_an_interrupted_first_admission_leaves_a_never_started_delivery)
+The predecessor state this correction is about, measured rather ... ok
+test_an_ordinary_first_tick_prepares_and_starts_exactly_once (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_an_ordinary_first_tick_prepares_and_starts_exactly_once)
+The valid initial case: nothing is published yet, so this is the ... ok
+test_a_generation_past_the_ceiling_writes_nothing (tests.tools.test_stage_execution.AGenerationOutsideTheInteroperableRangeIsRefused.test_a_generation_past_the_ceiling_writes_nothing) ... ok
+test_counting_from_one_is_still_the_other_half_of_the_rule (tests.tools.test_stage_execution.AGenerationOutsideTheInteroperableRangeIsRefused.test_counting_from_one_is_still_the_other_half_of_the_rule)
+The existing type, bool and zero checks are preserved rather than ... ok
+test_one_past_the_ceiling_is_refused_as_a_limit (tests.tools.test_stage_execution.AGenerationOutsideTheInteroperableRangeIsRefused.test_one_past_the_ceiling_is_refused_as_a_limit) ... ok
+test_the_ceiling_is_the_authoritys_own_and_not_a_second_copy (tests.tools.test_stage_execution.AGenerationOutsideTheInteroperableRangeIsRefused.test_the_ceiling_is_the_authoritys_own_and_not_a_second_copy) ... ok
+test_the_ceiling_itself_is_an_accepted_generation (tests.tools.test_stage_execution.AGenerationOutsideTheInteroperableRangeIsRefused.test_the_ceiling_itself_is_an_accepted_generation)
+The maximum ACCEPTED value, so the bound refuses what is outside ... ok
+test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET)
+W131409'S WHOLE POINT, driven through the ordinary configured tick. ... ok
+test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT)
+W103068's P1: the production composition supplies its own port. ... ok
+test_a_coherent_stage_of_the_same_job_still_reaches_its_receipt (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_a_coherent_stage_of_the_same_job_still_reaches_its_receipt)
+The positive half of the control above, so an absent receipt is ... ok
+test_a_completed_integration_returns_the_integrator_to_the_next_job (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_a_completed_integration_returns_the_integrator_to_the_next_job)
+W131187, driven end to end: the capacity comes back. ... ok
+test_a_configured_consumer_composes_and_resolves_its_judges (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_a_configured_consumer_composes_and_resolves_its_judges)
+W103068: the consumer's configuration survives a REAL composition. ... ok
+test_a_consumer_for_an_unbound_job_is_refused (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_a_consumer_for_an_unbound_job_is_refused)
+A derived result belongs to one Job's line and target. ... ok
+test_a_correction_reopens_only_its_own_jobs_line (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_a_correction_reopens_only_its_own_jobs_line)
+A CHANGES-REQUESTED VERDICT IS A JOB'S OWN FACT. ... ok
+test_a_declared_analyst_composes_and_exposes_the_recovery_seam (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_a_declared_analyst_composes_and_exposes_the_recovery_seam)
+W385623: THE SEAM THE JOB MANAGER'S TICK ACTUALLY REACHES. ... ok
+test_a_deployment_that_configures_no_instructions_is_refused (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_a_deployment_that_configures_no_instructions_is_refused)
+And an unconfigured one says which member is missing rather than ... ok
+test_a_deployment_that_declares_no_analyst_is_unchanged (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_a_deployment_that_declares_no_analyst_is_unchanged)
+Absent is an answer, and every accepted document predates this. ... ok
+test_a_deployment_without_a_consumer_is_unchanged (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_a_deployment_without_a_consumer_is_unchanged)
+Absent is an answer, and every accepted document predates this. ... ok
+test_a_deployment_without_an_analyst_exposes_no_seam (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_a_deployment_without_an_analyst_exposes_no_seam) ... ok
+test_a_job_never_reserves_another_jobs_review_worker (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_a_job_never_reserves_another_jobs_review_worker)
+W130216 review [P1], exactly: job-b/review on the second Work must ... ok
+test_a_job_with_no_configured_consumer_selects_none (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_a_job_with_no_configured_consumer_selects_none)
+A Job whose derived branch has no consumer has no way to obtain ... ok
+test_a_judgment_execution_for_another_participant_is_refused (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_a_judgment_execution_for_another_participant_is_refused)
+The execution and the judge are ONE fact: an execution configured for ... ok
+test_a_judgment_identity_that_collides_with_a_stage_worker_refuses (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_a_judgment_identity_that_collides_with_a_stage_worker_refuses)
+A judgment execution is its own identity and not a stage worker's -- ... ok
+test_a_judgment_work_this_authority_does_not_project_is_refused (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_a_judgment_work_this_authority_does_not_project_is_refused)
+A judgment acquires its authorized assignment through the Work its ... ok
+test_a_missing_declared_fact_refuses_before_anything_is_opened (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_a_missing_declared_fact_refuses_before_anything_is_opened) ... ok
+test_a_recorded_allocation_that_cannot_serve_the_job_is_not_admitted (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_a_recorded_allocation_that_cannot_serve_the_job_is_not_admitted)
+`_allocation` consults the pre-reserve callback ONLY when it creates ... ok
+test_a_review_work_that_differs_from_the_implementation_is_refused (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_a_review_work_that_differs_from_the_implementation_is_refused)
+One development line carries one Work, and `attach_review` binds the ... ok
+test_a_role_worker_on_another_work_reaches_no_allocation (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_a_role_worker_on_another_work_reaches_no_allocation)
+THE MEASURED BOUNDARY. With job-b's review worker left on Work A, ... ok
+test_a_source_worker_this_deployment_does_not_configure_is_refused (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_a_source_worker_this_deployment_does_not_configure_is_refused) ... ok
+test_a_stage_with_no_allocation_is_refused_rather_than_guessed (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_a_stage_with_no_allocation_is_refused_rather_than_guessed) ... ok
+test_a_supplied_port_takes_precedence_over_construction (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_a_supplied_port_takes_precedence_over_construction)
+AN OPERATOR'S INJECTED CAPABILITY STAYS THE ONE IN USE, measured by ... ok
+test_a_workspace_aliasing_the_target_fetches_and_writes_nothing (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_a_workspace_aliasing_the_target_fetches_and_writes_nothing)
+W133129: THE BRANCH-LEVEL no-fetch/no-write CONTROL. ... ok
+test_a_workspace_that_is_the_target_is_the_same_repository (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_a_workspace_that_is_the_target_is_the_same_repository)
+The alias no-write control for the pre-write isolation guard: the ... ok
+test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool)
+THE TERMINAL HALF, driven inside a deployment serving two Jobs. ... ok
+test_an_analysis_identity_that_collides_with_a_stage_worker_refuses (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_an_analysis_identity_that_collides_with_a_stage_worker_refuses) ... ok
+test_an_analysis_report_that_is_not_retained_is_refused (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_an_analysis_report_that_is_not_retained_is_refused) ... ok
+test_an_analyst_that_launches_another_role_is_refused (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_an_analyst_that_launches_another_role_is_refused) ... ok
+test_an_analyst_that_serves_a_stage_is_refused (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_an_analyst_that_serves_a_stage_is_refused)
+An analysis is not attributed to the participant that produced the ... ok
+test_an_incompatible_stage_does_not_consume_capacity_a_job_needs (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_an_incompatible_stage_does_not_consume_capacity_a_job_needs)
+FAULT CAPACITY, AT THE WORKER THE FAULT ACTUALLY THREATENED. ... ok
+test_an_unbound_job_is_refused_before_any_line_is_made (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_an_unbound_job_is_refused_before_any_line_is_made) ... ok
+test_both_jobs_code_at_once_on_their_own_workers_and_lines (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_both_jobs_code_at_once_on_their_own_workers_and_lines)
+THE FIRST THING A TWO-JOB DEPLOYMENT OWES, and every operand of it ... ok
+test_derived_judges_reconstruct_after_dispatch_without_second_launch (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_derived_judges_reconstruct_after_dispatch_without_second_launch) ... ok
+test_each_job_binds_its_own_source_base_works_and_target (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_each_job_binds_its_own_source_base_works_and_target) ... ok
+test_each_job_reaches_its_own_worker_for_every_role (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_each_job_reaches_its_own_worker_for_every_role)
+The whole of this cut in one assertion per role. Job B's stages are ... ok
+test_each_jobs_integration_binds_its_own_producer_task_and_port (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_each_jobs_integration_binds_its_own_producer_task_and_port)
+NO GLOBAL FALLBACK LEFT IN THE INTEGRATION OPERANDS. ... ok
+test_foreign_frozen_candidate_cannot_authorize_derived_receipts (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_foreign_frozen_candidate_cannot_authorize_derived_receipts) ... ok
+test_instructions_that_do_not_match_the_pinned_digest_are_refused (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_instructions_that_do_not_match_the_pinned_digest_are_refused)
+The pin is what makes reading a configured file safe: bytes that ... ok
+test_one_integrator_serves_two_jobs_serially_and_says_so (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_one_integrator_serves_two_jobs_serially_and_says_so)
+AND THE CAPACITY IS STILL ONE, which is the honest half of the ... ok
+test_one_job_reviews_while_the_other_is_still_coding (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_one_job_reviews_while_the_other_is_still_coding)
+THE OVERLAP, and it is the whole reason a pool exists. ... ok
+test_one_line_asked_of_a_two_job_deployment_names_its_job (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_one_line_asked_of_a_two_job_deployment_names_its_job)
+`line()` is the one-Job spelling and says so: a line belongs to a ... ok
+test_policy_drift_cannot_reuse_or_redispatch_derived_judgments (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_policy_drift_cannot_reuse_or_redispatch_derived_judgments) ... ok
+test_readonly_integration_observation_keeps_the_bound_job (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_readonly_integration_observation_keeps_the_bound_job)
+The public observer reaches the real two-producer completion account. ... ok
+test_readonly_reconciled_completion_without_runtime_reaches_outer_observer (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_readonly_reconciled_completion_without_runtime_reaches_outer_observer)
+A model-free import reaches status through the public read-only owner. ... ok
+test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs) ... 
+W103068 genuine consumer evidence {"derived_proposal": "proposal-result-b5a3663f4be86fdcaba01a4bb1c05076c6b2053f05705b188a66875e7af7d0f3", "derived_result": "result-b5a3663f4be86fdcaba01a4bb1c05076c6b2053f05705b188a66875e7af7d0f3", "jobs": {"job-a": {"implementation": "completed", "integration": "completed", "review": "completed"}, "job-b": {"implementation": "completed", "integration": "completed", "review": "completed"}}, "judgments": [{"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.verifier", "principal": "principal:baton.verifier", "runtime_attempt_id": "judgment-51679622675918687d911ca59dda854233c53f3af179df8c1e7a77030318d299", "work_id": "0000000a-W3"}, "attempt_id": "judgment-51679622675918687d911ca59dda854233c53f3af179df8c1e7a77030318d299", "receipt_digest": "sha256:fb16d2821346928a4e8a0b8d28a47bb5c90f749e6265fe39796206496fa7e642", "result_digest": "sha256:c820d84b8e0a1fa96f941f88c3fd668f8cacaed29ba2031dfdd46144cbe8f4bb", "result_id": "result-judgment-51679622675918687d911ca59dda854233c53f3af179df8c1e7a77030318d299", "subject": {"candidate": "4b45c87be696859822b5e2badc4d4f176071efe4", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "e1b14a76b46db59101dfd2b7734e4cff79121154", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "4b45c87be696859822b5e2badc4d4f176071efe4", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "a8cc9604946b347993489b38c1a871b5ce40a312", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-b5a3663f4be86fdcaba01a4bb1c05076c6b2053f05705b188a66875e7af7d0f3", "derived_result_digest": "sha256:daafa519bd4488f65c478456ebee7b4ee2e725b8c2e99220eb3929543e46d9a6", "derived_result_id": "derived-result-b5a3663f4be86fdcaba01a4bb1c05076c6b2053f05705b188a66875e7af7d0f3", "job_id": "job-b", "kind": "verification", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-b5a3663f4be86fdcaba01a4bb1c05076c6b2053f05705b188a66875e7af7d0f3", "source_base": "e1b14a76b46db59101dfd2b7734e4cff79121154", "source_candidate": "a8cc9604946b347993489b38c1a871b5ce40a312", "source_proposal_id": "integration-driver.proposal:c81a29d0b4fc3bd3554d2e14de5f498c516228ccd1ac5b39d2711c78cfe7fd8f", "target_revision": "21d825176474f99a32e148f664955784702153ca", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}, {"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.approver-review", "principal": "principal:baton.approver-review", "runtime_attempt_id": "judgment-726e0fca6a64a049525e16a774416d88aa5556cbab7cbd0101cdee0c6116215c", "work_id": "0000000a-W4"}, "attempt_id": "judgment-726e0fca6a64a049525e16a774416d88aa5556cbab7cbd0101cdee0c6116215c", "receipt_digest": "sha256:52564c8440e3b6e6fd2a57ad9b57eefbebe070ec765f10f8f7d4c65c8f8c6afa", "result_digest": "sha256:1fd16138e16488017abdda27e4436da9da398525f67f4c2cd7adc2f3f819b68a", "result_id": "result-judgment-726e0fca6a64a049525e16a774416d88aa5556cbab7cbd0101cdee0c6116215c", "subject": {"candidate": "4b45c87be696859822b5e2badc4d4f176071efe4", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "e1b14a76b46db59101dfd2b7734e4cff79121154", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "4b45c87be696859822b5e2badc4d4f176071efe4", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "a8cc9604946b347993489b38c1a871b5ce40a312", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-b5a3663f4be86fdcaba01a4bb1c05076c6b2053f05705b188a66875e7af7d0f3", "derived_result_digest": "sha256:daafa519bd4488f65c478456ebee7b4ee2e725b8c2e99220eb3929543e46d9a6", "derived_result_id": "derived-result-b5a3663f4be86fdcaba01a4bb1c05076c6b2053f05705b188a66875e7af7d0f3", "job_id": "job-b", "kind": "review", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-b5a3663f4be86fdcaba01a4bb1c05076c6b2053f05705b188a66875e7af7d0f3", "source_base": "e1b14a76b46db59101dfd2b7734e4cff79121154", "source_candidate": "a8cc9604946b347993489b38c1a871b5ce40a312", "source_proposal_id": "integration-driver.proposal:c81a29d0b4fc3bd3554d2e14de5f498c516228ccd1ac5b39d2711c78cfe7fd8f", "target_revision": "21d825176474f99a32e148f664955784702153ca", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}, {"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.approver", "principal": "principal:baton.approver", "runtime_attempt_id": "judgment-585841266ad1916717d695e6a9f0570dd464b3940ab96e01d1f6b3d079ef682a", "work_id": "0000000a-W5"}, "attempt_id": "judgment-585841266ad1916717d695e6a9f0570dd464b3940ab96e01d1f6b3d079ef682a", "receipt_digest": "sha256:1f560ab56d6ea399fd7ff56bb2288969185ba2fc432b406b12bfe87c07a482e0", "result_digest": "sha256:4ae6403b5ae25ecc5cd24c7ec86f366fcb0440f9472de25e859a547a2556e63c", "result_id": "result-judgment-585841266ad1916717d695e6a9f0570dd464b3940ab96e01d1f6b3d079ef682a", "subject": {"candidate": "4b45c87be696859822b5e2badc4d4f176071efe4", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "e1b14a76b46db59101dfd2b7734e4cff79121154", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "4b45c87be696859822b5e2badc4d4f176071efe4", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "a8cc9604946b347993489b38c1a871b5ce40a312", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-b5a3663f4be86fdcaba01a4bb1c05076c6b2053f05705b188a66875e7af7d0f3", "derived_result_digest": "sha256:daafa519bd4488f65c478456ebee7b4ee2e725b8c2e99220eb3929543e46d9a6", "derived_result_id": "derived-result-b5a3663f4be86fdcaba01a4bb1c05076c6b2053f05705b188a66875e7af7d0f3", "job_id": "job-b", "kind": "approval", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-b5a3663f4be86fdcaba01a4bb1c05076c6b2053f05705b188a66875e7af7d0f3", "source_base": "e1b14a76b46db59101dfd2b7734e4cff79121154", "source_candidate": "a8cc9604946b347993489b38c1a871b5ce40a312", "source_proposal_id": "integration-driver.proposal:c81a29d0b4fc3bd3554d2e14de5f498c516228ccd1ac5b39d2711c78cfe7fd8f", "target_revision": "21d825176474f99a32e148f664955784702153ca", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}], "receipts": [{"actor": "baton.approver-review", "candidate_digest": "4b45c87be696859822b5e2badc4d4f176071efe4", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.approver-review", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.approver-review", "role": "review"}, "disposition": "accepted", "kind": "review", "policy_generation": null, "proposal_id": "proposal-result-b5a3663f4be86fdcaba01a4bb1c05076c6b2053f05705b188a66875e7af7d0f3", "receipt_id": "judgment-1c2f9dc8588e834f8dd120ec081e74be34cfcf0c74c3d158cc4136e79ad70337", "recorded_at": "2026-11-23T21:18:01.365Z", "target": "21d825176474f99a32e148f664955784702153ca"}, {"actor": "baton.verifier", "candidate_digest": "4b45c87be696859822b5e2badc4d4f176071efe4", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.verifier", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.verifier", "role": "verify"}, "disposition": "passed", "kind": "verification", "policy_generation": null, "proposal_id": "proposal-result-b5a3663f4be86fdcaba01a4bb1c05076c6b2053f05705b188a66875e7af7d0f3", "receipt_id": "judgment-8658d0152aa57ab7e8352a75b4f20ef9938f653c887092d8f8e2e7b7ecd9a95a", "recorded_at": "2026-11-23T21:18:01.365Z", "target": "21d825176474f99a32e148f664955784702153ca"}, {"actor": "baton.approver", "candidate_digest": "4b45c87be696859822b5e2badc4d4f176071efe4", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.approver", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.approver", "role": "approve"}, "disposition": "approved", "kind": "approval", "policy_generation": 15, "proposal_id": "proposal-result-b5a3663f4be86fdcaba01a4bb1c05076c6b2053f05705b188a66875e7af7d0f3", "receipt_id": "judgment-fd84ff4bc19e615e050994a1f1500b18696b82174b1c59fceb41b901ca5fce52", "recorded_at": "2026-11-23T21:18:01.366Z", "target": "21d825176474f99a32e148f664955784702153ca"}, {"actor": "baton.integrator", "candidate_digest": "4b45c87be696859822b5e2badc4d4f176071efe4", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.integrator", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.integrator", "role": "integrate"}, "disposition": "integrated", "kind": "integration", "policy_generation": null, "proposal_id": "proposal-result-b5a3663f4be86fdcaba01a4bb1c05076c6b2053f05705b188a66875e7af7d0f3", "receipt_id": "integration-driver.integration-receipt:5ab83b723569cf79afbecb8e4890403727a6d2f53cdbea9a613dd8322f0c306d", "recorded_at": "2026-11-23T21:18:01.449Z", "target": "21d825176474f99a32e148f664955784702153ca"}], "target": "4b45c87be696859822b5e2badc4d4f176071efe4"}ok
+test_rejected_derived_judgment_cannot_authorize_import (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_rejected_derived_judgment_cannot_authorize_import) ... ok
+test_the_configured_judgment_executions_are_held_per_job (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_the_configured_judgment_executions_are_held_per_job)
+W103068: THE CONSUMER'S EXECUTION CONFIGURATION, proved and selected. ... ok
+test_the_constructed_port_is_the_same_one_through_completion (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_the_constructed_port_is_the_same_one_through_completion)
+W103068: ONE CAPACITY FOR ONE JOB'S INTEGRATION, end to end. ... ok
+test_the_declared_analysis_worker_is_held_and_its_declaration_made (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_the_declared_analysis_worker_is_held_and_its_declaration_made)
+W385623: the DEPLOYMENT PRODUCER, proved before anything is opened. ... ok
+test_the_direct_integration_finalizes_the_dedicated_target (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_the_direct_integration_finalizes_the_dedicated_target)
+W133129, owner return137905: the transition the witness FOUND ... ok
+test_the_first_jobs_integration_reaches_the_configured_integrator (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_the_first_jobs_integration_reaches_the_configured_integrator)
+The control the second Job's case is read against: the one-Job ... ok
+test_the_judgment_subject_is_the_derived_candidate (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_the_judgment_subject_is_the_derived_candidate)
+W103068: WHAT A JUDGE IS ASKED ABOUT, read from the coordinator's own ... ok
+test_the_one_job_document_carries_no_bindings (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_the_one_job_document_carries_no_bindings)
+Two places for one fact is how they drift: `/1` says these things ... ok
+test_the_one_job_document_still_derives_its_own_binding (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_the_one_job_document_still_derives_its_own_binding)
+`/1` is not asked for a new member; its binding is derived from what ... ok
+test_the_same_job_reaches_the_same_line_every_time (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_the_same_job_reaches_the_same_line_every_time)
+`create_line` is create-or-recover by that derived identity, so a ... ok
+test_the_second_job_reaches_its_own_reviewer_and_verdict (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_the_second_job_reaches_its_own_reviewer_and_verdict)
+THE OTHER HALF OF THE OVERLAP, driven rather than assumed. ... ok
+test_the_second_jobs_integration_reaches_the_same_integrator (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_the_second_jobs_integration_reaches_the_same_integrator)
+W130216 review [P1], AND THE ACCEPTED POSITIVE THIS CHILD OWED. ... ok
+test_the_second_jobs_published_proposal_survives_the_advance (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_the_second_jobs_published_proposal_survives_the_advance)
+W133129: THE FIRST HALF OF THE BOUNDARY THIS TRAVERSAL FOUND. ... ok
+test_the_successor_materializes_publishes_and_completes (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_the_successor_materializes_publishes_and_completes) ... ok
+test_the_worker_for_a_stage_is_the_scheduler_s_allocation (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_the_worker_for_a_stage_is_the_scheduler_s_allocation)
+Actual allocation evidence selects a worker; list order never ... ok
+test_two_accepted_jobs_share_one_integrator_one_at_a_time (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_two_accepted_jobs_share_one_integrator_one_at_a_time)
+SAME-TARGET SERIALIZATION, measured where the owners decide it. ... ok
+test_two_bindings_for_one_job_are_refused (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_two_bindings_for_one_job_are_refused) ... ok
+test_two_jobs_materialize_two_distinct_persistent_lines (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_two_jobs_materialize_two_distinct_persistent_lines)
+THE LIMITATION, GONE. `create_line` derives its identity from ... ok
+test_two_of_three_judgments_are_refused (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_two_of_three_judgments_are_refused)
+Two judgments out of three is not an authorization. ... ok
+test_unusable_judge_report_cannot_authorize_derived_receipts (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_unusable_judge_report_cannot_authorize_derived_receipts) ... ok
+test_the_two_stage_job_completes_at_review_and_restart_observes (tests.tools.test_stage_execution.APRJobSettlesAtItsReviewAndSurvivesRestart.test_the_two_stage_job_completes_at_review_and_restart_observes) ... ok
+test_a_deployment_installs_at_most_one_dedicated_publisher (tests.tools.test_stage_execution.APublicationWorkerIsAConfiguredRoleInItsOwnLane.test_a_deployment_installs_at_most_one_dedicated_publisher) ... ok
+test_a_publication_worker_that_declares_a_credential_is_refused (tests.tools.test_stage_execution.APublicationWorkerIsAConfiguredRoleInItsOwnLane.test_a_publication_worker_that_declares_a_credential_is_refused) ... ok
+test_a_worker_configured_under_another_role_is_not_the_publisher (tests.tools.test_stage_execution.APublicationWorkerIsAConfiguredRoleInItsOwnLane.test_a_worker_configured_under_another_role_is_not_the_publisher) ... ok
+test_every_other_role_still_names_at_least_one_credential_slot (tests.tools.test_stage_execution.APublicationWorkerIsAConfiguredRoleInItsOwnLane.test_every_other_role_still_names_at_least_one_credential_slot) ... ok
+test_it_is_pooled_in_the_publication_lane_and_no_other (tests.tools.test_stage_execution.APublicationWorkerIsAConfiguredRoleInItsOwnLane.test_it_is_pooled_in_the_publication_lane_and_no_other) ... ok
+test_no_other_role_is_rebound_to_a_jobs_work (tests.tools.test_stage_execution.APublicationWorkerIsAConfiguredRoleInItsOwnLane.test_no_other_role_is_rebound_to_a_jobs_work)
+THE DERIVATION IS THE PUBLICATION ROLE'S ALONE. An implementation ... ok
+test_one_installed_publisher_is_derived_for_a_second_work (tests.tools.test_stage_execution.APublicationWorkerIsAConfiguredRoleInItsOwnLane.test_one_installed_publisher_is_derived_for_a_second_work)
+Review 2026-11-23T18-55-03Z R3, at the derivation itself. ... ok
+test_the_role_is_admitted_beside_the_three_and_holds_no_credential (tests.tools.test_stage_execution.APublicationWorkerIsAConfiguredRoleInItsOwnLane.test_the_role_is_admitted_beside_the_three_and_holds_no_credential) ... ok
+test_the_role_is_optional (tests.tools.test_stage_execution.APublicationWorkerIsAConfiguredRoleInItsOwnLane.test_the_role_is_optional) ... ok
+test_a_generation_the_next_activation_would_not_answer_refuses (tests.tools.test_stage_execution.ARefusedPoolGenerationLeavesThePoolAlone.test_a_generation_the_next_activation_would_not_answer_refuses) ... ok
+test_reattaching_to_the_live_generation_is_not_a_new_one (tests.tools.test_stage_execution.ARefusedPoolGenerationLeavesThePoolAlone.test_reattaching_to_the_live_generation_is_not_a_new_one)
+The other side of the prediction: composing the same deployment ... ok
+test_changed_checkpoint_refuses_after_host_completion (tests.tools.test_stage_execution.CheckpointIdentityAtHostAdmission.test_changed_checkpoint_refuses_after_host_completion) ... ok
+test_changed_checkpoint_refuses_with_fresh_handles (tests.tools.test_stage_execution.CheckpointIdentityAtHostAdmission.test_changed_checkpoint_refuses_with_fresh_handles) ... ok
+test_unchanged_checkpoint_continues_once_after_host_completion (tests.tools.test_stage_execution.CheckpointIdentityAtHostAdmission.test_unchanged_checkpoint_continues_once_after_host_completion) ... ok
+test_unchanged_checkpoint_reopens_and_continues_once (tests.tools.test_stage_execution.CheckpointIdentityAtHostAdmission.test_unchanged_checkpoint_reopens_and_continues_once) ... ok
+test_a_partial_construction_releases_only_what_exists (tests.tools.test_stage_execution.ConstructionFailureReleasesWhatItOpened.test_a_partial_construction_releases_only_what_exists) ... ok
+test_every_handle_is_released_in_reverse_order (tests.tools.test_stage_execution.ConstructionFailureReleasesWhatItOpened.test_every_handle_is_released_in_reverse_order) ... ok
+test_one_failing_release_never_stops_the_others (tests.tools.test_stage_execution.ConstructionFailureReleasesWhatItOpened.test_one_failing_release_never_stops_the_others) ... ok
+test_the_pooled_surface_is_delegated_rather_than_respelled (tests.tools.test_stage_execution.ConstructionFailureReleasesWhatItOpened.test_the_pooled_surface_is_delegated_rather_than_respelled) ... ok
+test_a_review_work_that_differs_from_the_implementation_is_refused (tests.tools.test_stage_execution.EachJobBindsItsOwnDeploymentAndLine.test_a_review_work_that_differs_from_the_implementation_is_refused)
+One development line carries one Work, and `attach_review` binds the ... ok
+test_a_source_worker_this_deployment_does_not_configure_is_refused (tests.tools.test_stage_execution.EachJobBindsItsOwnDeploymentAndLine.test_a_source_worker_this_deployment_does_not_configure_is_refused) ... ok
+test_a_stage_with_no_allocation_is_refused_rather_than_guessed (tests.tools.test_stage_execution.EachJobBindsItsOwnDeploymentAndLine.test_a_stage_with_no_allocation_is_refused_rather_than_guessed) ... ok
+test_an_unbound_job_is_refused_before_any_line_is_made (tests.tools.test_stage_execution.EachJobBindsItsOwnDeploymentAndLine.test_an_unbound_job_is_refused_before_any_line_is_made) ... ok
+test_each_job_binds_its_own_source_base_works_and_target (tests.tools.test_stage_execution.EachJobBindsItsOwnDeploymentAndLine.test_each_job_binds_its_own_source_base_works_and_target) ... ok
+test_one_line_asked_of_a_two_job_deployment_names_its_job (tests.tools.test_stage_execution.EachJobBindsItsOwnDeploymentAndLine.test_one_line_asked_of_a_two_job_deployment_names_its_job)
+`line()` is the one-Job spelling and says so: a line belongs to a ... ok
+test_the_one_job_document_carries_no_bindings (tests.tools.test_stage_execution.EachJobBindsItsOwnDeploymentAndLine.test_the_one_job_document_carries_no_bindings)
+Two places for one fact is how they drift: `/1` says these things ... ok
+test_the_one_job_document_still_derives_its_own_binding (tests.tools.test_stage_execution.EachJobBindsItsOwnDeploymentAndLine.test_the_one_job_document_still_derives_its_own_binding)
+`/1` is not asked for a new member; its binding is derived from what ... ok
+test_the_same_job_reaches_the_same_line_every_time (tests.tools.test_stage_execution.EachJobBindsItsOwnDeploymentAndLine.test_the_same_job_reaches_the_same_line_every_time)
+`create_line` is create-or-recover by that derived identity, so a ... ok
+test_the_worker_for_a_stage_is_the_scheduler_s_allocation (tests.tools.test_stage_execution.EachJobBindsItsOwnDeploymentAndLine.test_the_worker_for_a_stage_is_the_scheduler_s_allocation)
+Actual allocation evidence selects a worker; list order never ... ok
+test_two_bindings_for_one_job_are_refused (tests.tools.test_stage_execution.EachJobBindsItsOwnDeploymentAndLine.test_two_bindings_for_one_job_are_refused) ... ok
+test_two_jobs_materialize_two_distinct_persistent_lines (tests.tools.test_stage_execution.EachJobBindsItsOwnDeploymentAndLine.test_two_jobs_materialize_two_distinct_persistent_lines)
+THE LIMITATION, GONE. `create_line` derives its identity from ... ok
+test_a_coherent_stage_of_the_same_job_still_reaches_its_receipt (tests.tools.test_stage_execution.EveryJobRoleIsValidatedBeforeAllocation.test_a_coherent_stage_of_the_same_job_still_reaches_its_receipt)
+The positive half of the control above, so an absent receipt is ... ok
+test_a_job_never_reserves_another_jobs_review_worker (tests.tools.test_stage_execution.EveryJobRoleIsValidatedBeforeAllocation.test_a_job_never_reserves_another_jobs_review_worker)
+W130216 review [P1], exactly: job-b/review on the second Work must ... ok
+test_a_recorded_allocation_that_cannot_serve_the_job_is_not_admitted (tests.tools.test_stage_execution.EveryJobRoleIsValidatedBeforeAllocation.test_a_recorded_allocation_that_cannot_serve_the_job_is_not_admitted)
+`_allocation` consults the pre-reserve callback ONLY when it creates ... ok
+test_a_review_work_that_differs_from_the_implementation_is_refused (tests.tools.test_stage_execution.EveryJobRoleIsValidatedBeforeAllocation.test_a_review_work_that_differs_from_the_implementation_is_refused)
+One development line carries one Work, and `attach_review` binds the ... ok
+test_a_role_worker_on_another_work_reaches_no_allocation (tests.tools.test_stage_execution.EveryJobRoleIsValidatedBeforeAllocation.test_a_role_worker_on_another_work_reaches_no_allocation)
+THE MEASURED BOUNDARY. With job-b's review worker left on Work A, ... ok
+test_a_source_worker_this_deployment_does_not_configure_is_refused (tests.tools.test_stage_execution.EveryJobRoleIsValidatedBeforeAllocation.test_a_source_worker_this_deployment_does_not_configure_is_refused) ... ok
+test_a_stage_with_no_allocation_is_refused_rather_than_guessed (tests.tools.test_stage_execution.EveryJobRoleIsValidatedBeforeAllocation.test_a_stage_with_no_allocation_is_refused_rather_than_guessed) ... ok
+test_an_incompatible_stage_does_not_consume_capacity_a_job_needs (tests.tools.test_stage_execution.EveryJobRoleIsValidatedBeforeAllocation.test_an_incompatible_stage_does_not_consume_capacity_a_job_needs)
+FAULT CAPACITY, AT THE WORKER THE FAULT ACTUALLY THREATENED. ... ok
+test_an_unbound_job_is_refused_before_any_line_is_made (tests.tools.test_stage_execution.EveryJobRoleIsValidatedBeforeAllocation.test_an_unbound_job_is_refused_before_any_line_is_made) ... ok
+test_each_job_binds_its_own_source_base_works_and_target (tests.tools.test_stage_execution.EveryJobRoleIsValidatedBeforeAllocation.test_each_job_binds_its_own_source_base_works_and_target) ... ok
+test_each_job_reaches_its_own_worker_for_every_role (tests.tools.test_stage_execution.EveryJobRoleIsValidatedBeforeAllocation.test_each_job_reaches_its_own_worker_for_every_role)
+The whole of this cut in one assertion per role. Job B's stages are ... ok
+test_one_integrator_serves_two_jobs_serially_and_says_so (tests.tools.test_stage_execution.EveryJobRoleIsValidatedBeforeAllocation.test_one_integrator_serves_two_jobs_serially_and_says_so)
+AND THE CAPACITY IS STILL ONE, which is the honest half of the ... ok
+test_one_line_asked_of_a_two_job_deployment_names_its_job (tests.tools.test_stage_execution.EveryJobRoleIsValidatedBeforeAllocation.test_one_line_asked_of_a_two_job_deployment_names_its_job)
+`line()` is the one-Job spelling and says so: a line belongs to a ... ok
+test_the_first_jobs_integration_reaches_the_configured_integrator (tests.tools.test_stage_execution.EveryJobRoleIsValidatedBeforeAllocation.test_the_first_jobs_integration_reaches_the_configured_integrator)
+The control the second Job's case is read against: the one-Job ... ok
+test_the_one_job_document_carries_no_bindings (tests.tools.test_stage_execution.EveryJobRoleIsValidatedBeforeAllocation.test_the_one_job_document_carries_no_bindings)
+Two places for one fact is how they drift: `/1` says these things ... ok
+test_the_one_job_document_still_derives_its_own_binding (tests.tools.test_stage_execution.EveryJobRoleIsValidatedBeforeAllocation.test_the_one_job_document_still_derives_its_own_binding)
+`/1` is not asked for a new member; its binding is derived from what ... ok
+test_the_same_job_reaches_the_same_line_every_time (tests.tools.test_stage_execution.EveryJobRoleIsValidatedBeforeAllocation.test_the_same_job_reaches_the_same_line_every_time)
+`create_line` is create-or-recover by that derived identity, so a ... ok
+test_the_second_jobs_integration_reaches_the_same_integrator (tests.tools.test_stage_execution.EveryJobRoleIsValidatedBeforeAllocation.test_the_second_jobs_integration_reaches_the_same_integrator)
+W130216 review [P1], AND THE ACCEPTED POSITIVE THIS CHILD OWED. ... ok
+test_the_worker_for_a_stage_is_the_scheduler_s_allocation (tests.tools.test_stage_execution.EveryJobRoleIsValidatedBeforeAllocation.test_the_worker_for_a_stage_is_the_scheduler_s_allocation)
+Actual allocation evidence selects a worker; list order never ... ok
+test_two_bindings_for_one_job_are_refused (tests.tools.test_stage_execution.EveryJobRoleIsValidatedBeforeAllocation.test_two_bindings_for_one_job_are_refused) ... ok
+test_two_jobs_materialize_two_distinct_persistent_lines (tests.tools.test_stage_execution.EveryJobRoleIsValidatedBeforeAllocation.test_two_jobs_materialize_two_distinct_persistent_lines)
+THE LIMITATION, GONE. `create_line` derives its identity from ... ok
+test_a_deployment_without_an_integrator_is_admitted (tests.tools.test_stage_execution.EveryStageHasExactlyOneWorker.test_a_deployment_without_an_integrator_is_admitted)
+Owner 2026-09-20T14:57:48Z: integration is a human act or an ... ok
+test_a_missing_stage_is_refused (tests.tools.test_stage_execution.EveryStageHasExactlyOneWorker.test_a_missing_stage_is_refused)
+Implementation and review remain REQUIRED; the integrator is ... ok
+test_a_role_this_deployment_does_not_serve_is_refused (tests.tools.test_stage_execution.EveryStageHasExactlyOneWorker.test_a_role_this_deployment_does_not_serve_is_refused) ... ok
+test_a_worker_naming_another_authority_is_refused (tests.tools.test_stage_execution.EveryStageHasExactlyOneWorker.test_a_worker_naming_another_authority_is_refused) ... ok
+test_two_workers_for_one_stage_are_refused (tests.tools.test_stage_execution.EveryStageHasExactlyOneWorker.test_two_workers_for_one_stage_are_refused) ... ok
+test_one_participant_cannot_implement_and_review (tests.tools.test_stage_execution.IndependenceIsRefusedBeforeAnythingIsOpened.test_one_participant_cannot_implement_and_review) ... ok
+test_one_principal_cannot_implement_and_review (tests.tools.test_stage_execution.IndependenceIsRefusedBeforeAnythingIsOpened.test_one_principal_cannot_implement_and_review) ... ok
+test_the_integrator_may_share_neither_rule_forbids (tests.tools.test_stage_execution.IndependenceIsRefusedBeforeAnythingIsOpened.test_the_integrator_may_share_neither_rule_forbids)
+Independence is named for the pair that needs it, not asserted at ... ok
+test_a_relative_or_traversing_path_is_refused (tests.tools.test_stage_execution.MutableStateStaysOutsideTheCheckout.test_a_relative_or_traversing_path_is_refused) ... ok
+test_a_state_root_inside_the_checkout_is_refused (tests.tools.test_stage_execution.MutableStateStaysOutsideTheCheckout.test_a_state_root_inside_the_checkout_is_refused) ... ok
+test_a_store_inside_the_checkout_is_refused (tests.tools.test_stage_execution.MutableStateStaysOutsideTheCheckout.test_a_store_inside_the_checkout_is_refused) ... ok
+test_a_worker_workspace_inside_the_checkout_is_refused (tests.tools.test_stage_execution.MutableStateStaysOutsideTheCheckout.test_a_worker_workspace_inside_the_checkout_is_refused) ... ok
+test_a_job_store_bound_elsewhere_refuses_before_opening_anything (tests.tools.test_stage_execution.NothingIsOpenedBeforeTheConfigurationIsProved.test_a_job_store_bound_elsewhere_refuses_before_opening_anything) ... ok
+test_a_port_mapping_naming_an_unbound_job_refuses_before_any_write (tests.tools.test_stage_execution.NothingIsOpenedBeforeTheConfigurationIsProved.test_a_port_mapping_naming_an_unbound_job_refuses_before_any_write) ... ok
+test_a_refused_document_opens_no_integration_store (tests.tools.test_stage_execution.NothingIsOpenedBeforeTheConfigurationIsProved.test_a_refused_document_opens_no_integration_store) ... ok
+test_one_bare_port_for_two_bound_jobs_refuses_before_any_write (tests.tools.test_stage_execution.NothingIsOpenedBeforeTheConfigurationIsProved.test_one_bare_port_for_two_bound_jobs_refuses_before_any_write)
+A port is composed over ONE accepted line, proposal and canonical ... ok
+test_the_shapes_this_deployment_does_accept (tests.tools.test_stage_execution.NothingIsOpenedBeforeTheConfigurationIsProved.test_the_shapes_this_deployment_does_accept)
+THE POSITIVE CONTROL, so the refusals above are a boundary rather ... ok
+test_a_review_stage_naming_another_work_is_refused (tests.tools.test_stage_execution.OneJobsReviewIsOverItsOwnImplementation.test_a_review_stage_naming_another_work_is_refused) ... ok
+test_the_matching_case_is_held (tests.tools.test_stage_execution.OneJobsReviewIsOverItsOwnImplementation.test_the_matching_case_is_held) ... ok
+test_a_second_worker_for_one_role_is_refused_by_the_document (tests.tools.test_stage_execution.OneRefusedClaimLeavesEveryOtherJobAlone.test_a_second_worker_for_one_role_is_refused_by_the_document) ... ok
+test_correcting_the_route_cannot_revive_the_retired_claim (tests.tools.test_stage_execution.OneRefusedClaimLeavesEveryOtherJobAlone.test_correcting_the_route_cannot_revive_the_retired_claim)
+A terminally retired operation stays retired after route repair. ... ok
+test_the_other_jobs_act_is_still_reached_in_the_same_tick (tests.tools.test_stage_execution.OneRefusedClaimLeavesEveryOtherJobAlone.test_the_other_jobs_act_is_still_reached_in_the_same_tick)
+THE HARM THE ESCAPE ACTUALLY DID, and its repair. ... ok
+test_the_two_jobs_are_served_by_the_two_configured_participants (tests.tools.test_stage_execution.OneRefusedClaimLeavesEveryOtherJobAlone.test_the_two_jobs_are_served_by_the_two_configured_participants) ... ok
+test_why_the_joined_proof_is_composed_outside_this_deployment (tests.tools.test_stage_execution.OneRefusedClaimLeavesEveryOtherJobAlone.test_why_the_joined_proof_is_composed_outside_this_deployment)
+The three owner refusals that stop this deployment carrying a ... ok
+test_without_the_containment_the_other_job_is_never_reached (tests.tools.test_stage_execution.OneRefusedClaimLeavesEveryOtherJobAlone.test_without_the_containment_the_other_job_is_never_reached)
+The counterfactual, driven rather than described. ... ok
+test_committed_handoff_recovers_before_local_acknowledgement (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_committed_handoff_recovers_before_local_acknowledgement) ... ok
+test_foreign_receipt_or_lease_cannot_authorize_terminal_handoff (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_foreign_receipt_or_lease_cannot_authorize_terminal_handoff) ... ok
+test_fresh_process_observes_owned_completion_after_serving_closes (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_fresh_process_observes_owned_completion_after_serving_closes) ... ok
+test_lost_pass_answer_remains_completed_after_a_later_assignment (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_lost_pass_answer_remains_completed_after_a_later_assignment) ... ok
+test_one_job_completes_correction_integration_and_terminal_handoff (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_one_job_completes_correction_integration_and_terminal_handoff) ... ok
+test_running_integrator_result_cannot_end_its_assignment (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_running_integrator_result_cannot_end_its_assignment) ... ok
+test_serving_observation_reads_only_existing_owners (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_serving_observation_reads_only_existing_owners) ... ok
+test_the_accepted_checkpoint_is_the_corrections_and_its_pin_holds (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_the_accepted_checkpoint_is_the_corrections_and_its_pin_holds)
+W119114: one line, two rounds, and the pin the integration reads. ... ok
+test_the_corrected_rounds_retained_bytes_reopen_at_their_locator (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_the_corrected_rounds_retained_bytes_reopen_at_their_locator)
+W119114: the mandatory custody check, on the JOINED chain. ... ok
+test_the_recovered_job_finishes_and_its_manifest_reopens (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_the_recovered_job_finishes_and_its_manifest_reopens)
+[P1] THE RECOVERED JOB, DRIVEN TO ITS TERMINAL HANDOFF, and then ... ok
+test_uncertain_integration_effect_stays_held (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_uncertain_integration_effect_stays_held) ... ok
+test_a_missing_session_refuses (tests.tools.test_stage_execution.TheAcceptedIntegrationSessionsAreProvedBeforePublication.test_a_missing_session_refuses) ... ok
+test_a_session_without_a_participant_refuses (tests.tools.test_stage_execution.TheAcceptedIntegrationSessionsAreProvedBeforePublication.test_a_session_without_a_participant_refuses) ... ok
+test_a_session_without_its_verb_refuses (tests.tools.test_stage_execution.TheAcceptedIntegrationSessionsAreProvedBeforePublication.test_a_session_without_its_verb_refuses) ... ok
+test_each_receipt_actor_is_asked_for_its_own_grant_in_one_scope (tests.tools.test_stage_execution.TheAcceptedIntegrationSessionsAreProvedBeforePublication.test_each_receipt_actor_is_asked_for_its_own_grant_in_one_scope)
+The mapping, read off the gate rather than off the constant: four ... ok
+test_the_complete_set_is_accepted (tests.tools.test_stage_execution.TheAcceptedIntegrationSessionsAreProvedBeforePublication.test_the_complete_set_is_accepted) ... ok
+test_a_reconstructed_manager_re_enters_the_same_ending (tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord.test_a_reconstructed_manager_re_enters_the_same_ending)
+THE CUTPOINT THIS WORK EXISTS FOR, driven through the actual ... ok
+test_the_historical_adapter_can_perform_no_runtime_act (tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord.test_the_historical_adapter_can_perform_no_runtime_act)
+A property of the object rather than a promise about the path. ... ok
+test_the_historical_entry_reconstructs_no_mount_or_credential (tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord.test_the_historical_entry_reconstructs_no_mount_or_credential)
+The entry the ordinary ending cannot be. ... ok
+test_the_historical_operands_come_from_the_recorded_obligation (tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord.test_the_historical_operands_come_from_the_recorded_obligation)
+Not from the exchange the ordinary ending reads them off. ... ok
+test_the_obligation_is_registered_and_settled_by_ordinary_ticks (tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord.test_the_obligation_is_registered_and_settled_by_ordinary_ticks) ... ok
+test_the_recovered_writer_is_the_attempts_and_not_the_lines_pointer (tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord.test_the_recovered_writer_is_the_attempts_and_not_the_lines_pointer)
+The durable operand, read through the accepted public reader. ... ok
+test_the_settlement_names_the_records_that_finished_the_ending (tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord.test_the_settlement_names_the_records_that_finished_the_ending)
+Every member is an identity an operator can look up in the owner ... ok
+test_the_completed_implementation_leaves_the_work_ungated (tests.tools.test_stage_execution.TheComposedHandoffCarriesItsOwnQuiescenceEvidence.test_the_completed_implementation_leaves_the_work_ungated)
+The converted assertion: `block` on a quiescence gate became ... ok
+test_the_manager_can_reach_the_operation_that_discharges_it (tests.tools.test_stage_execution.TheComposedHandoffCarriesItsOwnQuiescenceEvidence.test_the_manager_can_reach_the_operation_that_discharges_it)
+W121887's accepted forwarding, measured where it is consumed. ... ok
+test_the_review_stage_is_queued_and_its_offer_is_issued (tests.tools.test_stage_execution.TheComposedHandoffCarriesItsOwnQuiescenceEvidence.test_the_review_stage_is_queued_and_its_offer_is_issued)
+The converted assertion: the offer used to be DEFERRED against an ... ok
+test_one_submitted_job_reaches_a_completed_implementation_stage (tests.tools.test_stage_execution.TheComposedImplementationHalfRunsOnOrdinaryTicks.test_one_submitted_job_reaches_a_completed_implementation_stage)
+No operator transition after the submission, measured as one. ... ok
+test_the_ending_reached_every_accepted_owner (tests.tools.test_stage_execution.TheComposedImplementationHalfRunsOnOrdinaryTicks.test_the_ending_reached_every_accepted_owner)
+Read back from each owner's own durable record, not from the answer ... ok
+test_the_publication_named_the_proposal_the_authority_recorded (tests.tools.test_stage_execution.TheComposedImplementationHalfRunsOnOrdinaryTicks.test_the_publication_named_the_proposal_the_authority_recorded)
+The publication is the real one, so the accepted checkpoint's own ... ok
+test_the_real_worker_committed_the_line_and_claimed_its_objects (tests.tools.test_stage_execution.TheComposedImplementationHalfRunsOnOrdinaryTicks.test_the_real_worker_committed_the_line_and_claimed_its_objects)
+The producer is the actual workload, so its claim is its own. ... ok
+test_a_changes_requested_review_routes_back_to_the_producer (tests.tools.test_stage_execution.TheComposedJobTraversesReviewAndAcceptance.test_a_changes_requested_review_routes_back_to_the_producer)
+REVIEW 2026-09-09T05:33Z [1], driven. ... ok
+test_each_handoff_left_the_runtime_gate_exactly_as_it_found_it (tests.tools.test_stage_execution.TheComposedJobTraversesReviewAndAcceptance.test_each_handoff_left_the_runtime_gate_exactly_as_it_found_it)
+A handoff moves the route and nothing else. ... ok
+test_the_accepted_integration_port_composes_from_this_deployment (tests.tools.test_stage_execution.TheComposedJobTraversesReviewAndAcceptance.test_the_accepted_integration_port_composes_from_this_deployment)
+Every operand this port names is one this deployment resolves. ... ok
+test_the_accepted_review_hands_off_and_the_integrator_claims (tests.tools.test_stage_execution.TheComposedJobTraversesReviewAndAcceptance.test_the_accepted_review_hands_off_and_the_integrator_claims)
+The second handoff, and the stage it makes eligible. ... ok
+test_the_correction_round_claims_and_runs_a_second_time (tests.tools.test_stage_execution.TheComposedJobTraversesReviewAndAcceptance.test_the_correction_round_claims_and_runs_a_second_time)
+The same submitted Job and the same persistent line, round two. ... ok
+test_the_implementation_handoff_moves_the_work_to_the_review_route (tests.tools.test_stage_execution.TheComposedJobTraversesReviewAndAcceptance.test_the_implementation_handoff_moves_the_work_to_the_review_route)
+THE ROUTE MOVED AND THE GATE DID NOT. ... ok
+test_the_integration_stage_advances_through_that_port (tests.tools.test_stage_execution.TheComposedJobTraversesReviewAndAcceptance.test_the_integration_stage_advances_through_that_port)
+THE WIRING THE FIXTURE NEVER HAD, driven on ordinary ticks. ... ok
+test_the_integration_stage_stops_on_unconfigured_integrator_wiring (tests.tools.test_stage_execution.TheComposedJobTraversesReviewAndAcceptance.test_the_integration_stage_stops_on_unconfigured_integrator_wiring)
+W103068 EXPECTATION CHANGE, and it is the point of the correction. ... ok
+test_the_reviewer_claims_and_its_container_starts (tests.tools.test_stage_execution.TheComposedJobTraversesReviewAndAcceptance.test_the_reviewer_claims_and_its_container_starts)
+The exact transition this campaign could not make. ... ok
+test_the_reviewers_own_verdict_completes_the_review_stage (tests.tools.test_stage_execution.TheComposedJobTraversesReviewAndAcceptance.test_the_reviewers_own_verdict_completes_the_review_stage)
+The verdict is READ from the reviewer's frozen result. ... ok
+test_every_publication_selects_on_a_really_retained_manifest (tests.tools.test_stage_execution.TheComposedLifecycleRunsOverRealStores.test_every_publication_selects_on_a_really_retained_manifest)
+The producer is real, so the digest publication selects on is one ... ok
+test_one_job_runs_implementation_correction_and_acceptance (tests.tools.test_stage_execution.TheComposedLifecycleRunsOverRealStores.test_one_job_runs_implementation_correction_and_acceptance) ... ok
+test_publication_happens_while_the_producer_is_still_live (tests.tools.test_stage_execution.TheComposedLifecycleRunsOverRealStores.test_publication_happens_while_the_producer_is_still_live)
+W103068's measured ordering, driven rather than asserted in prose: ... ok
+test_a_bearer_anywhere_in_the_document_is_refused (tests.tools.test_stage_execution.TheConfigurationCarriesNoCredentialBytes.test_a_bearer_anywhere_in_the_document_is_refused)
+Walked rather than spot-checked: the member that matters is ... ok
+test_the_secret_sweep_reaches_into_nested_lists (tests.tools.test_stage_execution.TheConfigurationCarriesNoCredentialBytes.test_the_secret_sweep_reaches_into_nested_lists) ... ok
+test_another_job_owner_cannot_supply_the_context_attempt (tests.tools.test_stage_execution.TheContextServingBoundaryIsIsolated.test_another_job_owner_cannot_supply_the_context_attempt) ... ok
+test_another_roles_root_cannot_overlap_context_storage (tests.tools.test_stage_execution.TheContextServingBoundaryIsIsolated.test_another_roles_root_cannot_overlap_context_storage) ... ok
+test_context_preflight_requires_the_preconfigured_profile (tests.tools.test_stage_execution.TheContextServingBoundaryIsIsolated.test_context_preflight_requires_the_preconfigured_profile) ... ok
+test_live_handle_reopen_observes_without_duplicate_start_or_binding (tests.tools.test_stage_execution.TheContextServingBoundaryIsIsolated.test_live_handle_reopen_observes_without_duplicate_start_or_binding) ... ok
+test_the_publication_seam_carries_the_verb_the_driver_names (tests.tools.test_stage_execution.TheDeploymentAnswersTheAcceptedReplayHalves.test_the_publication_seam_carries_the_verb_the_driver_names)
+`PUBLICATION_HISTORY` is typed inside the resumed branch only. ... ok
+test_the_replay_half_reads_the_owner_and_not_its_own_list (tests.tools.test_stage_execution.TheDeploymentAnswersTheAcceptedReplayHalves.test_the_replay_half_reads_the_owner_and_not_its_own_list)
+An in-memory list says nothing about a process that has died. ... ok
+test_a_pool_generation_counts_from_one (tests.tools.test_stage_execution.TheDeploymentDocumentIsClosed.test_a_pool_generation_counts_from_one) ... ok
+test_a_well_formed_document_is_held_with_its_three_roles (tests.tools.test_stage_execution.TheDeploymentDocumentIsClosed.test_a_well_formed_document_is_held_with_its_three_roles) ... ok
+test_an_unknown_or_missing_member_is_refused (tests.tools.test_stage_execution.TheDeploymentDocumentIsClosed.test_an_unknown_or_missing_member_is_refused) ... ok
+test_another_generation_of_the_schema_is_refused (tests.tools.test_stage_execution.TheDeploymentDocumentIsClosed.test_another_generation_of_the_schema_is_refused)
+W119403: the value this case used to name is now a variant this ... ok
+test_an_allocation_naming_an_uncomposed_worker_refuses (tests.tools.test_stage_execution.TheDeploymentRoutesACancellationToItsOwner.test_an_allocation_naming_an_uncomposed_worker_refuses) ... ok
+test_an_attempt_with_no_recorded_allocation_refuses_by_name (tests.tools.test_stage_execution.TheDeploymentRoutesACancellationToItsOwner.test_an_attempt_with_no_recorded_allocation_refuses_by_name) ... ok
+test_the_recorded_allocation_selects_the_worker (tests.tools.test_stage_execution.TheDeploymentRoutesACancellationToItsOwner.test_the_recorded_allocation_selects_the_worker)
+The REVIEW worker's composition, because the allocation says so. ... ok
+test_the_ordinary_ending_journals_its_gate_discharge (tests.tools.test_stage_execution.TheDischargeReceiptIsCommittedWithItsOwnKind.test_the_ordinary_ending_journals_its_gate_discharge) ... ok
+test_the_settlement_names_that_discharge (tests.tools.test_stage_execution.TheDischargeReceiptIsCommittedWithItsOwnKind.test_the_settlement_names_that_discharge)
+The obligation is closed naming the act that cleared the gate. ... ok
+test_a_partly_constructed_object_answers_no_serving_member (tests.tools.test_stage_execution.TheDriverFacingMembersComeFromTheConfiguration.test_a_partly_constructed_object_answers_no_serving_member)
+`tools.job_manager` asks a returned object for `close` by name, and ... ok
+test_the_integration_profile_is_composed_from_the_document (tests.tools.test_stage_execution.TheDriverFacingMembersComeFromTheConfiguration.test_the_integration_profile_is_composed_from_the_document) ... ok
+test_A_MISSING_ROOT_IS_REFUSED_AND_NEVER_REPAIRED (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_A_MISSING_ROOT_IS_REFUSED_AND_NEVER_REPAIRED)
+The revalidation proves the pair and refuses what is not there. It ... ok
+test_A_REPLACED_ROOT_IS_REFUSED_TOO (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_A_REPLACED_ROOT_IS_REFUSED_TOO)
+A link at the name is a tree somebody else chose, and revalidation ... ok
+test_A_WRITER_CALLER_IS_STILL_REFUSED_OVER_OFFERED_MATERIAL (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_A_WRITER_CALLER_IS_STILL_REFUSED_OVER_OFFERED_MATERIAL)
+The default is `writer=True`, so every caller that has not said ... ok
+test_NO_VERDICT_IS_INVENTED_AND_THE_OFFER_IS_NOT_DISPOSED (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_NO_VERDICT_IS_INVENTED_AND_THE_OFFER_IS_NOT_DISPOSED)
+What the correction must NOT do: it reads, and that is all. The ... ok
+test_ONLY_writer_False_SKIPS_AND_THE_SOURCE_SAYS_WHO_PASSES_IT (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_ONLY_writer_False_SKIPS_AND_THE_SOURCE_SAYS_WHO_PASSES_IT)
+The intent is a parameter, not a state read -- and exactly one ... ok
+test_REPEATED_CONCLUSION_CHANGES_NOTHING_AT_ALL (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_REPEATED_CONCLUSION_CHANGES_NOTHING_AT_ALL)
+The 58 sweeps, as a property: reading the identity again and again ... ok
+test_THE_ENDING_READS_THE_RETAINED_IDENTITY_WITH_AN_EMPTY_CACHE (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_THE_ENDING_READS_THE_RETAINED_IDENTITY_WITH_AN_EMPTY_CACHE)
+The corrected path: a cache-empty ending answers from rows that do ... ok
+test_THE_ENDING_SEAM_OPENS_NO_WINDOW_OVER_OFFERED_MATERIAL (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_THE_ENDING_SEAM_OPENS_NO_WINDOW_OVER_OFFERED_MATERIAL)
+`single_worker._mounted`'s own decision, asserted from the source and ... ok
+test_THE_PREDICATE_IS_THE_SAME_QUESTION_THE_RULE_ASKS (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_THE_PREDICATE_IS_THE_SAME_QUESTION_THE_RULE_ASKS) ... ok
+test_THE_REAL_RULE_REALLY_REFUSES_THIS_STATE (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_THE_REAL_RULE_REALLY_REFUSES_THIS_STATE)
+The premise, over the real store: this is the refusing state, so ... ok
+test_THE_ROOTS_ARE_REVALIDATED_AND_NOTHING_IS_ADMITTED (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_THE_ROOTS_ARE_REVALIDATED_AND_NOTHING_IS_ADMITTED)
+The corrected re-entry, over the real store and the real rule: the ... ok
+test_THE_STAGE_MOUNT_STILL_REQUIRES_A_BOUNDARY (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_THE_STAGE_MOUNT_STILL_REQUIRES_A_BOUNDARY)
+The scope of the `stage_execution` change, as a negative control: it ... ok
+test_WHERE_THE_ADMISSION_ACTUALLY_HAPPENS_AND_WHERE_IT_DOES_NOT (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_WHERE_THE_ADMISSION_ACTUALLY_HAPPENS_AND_WHERE_IT_DOES_NOT)
+A CORRECTION TO MY OWN DIAGNOSIS, and this case is how I found it. ... ok
+test_WITHOUT_THE_CORRECTION_THE_SAME_CALL_ADMITS_AN_ALLOCATION (tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores.test_WITHOUT_THE_CORRECTION_THE_SAME_CALL_ADMITS_AN_ALLOCATION)
+The mutation, so the case above cannot pass by accident: with the ... ok
+test_AFTER_THE_RELEASE_THE_ENDING_STILL_RESTS_HELD (tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld.test_AFTER_THE_RELEASE_THE_ENDING_STILL_RESTS_HELD)
+The release frees the RESOURCE and settles nothing about the review: ... ok
+test_THE_OFFERED_MATERIAL_RULE_STILL_EXCLUDES_A_WRITER_AFTER_RELEASE (tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld.test_THE_OFFERED_MATERIAL_RULE_STILL_EXCLUDES_A_WRITER_AFTER_RELEASE)
+The release must not weaken the exclusion: the material is still ... ok
+test_THE_RECOVERED_ENDING_REACHES_THE_SAME_HELD_STATE (tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld.test_THE_RECOVERED_ENDING_REACHES_THE_SAME_HELD_STATE)
+After the reclaim, the recovered process re-enters the ending and ... ok
+test_THE_SETTLEMENT_RELEASES_THE_GATE_AND_PRESERVES_THE_WORKSPACE (tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld.test_THE_SETTLEMENT_RELEASES_THE_GATE_AND_PRESERVES_THE_WORKSPACE)
+The cessation-to-release path, completed with the product's own act. ... ok
+test_WITHOUT_A_CUSTODIAN_IMAGE_THE_HOLD_IS_CORRECT (tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld.test_WITHOUT_A_CUSTODIAN_IMAGE_THE_HOLD_IS_CORRECT)
+The other half of the owner's question, and it is not a gap. ... ok
+test_WITHOUT_the_correction_the_conclude_act_is_refused_every_tick (tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld.test_WITHOUT_the_correction_the_conclude_act_is_refused_every_tick)
+The live defect, reproduced in this fixture: the same scenario with ... ok
+test_a_RESTART_AFTER_EXPIRY_RECOVERS_THROUGH_THE_SUPPORTED_RECLAIM (tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld.test_a_RESTART_AFTER_EXPIRY_RECOVERS_THROUGH_THE_SUPPORTED_RECLAIM)
+The recovery, not merely the refusal: first process closed, token ... ok
+test_a_SECOND_LIVE_COMPOSITION_IS_REFUSED_BY_OWNERSHIP (tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld.test_a_SECOND_LIVE_COMPOSITION_IS_REFUSED_BY_OWNERSHIP)
+NOT a restart, and review 2026-09-30T11:45:12Z was right to say so: ... ok
+test_a_WRITER_CALLER_IS_REFUSED_BEFORE_IT_CAN_WRITE (tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld.test_a_WRITER_CALLER_IS_REFUSED_BEFORE_IT_CAN_WRITE)
+The actual caller, not a source string: the launch's own intent -- ... ok
+test_a_changes_requested_review_routes_back_to_the_producer (tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld.test_a_changes_requested_review_routes_back_to_the_producer)
+REVIEW 2026-09-09T05:33Z [1], driven. ... ok
+test_each_handoff_left_the_runtime_gate_exactly_as_it_found_it (tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld.test_each_handoff_left_the_runtime_gate_exactly_as_it_found_it)
+A handoff moves the route and nothing else. ... ok
+test_the_ENDING_INTENT_is_the_only_one_that_skips (tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld.test_the_ENDING_INTENT_is_the_only_one_that_skips)
+The same worker, the same state, the two intents: one refuses and ... ok
+test_the_SEALED_BYTES_are_unchanged_across_the_re_entry (tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld.test_the_SEALED_BYTES_are_unchanged_across_the_re_entry)
+The evidence the whole refusal exists to protect. ... ok
+test_the_accepted_integration_port_composes_from_this_deployment (tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld.test_the_accepted_integration_port_composes_from_this_deployment)
+Every operand this port names is one this deployment resolves. ... ok
+test_the_accepted_review_hands_off_and_the_integrator_claims (tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld.test_the_accepted_review_hands_off_and_the_integrator_claims)
+The second handoff, and the stage it makes eligible. ... ok
+test_the_correction_round_claims_and_runs_a_second_time (tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld.test_the_correction_round_claims_and_runs_a_second_time)
+The same submitted Job and the same persistent line, round two. ... ok
+test_the_failed_review_reaches_sealed_pending_and_is_not_refused (tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld.test_the_failed_review_reaches_sealed_pending_and_is_not_refused) ... ok
+test_the_implementation_handoff_moves_the_work_to_the_review_route (tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld.test_the_implementation_handoff_moves_the_work_to_the_review_route)
+THE ROUTE MOVED AND THE GATE DID NOT. ... ok
+test_the_integration_stage_advances_through_that_port (tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld.test_the_integration_stage_advances_through_that_port)
+THE WIRING THE FIXTURE NEVER HAD, driven on ordinary ticks. ... ok
+test_the_integration_stage_stops_on_unconfigured_integrator_wiring (tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld.test_the_integration_stage_stops_on_unconfigured_integrator_wiring)
+W103068 EXPECTATION CHANGE, and it is the point of the correction. ... ok
+test_the_reviewer_claims_and_its_container_starts (tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld.test_the_reviewer_claims_and_its_container_starts)
+The exact transition this campaign could not make. ... ok
+test_the_reviewers_own_verdict_completes_the_review_stage (tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld.test_the_reviewers_own_verdict_completes_the_review_stage)
+The verdict is READ from the reviewer's frozen result. ... ok
+test_a_document_wider_than_the_ceiling_is_refused (tests.tools.test_stage_execution.TheFactoryReadsOnlyItsNamedConfiguration.test_a_document_wider_than_the_ceiling_is_refused) ... ok
+test_an_unreadable_document_is_refused_as_one (tests.tools.test_stage_execution.TheFactoryReadsOnlyItsNamedConfiguration.test_an_unreadable_document_is_refused_as_one) ... ok
+test_an_unset_environment_refuses_before_anything_is_opened (tests.tools.test_stage_execution.TheFactoryReadsOnlyItsNamedConfiguration.test_an_unset_environment_refuses_before_anything_is_opened) ... ok
+test_a_job_naming_another_producers_input_refuses (tests.tools.test_stage_execution.TheFactorysOwnOperandsReachTheIntegrationStage.test_a_job_naming_another_producers_input_refuses)
+M115946's correspondence check, over the factory's own operands: a ... ok
+test_a_producer_task_naming_no_verification_refuses (tests.tools.test_stage_execution.TheFactorysOwnOperandsReachTheIntegrationStage.test_a_producer_task_naming_no_verification_refuses)
+An integration is admitted behind an ordinary test run and never ... ok
+test_replacing_the_task_document_after_construction_changes_nothing (tests.tools.test_stage_execution.TheFactorysOwnOperandsReachTheIntegrationStage.test_replacing_the_task_document_after_construction_changes_nothing)
+The bytes were read once at configuration, no-follow and bounded. ... ok
+test_the_composed_integration_derives_its_requirement_from_it (tests.tools.test_stage_execution.TheFactorysOwnOperandsReachTheIntegrationStage.test_the_composed_integration_derives_its_requirement_from_it)
+The held form is consumed AS IT STANDS: re-validating it through ... ok
+test_the_factory_holds_the_group_a_real_delivery_is_adopted_with (tests.tools.test_stage_execution.TheFactorysOwnOperandsReachTheIntegrationStage.test_the_factory_holds_the_group_a_real_delivery_is_adopted_with)
+The manager's nominal `WorkspaceGroup`, proved by adopting a really ... ok
+test_a_rejected_verdict_is_held_rather_than_acted_on (tests.tools.test_stage_execution.TheFocusedChecksItemFourNames.test_a_rejected_verdict_is_held_rather_than_acted_on)
+`rejected` is a decision about the Work, and this composition ... ok
+test_a_restart_at_the_publication_cutpoint_replays_rather_than_repeats (tests.tools.test_stage_execution.TheFocusedChecksItemFourNames.test_a_restart_at_the_publication_cutpoint_replays_rather_than_repeats)
+The cutpoint chosen is publication, because it is the one act that ... ok
+test_the_composed_rounds_carry_distinct_identities (tests.tools.test_stage_execution.TheFocusedChecksItemFourNames.test_the_composed_rounds_carry_distinct_identities) ... ok
+test_the_held_outcome_is_one_this_composition_never_invents (tests.tools.test_stage_execution.TheFocusedChecksItemFourNames.test_the_held_outcome_is_one_this_composition_never_invents) ... ok
+test_the_reviewer_is_never_the_writer_it_reviews (tests.tools.test_stage_execution.TheFocusedChecksItemFourNames.test_the_reviewer_is_never_the_writer_it_reviews)
+Independence is refused twice, and the two refusals are different ... ok
+test_a_changes_requested_review_routes_back_to_the_producer (tests.tools.test_stage_execution.TheHeterogeneousPoolTraversesTheSameLifecycle.test_a_changes_requested_review_routes_back_to_the_producer)
+REVIEW 2026-09-09T05:33Z [1], driven. ... ok
+test_a_worker_that_moved_a_shared_member_cannot_serve_the_job (tests.tools.test_stage_execution.TheHeterogeneousPoolTraversesTheSameLifecycle.test_a_worker_that_moved_a_shared_member_cannot_serve_the_job)
+THE JOB HALF, AT REAL ADMISSION, WITH NO ALLOCATION AND NO EFFECT. ... ok
+test_a_worker_whose_image_is_not_its_manifests_refuses_composition (tests.tools.test_stage_execution.TheHeterogeneousPoolTraversesTheSameLifecycle.test_a_worker_whose_image_is_not_its_manifests_refuses_composition)
+The own-image rule at the boundary that composes a real deployment, ... ok
+test_each_attempt_keeps_its_own_runtime_manifest_and_image (tests.tools.test_stage_execution.TheHeterogeneousPoolTraversesTheSameLifecycle.test_each_attempt_keeps_its_own_runtime_manifest_and_image)
+RUNTIME ATTRIBUTION SURVIVES, which is what owner206702 requires ... ok
+test_each_handoff_left_the_runtime_gate_exactly_as_it_found_it (tests.tools.test_stage_execution.TheHeterogeneousPoolTraversesTheSameLifecycle.test_each_handoff_left_the_runtime_gate_exactly_as_it_found_it)
+A handoff moves the route and nothing else. ... ok
+test_every_worker_produces_the_one_job_input_identity (tests.tools.test_stage_execution.TheHeterogeneousPoolTraversesTheSameLifecycle.test_every_worker_produces_the_one_job_input_identity)
+Three runtime manifests, one Job. This is what the whole correction ... ok
+test_the_accepted_integration_port_composes_from_this_deployment (tests.tools.test_stage_execution.TheHeterogeneousPoolTraversesTheSameLifecycle.test_the_accepted_integration_port_composes_from_this_deployment)
+Every operand this port names is one this deployment resolves. ... ok
+test_the_accepted_review_hands_off_and_the_integrator_claims (tests.tools.test_stage_execution.TheHeterogeneousPoolTraversesTheSameLifecycle.test_the_accepted_review_hands_off_and_the_integrator_claims)
+The second handoff, and the stage it makes eligible. ... ok
+test_the_correction_round_claims_and_runs_a_second_time (tests.tools.test_stage_execution.TheHeterogeneousPoolTraversesTheSameLifecycle.test_the_correction_round_claims_and_runs_a_second_time)
+The same submitted Job and the same persistent line, round two. ... ok
+test_the_implementation_handoff_moves_the_work_to_the_review_route (tests.tools.test_stage_execution.TheHeterogeneousPoolTraversesTheSameLifecycle.test_the_implementation_handoff_moves_the_work_to_the_review_route)
+THE ROUTE MOVED AND THE GATE DID NOT. ... ok
+test_the_integration_stage_advances_through_that_port (tests.tools.test_stage_execution.TheHeterogeneousPoolTraversesTheSameLifecycle.test_the_integration_stage_advances_through_that_port)
+THE WIRING THE FIXTURE NEVER HAD, driven on ordinary ticks. ... ok
+test_the_integration_stage_stops_on_unconfigured_integrator_wiring (tests.tools.test_stage_execution.TheHeterogeneousPoolTraversesTheSameLifecycle.test_the_integration_stage_stops_on_unconfigured_integrator_wiring)
+W103068 EXPECTATION CHANGE, and it is the point of the correction. ... ok
+test_the_reviewer_claims_and_its_container_starts (tests.tools.test_stage_execution.TheHeterogeneousPoolTraversesTheSameLifecycle.test_the_reviewer_claims_and_its_container_starts)
+The exact transition this campaign could not make. ... ok
+test_the_reviewers_own_verdict_completes_the_review_stage (tests.tools.test_stage_execution.TheHeterogeneousPoolTraversesTheSameLifecycle.test_the_reviewers_own_verdict_completes_the_review_stage)
+The verdict is READ from the reviewer's frozen result. ... ok
+test_the_same_pool_with_that_member_intact_is_admitted (tests.tools.test_stage_execution.TheHeterogeneousPoolTraversesTheSameLifecycle.test_the_same_pool_with_that_member_intact_is_admitted)
+The control, so the refusal above is about the moved member and not ... ok
+test_the_three_workers_really_are_on_three_images (tests.tools.test_stage_execution.TheHeterogeneousPoolTraversesTheSameLifecycle.test_the_three_workers_really_are_on_three_images)
+The control. Every case inherited above would still pass over a ... ok
+test_a_delivery_carrying_no_assignment_is_the_first_tick (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_carrying_no_assignment_is_the_first_tick)
+Absent or unpublished: neither invents an assignment. ... ok
+test_a_delivery_with_no_started_runtime_is_not_refreshed (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_with_no_started_runtime_is_not_refreshed)
+The namespaces are materialized before the container, so a delivery ... ok
+test_a_deployment_without_exactly_one_producer_refuses (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_deployment_without_exactly_one_producer_refuses) ... ok
+test_a_later_tick_refreshes_before_it_continues (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_later_tick_refreshes_before_it_continues)
+Owner ruling M115946: refresh FIRST, then the port's own marker. ... ok
+test_a_lost_marker_falls_through_to_admission (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_lost_marker_falls_through_to_admission)
+A fresh serving incarnation holds no marker, so the driver's own ... ok
+test_a_started_or_uncertain_runtime_is_never_prepared_here (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_started_or_uncertain_runtime_is_never_prepared_here)
+The other side of that branch, which is why it IS a branch. ... ok
+test_the_first_tick_prepares_and_then_admits (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_the_first_tick_prepares_and_then_admits) ... ok
+test_the_published_reader_adopts_a_real_delivery_with_the_group (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_the_published_reader_adopts_a_real_delivery_with_the_group)
+W103083 review 2026-09-08T04:06:54Z [P1], proved through the REAL ... ok
+test_the_requirement_is_derived_from_the_configured_task (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_the_requirement_is_derived_from_the_configured_task)
+Not from what the worker REPORTED: from the task bytes this ... ok
+test_it_releases_the_assignment_the_reviewer_actually_ran (tests.tools.test_stage_execution.TheLastStageReturnsItsCapacityWhenItCompletes.test_it_releases_the_assignment_the_reviewer_actually_ran)
+The exact assignment, read back from the attempt this fixture ... ok
+test_later_ticks_do_not_release_it_a_second_time (tests.tools.test_stage_execution.TheLastStageReturnsItsCapacityWhenItCompletes.test_later_ticks_do_not_release_it_a_second_time) ... ok
+test_no_allocation_of_this_job_is_still_live_at_completion (tests.tools.test_stage_execution.TheLastStageReturnsItsCapacityWhenItCompletes.test_no_allocation_of_this_job_is_still_live_at_completion)
+THE WHOLE POINT, stated as the reader sees it. ... ok
+test_the_accepted_second_round_releases_its_own_allocation (tests.tools.test_stage_execution.TheLastStageReturnsItsCapacityWhenItCompletes.test_the_accepted_second_round_releases_its_own_allocation) ... ok
+test_the_accepted_verdict_and_its_evidence_survive_the_release (tests.tools.test_stage_execution.TheLastStageReturnsItsCapacityWhenItCompletes.test_the_accepted_verdict_and_its_evidence_survive_the_release)
+A settlement is not an erasure. The verdict the reviewer's own ... ok
+test_the_completing_tick_releases_the_review_allocation (tests.tools.test_stage_execution.TheLastStageReturnsItsCapacityWhenItCompletes.test_the_completing_tick_releases_the_review_allocation) ... ok
+test_the_corrected_round_leaves_every_allocation_released (tests.tools.test_stage_execution.TheLastStageReturnsItsCapacityWhenItCompletes.test_the_corrected_round_leaves_every_allocation_released)
+All four of them -- two implementation rounds and two review ... ok
+test_the_corrected_round_settles_each_episode_exactly_once (tests.tools.test_stage_execution.TheLastStageReturnsItsCapacityWhenItCompletes.test_the_corrected_round_settles_each_episode_exactly_once)
+Two allocations on one stage, each released for its own ending. ... ok
+test_the_implementation_allocation_was_released_on_its_own_tick (tests.tools.test_stage_execution.TheLastStageReturnsItsCapacityWhenItCompletes.test_the_implementation_allocation_was_released_on_its_own_tick)
+The half that always worked, kept measured beside the half that did ... ok
+test_the_release_claims_only_the_cleanup_that_was_proven (tests.tools.test_stage_execution.TheLastStageReturnsItsCapacityWhenItCompletes.test_the_release_claims_only_the_cleanup_that_was_proven)
+`cleanup-retained` AND NOT `cleanup-complete`, which is the ... ok
+test_a_multi_pool_without_an_integrator_is_admitted (tests.tools.test_stage_execution.TheMultiWorkerPoolComposesWithoutASecondAllocator.test_a_multi_pool_without_an_integrator_is_admitted) ... ok
+test_a_participant_serving_both_sides_of_a_review_is_refused (tests.tools.test_stage_execution.TheMultiWorkerPoolComposesWithoutASecondAllocator.test_a_participant_serving_both_sides_of_a_review_is_refused)
+Independence is the whole reason a review exists, and the wider ... ok
+test_a_repeated_worker_identity_is_refused (tests.tools.test_stage_execution.TheMultiWorkerPoolComposesWithoutASecondAllocator.test_a_repeated_worker_identity_is_refused)
+The rule `/1` got for free from its roles: the pool tells its ... ok
+test_another_authority_and_a_role_mismatch_still_refuse (tests.tools.test_stage_execution.TheMultiWorkerPoolComposesWithoutASecondAllocator.test_another_authority_and_a_role_mismatch_still_refuse) ... ok
+test_each_producer_gets_its_own_publisher_session (tests.tools.test_stage_execution.TheMultiWorkerPoolComposesWithoutASecondAllocator.test_each_producer_gets_its_own_publisher_session)
+`Authority.publish` takes the PRODUCER's live assignment, and a ... ok
+test_every_configured_worker_reaches_the_pool_with_its_own_lane (tests.tools.test_stage_execution.TheMultiWorkerPoolComposesWithoutASecondAllocator.test_every_configured_worker_reaches_the_pool_with_its_own_lane)
+The scheduler's own rule, quoted rather than restated: a review kind ... ok
+test_every_pooled_worker_carries_its_configured_profile (tests.tools.test_stage_execution.TheMultiWorkerPoolComposesWithoutASecondAllocator.test_every_pooled_worker_carries_its_configured_profile) ... ok
+test_every_role_is_still_served (tests.tools.test_stage_execution.TheMultiWorkerPoolComposesWithoutASecondAllocator.test_every_role_is_still_served)
+The REQUIRED roles, that is: review here. The integrator is ... ok
+test_reconstruction_reattaches_the_same_pool (tests.tools.test_stage_execution.TheMultiWorkerPoolComposesWithoutASecondAllocator.test_reconstruction_reattaches_the_same_pool)
+A second composition over the same stores is a RECONSTRUCTION, not ... ok
+test_selecting_among_producers_is_still_not_a_pool_question (tests.tools.test_stage_execution.TheMultiWorkerPoolComposesWithoutASecondAllocator.test_selecting_among_producers_is_still_not_a_pool_question)
+W119405 CONVERTS THE SECOND HALF OF THIS CASE, and keeps the first. ... ok
+test_the_eligible_kinds_are_the_roles_each_worker_was_configured_for (tests.tools.test_stage_execution.TheMultiWorkerPoolComposesWithoutASecondAllocator.test_the_eligible_kinds_are_the_roles_each_worker_was_configured_for) ... ok
+test_the_one_job_document_still_refuses_a_repeated_role (tests.tools.test_stage_execution.TheMultiWorkerPoolComposesWithoutASecondAllocator.test_the_one_job_document_still_refuses_a_repeated_role)
+The closed variant is closed, said beside the one that opens it. ... ok
+test_the_role_seam_answers_every_worker_and_never_a_singleton (tests.tools.test_stage_execution.TheMultiWorkerPoolComposesWithoutASecondAllocator.test_the_role_seam_answers_every_worker_and_never_a_singleton) ... ok
+test_the_variant_admits_several_workers_for_one_role (tests.tools.test_stage_execution.TheMultiWorkerPoolComposesWithoutASecondAllocator.test_the_variant_admits_several_workers_for_one_role) ... ok
+test_a_stage_with_no_allocation_is_answered_by_no_worker (tests.tools.test_stage_execution.TheObservationSurfaceIsSeparateAndReadOnly.test_a_stage_with_no_allocation_is_answered_by_no_worker)
+The rule `PooledManagerOperations._reader` keeps, for the same ... ok
+test_it_carries_the_exchange_read_and_no_act (tests.tools.test_stage_execution.TheObservationSurfaceIsSeparateAndReadOnly.test_it_carries_the_exchange_read_and_no_act) ... ok
+test_it_reads_through_the_worker_the_scheduler_allocated (tests.tools.test_stage_execution.TheObservationSurfaceIsSeparateAndReadOnly.test_it_reads_through_the_worker_the_scheduler_allocated) ... ok
+test_the_entry_point_job_manager_loads_composes_and_serves (tests.tools.test_stage_execution.ThePublicFactoryComposesThroughItsOwnEntryPoint.test_the_entry_point_job_manager_loads_composes_and_serves) ... ok
+test_the_entry_point_refuses_an_unauthorized_actor (tests.tools.test_stage_execution.ThePublicFactoryComposesThroughItsOwnEntryPoint.test_the_entry_point_refuses_an_unauthorized_actor) ... ok
+test_a_missing_receipt_participant_refuses_before_serving (tests.tools.test_stage_execution.ThePublicFactoryResolvesEveryRequiredSession.test_a_missing_receipt_participant_refuses_before_serving) ... ok
+test_the_five_sessions_are_minted_and_proved (tests.tools.test_stage_execution.ThePublicFactoryResolvesEveryRequiredSession.test_the_five_sessions_are_minted_and_proved) ... ok
+test_the_integrator_session_is_the_profiles_own_participant (tests.tools.test_stage_execution.ThePublicFactoryResolvesEveryRequiredSession.test_the_integrator_session_is_the_profiles_own_participant) ... ok
+test_the_publisher_is_the_producer_and_not_a_configured_name (tests.tools.test_stage_execution.ThePublicFactoryResolvesEveryRequiredSession.test_the_publisher_is_the_producer_and_not_a_configured_name)
+`Authority.publish` takes the producer's live assignment as its ... ok
+test_a_producer_refusal_stops_before_the_authority_is_asked (tests.tools.test_stage_execution.ThePublicationSeamIsTwoAcceptedOperations.test_a_producer_refusal_stops_before_the_authority_is_asked) ... ok
+test_the_retained_digest_is_what_publication_selects_on (tests.tools.test_stage_execution.ThePublicationSeamIsTwoAcceptedOperations.test_the_retained_digest_is_what_publication_selects_on) ... ok
+test_the_seam_records_what_it_published_and_invents_nothing (tests.tools.test_stage_execution.ThePublicationSeamIsTwoAcceptedOperations.test_the_seam_records_what_it_published_and_invents_nothing) ... ok
+test_an_INACTIVE_review_attachment_composes_no_boundary_at_all (tests.tools.test_stage_execution.TheRECOVEREDReviewLineCarriesItsOwnCapability.test_an_INACTIVE_review_attachment_composes_no_boundary_at_all)
+The negative control: no mount is composed for history, capability or not. ... ok
+test_the_IMPLEMENTATION_branch_still_forwards_its_own (tests.tools.test_stage_execution.TheRECOVEREDReviewLineCarriesItsOwnCapability.test_the_IMPLEMENTATION_branch_still_forwards_its_own)
+The reciprocal, so a later edit cannot fix one branch by breaking the other. ... ok
+test_the_REVIEW_branch_forwards_what_it_was_given (tests.tools.test_stage_execution.TheRECOVEREDReviewLineCarriesItsOwnCapability.test_the_REVIEW_branch_forwards_what_it_was_given) ... ok
+test_a_grant_in_another_scope_does_not_reach_this_work (tests.tools.test_stage_execution.TheReceiptActorsAreAuthorizedAndNotMerelyShaped.test_a_grant_in_another_scope_does_not_reach_this_work)
+The reason the scope is READ from the Work. An actor granted ... ok
+test_a_malformed_actor_refuses_in_this_boundarys_own_vocabulary (tests.tools.test_stage_execution.TheReceiptActorsAreAuthorizedAndNotMerelyShaped.test_a_malformed_actor_refuses_in_this_boundarys_own_vocabulary)
+The second half of the same finding: the mint's raw `Refusal` ... ok
+test_a_worker_participant_resolving_elsewhere_refuses_first (tests.tools.test_stage_execution.TheReceiptActorsAreAuthorizedAndNotMerelyShaped.test_a_worker_participant_resolving_elsewhere_refuses_first)
+The identity check moved to the same side of the line, because it ... ok
+test_an_actor_holding_no_grant_refuses_and_writes_nothing (tests.tools.test_stage_execution.TheReceiptActorsAreAuthorizedAndNotMerelyShaped.test_an_actor_holding_no_grant_refuses_and_writes_nothing) ... ok
+test_every_configured_receipt_actor_really_holds_its_grant (tests.tools.test_stage_execution.TheReceiptActorsAreAuthorizedAndNotMerelyShaped.test_every_configured_receipt_actor_really_holds_its_grant)
+The authorized positive, asked of the Authority the COMPOSITION ... ok
+test_settled_history_cannot_be_moved_back_to_live (tests.tools.test_stage_execution.TheRestartOverAnAdvancedPoolPreservesSettledHistory.test_settled_history_cannot_be_moved_back_to_live)
+WHY the unattached-live branch is defence in depth, measured: the ... ok
+test_the_first_sweep_after_the_advance_observes_exact_history (tests.tools.test_stage_execution.TheRestartOverAnAdvancedPoolPreservesSettledHistory.test_the_first_sweep_after_the_advance_observes_exact_history) ... ok
+test_the_artifact_bytes_reopen_at_their_recorded_locator (tests.tools.test_stage_execution.TheRetainedResultReopensAfterOrdinaryCleanup.test_the_artifact_bytes_reopen_at_their_recorded_locator) ... ok
+test_the_cleanup_that_ran_was_the_ordinary_authorized_one (tests.tools.test_stage_execution.TheRetainedResultReopensAfterOrdinaryCleanup.test_the_cleanup_that_ran_was_the_ordinary_authorized_one)
+`retained` is TERMINAL and is not `complete`, and neither is ... ok
+test_the_persistent_line_and_its_pin_survive_that_cleanup (tests.tools.test_stage_execution.TheRetainedResultReopensAfterOrdinaryCleanup.test_the_persistent_line_and_its_pin_survive_that_cleanup)
+Ordinary attempt cleanup neither deletes the line nor moves its pin. ... ok
+test_the_retained_manifest_reopens_and_names_those_same_bytes (tests.tools.test_stage_execution.TheRetainedResultReopensAfterOrdinaryCleanup.test_the_retained_manifest_reopens_and_names_those_same_bytes) ... ok
+test_the_retained_sibling_was_never_a_writable_worker_mount (tests.tools.test_stage_execution.TheRetainedResultReopensAfterOrdinaryCleanup.test_the_retained_sibling_was_never_a_writable_worker_mount)
+The custody tree is beside the line, not inside it. ... ok
+test_a_composition_with_no_supplied_verdict_refuses (tests.tools.test_stage_execution.TheReviewersVerdictHasNoChannelAndIsNotInvented.test_a_composition_with_no_supplied_verdict_refuses) ... ok
+test_a_configuration_naming_another_pool_generation_refuses (tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers.test_a_configuration_naming_another_pool_generation_refuses) ... ok
+test_a_review_stage_is_admitted_by_the_review_worker (tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers.test_a_review_stage_is_admitted_by_the_review_worker)
+The measured symptom: `_matches` refused every kind but ... ok
+test_each_stage_worker_carries_its_own_composition (tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers.test_each_stage_worker_carries_its_own_composition) ... ok
+test_integration_requires_an_accepted_checkpoint_before_runtime (tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers.test_integration_requires_an_accepted_checkpoint_before_runtime)
+W103068 constructs the runtime port; acceptance remains the gate. ... ok
+test_the_integration_kind_is_driven_by_the_integration_driver (tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers.test_the_integration_kind_is_driven_by_the_integration_driver) ... ok
+test_the_pool_is_activated_from_the_configuration (tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers.test_the_pool_is_activated_from_the_configuration)
+Nobody issues an operator transition to create capacity: the ... ok
+test_a_partially_constructed_deployment_answers_this_as_its_own (tests.tools.test_stage_execution.TheStagedDeploymentOwnsOneIngestionHelper.test_a_partially_constructed_deployment_answers_this_as_its_own)
+`__getattr__` DELEGATES EVERY UNBOUND NAME to the pooled surface, ... ok
+test_a_second_staged_composition_over_one_store_admits_none (tests.tools.test_stage_execution.TheStagedDeploymentOwnsOneIngestionHelper.test_a_second_staged_composition_over_one_store_admits_none)
+DISTINCT COMPOSITIONS, ONE STORE. The second runs normally with no ... ok
+test_an_over_bound_stop_appears_in_the_collected_refusal (tests.tools.test_stage_execution.TheStagedDeploymentOwnsOneIngestionHelper.test_an_over_bound_stop_appears_in_the_collected_refusal) ... ok
+test_the_deployment_admits_one_and_every_worker_shares_it (tests.tools.test_stage_execution.TheStagedDeploymentOwnsOneIngestionHelper.test_the_deployment_admits_one_and_every_worker_shares_it)
+OWNERSHIP IS AT THE DEPLOYMENT, not at the worker. ... ok
+test_the_helper_is_released_through_closers_by_its_own_name (tests.tools.test_stage_execution.TheStagedDeploymentOwnsOneIngestionHelper.test_the_helper_is_released_through_closers_by_its_own_name) ... ok
+test_a_capacity_change_no_longer_re_describes_a_live_target (tests.tools.test_stage_execution.TheTargetDescriptorIsNotCapacity.test_a_capacity_change_no_longer_re_describes_a_live_target)
+THE REGRESSION. This is the exact sequence that refused: activate at ... ok
+test_a_genuinely_different_document_is_still_refused (tests.tools.test_stage_execution.TheTargetDescriptorIsNotCapacity.test_a_genuinely_different_document_is_still_refused)
+THE INVARIANT IS NOT WEAKENED. What changed is that this caller ... ok
+test_a_legacy_generation_bearing_descriptor_is_preserved (tests.tools.test_stage_execution.TheTargetDescriptorIsNotCapacity.test_a_legacy_generation_bearing_descriptor_is_preserved)
+A target activated by the OLD code keeps its document, its fence and ... ok
+test_a_new_target_is_described_without_its_pool_generation (tests.tools.test_stage_execution.TheTargetDescriptorIsNotCapacity.test_a_new_target_is_described_without_its_pool_generation)
+The whole point: nothing in a new descriptor moves with capacity. ... ok
+test_a_refused_activation_leaves_the_target_and_recovers (tests.tools.test_stage_execution.TheTargetDescriptorIsNotCapacity.test_a_refused_activation_leaves_the_target_and_recovers)
+FAILED-START SIDE EFFECTS. After a refusal from another caller, the ... ok
+test_an_exact_repeat_replays_rather_than_colliding (tests.tools.test_stage_execution.TheTargetDescriptorIsNotCapacity.test_an_exact_repeat_replays_rather_than_colliding)
+A restart composes the same deployment again and must be one act. ... ok
+test_every_configured_target_is_adopted_and_no_other (tests.tools.test_stage_execution.TheTargetDescriptorIsNotCapacity.test_every_configured_target_is_adopted_and_no_other)
+The key is the configured id, and a deployment adopts exactly the ... ok
+test_a_capacity_change_composes_over_retained_history (tests.tools.test_stage_execution.TheTargetSurvivesACapacityChangeOverRetainedHistory.test_a_capacity_change_composes_over_retained_history)
+THE REGRESSION, at the boundary that refused it. The same target, ... ok
+test_a_startup_that_fails_after_adoption_leaves_the_target_alone (tests.tools.test_stage_execution.TheTargetSurvivesACapacityChangeOverRetainedHistory.test_a_startup_that_fails_after_adoption_leaves_the_target_alone)
+AN INJECTED FAILURE PAST THE ADOPTION POINT, and the retry after it. ... ok
+test_a_foreign_group_is_a_failure_not_a_repair (tests.tools.test_stage_execution.TheTraversedTargetPostureIsExplicit.test_a_foreign_group_is_a_failure_not_a_repair) ... ok
+test_a_restrictive_umask_leaves_the_group_out_and_the_helper_puts_it_back (tests.tools.test_stage_execution.TheTraversedTargetPostureIsExplicit.test_a_restrictive_umask_leaves_the_group_out_and_the_helper_puts_it_back) ... ok
+test_only_the_two_group_bits_change_and_the_call_is_idempotent (tests.tools.test_stage_execution.TheTraversedTargetPostureIsExplicit.test_only_the_two_group_bits_change_and_the_call_is_idempotent) ... ok
+test_the_product_proof_accepts_what_the_helper_established (tests.tools.test_stage_execution.TheTraversedTargetPostureIsExplicit.test_the_product_proof_accepts_what_the_helper_established)
+The same predicate `oci_delivery.prove_target_posture` applies, ... ok
+test_no_successful_claim_and_no_review_runtime_follow_it (tests.tools.test_stage_execution.TheWrongRouteClaimDefersInsteadOfStoppingTheSweep.test_no_successful_claim_and_no_review_runtime_follow_it)
+A contained refusal is not a quiet success. ... ok
+test_the_wrong_route_claim_retires_and_the_sweep_finishes (tests.tools.test_stage_execution.TheWrongRouteClaimDefersInsteadOfStoppingTheSweep.test_the_wrong_route_claim_retires_and_the_sweep_finishes) ... ok
+test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET)
+W131409'S WHOLE POINT, driven through the ordinary configured tick. ... ok
+test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT)
+W103068's P1: the production composition supplies its own port. ... ok
+test_a_coherent_stage_of_the_same_job_still_reaches_its_receipt (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_coherent_stage_of_the_same_job_still_reaches_its_receipt)
+The positive half of the control above, so an absent receipt is ... ok
+test_a_completed_integration_returns_the_integrator_to_the_next_job (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_completed_integration_returns_the_integrator_to_the_next_job)
+W131187, driven end to end: the capacity comes back. ... ok
+test_a_configured_consumer_composes_and_resolves_its_judges (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_configured_consumer_composes_and_resolves_its_judges)
+W103068: the consumer's configuration survives a REAL composition. ... ok
+test_a_consumer_for_an_unbound_job_is_refused (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_consumer_for_an_unbound_job_is_refused)
+A derived result belongs to one Job's line and target. ... ok
+test_a_correction_reopens_only_its_own_jobs_line (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_correction_reopens_only_its_own_jobs_line)
+A CHANGES-REQUESTED VERDICT IS A JOB'S OWN FACT. ... ok
+test_a_declared_analyst_composes_and_exposes_the_recovery_seam (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_declared_analyst_composes_and_exposes_the_recovery_seam)
+W385623: THE SEAM THE JOB MANAGER'S TICK ACTUALLY REACHES. ... ok
+test_a_deployment_that_configures_no_instructions_is_refused (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_deployment_that_configures_no_instructions_is_refused)
+And an unconfigured one says which member is missing rather than ... ok
+test_a_deployment_that_declares_no_analyst_is_unchanged (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_deployment_that_declares_no_analyst_is_unchanged)
+Absent is an answer, and every accepted document predates this. ... ok
+test_a_deployment_without_a_consumer_is_unchanged (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_deployment_without_a_consumer_is_unchanged)
+Absent is an answer, and every accepted document predates this. ... ok
+test_a_deployment_without_an_analyst_exposes_no_seam (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_deployment_without_an_analyst_exposes_no_seam) ... ok
+test_a_job_never_reserves_another_jobs_review_worker (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_job_never_reserves_another_jobs_review_worker)
+W130216 review [P1], exactly: job-b/review on the second Work must ... ok
+test_a_job_with_no_configured_consumer_selects_none (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_job_with_no_configured_consumer_selects_none)
+A Job whose derived branch has no consumer has no way to obtain ... ok
+test_a_judgment_execution_for_another_participant_is_refused (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_judgment_execution_for_another_participant_is_refused)
+The execution and the judge are ONE fact: an execution configured for ... ok
+test_a_judgment_identity_that_collides_with_a_stage_worker_refuses (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_judgment_identity_that_collides_with_a_stage_worker_refuses)
+A judgment execution is its own identity and not a stage worker's -- ... ok
+test_a_judgment_work_this_authority_does_not_project_is_refused (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_judgment_work_this_authority_does_not_project_is_refused)
+A judgment acquires its authorized assignment through the Work its ... ok
+test_a_missing_declared_fact_refuses_before_anything_is_opened (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_missing_declared_fact_refuses_before_anything_is_opened) ... ok
+test_a_recorded_allocation_that_cannot_serve_the_job_is_not_admitted (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_recorded_allocation_that_cannot_serve_the_job_is_not_admitted)
+`_allocation` consults the pre-reserve callback ONLY when it creates ... ok
+test_a_review_work_that_differs_from_the_implementation_is_refused (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_review_work_that_differs_from_the_implementation_is_refused)
+One development line carries one Work, and `attach_review` binds the ... ok
+test_a_role_worker_on_another_work_reaches_no_allocation (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_role_worker_on_another_work_reaches_no_allocation)
+THE MEASURED BOUNDARY. With job-b's review worker left on Work A, ... ok
+test_a_source_worker_this_deployment_does_not_configure_is_refused (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_source_worker_this_deployment_does_not_configure_is_refused) ... ok
+test_a_stage_with_no_allocation_is_refused_rather_than_guessed (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_stage_with_no_allocation_is_refused_rather_than_guessed) ... ok
+test_a_supplied_port_takes_precedence_over_construction (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_supplied_port_takes_precedence_over_construction)
+AN OPERATOR'S INJECTED CAPABILITY STAYS THE ONE IN USE, measured by ... ok
+test_a_workspace_aliasing_the_target_fetches_and_writes_nothing (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_workspace_aliasing_the_target_fetches_and_writes_nothing)
+W133129: THE BRANCH-LEVEL no-fetch/no-write CONTROL. ... ok
+test_a_workspace_that_is_the_target_is_the_same_repository (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_workspace_that_is_the_target_is_the_same_repository)
+The alias no-write control for the pre-write isolation guard: the ... ok
+test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool)
+THE TERMINAL HALF, driven inside a deployment serving two Jobs. ... ok
+test_an_analysis_identity_that_collides_with_a_stage_worker_refuses (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_an_analysis_identity_that_collides_with_a_stage_worker_refuses) ... ok
+test_an_analysis_report_that_is_not_retained_is_refused (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_an_analysis_report_that_is_not_retained_is_refused) ... ok
+test_an_analyst_that_launches_another_role_is_refused (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_an_analyst_that_launches_another_role_is_refused) ... ok
+test_an_analyst_that_serves_a_stage_is_refused (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_an_analyst_that_serves_a_stage_is_refused)
+An analysis is not attributed to the participant that produced the ... ok
+test_an_incompatible_stage_does_not_consume_capacity_a_job_needs (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_an_incompatible_stage_does_not_consume_capacity_a_job_needs)
+FAULT CAPACITY, AT THE WORKER THE FAULT ACTUALLY THREATENED. ... ok
+test_an_unbound_job_is_refused_before_any_line_is_made (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_an_unbound_job_is_refused_before_any_line_is_made) ... ok
+test_both_jobs_code_at_once_on_their_own_workers_and_lines (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_both_jobs_code_at_once_on_their_own_workers_and_lines)
+THE FIRST THING A TWO-JOB DEPLOYMENT OWES, and every operand of it ... ok
+test_derived_judges_reconstruct_after_dispatch_without_second_launch (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_derived_judges_reconstruct_after_dispatch_without_second_launch) ... ok
+test_each_job_binds_its_own_source_base_works_and_target (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_each_job_binds_its_own_source_base_works_and_target) ... ok
+test_each_job_reaches_its_own_worker_for_every_role (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_each_job_reaches_its_own_worker_for_every_role)
+The whole of this cut in one assertion per role. Job B's stages are ... ok
+test_each_jobs_integration_binds_its_own_producer_task_and_port (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_each_jobs_integration_binds_its_own_producer_task_and_port)
+NO GLOBAL FALLBACK LEFT IN THE INTEGRATION OPERANDS. ... ok
+test_foreign_frozen_candidate_cannot_authorize_derived_receipts (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_foreign_frozen_candidate_cannot_authorize_derived_receipts) ... ok
+test_instructions_that_do_not_match_the_pinned_digest_are_refused (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_instructions_that_do_not_match_the_pinned_digest_are_refused)
+The pin is what makes reading a configured file safe: bytes that ... ok
+test_one_integrator_serves_two_jobs_serially_and_says_so (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_one_integrator_serves_two_jobs_serially_and_says_so)
+AND THE CAPACITY IS STILL ONE, which is the honest half of the ... ok
+test_one_job_reviews_while_the_other_is_still_coding (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_one_job_reviews_while_the_other_is_still_coding)
+THE OVERLAP, and it is the whole reason a pool exists. ... ok
+test_one_line_asked_of_a_two_job_deployment_names_its_job (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_one_line_asked_of_a_two_job_deployment_names_its_job)
+`line()` is the one-Job spelling and says so: a line belongs to a ... ok
+test_policy_drift_cannot_reuse_or_redispatch_derived_judgments (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_policy_drift_cannot_reuse_or_redispatch_derived_judgments) ... ok
+test_readonly_integration_observation_keeps_the_bound_job (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_readonly_integration_observation_keeps_the_bound_job)
+The public observer reaches the real two-producer completion account. ... ok
+test_readonly_reconciled_completion_without_runtime_reaches_outer_observer (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_readonly_reconciled_completion_without_runtime_reaches_outer_observer)
+A model-free import reaches status through the public read-only owner. ... ok
+test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs) ... 
+W103068 genuine consumer evidence {"derived_proposal": "proposal-result-607e6ae6d6648f31c8652917408d9ef3f368396c805b675877b1ad3c736df1dc", "derived_result": "result-607e6ae6d6648f31c8652917408d9ef3f368396c805b675877b1ad3c736df1dc", "jobs": {"job-a": {"implementation": "completed", "integration": "completed", "review": "completed"}, "job-b": {"implementation": "completed", "integration": "completed", "review": "completed"}}, "judgments": [{"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.verifier", "principal": "principal:baton.verifier", "runtime_attempt_id": "judgment-722501c02ad06c7aba11706862425a2bd56a4728e94e151feffc478a26e94f6a", "work_id": "0000000a-W3"}, "attempt_id": "judgment-722501c02ad06c7aba11706862425a2bd56a4728e94e151feffc478a26e94f6a", "receipt_digest": "sha256:c280c33b34d07f2dad95f140a2cbdfecb1c9c15b0da3e34b8a7d14119a04a262", "result_digest": "sha256:7d3546ffd60b48b688c059437608fb1361596038d9531e5a9ea9b12229533ef5", "result_id": "result-judgment-722501c02ad06c7aba11706862425a2bd56a4728e94e151feffc478a26e94f6a", "subject": {"candidate": "a2e5cce4537273701b574dba449932bbb54709b3", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "8249fa42eb62e76661f623c2d95580e4473d7e10", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "a2e5cce4537273701b574dba449932bbb54709b3", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "abf9aa1d4ad7a070e61d26ede034046dc6f43183", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-607e6ae6d6648f31c8652917408d9ef3f368396c805b675877b1ad3c736df1dc", "derived_result_digest": "sha256:45f50ce3d566a12c7e1b0b9ccee404591e71bb2711be4f260d252047acf110ce", "derived_result_id": "derived-result-607e6ae6d6648f31c8652917408d9ef3f368396c805b675877b1ad3c736df1dc", "job_id": "job-b", "kind": "verification", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-607e6ae6d6648f31c8652917408d9ef3f368396c805b675877b1ad3c736df1dc", "source_base": "8249fa42eb62e76661f623c2d95580e4473d7e10", "source_candidate": "abf9aa1d4ad7a070e61d26ede034046dc6f43183", "source_proposal_id": "integration-driver.proposal:61c13e9c7709413784e0210de1ccc14491a1cebad5f412c75c9693fc4e0ec72e", "target_revision": "0addcaab6b7a597e8c4f62d4b5802bc4b340d9da", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}, {"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.approver-review", "principal": "principal:baton.approver-review", "runtime_attempt_id": "judgment-b3ccc9a2a144c46cd25bbb6d16c79c31f41b3e790a3e69034fae880ef705461b", "work_id": "0000000a-W4"}, "attempt_id": "judgment-b3ccc9a2a144c46cd25bbb6d16c79c31f41b3e790a3e69034fae880ef705461b", "receipt_digest": "sha256:93be205b89308dcfffc0a284507601b361d1d2cd9c074ce1760591d5c440ffb4", "result_digest": "sha256:572754b3a25fe149e1ef5005cc4cf123a81c8d77ae2da5194b30994cdd8fc95c", "result_id": "result-judgment-b3ccc9a2a144c46cd25bbb6d16c79c31f41b3e790a3e69034fae880ef705461b", "subject": {"candidate": "a2e5cce4537273701b574dba449932bbb54709b3", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "8249fa42eb62e76661f623c2d95580e4473d7e10", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "a2e5cce4537273701b574dba449932bbb54709b3", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "abf9aa1d4ad7a070e61d26ede034046dc6f43183", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-607e6ae6d6648f31c8652917408d9ef3f368396c805b675877b1ad3c736df1dc", "derived_result_digest": "sha256:45f50ce3d566a12c7e1b0b9ccee404591e71bb2711be4f260d252047acf110ce", "derived_result_id": "derived-result-607e6ae6d6648f31c8652917408d9ef3f368396c805b675877b1ad3c736df1dc", "job_id": "job-b", "kind": "review", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-607e6ae6d6648f31c8652917408d9ef3f368396c805b675877b1ad3c736df1dc", "source_base": "8249fa42eb62e76661f623c2d95580e4473d7e10", "source_candidate": "abf9aa1d4ad7a070e61d26ede034046dc6f43183", "source_proposal_id": "integration-driver.proposal:61c13e9c7709413784e0210de1ccc14491a1cebad5f412c75c9693fc4e0ec72e", "target_revision": "0addcaab6b7a597e8c4f62d4b5802bc4b340d9da", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}, {"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.approver", "principal": "principal:baton.approver", "runtime_attempt_id": "judgment-9ab52cd9db677a500e3ad17f85a24e804d772ac17d8283273898994066126de7", "work_id": "0000000a-W5"}, "attempt_id": "judgment-9ab52cd9db677a500e3ad17f85a24e804d772ac17d8283273898994066126de7", "receipt_digest": "sha256:ef3a0f558a7e8cc213c0d7181cae39df9bb8f24bf2fb438361bf25e934f9e68d", "result_digest": "sha256:4178efaee6e41f58ab49ac6c197374da4077e05aa0a235b438fb63133fcf6306", "result_id": "result-judgment-9ab52cd9db677a500e3ad17f85a24e804d772ac17d8283273898994066126de7", "subject": {"candidate": "a2e5cce4537273701b574dba449932bbb54709b3", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "8249fa42eb62e76661f623c2d95580e4473d7e10", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "a2e5cce4537273701b574dba449932bbb54709b3", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "abf9aa1d4ad7a070e61d26ede034046dc6f43183", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-607e6ae6d6648f31c8652917408d9ef3f368396c805b675877b1ad3c736df1dc", "derived_result_digest": "sha256:45f50ce3d566a12c7e1b0b9ccee404591e71bb2711be4f260d252047acf110ce", "derived_result_id": "derived-result-607e6ae6d6648f31c8652917408d9ef3f368396c805b675877b1ad3c736df1dc", "job_id": "job-b", "kind": "approval", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-607e6ae6d6648f31c8652917408d9ef3f368396c805b675877b1ad3c736df1dc", "source_base": "8249fa42eb62e76661f623c2d95580e4473d7e10", "source_candidate": "abf9aa1d4ad7a070e61d26ede034046dc6f43183", "source_proposal_id": "integration-driver.proposal:61c13e9c7709413784e0210de1ccc14491a1cebad5f412c75c9693fc4e0ec72e", "target_revision": "0addcaab6b7a597e8c4f62d4b5802bc4b340d9da", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}], "receipts": [{"actor": "baton.verifier", "candidate_digest": "a2e5cce4537273701b574dba449932bbb54709b3", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.verifier", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.verifier", "role": "verify"}, "disposition": "passed", "kind": "verification", "policy_generation": null, "proposal_id": "proposal-result-607e6ae6d6648f31c8652917408d9ef3f368396c805b675877b1ad3c736df1dc", "receipt_id": "judgment-0741f494a0597ee820fbee3ea1578d0ce5a4ab30cb8ac5a96cf377cb353501cb", "recorded_at": "2026-11-23T21:20:57.097Z", "target": "0addcaab6b7a597e8c4f62d4b5802bc4b340d9da"}, {"actor": "baton.approver-review", "candidate_digest": "a2e5cce4537273701b574dba449932bbb54709b3", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.approver-review", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.approver-review", "role": "review"}, "disposition": "accepted", "kind": "review", "policy_generation": null, "proposal_id": "proposal-result-607e6ae6d6648f31c8652917408d9ef3f368396c805b675877b1ad3c736df1dc", "receipt_id": "judgment-f09e0a37971512728436ec3ee71ea02082025118ae9fe3ba2605b62bd1457e5d", "recorded_at": "2026-11-23T21:20:57.098Z", "target": "0addcaab6b7a597e8c4f62d4b5802bc4b340d9da"}, {"actor": "baton.approver", "candidate_digest": "a2e5cce4537273701b574dba449932bbb54709b3", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.approver", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.approver", "role": "approve"}, "disposition": "approved", "kind": "approval", "policy_generation": 15, "proposal_id": "proposal-result-607e6ae6d6648f31c8652917408d9ef3f368396c805b675877b1ad3c736df1dc", "receipt_id": "judgment-fdf4e254a686311f076afe889e72156667c0cbeadd26b4bd0727a7b658b579ff", "recorded_at": "2026-11-23T21:20:57.099Z", "target": "0addcaab6b7a597e8c4f62d4b5802bc4b340d9da"}, {"actor": "baton.integrator", "candidate_digest": "a2e5cce4537273701b574dba449932bbb54709b3", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.integrator", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.integrator", "role": "integrate"}, "disposition": "integrated", "kind": "integration", "policy_generation": null, "proposal_id": "proposal-result-607e6ae6d6648f31c8652917408d9ef3f368396c805b675877b1ad3c736df1dc", "receipt_id": "integration-driver.integration-receipt:26a8550f8df9ae4d96638ad4d2db39804f809304420ea6caa4807bc9d2f5a109", "recorded_at": "2026-11-23T21:20:57.183Z", "target": "0addcaab6b7a597e8c4f62d4b5802bc4b340d9da"}], "target": "a2e5cce4537273701b574dba449932bbb54709b3"}ok
+test_rejected_derived_judgment_cannot_authorize_import (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_rejected_derived_judgment_cannot_authorize_import) ... ok
+test_the_configured_judgment_executions_are_held_per_job (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_configured_judgment_executions_are_held_per_job)
+W103068: THE CONSUMER'S EXECUTION CONFIGURATION, proved and selected. ... ok
+test_the_constructed_port_is_the_same_one_through_completion (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_constructed_port_is_the_same_one_through_completion)
+W103068: ONE CAPACITY FOR ONE JOB'S INTEGRATION, end to end. ... ok
+test_the_declared_analysis_worker_is_held_and_its_declaration_made (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_declared_analysis_worker_is_held_and_its_declaration_made)
+W385623: the DEPLOYMENT PRODUCER, proved before anything is opened. ... ok
+test_the_direct_integration_finalizes_the_dedicated_target (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_direct_integration_finalizes_the_dedicated_target)
+W133129, owner return137905: the transition the witness FOUND ... ok
+test_the_first_jobs_integration_reaches_the_configured_integrator (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_first_jobs_integration_reaches_the_configured_integrator)
+The control the second Job's case is read against: the one-Job ... ok
+test_the_judgment_subject_is_the_derived_candidate (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_judgment_subject_is_the_derived_candidate)
+W103068: WHAT A JUDGE IS ASKED ABOUT, read from the coordinator's own ... ok
+test_the_one_job_document_carries_no_bindings (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_one_job_document_carries_no_bindings)
+Two places for one fact is how they drift: `/1` says these things ... ok
+test_the_one_job_document_still_derives_its_own_binding (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_one_job_document_still_derives_its_own_binding)
+`/1` is not asked for a new member; its binding is derived from what ... ok
+test_the_same_job_reaches_the_same_line_every_time (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_same_job_reaches_the_same_line_every_time)
+`create_line` is create-or-recover by that derived identity, so a ... ok
+test_the_second_job_reaches_its_own_reviewer_and_verdict (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_second_job_reaches_its_own_reviewer_and_verdict)
+THE OTHER HALF OF THE OVERLAP, driven rather than assumed. ... ok
+test_the_second_jobs_integration_reaches_the_same_integrator (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_second_jobs_integration_reaches_the_same_integrator)
+W130216 review [P1], AND THE ACCEPTED POSITIVE THIS CHILD OWED. ... ok
+test_the_second_jobs_published_proposal_survives_the_advance (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_second_jobs_published_proposal_survives_the_advance)
+W133129: THE FIRST HALF OF THE BOUNDARY THIS TRAVERSAL FOUND. ... ok
+test_the_worker_for_a_stage_is_the_scheduler_s_allocation (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_worker_for_a_stage_is_the_scheduler_s_allocation)
+Actual allocation evidence selects a worker; list order never ... ok
+test_two_accepted_jobs_share_one_integrator_one_at_a_time (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_two_accepted_jobs_share_one_integrator_one_at_a_time)
+SAME-TARGET SERIALIZATION, measured where the owners decide it. ... ok
+test_two_bindings_for_one_job_are_refused (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_two_bindings_for_one_job_are_refused) ... ok
+test_two_jobs_materialize_two_distinct_persistent_lines (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_two_jobs_materialize_two_distinct_persistent_lines)
+THE LIMITATION, GONE. `create_line` derives its identity from ... ok
+test_two_of_three_judgments_are_refused (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_two_of_three_judgments_are_refused)
+Two judgments out of three is not an authorization. ... ok
+test_unusable_judge_report_cannot_authorize_derived_receipts (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_unusable_judge_report_cannot_authorize_derived_receipts) ... ok
+test_correcting_the_route_cannot_revive_the_same_offer (tests.tools.test_stage_execution.TwoIndependentlyBoundWorkersShareOneSweep.test_correcting_the_route_cannot_revive_the_same_offer)
+THE FIXED CLAIM IDENTITY, not a second one. ... ok
+test_one_claim_refuses_while_the_other_performs_in_one_sweep (tests.tools.test_stage_execution.TwoIndependentlyBoundWorkersShareOneSweep.test_one_claim_refuses_while_the_other_performs_in_one_sweep)
+BOTH IN ONE TICK, which is the whole statement. ... ok
+test_the_other_job_advances_past_the_one_that_refuses (tests.tools.test_stage_execution.TwoIndependentlyBoundWorkersShareOneSweep.test_the_other_job_advances_past_the_one_that_refuses)
+Performing an act is not the same as getting somewhere. ... ok
+test_the_refused_claim_records_no_success_and_releases_capacity (tests.tools.test_stage_execution.TwoIndependentlyBoundWorkersShareOneSweep.test_the_refused_claim_records_no_success_and_releases_capacity)
+A positive refusal retires its offer and releases logical capacity. ... ok
+test_the_same_reader_sees_the_claim_the_other_job_did_record (tests.tools.test_stage_execution.TwoIndependentlyBoundWorkersShareOneSweep.test_the_same_reader_sees_the_claim_the_other_job_did_record)
+THE POSITIVE CONTROL for the reader the case above trusts. ... ok
+test_without_the_containment_the_other_job_is_never_reached (tests.tools.test_stage_execution.TwoIndependentlyBoundWorkersShareOneSweep.test_without_the_containment_the_other_job_is_never_reached)
+The counterfactual, driven rather than described. ... ok
+test_a_running_or_foreign_selection_recovers_nothing (tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_a_running_or_foreign_selection_recovers_nothing)
+The accepted owners' own refusals, reached through this fixture. ... ok
+test_an_unrecovered_declaration_still_reaches_no_assignment (tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_an_unrecovered_declaration_still_reaches_no_assignment)
+THE NEGATIVE THAT WAS THIS CASE'S WHOLE POINT, kept: without the ... ok
+test_the_abandoned_scratch_reaches_no_proposal (tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_the_abandoned_scratch_reaches_no_proposal)
+WHAT THE ABANDONED WORKER WROTE IS LEFT UNTRUSTED AND UNUSED. ... ok
+test_the_committed_effects_the_declaration_crossed_are_all_intact (tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_the_committed_effects_the_declaration_crossed_are_all_intact)
+REPEATED COMPUTATION IS PERMITTED; COMMITTED EFFECT IS NOT REDONE. ... ok
+test_the_declaration_fences_the_generation_and_destroys_the_runtime (tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_the_declaration_fences_the_generation_and_destroys_the_runtime)
+STOP AND FENCE, read back off the owners rather than the answer. ... ok
+test_the_discarded_scratch_is_gone_and_the_checkpoint_bytes_are_back (tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_the_discarded_scratch_is_gone_and_the_checkpoint_bytes_are_back)
+THE UNCOMMITTED WORK IS LOST AND THE RETAINED CHECKPOINT IS NOT. ... ok
+test_the_fresh_assignment_writes_only_after_the_exclusion (tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_the_fresh_assignment_writes_only_after_the_exclusion)
+NO NEW WRITER BEFORE THE EXCLUSION, in the order the acceptance ... ok
+test_the_recovered_correction_reaches_a_fresh_assignment (tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_the_recovered_correction_reaches_a_fresh_assignment)
+THE TRANSITION `review-2026-09-09T14-55-17Z.md` MEASURED AS ... ok
+test_the_recovery_replays_and_committed_effects_are_unchanged (tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_the_recovery_replays_and_committed_effects_are_unchanged)
+REPEATED COMPUTATION IS PERMITTED; COMMITTED EFFECT IS NOT REDONE. ... ok
+
+----------------------------------------------------------------------
+Ran 517 tests in 357.602s
+
+OK
+

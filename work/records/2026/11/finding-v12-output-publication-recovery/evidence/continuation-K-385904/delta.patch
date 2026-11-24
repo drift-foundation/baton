@@ -1,0 +1,3605 @@
+diff --git a/v12/python/DEPLOYMENT.md b/v12/python/DEPLOYMENT.md
+index aaad4e57..fe86da56 100644
+--- a/v12/python/DEPLOYMENT.md
++++ b/v12/python/DEPLOYMENT.md
+@@ -1224,6 +1224,44 @@ exec-form Python entrypoint. Select a base digest through the deployment's own
+ qualification process. There is no certified managed-flow image digest supplied
+ here: configuration selects behavior and does not prove an image is provisioned.
+ 
++### Deterministic publication worker (REC-9)
++
++An approved retained-output publication recovery is served by one dedicated
++worker in the publication lane. It invokes no provider and is delivered no
++credential. Install it once per instance:
++
++1. Compose its worker document with
++   `pool compose-worker --role publication --deployment <deployment.json>
++   --worker-id <id> --participant <dedicated participant> --image-reference
++   <image> --image-digest <sha256:…> --workspace-group <gid> --task-document
++   <absolute path> --record <dossier path> --into <new file>`. The provider
++   operands (`--cli-build`, `--network`, `--credential-sources`,
++   `--credential`, the verifier-layout selection) are refused for this role.
++2. Name that document in the instance's install document and run the ordinary
++   one-operand bootstrap repeat. The repeat prepares the worker's private
++   staging root (`<instance>/publication-staging`, mode 0700) with its other
++   roots and registers the participant on the implementation route, where a
++   recovery makes its fresh claim on the failed Job's Work. Naming the worker
++   in the install document matters: a recovery's Job binding is prepared from
++   that document, and a worker admitted only with `pool add-worker` is not
++   carried across that preparation.
++
++A deployment configures at most one publication worker, under a participant no
++other worker uses. The installed worker names the Work it was installed
++against; each recovery is served under its own Work and the original Job's
++task, derived per recovery and never written back to the configuration.
++
++`v12/worker/Dockerfile.publication` is the recipe: the reference image's pinned
++Python base, the ordinary worker, `publication_entry.py` and the frozen control
++schema, UID/GID 65532, exec-form entry, no provider runtime. No image digest is
++supplied or certified here; building and selecting one is a separate
++deployment act.
++
++A recovery's review stage is held to the same Job input identity as its
++publication stage, so it is admitted only where the Work's configured reviewer
++is servable under that identity; otherwise the admission stops, reserved and
++incomplete, naming the review stage.
++
+ ### From preparation to an honest final result
+ 
+ The scheduler reserves one integration actor. The composition registers one root
+diff --git a/v12/python/src/baton_v12/job_manager/publication_recovery.py b/v12/python/src/baton_v12/job_manager/publication_recovery.py
+index a9c53328..8fa35e34 100644
+--- a/v12/python/src/baton_v12/job_manager/publication_recovery.py
++++ b/v12/python/src/baton_v12/job_manager/publication_recovery.py
+@@ -1621,6 +1621,20 @@ def prior_job_in(connection, job_id):
+     return None
+ 
+ 
++def prior_job_of(store, job_id):
++    """`prior_job_in`, for a caller that holds the store. A read.
++
++    WHAT THE SERVING COMPOSITION ASKS (review 2026-11-23T18-55-03Z R3). A
++    recovery Job has no task of its own: the task its stages are served under
++    is the ORIGINAL Job's, and `single_worker.job_task_reader` reaches it
++    through this lineage exactly as `creation.job_task_of` reaches a retried
++    Job's through `fresh_attempts`. The record is the reservation or the
++    committed admission, so the answer exists from the moment the recovery
++    identity is spoken for and never moves afterwards.
++    """
++    return prior_job_in(store._connection, job_id)
++
++
+ # -- 8. the derived identities -----------------------------------------------
+ 
+ def recovery_job_id(decision_id):
+@@ -2144,7 +2158,7 @@ def admission_readiness(record):
+ # cannot end an assignment it cannot name exactly, cannot end one belonging to
+ # another handler, and cannot reach the Authority any other way.
+ PUBLICATION_BINDING = ("instance", "binding_of", "bind", "serving",
+-                       "publication_worker")
++                       "publication_worker", "publication_input")
+ PRIOR_ASSIGNMENT = ("instance", "assignment_of", "end")
+ WORKER_MEMBERS = ("worker_id", "participant", "lane", "profile_name",
+                   "profile_digest", "eligible_kinds", "input_digest")
+@@ -2681,10 +2695,17 @@ def _bound(binding, jobs, *, job_id, prior_job_id, work_id, document, worker,
+                 f"stage that cannot be selected is a Job that would sit "
+                 f"queued forever", reserved)
+         serving[stage["kind"]] = sorted(workers)
+-    if worker["participant"] not in serving[PUBLICATION_STAGE]:
++    # BY WORKER IDENTITY, which is what the selector answers (review
++    # 2026-11-23T18-55-03Z R1). `DeploymentBinding.serving` returns the
++    # configured `worker_id`s `stage_execution.servable_workers` found
++    # compatible; this compared the installed worker's PARTICIPANT against
++    # them, so the shipped binding could never satisfy it and only a stand-in
++    # port that answered participants did. The pool tells its workers apart
++    # by `worker_id`, and that is the identity compared here.
++    if worker["worker_id"] not in serving[PUBLICATION_STAGE]:
+         raise _refusing(
+             f"this deployment's installed publication worker "
+-            f"{name_value(worker['participant'])} is not among the workers "
++            f"{name_value(worker['worker_id'])} is not among the workers "
+             f"that can serve the publication stage "
+             f"({sample_of(serving[PUBLICATION_STAGE])}); the stage was "
+             f"composed under that worker's own profile, so a deployment that "
+@@ -2920,10 +2941,27 @@ def admit_publication(jobs, control, *, decision_id, exclusion, authorization,
+                                  episode=decision["episode"])
+     prior = _prior(jobs, decision)
+     declaration = recovery_input(decision, selection)
++    # THE JOB'S INPUT IDENTITY IS THIS RECOVERY'S OWN (review
++    # 2026-11-23T18-55-03Z R3), derived by the deployment from its installed
++    # publication worker's declarations bound to THIS recovery's Work and the
++    # ORIGINAL Job's task -- the document that worker will actually be
++    # delivered for this Job. The first cut submitted every recovery under
++    # the installed worker's own identity, which names the one Work that
++    # worker was installed against: a recovery on any other Work was a Job
++    # the selector refused, so the reusable capacity served exactly one Work.
++    #
++    # THE DERIVATION IS THE DEPLOYMENT'S AND IS ASKED, NOT REPEATED. The same
++    # rule answers `serving` below and composes the delivery when the stage
++    # is served, so the three cannot disagree; this module compares nothing
++    # about a manifest and holds the answer only as the identity it submits.
++    submitted = boundaries.text(
++        binding.publication_input(
++            job_id, work_id=decision["work_id"],
++            task=creation.job_task_of(jobs, decision["job_id"])),
++        "a publication recovery's input identity")
+     document = _composed(prior, decision, job_id=job_id,
+                          submission_id=operands["submission_id"],
+-                         worker=worker,
+-                         input_digest=worker["input_digest"])
++                         worker=worker, input_digest=submitted)
+     bounds = admitted_bounds(resolved_profile(decision["profile"]),
+                              admitted_at=recorded_at,
+                              stages=decision["stages"])
+@@ -2945,7 +2983,7 @@ def admit_publication(jobs, control, *, decision_id, exclusion, authorization,
+                       "principal": selection["selector"]["principal"]},
+         "output": dict(selection["output"]),
+         "input_declaration": declaration,
+-        "input_digest": worker["input_digest"],
++        "input_digest": submitted,
+         "recovery_input_digest": recovery_input_digest(declaration),
+         "worker": dict(worker), "bounds": bounds,
+         "intended_at": recorded_at}
+diff --git a/v12/python/tests/job_manager/test_publication_recovery_execution.py b/v12/python/tests/job_manager/test_publication_recovery_execution.py
+index aebf7ab5..a6bb446b 100644
+--- a/v12/python/tests/job_manager/test_publication_recovery_execution.py
++++ b/v12/python/tests/job_manager/test_publication_recovery_execution.py
+@@ -89,9 +89,9 @@ import os
+ 
+ import sys
+ 
+-from baton_v12.contracts import digest, digest_of_bytes
++from baton_v12.contracts import ContractRefusal, digest, digest_of_bytes
+ from baton_v12.contracts.manifest import job_input_identity
+-from baton_v12.job_manager import (cancellation, documents, episodes,
++from baton_v12.job_manager import (cancellation, creation, documents, episodes,
+                                    job_control, manager, projection,
+                                    publication_execution,
+                                    publication_recovery, role_contract,
+@@ -102,7 +102,7 @@ from baton_v12.worker_manager.sealing import declared_outputs
+ 
+ from tests.job_manager import test_publication_recovery_admission as checkpoint1
+ from tests.job_manager.fixtures import NOW, WORK_A
+-from tools import publication_worker, single_worker
++from tools import publication_worker, single_worker, stage_execution
+ 
+ # WHERE THE CONTAINER WORKER'S OWN MODULES LIVE. They are not importable from
+ # the manager distribution, exactly as in an image; a case that runs the real
+@@ -186,12 +186,28 @@ class PublishingBinding(checkpoint1.FakeBinding):
+         self.asked.append("publication_worker")
+         return None if self.worker is None else dict(self.worker)
+ 
++    def publication_input(self, job_id, *, work_id, task=None):
++        """THE DEPLOYMENT'S OWN DERIVATION, called and not stood in for.
++
++        `stage_execution.publication_input_identity` over the publication
++        worker document this case installs -- the function the shipped
++        `DeploymentBinding` calls -- so what a recovery is submitted under
++        here is what the real selector and the real delivery derive.
++        """
++        self.asked.append(("publication_input", job_id, work_id))
++        return None if self.derive is None else self.derive(
++            job_id, work_id, task)
++
++    derive = None
++
+     def serving(self, job_id, *, stage, job, task=None):
+         self.asked.append((job_id, dict(stage)))
+         if not self.serves:
+             return []
++        # WORKER IDENTITIES, which is what the shipped
++        # `DeploymentBinding.serving` answers.
+         if stage["kind"] == documents.PUBLICATION_STAGE:
+-            return [PUBLISHER]
++            return [PUBLISHER_WORKER_ID]
+         return [REVIEWER]
+ 
+ 
+@@ -261,11 +277,39 @@ class PublicationExecutionCase(checkpoint1.PublicationCase):
+                 input_digest=job_input_identity(
+                     self.publication_declaration()))
+             checkpoint1.CURRENT["ports"]["publishing"] = binding
++        if binding.derive is None:
++            binding.derive = self.derived_input
+         held["binding"] = binding
+         held["ending"] = self.ending_port()
+         held.update(changed)
+         return held
+ 
++    def installed_pool(self):
++        """The one-worker pool document this case's publisher is installed
++        in, in the shape `stage_execution` reads one."""
++        if getattr(self, "_installed", None) is None:
++            self._installed = {"workers": [{
++                "worker_id": PUBLISHER_WORKER_ID, "role": "publication",
++                "deployment": single_worker._held(
++                    self.publication_deployment(), roles=("publication",))}]}
++        return self._installed
++
++    def derived_input(self, job_id, work_id, task=None):
++        return stage_execution.publication_input_identity(
++            self.installed_pool(),
++            {"job_id": job_id, "job_work_id": work_id}, task)
++
++    def served_deployment(self, job_id=None, work_id=None):
++        """The document THIS recovery's publication stage is served under:
++        the installed one as `stage_execution._served_deployment` derives it
++        for the recovery's Work and the ORIGINAL Job's task."""
++        pool = self.installed_pool()
++        return stage_execution._served_deployment(
++            pool, pool["workers"][0],
++            {"job_id": job_id or publication_recovery.recovery_job_id("D1"),
++             "job_work_id": work_id or WORK_A},
++            creation.job_task_of(self.jobs, self.job_id))
++
+     def ending_port(self, sessions=None):
+         """THE PRODUCTION ENDING ADAPTER over this case's real Authority.
+ 
+@@ -394,13 +438,25 @@ class PublicationExecutionCase(checkpoint1.PublicationCase):
+         composed = dict(input_root=os.path.join(home, "inputs"),
+                         output_root=os.path.join(home, "workspace"),
+                         source_root=mounts["/input/source"]["Source"],
+-                        clock=self.epoch)
++                        clock=self.epoch,
++                        # THE WATCH THREAD IS OFF BY DEFAULT IN THIS PROCESS.
++                        # It ends the process it runs in, which here is the
++                        # test runner; the cases that are about it either
++                        # hand it an `abort` that records the decision or run
++                        # the worker as a real child process.
++                        watch=False)
+         composed.update(agent)
+-        return baton_worker.serve_exchange(
+-            (agent_type or publication_entry.PublicationAgent)(**composed),
+-            delivered.document,
+-            launch.payload_of(delivered.document)["session"],
+-            delivered.exchange.command_root, delivered.exchange.event_root)
++        serving = (agent_type or publication_entry.PublicationAgent)(
++            **composed)
++        self.served_agent = serving
++        try:
++            return baton_worker.serve_exchange(
++                serving, delivered.document,
++                launch.payload_of(delivered.document)["session"],
++                delivered.exchange.command_root,
++                delivered.exchange.event_root)
++        finally:
++            serving.stand_down()
+ 
+     def published_once(self, *, now=PUBLISHED):
+         """LAUNCH, RUN THE WORKER, AND LET THE ORDINARY ENDING CONCLUDE.
+@@ -556,8 +612,7 @@ class PublicationExecutionCase(checkpoint1.PublicationCase):
+             # that certifies one, as a deployment does once at installation.
+             certify_profile(self.control, "runtime", PUBLISHER_PROFILE,
+                             PUBLISHER_DIGEST)
+-            given = single_worker._held(self.publication_deployment(),
+-                                        roles=("publication",))
++            given = self.served_deployment()
+             self._composed = publication_worker.publication_operations(
+                 given, jobs=self.jobs, control=self.control,
+                 authority=self.authority,
+@@ -747,13 +802,28 @@ class TheApprovalNowReachesARealAdmission(PublicationExecutionCase):
+         self.assertEqual(
+             answer["recovery_input_digest"],
+             publication_recovery.recovery_input_digest(declaration))
+-        # THE JOB-SCOPED IDENTITY of the installed worker's manifest, which is
+-        # what the worker lifecycle holds a Job to -- and NOT the whole
+-        # runtime manifest digest, under which this Job could never be served.
+-        self.assertEqual(answer["input_digest"],
+-                         job_input_identity(self.publication_declaration()))
++        # THE JOB-SCOPED IDENTITY OF THE DOCUMENT THIS RECOVERY IS SERVED
++        # UNDER (review 2026-11-23T18-55-03Z R3): the installed publication
++        # worker's declarations, bound to this recovery's Work and to the
++        # ORIGINAL Job's task. Not the whole runtime manifest digest, under
++        # which no Job could be served, and not the installed worker's own
++        # identity, which names the task and Work it was installed with.
++        served = self.served_deployment()["input_manifest"]
++        installed = self.publication_declaration()
++        self.assertEqual(answer["input_digest"], job_input_identity(served))
++        self.assertNotEqual(answer["input_digest"],
++                            served["manifest_digest"])
+         self.assertNotEqual(answer["input_digest"],
+-                            self.publication_declaration()["manifest_digest"])
++                            job_input_identity(installed))
++        original_task = creation.job_task_of(self.jobs, self.job_id)
++        self.assertEqual(served["human_contract"]["content_digest"],
++                         digest_of_bytes(original_task.encode("utf-8")))
++        self.assertEqual(served["work_ref"]["work_id"], WORK_A)
++        # WHAT DID NOT MOVE: the selected publication declarations.
++        self.assertEqual(served["outputs"], installed["outputs"])
++        self.assertEqual(served["policy_digest"], installed["policy_digest"])
++        self.assertEqual(answer["worker"]["input_digest"],
++                         job_input_identity(installed))
+         self.assertNotEqual(answer["input_digest"],
+                             answer["recovery_input_digest"])
+         original = submission.job_of(self.jobs, self.job_id)
+@@ -2861,8 +2931,9 @@ class OrdinaryJobsAndOldProfilesAreUnchanged(PublicationExecutionCase):
+ # workers it always has, and it has installed NO deterministic publication
+ # worker. So the shipped `DeploymentBinding.publication_worker` answers None,
+ # the admission is held with that prerequisite named, no Job is reserved and
+-# the first sweep after approval issues ZERO review offers. Installing the
+-# reusable worker is a deployment upgrade and is checkpoint 3's.
++# the first sweep after approval issues ZERO review offers. An instance that
++# HAS installed one -- through `tools.pool` and the bootstrap repeat -- is
++# section 15b's.
+ 
+ from tests.tools.test_bootstrap import ValidFixture as _InstalledFixture
+ 
+@@ -3085,6 +3156,1214 @@ class TheShippedOwnersRunOnABootstrappedInstance(_InstalledFixture):
+                 "SELECT count(*) FROM stage_allocations").fetchone()[0], 0)
+ 
+ 
++# -- 15a. the bound covers the whole publication ------------------------------
++#
++# REVIEW 2026-11-23T18-55-03Z R2. The worker checked its absolute deadline
++# only while the copy child was running: a copy observed finished AFTER the
++# instant was reported on time, and the measurement and the completion
++# envelope -- which are the ordinary worker's and run after `work` returns --
++# were bounded by nothing. A real worker-exchange probe answered `completed`
++# four minutes past its delivered bound.
++#
++# THE FIXTURE CLOCK IS THE WORKER'S CLOCK HERE, moved from inside the step a
++# case is about, so "the instant passed during the measurement" is a fact
++# about where the clock was read and not about a sleep. The one case that is
++# about a BLOCKED step runs the worker as a real child process on the real
++# clock, because that is the only place the watch's ending of its own process
++# can be observed.
++
++
++class TheBoundCoversMeasurementAndCompletion(PublicationExecutionCase):
++    """No successful completion after the instant, whichever step crossed it."""
++
++    def late(self):
++        self.instants.append(LATE)
++
++    def crossing(self, name, *, after=0):
++        """Move the worker's clock past the bound from inside the ordinary
++        worker's `name`, on the call numbered `after` (from zero)."""
++        import baton_worker
++
++        real = getattr(baton_worker, name)
++        calls = []
++
++        def crossed(*operands, **named):
++            calls.append(len(calls))
++            if len(calls) - 1 == after:
++                self.late()
++            return real(*operands, **named)
++
++        setattr(baton_worker, name, crossed)
++        self.addCleanup(setattr, baton_worker, name, real)
++        return calls
++
++    def nothing_was_published(self):
++        """THE MANAGER'S SIDE: a faulted exchange is held, never adopted."""
++        terminal = self.exchange_view()["terminal"]
++        self.assertEqual((terminal["ending"], terminal["fault_code"],
++                          terminal["disposition"]),
++                         ("faulted", "agent", None))
++        self.assertEqual(terminal["answered"], ["describe"])
++        caught = self.refusal(
++            publication_execution.publish, self.jobs, self.seam(),
++            decision_id="D1", now=PUBLISHED)
++        self.assertEqual(caught.code, "quiescence-unknown")
++        self.assertIsNone(publication_execution.result_of(
++            self.jobs, self.recovery_job_id))
++        self.serving()
++        for _ in range(3):
++            manager.sweep(self.jobs, self._composed[0], now=PUBLISHED)
++        self.assertIsNone(publication_execution.custody_of(
++            self.jobs, self.recovery_job_id))
++        self.assertFalse(self.gate()["open"])
++        self.assertEqual(self.review_offers(), [])
++
++    # -- the supervisor ------------------------------------------------------
++
++    def supervised_over(self, instants, status=0):
++        """`supervised` over a child that has already finished, with the
++        clock answering `instants` in order."""
++        from types import SimpleNamespace
++        from unittest import mock
++
++        import publication_entry
++
++        child = SimpleNamespace(pid=2 ** 30, returncode=status,
++                                poll=lambda: status)
++        clock = iter(instants)
++        with mock.patch.object(publication_entry.subprocess, "Popen",
++                               return_value=child), \
++                mock.patch.object(publication_entry, "_excluded",
++                                  return_value=True):
++            return publication_entry.supervised(
++                ["ignored"], "1970-01-01T00:00:01Z",
++                clock=lambda: next(clock))
++
++    def test_a_copy_that_finished_after_the_instant_did_not_finish_in_time(self):
++        """THE COMPLETION-VERSUS-EXPIRY RACE. The child is already finished
++        on the first look, so the loop that used to be the only place the
++        clock was compared never runs; the instant its ending was observed
++        is past the bound, and that is a timeout with no status to trust."""
++        ran = self.supervised_over([0.0, 0.5, 2.0])
++        self.assertEqual((ran["timed_out"], ran["status"], ran["started"],
++                          ran["ended_at"]), (True, None, True, 2.0))
++        # EXACTLY AT THE INSTANT IS NOT BEFORE IT.
++        ran = self.supervised_over([0.0, 0.5, 1.0])
++        self.assertTrue(ran["timed_out"])
++        # AND THE CONTROL: finished inside the bound keeps its status.
++        ran = self.supervised_over([0.0, 0.5, 0.75, 0.8])
++        self.assertEqual((ran["timed_out"], ran["status"]), (False, 0))
++        ran = self.supervised_over([0.0, 0.5, 0.75, 0.8], status=3)
++        self.assertEqual((ran["timed_out"], ran["status"]), (False, 3))
++
++    # -- the measurement and the envelope -------------------------------------
++
++    def test_a_measurement_that_crosses_the_instant_publishes_nothing(self):
++        """THE WORKER'S OWN MEASUREMENT, inside `work`."""
++        self.ready()
++        self.launched()
++        calls = self.crossing("measured", after=0)
++        self.assertEqual(self.turn(), 1)
++        # THE COPY RAN AND COMPLETED IN TIME; what crossed is the measurement,
++        # and nothing was measured a second time on the way to a completion.
++        self.assertEqual(len(calls), 1)
++        place = self.workspace_of(self.publication_attempt)
++        self.assertTrue(os.path.isdir(
++            os.path.join(place, role_contract.CANDIDATE_OUTPUT)))
++        self.assertFalse(os.path.lexists(os.path.join(place, "output.json")))
++        self.nothing_was_published()
++
++    def test_the_ordinary_workers_measurement_is_bounded_too(self):
++        """AFTER `work` RETURNED. The first measurement is this agent's and
++        is in time; the second is the ordinary worker's own, over the same
++        tree, and the instant passes inside it. The completion envelope is a
++        commit point and is not written."""
++        self.ready()
++        self.launched()
++        calls = self.crossing("measured", after=1)
++        self.assertEqual(self.turn(), 1)
++        self.assertGreaterEqual(len(calls), 2)
++        place = self.workspace_of(self.publication_attempt)
++        self.assertFalse(os.path.lexists(os.path.join(place, "output.json")))
++        self.nothing_was_published()
++
++    def test_an_envelope_alone_is_never_a_publication(self):
++        """THE SECOND COMMIT POINT. The envelope is written in time and the
++        instant passes while it is read back, before the `answered` state.
++        The worker faults; the envelope is on disk; and the manager records
++        no adoption from it, because what it adopts on is the terminal."""
++        self.ready()
++        self.launched()
++        self.crossing("_published_manifest_digest", after=0)
++        self.assertEqual(self.turn(), 1)
++        place = self.workspace_of(self.publication_attempt)
++        self.assertTrue(os.path.isfile(os.path.join(place, "output.json")))
++        self.nothing_was_published()
++
++    def test_the_gate_asks_nothing_of_an_agent_that_has_no_bound(self):
++        """EVERY OTHER WORKER IS UNCHANGED: an agent that defines no
++        `may_complete` is asked nothing at either commit point."""
++        import baton_worker
++        import publication_entry
++
++        self.assertIsNone(baton_worker._permitted(object()))
++        # AND THIS AGENT, BEFORE ITS `work` MADE A BOUND, MAY NOT COMPLETE:
++        # there is no default bound and no completion without one.
++        fresh = publication_entry.PublicationAgent(watch=False)
++        self.assertFalse(fresh.may_complete())
++        with self.assertRaises(baton_worker.WorkerFault) as caught:
++            baton_worker._permitted(fresh)
++        self.assertEqual(caught.exception.code, "agent")
++
++    # -- the clock -------------------------------------------------------------
++
++    def test_a_clock_set_back_does_not_extend_the_bound(self):
++        """ROLLBACK. Ten seconds were left when the bound was first read.
++        The wall clock is then set back an hour; the monotonic clock says
++        eleven seconds passed. The bound is reached."""
++        import publication_entry
++
++        wall, steady = [990.0], [50.0]
++        bound = publication_entry.Bound(
++            "1970-01-01T00:16:40Z", clock=lambda: wall[0],
++            monotonic=lambda: steady[0])
++        self.assertEqual(bound.ends, 1000.0)
++        self.assertFalse(bound.reached())
++        wall[0] -= 3600.0
++        steady[0] += 9.0
++        self.assertFalse(bound.reached())
++        self.assertLessEqual(bound.remaining(), 1.0)
++        steady[0] += 2.0
++        self.assertTrue(bound.reached())
++        self.assertEqual(bound.remaining(), 0.0)
++        # A SECOND BOUND, AS A RESTARTED WORKER WOULD MAKE ONE, is the same
++        # instant and not a fresh budget: it reads the same document.
++        again = publication_entry.Bound(
++            "1970-01-01T00:16:40Z", clock=lambda: 995.0,
++            monotonic=lambda: steady[0])
++        self.assertEqual(again.ends, bound.ends)
++        self.assertEqual(again.remaining(), 5.0)
++
++    def test_a_clock_set_forward_reaches_the_bound_early(self):
++        import publication_entry
++
++        wall, steady = [990.0], [50.0]
++        bound = publication_entry.Bound(
++            "1970-01-01T00:16:40Z", clock=lambda: wall[0],
++            monotonic=lambda: steady[0])
++        wall[0] = 1000.0
++        self.assertTrue(bound.reached())
++
++    # -- the watch --------------------------------------------------------------
++
++    def watched(self):
++        """One agent whose watch decision can be read without its thread."""
++        import publication_entry
++
++        wall, steady, ended = [990.0], [50.0], []
++        agent = publication_entry.PublicationAgent(
++            clock=lambda: wall[0], monotonic=lambda: steady[0],
++            abort=ended.append, watch=False)
++        agent._bound = publication_entry.Bound(
++            "1970-01-01T00:16:40Z", clock=lambda: wall[0],
++            monotonic=lambda: steady[0])
++        return agent, wall, steady, ended
++
++    def test_the_watch_ends_the_process_only_where_nothing_else_can(self):
++        import publication_entry
++
++        agent, wall, steady, ended = self.watched()
++        agent._enter("completing")
++        self.assertFalse(agent._due())
++        # MEASURING, AND THE INSTANT IS REACHED: the main thread cannot be
++        # interrupted, so the process is ended -- at once.
++        wall[0] = 1000.0
++        self.assertTrue(agent._due())
++        agent._expire()
++        self.assertEqual(ended, [publication_entry.EXPIRED_STATUS])
++        self.assertFalse(agent.may_complete())
++
++        # COPYING: the supervisor ends the copy itself and reports a typed
++        # fault, so the watch waits out its window first.
++        agent, wall, steady, ended = self.watched()
++        agent._enter("copy")
++        wall[0] = 1000.0
++        self.assertFalse(agent._due())
++        steady[0] += publication_entry.SUPERVISOR_GRACE_SECONDS - 0.5
++        self.assertFalse(agent._due())
++        steady[0] += 1.0
++        self.assertTrue(agent._due())
++
++        # A FAULT IS ALREADY BEING REPORTED: the watch stands down, so the
++        # typed fault is published rather than cut off into a lost execution.
++        agent, wall, steady, ended = self.watched()
++        agent._enter("completing")
++        wall[0] = 1000.0
++        self.assertFalse(agent.may_complete())
++        self.assertFalse(agent._due())
++        self.assertEqual(ended, [])
++
++    def test_the_watch_ends_a_copy_it_outlives(self):
++        """A COPY THIS PROCESS STARTED DOES NOT OUTLIVE IT: ending the
++        process ends the copy's whole process group first."""
++        import subprocess
++        import time
++
++        agent, wall, _steady, ended = self.watched()
++        child = subprocess.Popen(["sleep", "60"], start_new_session=True)
++        self.addCleanup(child.wait)
++        agent._group = child.pid
++        agent._enter("completing")
++        wall[0] = 1000.0
++        agent._expire()
++        self.assertEqual(len(ended), 1)
++        until = time.monotonic() + 5.0
++        while child.poll() is None and time.monotonic() < until:
++            time.sleep(0.02)
++        self.assertIsNotNone(child.poll())
++
++    def test_a_blocked_measurement_ends_the_real_process_at_the_instant(self):
++        """INTERRUPTIBLE ENFORCEMENT, on the real clock, in a real process.
++
++        The worker's own measurement never returns. Nothing raised from
++        another thread could interrupt it, so the watch ends the process:
++        it exits with the expiry status about a second after it started,
++        having said nothing and written no completion envelope. The copy
++        itself was real and finished in time.
++        """
++        import subprocess
++        import tempfile
++        import time
++
++        root = tempfile.mkdtemp(prefix="v12-blocked-", dir=self.root)
++        program = r"""
++import json, os, sys, threading
++from datetime import datetime, timedelta, timezone
++import baton_worker, publication_entry
++root = sys.argv[1]
++inputs, outputs, staged = (os.path.join(root, one)
++                           for one in ("inputs", "outputs", "staged"))
++for place in (inputs, outputs, os.path.join(staged, "candidate"),
++              os.path.join(staged, "provenance")):
++    os.makedirs(place)
++with open(os.path.join(staged, "candidate", "one.txt"), "w") as writing:
++    writing.write("adopted\n")
++with open(os.path.join(staged, "provenance", "provenance.json"), "w") as w:
++    w.write("{}\n")
++ends = datetime.now(timezone.utc) + timedelta(seconds=1.0)
++request = {"schema": publication_entry.REQUEST_SCHEMA, "decision_id": "D1",
++           "job_id": "job", "attempt_id": "attempt-1",
++           "deadline": {"deadline_at": ends.isoformat(), "origin": "stage",
++                        "seconds": 900, "restart_resets": False},
++           "staged": {"root": "candidate", "tree_digest": "sha256:x",
++                      "entry_count": 1, "total_bytes": 8},
++           "provenance": {"root": "provenance", "file": "provenance.json",
++                          "tree_digest": "sha256:y"},
++           "outputs": {"candidate": "proposal",
++                       "provenance": "recovery-provenance"}}
++with open(os.path.join(inputs, "publication.json"), "w") as writing:
++    json.dump(request, writing)
++baton_worker.assignment_manifest = lambda: {"runtime_attempt_id": "attempt-1"}
++blocked = threading.Event()
++def never(*operands, **named):
++    print("MEASURING", flush=True)
++    blocked.wait()
++baton_worker.measured = never
++declared = [{"name": "proposal", "path": "proposal", "constraints": {}},
++            {"name": "recovery-provenance", "path": "recovery-provenance",
++             "constraints": {}}]
++agent = publication_entry.PublicationAgent(
++    input_root=inputs, output_root=outputs, source_root=staged)
++agent.work({}, declared)
++print("RETURNED", flush=True)
++"""
++        began = time.monotonic()
++        ran = subprocess.run(
++            [sys.executable, "-B", "-c", program, root],
++            env={"PATH": "/usr/bin:/bin", "PYTHONPATH": WORKER},
++            capture_output=True, text=True, timeout=60)
++        elapsed = time.monotonic() - began
++        import publication_entry
++
++        self.assertEqual(ran.returncode, publication_entry.EXPIRED_STATUS,
++                         ran.stdout + ran.stderr)
++        # IT REACHED THE MEASUREMENT -- so the copy was real and in time --
++        # and never came back from it.
++        self.assertEqual(ran.stdout.split(), ["MEASURING"])
++        self.assertLess(elapsed, 20.0)
++        self.assertTrue(os.path.isfile(
++            os.path.join(root, "outputs", "proposal", "one.txt")))
++        self.assertFalse(os.path.lexists(
++            os.path.join(root, "outputs", "output.json")))
++
++    # -- restart ----------------------------------------------------------------
++
++    def test_a_restarted_worker_starts_no_second_adoption(self):
++        """RESTART. The first incarnation dies inside its measurement -- the
++        receipt is published, no terminal is. A second incarnation finds the
++        receipt and starts nothing: not with time left on the same absolute
++        bound, and not after it. The manager is left with an exchange that
++        never ended, which it holds as uncertain rather than as published.
++        """
++        import baton_worker
++
++        self.ready()
++        self.launched()
++
++        class Died(BaseException):
++            """The process ending, which no `except Exception` catches."""
++
++        real = baton_worker.measured
++
++        def dying(*operands, **named):
++            raise Died()
++
++        baton_worker.measured = dying
++        self.addCleanup(setattr, baton_worker, "measured", real)
++        with self.assertRaises(Died):
++            self.turn()
++        baton_worker.measured = real
++        self.assertIsNone(self.exchange_view()["terminal"])
++        place = self.workspace_of(self.publication_attempt)
++        # WITH TIME LEFT: the replay fence, not a second budget.
++        self.assertEqual(self.turn(), 4)
++        self.assertIsNone(self.exchange_view()["terminal"])
++        self.assertFalse(os.path.lexists(os.path.join(place, "output.json")))
++        # AND AFTER THE INSTANT: still nothing.
++        self.late()
++        self.assertEqual(self.turn(), 4)
++        self.assertIsNone(self.exchange_view()["terminal"])
++        self.assertFalse(os.path.lexists(os.path.join(place, "output.json")))
++        self.assertIsNone(publication_execution.result_of(
++            self.jobs, self.recovery_job_id))
++        self.assertFalse(self.gate()["open"])
++        self.assertEqual(self.review_offers(), [])
++
++
++# -- 15b. one installed publisher, two Works, the real pooled composition ----
++#
++# REVIEW 2026-11-23T18-55-03Z R1 AND R3, JOINED. Every case above this section
++# composes ONE publication worker over the single-worker lifecycle and stands
++# the deployment binding in. That is the right boundary for the manager's own
++# decisions and it could not see three things the review found: the installer
++# refused the role, the pooled `stage_execution.operations_from` branch was
++# never executed, and a recovery on any Work but the one the publisher was
++# installed against was refused by the selector.
++#
++# WHAT IS REAL HERE. The instance is prepared by `tools.bootstrap`. The
++# publication worker document is composed by `tools.pool.composed` -- the
++# installer's own composition -- named in the install document, its staging
++# root prepared by `bootstrap.prepare_prerequisites`, and published by the
++# ordinary repeat. The serving object is `stage_execution.operations_from`'s.
++# The owner ports are `tools.publication_decision.owners`': the shipped
++# `DeploymentBinding` (which really amends the configuration through
++# `bootstrap.prepare`), `HostOutput`, `HostExclusion` over real token records,
++# `WorkAuthorization`, `OwnerAuthorization`, `InstanceOwnership` and the
++# no-session `PriorAssignment`. The Authority, the three stores, the claims,
++# the launch documents, the workspace tokens, the worker entry, the copy, the
++# measurement, the freeze, the intake and the cleanup are the product's.
++#
++# WHAT IS A DOUBLE, AND SAID SO.
++#   THE ENGINE, at its normal boundary (`ComposedOneJobCase.quiescing`).
++#   THE GIT CONSUMER'S PROCESS, checkpoint 1's own `GitEngine`.
++#   THE TWO FAILED EXECUTIONS. Each failed Job is created by the product's
++#     creation operation over stand-in creation ports, exactly as checkpoint
++#     1's accepted fixture creates its one; its attempt row, its retained
++#     over-ceiling output and its workspace token are then written through
++#     the owners' own operations by this fixture rather than by running a
++#     producer. THE REASON IS A FINDING AND NOT A CONVENIENCE: a producer run
++#     through this same pooled composition prepares the persistent LINE
++#     workspace layout, and the accepted owner read
++#     `workspaces.retained_output_of` reconstructs the ATTEMPT layout only, so
++#     the inspection of a really pooled producer's failed output refuses.
++#     That limit is checkpoint 1's and is reported, not worked around.
++#   THE REVIEW LANE'S DECLARATIONS. Each Work's reviewer is configured here
++#     with the publication declarations, so that the recovery Job's one input
++#     identity is one both of its stages can be served under. How a production
++#     pool's reviewer comes to carry them is the review binding of checkpoint
++#     3 and is NOT established here; `test_a_reviewer_that_...` below pins what
++#     the selector does when it has not been.
++#
++# AND A RUNNING MANAGER SERVES THE BINDINGS IT STARTED WITH. The repeated
++# admission amends the configuration; the serving object is then recomposed,
++# which is what a restarted manager does and what the accepted retained-
++# recovery joined case does after its own admission.
++
++POOLED_OWNER = "baton.owner"
++POOLED_WORK_B = "0000000a-W2"
++POOLED_PUBLISHER = "baton.publisher"
++POOLED_RECORD = "work/records/2026/11/finding-v12-output-publication-recovery"
++
++
++class OneInstalledPublisherServesRecoveriesOnTwoWorks(_InstalledFixture):
++    """Reservation, held-session ending, repeated admission, publication and
++    custody -- twice, on two Works, through one installed publication worker
++    and the real pooled composition."""
++
++    maxDiff = None
++
++    def clock(self):
++        return self.instants[-1]
++
++    def epoch(self):
++        from datetime import datetime
++
++        return datetime.fromisoformat(
++            self.clock().replace("Z", "+00:00")).timestamp()
++
++    # -- the instance ---------------------------------------------------------
++
++    def setUp(self):
++        import io
++        import pathlib
++
++        from baton_v12.authority import Authority
++        from baton_v12.job_manager import JobStore
++        from baton_v12.worker_manager import ControlStore, workspaces as owner
++        from tests.manager import input_roots
++        from tools import bootstrap, instance, pool
++
++        super().setUp()
++        if WORKER not in sys.path:
++            sys.path.insert(0, WORKER)
++            self.addCleanup(sys.path.remove, WORKER)
++        self.instants = [NOW]
++        self.uuid = self.config["authority_uuid"]
++        self.places = bootstrap.layout(self.state)
++        self.layout = instance.layout(self.state)
++        # ONE WORKSPACE ROOT PER INSTANCE, the installed layout's own, which
++        # is also where `pool.composed` puts the publisher's.
++        self.paths = {name: os.path.join(self.layout["state"], leaf)
++                      for name, leaf in (("workspace_storage", "workspaces"),
++                                         ("launch_home", "launch"),
++                                         ("credential_home", "credentials"))}
++        self.publisher = None
++        # THE INSTANCE, FIRST WITH NO PUBLISHER AND NO JOB: an installed pool
++        # an upgrade then grows.
++        with open(os.devnull, "w") as quiet:
++            first = bootstrap.prepare(self.document(
++                owner_participant=POOLED_OWNER, workers=self.pool_workers(),
++                jobs=[]), stream=quiet)
++        # THE INSTALLER'S OWN COMPOSITION of the publication worker.
++        record = pathlib.Path(self.checkout, POOLED_RECORD)
++        record.mkdir(parents=True, exist_ok=True)
++        (record / "FINDING.md").write_text("# Finding\n")
++        (record / "PLAN.md").write_text("# Plan\n")
++        self.publication_task = os.path.join(self.root,
++                                             "publication-task.json")
++        pathlib.Path(self.publication_task).write_text(json.dumps(
++            {"schema": pool.PUBLICATION_TASK_SCHEMA,
++             "task_id": "publication-idle",
++             "instructions": "adopt the approved retained output"},
++            sort_keys=True))
++        self.composed_publisher = pool.composed(
++            first["configuration"], worker_id="publisher",
++            role="publication", participant=POOLED_PUBLISHER,
++            image_reference="baton-v12-publication:candidate",
++            image_digest=self.config["image_digest"], cli_build=None,
++            network=None, credential_sources=None, credentials=None,
++            workspace_group=self.config["workspace_group"],
++            task_document=self.publication_task, record_path=POOLED_RECORD,
++            checkout=self.checkout, now="2026-11-23T00:00:00.000Z")
++        self.publisher = self.composed_publisher["worker"]
++        self.policy = self.publisher["deployment"]["policy_digest"]
++
++        self.jobs = JobStore.open(self.places["job_store"],
++                                  authority_uuid=self.uuid,
++                                  incarnation="pooled-1", clock=self.clock)
++        self.addCleanup(self.jobs.close)
++        self.control = ControlStore.open(self.places["control_store"],
++                                         incarnation="pooled-1",
++                                         clock=self.clock)
++        self.addCleanup(self.control.close)
++        self.group = input_roots.configured_group(self.control)
++        self.storage = self.paths["workspace_storage"]
++        for place in self.paths.values():
++            os.makedirs(place, exist_ok=True)
++        owner.configure_workspace_storage(self.control, self.storage)
++        self.identity = {
++            "root": os.path.realpath(self.state),
++            "job_store": os.path.realpath(self.places["job_store"]),
++            "control_store": os.path.realpath(self.places["control_store"]),
++            "authority_store": os.path.realpath(
++                self.places["authority_store"]),
++            "authority_uuid": self.uuid}
++        held = checkpoint1.creation_case.CURRENT.get("identity")
++        checkpoint1.creation_case.CURRENT["identity"] = self.identity
++        self.addCleanup(checkpoint1.creation_case.CURRENT.__setitem__,
++                        "identity", held)
++
++        # THE TWO FAILED JOBS, each on its own Work with its own producer.
++        workers = {one["worker_id"]: one for one in self.pool_workers()}
++        self.failed = {
++            name: self.created_job(name, work, workers[producer],
++                                   workers[reviewer])
++            for name, work, producer, reviewer in (
++                ("a", self.work, "impl-a", "review-a"),
++                ("b", POOLED_WORK_B, "impl-b", "review-b"))}
++        # THE UPGRADE: the same pool, the publisher, and the two Jobs bound.
++        self.install_document = self.document(
++            owner_participant=POOLED_OWNER,
++            workers=self.pool_workers() + [self.publisher],
++            jobs=[self.job(job_id=self.failed["a"]["job_id"],
++                           work_id=self.work, producer="impl-a"),
++                  self.job(job_id=self.failed["b"]["job_id"],
++                           work_id=POOLED_WORK_B, producer="impl-b")])
++        # THE STAGING ROOT IS PREPARED BY THE INSTALLATION'S OWN MACHINERY,
++        # which is what the installed repeat runs before it publishes.
++        self.prepared_roots = {}
++        bootstrap.prepare_prerequisites(self.install_document, self.layout,
++                                        made=self.prepared_roots,
++                                        stream=io.StringIO())
++        with open(os.devnull, "w") as quiet:
++            self.installed = bootstrap.prepare(self.install_document,
++                                               stream=quiet)
++        pathlib.Path(self.places["install_inputs"]).write_text(
++            json.dumps(self.install_document, indent=2, sort_keys=True),
++            encoding="utf-8")
++        self.authority = Authority.open(self.places["authority_store"],
++                                        expected_authority_uuid=self.uuid)
++        self.addCleanup(self.authority.dispose)
++        for name, participant in (("a", "baton.impl-a"),
++                                  ("b", "baton.impl-b")):
++            self.failed_attempt(self.failed[name], participant)
++        self.oci = None
++        self.operations = None
++
++    def on_work(self, manifest, work):
++        held = copy.deepcopy(manifest)
++        held["work_ref"] = dict(held["work_ref"], work_id=work)
++        held.pop("manifest_digest")
++        held["manifest_digest"] = digest(held)
++        return held
++
++    def pool_workers(self):
++        return [
++            self.stage_worker("impl-a", "implementation", "baton.impl-a",
++                              **self.paths),
++            self.reviewer("review-a", "baton.reviewer", self.work),
++            self.stage_worker(
++                "impl-b", "implementation", "baton.impl-b",
++                input_manifest=self.on_work(self.config["input_manifest"],
++                                            POOLED_WORK_B), **self.paths),
++            self.reviewer("review-b", "baton.reviewer-b", POOLED_WORK_B)]
++
++    # WHETHER THE REVIEW LANE CARRIES THE PUBLICATION DECLARATIONS. See the
++    # section comment: this is a fixture selection standing in for checkpoint
++    # 3's review binding, and the one case that is about its absence turns it
++    # off.
++    reviewers_agree = True
++
++    def reviewer(self, worker_id, participant, work):
++        if self.publisher is None or not self.reviewers_agree:
++            return self.stage_worker(
++                worker_id, "review", participant,
++                review_route=self.INTEGRATION_ROUTE,
++                input_manifest=self.on_work(self.config["input_manifest"],
++                                            work), **self.paths)
++        manifest = copy.deepcopy(self.publisher["deployment"]
++                                 ["input_manifest"])
++        manifest["work_ref"] = dict(manifest["work_ref"], work_id=work)
++        # ITS OWN IMAGE AND PROFILE, which are not Job-scoped members.
++        manifest["worker_image_digest"] = self.config["image_digest"]
++        manifest["runtime_profile_digest"] = \
++            self.config["input_manifest"]["runtime_profile_digest"]
++        manifest.pop("manifest_digest")
++        manifest["manifest_digest"] = digest(manifest)
++        return self.stage_worker(
++            worker_id, "review", participant,
++            review_route=self.INTEGRATION_ROUTE, input_manifest=manifest,
++            policy_digest=self.policy, task_document=self.publication_task,
++            **self.paths)
++
++    # -- the two failed executions --------------------------------------------
++
++    def created_job(self, name, work, producer, reviewer):
++        """One real `/4` Job on `work`, admitted by the creation operation."""
++        case = checkpoint1.creation_case
++        outputs = role_contract.contract_for(
++            role_contract.PROPOSAL100M_TEMPLATE)["outputs"]
++        derivation = case.FakeDerivation(
++            work_id=work, policy_digest=self.policy,
++            profiles={
++                "implementation": {
++                    "profile_name": producer["deployment"]["profile_name"],
++                    "profile_digest":
++                        producer["deployment"]["profile_digest"]},
++                "review": {
++                    "profile_name": reviewer["deployment"]["profile_name"],
++                    "profile_digest":
++                        reviewer["deployment"]["profile_digest"]}},
++            task=lambda selection, verification=None:
++                checkpoint1.PublicationCase.composed_task(
++                    self, selection, verification))
++        derivation.answer["declarations"] = {
++            "implementation": {producer["worker_id"]:
++                               [dict(one) for one in outputs]},
++            "review": {reviewer["worker_id"]:
++                       [dict(one) for one in outputs]}}
++        created = creation.create_template_job(
++            self.jobs, case.FakeOperations(),
++            request=case.request(
++                template=role_contract.PROPOSAL100M_TEMPLATE,
++                task={"task_id": "publish-" + name,
++                      "statement": case.STATEMENT}),
++            derivation=derivation, authorization=case.FakeAuthorization(),
++            binding=case.FakeBinding(), ownership=case.FakeOwnership())
++        stage_id = documents.stage_id(created["job_id"], "implementation")
++        return {"name": name, "job_id": created["job_id"],
++                "stage_id": stage_id, "work": work,
++                "decision": "D-" + name,
++                "attempt_id": episodes.episode_of(self.jobs, stage_id,
++                                                  1)["attempt_id"]}
++
++    def failed_attempt(self, failed, participant):
++        """The failed execution's host state: a REAL claim on its Work, the
++        attempt row under that exact assignment, a completed preparation, a
++        returned workspace token and the retained over-ceiling output."""
++        from baton_v12.worker_manager import attempts as held_attempts
++        from baton_v12.worker_manager import tokens, workspaces as owner
++
++        attempt_id, work = failed["attempt_id"], failed["work"]
++        self.authority.session(participant).claim(
++            {"work_id": work, "operation_id": "claim-" + failed["job_id"]})
++        live = self.authority.assignment_of(work)
++        self.control._connection.execute(
++            "INSERT INTO attempts (runtime_attempt_id, adapter_name, "
++            "adapter_digest, profile_digest, created_at, work_id, "
++            "authority_uuid, assignment_participant, assignment_generation, "
++            "assignment_claim_event_seq, assignment_principal, "
++            "assignment_scope, assignment_role, assignment_grant, "
++            "assignment_policy_generation) VALUES (?, 'adapter', "
++            "'adapter-digest', 'profile-digest', ?, ?, ?, ?, ?, 1, ?, ?, "
++            "'role', 'grant', 1)",
++            (attempt_id, NOW, work, self.uuid, participant,
++             live["generation"], self.authority.principal_of(participant),
++             self.authority.project_work(work)["scope"]))
++        roots = owner.assignment_workspace(self.group, self.storage,
++                                           attempt_id)
++        owner.record_preparation(self.control, attempt_id, roots,
++                                 ["task", "inputs"])
++        measured, source = os.stat(roots["workspace"]), os.stat(self.state)
++        self.control._connection.execute(
++            "UPDATE attempts SET runtime_id = ?, execution_runtime = "
++            "'destroyed', cleanup = 'retained', workspace_device = ?, "
++            "workspace_inode = ?, source_device = ?, source_inode = ? "
++            "WHERE runtime_attempt_id = ?",
++            ("runtime-" + attempt_id[:24], measured.st_dev, measured.st_ino,
++             source.st_dev, source.st_ino, attempt_id))
++        row = dict(self.control._connection.execute(
++            "SELECT * FROM attempts WHERE runtime_attempt_id = ?",
++            (attempt_id,)).fetchone())
++        # THE WORKSPACE TOKEN, THROUGH THE RESOURCE OWNER'S OWN OPERATIONS,
++        # because the shipped `HostExclusion` reads exactly what they journal.
++        start = held_attempts._start_operation_id(row)
++        domain = tokens.domain_of("workspace", tokens.workspace_identity(row))
++        token = tokens.acquire(self.control, domain, operation=start,
++                               execution=attempt_id, attempt=attempt_id)
++        tokens.journal_launch(self.control, token, start)
++        tokens.bind_container(
++            self.control,
++            tokens.token_of(self.control, domain, token["generation"]),
++            row["runtime_id"], launch=start)
++        tokens.returned(
++            self.control,
++            tokens.token_of(self.control, domain, token["generation"]),
++            cessation={"domain": domain, "generation": token["generation"],
++                       "launch": start, "container": row["runtime_id"],
++                       "stopped": True, "helpers": []})
++        self.job_id = failed["job_id"]
++        failed["roots"] = roots
++        # A DIFFERENT TREE PER JOB, so "each recovery published ITS original"
++        # is falsifiable.
++        failed["original"] = checkpoint1.PublicationCase.write_output(
++            self, roots=roots,
++            extra={"note.txt": ("original of " + failed["name"]).encode()})
++        failed["participant"] = participant
++        failed["assignment"] = live
++
++    # -- the shipped owner ports ----------------------------------------------
++
++    def ports(self):
++        import io
++
++        from tools import publication_decision
++        from tools.publication_ports import SourceCorrespondence
++
++        held = publication_decision.owners({
++            "instance": self.state, "job_store": self.places["job_store"],
++            "control": self.places["control_store"],
++            "authority": self.places["authority_store"],
++            "authority_uuid": self.uuid, "participant": POOLED_OWNER,
++            "stream": io.StringIO(), "control_handle": self.control})
++        self.addCleanup(held["release"])
++        scratch = os.path.join(self.root, "git-scratch")
++        os.makedirs(scratch, exist_ok=True)
++        # THE GIT PROCESS IS THE ONE DOUBLE AMONG THESE PORTS.
++        held["source"] = SourceCorrespondence(
++            self.identity, scratch=scratch, engine=checkpoint1.GitEngine())
++        return held
++
++    def decided(self, failed, held):
++        selection = publication_recovery.inspect(
++            self.jobs, self.control, job_id=failed["job_id"],
++            stage_id=failed["stage_id"], episode=1, host=held["host"],
++            exclusion=held["exclusion"], source=held["source"],
++            authorization=held["owner"], now=NOW)
++        self.assertTrue(selection["eligible"], selection.get("holds"))
++        return publication_recovery.decide(
++            self.jobs, self.control, job_id=failed["job_id"],
++            stage_id=failed["stage_id"], episode=1,
++            decision_id=failed["decision"], disposition="approved",
++            authorization=held["owner"],
++            expected=publication_recovery.expected_facts(selection),
++            profile=selection["profile"]["profile"],
++            profile_digest=selection["profile"]["digest"],
++            stages=list(publication_recovery.SELECTED_STAGES),
++            declaration_digest=selection["declaration"]["digest"],
++            host=held["host"], exclusion=held["exclusion"],
++            source=held["source"], now=NOW)
++
++    def admit(self, failed, held):
++        """The owner's admission, through the shipped ports. A refusal is
++        returned rather than raised so a case can read both outcomes."""
++        try:
++            return publication_recovery.admit_publication(
++                self.jobs, self.control, decision_id=failed["decision"],
++                exclusion=held["exclusion"],
++                authorization=held["authorization"],
++                binding=held["binding"], ownership=held["ownership"],
++                host=held["host"], source=held["source"],
++                ending=held["ending"], now=NOW)
++        except ContractRefusal as refusal:
++            return refusal
++
++    # -- the serving manager ---------------------------------------------------
++
++    def configuration(self):
++        import pathlib
++
++        return json.loads(pathlib.Path(
++            self.places["configuration"]).read_text())
++
++    def serving(self):
++        """`stage_execution.operations_from` over the instance's CURRENT
++        configuration. A second call is a restarted manager."""
++        from tests.tools.test_stage_execution import ComposedOneJobCase
++        from tools import stage_execution as composition
++
++        if self.operations is not None:
++            self.operations.close()
++        if self.oci is None:
++            self.oci = ComposedOneJobCase.quiescing(self)
++        self.operations = composition.operations_from(
++            self.configuration(), self.jobs, self.control,
++            engine_run=self.oci,
++            credential_provider=lambda provider, reference: self.secret,
++            clock=self.clock, checkout=self.checkout)
++        self.addCleanup(self.operations.close)
++        return self.operations
++
++    def tick(self):
++        return manager.sweep(self.jobs, self.operations, now=self.clock())
++
++    def publication_worker_operations(self):
++        return [one for one in self.operations.workers
++                if one["role"] == "publication"][0]["operations"]
++
++    def publication_stage(self, failed):
++        stage_id = publication_recovery.publication_stage_id(
++            failed["decision"])
++        live = episodes.live_of(self.jobs, stage_id)
++        if live is None:
++            return None
++        for one in submission.stages_of(
++                self.jobs,
++                publication_recovery.recovery_job_id(failed["decision"])):
++            if one["stage_id"] == stage_id:
++                return episodes.attempting(one, live)
++        return None
++
++    def bound_source(self, attempt_id):
++        """The directory the ENGINE was told to bind read-only at
++        `/input/source` for THIS attempt's container, read out of its own
++        launch vector rather than chosen here."""
++        for vector in reversed(self.oci.starts):
++            if not any(attempt_id in str(word) for word in vector):
++                continue
++            for index, word in enumerate(vector[:-1]):
++                if word != "--mount":
++                    continue
++                parts = dict(part.split("=", 1) for part in
++                             vector[index + 1].split(",") if "=" in part)
++                if parts.get("target") == "/input/source":
++                    self.assertEqual(parts["readonly"], "true")
++                    return parts["source"]
++        self.fail(f"no container was started for {attempt_id}")
++
++    def launched(self, failed, ticks=8):
++        """Ordinary ticks until this recovery's publication runtime runs."""
++        for _ in range(ticks):
++            stage = self.publication_stage(failed)
++            state = None if stage is None else attempt_runtime_of(
++                self.control, stage["attempt_id"])
++            if state is not None \
++                    and state["execution_runtime"] == "running":
++                return stage
++            self.tick()
++        self.fail(f"recovery {failed['decision']} never launched")
++
++    def turn(self, failed, **agent):
++        """THE CONFINED WORKER'S ONE TURN, the real worker entry served over
++        the exchange this deployment published for this recovery."""
++        import baton_worker
++        import publication_entry
++
++        stage = self.publication_stage(failed)
++        worker = self.publication_worker_operations().worker_for(stage)
++        delivered = worker._adopted(stage)
++        home = os.path.join(self.storage, stage["attempt_id"])
++        held = []
++        for name, value in (("INPUT_ROOT", os.path.join(home, "inputs")),
++                            ("OUTPUT_ROOT", os.path.join(home, "workspace"))):
++            held.append((name, getattr(baton_worker, name)))
++            setattr(baton_worker, name, value)
++        composed = dict(input_root=os.path.join(home, "inputs"),
++                        output_root=os.path.join(home, "workspace"),
++                        source_root=self.bound_source(stage["attempt_id"]),
++                        clock=self.epoch, watch=False)
++        composed.update(agent)
++        serving = publication_entry.PublicationAgent(**composed)
++        try:
++            return baton_worker.serve_exchange(
++                serving, delivered.document,
++                launch.payload_of(delivered.document)["session"],
++                delivered.exchange.command_root,
++                delivered.exchange.event_root), home
++        finally:
++            serving.stand_down()
++            for name, value in held:
++                setattr(baton_worker, name, value)
++
++    def both_admitted(self):
++        """Decide both, admit both (reserved and stopped at the held
++        assignments), let the serving manager end them, admit both again."""
++        held = self.ports()
++        first, second = {}, {}
++        for failed in self.failed.values():
++            self.decided(failed, held)
++        for name, failed in self.failed.items():
++            first[name] = self.admit(failed, held)
++        self.serving()
++        ended = [self.tick() for _ in range(2)]
++        for name, failed in self.failed.items():
++            second[name] = self.admit(failed, held)
++        return held, first, ended, second
++
++    def published(self, failed):
++        stage = self.launched(failed)
++        code, home = self.turn(failed)
++        self.assertEqual(code, 0)
++        for _ in range(8):
++            self.tick()
++            if publication_execution.publication_readiness(
++                    self.jobs, failed["decision"])["handed_off"]:
++                break
++        return stage, home
++
++    # -- the joined proof ------------------------------------------------------
++
++    def test_two_recoveries_on_two_works_through_one_installed_publisher(self):
++        installed = copy.deepcopy(self.configuration())
++        publisher = [one for one in installed["workers"]
++                     if one["role"] == "publication"]
++        self.assertEqual([one["worker_id"] for one in publisher],
++                         ["publisher"])
++        # INSTALLED AGAINST THE FIRST WORK, and that never changes.
++        self.assertEqual(publisher[0]["deployment"]["input_manifest"]
++                         ["work_ref"]["work_id"], self.work)
++        self.assertEqual(publisher[0]["deployment"]["credential_slots"], [])
++
++        held, first, ended, second = self.both_admitted()
++
++        for name, failed in self.failed.items():
++            with self.subTest(recovery=name):
++                # 1. THE OWNER'S ADMISSION RESERVED AND STOPPED. It holds no
++                #    producer session and ended nothing.
++                self.assertIsInstance(first[name], ContractRefusal)
++                self.assertEqual((first[name].category, first[name].code),
++                                 ("refused", "capability"))
++                self.assertIsNotNone(publication_recovery.intent_of(
++                    self.jobs, failed["decision"]))
++                # 2. THE SERVING MANAGER ENDED EXACTLY THAT ASSIGNMENT, through
++                #    the producer session it already held.
++                record = publication_recovery.ending_of(self.jobs,
++                                                        failed["decision"])
++                self.assertEqual(record["disposition"], "ended")
++                self.assertEqual(record["expect"], failed["assignment"])
++                # 3. THE SAME ADMISSION, REPEATED, ADMITTED.
++                self.assertEqual(second[name]["state"], "admitted",
++                                 second[name])
++                self.assertEqual(second[name]["work_id"], failed["work"])
++
++        # ONE DERIVATION: each recovery was submitted under the identity of
++        # the document the installed publisher serves IT under, and the two
++        # are different because the Works are.
++        configured = self.configuration()
++        bindings = {one["job_id"]: one for one in configured["job_bindings"]}
++        worker = [one for one in configured["workers"]
++                  if one["role"] == "publication"][0]
++        identities = {}
++        for name, failed in self.failed.items():
++            job_id = publication_recovery.recovery_job_id(failed["decision"])
++            self.assertEqual(bindings[job_id]["job_work_id"], failed["work"])
++            served = stage_execution._served_deployment(
++                configured, worker, bindings[job_id],
++                creation.job_task_of(self.jobs, failed["job_id"]))
++            identities[name] = job_input_identity(served["input_manifest"])
++            self.assertEqual(second[name]["input_digest"], identities[name])
++            self.assertEqual(
++                submission.job_of(self.jobs, job_id)["input_digest"],
++                identities[name])
++        self.assertNotEqual(identities["a"], identities["b"])
++        # AND THE INSTALLED DOCUMENT WAS NOT MOVED TO MAKE THAT TRUE.
++        self.assertEqual(worker, publisher[0])
++
++        # A RESTARTED MANAGER, over the amended configuration.
++        self.serving()
++        self.assertIsNotNone(self.operations.recovery_publication)
++        self.assertEqual(
++            sorted(self.publication_worker_operations().held),
++            sorted(publication_recovery.recovery_job_id(one["decision"])
++                   for one in self.failed.values()))
++        homes = {}
++        for name, failed in self.failed.items():
++            with self.subTest(published=name):
++                stage, home = self.published(failed)
++                homes[name] = home
++                # DELIVERED ITS OWN WORK AND THE ORIGINAL JOB'S TASK.
++                with open(os.path.join(home, "inputs", "input.json"),
++                          encoding="utf-8") as reading:
++                    delivered = json.load(reading)
++                self.assertEqual(delivered["work_ref"]["work_id"],
++                                 failed["work"])
++                self.assertEqual(job_input_identity(delivered),
++                                 identities[name])
++                with open(os.path.join(home, "inputs", "task.json"),
++                          "rb") as reading:
++                    self.assertEqual(
++                        reading.read(),
++                        creation.job_task_of(
++                            self.jobs, failed["job_id"]).encode("utf-8"))
++                # UNDER ITS OWN FRESH ASSIGNMENT ON THAT WORK.
++                state = attempt_runtime_of(self.control, stage["attempt_id"])
++                self.assertEqual(state["assignment"]["participant"],
++                                 POOLED_PUBLISHER)
++                self.assertEqual(state["assignment"]["work_ref"]["work_id"],
++                                 failed["work"])
++                self.assertNotEqual(state["assignment"]["generation"],
++                                    failed["assignment"]["generation"])
++                self.assertEqual((state["execution_runtime"],
++                                  state["cleanup"]),
++                                 ("destroyed", "retained"))
++                # THE ADOPTED PROPOSAL IS THIS JOB'S ORIGINAL, byte for byte.
++                job_id = publication_recovery.recovery_job_id(
++                    failed["decision"])
++                result = publication_execution.result_of(self.jobs, job_id)
++                self.assertEqual(result["adopted"]["tree_digest"],
++                                 failed["original"]["tree_digest"])
++                self.assertIsNotNone(
++                    publication_execution.custody_of(self.jobs, job_id))
++                self.assertIsNotNone(
++                    publication_execution.handoff_of(self.jobs, job_id))
++                self.assertTrue(publication_execution.execution_gate(
++                    self.jobs, job_id)["open"])
++        self.assertNotEqual(self.failed["a"]["original"]["tree_digest"],
++                            self.failed["b"]["original"]["tree_digest"])
++        # ONE CAPACITY SERVED BOTH: the scheduler allocated both publication
++        # stages to the one configured worker.
++        allocated = [row[0] for row in self.jobs._connection.execute(
++            "SELECT worker_id FROM stage_allocations WHERE stage_id IN (?, ?)",
++            tuple(publication_recovery.publication_stage_id(one["decision"])
++                  for one in self.failed.values()))]
++        self.assertEqual(sorted(set(allocated)), ["publisher"])
++        self.assertEqual(len(allocated), 2)
++        # AND EACH ORIGINAL IS UNTOUCHED.
++        from baton_v12.worker_manager import workspaces as owner
++        for failed in self.failed.values():
++            self.assertEqual(
++                owner.directory_manifest(failed["roots"]["workspace"]),
++                failed["original"])
++
++    def test_a_stage_is_never_served_under_another_recoverys_operands(self):
++        """WRONG WORK, AT THE SERVING BOUNDARY. One recovery's publication
++        stage handed to the operations derived for the other is refused by
++        the worker lifecycle's own validator, and a stage of a Job this
++        deployment derived nothing for is refused before any of them."""
++        self.both_admitted()
++        self.serving()
++        routed = self.publication_worker_operations()
++        stage = self.launched(self.failed["a"], ticks=4)
++        other = routed.held[publication_recovery.recovery_job_id(
++            self.failed["b"]["decision"])]
++        job = submission.job_of(self.jobs, stage["job_id"])
++        with self.assertRaises(ContractRefusal) as caught:
++            other.dispatch(stage, job)
++        self.assertIn(POOLED_WORK_B, caught.exception.message)
++        with self.assertRaises(ContractRefusal) as caught:
++            routed.dispatch(dict(stage, job_id="some-other-job"), job)
++        self.assertIn("refused rather than served under another recovery",
++                      caught.exception.message)
++        # AND THE INSTALLED COMPOSITION SERVES NO STAGE AT ALL.
++        self.assertNotIn(routed.installed, list(routed.held.values()))
++
++    def test_the_selector_refuses_a_wrong_work_task_or_input(self):
++        """THE NEGATIVES OF THE ONE DERIVATION, through the shipped binding
++        port's own `serving` -- which is `stage_execution.servable_workers`."""
++        held, _first, _ended, second = self.both_admitted()
++        failed = self.failed["b"]
++        job_id = publication_recovery.recovery_job_id(failed["decision"])
++        entry = second["b"]
++        stage = {"kind": documents.PUBLICATION_STAGE,
++                 "work_id": failed["work"],
++                 "profile_name": entry["worker"]["profile_name"],
++                 "profile_digest": entry["worker"]["profile_digest"]}
++        job = {"input_digest": entry["input_digest"],
++               "policy_digest": self.policy}
++        task = creation.job_task_of(self.jobs, failed["job_id"])
++        binding = held["binding"]
++        # THE CONTROL: the real operands are served by the one publisher.
++        self.assertEqual(binding.serving(job_id, stage=stage, job=job,
++                                         task=task), ["publisher"])
++        # ANOTHER RECOVERY'S INPUT: the other Work's identity.
++        self.assertEqual(binding.serving(
++            job_id, stage=stage,
++            job=dict(job, input_digest=second["a"]["input_digest"]),
++            task=task), [])
++        # THE INSTALLED WORKER'S OWN IDENTITY, which is what the first cut
++        # submitted every recovery under.
++        self.assertEqual(binding.serving(
++            job_id, stage=stage,
++            job=dict(job, input_digest=entry["worker"]["input_digest"]),
++            task=task), [])
++        # ANOTHER TASK: the other Job's, and none at all.
++        other = creation.job_task_of(self.jobs, self.failed["a"]["job_id"])
++        self.assertNotEqual(other, task)
++        self.assertEqual(binding.serving(job_id, stage=stage, job=job,
++                                         task=other), [])
++        self.assertEqual(binding.serving(job_id, stage=stage, job=job,
++                                         task=None), [])
++        # ANOTHER POLICY.
++        self.assertEqual(binding.serving(
++            job_id, stage=stage,
++            job=dict(job, policy_digest="sha256:" + "9" * 64), task=task), [])
++        # AND `_disagreements` STILL NAMES A WRONG WORK, unweakened: the
++        # document derived for THIS recovery, compared against a binding on
++        # the other Work.
++        configured = self.configuration()
++        bindings = {one["job_id"]: one for one in configured["job_bindings"]}
++        worker = [one for one in configured["workers"]
++                  if one["role"] == "publication"][0]
++        served = stage_execution._served_deployment(
++            configured, worker, bindings[job_id], task)
++        found = stage_execution._disagreements(
++            served, dict(stage, job_id=job_id), job,
++            dict(bindings[job_id], job_work_id=self.work))
++        self.assertEqual(found["the Work"], (POOLED_WORK_B, self.work))
++
++    def test_the_review_stage_starts_nothing_before_the_handoff(self):
++        """THE GATE, in the pooled composition: until a recovery's custody
++        and hand-off exist its review stage is offered to nobody, whatever
++        else the pool is doing."""
++        self.both_admitted()
++        self.serving()
++        failed = self.failed["a"]
++        job_id = publication_recovery.recovery_job_id(failed["decision"])
++        review = documents.stage_id(job_id, "review")
++        self.launched(failed)
++        for _ in range(3):
++            self.tick()
++        self.assertFalse(publication_execution.execution_gate(
++            self.jobs, job_id)["open"])
++        self.assertEqual(self.jobs._connection.execute(
++            "SELECT count(*) FROM stage_allocations WHERE stage_id = ?",
++            (review,)).fetchone()[0], 0)
++        # AND ONLY THE PUBLICATION CONTAINER WAS EVER STARTED.
++        self.assertEqual(len(self.oci.starts), 1)
++        # THE HAND-OFF IS WHAT RELEASES IT, and then it goes to THIS Work's
++        # reviewer and to nobody else's. What that reviewer is delivered is
++        # the review binding of checkpoint 3 and is not asserted here.
++        code, _home = self.turn(failed)
++        self.assertEqual(code, 0)
++        for _ in range(8):
++            self.tick()
++        self.assertTrue(publication_execution.execution_gate(
++            self.jobs, job_id)["open"])
++        self.assertEqual(
++            [row[0] for row in self.jobs._connection.execute(
++                "SELECT worker_id FROM stage_allocations WHERE stage_id = ?",
++                (review,))], ["review-a"])
++
++
++class AReviewerWithoutThePublicationDeclarationsHoldsTheAdmission(
++        OneInstalledPublisherServesRecoveriesOnTwoWorks):
++    """WHAT THE SELECTOR DOES WHEN THE REVIEW LANE WAS NOT GIVEN THEM.
++
++    A recovery Job carries ONE input identity and both of its stages are held
++    to it. Here each Work's reviewer is the ordinary one this fixture pool
++    otherwise configures, so its Job-scoped manifest is not the recovery's.
++    The repeated admission then stops at the review stage -- reserved,
++    incomplete, nothing submitted, nothing published -- which is the
++    fail-closed answer and is ALSO the open item this pins: how a production
++    reviewer comes to be servable for a recovery is checkpoint 3's review
++    binding.
++    """
++
++    reviewers_agree = False
++
++    # ONLY THIS CASE: the inherited ones are the parent's and would be the
++    # same cases run under another class name.
++    test_two_recoveries_on_two_works_through_one_installed_publisher = None
++    test_a_stage_is_never_served_under_another_recoverys_operands = None
++    test_the_selector_refuses_a_wrong_work_task_or_input = None
++    test_the_review_stage_starts_nothing_before_the_handoff = None
++
++    def test_the_repeated_admission_stops_at_the_review_stage(self):
++        held, _first, _ended, second = self.both_admitted()
++        for name, failed in self.failed.items():
++            with self.subTest(recovery=name):
++                refused = second[name]
++                self.assertIsInstance(refused, ContractRefusal)
++                self.assertIn("'review' stage", refused.message)
++                self.assertIn("RESERVED", refused.message)
++                job_id = publication_recovery.recovery_job_id(
++                    failed["decision"])
++                self.assertEqual(self.jobs._connection.execute(
++                    "SELECT count(*) FROM jobs WHERE job_id = ?",
++                    (job_id,)).fetchone()[0], 0)
++                self.assertIsNone(publication_recovery.admission_of(
++                    self.jobs, failed["decision"]))
++                # THE PUBLICATION STAGE ITSELF WAS SERVABLE: the refusal is
++                # about the review lane and nothing else.
++                intent = publication_recovery.intent_of(self.jobs,
++                                                        failed["decision"])
++                self.assertEqual(held["binding"].serving(
++                    job_id,
++                    stage={"kind": documents.PUBLICATION_STAGE,
++                           "work_id": failed["work"],
++                           "profile_name": intent["worker"]["profile_name"],
++                           "profile_digest":
++                               intent["worker"]["profile_digest"]},
++                    job={"input_digest": intent["input_digest"],
++                         "policy_digest": self.policy},
++                    task=creation.job_task_of(self.jobs, failed["job_id"])),
++                    ["publisher"])
++        self.serving()
++        for _ in range(4):
++            self.tick()
++        self.assertEqual(self.oci.starts, [])
++
++
+ # -- 16. what this checkpoint is, said out loud ------------------------------
+ 
+ 
+diff --git a/v12/python/tests/manager/test_worker_packaging.py b/v12/python/tests/manager/test_worker_packaging.py
+index ba746dc4..08a3acdb 100644
+--- a/v12/python/tests/manager/test_worker_packaging.py
++++ b/v12/python/tests/manager/test_worker_packaging.py
+@@ -35,6 +35,10 @@ WORKER = pathlib.Path(__file__).resolve().parents[3] / "worker"
+ CONTEXT = {"Dockerfile": WORKER,
+            "Dockerfile.claude": WORKER.parent,
+            "Dockerfile.integration": WORKER.parent,
++           # W385695: the deterministic publication worker's recipe. Its
++           # context is the worker directory, like the reference image it
++           # shares a base with.
++           "Dockerfile.publication": WORKER,
+            "Dockerfile.reconciliation": WORKER.parent}
+ 
+ # The one target directory every recipe installs into, and the only one these
+@@ -255,12 +259,57 @@ assert baton_worker.adapter_refusal is adapter_refusal
+         their own gates assert, and the worker still loads -- with the inert
+         stand-in in place of the shared module.
+         """
+-        for name in ("Dockerfile", "Dockerfile.reconciliation"):
++        for name in ("Dockerfile", "Dockerfile.publication",
++                     "Dockerfile.reconciliation"):
+             with self.subTest(recipe=name):
+                 root = self.staged(name)
+                 self.assertFalse((root / SHARED).exists())
+                 self.proving(root, INERT)
+ 
++    def test_the_publication_recipe_carries_its_entry_and_nothing_provider_shaped(self):
++        """W385695 (review 2026-11-23T18-55-03Z R1): THE SOURCE AND ENTRYPOINT
++        DELIVERY, held as far as a recipe can be held without building it.
++
++        WHAT IS PROVED: the files the recipe names are exactly the ordinary
++        worker, the publication entry and the frozen contract; those files
++        alone import the entry; the entry the recipe starts is the one the
++        composed adapter document names; and the copy's own child -- this same
++        file, started ISOLATED, which is how the worker starts it -- runs from
++        the staged directory and copies a tree. WHAT IS NOT: that an image
++        was built, that its base still resolves, or that any container ran.
++        """
++        name = "Dockerfile.publication"
++        root = self.staged(name)
++        self.assertEqual(sorted(one.name for one in root.iterdir()),
++                         ["baton_worker.py", "publication_entry.py",
++                          "worker-control-1.0.schema.json"])
++        recipe = (WORKER / name).read_text(encoding="utf-8")
++        self.assertIn('ENTRYPOINT ["python3", '
++                      '"/opt/baton/publication_entry.py"]', recipe)
++        self.assertIn("USER 65532:65532", recipe)
++        for forbidden in ("ANTHROPIC", "claude_agent", "npm ", "apt-get"):
++            self.assertNotIn(forbidden, [
++                line for line in recipe.splitlines()
++                if not line.lstrip().startswith("#")].__str__())
++        self.proving(root, """
++import publication_entry, baton_worker
++assert publication_entry.baton_worker is baton_worker
++assert callable(publication_entry.PublicationAgent().may_complete)
++assert baton_worker._permitted is not None
++""")
++        scratch = pathlib.Path(tempfile.mkdtemp(prefix="v12-adopted-"))
++        self.addCleanup(shutil.rmtree, scratch, ignore_errors=True)
++        (scratch / "from" / "inner").mkdir(parents=True)
++        (scratch / "from" / "inner" / "one.txt").write_text("adopted\n")
++        child = subprocess.run(
++            [sys.executable, "-I", str(root / "publication_entry.py"),
++             "--adopt", str(scratch / "from"), str(scratch / "into")],
++            cwd=root, env={"PATH": "/usr/bin:/bin"}, capture_output=True,
++            text=True, timeout=120)
++        self.assertEqual((child.returncode, child.stderr), (0, ""))
++        self.assertEqual((scratch / "into" / "inner" / "one.txt").read_text(),
++                         "adopted\n")
++
+     def test_an_adapter_without_its_module_fails_loudly_and_early(self):
+         """THE CASE THAT GIVES THE GUARD ITS MEANING. The producer imports the
+         shared module at its TOP LEVEL, so the recipe the review found could
+diff --git a/v12/python/tests/tools/test_bootstrap.py b/v12/python/tests/tools/test_bootstrap.py
+index eec60d12..f48f8c28 100644
+--- a/v12/python/tests/tools/test_bootstrap.py
++++ b/v12/python/tests/tools/test_bootstrap.py
+@@ -240,6 +240,151 @@ class AnInstanceMayNameItsSourceWithoutAJob(ValidFixture):
+                 self.assertIn("Nothing was changed", str(caught.exception))
+ 
+ 
++class ADeploymentMayInstallOnePublicationWorker(ValidFixture):
++    """W385695 / REC-9, review 2026-11-23T18-55-03Z R1: the install document
++    may name the deterministic publication worker, once.
++
++    THE DOCUMENT IS THE INSTALLER'S OWN. `tools.pool.composed` composes the
++    worker against this instance and these cases name it in the bootstrap
++    input, which is how an installed instance is reconfigured -- and which is
++    the document a recovery's additive binding is later prepared from, so a
++    publisher named anywhere else would not survive its first recovery.
++    """
++
++    PUBLISHER = "baton.publisher"
++    RECORD = "work/records/2026/11/finding-v12-output-publication-recovery"
++
++    def setUp(self):
++        from tools import pool
++
++        super().setUp()
++        document = self.document()
++        document.pop("jobs", None)
++        with open(os.devnull, "w") as quiet:
++            first = bootstrap.prepare(document, stream=quiet)
++        record = Path(self.checkout, self.RECORD)
++        record.mkdir(parents=True, exist_ok=True)
++        (record / "FINDING.md").write_text("# Finding\n")
++        (record / "PLAN.md").write_text("# Plan\n")
++        task = os.path.join(self.root, "publication-task.json")
++        Path(task).write_text(json.dumps(
++            {"schema": pool.PUBLICATION_TASK_SCHEMA,
++             "task_id": "publication-idle",
++             "instructions": "adopt the approved retained output"},
++            sort_keys=True))
++        self.composing = lambda **changes: pool.composed(
++            first["configuration"], **dict(dict(
++                worker_id="publisher", role="publication",
++                participant=self.PUBLISHER,
++                image_reference="baton-v12-publication:test",
++                image_digest="sha256:" + "c" * 64, cli_build=None,
++                network=None, credential_sources=None, credentials=None,
++                workspace_group=self.config["workspace_group"],
++                task_document=task, record_path=self.RECORD,
++                checkout=self.checkout, now="2026-11-23T00:00:00.000Z"),
++                **changes))["worker"]
++        self.publisher = self.composing()
++        self.staging = bootstrap.publication_staging(self.state)
++
++    def installing(self, *extra):
++        document = self.document(
++            workers=self.workers() + [self.publisher] + list(extra))
++        document.pop("jobs", None)
++        return document
++
++    def test_the_repeat_installs_it_on_the_route_a_recovery_claims_from(self):
++        from baton_v12.authority import Authority
++        from tools import publication_worker, stage_execution
++
++        document = self.installing()
++        # ITS STAGING ROOT IS ONE OF THE ROOTS A WORKER NEEDS BEFORE IT RUNS,
++        # and is prepared with them; no repository is planned for it.
++        self.assertEqual(self.publisher["deployment"]["nominated_source"],
++                         self.staging)
++        self.assertEqual(bootstrap.PUBLICATION_STAGING,
++                         publication_worker.DEFAULT_STAGING)
++        self.assertIn(("publisher", "nominated_source", self.staging),
++                      bootstrap.prerequisite_places(document))
++        from tools import instance
++
++        places = instance.layout(self.state)
++        self.assertNotIn("source-publisher", [
++            name for name, _place, _mirror in
++            bootstrap.repository_plan(document, places)])
++        os.makedirs(self.staging, mode=0o700)
++        with open(os.devnull, "w") as quiet:
++            installed = bootstrap.prepare(document, stream=quiet)
++        configured = installed["configuration"]
++        held = [one for one in configured["workers"]
++                if one["role"] == "publication"]
++        self.assertEqual([one["worker_id"] for one in held], ["publisher"])
++        self.assertEqual(held[0]["deployment"]["launch_role"], "publication")
++        self.assertEqual(held[0]["deployment"]["principal"],
++                         installed["principals"][self.PUBLISHER])
++        stage_execution.held_configuration(configured, checkout=self.checkout)
++        # THE THREE A JOB IS MADE OF ARE STILL THE THREE.
++        self.assertEqual(sorted(installed["capacity"]["workers_by_role"]),
++                         sorted(bootstrap.ROLES))
++        authority = Authority.open_readonly(
++            installed["places"]["authority_store"],
++            expected_authority_uuid=installed["authority_uuid"])
++        try:
++            # A RECOVERY REUSES THE FAILED JOB'S WORK WHERE ITS PRODUCER LEFT
++            # IT, so the publisher is a handler of the implementation route.
++            self.assertTrue(authority.handles_route(
++                bootstrap.ROUTES["implementation"], self.PUBLISHER))
++            self.assertFalse(authority.handles_route(
++                bootstrap.ROUTES["review"], self.PUBLISHER))
++        finally:
++            authority.dispose()
++
++    def test_one_dedicated_publisher_and_no_other_role_word(self):
++        os.makedirs(self.staging, mode=0o700)
++        second = self.composing(worker_id="publisher-2",
++                                participant="baton.publisher-2")
++        for document, said in (
++                (self.installing(second),
++                 "at most one publication worker"),
++                (dict(self.installing(), workers=self.workers() + [dict(
++                    self.publisher, participant="baton.reviewer")]),
++                 "dedicated participant"),
++                (dict(self.installing(), workers=self.workers() + [dict(
++                    self.publisher, role="verification")]),
++                 "implementation, review, integration, publication")):
++            with self.subTest(said=said):
++                with self.assertRaises(bootstrap.BootstrapRefusal) as caught:
++                    bootstrap.held(bootstrap.without_installer_members(
++                        document))
++                self.assertIn(said, str(caught.exception))
++
++    def test_a_prepared_install_derives_its_staging_and_clones_nothing(self):
++        """THE DESTINATION INSTALL'S DERIVATIONS: a publication worker that
++        names no nominated source is given the instance's staging root, one
++        that names another is refused, and every other worker still gets its
++        own repository."""
++        from tools import instance
++
++        places = instance.layout(self.state)
++        bare = dict(self.publisher, deployment={
++            name: value
++            for name, value in self.publisher["deployment"].items()
++            if name != "nominated_source"})
++        document = dict(self.installing(), workers=self.workers() + [bare])
++        bound = bootstrap.repositories_bound(document, places)
++        named = {one["worker_id"]: one["deployment"]["nominated_source"]
++                 for one in bound["workers"]}
++        self.assertEqual(named["publisher"], self.staging)
++        elsewhere = dict(self.publisher, deployment=dict(
++            self.publisher["deployment"],
++            nominated_source=os.path.join(self.root, "elsewhere")))
++        with self.assertRaises(bootstrap.BootstrapRefusal) as caught:
++            bootstrap.repositories_agree(
++                dict(self.installing(),
++                     workers=[elsewhere]), places)
++        self.assertIn("workers[publisher].nominated_source",
++                      str(caught.exception))
++
++
+ class ARepeatProvisionsTheWorkerSourcesItNames(ValidFixture):
+     """W321608: the one-operand repeat clones each NEW worker's nominated
+     source from the instance's own target and proves it, under the same lock
+diff --git a/v12/python/tests/tools/test_pool.py b/v12/python/tests/tools/test_pool.py
+index 84d8fde0..53f1318b 100644
+--- a/v12/python/tests/tools/test_pool.py
++++ b/v12/python/tests/tools/test_pool.py
+@@ -887,6 +887,200 @@ class ComposingAWorkerForThisInstance(ComposingCase):
+         self.assertIn("pool", stack_command.COMMANDS)
+ 
+ 
++class ComposingTheDeterministicPublicationWorker(ComposingCase):
++    """W385695 / REC-9, review 2026-11-23T18-55-03Z R1: THE SUPPORTED INSTALL
++    PATH for the deterministic publication worker.
++
++    The reviewer's probe handed this verb's own wrapper a publication worker
++    and it refused the role. These hold what an installation needs instead:
++    the role is composed from this build's own documents with no provider
++    operand, the provider operands are refused rather than dropped, and the
++    composed document is one the accepted validator holds and this verb
++    admits.
++    """
++
++    PUBLISHER = "baton.publisher"
++
++    def publication_task(self):
++        place = os.path.join(self.root, "publication-task.json")
++        Path(place).write_text(json.dumps(
++            {"schema": pool.PUBLICATION_TASK_SCHEMA,
++             "task_id": "publication-idle",
++             "instructions": "adopt the approved retained output"},
++            sort_keys=True))
++        return place
++
++    def publication(self, **changes):
++        held = dict(worker_id="publisher", role="publication",
++                    participant=self.PUBLISHER, cli_build=None, network=None,
++                    credential_sources=None, credentials=None,
++                    legacy_layout=False,
++                    image_reference="baton-v12-publication:test",
++                    task_document=self.publication_task())
++        held.update(changes)
++        return self.selection(**held)
++
++    def staging(self):
++        return bootstrap.publication_staging(
++            Path(self.held["state_root"]).parent)
++
++    def test_the_wrapper_admits_the_role(self):
++        """THE REVIEWER'S PROBE, as a case: the installer's own worker
++        wrapper holds a publication worker, and still refuses a role nothing
++        serves."""
++        worker = self.composing(**self.publication())["worker"]
++        self.assertIs(pool.held_worker(worker), worker)
++        with self.assertRaises(pool.PoolRefusal) as caught:
++            pool.held_worker(dict(worker, role="verification"))
++        self.assertIn("implementation, review, integration, publication",
++                      str(caught.exception))
++        self.assertEqual(bootstrap.WORKER_ROLES, stage_execution.WORKER_ROLES)
++
++    def test_it_is_composed_with_no_provider_from_the_selected_declarations(self):
++        from baton_v12.contracts import digest
++        from baton_v12.contracts.manifest import check_manifest_structure
++        from baton_v12.job_manager import publication_recovery
++        from tools import publication_worker
++
++        answer = self.composing(**self.publication())
++        worker = answer["worker"]
++        deployment = worker["deployment"]
++        self.assertEqual((worker["role"], worker["participant"]),
++                         ("publication", self.PUBLISHER))
++        # NO PROVIDER, NO CREDENTIAL, NO NETWORK.
++        self.assertEqual((deployment["credential_sources"],
++                          deployment["credential_slots"],
++                          deployment["credential_profile"],
++                          deployment["network"]), (None, [], {}, "none"))
++        self.assertEqual(deployment["schema"], single_worker.CONFIG_SCHEMA)
++        self.assertNotIn("verifier_layout", deployment)
++        self.assertIsNone(answer["documents"]["runtime_profile"]["provider"])
++        self.assertNotIn("cli_build", answer["documents"]["runtime_profile"])
++        self.assertNotIn("model", answer["documents"]["runtime_profile"])
++        # THE ENTRY IS THE ONE THE RECIPE BAKES IN.
++        recipe = (Path(pool.__file__).resolve().parents[2] / "worker"
++                  / "Dockerfile.publication").read_text()
++        self.assertIn("ENTRYPOINT " + json.dumps(
++            answer["documents"]["adapter"]["entrypoint"]), recipe)
++        self.assertEqual(deployment["adapter_digest"],
++                         digest(answer["documents"]["adapter"]))
++        self.assertEqual(deployment["profile_digest"],
++                         digest(answer["documents"]["runtime_profile"]))
++        # THE TWO DECLARED OUTPUTS ARE THE OWNERS' OWN, read and not typed.
++        manifest = check_manifest_structure(deployment["input_manifest"],
++                                            "inputManifest")
++        declaration = publication_recovery.corrective_declaration()
++        self.assertEqual(manifest["outputs"],
++                         [declaration["output"],
++                          publication_recovery.PROVENANCE_OUTPUT])
++        self.assertEqual(answer["declared"],
++                         ["proposal", "recovery-provenance"])
++        self.assertEqual(manifest["worker_image_digest"],
++                         deployment["image_digest"])
++        # THE POLICY IS THE INSTANCE'S, the one a provider worker composed by
++        # this same verb carries -- a recovery Job's stages are all held to
++        # the failed Job's policy.
++        self.assertEqual(deployment["policy_digest"],
++                         self.composing()["identities"]["policy_digest"])
++        # THE READ-ONLY INPUT IS THE INSTANCE'S PRIVATE STAGING ROOT, and the
++        # spelling is the staging owner's.
++        self.assertEqual(deployment["nominated_source"], self.staging())
++        self.assertEqual(os.path.basename(self.staging()),
++                         publication_worker.DEFAULT_STAGING)
++        self.assertEqual(deployment["review_route"], "rview")
++        self.unchanged()
++
++    def test_a_provider_operand_is_refused_rather_than_dropped(self):
++        for changes, said in (
++                ({"credentials": ["claude=operator-file:x"]}, "--credential"),
++                ({"credential_sources": "/srv/credential-sources.json"},
++                 "--credential-sources"),
++                ({"cli_build": "2.1.247"}, "--cli-build"),
++                ({"legacy_layout": True}, "--legacy-verifier-layout"),
++                ({"network": "baton-provider"}, "reaches no network"),
++                ({"image_digest": "sha256:short"}, "64 hex"),
++                ({"task_document": "relative.json"}, "absolute")):
++            with self.subTest(changes=changes):
++                with self.assertRaises(pool.PoolRefusal) as caught:
++                    self.composing(**self.publication(**changes))
++                self.assertIn(said, str(caught.exception))
++                self.assertIn("Nothing was changed", str(caught.exception))
++        # `none` SAID OUT LOUD IS THE SAME SELECTION AS SAYING NOTHING.
++        self.assertEqual(
++            self.composing(**self.publication(network="none"))
++            ["worker"]["deployment"]["network"], "none")
++        self.unchanged()
++
++    def test_it_is_admitted_into_the_pool_in_its_own_lane(self):
++        """THE WHOLE INSTALL PATH THIS VERB OWNS: composed, then admitted by
++        the accepted validator, into the publication lane and no other."""
++        from baton_v12.job_manager import scheduler
++
++        worker = self.composing(**self.publication())["worker"]
++        # THE STAGING ROOT IS A PREREQUISITE THE INSTALLATION PREPARES, with
++        # the worker's other roots; until it exists the validator refuses the
++        # nomination and nothing is written.
++        document = dict(self.document(), workers=[worker])
++        document.pop("jobs", None)
++        self.assertIn(("publisher", "nominated_source", self.staging()),
++                      bootstrap.prerequisite_places(document))
++        self.assertIn("is not a directory this manager can see",
++                      self.refused(worker))
++        self.unchanged()
++        os.makedirs(self.staging(), mode=0o700)
++        admitted = self.admitting(worker)
++        entry = admitted["worker"]
++        self.assertEqual((entry["role"],
++                          entry["deployment"]["launch_role"],
++                          entry["deployment"]["participant"]),
++                         ("publication", "publication", self.PUBLISHER))
++        held = stage_execution.held_configuration(self.written(),
++                                                  checkout=self.checkout)
++        lanes = {one["worker_id"]: (one["lane"], one["eligible_kinds"])
++                 for one in stage_execution._pool(held, None)["workers"]}
++        self.assertEqual(lanes["publisher"],
++                         (scheduler.PUBLICATION_LANE, ["publication"]))
++        self.assertIsNone([one for one in held["workers"]
++                           if one["role"] == "publication"][0]["deployment"]
++                          ["credential_resolution"])
++        # AND THERE IS ONE. A second is refused and nothing more is written.
++        after = Path(self.place).read_bytes()
++        second = self.composing(**self.publication(
++            worker_id="publisher-2", participant="baton.publisher-2"))
++        self.assertIn("exactly one installed, reusable publisher",
++                      self.refused(second["worker"]))
++        self.assertEqual(Path(self.place).read_bytes(), after)
++
++    def test_the_command_line_composes_one_without_provider_operands(self):
++        self.record_in(self.checkout)
++        into = os.path.join(self.root, "publisher.json")
++        common = ["compose-worker", "--deployment", self.place,
++                  "--participant", self.PUBLISHER,
++                  "--image-reference", "baton-v12-publication:test",
++                  "--image-digest", self.IMAGE,
++                  "--workspace-group", str(self.config["workspace_group"]),
++                  "--task-document", self.publication_task(),
++                  "--record", self.RECORD, "--checkout", self.checkout]
++        said = io.StringIO()
++        self.assertEqual(pool.main(
++            common + ["--worker-id", "publisher", "--role", "publication",
++                      "--into", into], stream=said), 0, said.getvalue())
++        self.assertIn("recovery-provenance", said.getvalue())
++        self.assertEqual(json.loads(Path(into).read_text())["role"],
++                         "publication")
++        # AN ORDINARY ROLE STILL NAMES ITS PROVIDER OPERANDS, by name.
++        said = io.StringIO()
++        other = os.path.join(self.root, "impl-x.json")
++        self.assertEqual(pool.main(
++            common + ["--worker-id", "impl-x", "--role", "implementation",
++                      "--legacy-verifier-layout", "--into", other],
++            stream=said), 2)
++        self.assertIn("--cli-build, --network, --credential-sources, "
++                      "--credential", said.getvalue())
++        self.assertFalse(os.path.exists(other))
++        self.unchanged()
++
++
+ class ComposingAWorkerForASelectedTemplate(ComposingCase):
+     """W385331 (T321608 M385374, the composer gap): the template is a
+     selection of this verb. Omitted, nothing changes; a handoff-capable one
+diff --git a/v12/python/tests/tools/test_stage_execution.py b/v12/python/tests/tools/test_stage_execution.py
+index c8eb86f2..628b7599 100644
+--- a/v12/python/tests/tools/test_stage_execution.py
++++ b/v12/python/tests/tools/test_stage_execution.py
+@@ -13567,10 +13567,11 @@ class APublicationWorkerIsAConfiguredRoleInItsOwnLane(StageCase):
+     configuration boundary and the pool document: the role is admitted, it is
+     optional, it maps to the publication lane and to no other, and a
+     publication worker that declares a credential is refused before anything
+-    is opened. They do NOT run `operations_from` over a publication worker --
+-    that composition needs a bootstrapped instance that carries one, and the
+-    execution of a publication stage through the composed worker lifecycle is
+-    proved in `tests.job_manager.test_publication_recovery_execution`.
++    is opened; and they hold the per-recovery derivation of the one installed
++    worker. `operations_from` over a bootstrapped instance carrying an
++    installer-composed publication worker, serving recoveries on two Works,
++    is `tests.job_manager.test_publication_recovery_execution.
++    OneInstalledPublisherServesRecoveriesOnTwoWorks`.
+     """
+ 
+     def publication(self, **members):
+@@ -13629,6 +13630,117 @@ class APublicationWorkerIsAConfiguredRoleInItsOwnLane(StageCase):
+             + self.document()["workers"][1:])
+         self.assertIn("at least one slot", caught.message)
+ 
++    def test_one_installed_publisher_is_derived_for_a_second_work(self):
++        """Review 2026-11-23T18-55-03Z R3, at the derivation itself.
++
++        The installed publisher names the Work it was installed against. A
++        recovery bound to ANOTHER Work is served under that same worker's
++        declarations rebound to the recovery's Work -- so the selector's own
++        comparison finds nothing to disagree about -- and nothing installed
++        moved to make that true.
++        """
++        from baton_v12.contracts.manifest import check_manifest_structure
++
++        given = self.with_publisher()
++        worker = given["workers"][-1]
++        installed = worker["deployment"]["input_manifest"]
++        before = json.dumps(installed, sort_keys=True)
++        binding = {"job_id": "publication-D9", "job_work_id": "0000000a-W999",
++                   "source_worker_id": "implementation-worker"}
++        served = stage_execution._served_deployment(given, worker, binding)
++        manifest = served["input_manifest"]
++        self.assertEqual(manifest["work_ref"],
++                         {"authority_uuid":
++                              installed["work_ref"]["authority_uuid"],
++                          "work_id": "0000000a-W999"})
++        check_manifest_structure(manifest, "inputManifest")
++        # ONLY THE WORK MOVED.
++        self.assertEqual(
++            {name: value for name, value in manifest.items()
++             if name not in ("work_ref", "manifest_digest")},
++            {name: value for name, value in installed.items()
++             if name not in ("work_ref", "manifest_digest")})
++        self.assertIs(worker["deployment"]["input_manifest"], installed)
++        self.assertEqual(json.dumps(installed, sort_keys=True), before)
++        stage = {"job_id": binding["job_id"], "kind": "publication",
++                 "profile_name": worker["deployment"]["profile_name"],
++                 "profile_digest": worker["deployment"]["profile_digest"]}
++        job = {"input_digest": stage_execution.publication_input_identity(
++                   given, binding),
++               "policy_digest": worker["deployment"]["policy_digest"]}
++        self.assertEqual(
++            stage_execution._disagreements(served, stage, job, binding), {})
++        # AND THE THREE NEGATIVES. A Job submitted under the INSTALLED
++        # identity names the other Work's input; a binding on a third Work is
++        # still a wrong Work; and the same recovery is one input per Work.
++        self.assertEqual(
++            sorted(stage_execution._disagreements(
++                served, stage,
++                dict(job, input_digest=job_input_identity(installed)),
++                binding)), ["the submitted input"])
++        self.assertEqual(
++            stage_execution._disagreements(
++                served, stage, job,
++                dict(binding, job_work_id="0000000a-W7"))["the Work"],
++            ("0000000a-W999", "0000000a-W7"))
++        self.assertNotEqual(
++            job["input_digest"],
++            stage_execution.publication_input_identity(
++                given, dict(binding, job_work_id="0000000a-W7")))
++        # THE UNBOUND ONE-JOB DOCUMENT DERIVES NOTHING, as for every role.
++        self.assertIs(
++            stage_execution._served_deployment(
++                given, worker, dict(binding, job_id=None))["input_manifest"],
++            installed)
++
++    def test_no_other_role_is_rebound_to_a_jobs_work(self):
++        """THE DERIVATION IS THE PUBLICATION ROLE'S ALONE. An implementation
++        or review worker bound to another Work is still exactly the wrong
++        Work it always was; `_disagreements` was not taught to tolerate one.
++        """
++        given = self.with_publisher()
++        binding = {"job_id": "job-z", "job_work_id": "0000000a-W999",
++                   "source_worker_id": "implementation-worker"}
++        for worker in given["workers"][:2]:
++            with self.subTest(role=worker["role"]):
++                served = stage_execution._served_deployment(given, worker,
++                                                            binding)
++                self.assertIs(served["input_manifest"],
++                              worker["deployment"]["input_manifest"])
++                stage = {"job_id": "job-z", "kind": worker["role"],
++                         "profile_name": served["profile_name"],
++                         "profile_digest": served["profile_digest"]}
++                job = {"input_digest": job_input_identity(
++                           served["input_manifest"]),
++                       "policy_digest": served["policy_digest"]}
++                self.assertIn("the Work", stage_execution._disagreements(
++                    served, stage, job, binding))
++
++    def test_a_deployment_installs_at_most_one_dedicated_publisher(self):
++        second = self.publication(participant="baton.publisher-2",
++                                  principal="publisher-2-principal")
++        second["worker_id"] = "publication-worker-2"
++        # IN THE VARIANT THAT ADMITS SEVERAL WORKERS FOR A ROLE, so this is
++        # the publication rule answering and not the one-worker-per-role one.
++        given = self.document(schema=stage_execution.MULTI_CONFIG_SCHEMA,
++                              job_bindings=[],
++                              workers=self.document()["workers"]
++                              + [self.publication(), second])
++        for member in ("job_work_id", "review_work_id", "line_declared_base",
++                       "canonical_target_id"):
++            given.pop(member)
++        with self.assertRaises(ContractRefusal) as raised:
++            stage_execution.held_configuration(given, checkout=self.checkout)
++        self.assertIn("exactly one installed, reusable publisher",
++                      raised.exception.message)
++        # AND IT IS NOBODY ELSE'S PARTICIPANT.
++        caught = self.refused(
++            workers=self.document()["workers"]
++            + [self.publication(participant="baton.reviewer",
++                                principal="reviewer-principal")])
++        self.assertEqual((caught.category, caught.code), ("policy", "denied"))
++        self.assertIn("dedicated participant", caught.message)
++
+     def test_a_worker_configured_under_another_role_is_not_the_publisher(self):
+         caught = self.refused(
+             workers=self.document()["workers"] + [dict(
+diff --git a/v12/python/tools/bootstrap.py b/v12/python/tools/bootstrap.py
+index d2d6aa35..8fd0ef02 100644
+--- a/v12/python/tools/bootstrap.py
++++ b/v12/python/tools/bootstrap.py
+@@ -46,6 +46,20 @@ RECORD_SCHEMA = "baton.v12.stack-bootstrap-record/1"
+ # Both are `stage_execution`'s; they are named here because this module WRITES
+ # that document and a second opinion about its shape would be a second contract.
+ ROLES = ("implementation", "review", "integration")
++# W385695 / REC-9 (review 2026-11-23T18-55-03Z R1): THE DETERMINISTIC
++# PUBLICATION WORKER IS A FOURTH, OPTIONAL CONFIGURED ROLE. `ROLES` stays the
++# three a JOB is made of -- the every-role-served rule, the schema variant and
++# the capacity report all mean those three by it -- and a worker may
++# additionally be configured under this one. It is installed once and serves
++# only approved publication recoveries: `stage_execution.WORKER_ROLES` is the
++# consumer's spelling of the same widening, and a case holds the two equal.
++PUBLICATION_ROLE = "publication"
++WORKER_ROLES = ROLES + (PUBLICATION_ROLE,)
++# WHERE THAT WORKER'S READ-ONLY INPUT IS STAGED, under the instance's own
++# root. `tools.publication_worker.DEFAULT_STAGING` is the owner of the name
++# and a case holds this spelling equal to it; it is restated because this
++# module is what an installation runs before anything else is importable.
++PUBLICATION_STAGING = "publication-staging"
+ ONE_JOB_SCHEMA = "baton.v12.stage-execution-deployment/1"
+ MULTI_JOB_SCHEMA = "baton.v12.stage-execution-deployment/2"
+ 
+@@ -203,7 +217,14 @@ ROUTING_SCHEMA = "baton.native-handoff-routing/1"
+ 
+ # The route each stage is served on. `review_route` on a worker names where its
+ # own ending hands the Work on to, which is why the last one is not a stage.
+-ROUTES = {"implementation": "impl", "review": "rview", "integration": "integration"}
++ROUTES = {"implementation": "impl", "review": "rview", "integration": "integration",
++          # A RECOVERY REUSES THE FAILED JOB'S OWN WORK, which sits where its
++          # producer left it: on the implementation route. The publication
++          # worker makes the FRESH claim there, so that is the route its
++          # participant is registered on. Being a handler says who MAY claim;
++          # which stage a worker is actually offered is the scheduler's lane,
++          # and the publication lane is offered publication stages only.
++          PUBLICATION_ROLE: "impl"}
+ 
+ 
+ class BootstrapRefusal(Exception):
+@@ -525,9 +546,28 @@ def held(document):
+     for role in (ROLES if workers_of(document) else ()):
+         if role != "integration" and not by_role.get(role):
+             faults.append("no worker is configured for the " + role + " stage")
+-    for role in set(by_role) - set(ROLES):
+-        faults.append("this deployment serves " + ", ".join(ROLES)
++    for role in set(by_role) - set(WORKER_ROLES):
++        faults.append("this deployment serves " + ", ".join(WORKER_ROLES)
+                       + " and a worker names the role " + repr(role))
++    # W385695: ONE DEDICATED PUBLICATION WORKER, UNDER ITS OWN PARTICIPANT.
++    # The contract's words are "a dedicated deterministic publication
++    # worker/participant ... its own principal": a recovery's reviewer is held
++    # independent of BOTH the original producer and the publisher, which means
++    # nothing if the publisher is one of them, and the reusable capacity is
++    # installed once rather than once per recovery.
++    publishers = by_role.get(PUBLICATION_ROLE, [])
++    if len(publishers) > 1:
++        faults.append("at most one publication worker is configured; these "
++                      "are " + repr([one["worker_id"] for one in publishers]))
++    for one in publishers:
++        sharing = sorted(other["worker_id"] for other in workers_of(document)
++                         if other is not one
++                         and other["participant"] == one["participant"])
++        if sharing:
++            faults.append("the publication worker " + repr(one["worker_id"])
++                          + " shares its participant with "
++                          + ", ".join(sharing) + "; the deterministic "
++                          "publisher is a dedicated participant")
+     named = [one["worker_id"] for one in workers_of(document)]
+     if len(set(named)) != len(named):
+         faults.append("every worker_id is distinct; these are " + repr(named))
+@@ -1586,6 +1626,23 @@ def _safe_name(worker_id):
+     return said
+ 
+ 
++def _clones_a_source(worker):
++    """Does this worker's nominated source come from a repository clone?
++
++    EVERY ROLE BUT THE PUBLICATION ONE. A publication worker reads no
++    repository: its read-only input is the approved retained output, staged
++    per recovery under `publication_staging`, so there is nothing to clone
++    for it and a clone prepared under its name would be a repository nothing
++    ever mounts.
++    """
++    return worker.get("role") != PUBLICATION_ROLE
++
++
++def publication_staging(destination):
++    """Where an instance's publication worker is delivered its staged input."""
++    return os.path.join(str(destination), PUBLICATION_STAGING)
++
++
+ def repository_plan(document, places):
+     """Which repositories this deployment needs, and where they go.
+ 
+@@ -1601,7 +1658,8 @@ def repository_plan(document, places):
+     planned = [("target", str(root / "target.git"), True),
+                ("workspace", str(root / "workspace"), False)]
+     for worker in document.get("workers") or []:
+-        if type(worker) is dict and worker.get("worker_id"):
++        if type(worker) is dict and worker.get("worker_id") \
++                and _clones_a_source(worker):
+             name = _safe_name(worker["worker_id"])
+             planned.append(("source-" + name, str(root / ("source-" + name)),
+                             False))
+@@ -1640,7 +1698,9 @@ def repositories_agree(document, places):
+         if type(worker) is not dict or type(worker.get("deployment")) is not dict:
+             continue
+         source = worker["deployment"].get("nominated_source")
+-        wanted = planned["source-" + _safe_name(worker["worker_id"])]
++        wanted = (planned["source-" + _safe_name(worker["worker_id"])]
++                  if _clones_a_source(worker)
++                  else publication_staging(places["destination"]))
+         if isinstance(source, str) and source and source != wanted:
+             disagreements.append(
+                 ("workers[" + str(worker["worker_id"]) + "].nominated_source",
+@@ -2009,8 +2069,11 @@ def repositories_bound(document, places, preparing=True):
+         if type(worker) is dict and worker.get("worker_id") and type(
+                 worker.get("deployment")) is dict:
+             deployment = dict(worker["deployment"])
+-            deployment.setdefault("nominated_source",
+-                                  planned["source-" + str(worker["worker_id"])])
++            deployment.setdefault(
++                "nominated_source",
++                planned["source-" + str(worker["worker_id"])]
++                if _clones_a_source(worker)
++                else publication_staging(places["destination"]))
+             worker = dict(worker, deployment=deployment)
+         workers.append(worker)
+     document["workers"] = workers
+@@ -2671,7 +2734,17 @@ def prerequisite_places(document):
+         deployment = worker.get("deployment")
+         if type(deployment) is not dict:
+             continue
+-        for name in PREREQUISITE_ROOTS:
++        # W385695: AND A PUBLICATION WORKER'S STAGING ROOT. Every other
++        # role's nominated source is a repository `prepare_worker_sources`
++        # clones; this one's is a private, initially empty directory the
++        # manager stages each approved original into, so it is prepared here
++        # with the other roots a worker needs before it first runs -- through
++        # the same pinned ancestry and at the same private mode -- rather
++        # than left for the first recovery to find missing.
++        names = PREREQUISITE_ROOTS + (
++            ("nominated_source",)
++            if worker.get("role") == PUBLICATION_ROLE else ())
++        for name in names:
+             named = deployment.get(name)
+             if type(named) is not str or not named or named in seen:
+                 continue
+diff --git a/v12/python/tools/fresh_attempt_ports.py b/v12/python/tools/fresh_attempt_ports.py
+index 0571de1e..78ff6196 100644
+--- a/v12/python/tools/fresh_attempt_ports.py
++++ b/v12/python/tools/fresh_attempt_ports.py
+@@ -647,8 +647,9 @@ class DeploymentBinding:
+         emitted document, exactly as every other binding question is.
+ 
+         `None` IS THE HONEST ANSWER FOR EVERY INSTANCE THAT HAS NOT INSTALLED
+-        ONE, which today is every instance: the reusable worker is installed
+-        once by a deployment upgrade, not per recovery. The admission boundary
++        ONE: the reusable worker is installed once -- composed by
++        `pool compose-worker --role publication` and named in the install
++        document -- and not per recovery. The admission boundary
+         turns that `None` into a HELD prerequisite naming this owner, which is
+         exactly what must happen -- rather than routing a publication stage to
+         the workers that run implementations.
+@@ -694,6 +695,30 @@ class DeploymentBinding:
+                     "input_digest": identity}
+         return None
+ 
++    def publication_input(self, job_id, *, work_id, task=None):
++        """THE INPUT IDENTITY ONE RECOVERY IS SUBMITTED UNDER, or `None`.
++
++        W385695 (review 2026-11-23T18-55-03Z R3). `publication_worker` above
++        answers what is INSTALLED, and an installed worker's manifest names
++        the Work it was installed against. A recovery runs on the ORIGINAL
++        Job's Work under the original Job's task, so the identity its Job
++        carries is the installed declarations bound to those two -- and that
++        binding is `stage_execution`'s own derivation, the one `serving`
++        compares and the serving composition delivers. Asked here rather than
++        composed, for `serving`'s reason: a second derivation in this adapter
++        would be a copy of the selector's, and the pilot proved what a copy
++        costs.
++
++        NOTHING IS WRITTEN AND NOTHING INSTALLED IS CHANGED. The answer is a
++        digest of a document derived in memory from the emitted
++        configuration; the configuration file is read and left alone.
++        """
++        from tools import stage_execution
++
++        return stage_execution.publication_input_identity(
++            self._configuration(),
++            {"job_id": job_id, "job_work_id": work_id}, task)
++
+     def serving(self, job_id, *, stage, job, task=None, template=None):
+         """Which configured workers can serve THIS stage of THIS Job.
+ 
+diff --git a/v12/python/tools/pool.py b/v12/python/tools/pool.py
+index c1539962..af4766e7 100644
+--- a/v12/python/tools/pool.py
++++ b/v12/python/tools/pool.py
+@@ -175,9 +175,13 @@ def held_worker(worker):
+     # installation could not have made a directory from is not one this verb
+     # admits into the same pool.
+     bootstrap._safe_name(worker["worker_id"])
+-    if worker["role"] not in bootstrap.ROLES:
++    # W385695 (review 2026-11-23T18-55-03Z R1): `WORKER_ROLES`, which is the
++    # three a Job is made of plus the optional deterministic publication
++    # worker. This verb is how an installed pool grows, and a role the
++    # accepted validator configures is a role this must be able to admit.
++    if worker["role"] not in bootstrap.WORKER_ROLES:
+         raise PoolRefusal(
+-            "this deployment serves " + ", ".join(bootstrap.ROLES)
++            "this deployment serves " + ", ".join(bootstrap.WORKER_ROLES)
+             + " and this worker names the role " + repr(worker["role"]) + ".")
+     return worker
+ 
+@@ -411,7 +415,27 @@ _MAX_MARKER_BYTES = 64 * 1024
+ # integration. `tests/tools/test_bootstrap.ValidFixture` and the standard
+ # next-run packet agree on these two values.
+ REVIEW_ROUTES = {"implementation": "rview", "review": "integration",
+-                 "integration": "owner"}
++                 "integration": "owner",
++                 # A PUBLISHED RECOVERY IS REVIEWED NEXT, exactly as an
++                 # implementation's candidate is: the publication stands
++                 # where the failed producer's publication would have.
++                 bootstrap.PUBLICATION_ROLE: "rview"}
++# W385695 / REC-9: WHAT A DETERMINISTIC PUBLICATION WORKER IS COMPOSED AS.
++# Its image runs `v12/worker/publication_entry.py` (the recipe is
++# `v12/worker/Dockerfile.publication`), it reaches no network and it invokes
++# no provider -- so its runtime profile and adapter are its own documents and
++# not the provider worker's with members blanked. The EXECUTION POLICY is not
++# its own: a recovery Job carries the failed Job's policy digest and every
++# stage of a Job is held to it, so the publisher declares the policy this
++# build composes for the instance's other workers.
++PUBLICATION_PROFILE_NAME = "deterministic-publication"
++PUBLICATION_ADAPTER_NAME = "docker-publication-worker"
++PUBLICATION_ENTRYPOINT = ["python3", "/opt/baton/publication_entry.py"]
++PUBLICATION_NETWORK = "none"
++# The publisher's own installed task: what `/input/task.json` says when no
++# recovery is in hand. A recovery's stage is delivered the ORIGINAL Job's
++# task in its place (`stage_execution._served_deployment`).
++PUBLICATION_TASK_SCHEMA = "baton.v12.output-publication-task/1"
+ 
+ 
+ def _credential_profile(mappings):
+@@ -691,10 +715,25 @@ def composed(held, *, worker_id, role, participant, image_reference,
+                               "configuration: it names no " + name
+                               + ". Nothing was changed.")
+     bootstrap._safe_name(worker_id)
+-    if role not in REVIEW_ROUTES or role not in bootstrap.ROLES:
+-        raise PoolRefusal("this deployment serves " + ", ".join(bootstrap.ROLES)
++    if role not in REVIEW_ROUTES or role not in bootstrap.WORKER_ROLES:
++        raise PoolRefusal("this deployment serves "
++                          + ", ".join(bootstrap.WORKER_ROLES)
+                           + " and this worker names the role " + repr(role)
+                           + ". Nothing was changed.")
++    if role == bootstrap.PUBLICATION_ROLE:
++        # W385695 (review 2026-11-23T18-55-03Z R1): THE DETERMINISTIC
++        # PUBLICATION WORKER IS COMPOSED BY ITS OWN RULE, below. It selects
++        # no provider, so the operands that name one are refused rather than
++        # accepted and dropped.
++        return _composed_publication(
++            held, worker_id=worker_id, participant=participant,
++            image_reference=image_reference, image_digest=image_digest,
++            cli_build=cli_build, network=network,
++            credential_sources=credential_sources, credentials=credentials,
++            workspace_group=workspace_group, task_document=task_document,
++            record_path=record_path, checkout=checkout, work_id=work_id,
++            runtime_uid=runtime_uid, now=now,
++            verifier_layout=verifier_layout, legacy_layout=legacy_layout)
+     for name, value in (("participant", participant),
+                         ("image_reference", image_reference),
+                         ("cli_build", cli_build), ("network", network)):
+@@ -823,6 +862,239 @@ def composed(held, *, worker_id, role, participant, image_reference,
+                            "adapter_digest": identities["adapter_digest"]}}
+ 
+ 
++def _composed_publication(held, *, worker_id, participant, image_reference,
++                          image_digest, cli_build, network,
++                          credential_sources, credentials, workspace_group,
++                          task_document, record_path, checkout, work_id,
++                          runtime_uid, now, verifier_layout, legacy_layout):
++    """One DETERMINISTIC PUBLICATION worker document for this instance.
++
++    W385695 / REC-9 (review 2026-11-23T18-55-03Z R1). The contract's own
++    description is what is composed: "a dedicated deterministic publication
++    worker/participant and profile, no provider configuration, credential
++    mount or implementation instruction", installed once and reused.
++
++    WHAT IS THIS BUILD'S AND WHAT IS THE OPERATOR'S. The declared outputs are
++    the two a recovery publishes under -- W385694's exact selected proposal
++    revision, from the descriptor owner, and the owner-selected provenance
++    descriptor -- read from `publication_recovery` and never assembled here.
++    The execution policy is the one this build composes for every worker of
++    an instance, because a recovery Job carries the failed Job's policy and
++    its stages are held to it. The runtime profile and the adapter are the
++    publisher's own documents: no network, no CLI, no model, and the entry
++    `v12/worker/Dockerfile.publication` bakes in. What the operator names is
++    the image, the workspace group, the record, the identity and the task
++    document the idle worker is sealed over.
++
++    WHAT IS REFUSED RATHER THAN IGNORED: a credential mapping or registry, a
++    provider CLI build, a provider network and a verifier-layout selection.
++    Each is a statement about a provider this worker does not have, and
++    accepting one silently would leave an operator believing it took effect.
++
++    THE WORK IT NAMES IS ONLY WHERE IT IS INSTALLED. A recovery is served
++    under its own Work and the original Job's task, derived per recovery by
++    `stage_execution._served_deployment`; the Work here is the one the idle
++    composition proves exists.
++    """
++    from baton_v12.contracts import digest
++    from baton_v12.contracts.manifest import check_manifest_structure
++    from baton_v12.job_manager import execution_limits, publication_recovery
++    from baton_v12.worker_manager import source_boundary
++    from tools import instance, next_run_bindings
++
++    said = [name for name, value in (
++        ("--credential", credentials), ("--credential-sources",
++                                        credential_sources),
++        ("--cli-build", cli_build),
++        ("--verifier-layout", verifier_layout),
++        ("--legacy-verifier-layout", legacy_layout or None))
++        if value not in (None, "", [], ())]
++    if said:
++        raise PoolRefusal(
++            "a deterministic publication worker invokes no provider and is "
++            "delivered no credential, so " + ", ".join(said) + " "
++            + ("names" if len(said) == 1 else "name") + " nothing it has. "
++            "Drop " + ("it" if len(said) == 1 else "them") + ". Nothing was "
++            "changed.")
++    if network not in (None, "", PUBLICATION_NETWORK):
++        raise PoolRefusal(
++            "a deterministic publication worker reaches no network; this "
++            "names " + repr(network) + ". Omit --network or name "
++            + repr(PUBLICATION_NETWORK) + ". Nothing was changed.")
++    for name, value in (("participant", participant),
++                        ("image_reference", image_reference)):
++        if type(value) is not str or not value:
++            raise PoolRefusal("a worker names one " + name + ". Nothing was "
++                              "changed.")
++    if type(image_digest) is not str or not image_digest.startswith(_SHA256) \
++            or len(image_digest) != len(_SHA256) + 64:
++        raise PoolRefusal("an image digest is sha256: followed by 64 hex "
++                          "characters; this is " + repr(image_digest)
++                          + ". Nothing was changed.")
++    if type(workspace_group) is not int or workspace_group <= 0:
++        raise PoolRefusal("the workspace group is one positive group id; this "
++                          "is " + repr(workspace_group) + ". Nothing was "
++                          "changed.")
++    if type(task_document) is not str or not os.path.isabs(task_document):
++        raise PoolRefusal("the task document is named by an absolute path; "
++                          "this is " + repr(task_document) + ". Nothing was "
++                          "changed.")
++    destination = Path(held["state_root"]).parent
++    places = instance.layout(destination)
++    if places["authority_store"] != held["authority_store"]:
++        raise PoolRefusal(
++            "this configuration's state_root " + str(held["state_root"])
++            + " does not sit in the destination whose Authority store is "
++            + str(held["authority_store"]) + ", so the instance's paths "
++            "cannot be derived. Nothing was changed.")
++    work = work_id or held.get("job_work_id") or (held["authority_uuid"][:8]
++                                                 + "-W1")
++    raw, task_id = _task_artifact(task_document)
++    record = _record_binding(record_path, checkout)
++    limits = execution_limits.resolved(None)["boundaries"]
++    uid = os.getuid() if runtime_uid is None else runtime_uid
++    declaration = publication_recovery.corrective_declaration()
++    declared = [dict(declaration["output"]),
++                dict(publication_recovery.PROVENANCE_OUTPUT)]
++    runtime_profile = {
++        "schema": "baton.publication-runtime-profile/1",
++        "name": PUBLICATION_PROFILE_NAME,
++        "engine": "docker", "network": PUBLICATION_NETWORK,
++        "image_reference": image_reference, "image_digest": image_digest,
++        "runtime_uid": uid,
++        "scratch": {"tmp_bytes": 64 * 1024 * 1024,
++                    "shm_bytes": 16 * 1024 * 1024},
++        "workspace_min_bytes": max(
++            source_boundary.MIN_WORKSPACE_BYTES + 1,
++            declaration["output"]["constraints"]["max_bytes"]
++            + publication_recovery.PROVENANCE_OUTPUT["constraints"]
++            ["max_bytes"] + source_boundary.MIN_WORKSPACE_BYTES),
++        "provider": None,
++        "note": "one deterministic adoption of an approved retained output; "
++                "W385695"}
++    adapter = {
++        "schema": "baton.publication-adapter/1",
++        "adapter_name": PUBLICATION_ADAPTER_NAME,
++        "engine": "docker", "network": PUBLICATION_NETWORK,
++        "entrypoint": list(PUBLICATION_ENTRYPOINT),
++        "provider": None}
++    try:
++        # THE INSTANCE'S EXECUTION POLICY, composed by the owner that composes
++        # it for every other worker. Only the policy is taken from this
++        # answer; the provider operands it also takes are the publisher's
++        # absent ones and reach nothing that is kept.
++        policy_digest = next_run_bindings.deployment_identities(
++            image_reference=image_reference, image_digest=image_digest,
++            cli_build=None, provider_network=PUBLICATION_NETWORK,
++            runtime_uid=uid,
++            turn_seconds=limits["provider_turn"]["seconds"],
++            verification_seconds=limits["ordinary_verification"]["seconds"],
++            implementer_invocations=1, contextual=False)["policy_digest"]
++        from datetime import datetime, timezone
++
++        consumption = source_boundary.source_consumption("generic")
++        bound = {
++            "credential_policy_digest": digest(
++                {"schema": "baton.worker-credential-policy/1", "profile": {}}),
++            "tool_policy_digest": digest(
++                {"schema": "baton.worker-tool-policy/1", "provider": None,
++                 "entrypoint": list(PUBLICATION_ENTRYPOINT)}),
++            "network_policy_digest": digest(
++                {"schema": "baton.worker-network-policy/1",
++                 "engine": "docker", "network": PUBLICATION_NETWORK}),
++            "resource_policy_digest": digest(
++                {"schema": "baton.worker-resource-policy/1",
++                 "scratch": dict(runtime_profile["scratch"]),
++                 "workspace_min_bytes":
++                     runtime_profile["workspace_min_bytes"]}),
++            "mount_policy_digest": digest(
++                {"schema": "baton.worker-mount-policy/1",
++                 "source_destination": single_worker.SOURCE_DESTINATION,
++                 "consumption": consumption}),
++            "toolchain_digest": digest(
++                {"schema": "baton.worker-toolchain/1",
++                 "image_reference": image_reference,
++                 "image_digest": image_digest, "cli_build": None}),
++            "role_instructions_digest": digest(
++                {"schema": "baton.worker-role-instructions/1",
++                 "role": bootstrap.PUBLICATION_ROLE,
++                 "declaration": declaration["digest"],
++                 "provenance": dict(publication_recovery.PROVENANCE_OUTPUT)}),
++            "retention_policy_digest": held["retention_policy_digest"],
++            "record_binding": record,
++            "manifest_id": "input-manifest-" + worker_id,
++            "created_at": (now or datetime.now(timezone.utc).strftime(
++                "%Y-%m-%dT%H:%M:%S.000Z"))}
++        manifest = next_run_bindings.input_manifest(
++            None, authority_uuid=held["authority_uuid"], work_id=work,
++            policy_digest=policy_digest,
++            profile_digest=digest(runtime_profile),
++            image_digest=image_digest, task_bytes=raw, artifact_id=task_id,
++            contextual=False, bound=bound, declared=declared)
++        # THE STAGED ORIGINAL IS AN ORDINARY TREE AND NOT A LINE. The shared
++        # composer declares the provider workers' version-controlled source;
++        # this worker's one source is the read-only staged root, consumed as
++        # bytes, so the declaration says so and the manifest is resealed.
++        manifest = dict(manifest)
++        manifest["sources"] = [dict(manifest["sources"][0],
++                                    consumption=consumption)]
++        manifest.pop("manifest_digest", None)
++        manifest["manifest_digest"] = digest(manifest)
++        manifest = check_manifest_structure(
++            manifest, "inputManifest",
++            what="the composed publication input manifest")
++        _no_specimen(manifest)
++    except (next_run_bindings.BindingRefusal, Exception) as failure:  # noqa: BLE001
++        raise PoolRefusal("the publication worker could not be composed from "
++                          "this build's documents: " + str(failure)
++                          + ". Nothing was changed.")
++    deployment = {
++        "schema": single_worker.CONFIG_SCHEMA,
++        "profile_name": PUBLICATION_PROFILE_NAME,
++        "profile_digest": digest(runtime_profile),
++        "policy_digest": policy_digest,
++        "adapter_name": PUBLICATION_ADAPTER_NAME,
++        "adapter_digest": digest(adapter),
++        "engine": "docker", "image_digest": image_digest,
++        "network": PUBLICATION_NETWORK,
++        "workspace_storage": os.path.join(places["state"], "workspaces"),
++        "workspace_group": workspace_group,
++        "launch_home": os.path.join(places["state"], "launch"),
++        "credential_home": os.path.join(places["state"], "credentials"),
++        # NO REGISTRY, NO SLOT, NO PROFILE: `single_worker._held` REQUIRES
++        # exactly this of the publication role and composes no delivery.
++        "credential_sources": None,
++        "credential_slots": [],
++        "credential_profile": {},
++        # THE INSTANCE'S PRIVATE STAGING ROOT, which is where each approved
++        # original is staged and what the engine binds read-only. Derived
++        # from the destination, like every other path here, and prepared
++        # with the worker's other roots by the installation.
++        "nominated_source": bootstrap.publication_staging(destination),
++        "workspace_capacity": {
++            "max_bytes": runtime_profile["workspace_min_bytes"]},
++        "input_manifest": manifest,
++        "task_document": str(task_document),
++        "launch_contract": "v12-assignment-1",
++        "review_route": REVIEW_ROUTES[bootstrap.PUBLICATION_ROLE],
++        "retention_policy_digest": held["retention_policy_digest"],
++        "retention_disposition": held["retention_disposition"]}
++    worker = held_worker({"worker_id": worker_id,
++                          "role": bootstrap.PUBLICATION_ROLE,
++                          "participant": participant,
++                          "deployment": deployment})
++    return {"worker": worker, "work_id": work, "template": None,
++            "declared": [one["name"] for one in manifest["outputs"]],
++            "manifest_digest": manifest["manifest_digest"],
++            "human_contract": manifest["human_contract"],
++            "layout": {"selection": "legacy", "layout_digest": None},
++            "identities": {"profile_digest": digest(runtime_profile),
++                           "policy_digest": policy_digest,
++                           "adapter_digest": digest(adapter)},
++            "documents": {"runtime_profile": runtime_profile,
++                          "adapter": adapter}}
++
++
+ def _written_fresh(target, body):
+     """ONE NEW FILE, created exclusively at the filesystem operation.
+ 
+@@ -864,17 +1136,21 @@ def compose(place, *, into, stream=sys.stdout, admit_into_pool=False,
+           file=stream)
+     print("work      %s" % answer["work_id"], file=stream)
+     print("image     %s" % worker["deployment"]["image_digest"], file=stream)
+-    print("layout    %s" % (
+-        "trusted " + answer["layout"]["layout_digest"]
+-        if answer["layout"]["selection"] == "trusted"
+-        else "legacy (explicitly selected: the image declares no "
+-             "verifier-layout marker)"), file=stream)
++    if worker["role"] == bootstrap.PUBLICATION_ROLE:
++        print("layout    none: a deterministic publication worker runs no "
++              "verifier", file=stream)
++    else:
++        print("layout    %s" % (
++            "trusted " + answer["layout"]["layout_digest"]
++            if answer["layout"]["selection"] == "trusted"
++            else "legacy (explicitly selected: the image declares no "
++                 "verifier-layout marker)"), file=stream)
+     print("profile   %s %s" % (worker["deployment"]["profile_name"],
+                                worker["deployment"]["profile_digest"]),
+           file=stream)
+-    print("template  %s declaring %s" % (answer["template"],
+-                                         ", ".join(answer["declared"])),
+-          file=stream)
++    print("template  %s declaring %s" % (
++        answer["template"] or "none (the selected publication declarations)",
++        ", ".join(answer["declared"])), file=stream)
+     print("task      %s (%s)" % (worker["deployment"]["task_document"],
+                                  answer["human_contract"]["artifact_id"]),
+           file=stream)
+@@ -912,24 +1188,33 @@ def main(argv=None, *, stream=sys.stdout):
+     composing.add_argument("--deployment", required=True,
+                            help="the instance's deployment.json")
+     composing.add_argument("--worker-id", required=True)
+-    composing.add_argument("--role", required=True, choices=bootstrap.ROLES)
++    composing.add_argument("--role", required=True,
++                           choices=bootstrap.WORKER_ROLES)
+     composing.add_argument("--participant", required=True)
+     composing.add_argument("--image-reference", required=True,
+                            help="the worker image as named to the engine, "
+                                 "e.g. baton-v12-worker:f34e1576")
+     composing.add_argument("--image-digest", required=True,
+                            help="its immutable digest, sha256:…")
+-    composing.add_argument("--cli-build", required=True,
++    # THE FOUR PROVIDER OPERANDS ARE REQUIRED OF EVERY ROLE THAT HAS A
++    # PROVIDER, and that rule is `composed`'s rather than the parser's: the
++    # deterministic publication role has none and REFUSES them, so the parser
++    # cannot demand them of every invocation. An ordinary role that omits one
++    # is refused by name below, before anything is read or written.
++    composing.add_argument("--cli-build", default=None,
+                            help="the provider CLI build the image carries, "
+-                                "as the recipe pins it")
+-    composing.add_argument("--network", required=True,
+-                           help="the approved OCI network name")
+-    composing.add_argument("--credential-sources", required=True,
++                                "as the recipe pins it (every role but "
++                                "publication)")
++    composing.add_argument("--network", default=None,
++                           help="the approved OCI network name (every role "
++                                "but publication, which reaches none)")
++    composing.add_argument("--credential-sources", default=None,
+                            help="absolute path of the private credential "
+-                                "registry")
+-    composing.add_argument("--credential", action="append", required=True,
++                                "registry (every role but publication)")
++    composing.add_argument("--credential", action="append", default=None,
+                            metavar="SLOT=PROVIDER:REFERENCE",
+-                           help="one credential slot mapping, repeatable")
++                           help="one credential slot mapping, repeatable "
++                                "(every role but publication)")
+     composing.add_argument("--workspace-group", required=True, type=int,
+                            help="the provisioned workspace group id")
+     composing.add_argument("--task-document", required=True,
+@@ -980,6 +1265,18 @@ def main(argv=None, *, stream=sys.stdout):
+                                 "(needs the nominated source to exist)")
+     taken = parser.parse_args(argv)
+     try:
++        if taken.verb == VERB_COMPOSE \
++                and taken.role != bootstrap.PUBLICATION_ROLE:
++            absent = [flag for flag, value in (
++                ("--cli-build", taken.cli_build), ("--network", taken.network),
++                ("--credential-sources", taken.credential_sources),
++                ("--credential", taken.credential)) if not value]
++            if absent:
++                raise PoolRefusal(
++                    "a " + taken.role + " worker names "
++                    + ", ".join(absent) + "; only the deterministic "
++                    "publication role has no provider to name them for. "
++                    "Nothing was changed.")
+         if taken.verb == VERB_COMPOSE:
+             compose(taken.deployment, into=taken.into, stream=stream,
+                     admit_into_pool=taken.admit, worker_id=taken.worker_id,
+diff --git a/v12/python/tools/publication_worker.py b/v12/python/tools/publication_worker.py
+index 962236e7..ae411885 100644
+--- a/v12/python/tools/publication_worker.py
++++ b/v12/python/tools/publication_worker.py
+@@ -383,9 +383,21 @@ def publication_operations(given, *, jobs, control, authority, provider,
+                            host, exclusion, identity, workspaces=None,
+                            engine_run=None, clock=None,
+                            execution_context=None, lifetime_policy=None,
+-                           dispose=None, ending=None):
++                           dispose=None, ending=None, served=None):
+     """ONE publication worker's ordinary operations, with its stage owner.
+ 
++    `served` IS THE PER-RECOVERY OPERAND SETS (review 2026-11-23T18-55-03Z
++    R3): `{recovery_job_id: deployment}`, each the installed document as
++    `stage_execution._served_deployment` derived it for that recovery's Work
++    and original task. Given, the answer is ONE capacity -- one worker id,
++    one participant, one stage owner, one seam -- whose stage-specific
++    operations are selected by the stage's own Job, exactly as the
++    integration role's are; a publication stage of a Job this deployment
++    derived nothing for is refused rather than served under another
++    recovery's manifest. `None` is the single composition over `given`
++    itself, which is what a caller holding one already-derived document
++    wants.
++
+     `given` IS THE WORKER'S OWN DEPLOYMENT DOCUMENT, already held by
+     `single_worker._held` under the publication role -- so its image, its
+     profile, its input manifest and its (empty) credential profile are the
+@@ -403,13 +415,29 @@ def publication_operations(given, *, jobs, control, authority, provider,
+         identity=identity,
+         workspaces=workspaces or staging_root(identity["root"]),
+         clock=clock if clock is not None else jobs._now)
+-    operations = single_worker.worker_operations(
+-        given, control, authority, provider, engine_run=engine_run,
+-        clock=clock, stage=stage,
+-        dispose=dispose if dispose is not None else (lambda: None),
+-        execution_context=(execution_context if execution_context is not None
+-                           else single_worker.job_execution_reader(jobs)),
+-        lifetime_policy=lifetime_policy)
++    def composed(document):
++        return single_worker.worker_operations(
++            document, control, authority, provider, engine_run=engine_run,
++            clock=clock, stage=stage,
++            dispose=dispose if dispose is not None else (lambda: None),
++            execution_context=(execution_context
++                               if execution_context is not None
++                               else single_worker.job_execution_reader(jobs)),
++            lifetime_policy=lifetime_policy)
++
++    operations = composed(given)
++    if served is not None:
++        held = {}
++        try:
++            for job_id in sorted(served):
++                held[job_id] = composed(served[job_id])
++        except BaseException:
++            # A PARTIAL COMPOSITION RELEASES WHAT IT ALREADY BUILT.
++            for one in held.values():
++                one.close()
++            operations.close()
++            raise
++        operations = PerRecoveryOperations(operations, held)
+     stage.bind(operations)
+     stage.seam.ending = ending
+     # THE SEAM RIDES ON THE OPERATIONS IT WAS COMPOSED WITH, which is where
+@@ -419,6 +447,109 @@ def publication_operations(given, *, jobs, control, authority, provider,
+     return operations, stage
+ 
+ 
++class PerRecoveryOperations:
++    """ONE publication capacity, one held operand set per bound recovery.
++
++    `stage_execution._PerJobIntegration`'s shape and its reasons, for the
++    other role that is installed once and serves many Jobs. The pool holds a
++    single publication worker and this changes none of that: one worker id,
++    one participant, one principal, one reservation at a time. What is
++    selected here is the OPERANDS -- `single_worker` holds a stage to its
++    deployment's own Work and submitted input, and for a recovery those are
++    the original Job's -- so a stage reaches the operations composed for ITS
++    recovery and the worker's own validator keeps every one of its checks.
++
++    `installed` ANSWERS WHAT IS ABOUT THE DEPLOYMENT AND NOT ABOUT A STAGE:
++    the canonical operation identity, the journal reads, the restart
++    settlement and the transport pump are one control store's and one
++    participant's, whichever recovery is in hand, and it exists whether or
++    not any recovery is bound yet. IT SERVES NO STAGE. A publication stage is
++    served under its own recovery's derived document or refused.
++    """
++
++    canonical = True
++
++    def __init__(self, installed, held):
++        self.installed = installed
++        self.held = dict(held)
++        self.port = installed.port
++        self.recovery_publication = None
++
++    @property
++    def _worker(self):
++        return self.installed._worker
++
++    def _serving(self, stage):
++        job_id = stage.get("job_id")
++        held = self.held.get(job_id)
++        if held is None:
++            _refuse(f"stage {name_value(stage.get('stage_id'))} names Job "
++                    f"{name_value(job_id)} and this deployment derived "
++                    f"publication operands for "
++                    f"{sorted(self.held) or 'no recovery'}; a publication "
++                    f"stage is served under its own recovery's Work and "
++                    f"task, so one this deployment binds nothing for is "
++                    f"refused rather than served under another recovery's "
++                    f"manifest or the installed one")
++        return held
++
++    def worker_for(self, stage):
++        """The launch composition THIS stage is served by. For a reader that
++        needs the exact per-recovery worker rather than the shared one."""
++        return self._serving(stage)._worker
++
++    # -- about this deployment ------------------------------------------------
++
++    def canonical_operation(self, act, offer_id):
++        return self.installed.canonical_operation(act, offer_id)
++
++    def receipt_of(self, operation_id):
++        return self.installed.receipt_of(operation_id)
++
++    def binding_intent(self, stage, job):
++        return self.installed.binding_intent(stage, job)
++
++    def recover(self, *, now):
++        return self.installed.recover(now=now)
++
++    def attach(self, offer_ids):
++        return self.installed.attach(offer_ids)
++
++    def drain(self, handlers, *, quiescent=()):
++        return self.installed.drain(handlers, quiescent=quiescent)
++
++    # -- about one recovery's stage -------------------------------------------
++
++    def admit(self, stage, job):
++        return self._serving(stage).admit(stage, job)
++
++    def claim(self, stage):
++        return self._serving(stage).claim(stage)
++
++    def settle_offer(self, stage, *, now):
++        return self._serving(stage).settle_offer(stage, now=now)
++
++    def launch(self, stage, job):
++        return self._serving(stage).launch(stage, job)
++
++    def dispatch(self, stage, job):
++        return self._serving(stage).dispatch(stage, job)
++
++    def conclude(self, stage, job):
++        return self._serving(stage).conclude(stage, job)
++
++    def observe(self, stage):
++        return self._serving(stage).observe(stage)
++
++    def refresh_runtime(self, stage):
++        return self._serving(stage).refresh_runtime(stage)
++
++    def close(self):
++        for _job_id, one in sorted(self.held.items()):
++            one.close()
++        self.installed.close()
++
++
+ def publication_seam(stage):
+     """The seam `advance_publication` is handed for one composed stage."""
+     return stage.seam
+diff --git a/v12/python/tools/single_worker.py b/v12/python/tools/single_worker.py
+index b9bf6f6d..c5b30147 100644
+--- a/v12/python/tools/single_worker.py
++++ b/v12/python/tools/single_worker.py
+@@ -3863,10 +3863,26 @@ def job_task_reader(job_store):
+     """
+     def reader(*, job_id):
+         from baton_v12.job_manager import creation as job_creation
++        from baton_v12.job_manager import publication_recovery
+ 
+         if job_id is None:
+             return None
+-        return job_creation.job_task_of(job_store, job_id)
++        held = job_creation.job_task_of(job_store, job_id)
++        if held is not None:
++            return held
++        # W385695 (review 2026-11-23T18-55-03Z R3): A PUBLICATION RECOVERY'S
++        # TASK IS THE ORIGINAL JOB'S. The recovery Job is submitted by the
++        # recovery owner and has no creation of its own, so the read above
++        # answers `None` for it -- and the stage would be served the INSTALLED
++        # task while its admission compared the original's, which is two
++        # derivations of one delivery. The lineage is the recovery owner's
++        # own committed record (the reservation, then the admission), read
++        # and not inferred from the Job's name; an ordinary Job matches
++        # neither and keeps the `None` it always had.
++        prior = publication_recovery.prior_job_of(job_store, job_id)
++        if prior is None:
++            return None
++        return job_creation.job_task_of(job_store, prior)
+ 
+     return reader
+ 
+diff --git a/v12/python/tools/stage_execution.py b/v12/python/tools/stage_execution.py
+index 580e34d5..e29a6081 100644
+--- a/v12/python/tools/stage_execution.py
++++ b/v12/python/tools/stage_execution.py
+@@ -1037,6 +1037,27 @@ def _held_workers(workers, checkout, authority_uuid, *, many=False,
+     if missing:
+         _refuse(f"this deployment serves {', '.join(ROLES)} and names no "
+                 f"worker for {', '.join(missing)}")
++    # W385695 (review 2026-11-23T18-55-03Z R1): ONE DEDICATED PUBLICATION
++    # WORKER. It is the reusable capacity every approved recovery is derived
++    # for -- `publication_input_identity` and the admission both name "the"
++    # installed publication worker -- so two would be two answers to a
++    # question asked in the singular; and the contract's words for it are "a
++    # dedicated deterministic publication worker/participant ... its own
++    # principal", because a recovery's reviewer is held independent of both
++    # the original producer and the publisher. Held here, in the validator
++    # both the install path and `pool add-worker` call.
++    publishers = seen_roles.get(PUBLICATION_ROLE, [])
++    if len(publishers) > 1:
++        _refuse(f"this deployment configures {len(publishers)} publication "
++                f"workers ({', '.join(publishers)}) and serves recoveries "
++                f"through exactly one installed, reusable publisher")
++    for value, roles in list(participants.items()) + list(principals.items()):
++        if PUBLICATION_ROLE in roles and len(roles) > 1:
++            _refuse(f"{value!r} is configured for the publication worker and "
++                    f"also for {', '.join(sorted(set(roles) - {PUBLICATION_ROLE}))}; "
++                    f"the deterministic publisher is a dedicated participant "
++                    f"with its own principal", category="policy",
++                    code="denied")
+     _independent(participants, "participant")
+     _independent(principals, "principal")
+     return held
+@@ -6038,6 +6059,51 @@ def _with_job_task(held, binding, job_task):
+                 task_bytes=composer.delivered_bytes(job_task))
+ 
+ 
++def _manifest_for_work(manifest, work_id):
++    """One input manifest naming ANOTHER WORK of the same Authority, and
++    identifying itself.
++
++    THE AUTHORITY DOES NOT MOVE: a Work is reused inside the deployment that
++    owns it, and a manifest rebound across Authorities would be another
++    deployment's document. The digest is recomputed by section 12's rule and
++    the result is proved by its own owner before anybody is handed it, which
++    is `job_task.manifest_for`'s discipline for the other per-Job member.
++    """
++    from baton_v12.contracts.manifest import check_manifest_structure
++
++    if manifest["work_ref"]["work_id"] == work_id:
++        return manifest
++    held = dict(manifest)
++    held["work_ref"] = dict(manifest["work_ref"], work_id=work_id)
++    held["manifest_digest"] = digest(
++        {name: value for name, value in held.items()
++         if name != "manifest_digest"})
++    return check_manifest_structure(
++        held, "inputManifest",
++        what="a publication recovery's input manifest")
++
++
++def publication_input_identity(given, binding, job_task=None):
++    """The Job-scoped identity ONE recovery is submitted under, from
++    documents alone.
++
++    THE ADMISSION'S QUESTION, answered by the rule that serves the stage. The
++    installed publication worker is found by its role -- the one place a
++    deployment says which worker that is -- and the document it would serve
++    THIS binding under is `_served_deployment`'s, so what a recovery Job is
++    submitted under is by construction what the selector and the delivery
++    will hold it to. `None` when this deployment installs no such worker.
++    """
++    for one in given.get("workers") or []:
++        if one.get("role") == PUBLICATION_ROLE:
++            served = _served_deployment(given, one, binding, job_task)
++            return job_input_identity(
++                served["input_manifest"],
++                what="the installed publication worker's input for this "
++                     "recovery")
++    return None
++
++
+ def _served_deployment(given, worker, binding, job_task=None):
+     """The held deployment this worker actually serves THIS Job's stage under.
+ 
+@@ -6088,6 +6154,30 @@ def _served_deployment(given, worker, binding, job_task=None):
+     # against a deployment that composes none -- and its delivery is the
+     # installed one exactly as before.
+     held = _with_job_task(held, binding, job_task)
++    if worker["role"] == PUBLICATION_ROLE and binding["job_id"] is not None:
++        # W385695 / REC-9 (review 2026-11-23T18-55-03Z R3): THE PUBLICATION
++        # ROLE IS THE OTHER ONE THAT IS NOT CONFIGURED PER JOB. It is
++        # installed once and serves every approved recovery, so the Work its
++        # installed manifest names is the Work it was installed against and
++        # not the Work of the recovery in hand.
++        #
++        # WHAT IS PER RECOVERY IS THE WORK AND THE TASK, AND NOTHING ELSE. The
++        # Work is the binding's -- the original Job's, which a recovery
++        # reuses -- and the task is the original Job's own, substituted above
++        # by the rule every role shares. The declared outputs, the policy,
++        # the profile, the image and the source declaration stay the
++        # installed publication worker's: they are the selected publication
++        # declarations, and a recovery that could move one would be choosing
++        # its own output ceiling.
++        #
++        # ONE DERIVATION, THREE READERS. The admission asks the deployment
++        # for this document's Job-scoped identity and submits the recovery
++        # under it; `servable_workers` compares it; `_publication_operations`
++        # composes the delivery from it. `_disagreements` is unchanged and
++        # still refuses a wrong Work -- it is simply shown the document this
++        # recovery is really served under.
++        return dict(held, input_manifest=_manifest_for_work(
++            held["input_manifest"], binding["job_work_id"]))
+     if worker["role"] != "integration" or binding["job_id"] is None:
+         return held
+     # W130224: THE MANIFEST AND THE TASK IT NAMES MOVE TOGETHER. `_held`
+@@ -7400,11 +7490,33 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
+ 
+                 identity = instance_identity(
+                     os.path.dirname(given["state_root"]))
++                # ONE HELD OPERAND SET PER BOUND RECOVERY (review
++                # 2026-11-23T18-55-03Z R3). The installed worker names the
++                # Work it was installed against; a recovery runs on the
++                # original Job's Work under the original Job's task, so the
++                # document each is served under is derived here by
++                # `_served_deployment` -- the same call `servable_workers`
++                # makes and the same identity the admission submitted under.
++                # ONLY RECOVERIES ARE DERIVED FOR: an ordinary Job has no
++                # publication stage, and which bound Jobs are recoveries is
++                # the recovery owner's committed lineage, not a guess from a
++                # name.
++                from baton_v12.job_manager import publication_recovery
++
++                tasks = single_worker.job_task_reader(job_store)
++                recoveries = {
++                    binding["job_id"]: _served_deployment(
++                        given, one, binding,
++                        tasks(job_id=binding["job_id"]))
++                    for binding in given["job_bindings"]
++                    if binding["job_id"] is not None
++                    and publication_recovery.prior_job_of(
++                        job_store, binding["job_id"]) is not None}
+                 operations, publishing = \
+                     publication_worker.publication_operations(
+                         one["deployment"], jobs=job_store,
+                         control=control_store, authority=composed.authority,
+-                        provider=provider,
++                        provider=provider, served=recoveries,
+                         host=HostOutput(control_store, identity),
+                         exclusion=HostExclusion(control_store,
+                                                 identity=identity),
+diff --git a/v12/worker/Dockerfile.publication b/v12/worker/Dockerfile.publication
+new file mode 100644
+index 00000000..a6720abb
+--- /dev/null
++++ b/v12/worker/Dockerfile.publication
+@@ -0,0 +1,71 @@
++# The v12 DETERMINISTIC PUBLICATION worker image: one confined adoption of an
++# approved retained output, and nothing else.
++#
++# W385695 / DESIGN REC-9, `work/records/2026/11/
++# finding-v12-output-publication-recovery/`. This is the SOURCE AND ENTRYPOINT
++# DELIVERY RECIPE for the worker `tools.pool compose-worker --role publication`
++# configures. IT HAS NOT BEEN BUILT OR RUN: building it produces a CANDIDATE
++# whose digest an owner then selects, and neither act is performed by this
++# file or claimed by the source review that added it.
++#
++# THE BASE IS THE REFERENCE IMAGE'S, PINNED BY THE SAME DIGEST. This worker
++# needs a Python interpreter and nothing more, which is exactly what
++# `Dockerfile` already selected and reviewed; a second base would be a second
++# thing to keep current for no capability gained. It is deliberately NOT
++# derived from a provider image: an image carrying a provider runtime it never
++# calls is an image whose credential surface nobody needed.
++FROM python@sha256:8fef26df932191825664e4957ff488c96dfe64918327634a357a55facbc994d3
++
++# THE TWO FILES ARE THE PROGRAM, as in the reference image. `baton_worker.py`
++# travels because this entry IS `baton_worker.main`: launch validation, the
++# exchange, the replay fence, the output measurement and the completion
++# envelope are the ordinary worker's. `publication_entry.py` adds the one
++# thing that differs -- the supervised copy and its absolute bound -- and is
++# also the copy's own child, started isolated from the same path.
++#
++# NOTHING FROM `baton_v12` IS COPIED IN, and nothing provider-shaped either:
++# no `claude_agent.py`, no `adapter_refusal.py` (the ordinary worker treats
++# its absence as "no typed adapter refusal exists here", which is true), no
++# source profiles. The worker contract the two ends share is spelled on both
++# sides and held equal by a conformance case, because a worker in a container
++# cannot import the manager.
++COPY baton_worker.py /opt/baton/baton_worker.py
++COPY publication_entry.py /opt/baton/publication_entry.py
++
++# AND THE FROZEN CONTRACT, AS DATA, for the reference image's reason: the
++# ordinary worker derives the closed member sets of the manager's two
++# `/input/` documents from it rather than from a hand-typed copy.
++COPY worker-control-1.0.schema.json /opt/baton/worker-control-1.0.schema.json
++
++# THE SAME FIXED NON-ROOT PAIR as every other image and as the adapter's
++# `--user` restriction. This worker writes only its own declared outputs under
++# the writable workspace mount and reads the staged original through a
++# read-only bind; neither needs any privilege, and `read_launch`'s read-only
++# proof depends on this process not being root.
++USER 65532:65532
++
++# ONE SHOT, EXEC FORM, NO SHELL IN THE PROCESS TREE. The manager stops this
++# container by signalling PID 1, and PID 1 is Python. The copy runs as a child
++# in its own process group, which this program ends and observes gone at the
++# absolute bound; the watch thread ends PID 1 itself when the bound is reached
++# while the main thread is measuring, and the container then exits with no
++# terminal document, which the manager reads as a lost execution and holds.
++ENTRYPOINT ["python3", "/opt/baton/publication_entry.py"]
++
++# Deterministic bytes and an explicit module path, as in the images before
++# this one.
++ENV PYTHONDONTWRITEBYTECODE=1 \
++    PYTHONUNBUFFERED=1 \
++    PYTHONPATH=/opt/baton \
++    PYTHONHASHSEED=0
++
++# THERE IS DELIBERATELY NO `ENV ANTHROPIC_*`, NO `ENV BATON_WORKER_*`, AND NO
++# CREDENTIAL PATH OF ANY KIND. This image asks no model. The deployment that
++# configures it declares no credential slot and `single_worker` REFUSES a
++# publication worker that declares one, so no credential mount is composed for
++# a container built from this image.
++#
++# No `VOLUME`, no `EXPOSE`, no `HEALTHCHECK`, and the deployment names network
++# `none`: the launch, the read-only input and the declared outputs are mounts
++# the manager names per attempt, and this container's health is observed by
++# the adapter through the engine rather than announced by the container.
+diff --git a/v12/worker/baton_worker.py b/v12/worker/baton_worker.py
+index a0367375..34842d0a 100644
+--- a/v12/worker/baton_worker.py
++++ b/v12/worker/baton_worker.py
+@@ -1767,6 +1767,27 @@ def answered(declared, reported):
+     return published
+ 
+ 
++def _permitted(agent):
++    """W385695: MAY THIS AGENT'S WORK STILL COMPLETE? Asked at commit points.
++
++    AN OPTIONAL CAPABILITY AND NOT A NEW RULE FOR EVERY AGENT. An agent that
++    defines no `may_complete` is asked nothing and every existing worker is
++    byte-for-byte what it was. One that does is an agent whose work is bounded
++    by something this program cannot see -- the deterministic publication
++    worker's ABSOLUTE deadline is the first -- and it is asked immediately
++    before each thing that would make its work a completion: the completion
++    envelope, and the `answered` state the terminal follows. Nothing between
++    those points is a completion, so nothing between them is asked.
++
++    A REFUSAL IS THE AGENT'S OWN FAULT CODE, in the closed vocabulary, and the
++    ordinary faulted ending. It is not a new ending and carries no message.
++    """
++    gate = getattr(agent, "may_complete", None)
++    if callable(gate) and not gate():
++        raise WorkerFault("agent", "this agent's own bound was reached "
++                                   "before its completion was published")
++
++
+ def publish_completion(assignment, disposition, outputs):
+     """`/output/output.json`, published LAST and ATOMICALLY.
+ 
+@@ -1980,6 +2001,12 @@ def handle(request, identity, seen, agent, spent):
+         raise WorkerFault(
+             "answer",
+             f"a work disposition is one of {', '.join(DISPOSITIONS)}")
++    # W385695: THE COMPLETION ENVELOPE IS A COMMIT POINT, and an agent whose
++    # work is bounded says here whether it may still be published. The
++    # measurement above is this program's and can be slow; an agent that
++    # checked its bound only inside `work` would have checked it before the
++    # part that takes longest.
++    _permitted(agent)
+     publish_completion(assignment, disposition, published)
+     # TWO SURFACES, AND THEY CARRY DIFFERENT THINGS. The completion envelope
+     # above is the durable document and holds the whole record for each output
+@@ -2602,6 +2629,17 @@ def serve_exchange(agent, seen, expected, command_root, event_root,
+             if manifest is None:
+                 return _faulted(event_root, command, digested, operation,
+                                 one["operation_id"], answered, "output")
++            # W385695: THE SECOND COMMIT POINT, and the last place a fault can
++            # still be told truthfully. `answered` below is what the terminal
++            # follows, and a faulted terminal over an operation already
++            # published as answered is the contradiction the manager refuses
++            # whole -- so a bounded agent is asked HERE, after the envelope
++            # was read back and before either document says the work is done.
++            try:
++                _permitted(agent)
++            except WorkerFault as fault:
++                return _faulted(event_root, command, digested, operation,
++                                one["operation_id"], answered, fault.code)
+         _publish(event_root, f"state-{operation}.json",
+                  _bound(command, digested, schema=STATE_SCHEMA,
+                         operation=operation,
+diff --git a/v12/worker/publication_entry.py b/v12/worker/publication_entry.py
+index e8007bf9..e8b9905c 100644
+--- a/v12/worker/publication_entry.py
++++ b/v12/worker/publication_entry.py
+@@ -32,10 +32,29 @@ inside `/input`, into this execution's own declared outputs.
+   * A MISSING OR UNREADABLE DEADLINE STARTS NOTHING. There is no default
+     bound: a request that names no instant this worker can place is refused
+     before the child exists.
+-  * A STOPPED ADOPTION IS NEVER A PUBLICATION. Both declared outputs are
+-    required, so a run the bound ended cannot produce a completion envelope at
+-    all: it is a typed fault, the manager finds no envelope, and whatever
+-    bytes were written stay where they are for the owner to inspect.
++  * THE BOUND COVERS THE WHOLE PUBLICATION, NOT ONLY THE COPY (review
++    2026-11-23T18-55-03Z R2). The copy is the part this file starts; the
++    measurement and the completion envelope are the ordinary worker's, and
++    they run AFTER `work` returns. So the one `Bound` made when `work` begins
++    is held until this process exits, and it is enforced three ways:
++    `supervised` ends the copy at it and compares the completion instant
++    against it; `may_complete` is the ordinary worker's own question at each
++    commit point -- before the completion envelope and before the `answered`
++    state -- and answers no once the instant is reached; and a watch thread
++    ENDS THIS PROCESS at the instant when the main thread is still inside a
++    measurement or a write that nothing else could interrupt. A process that
++    ended itself published no terminal, which the manager reads as a lost
++    execution and holds.
++  * THE BOUND IS NEVER EXTENDED BY THE CLOCK. The remainder first observed is
++    also anchored on the monotonic clock, so a wall clock that is set back
++    while this worker runs cannot buy time; one set forward ends it early. A
++    restarted worker reads the same instant from the same pinned document and
++    finds the replay fence: it starts no second adoption at all.
++  * A STOPPED ADOPTION IS NEVER A PUBLICATION. A run the bound ended is a
++    typed fault or a process that ended itself; neither publishes an answered
++    terminal, and whatever bytes were written stay where they are for the
++    owner to inspect. A completion envelope alone, without that terminal, is
++    not a publication and the manager records none from it.
+ 
+ WORKER-SIDE SUPERVISION IS HALF THE ENFORCEMENT. If this worker is lost, hung
+ or lied to about the time, the host's own control evaluation fences the stage
+@@ -50,6 +69,7 @@ import signal
+ import stat
+ import subprocess
+ import sys
++import threading
+ import time
+ from datetime import datetime, timezone
+ 
+@@ -63,7 +83,7 @@ if not _ADOPTING:
+ 
+ __all__ = ["PublicationAgent", "PUBLICATION_DOCUMENT", "REQUEST_SCHEMA",
+            "REQUEST_MEMBERS", "METADATA_KEY", "SOURCE_DESTINATION",
+-           "adopt_tree", "supervised", "main"]
++           "Bound", "EXPIRED_STATUS", "adopt_tree", "supervised", "main"]
+ 
+ # THE PINNED REQUEST, at one fixed name beside the task in the read-only input
+ # root. Spelled here a second time because a worker in a container cannot
+@@ -93,6 +113,15 @@ KILL_GRACE_SECONDS = 5.0
+ POLL_SECONDS = 0.05
+ COPY_CHUNK = 1024 * 1024
+ MAX_REQUEST_BYTES = 64 * 1024
++# HOW LONG THE WATCH LEAVES THE SUPERVISOR TO END AN OVERDUE COPY ITSELF
++# before it ends this process instead: both signal graces and a margin. The
++# supervisor's ending is the better one -- it observes the group gone and
++# reports a typed fault -- so the watch only acts when that did not happen.
++SUPERVISOR_GRACE_SECONDS = TERM_GRACE_SECONDS + KILL_GRACE_SECONDS + 1.0
++# What this process exits with when the watch ends it at the bound: the
++# conventional temporary-failure status, and deliberately not zero. Nothing
++# reads it as a protocol fact -- the manager's fact is the missing terminal.
++EXPIRED_STATUS = 75
+ 
+ 
+ def _fault(code, message):
+@@ -296,25 +325,73 @@ def _excluded(child, group):
+     return _group_is_gone(group)
+ 
+ 
+-def supervised(argv, deadline_at, *, clock=time.time, sleep=time.sleep):
++class Bound:
++    """THE ONE ABSOLUTE INSTANT, held against two clocks and never extended.
++
++    `ends` is the instant the manager delivered, on the wall clock. The
++    remainder observed when this object is made is ALSO laid along the
++    monotonic clock, and the bound is reached when EITHER says so:
++
++      * a wall clock that jumps forward reaches it early, which is the
++        delivered instant doing its job;
++      * a wall clock set BACK cannot reach it late, because the monotonic
++        anchor still arrives when the first-observed remainder has elapsed.
++
++    Nothing here counts down from a number the worker chose, and nothing
++    resets: a second `Bound` made later from the same document can only be
++    the same instant or -- after a rollback -- an earlier anchor than the wall
++    clock alone would give.
++    """
++
++    def __init__(self, deadline_at, *, clock=time.time,
++                 monotonic=time.monotonic):
++        placed = _instant(deadline_at)
++        if placed is None:
++            _fault("input", "a supervised adoption needs its absolute "
++                            "deadline")
++        self.deadline_at = deadline_at
++        self.ends = placed.timestamp()
++        self._clock = clock
++        self._monotonic = monotonic
++        self.first_seen = clock()
++        self._anchor = monotonic() + (self.ends - self.first_seen)
++
++    def reached(self):
++        return self._clock() >= self.ends \
++            or self._monotonic() >= self._anchor
++
++    def remaining(self):
++        return max(0.0, min(self.ends - self._clock(),
++                            self._anchor - self._monotonic()))
++
++
++def supervised(argv, deadline_at, *, clock=time.time, sleep=time.sleep,
++               bound=None, started=None):
+     """Run one child to completion OR TO THE ABSOLUTE INSTANT, whichever first.
+ 
+     ANSWERS FACTS: the child's status when it finished, `timed_out` when the
+-    instant ended it, and whether the process group was observed empty
+-    afterwards. The remainder is recomputed against `clock` on every pass, so
+-    a clock that jumps forward ends the run and nothing here ever holds a
++    instant was reached, and whether the process group was observed empty
++    afterwards. The remainder is recomputed against the clocks on every pass,
++    so a clock that jumps forward ends the run and nothing here ever holds a
+     countdown of its own.
++
++    `timed_out` IS ABOUT THE INSTANT AND NOT ABOUT WHO NOTICED (review
++    2026-11-23T18-55-03Z R2). A child that finished is still compared against
++    the bound at the moment its ending was observed: a copy that completed
++    after the instant did not complete in time, whichever pass of this loop
++    would have been the one to see the clock.
++
++    `bound` is the caller's own `Bound` when it already holds one -- the
++    agent's, which goes on governing the measurement after this returns -- and
++    `started(group)` is told the child's process group once it exists.
+     """
+-    bound = _instant(deadline_at)
+     if bound is None:
+-        _fault("input", "a supervised adoption needs its absolute "
+-                           "deadline")
+-    ends = bound.timestamp()
+-    started = clock()
+-    if started >= ends:
++        bound = Bound(deadline_at, clock=clock)
++    began = bound.first_seen
++    if bound.reached():
+         return {"status": None, "timed_out": True, "started": False,
+-                "group_gone": True, "started_at": started,
+-                "ended_at": started}
++                "group_gone": True, "started_at": began,
++                "ended_at": began}
+     try:
+         child = subprocess.Popen(argv, stdin=subprocess.DEVNULL,
+                                  stdout=subprocess.DEVNULL,
+@@ -326,12 +403,14 @@ def supervised(argv, deadline_at, *, clock=time.time, sleep=time.sleep):
+     # THE GROUP IDENTITY IS TAKEN AT LAUNCH, while the leader is certainly
+     # alive, so the ending never depends on looking it up again.
+     group = child.pid
++    if started is not None:
++        started(group)
+     try:
+         while child.poll() is None:
+-            if clock() >= ends:
++            if bound.reached():
+                 gone = _excluded(child, group)
+                 return {"status": None, "timed_out": True, "started": True,
+-                        "group_gone": gone, "started_at": started,
++                        "group_gone": gone, "started_at": began,
+                         "ended_at": clock()}
+             sleep(POLL_SECONDS)
+     except BaseException:
+@@ -341,17 +420,30 @@ def supervised(argv, deadline_at, *, clock=time.time, sleep=time.sleep):
+     # ORDINARY COMPLETION IS STILL AN ENDING: nothing the child started may
+     # go on writing into an output this worker is about to measure.
+     gone = _excluded(child, group)
+-    return {"status": child.returncode, "timed_out": False, "started": True,
+-            "group_gone": gone, "started_at": started, "ended_at": clock()}
++    ended = clock()
++    # AND IT IS HELD TO THE INSTANT. `ended` is read once and both the answer
++    # and the comparison use it, so the report cannot say an on-time ending at
++    # an instant that is past the bound.
++    late = ended >= bound.ends or bound.reached()
++    return {"status": None if late else child.returncode, "timed_out": late,
++            "started": True, "group_gone": gone, "started_at": began,
++            "ended_at": ended}
+ 
+ 
+ # -- the agent -----------------------------------------------------------------
+ 
+ class PublicationAgent:
+-    """The deterministic publication worker's `work`, and nothing else."""
++    """The deterministic publication worker's `work`, and its bound.
++
++    ONE `Bound` PER EXECUTION, made when `work` begins and held until this
++    process exits. `work` returning is NOT the end of what the bound governs:
++    the ordinary worker measures and publishes afterwards, and asks
++    `may_complete` at each commit point.
++    """
+ 
+     def __init__(self, *, input_root=None, output_root=None, source_root=None,
+-                 clock=time.time, sleep=time.sleep, executable=None):
++                 clock=time.time, sleep=time.sleep, executable=None,
++                 monotonic=time.monotonic, abort=None, watch=True):
+         self._input_root = input_root
+         self._output_root = output_root
+         # WHERE THE READ-ONLY STAGED ROOT IS BOUND. In a container that is
+@@ -361,16 +453,141 @@ class PublicationAgent:
+         self._source_root = source_root
+         self._clock = clock
+         self._sleep = sleep
++        self._monotonic = monotonic
+         self._executable = executable or sys.executable
++        # HOW THIS PROCESS ENDS ITSELF AT THE BOUND. `os._exit` and not an
++        # exception: the main thread may be inside a read or a hash that no
++        # exception raised from another thread can interrupt, and an exit
++        # that ran handlers could finish a publication on its way out. It is
++        # an operand only so a case run in the test process can observe the
++        # decision instead of being ended by it.
++        self._abort = abort if abort is not None else os._exit
++        self._watching = watch
++        self._bound = None
++        self._group = None
++        # WHAT THE MAIN THREAD IS DOING, for the watch: `copy` while the
++        # supervisor owns the ending, `completing` from the moment the copy is
++        # over until this process exits.
++        self._phase = None
++        self._overdue = None
++        # LATCHED ONCE: the bound was reached and a FAULT is being reported.
++        # After it nothing successful is reachable -- every commit point asks
++        # `may_complete`, which now answers no for good -- so the watch stands
++        # down and lets the typed fault be published rather than cutting it
++        # off into a lost execution.
++        self._refused = threading.Event()
++        self._expired = threading.Event()
++        self._stopped = threading.Event()
++        self._thread = None
+ 
+     def consider(self, seen, request):                    # pragma: no cover
+         return {"decision": "accept",
+                 "reason": "adopt the approved retained output"}
+ 
++    # -- the bound, after `work` has returned --------------------------------
++
++    def may_complete(self):
++        """The ordinary worker's question at each commit point.
++
++        NO BOUND YET IS NOT PERMISSION TO COMPLETE WITHOUT ONE: this agent's
++        `work` makes the bound before it starts anything, so a commit point
++        reached with none means `work` did not run, and there is nothing of
++        this agent's to complete.
++        """
++        if self._bound is None:
++            return False
++        if self._refused.is_set() or self._expired.is_set() \
++                or self._bound.reached():
++            self._refused.set()
++            return False
++        return True
++
++    def stand_down(self):
++        """Stop the watch. For a case that runs this agent in its own process;
++        a real worker's watch ends with the process it guards."""
++        self._stopped.set()
++        thread, self._thread = self._thread, None
++        if thread is not None and thread is not threading.current_thread():
++            thread.join(2.0)
++
++    def _due(self):
++        """Does the watch end this process NOW? One decision, no waiting.
++
++        NOT WHILE A FAULT IS BEING REPORTED, and not before the instant. In
++        the copy phase the supervisor is given its window first, because its
++        ending observes the process group and reports a typed fault; past
++        that window the supervisor itself is what is stuck.
++        """
++        if self._bound is None or self._refused.is_set():
++            return False
++        if not self._bound.reached():
++            return False
++        if self._phase == "copy":
++            return self._monotonic() - self._overdue_since() \
++                >= SUPERVISOR_GRACE_SECONDS
++        return True
++
++    def _overdue_since(self):
++        if self._overdue is None:
++            self._overdue = self._monotonic()
++        return self._overdue
++
++    def _expire(self):
++        """End this process at the bound. Never returns in a real worker."""
++        self._expired.set()
++        group = self._group
++        if group is not None:
++            # A COPY THIS PROCESS STARTED DOES NOT OUTLIVE IT.
++            try:
++                os.killpg(group, signal.SIGKILL)
++            except (ProcessLookupError, PermissionError):
++                pass
++        self._abort(EXPIRED_STATUS)
++
++    def _watch(self):
++        while not (self._stopped.is_set() or self._refused.is_set()):
++            if self._due():
++                self._expire()
++                return
++            # A REAL WAIT ON A REAL CLOCK, whatever clock the bound reads:
++            # this thread exists for the case where nothing else is running.
++            self._stopped.wait(POLL_SECONDS)
++
++    def _enter(self, phase):
++        self._phase = phase
++
++    def _held(self, what):
++        """One in-`work` gate: the bound is checked, and a reached bound is
++        this agent's typed fault."""
++        if not self.may_complete():
++            _fault("agent",
++                   "the absolute publication bound "
++                   f"{self._bound.deadline_at} was reached {what}; nothing "
++                   "is published")
++
++    # -- the work --------------------------------------------------------------
++
+     def work(self, seen, declared):
+         input_root = self._input_root or baton_worker.INPUT_ROOT
+         output_root = self._output_root or baton_worker.OUTPUT_ROOT
+         request = request_document(input_root)
++        # THE BOUND, BEFORE ANYTHING ELSE THIS EXECUTION DOES, and the watch
++        # with it. From here until this process exits every path is governed.
++        self._bound = Bound(request["deadline"]["deadline_at"],
++                            clock=self._clock, monotonic=self._monotonic)
++        self._enter("copy")
++        if self._watching and self._thread is None:
++            self._thread = threading.Thread(target=self._watch, daemon=True)
++            self._thread.start()
++        try:
++            return self._adopted(request, declared, input_root, output_root)
++        except BaseException:
++            # A FAULT IS BEING REPORTED, by the ordinary worker, as a typed
++            # ending. The watch must not cut that report off.
++            self._refused.set()
++            raise
++
++    def _adopted(self, request, declared, input_root, output_root):
+         delivered = baton_worker.assignment_manifest()
+         if delivered.get("runtime_attempt_id") != request["attempt_id"]:
+             _fault("input", "the publication request was composed for "
+@@ -404,8 +621,15 @@ class PublicationAgent:
+             copies += [source, into]
+         argv = [self._executable, "-I", os.path.abspath(__file__), "--adopt"] \
+             + copies
++
++        def started(group):
++            self._group = group
++
+         ran = supervised(argv, request["deadline"]["deadline_at"],
+-                         clock=self._clock, sleep=self._sleep)
++                         clock=self._clock, sleep=self._sleep,
++                         bound=self._bound, started=started)
++        if ran["group_gone"]:
++            self._group = None
+         if ran["timed_out"]:
+             _fault("agent",
+                    "the absolute publication bound "
+@@ -419,6 +643,12 @@ class PublicationAgent:
+         if ran["status"] != 0:
+             _fault("agent", f"the adoption child ended with status "
+                                f"{ran['status']}; nothing is published")
++        # FROM HERE THE WATCH OWNS THE INSTANT. The copy is over and what
++        # remains -- this measurement, then the ordinary worker's own
++        # measurement and envelope -- runs on the main thread, where a slow
++        # or blocked read cannot be ended by anything but the process ending.
++        self._enter("completing")
++        self._held("before the adopted proposal was measured")
+         # THE WORKER'S OWN MEASUREMENT, HELD TO THE STAGED DIGEST BEFORE AN
+         # ENVELOPE EXISTS. The manager measures again and decides; this is the
+         # worker declining to publish bytes it can already see are not the
+@@ -427,6 +657,7 @@ class PublicationAgent:
+         measured = baton_worker.measured(
+             os.path.join(output_root, candidate["path"]),
+             candidate["constraints"])
++        self._held("while the adopted proposal was measured")
+         if measured["tree_digest"] != request["staged"]["tree_digest"]:
+             _fault("agent", "the adopted proposal does not measure as the "
+                                "staged original; nothing is published")

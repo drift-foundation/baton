@@ -1,0 +1,9 @@
+{
+  "profile": "native-handoff-heavy/1",
+  "units": "seconds",
+  "correction_rounds": 0,
+  "stage_seconds": 9000,
+  "job_seconds": 21600,
+  "provider_turn_seconds": 7200,
+  "verification_command_seconds": 900
+}

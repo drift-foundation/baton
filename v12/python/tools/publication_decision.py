@@ -65,9 +65,11 @@ from baton_v12.contracts import ContractRefusal
 from baton_v12.job_manager import JobStore, publication_recovery
 from baton_v12.worker_manager import ControlStore
 
-__all__ = ["COMMANDS", "OWNERS", "owners", "main"]
+__all__ = ["COMMANDS", "OWNERS", "OPTIONAL_OWNERS", "owners",
+           "main"]
 
-COMMANDS = ("publication-inspect", "publication-decide")
+COMMANDS = ("publication-inspect", "publication-decide",
+            "publication-status")
 
 # THE OWNER-PORT SET ONE DEPLOYMENT SUPPLIES, written down rather than
 # discovered from whatever object a factory returned -- `delegation.
@@ -86,8 +88,17 @@ COMMANDS = ("publication-inspect", "publication-decide")
 #                   reuses. Read only: this boundary never mints a Work.
 #   `binding`       the deployment configuration's own binding and selector.
 #   `ownership`     the instance guard, plus this boundary's invocation lock.
+#
+# W385695 checkpoint 2 adds an EIGHTH that is deliberately NOT in this tuple:
+#   `ending`        the Authority's exact-expect transition that releases the
+#                   assignment the reused Work already holds.
+# It is optional because an INSPECTION and a DECISION perform no assignment
+# transition at all, and requiring it would make a read-only inspection
+# refuse for want of a capability it never uses. The admission refuses an
+# absent one where it would be used, naming why.
 OWNERS = ("owner", "host", "exclusion", "source", "authorization", "binding",
           "ownership")
+OPTIONAL_OWNERS = ("ending",)
 
 
 def _say(value, stream):
@@ -134,10 +145,25 @@ def owners(request):
     authority = Authority.open_readonly(
         request["authority"],
         expected_authority_uuid=request["authority_uuid"])
+    from tools.publication_ports import PriorAssignment
+
     return {
         "owner": OwnerAuthorization(authority,
                                     participant=request["participant"]),
         "host": HostOutput(request["control_handle"], identity),
+        # Inspection owns no producer session. A held assignment therefore
+        # remains held until its existing serving owner ends it; this default
+        # must never mint a session for the participant it happens to read.
+        #
+        # W385695 checkpoint 2: AND THE SERVING OWNER NOW DOES. An admission
+        # composed here reserves the recovery and stops at the held
+        # assignment with a typed capability refusal. The serving manager --
+        # the one process holding the producer participant's session -- ends
+        # exactly that assignment on its next tick
+        # (`manager._publish` -> `publication_recovery.advance_endings`), and
+        # the same admission, repeated, replays that journalled ending and
+        # admits. Nothing is ended by this command.
+        "ending": PriorAssignment(authority, identity),
         "exclusion": HostExclusion(request["control_handle"],
                                    identity=identity),
         "source": SourceCorrespondence(identity),
@@ -244,12 +270,43 @@ def _inspect(taken, clock, stream):
                             needed=needed)
         if held.get("release") is not None:
             opened.callback(held["release"])
-        return _say(publication_recovery.inspect(
+        read = publication_recovery.inspect(
             jobs, control, job_id=taken.job, stage_id=taken.stage,
             episode=taken.episode, host=held["host"],
             exclusion=held["exclusion"], source=held["source"],
             authorization=held.get("owner") if taken.participant else None,
-            now=clock() if taken.control_report else None), stream)
+            now=clock() if taken.control_report else None)
+        return _say(_with_continuation(read, control, taken), stream)
+
+
+def _with_continuation(read, control, taken):
+    """NAME THE SUPPORTED NEXT STEP for an original that is held only because
+    its stopped runtime is still present (review 2026-11-24T00-28-00Z C4).
+
+    A producer settled with `settle-stopped` keeps its container, a pending
+    cleanup and its line's writer, so its original is HELD here -- before any
+    approval -- and would also be refused a recovered review checkpoint. The
+    removal that establishes positive absence is `settlement-remove`. This
+    adds the instruction and changes no hold and no eligibility.
+    """
+    from baton_v12.worker_manager import attempt_runtime_of
+
+    attempt_id = (read.get("selector") or {}).get("attempt_id")
+    if read.get("eligible") or attempt_id is None:
+        return read
+    recorded = attempt_runtime_of(control, attempt_id)
+    if recorded is None or recorded["runtime_id"] is None \
+            or recorded["execution_runtime"] != "quiescent":
+        return read
+    return dict(read, continuation={
+        "state": "the original attempt's runtime is stopped and still "
+                 "present; its output is not read and no recovery can be "
+                 "approved until it is positively absent",
+        "command": ["manager", "settlement-remove", "--instance",
+                    "<instance.json>", "--job", taken.job, "--stage",
+                    taken.stage, "--episode", str(taken.episode),
+                    "--reason", "<why>"],
+        "requires": "the manager stopped; then repeat publication-inspect"})
 
 
 def _decide(taken, clock, stream):
@@ -299,7 +356,16 @@ def _decide(taken, clock, stream):
                 exclusion=held["exclusion"],
                 authorization=held["authorization"], binding=held["binding"],
                 ownership=held["ownership"], host=held["host"],
-                source=held["source"], now=clock())
+                source=held["source"],
+                # W385695 checkpoint 2: AND THE ENDING PORT WHEN THIS
+                # DEPLOYMENT COMPOSED ONE. It is `get` rather than `[...]`
+                # because `OWNERS` names the seven a DECISION needs and this
+                # is the eighth, needed only by an admission that will really
+                # reach a fresh assignment -- the operation itself refuses an
+                # absent one at the moment it would be used, with the sentence
+                # that says why, rather than this surface refusing an
+                # inspection for want of a transition it never performs.
+                ending=held.get("ending"), now=clock())
         except ContractRefusal as refusal:
             # THE OWNER'S ACT HAPPENED AND THE BOUNDARY REFUSED, and an
             # operator is owed BOTH facts. A bare refusal on stderr would
@@ -320,7 +386,144 @@ def _decide(taken, clock, stream):
         return _say(answer, stream)
 
 
-VERBS = {"publication-inspect": _inspect, "publication-decide": _decide}
+def _review(jobs, control, admitted, ready):
+    """The recovery's review: stage state, reviewer and recorded verdict."""
+    from baton_v12.worker_manager import attempt_runtime_of, review_cycles
+
+    stage = ready.get("review_stage")
+    if stage is None:
+        return {"state": "blocked: no publication custody and hand-off yet",
+                "verdict": None}
+    answer = {"stage_id": stage["stage_id"], "episode": stage["episode"],
+              "attempt_id": stage["attempt_id"], "state": stage["state"],
+              "ended_without_verdict": stage["ended"],
+              "reviewer": None, "verdict": None}
+    if stage["attempt_id"] is None:
+        return answer
+    recorded = attempt_runtime_of(control, stage["attempt_id"])
+    if recorded is None or recorded.get("assignment") is None:
+        return answer
+    answer["reviewer"] = recorded["assignment"]["participant"]
+    attachment = review_cycles.review_for_attempt(
+        control, attempt_id=stage["attempt_id"],
+        generation=recorded["assignment"]["generation"])
+    if attachment is None:
+        return answer
+    # THE VERDICT'S OWN COMMITTED ACT, by the identity the review owner
+    # journals it under; the owner then validates the whole record.
+    act = control.operation_record(
+        review_cycles.VERDICT_KIND + ":" + attachment["attachment_id"])
+    if act is not None and act["state"] == "committed" and act["result"]:
+        verdict = review_cycles.verdict_of(
+            control, json.loads(act["result"])["verdict_id"])
+        answer["verdict"] = {
+            "disposition": verdict["disposition"],
+            "checkpoint_id": verdict["checkpoint_id"],
+            "head": verdict["head_object"],
+            "recorded_at": verdict["recorded_at"],
+            "candidate_is_the_approved_original":
+                verdict["head_object"] == admitted["candidate"]["head"]}
+    return answer
+
+
+def _status(taken, clock, stream):
+    """WHERE ONE DECIDED RECOVERY STANDS. READ-ONLY, and it takes no
+    participant: it reports operational facts under the local instance's
+    existing trust boundary and grants nothing.
+
+    THE ORIGINAL FAILURE, THE RECOVERY, THE CUSTODY AND THE REVIEW ARE FOUR
+    DIFFERENT THINGS and are reported as four. The failed Job is never
+    described as recovered; a recovery that did not publish is reported with
+    what ended it, whether its runtime was settled, and the item delivered to
+    the owner who decided it.
+
+    WHAT IS KNOWN IS SEPARATED FROM WHAT WAS LAST RECORDED. The publication
+    attempt's runtime axis is the Worker Manager's journal -- the last thing
+    somebody observed -- and is printed as `recorded`. Whether that is
+    current knowledge is `runtime_knowledge`, which says `unknown` from the
+    moment an engine read failed until a settlement supersedes it.
+
+    NO BYTES, NO PATH INTO AN OUTPUT, NO TASK TEXT AND NO CREDENTIAL. Only
+    identities, digests, instants, states and the typed ending.
+    """
+    from contextlib import ExitStack
+
+    from baton_v12.job_manager import publication_execution
+    from baton_v12.worker_manager import attempt_runtime_of
+
+    with ExitStack() as opened:
+        jobs, control = _stores(taken, clock, opened)
+        decision = publication_recovery.decision_of(jobs, taken.decision_id)
+        if decision is None:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"this store records no publication decision "
+                f"{taken.decision_id!r}")
+        answer = {
+            "schema": "baton.v12.output-publication-status/1",
+            "observed_at": clock(),
+            "decision": {
+                "decision_id": decision["decision_id"],
+                "disposition": decision["disposition"],
+                "decided_at": decision["decided_at"],
+                "owner": decision["owner"]["endpoint"]},
+            "original": {
+                "job_id": decision["job_id"],
+                "stage_id": decision["stage_id"],
+                "episode": decision["episode"],
+                "attempt_id": decision["attempt_id"],
+                "work_id": decision["work_id"],
+                "state": "failed at output publication; unchanged by any "
+                         "recovery"},
+            "admission": None, "recovery": None, "publication_attempt": None,
+            "gate": None}
+        admitted = publication_recovery.admission_of(jobs, taken.decision_id)
+        reserved = publication_recovery.intent_of(jobs, taken.decision_id)
+        if admitted is None:
+            answer["admission"] = {
+                "state": "reserved; admission incomplete"
+                if reserved is not None else "not admitted",
+                "job_id": None if reserved is None else reserved["job_id"],
+                "next": "repeat the same publication-decide --approve; it "
+                        "replays the decision and resumes the admission"}
+            return _say(answer, stream)
+        job_id = admitted["job_id"]
+        answer["admission"] = {"state": "admitted", "job_id": job_id,
+                               "admitted_at": admitted["admitted_at"],
+                               "input_digest": admitted["input_digest"]}
+        ready = publication_execution.publication_readiness(
+            jobs, taken.decision_id, control=control)
+        answer["recovery"] = ready
+        deadline = publication_execution.deadline_of(
+            jobs, taken.decision_id, now=answer["observed_at"])
+        answer["recovery"]["publication_deadline"] = {
+            "deadline_at": deadline["deadline_at"],
+            "origin": deadline["origin"], "reached": deadline["reached"],
+            "restart_resets": False}
+        launched = publication_execution.launch_of(jobs, job_id)
+        if launched is not None:
+            recorded = attempt_runtime_of(control, launched["attempt_id"])
+            answer["publication_attempt"] = {
+                "attempt_id": launched["attempt_id"],
+                # THE JOURNAL'S LAST WORD, labelled as that.
+                "recorded": None if recorded is None else {
+                    "execution_runtime": recorded["execution_runtime"],
+                    "cleanup": recorded["cleanup"]},
+                "runtime_knowledge": ready["runtime_knowledge"]}
+        item = publication_execution.owner_item_of(jobs, job_id)
+        answer["owner_item"] = item
+        # THE REVIEW, AS ITS OWN STATEMENT. Where the stage stands is this
+        # store's; the verdict is the review owner's record and is read from
+        # it, never inferred from the stage having ended. No findings text.
+        answer["review"] = _review(jobs, control, admitted, ready)
+        answer["review_item"] = publication_execution.review_item_of(
+            jobs, job_id)
+        answer["gate"] = publication_execution.execution_gate(jobs, job_id)
+        return _say(answer, stream)
+
+
+VERBS = {"publication-inspect": _inspect, "publication-decide": _decide,
+         "publication-status": _status}
 
 
 def main(argv, *, clock=None, stream=None):
@@ -350,13 +553,13 @@ def main(argv, *, clock=None, stream=None):
                              "result are read through their owner, and a "
                              "decision must not be able to change the "
                              "evidence it is judging")
-    parser.add_argument("--authority", required=True,
+    parser.add_argument("--authority", default=None,
                         help="the Authority store whose Work this failure "
                              "ran under; it resolves the deciding "
                              "participant's principal and the Work's own "
                              "effective scope, and this command writes "
                              "nothing to it")
-    parser.add_argument("--instance", required=True,
+    parser.add_argument("--instance", default=None,
                         help="the deployment's state root, whose own layout "
                              "and emitted configuration say which stores, "
                              "which Authority and which workspace storage it "
@@ -369,12 +572,12 @@ def main(argv, *, clock=None, stream=None):
                              "exclusion, the source-aware consumer, the Work "
                              "authorization, the deployment binding and the "
                              "instance guard over this instance's own stores")
-    parser.add_argument("--job", required=True,
+    parser.add_argument("--job", default=None,
                         help="the failed Job whose output was never published")
-    parser.add_argument("--stage", required=True,
+    parser.add_argument("--stage", default=None,
                         help="that Job's implementation stage; another "
                              "stage's ending is another ending")
-    parser.add_argument("--episode", required=True, type=int,
+    parser.add_argument("--episode", default=None, type=int,
                         help="the episode whose attempt produced the retained "
                              "output; the attempt is resolved FROM it and is "
                              "deliberately not an operand")
@@ -456,6 +659,19 @@ def main(argv, *, clock=None, stream=None):
                                "name")
 
     taken = parser.parse_args(argv)
+    if taken.command == "publication-status":
+        # A STATUS READ NAMES ONE DECISION AND NOTHING ELSE: no participant,
+        # no Authority, no instance and no selectors of the failed execution,
+        # all of which it reads off the committed decision.
+        if taken.decision_id is None:
+            parser.error("publication-status needs --decision-id")
+    else:
+        absent = sorted(flag for flag, value in (
+            ("--authority", taken.authority), ("--instance", taken.instance),
+            ("--job", taken.job), ("--stage", taken.stage),
+            ("--episode", taken.episode)) if value is None)
+        if absent:
+            parser.error(taken.command + " needs " + ", ".join(absent))
     if taken.command == "publication-decide":
         required = {"--participant": taken.participant,
                     "--decision-id": taken.decision_id,

@@ -46,7 +46,10 @@ from .store import job_signature
 
 __all__ = ["CONTINUATIONS", "CONTROL_KIND", "EXPIRY_KIND",
            "NATIVE_HANDOFF_PROFILE", "HEAVY_NATIVE_HANDOFF_PROFILE",
-           "SUCCESSOR_RECOVERY_PROFILE", "PROFILES", "PROFILE_MEMBERS",
+           "SUCCESSOR_RECOVERY_PROFILE", "PUBLICATION_RECOVERY_PROFILE",
+           "PUBLICATION_STAGE_KIND", "RECOVERY_PROFILES",
+           "RECOVERY_PROFILE_OWNERS", "SUB_BOUNDS",
+           "sub_bound_of", "stage_sub_bound_in", "PROFILES", "PROFILE_MEMBERS",
            "continuation_allowance", "continuations_used_in",
            "refuse_continuation",
            "TRIGGERS", "TIMING", "WATERMARK_KEY", "control_operation_id",
@@ -90,10 +93,63 @@ HEAVY_NATIVE_HANDOFF_PROFILE = "native-handoff-heavy/1"
 # control profile is the policy it was ADMITTED under, and two different owner
 # approvals sharing one name would make the admitted policy unattributable.
 SUCCESSOR_RECOVERY_PROFILE = "stage1-verification-review/1"
+# W385695 / DESIGN REC-9: the finite control of one OUTPUT-PUBLICATION
+# recovery Job. Owner-selected in the consolidated FINDING entry, and a NEW
+# immutable entry for `SUCCESSOR_RECOVERY_PROFILE`'s reason: a Job's control
+# profile is the policy it was ADMITTED under, and two different owner
+# approvals sharing one name would make the admitted policy unattributable --
+# even though four of the five numbers here are `documentation/1`'s.
+#
+# WHAT IS DIFFERENT ABOUT IT is not in `PROFILE_MEMBERS` at all: it is the
+# PUBLICATION STAGE'S OWN SUB-BOUND, which lives in `SUB_BOUNDS` below for
+# exactly the reason the continuation allowance lives in `CONTINUATIONS` --
+# `PROFILE_MEMBERS` is closed and is what `resolved()` projects, so a sixth
+# member would change the resolved bytes of every profile that was already
+# admitted.
+PUBLICATION_RECOVERY_PROFILE = "output-publication-review/1"
+# THE ONE SPELLING OF THE PUBLICATION STAGE KIND THIS MODULE COMPARES. It is
+# here rather than imported from `documents` because `documents` imports THIS
+# module, and `documents` proves the two agree at its own import -- so there
+# is one spelling and a drift is a failing import rather than a sub-bound that
+# silently stops applying.
+PUBLICATION_STAGE_KIND = "publication"
+# EVERY PROFILE AN ORDINARY SUBMISSION MAY NOT NAME. `require_ordinary_profile`
+# reads this tuple rather than one profile, which is the correction the
+# checkpoint-1 documentation needed: a guard that named one recovery policy
+# while a second existed would have let an ordinary create/submit/fresh-attempt
+# admit a Job under the publication recovery's own finite control.
+RECOVERY_PROFILES = (SUCCESSOR_RECOVERY_PROFILE, PUBLICATION_RECOVERY_PROFILE)
+# WHICH OWNER ADMITS EACH, named so the refusal says where to go instead of
+# only that this door is shut. The words are the admission operations' own.
+RECOVERY_PROFILE_OWNERS = {
+    SUCCESSOR_RECOVERY_PROFILE: "retained-recovery successor admission",
+    PUBLICATION_RECOVERY_PROFILE: "output-publication-recovery admission",
+}
+
+
 def require_ordinary_profile(control):
-    """Recovery policy is admitted only by the retained-successor owner."""
-    if control and control.get("profile") == SUCCESSOR_RECOVERY_PROFILE:
-        raise ContractRefusal("refused", "precondition", "stage1-verification-review/1 requires retained-recovery successor admission")
+    """Recovery policy is admitted only by its own recovery owner.
+
+    ONE GUARD OVER EVERY RECOVERY PROFILE, and it is the ONLY thing standing
+    between an ordinary submission and a finite control that belongs to an
+    owner decision. `submission.submit`, `templates` and `fresh_attempt` all
+    call it; the recovery owners reach the atomic writer that does not.
+
+    W385695 WIDENED IT FROM ONE PROFILE TO THE TABLE. It named REC-8's
+    profile alone, so the day REC-9's was added an ordinary create, submit or
+    fresh attempt could have admitted a Job under the publication recovery's
+    own finite control -- and `publication_recovery`'s module documentation
+    claimed a guard over it that did not exist. One table, read here.
+    """
+    profile = (control or {}).get("profile")
+    if profile in RECOVERY_PROFILES:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"{profile} requires {RECOVERY_PROFILE_OWNERS[profile]}: a "
+            f"recovery's finite control is admitted only through the owner "
+            f"that selected it, and never by an ordinary creation, "
+            f"submission or fresh attempt. A Job admitted under it without "
+            f"that owner's decision is a recovery nobody approved")
 
 
 PROFILES = {
@@ -132,7 +188,87 @@ PROFILES = {
                                  "job_seconds": 9960,
                                  "provider_turn_seconds": 3600,
                                  "verification_command_seconds": 900},
+    # Owner M385703 and the consolidated W385695 selection: overall 9960 s
+    # including queue from the durable recovery admission, 4800 s per stage
+    # from each stage's own execution admission, 3600 s per REVIEW provider
+    # invocation including its investigation and tests, 900 s per reviewer
+    # verification command, and zero automatic corrections, retries and
+    # continuations. The publication stage's additional 900 s sub-bound is in
+    # `SUB_BOUNDS`.
+    PUBLICATION_RECOVERY_PROFILE: {"correction_rounds": 0,
+                                   "stage_seconds": 4800,
+                                   "job_seconds": 9960,
+                                   "provider_turn_seconds": 3600,
+                                   "verification_command_seconds": 900},
 }
+
+# -- the per-stage sub-bound, in its own frozen table ------------------------
+#
+# W385695 / DESIGN REC-9. ONE PROFILE, ONE STAGE KIND, ONE CEILING, and it is
+# an ABSOLUTE BOUND FROM A DURABLE ORIGIN rather than a worker-local timer:
+# `evaluate` derives it from the SAME `stage_origin_in` instant the stage
+# deadline is derived from -- the Worker Manager's own journalled instant of
+# the stage's `admit` operation -- so a restarted worker, a replacement
+# episode and a second observer all derive the same wall. The contract states
+# the negative in both directions and so does this: "it is not merely a
+# worker-local 900 s timer reset by restart".
+#
+# A SUB-BOUND IS NARROWER THAN THE STAGE IT IS INSIDE, never wider, and that
+# is proved at import below rather than trusted.
+SUB_BOUNDS = {
+    PUBLICATION_RECOVERY_PROFILE: {PUBLICATION_STAGE_KIND: 900},
+}
+for _profile, _bounds in SUB_BOUNDS.items():             # pragma: no branch
+    for _kind, _seconds in _bounds.items():
+        if _profile not in PROFILES \
+                or _seconds > PROFILES[_profile]["stage_seconds"] \
+                or _seconds > PROFILES[_profile]["job_seconds"] \
+                or _seconds <= 0:                         # pragma: no cover
+            raise AssertionError(
+                f"the {_profile} sub-bound for a {_kind} stage states "
+                f"{_seconds} seconds, which is not a finite ceiling inside "
+                f"the stage and Job it is inside")
+del _profile, _bounds, _kind, _seconds
+
+
+def sub_bound_of(profile, kind):
+    """The additional seconds one profile bounds one stage KIND at, or None.
+
+    `None` IS THE ORDINARY ANSWER and is not a missing policy: a profile that
+    states no sub-bound for a kind bounds that stage at `stage_seconds`, which
+    is the only ceiling every Job before this revision ever had.
+    """
+    return SUB_BOUNDS.get(profile, {}).get(kind)
+
+
+def stage_sub_bound_in(connection, job_id, stage_id):
+    """ONE stage's absolute sub-bound, derived from durable rows. A read.
+
+    Answers the profile, the seconds, the ORIGIN instant and the derived
+    absolute deadline -- or `None` when this Job's profile bounds this stage
+    kind no further. `restart_resets` is reported as `False` in the document
+    rather than left to a reader's charity, because the thing this bound must
+    never be is a clock a process restart moves.
+    """
+    control = control_in(connection, job_id)
+    if control is None:
+        return None
+    row = connection.execute(
+        "SELECT kind FROM stages WHERE stage_id = ? AND job_id = ?",
+        (stage_id, job_id)).fetchone()
+    if row is None:
+        return None
+    seconds = sub_bound_of(control["profile"], row["kind"])
+    if seconds is None:
+        return None
+    origin = stage_origin_in(connection, stage_id)
+    certain = origin is not None and origin != "uncertain"
+    return {"profile": control["profile"], "stage_id": stage_id,
+            "kind": row["kind"], "seconds": seconds, "units": UNITS,
+            "origin": origin if certain else None,
+            "origin_is": "the persisted stage execution admission",
+            "restart_resets": False,
+            "deadline_at": _deadline(origin, seconds) if certain else None}
 CONTROL_MEMBERS = ("profile",)
 
 # -- the continuation allowance, in its own table ----------------------------
@@ -164,7 +300,11 @@ CONTINUATIONS = {"documentation/1": 0, NATIVE_HANDOFF_PROFILE: 1,
                  # policy statement and a missing key is not one. The approved
                  # definition says zero automatic retries and zero automatic
                  # corrections; a recovery round is a new owner decision.
-                 SUCCESSOR_RECOVERY_PROFILE: 0}
+                 SUCCESSOR_RECOVERY_PROFILE: 0,
+                 # W385695: zero, written out for the same reason. The owner
+                 # selected zero corrections, retries and continuations; a
+                 # further publication is a new owner decision.
+                 PUBLICATION_RECOVERY_PROFILE: 0}
 
 
 def _refuse(message, *, category="refused", code="precondition"):
@@ -421,6 +561,10 @@ def evaluate(connection, job_id, now, *, stages=None):
         row["stage_id"] for row in connection.execute(
             "SELECT stage_id FROM stages WHERE job_id = ? ORDER BY ordinal",
             (job_id,))]
+    # W385695: WHICH KIND EACH STAGE IS, because a sub-bound is a fact about a
+    # stage KIND and the caller may have handed in stage ids alone.
+    kinds = {row["stage_id"]: row["kind"] for row in connection.execute(
+        "SELECT stage_id, kind FROM stages WHERE job_id = ?", (job_id,))}
     origins = {stage_id: stage_origin_in(connection, stage_id)
                for stage_id in stage_rows}
     evidence = [one for one in (watermark, job_origin, *origins.values())
@@ -457,10 +601,44 @@ def evaluate(connection, job_id, now, *, stages=None):
             origin = None
         deadline = (_deadline(origin, policy["stage_seconds"])
                     if origin is not None else None)
+        wall = deadline
         if origin is not None and deadline is None:
             timing = "uncertain"
+        # W385695 / DESIGN REC-9: THE ADDITIONAL ABSOLUTE SUB-BOUND, derived
+        # from the SAME durable origin as the stage deadline and ENFORCED HERE
+        # rather than reported beside an unenforced stage wall. A publication
+        # stage of a recovery Job is bounded at 900 s from its persisted
+        # execution admission AND by the 4800 s stage wall AND by the Job's
+        # own 9960 s; the ceiling that closes it is the EARLIEST, because a
+        # Job cannot be inside two of its own bounds and past one of them.
+        #
+        # NOTHING CHANGES FOR A PROFILE THAT STATES NO SUB-BOUND: `seconds` is
+        # None, `sub_bound` is None, and `deadline_at` is exactly the stage
+        # wall it has always been.
+        seconds = sub_bound_of(policy["profile"], kinds.get(stage_id))
+        sub = None
+        if seconds is not None:
+            inner = _deadline(origin, seconds) if origin is not None else None
+            if origin is not None and inner is None:      # pragma: no cover
+                timing = "uncertain"
+            sub = {"kind": kinds.get(stage_id), "seconds": seconds,
+                   "units": UNITS, "origin": origin, "deadline_at": inner,
+                   "restart_resets": False,
+                   "origin_is": "the persisted stage execution admission",
+                   "reached": (clock is not None and inner is not None
+                               and clock >= inner)}
+            if inner is not None and (deadline is None or inner < deadline):
+                deadline = inner
         view = {"stage_id": stage_id, "origin": origin,
+                # THE CEILING THAT FENCES THIS STAGE, which is the earliest
+                # of the two, and the profile's own stage wall BESIDE it. A
+                # reader has to be able to see both: an operator told only the
+                # narrower one cannot tell which bound closed the Job, and a
+                # reader told only the wall would think a fenced stage still
+                # had time left.
                 "deadline_at": deadline,
+                "stage_wall_at": wall,
+                "sub_bound": sub,
                 "elapsed_seconds": (_seconds_between(clock, origin)
                                     if clock is not None and origin is not None
                                     else None),

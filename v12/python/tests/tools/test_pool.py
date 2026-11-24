@@ -887,6 +887,200 @@ class ComposingAWorkerForThisInstance(ComposingCase):
         self.assertIn("pool", stack_command.COMMANDS)
 
 
+class ComposingTheDeterministicPublicationWorker(ComposingCase):
+    """W385695 / REC-9, review 2026-11-23T18-55-03Z R1: THE SUPPORTED INSTALL
+    PATH for the deterministic publication worker.
+
+    The reviewer's probe handed this verb's own wrapper a publication worker
+    and it refused the role. These hold what an installation needs instead:
+    the role is composed from this build's own documents with no provider
+    operand, the provider operands are refused rather than dropped, and the
+    composed document is one the accepted validator holds and this verb
+    admits.
+    """
+
+    PUBLISHER = "baton.publisher"
+
+    def publication_task(self):
+        place = os.path.join(self.root, "publication-task.json")
+        Path(place).write_text(json.dumps(
+            {"schema": pool.PUBLICATION_TASK_SCHEMA,
+             "task_id": "publication-idle",
+             "instructions": "adopt the approved retained output"},
+            sort_keys=True))
+        return place
+
+    def publication(self, **changes):
+        held = dict(worker_id="publisher", role="publication",
+                    participant=self.PUBLISHER, cli_build=None, network=None,
+                    credential_sources=None, credentials=None,
+                    legacy_layout=False,
+                    image_reference="baton-v12-publication:test",
+                    task_document=self.publication_task())
+        held.update(changes)
+        return self.selection(**held)
+
+    def staging(self):
+        return bootstrap.publication_staging(
+            Path(self.held["state_root"]).parent)
+
+    def test_the_wrapper_admits_the_role(self):
+        """THE REVIEWER'S PROBE, as a case: the installer's own worker
+        wrapper holds a publication worker, and still refuses a role nothing
+        serves."""
+        worker = self.composing(**self.publication())["worker"]
+        self.assertIs(pool.held_worker(worker), worker)
+        with self.assertRaises(pool.PoolRefusal) as caught:
+            pool.held_worker(dict(worker, role="verification"))
+        self.assertIn("implementation, review, integration, publication",
+                      str(caught.exception))
+        self.assertEqual(bootstrap.WORKER_ROLES, stage_execution.WORKER_ROLES)
+
+    def test_it_is_composed_with_no_provider_from_the_selected_declarations(self):
+        from baton_v12.contracts import digest
+        from baton_v12.contracts.manifest import check_manifest_structure
+        from baton_v12.job_manager import publication_recovery
+        from tools import publication_worker
+
+        answer = self.composing(**self.publication())
+        worker = answer["worker"]
+        deployment = worker["deployment"]
+        self.assertEqual((worker["role"], worker["participant"]),
+                         ("publication", self.PUBLISHER))
+        # NO PROVIDER, NO CREDENTIAL, NO NETWORK.
+        self.assertEqual((deployment["credential_sources"],
+                          deployment["credential_slots"],
+                          deployment["credential_profile"],
+                          deployment["network"]), (None, [], {}, "none"))
+        self.assertEqual(deployment["schema"], single_worker.CONFIG_SCHEMA)
+        self.assertNotIn("verifier_layout", deployment)
+        self.assertIsNone(answer["documents"]["runtime_profile"]["provider"])
+        self.assertNotIn("cli_build", answer["documents"]["runtime_profile"])
+        self.assertNotIn("model", answer["documents"]["runtime_profile"])
+        # THE ENTRY IS THE ONE THE RECIPE BAKES IN.
+        recipe = (Path(pool.__file__).resolve().parents[2] / "worker"
+                  / "Dockerfile.publication").read_text()
+        self.assertIn("ENTRYPOINT " + json.dumps(
+            answer["documents"]["adapter"]["entrypoint"]), recipe)
+        self.assertEqual(deployment["adapter_digest"],
+                         digest(answer["documents"]["adapter"]))
+        self.assertEqual(deployment["profile_digest"],
+                         digest(answer["documents"]["runtime_profile"]))
+        # THE TWO DECLARED OUTPUTS ARE THE OWNERS' OWN, read and not typed.
+        manifest = check_manifest_structure(deployment["input_manifest"],
+                                            "inputManifest")
+        declaration = publication_recovery.corrective_declaration()
+        self.assertEqual(manifest["outputs"],
+                         [declaration["output"],
+                          publication_recovery.PROVENANCE_OUTPUT])
+        self.assertEqual(answer["declared"],
+                         ["proposal", "recovery-provenance"])
+        self.assertEqual(manifest["worker_image_digest"],
+                         deployment["image_digest"])
+        # THE POLICY IS THE INSTANCE'S, the one a provider worker composed by
+        # this same verb carries -- a recovery Job's stages are all held to
+        # the failed Job's policy.
+        self.assertEqual(deployment["policy_digest"],
+                         self.composing()["identities"]["policy_digest"])
+        # THE READ-ONLY INPUT IS THE INSTANCE'S PRIVATE STAGING ROOT, and the
+        # spelling is the staging owner's.
+        self.assertEqual(deployment["nominated_source"], self.staging())
+        self.assertEqual(os.path.basename(self.staging()),
+                         publication_worker.DEFAULT_STAGING)
+        self.assertEqual(deployment["review_route"], "rview")
+        self.unchanged()
+
+    def test_a_provider_operand_is_refused_rather_than_dropped(self):
+        for changes, said in (
+                ({"credentials": ["claude=operator-file:x"]}, "--credential"),
+                ({"credential_sources": "/srv/credential-sources.json"},
+                 "--credential-sources"),
+                ({"cli_build": "2.1.247"}, "--cli-build"),
+                ({"legacy_layout": True}, "--legacy-verifier-layout"),
+                ({"network": "baton-provider"}, "reaches no network"),
+                ({"image_digest": "sha256:short"}, "64 hex"),
+                ({"task_document": "relative.json"}, "absolute")):
+            with self.subTest(changes=changes):
+                with self.assertRaises(pool.PoolRefusal) as caught:
+                    self.composing(**self.publication(**changes))
+                self.assertIn(said, str(caught.exception))
+                self.assertIn("Nothing was changed", str(caught.exception))
+        # `none` SAID OUT LOUD IS THE SAME SELECTION AS SAYING NOTHING.
+        self.assertEqual(
+            self.composing(**self.publication(network="none"))
+            ["worker"]["deployment"]["network"], "none")
+        self.unchanged()
+
+    def test_it_is_admitted_into_the_pool_in_its_own_lane(self):
+        """THE WHOLE INSTALL PATH THIS VERB OWNS: composed, then admitted by
+        the accepted validator, into the publication lane and no other."""
+        from baton_v12.job_manager import scheduler
+
+        worker = self.composing(**self.publication())["worker"]
+        # THE STAGING ROOT IS A PREREQUISITE THE INSTALLATION PREPARES, with
+        # the worker's other roots; until it exists the validator refuses the
+        # nomination and nothing is written.
+        document = dict(self.document(), workers=[worker])
+        document.pop("jobs", None)
+        self.assertIn(("publisher", "nominated_source", self.staging()),
+                      bootstrap.prerequisite_places(document))
+        self.assertIn("is not a directory this manager can see",
+                      self.refused(worker))
+        self.unchanged()
+        os.makedirs(self.staging(), mode=0o700)
+        admitted = self.admitting(worker)
+        entry = admitted["worker"]
+        self.assertEqual((entry["role"],
+                          entry["deployment"]["launch_role"],
+                          entry["deployment"]["participant"]),
+                         ("publication", "publication", self.PUBLISHER))
+        held = stage_execution.held_configuration(self.written(),
+                                                  checkout=self.checkout)
+        lanes = {one["worker_id"]: (one["lane"], one["eligible_kinds"])
+                 for one in stage_execution._pool(held, None)["workers"]}
+        self.assertEqual(lanes["publisher"],
+                         (scheduler.PUBLICATION_LANE, ["publication"]))
+        self.assertIsNone([one for one in held["workers"]
+                           if one["role"] == "publication"][0]["deployment"]
+                          ["credential_resolution"])
+        # AND THERE IS ONE. A second is refused and nothing more is written.
+        after = Path(self.place).read_bytes()
+        second = self.composing(**self.publication(
+            worker_id="publisher-2", participant="baton.publisher-2"))
+        self.assertIn("exactly one installed, reusable publisher",
+                      self.refused(second["worker"]))
+        self.assertEqual(Path(self.place).read_bytes(), after)
+
+    def test_the_command_line_composes_one_without_provider_operands(self):
+        self.record_in(self.checkout)
+        into = os.path.join(self.root, "publisher.json")
+        common = ["compose-worker", "--deployment", self.place,
+                  "--participant", self.PUBLISHER,
+                  "--image-reference", "baton-v12-publication:test",
+                  "--image-digest", self.IMAGE,
+                  "--workspace-group", str(self.config["workspace_group"]),
+                  "--task-document", self.publication_task(),
+                  "--record", self.RECORD, "--checkout", self.checkout]
+        said = io.StringIO()
+        self.assertEqual(pool.main(
+            common + ["--worker-id", "publisher", "--role", "publication",
+                      "--into", into], stream=said), 0, said.getvalue())
+        self.assertIn("recovery-provenance", said.getvalue())
+        self.assertEqual(json.loads(Path(into).read_text())["role"],
+                         "publication")
+        # AN ORDINARY ROLE STILL NAMES ITS PROVIDER OPERANDS, by name.
+        said = io.StringIO()
+        other = os.path.join(self.root, "impl-x.json")
+        self.assertEqual(pool.main(
+            common + ["--worker-id", "impl-x", "--role", "implementation",
+                      "--legacy-verifier-layout", "--into", other],
+            stream=said), 2)
+        self.assertIn("--cli-build, --network, --credential-sources, "
+                      "--credential", said.getvalue())
+        self.assertFalse(os.path.exists(other))
+        self.unchanged()
+
+
 class ComposingAWorkerForASelectedTemplate(ComposingCase):
     """W385331 (T321608 M385374, the composer gap): the template is a
     selection of this verb. Omitted, nothing changes; a handoff-capable one

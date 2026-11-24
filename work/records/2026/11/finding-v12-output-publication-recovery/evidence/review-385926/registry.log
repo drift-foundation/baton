@@ -1,0 +1,31 @@
+{"cwd": "/home/sl/src/baton/work/scratch/w385695-review-385926/v12/python", "argv": ["/home/sl/.local/state/baton-v12-venv/bin/python", "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385926/probe-registry.py"], "timeout_seconds": 60, "scratch": "/home/sl/src/baton/work/scratch/w385695-review-385926-tests"}
+OWNERS 30 all exactly one
+PROBE (('adopted', 'review_cycles.py:checkpoint_of', 'line_checkpoints.fence.intent'), 'a recovery fence intent') PASS
+PROBE (('adopted', 'review_cycles.py:checkpoint_of', 'line_checkpoints.fence.fenced'), 'a recovery fence record') PASS
+PROBE (('adopted', 'review_cycles.py:checkpoint_of', 'line_checkpoints.fence.intent.kind'), 'a recovery fence kind') PASS
+PROBE (('adopted', 'review_cycles.py:checkpoint_of', 'line_checkpoints.fence.fenced.kind'), 'a recovery fence record kind') PASS
+PROBE (('adopted', 'review_cycles.py:checkpoint_of', 'line_checkpoints.fence.fenced.revoked_at'), 'a recovery fence revocation instant') PASS
+PROBE (('adopted', 'review_cycles.py:checkpoint_of', 'line_checkpoints.fence.intent.operation_id'), 'a recovery fence operation') PASS
+PROBE (('adopted', 'review_cycles.py:checkpoint_of', 'line_checkpoints.fence.intent.writer_id'), 'a recovery fence writer identity') PASS
+PROBE (('adopted', 'review_cycles.py:checkpoint_of', 'line_checkpoints.fence.intent.line_id'), 'a recovery fence line identity') PASS
+PROBE (('adopted', 'review_cycles.py:checkpoint_of', 'line_checkpoints.fence.intent.checkpoint_id'), 'a recovery fence checkpoint identity') PASS
+PROBE (('adopted', 'review_cycles.py:checkpoint_of', 'line_checkpoints.fence.intent.attempt_id'), 'a recovery fence attempt identity') PASS
+PROBE (('adopted', 'review_cycles.py:checkpoint_of', 'line_checkpoints.fence.intent.based_checkpoint_id'), 'a recovery fence based checkpoint identity') PASS
+PROBE (('adopted', 'review_cycles.py:checkpoint_of', 'line_checkpoints.fence.intent.generation'), 'a recovery fence generation') PASS
+PROBE (('adopted', 'review_cycles.py:checkpoint_of', 'line_checkpoints.fence.intent.exclusion_digest'), 'a recovery fence exclusion digest') PASS
+PROBE (('adopted', 'review_cycles.py:checkpoint_of', 'line_checkpoints.fence.intent.candidate'), 'a recovery fence candidate') PASS
+PROBE (('adopted', 'review_cycles.py:checkpoint_of', 'line_checkpoints.fence.intent.candidate.base'), 'a recovery fence candidate base') PASS
+PROBE (('adopted', 'review_cycles.py:checkpoint_of', 'line_checkpoints.fence.intent.candidate.head'), 'a recovery fence candidate head') PASS
+PROBE (('caller', 'review_cycles.py:freeze_unreleased_recovered_checkpoint', 'attempt_id'), "a recovered writer's attempt id") PASS
+PROBE (('caller', 'review_cycles.py:freeze_unreleased_recovered_checkpoint', 'generation'), "a recovered writer's assignment generation") PASS
+PROBE (('caller', 'review_cycles.py:freeze_unreleased_recovered_checkpoint', 'candidate'), 'the unreleased recovery checkpoint identity') PASS
+PROBE (('caller', 'review_cycles.py:freeze_unreleased_recovered_checkpoint', 'candidate.base'), 'the unreleased recovery candidate base') PASS
+PROBE (('caller', 'review_cycles.py:freeze_unreleased_recovered_checkpoint', 'candidate.head'), 'the unreleased recovery candidate head') PASS
+PROBE (('caller', 'review_cycles.py:freeze_unreleased_recovered_checkpoint', 'retention_policy_digest'), 'an unreleased recovery retention policy digest') PASS
+PROBE (('caller', 'review_cycles.py:freeze_recovered_checkpoint', 'candidate'), 'the recovery checkpoint identity') PASS
+PROBE (('caller', 'review_cycles.py:freeze_recovered_checkpoint', 'candidate.base'), 'the approved candidate base') PASS
+PROBE (('caller', 'review_cycles.py:freeze_recovered_checkpoint', 'candidate.head'), 'the approved candidate head') PASS
+PROBE (('caller', 'workspaces.py:retained_output_of', 'assignment_id'), 'an assignment identity') PASS
+PROBE (('caller', 'workspaces.py:retained_output_of', 'output'), 'a declared retained output path') PASS
+PROBES 27 all arrived
+BASE_RENAME 2208 2214

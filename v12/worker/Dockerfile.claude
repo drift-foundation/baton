@@ -166,6 +166,11 @@ COPY worker/baton_worker.py /opt/baton/baton_worker.py
 # exist to replace.
 COPY worker/adapter_refusal.py /opt/baton/adapter_refusal.py
 COPY worker/claude_agent.py /opt/baton/claude_agent.py
+# W385695 C2: THE COMMAND SUPERVISOR, in the read-only root beside the adapter
+# and executable: the provider CLI is handed this exact path as its shell
+# prefix, and the adapter refuses a required review that cannot find it.
+COPY worker/bounded_command.py /opt/baton/bounded_command.py
+RUN chmod 0555 /opt/baton/bounded_command.py
 COPY worker/dogfood_entry.py /opt/baton/dogfood_entry.py
 COPY worker/worker-control-1.0.schema.json \
      /opt/baton/worker-control-1.0.schema.json

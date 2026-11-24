@@ -1,0 +1,77 @@
+{"cwd": "/home/sl/src/baton/work/scratch/w385695-review-385926/v12/python", "argv": ["/home/sl/.local/state/baton-v12-venv/bin/python", "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385926/probe-corrections.py"], "timeout_seconds": 60, "scratch": "/home/sl/src/baton/work/scratch/w385695-review-385926-tests"}
+test_copy_time_reduces_remaining_command_allowance (__main__.Timing.test_copy_time_reduces_remaining_command_allowance) ... FAIL
+test_detached_descendant_is_not_proved_gone_by_group_gone (__main__.Timing.test_detached_descendant_is_not_proved_gone_by_group_gone) ... FAIL
+test_removal_success_can_replay (__main__.Replay.test_removal_success_can_replay) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                a72b46545801b6cf817dd4b3c2e4fc235659a814 established from line_declared_base
+configuration /home/sl/src/baton/work/scratch/w385695-review-385926-tests/v12-w71917-9v5enrbo/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/home/sl/src/baton/work/scratch/w385695-review-385926-tests/v12-w71917-9v5enrbo/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/home/sl/src/baton/work/scratch/w385695-review-385926-tests/v12-w71917-9v5enrbo/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/home/sl/src/baton/work/scratch/w385695-review-385926-tests/v12-w71917-9v5enrbo/publication-instance/deployment.json"
+ERROR
+
+======================================================================
+ERROR: test_removal_success_can_replay (__main__.Replay.test_removal_success_can_replay)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385926/probe-corrections.py", line 42, in test_removal_success_can_replay
+    self.test_a_stopped_original_is_held_then_removed_recovered_and_reviewed()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w385695-review-385926/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 6088, in test_a_stopped_original_is_held_then_removed_recovered_and_reviewed
+    answer = self.removed(selector, job_id, stage,
+                          "stopped original removed for recovery")
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385926/probe-corrections.py", line 39, in twice
+    second=original(selector,job,stage,reason)
+  File "/home/sl/src/baton/work/scratch/w385695-review-385926/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 6037, in removed
+    answer = stopped_settlement.remove(
+        selector, job_id=job_id, stage_id=stage["stage_id"],
+        episode=stage["episode"], reason=reason,
+        clock=lambda: self.now, compose=compose)
+  File "/home/sl/src/baton/work/scratch/w385695-review-385926/v12/python/tools/stopped_settlement.py", line 179, in remove
+    _refuse(f"removal is for a positively stopped attempt: this one's runtime is recorded "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{None if before is None else before['execution_runtime']!r}. A running attempt is stopped by "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"cancellation or its deadline first; an attempt with no runtime has nothing to remove")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-review-385926/v12/python/tools/stopped_settlement.py", line 24, in _refuse
+    raise ContractRefusal("refused", "precondition", message)
+baton_v12.contracts.errors.ContractRefusal: removal is for a positively stopped attempt: this one's runtime is recorded 'destroyed'. A running attempt is stopped by cancellation or its deadline first; an attempt with no runtime has nothing to remove
+
+======================================================================
+FAIL: test_copy_time_reduces_remaining_command_allowance (__main__.Timing.test_copy_time_reduces_remaining_command_allowance)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385926/probe-corrections.py", line 20, in test_copy_time_reduces_remaining_command_allowance
+    self.assertNotEqual(seen['outcome'],'passed','check launched after invocation elapsed during copy')
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'passed' == 'passed' : check launched after invocation elapsed during copy
+
+======================================================================
+FAIL: test_detached_descendant_is_not_proved_gone_by_group_gone (__main__.Timing.test_detached_descendant_is_not_proved_gone_by_group_gone)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385926/probe-corrections.py", line 28, in test_detached_descendant_is_not_proved_gone_by_group_gone
+    self.assertFalse(seen['outcome']=='passed' and seen['group_gone'] is True,'empty group does not prove all verification descendants ended')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false : empty group does not prove all verification descendants ended
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.798s
+
+FAILED (failures=2, errors=1)
+COPY_DEADLINE {"elapsed_copy": 10, "invocation": 1, "timeouts": [1], "record": {"argv": ["/home/sl/.local/state/baton-v12-venv/bin/python", "-c", "pass"], "seconds_bound": 1, "outcome": "passed", "status": 0, "seconds": 0.0, "group_gone": true}}
+DETACHED_DESCENDANT {"alive": true, "record": {"argv": ["/home/sl/.local/state/baton-v12-venv/bin/python", "-c", "import subprocess,sys,time,pathlib\nc=subprocess.Popen([sys.executable,\"-c\",'import os,time;open(\\'/home/sl/src/baton/work/scratch/w385695-review-385926-tests/tmp5vti1b55/escaped.ready\\',\"w\").write(str(os.getpid()));time.sleep(60)'],start_new_session=True)\npathlib.Path('/home/sl/src/baton/work/scratch/w385695-review-385926-tests/tmp5vti1b55/escaped.pid').write_text(str(c.pid))\nwhile not pathlib.Path('/home/sl/src/baton/work/scratch/w385695-review-385926-tests/tmp5vti1b55/escaped.ready').exists(): time.sleep(0.01)\n"], "seconds_bound": 2, "outcome": "passed", "status": 0, "seconds": 0.031, "group_gone": true}}
+FIRST_REMOVAL {"schema": "baton.v12.installed-settlement-removal/1", "selection": {"schema": "baton.v12.installed-settlement-removal/1", "binding": {"instance": "/home/sl/src/baton/work/scratch/w385695-review-385926-tests/v12-w71917-9v5enrbo/publication-instance", "authority_uuid": "0000000a000000000000000000000000", "runtime_digest": "28847feb31b7e1ee0d9d35a2249ec230123b47a1b0fe5807a916b6ee778920eb", "deployment_digest": "sha256:69d4a2e7f8c1dd25b7cd47d4925e1887ffd30c57e24885b5a0174ae648e5304f", "job_store": "/home/sl/src/baton/work/scratch/w385695-review-385926-tests/v12-w71917-9v5enrbo/publication-instance/db/jobs.sqlite3", "control_store": "/home/sl/src/baton/work/scratch/w385695-review-385926-tests/v12-w71917-9v5enrbo/publication-instance/db/control.sqlite3"}, "job_id": "job-connected-a", "stage_id": "job-connected-a/implementation", "episode": 1}, "attempt_id": "attempt-dceb47b3b0a0c40765f9670e1ccfb15facb1be3f81f84b48daeac5c7e28401e8", "before": {"execution_runtime": "quiescent", "cleanup": "pending"}, "after": {"execution_runtime": "destroyed", "cleanup": "retained"}, "removed": true, "abandonment": {"outcome": null, "cleanup": {"attempt_id": "attempt-dceb47b3b0a0c40765f9670e1ccfb15facb1be3f81f84b48daeac5c7e28401e8", "cleanup": "retained", "state": "absent", "why": "the engine answered that this exact identity does not exist", "kept": [], "operation": {"operation_id": "runtime.destroy-abandoned:73152b1839d0b627aea5af5085b2687312aa98d0c3c26c67fca9aa804fed082d", "signature_digest": "sha256:e8e8a8346db6d43abd0c803cfaa2add3ee94554720e5074a59beb5625f682a58"}, "directory_custody": null}, "disposition": null}}

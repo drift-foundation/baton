@@ -1,0 +1,23 @@
+{"cwd": "/home/sl/src/baton/work/scratch/w385695-385885/v12/python", "argv": ["just", "test-one", "tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_process_loss_after_intent_never_repeats_the_writer"], "timeout_seconds": 60, "scratch": "/home/sl/src/baton/work/scratch/w385695-385885/work/scratch/verification"}
+test_process_loss_after_intent_never_repeats_the_writer (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_process_loss_after_intent_never_repeats_the_writer) ... ERROR
+
+======================================================================
+ERROR: test_process_loss_after_intent_never_repeats_the_writer (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_process_loss_after_intent_never_repeats_the_writer)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-385885/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 1498, in test_process_loss_after_intent_never_repeats_the_writer
+    self.ready()
+    ~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w385695-385885/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 357, in ready
+    self.admit_stage()
+    ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w385695-385885/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 541, in admit_stage
+    with self.jobs.snapshot() as view:
+         ^^^^^^^^^^^^^^^^^^
+AttributeError: 'JobStore' object has no attribute 'snapshot'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.103s
+
+FAILED (errors=1)
+error: Recipe `test-one` failed with exit code 1

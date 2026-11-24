@@ -1,0 +1,11 @@
+{
+  "source_manifest": "162152b462b8ab0907a43b5dd41f85e8c7c2a6218053b6a93bbf9edc1762a8dd",
+  "source_paths_unchanged": 50,
+  "original_packet_entries_unchanged": 81,
+  "preparation_packet_entries_unchanged": 34,
+  "scripts": {
+    "qualify-w385695.sh": "d8c579d3e9b0122581ce445aeabf02ac5e59a5edcbbaeba0e5911ede1f5da591",
+    "option-a-setup.sh": "976476acd42b6328265680d64f4868f9511c086875318bac340c37b4e8f2dc86",
+    "cli-in-image-driver.py": "b3a722ef406bb81ed0e84cadf2c0a4983dc3fe92a61532b9992d9a4217a1370d"
+  }
+}

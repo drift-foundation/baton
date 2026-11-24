@@ -1,0 +1,188 @@
+{"cwd": "/home/sl/src/baton/work/scratch/w385695-385885/v12/python", "argv": ["just", "test-one", "tests.job_manager.test_publication_recovery_execution", "tests.manager.test_dependencies.NoPublicOperationTakesInternalState"], "timeout_seconds": 120, "scratch": "/home/sl/src/baton/work/scratch/w385695-385885/work/scratch/verification"}
+test_a_declared_output_path_that_escapes_is_refused_by_its_owner (tests.job_manager.test_publication_recovery_execution.AMaliciousOrOversizedOriginalIsRefusedByItsOwner.test_a_declared_output_path_that_escapes_is_refused_by_its_owner)
+THE DECLARATION OWNER REFUSES THE PATH, which is why neither this ... ok
+test_a_linked_directory_in_the_original_is_refused_too (tests.job_manager.test_publication_recovery_execution.AMaliciousOrOversizedOriginalIsRefusedByItsOwner.test_a_linked_directory_in_the_original_is_refused_too) ... ok
+test_a_special_file_in_the_original_is_refused_rather_than_read (tests.job_manager.test_publication_recovery_execution.AMaliciousOrOversizedOriginalIsRefusedByItsOwner.test_a_special_file_in_the_original_is_refused_rather_than_read)
+A FIFO AT A MEASURED NAME WOULD BLOCK A COPY FOREVER, which is the ... ok
+test_a_symbolic_link_in_the_original_is_refused_on_sight (tests.job_manager.test_publication_recovery_execution.AMaliciousOrOversizedOriginalIsRefusedByItsOwner.test_a_symbolic_link_in_the_original_is_refused_on_sight) ... ok
+test_an_original_over_the_selected_entry_ceiling_holds (tests.job_manager.test_publication_recovery_execution.AMaliciousOrOversizedOriginalIsRefusedByItsOwner.test_an_original_over_the_selected_entry_ceiling_holds)
+GENUINE OVERFLOW, with real files. The selected declaration allows ... ok
+test_an_oversized_provenance_is_refused_on_the_measurement (tests.job_manager.test_publication_recovery_execution.AMaliciousOrOversizedOriginalIsRefusedByItsOwner.test_an_oversized_provenance_is_refused_on_the_measurement)
+THE SEPARATE BOUND IS ENFORCED ON REAL BYTES. A writer that wrote ... ok
+test_a_cancelled_original_is_never_published_under_a_new_identity (tests.job_manager.test_publication_recovery_execution.CancellationStopsNewEffectsAndRetainsEverything.test_a_cancelled_original_is_never_published_under_a_new_identity) ... ok
+test_a_cancelled_recovery_stops_the_next_act_and_keeps_the_rest (tests.job_manager.test_publication_recovery_execution.CancellationStopsNewEffectsAndRetainsEverything.test_a_cancelled_recovery_stops_the_next_act_and_keeps_the_rest) ... ok
+test_an_expired_recovery_stops_new_effects_through_the_same_fence (tests.job_manager.test_publication_recovery_execution.CancellationStopsNewEffectsAndRetainsEverything.test_an_expired_recovery_stops_new_effects_through_the_same_fence) ... ok
+test_a_candidate_that_is_not_the_approved_original_is_not_handed_on (tests.job_manager.test_publication_recovery_execution.IncompleteCustodyNeverOffersAReview.test_a_candidate_that_is_not_the_approved_original_is_not_handed_on)
+AN UNATTACHED CANDIDATE: the frozen result in custody carries a ... ok
+test_a_completion_with_no_custody_record_opens_nothing (tests.job_manager.test_publication_recovery_execution.IncompleteCustodyNeverOffersAReview.test_a_completion_with_no_custody_record_opens_nothing)
+The publication really completed -- adopted, frozen, collected and ... ok
+test_no_handoff_is_composed_without_custody (tests.job_manager.test_publication_recovery_execution.IncompleteCustodyNeverOffersAReview.test_no_handoff_is_composed_without_custody) ... ok
+test_a_held_decision_admits_nothing_and_publishes_nothing (tests.job_manager.test_publication_recovery_execution.OneFailedPublicationHasOneApprovedRecovery.test_a_held_decision_admits_nothing_and_publishes_nothing) ... ok
+test_a_replayed_admission_returns_the_committed_answer (tests.job_manager.test_publication_recovery_execution.OneFailedPublicationHasOneApprovedRecovery.test_a_replayed_admission_returns_the_committed_answer) ... ok
+test_a_second_approval_of_one_attempt_is_denied_at_the_decision (tests.job_manager.test_publication_recovery_execution.OneFailedPublicationHasOneApprovedRecovery.test_a_second_approval_of_one_attempt_is_denied_at_the_decision) ... ok
+test_an_admission_against_bytes_that_moved_is_refused (tests.job_manager.test_publication_recovery_execution.OneFailedPublicationHasOneApprovedRecovery.test_an_admission_against_bytes_that_moved_is_refused) ... ok
+test_a_contained_refusal_is_reported_and_does_not_stop_the_pass (tests.job_manager.test_publication_recovery_execution.OneTickOwesOneActAndDerivesItFromRows.test_a_contained_refusal_is_reported_and_does_not_stop_the_pass) ... ok
+test_a_held_admission_is_not_a_recovery_the_pass_advances (tests.job_manager.test_publication_recovery_execution.OneTickOwesOneActAndDerivesItFromRows.test_a_held_admission_is_not_a_recovery_the_pass_advances)
+A HELD ADMISSION PERFORMED NO EFFECT, so there is no Job to publish ... ok
+test_the_pass_performs_the_four_acts_in_order_and_then_nothing (tests.job_manager.test_publication_recovery_execution.OneTickOwesOneActAndDerivesItFromRows.test_the_pass_performs_the_four_acts_in_order_and_then_nothing) ... ok
+test_a_recovery_generation_admits_only_the_selected_stage_set (tests.job_manager.test_publication_recovery_execution.OrdinaryJobsAndOldProfilesAreUnchanged.test_a_recovery_generation_admits_only_the_selected_stage_set) ... ok
+test_a_recovery_generation_carries_exactly_one_job (tests.job_manager.test_publication_recovery_execution.OrdinaryJobsAndOldProfilesAreUnchanged.test_a_recovery_generation_carries_exactly_one_job)
+ONE OWNER DECISION ADMITS ONE RECOVERY, which is the duplicate ... ok
+test_an_ordinary_pool_generation_declares_no_publication_lane (tests.job_manager.test_publication_recovery_execution.OrdinaryJobsAndOldProfilesAreUnchanged.test_an_ordinary_pool_generation_declares_no_publication_lane) ... ok
+test_an_ordinary_submission_still_cannot_name_the_profile (tests.job_manager.test_publication_recovery_execution.OrdinaryJobsAndOldProfilesAreUnchanged.test_an_ordinary_submission_still_cannot_name_the_profile) ... ok
+test_an_ordinary_template_cannot_name_the_publication_stage (tests.job_manager.test_publication_recovery_execution.OrdinaryJobsAndOldProfilesAreUnchanged.test_an_ordinary_template_cannot_name_the_publication_stage) ... ok
+test_the_three_older_submission_generations_admit_no_publication (tests.job_manager.test_publication_recovery_execution.OrdinaryJobsAndOldProfilesAreUnchanged.test_the_three_older_submission_generations_admit_no_publication) ... ok
+test_an_exact_repeat_replays_and_admits_nothing_twice (tests.job_manager.test_publication_recovery_execution.TheApprovalNowReachesARealAdmission.test_an_exact_repeat_replays_and_admits_nothing_twice) ... ok
+test_every_prerequisite_is_available_and_the_job_is_admitted (tests.job_manager.test_publication_recovery_execution.TheApprovalNowReachesARealAdmission.test_every_prerequisite_is_available_and_the_job_is_admitted) ... ok
+test_the_admission_published_nothing_and_says_so (tests.job_manager.test_publication_recovery_execution.TheApprovalNowReachesARealAdmission.test_the_admission_published_nothing_and_says_so) ... ok
+test_the_publication_stage_is_allocated_in_its_own_lane (tests.job_manager.test_publication_recovery_execution.TheApprovalNowReachesARealAdmission.test_the_publication_stage_is_allocated_in_its_own_lane) ... ok
+test_the_recovery_input_is_the_approved_original_and_not_the_task (tests.job_manager.test_publication_recovery_execution.TheApprovalNowReachesARealAdmission.test_the_recovery_input_is_the_approved_original_and_not_the_task) ... ok
+test_the_submitted_document_is_one_publication_and_one_review (tests.job_manager.test_publication_recovery_execution.TheApprovalNowReachesARealAdmission.test_the_submitted_document_is_one_publication_and_one_review) ... ok
+test_a_missing_original_holds_and_stages_nothing (tests.job_manager.test_publication_recovery_execution.TheApprovedOriginalIsStagedReadOnly.test_a_missing_original_holds_and_stages_nothing) ... ok
+test_a_substituted_original_root_refuses_as_a_substitution (tests.job_manager.test_publication_recovery_execution.TheApprovedOriginalIsStagedReadOnly.test_a_substituted_original_root_refuses_as_a_substitution)
+THE OBJECT IDENTITY IS WHAT DECIDES, not the path. The workspace is ... ok
+test_a_tampered_original_refuses_before_anything_is_staged (tests.job_manager.test_publication_recovery_execution.TheApprovedOriginalIsStagedReadOnly.test_a_tampered_original_refuses_before_anything_is_staged) ... ok
+test_an_uncertain_writer_holds_the_staging (tests.job_manager.test_publication_recovery_execution.TheApprovedOriginalIsStagedReadOnly.test_an_uncertain_writer_holds_the_staging) ... ok
+test_nothing_is_staged_before_a_fresh_claim_exists (tests.job_manager.test_publication_recovery_execution.TheApprovedOriginalIsStagedReadOnly.test_nothing_is_staged_before_a_fresh_claim_exists) ... ok
+test_nothing_is_staged_before_the_stage_durably_starts (tests.job_manager.test_publication_recovery_execution.TheApprovedOriginalIsStagedReadOnly.test_nothing_is_staged_before_the_stage_durably_starts)
+QUEUE TIME IS CHARGED TO THE JOB, not to this stage: a copy made ... ok
+test_staging_replays_and_copies_once (tests.job_manager.test_publication_recovery_execution.TheApprovedOriginalIsStagedReadOnly.test_staging_replays_and_copies_once) ... ok
+test_the_provenance_is_separate_bounded_and_outside_the_proposal (tests.job_manager.test_publication_recovery_execution.TheApprovedOriginalIsStagedReadOnly.test_the_provenance_is_separate_bounded_and_outside_the_proposal) ... ok
+test_the_staged_copy_is_the_approved_bytes_and_is_read_only (tests.job_manager.test_publication_recovery_execution.TheApprovedOriginalIsStagedReadOnly.test_the_staged_copy_is_the_approved_bytes_and_is_read_only) ... ok
+test_the_staged_manifest_binds_the_original_and_the_decision (tests.job_manager.test_publication_recovery_execution.TheApprovedOriginalIsStagedReadOnly.test_the_staged_manifest_binds_the_original_and_the_decision) ... ok
+test_a_reached_bound_starts_no_new_effect_and_proves_no_cessation (tests.job_manager.test_publication_recovery_execution.TheNineHundredSecondBoundIsAbsoluteAndEnforcedTwice.test_a_reached_bound_starts_no_new_effect_and_proves_no_cessation) ... ok
+test_a_restart_re_derives_the_same_instant_and_not_a_fresh_budget (tests.job_manager.test_publication_recovery_execution.TheNineHundredSecondBoundIsAbsoluteAndEnforcedTwice.test_a_restart_re_derives_the_same_instant_and_not_a_fresh_budget)
+THE ONE PROPERTY THE CONTRACT STATES TWICE. A second incarnation ... ok
+test_the_bound_is_derived_from_the_persisted_stage_admission (tests.job_manager.test_publication_recovery_execution.TheNineHundredSecondBoundIsAbsoluteAndEnforcedTwice.test_the_bound_is_derived_from_the_persisted_stage_admission) ... ok
+test_the_bound_is_the_one_the_control_owner_enforces (tests.job_manager.test_publication_recovery_execution.TheNineHundredSecondBoundIsAbsoluteAndEnforcedTwice.test_the_bound_is_the_one_the_control_owner_enforces)
+THE HOST'S OWN ENFORCEMENT, not a second account of it. The stage ... ok
+test_the_writer_is_handed_the_absolute_instant_and_stops_at_it (tests.job_manager.test_publication_recovery_execution.TheNineHundredSecondBoundIsAbsoluteAndEnforcedTwice.test_the_writer_is_handed_the_absolute_instant_and_stops_at_it)
+THE WORKER'S OWN ENFORCEMENT, at its own boundary. The adapter is ... ok
+test_a_deployment_with_no_session_for_the_holder_cannot_end_it (tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority.test_a_deployment_with_no_session_for_the_holder_cannot_end_it)
+AND IT CANNOT IMPERSONATE ONE. The ending adapter asks the ... ok
+test_an_already_released_work_has_nothing_to_end (tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority.test_an_already_released_work_has_nothing_to_end) ... ok
+test_an_assignment_another_handler_holds_is_reported_and_not_taken (tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority.test_an_assignment_another_handler_holds_is_reported_and_not_taken)
+NO TAKEOVER POWER WAS SELECTED AND NONE IS USED. ... ok
+test_an_uncertain_host_refuses_the_ending_before_it_happens (tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority.test_an_uncertain_host_refuses_the_ending_before_it_happens)
+A HOST-ONLY STOPPED SETTLEMENT DOES NOT RELEASE AN AUTHORITY CLAIM, ... ok
+test_the_admission_ends_exactly_that_assignment_and_queues_the_work (tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority.test_the_admission_ends_exactly_that_assignment_and_queues_the_work) ... ok
+test_the_ending_is_journalled_once_and_replays (tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority.test_the_ending_is_journalled_once_and_replays) ... ok
+test_the_producer_holds_the_work_before_a_recovery_is_admitted (tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority.test_the_producer_holds_the_work_before_a_recovery_is_admitted) ... ok
+test_the_publication_worker_claims_a_fresh_generation (tests.job_manager.test_publication_recovery_execution.ThePriorAssignmentIsEndedThroughTheAuthority.test_the_publication_worker_claims_a_fresh_generation) ... ok
+test_a_runtime_nobody_says_stopped_is_not_frozen (tests.job_manager.test_publication_recovery_execution.ThePublishedCandidateEntersOrdinaryCustody.test_a_runtime_nobody_says_stopped_is_not_frozen)
+`output._provable`'s rule, unchanged for this lane: a freeze ... ok
+test_nothing_is_collected_before_anything_is_adopted (tests.job_manager.test_publication_recovery_execution.ThePublishedCandidateEntersOrdinaryCustody.test_nothing_is_collected_before_anything_is_adopted) ... ok
+test_the_custody_record_replays_and_freezes_once (tests.job_manager.test_publication_recovery_execution.ThePublishedCandidateEntersOrdinaryCustody.test_the_custody_record_replays_and_freezes_once) ... ok
+test_the_frozen_candidate_is_the_approved_original_in_custody (tests.job_manager.test_publication_recovery_execution.ThePublishedCandidateEntersOrdinaryCustody.test_the_frozen_candidate_is_the_approved_original_in_custody) ... ok
+test_a_writer_that_wrote_other_bytes_is_refused_after_the_fact (tests.job_manager.test_publication_recovery_execution.TheRetainedBytesAreAdoptedDeterministically.test_a_writer_that_wrote_other_bytes_is_refused_after_the_fact)
+A WRITER'S ANSWER DOES NOT MAKE OTHER BYTES THE APPROVED ONES. ... ok
+test_nothing_is_adopted_before_the_original_is_staged (tests.job_manager.test_publication_recovery_execution.TheRetainedBytesAreAdoptedDeterministically.test_nothing_is_adopted_before_the_original_is_staged) ... ok
+test_the_adopted_proposal_is_the_approved_original_byte_for_byte (tests.job_manager.test_publication_recovery_execution.TheRetainedBytesAreAdoptedDeterministically.test_the_adopted_proposal_is_the_approved_original_byte_for_byte) ... ok
+test_the_adoption_replays_and_publishes_once (tests.job_manager.test_publication_recovery_execution.TheRetainedBytesAreAdoptedDeterministically.test_the_adoption_replays_and_publishes_once) ... ok
+test_the_completion_envelope_is_the_worker_contracts_own (tests.job_manager.test_publication_recovery_execution.TheRetainedBytesAreAdoptedDeterministically.test_the_completion_envelope_is_the_worker_contracts_own) ... ok
+test_the_provenance_is_a_separate_output_that_changes_no_digest (tests.job_manager.test_publication_recovery_execution.TheRetainedBytesAreAdoptedDeterministically.test_the_provenance_is_a_separate_output_that_changes_no_digest) ... ok
+test_zero_providers_and_zero_verifier_commands_are_counted (tests.job_manager.test_publication_recovery_execution.TheRetainedBytesAreAdoptedDeterministically.test_zero_providers_and_zero_verifier_commands_are_counted) ... ok
+test_an_ordinary_job_has_no_publication_gate_at_all (tests.job_manager.test_publication_recovery_execution.TheReviewGateOpensOnTheHandoffAndOnNothingWeaker.test_an_ordinary_job_has_no_publication_gate_at_all) ... ok
+test_no_verdict_is_written_anywhere_on_this_path (tests.job_manager.test_publication_recovery_execution.TheReviewGateOpensOnTheHandoffAndOnNothingWeaker.test_no_verdict_is_written_anywhere_on_this_path) ... ok
+test_the_gate_is_shut_at_every_step_before_the_handoff (tests.job_manager.test_publication_recovery_execution.TheReviewGateOpensOnTheHandoffAndOnNothingWeaker.test_the_gate_is_shut_at_every_step_before_the_handoff) ... ok
+test_the_handoff_names_what_the_reviewer_still_owes (tests.job_manager.test_publication_recovery_execution.TheReviewGateOpensOnTheHandoffAndOnNothingWeaker.test_the_handoff_names_what_the_reviewer_still_owes) ... ok
+test_the_handoff_opens_the_gate_and_earns_exactly_one_review_offer (tests.job_manager.test_publication_recovery_execution.TheReviewGateOpensOnTheHandoffAndOnNothingWeaker.test_the_handoff_opens_the_gate_and_earns_exactly_one_review_offer) ... ok
+test_the_handoff_replays_and_opens_one_gate (tests.job_manager.test_publication_recovery_execution.TheReviewGateOpensOnTheHandoffAndOnNothingWeaker.test_the_handoff_replays_and_opens_one_gate) ... ok
+test_an_approval_on_held_evidence_is_refused_and_records_nothing (tests.job_manager.test_publication_recovery_execution.TheShippedOwnersRunOnABootstrappedInstance.test_an_approval_on_held_evidence_is_refused_and_records_nothing)
+THE DECISION PATH, THROUGH THE SHIPPED PORTS, and it refuses. ... FAIL
+test_the_default_factory_composes_every_port_and_reads_the_original (tests.job_manager.test_publication_recovery_execution.TheShippedOwnersRunOnABootstrappedInstance.test_the_default_factory_composes_every_port_and_reads_the_original) ... FAIL
+test_the_default_factory_reports_this_instances_real_holds (tests.job_manager.test_publication_recovery_execution.TheShippedOwnersRunOnABootstrappedInstance.test_the_default_factory_reports_this_instances_real_holds)
+WHAT A FRESH INSTANCE REALLY IS, read through the shipped ports. ... FAIL
+test_the_shipped_binding_installs_no_publication_worker (tests.job_manager.test_publication_recovery_execution.TheShippedOwnersRunOnABootstrappedInstance.test_the_shipped_binding_installs_no_publication_worker) ... FAIL
+test_no_implementation_is_redispatched_anywhere_on_this_path (tests.job_manager.test_publication_recovery_execution.ThisCheckpointIsPartialEvidenceAndNeverResumeSupported.test_no_implementation_is_redispatched_anywhere_on_this_path)
+ZERO implementation stages, counted across the whole path. ... ok
+test_the_producers_verifier_is_never_repeated (tests.job_manager.test_publication_recovery_execution.ThisCheckpointIsPartialEvidenceAndNeverResumeSupported.test_the_producers_verifier_is_never_repeated)
+THE REUSED EVIDENCE IS CARRIED AND THE COMMAND IS NOT RUN. The ... ok
+test_the_readiness_never_says_the_recovery_is_complete (tests.job_manager.test_publication_recovery_execution.ThisCheckpointIsPartialEvidenceAndNeverResumeSupported.test_the_readiness_never_says_the_recovery_is_complete) ... ok
+test_the_selected_identities_and_bounds_are_the_owners_own (tests.job_manager.test_publication_recovery_execution.ThisCheckpointIsPartialEvidenceAndNeverResumeSupported.test_the_selected_identities_and_bounds_are_the_owners_own) ... ok
+test_a_lost_reply_is_journalled_as_uncertain_and_holds (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_a_lost_reply_is_journalled_as_uncertain_and_holds) ... ok
+test_a_writer_that_cannot_say_it_finished_holds (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_a_writer_that_cannot_say_it_finished_holds) ... ok
+test_a_writer_that_claims_a_model_or_a_verifier_is_denied (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_a_writer_that_claims_a_model_or_a_verifier_is_denied) ... ok
+test_an_uncertain_adoption_opens_no_gate_and_offers_no_review (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_an_uncertain_adoption_opens_no_gate_and_offers_no_review) ... ok
+test_every_act_replays_across_a_restart_without_a_second_effect (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_every_act_replays_across_a_restart_without_a_second_effect)
+THE WHOLE PATH, RE-ENTERED ON A SECOND INCARNATION. Each act finds ... ok
+test_no_second_adoption_is_started_while_the_first_is_unaccounted (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_no_second_adoption_is_started_while_the_first_is_unaccounted) ... ok
+test_overlapping_publication_cannot_invoke_another_writer (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_overlapping_publication_cannot_invoke_another_writer) ... ok
+test_overlapping_stager_cannot_replace_input_before_commit (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_overlapping_stager_cannot_replace_input_before_commit) ... ok
+test_process_loss_after_intent_never_repeats_the_writer (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_process_loss_after_intent_never_repeats_the_writer) ... ok
+test_every_public_parameter_is_a_declared_operand (tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_every_public_parameter_is_a_declared_operand) ... ok
+test_no_declared_operand_is_bookkeeping_by_nature (tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_no_declared_operand_is_bookkeeping_by_nature) ... ok
+test_no_declared_operand_is_stale (tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_no_declared_operand_is_stale) ... ok
+test_the_sweep_is_not_vacuous (tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_the_sweep_is_not_vacuous) ... ok
+
+======================================================================
+FAIL: test_an_approval_on_held_evidence_is_refused_and_records_nothing (tests.job_manager.test_publication_recovery_execution.TheShippedOwnersRunOnABootstrappedInstance.test_an_approval_on_held_evidence_is_refused_and_records_nothing)
+THE DECISION PATH, THROUGH THE SHIPPED PORTS, and it refuses.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-385885/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 2192, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w385695-385885/v12/python/tests/tools/test_bootstrap.py", line 119, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w385695-385885/v12/python/tests/tools/test_stack.py", line 2064, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<2 lines>...
+        "choose another, or unset it to fall back.")
+AssertionError: BATON_V12_STACK_TEST_ROOT is '/home/sl/src/baton/work/scratch/w385695-385885/work/scratch/verification' and it is inside the checkout at /home/sl/src/baton/work/scratch/w385695-385885. An explicitly selected root is never silently passed over; choose another, or unset it to fall back.
+
+======================================================================
+FAIL: test_the_default_factory_composes_every_port_and_reads_the_original (tests.job_manager.test_publication_recovery_execution.TheShippedOwnersRunOnABootstrappedInstance.test_the_default_factory_composes_every_port_and_reads_the_original)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-385885/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 2192, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w385695-385885/v12/python/tests/tools/test_bootstrap.py", line 119, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w385695-385885/v12/python/tests/tools/test_stack.py", line 2064, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<2 lines>...
+        "choose another, or unset it to fall back.")
+AssertionError: BATON_V12_STACK_TEST_ROOT is '/home/sl/src/baton/work/scratch/w385695-385885/work/scratch/verification' and it is inside the checkout at /home/sl/src/baton/work/scratch/w385695-385885. An explicitly selected root is never silently passed over; choose another, or unset it to fall back.
+
+======================================================================
+FAIL: test_the_default_factory_reports_this_instances_real_holds (tests.job_manager.test_publication_recovery_execution.TheShippedOwnersRunOnABootstrappedInstance.test_the_default_factory_reports_this_instances_real_holds)
+WHAT A FRESH INSTANCE REALLY IS, read through the shipped ports.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-385885/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 2192, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w385695-385885/v12/python/tests/tools/test_bootstrap.py", line 119, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w385695-385885/v12/python/tests/tools/test_stack.py", line 2064, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<2 lines>...
+        "choose another, or unset it to fall back.")
+AssertionError: BATON_V12_STACK_TEST_ROOT is '/home/sl/src/baton/work/scratch/w385695-385885/work/scratch/verification' and it is inside the checkout at /home/sl/src/baton/work/scratch/w385695-385885. An explicitly selected root is never silently passed over; choose another, or unset it to fall back.
+
+======================================================================
+FAIL: test_the_shipped_binding_installs_no_publication_worker (tests.job_manager.test_publication_recovery_execution.TheShippedOwnersRunOnABootstrappedInstance.test_the_shipped_binding_installs_no_publication_worker)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-385885/v12/python/tests/job_manager/test_publication_recovery_execution.py", line 2192, in setUp
+    super().setUp()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w385695-385885/v12/python/tests/tools/test_bootstrap.py", line 119, in setUp
+    os.environ, {_disk_roots.VARIABLE: _disk_root_outside_the_checkout()})
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w385695-385885/v12/python/tests/tools/test_stack.py", line 2064, in _disk_root_outside_the_checkout
+    raise AssertionError(
+    ...<2 lines>...
+        "choose another, or unset it to fall back.")
+AssertionError: BATON_V12_STACK_TEST_ROOT is '/home/sl/src/baton/work/scratch/w385695-385885/work/scratch/verification' and it is inside the checkout at /home/sl/src/baton/work/scratch/w385695-385885. An explicitly selected root is never silently passed over; choose another, or unset it to fall back.
+
+----------------------------------------------------------------------
+Ran 92 tests in 7.461s
+
+FAILED (failures=4)
+error: Recipe `test-one` failed with exit code 1

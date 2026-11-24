@@ -1,0 +1,6 @@
+[{"command":"echo ordinary; exit 3","description":"ordinary exit status"},
+ {"command":"sleep 300; echo never","description":"over the bound","timeout":600000},
+ {"command":"setsid nohup sleep 301 >/dev/null 2>&1 & echo started-detached","description":"detached descendant"},
+ {"command":"sleep 302","description":"background task","run_in_background":true},
+ {"command":"sleep 303","description":"moved to the background by the CLI's own 2s window","timeout":2000},
+ {"command":"sleep 8; ps -eo args | grep -c '^sleep 30[0-9]' ; true","description":"observe"}]

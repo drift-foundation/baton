@@ -1,0 +1,106 @@
+{
+  "manifest_sha256": "9475646dcbb06f8fc5f65a0a73150cdde2f16c98c51e7b75abb5c065f5d2f783",
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "platform": "Linux-6.17.0-41-generic-x86_64-with-glibc2.42",
+  "groups": [
+    "job_manager",
+    "scans (finite entries and two exact classes only)"
+  ],
+  "runs": {
+    "required": {
+      "argv": [
+        "just",
+        "test-one",
+        "tests.job_manager.test_publication_recovery_execution",
+        "tests.job_manager.test_publication_recovery_admission",
+        "tests.job_manager.test_retained_recovery_admission",
+        "tests.job_manager.test_role_contract"
+      ],
+      "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385926/v12/python",
+      "exit_status": 0,
+      "timed_out": false,
+      "wall_seconds": 105.25209884403739,
+      "unittest_summary": [
+        "389",
+        "104.540"
+      ],
+      "log_sha256": "5ec9a63248d4a459281d98367b30d7da83e0c25d3dde47412fa2f05f9af90618"
+    },
+    "corrections": {
+      "argv": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385926/probe-corrections.py"
+      ],
+      "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385926/v12/python",
+      "exit_status": 1,
+      "timed_out": false,
+      "wall_seconds": 1.0143732079304755,
+      "unittest_summary": [
+        "3",
+        "0.798"
+      ],
+      "log_sha256": "fa7e5f3509e9bd33b541536f8cb1efdfe48871b3b9a1c39e5cc519909a8d2a25"
+    },
+    "registry": {
+      "argv": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385926/probe-registry.py"
+      ],
+      "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385926/v12/python",
+      "exit_status": 0,
+      "timed_out": false,
+      "wall_seconds": 6.568317426019348,
+      "unittest_summary": null,
+      "log_sha256": "a22a40867754de618d853ba1268348c7c26d3ff621e7a9fe1b52ca4009be2b61"
+    },
+    "registry-witness": {
+      "argv": [
+        "just",
+        "test-one",
+        "tests.manager.test_boundary_inventory.EveryStatedOwnerHasAWitness",
+        "tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses"
+      ],
+      "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385926/v12/python",
+      "exit_status": 1,
+      "timed_out": false,
+      "wall_seconds": 8.770188656053506,
+      "unittest_summary": [
+        "12",
+        "8.333"
+      ],
+      "log_sha256": "f2e9aa1e828b030d0c49a844a2663fc9289e3c5bc9fdfb6793a515ef3150aad7"
+    },
+    "fence-binding": {
+      "argv": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385919/probe-fence-binding.py"
+      ],
+      "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385926/v12/python",
+      "exit_status": 0,
+      "timed_out": false,
+      "wall_seconds": 0.9143596079666167,
+      "unittest_summary": [
+        "1",
+        "0.672"
+      ],
+      "log_sha256": "bf8bedf25a2321e27d465de29f125c730ce7dea94a101f31744e80568944a0a7"
+    }
+  },
+  "unittest_counts": {
+    "collected": 405,
+    "executed": 405,
+    "passed": 401,
+    "failures": 3,
+    "errors": 1,
+    "skips": 0
+  },
+  "registry_diagnostic": {
+    "new_entries": 30,
+    "exactly_one_owner": 30,
+    "member_probes": 27,
+    "passed": 27
+  },
+  "total_driver_wall_seconds": 122.51933774200734,
+  "unittest_seconds": 114.343,
+  "timeouts": 0
+}

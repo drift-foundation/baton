@@ -1,0 +1,42 @@
+[
+  {
+    "line": 1489,
+    "timestamp": "2026-11-23T05:16:19.564Z",
+    "description": "Inspect one stage_execution failure"
+  },
+  {
+    "line": 1490,
+    "timestamp": "2026-11-23T05:16:21.595Z",
+    "result": "F\n======================================================================\nFAIL: test_serving_observation_reads_only_existing_owners (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_serving_observation_reads_only_existing_owners)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/output/v12/python/tests/tools/test_stage_execution.py\", line 6398, in test_serving_observation_reads_only_existing_owners\n    self.assertEqual(self.states(held.job, held.composed)[\"integration\"], \"answering\")\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 'claimed' != 'answering'\n- claimed\n+ answering\n\n\n----------------------------------------------------------------------\nRan 1 test in 1.823s\n\nFAILED (failures=1)"
+  },
+  {
+    "line": 1499,
+    "timestamp": "2026-11-23T05:16:35.186Z",
+    "description": "Inspect base run error"
+  },
+  {
+    "line": 1503,
+    "timestamp": "2026-11-23T05:16:35.398Z",
+    "result": "        profile_digest=fixtures.PROFILE)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/scratch/base-check/v12/python/tests/manager/input_roots.py\", line 51, in documents\n    corpus = json.loads(VECTORS.read_text(encoding=\"utf-8\"))\n                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 548, in read_text\n    return PathBase.read_text(self, encoding, errors, newline)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_abc.py\", line 632, in read_text\n    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:\n         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 539, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/scratch/base-check/work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json'\n\n----------------------------------------------------------------------\nRan 1 test in 0.008s\n\nFAILED (errors=1)\nShell cwd was reset to /output"
+  },
+  {
+    "line": 1505,
+    "timestamp": "2026-11-23T05:16:40.323Z",
+    "description": "Complete base tree and rerun"
+  },
+  {
+    "line": 1506,
+    "timestamp": "2026-11-23T05:16:59.546Z",
+    "result": "ok\nFAIL: test_foreign_receipt_or_lease_cannot_authorize_terminal_handoff (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_foreign_receipt_or_lease_cannot_authorize_terminal_handoff)\nFAIL: test_fresh_process_observes_owned_completion_after_serving_closes (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_fresh_process_observes_owned_completion_after_serving_closes)\nFAIL: test_lost_pass_answer_remains_completed_after_a_later_assignment (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_lost_pass_answer_remains_completed_after_a_later_assignment)\nFAIL: test_one_job_completes_correction_integration_and_terminal_handoff (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_one_job_completes_correction_integration_and_terminal_handoff)\nFAIL: test_running_integrator_result_cannot_end_its_assignment (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_running_integrator_result_cannot_end_its_assignment)\nFAIL: test_serving_observation_reads_only_existing_owners (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_serving_observation_reads_only_existing_owners)\nFAIL: test_the_recovered_job_finishes_and_its_manifest_reopens (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_the_recovered_job_finishes_and_its_manifest_reopens)\nRan 11 tests in 18.983s\nFAILED (failures=7)\nShell cwd was reset to /output"
+  },
+  {
+    "line": 1509,
+    "timestamp": "2026-11-23T05:17:04.805Z",
+    "description": "Check the 8th failure on base"
+  },
+  {
+    "line": 1510,
+    "timestamp": "2026-11-23T05:18:26.774Z",
+    "result": "FAIL: test_the_successor_materializes_publishes_and_completes (tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_the_successor_materializes_publishes_and_completes)\nRan 67 tests in 81.750s\nFAILED (failures=1)\nShell cwd was reset to /output"
+  }
+]

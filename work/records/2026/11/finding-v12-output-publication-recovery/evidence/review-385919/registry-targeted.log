@@ -1,0 +1,22 @@
+{"cwd": "/home/sl/src/baton/work/scratch/w385695-review-385919/v12/python", "argv": ["/home/sl/.local/state/baton-v12-venv/bin/python", "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385919/probe-registry.py"], "timeout_seconds": 60, "scratch": "/home/sl/src/baton/work/scratch/w385695-review-385919-tests"}
+ENTRY ('adopted', 'review_cycles.py:freeze_unreleased_recovered_checkpoint', 'replay')
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385919/probe-registry.py", line 9, in <module>
+    print('OWNERS',json.dumps({'entry':entry,'present':entry in inv.receiving_entries(),'claims':inv.ownership_claims(entry),'labels':inv.layer_labels(entry),'stated':inv.STATED_OWNERS.get(entry),'delegated':entry in inv.DELEGATED},default=str),flush=True)
+                                                                                                 ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-review-385919/v12/python/tests/manager/test_boundary_inventory.py", line 2157, in ownership_claims
+    labels = layer_labels(entry)
+  File "/home/sl/src/baton/work/scratch/w385695-review-385919/v12/python/tests/manager/test_boundary_inventory.py", line 2138, in layer_labels
+    return _owned_here(entry[1], _claims(entry),
+                       covering=entry[0] != "injected" and entry not in DELEGATED)
+  File "/home/sl/src/baton/work/scratch/w385695-review-385919/v12/python/tests/manager/test_boundary_inventory.py", line 2093, in _owned_here
+    owners = owning_validators().get(site, ())
+             ~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w385695-review-385919/v12/python/tests/manager/test_boundary_inventory.py", line 1658, in owning_validators
+    for found in _calls_in(helper, inside, site):
+                 ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-review-385919/v12/python/tests/manager/test_boundary_inventory.py", line 1970, in _calls_in
+    yield from _calls_among(((piece, None) for piece in _scope_nodes(node)), origins, site, all_subjects=all_subjects, lexical_labels=lexical_labels)
+  File "/home/sl/src/baton/work/scratch/w385695-review-385919/v12/python/tests/manager/test_boundary_inventory.py", line 1988, in _calls_among
+    raise AssertionError(f"{site}:{piece.lineno} names no label")
+AssertionError: review_cycles.py:checkpoint_of:1529 names no label

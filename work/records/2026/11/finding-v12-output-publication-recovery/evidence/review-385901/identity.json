@@ -1,0 +1,22 @@
+{
+  "manifest_sha256": "623ac725b8d31368ea5a268b7c719ec979e1d63052737b2ff2bdeb6e46680698",
+  "base": "6079ad78345aa87b7148db302d48fb9b1867f940",
+  "verified_paths": 28,
+  "delta_paths": [
+    "v12/python/src/baton_v12/job_manager/delegation.py",
+    "v12/python/src/baton_v12/job_manager/manager.py",
+    "v12/python/src/baton_v12/job_manager/projection.py",
+    "v12/python/src/baton_v12/job_manager/publication_execution.py",
+    "v12/python/src/baton_v12/job_manager/publication_recovery.py",
+    "v12/python/tests/job_manager/test_publication_recovery_execution.py",
+    "v12/python/tests/tools/test_stage_execution.py",
+    "v12/python/tools/fresh_attempt_ports.py",
+    "v12/python/tools/publication_decision.py",
+    "v12/python/tools/publication_worker.py",
+    "v12/python/tools/single_worker.py",
+    "v12/python/tools/stage_execution.py",
+    "v12/worker/publication_entry.py"
+  ],
+  "review_copy": "/home/sl/src/baton/work/scratch/w385695-review-385901",
+  "git_mutations": 0
+}

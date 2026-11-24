@@ -1,0 +1,45 @@
+{"cwd": "/home/sl/src/baton/work/scratch/w385695-review-385941/v12/python", "argv": ["/home/sl/.local/state/baton-v12-venv/bin/python", "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385941/probe-cleanup-cuts.py"], "timeout_seconds": 30, "scratch": "/home/sl/src/baton/work/scratch/w385695-review-385941-tests"}
+test_failed_inspection_is_reported_as_unresolved (__main__.Cleanup.test_failed_inspection_is_reported_as_unresolved) ... FAIL
+test_qualification_signal_after_start_effect_is_cleaned (__main__.Cleanup.test_qualification_signal_after_start_effect_is_cleaned) ... FAIL
+test_setup_signal_after_start_effect_is_cleaned (__main__.Cleanup.test_setup_signal_after_start_effect_is_cleaned) ... FAIL
+
+======================================================================
+FAIL: test_failed_inspection_is_reported_as_unresolved (__main__.Cleanup.test_failed_inspection_is_reported_as_unresolved)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385941/probe-cleanup-cuts.py", line 47, in test_failed_inspection_is_reported_as_unresolved
+    self.assertIn('UNRESOLVED',done.stdout,'failed inspect was collapsed into absent/nothing to release')
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'UNRESOLVED' not found in 'cleanup: selected-container no longer exists or did not answer (absent); nothing to release\n' : failed inspect was collapsed into absent/nothing to release
+
+======================================================================
+FAIL: test_qualification_signal_after_start_effect_is_cleaned (__main__.Cleanup.test_qualification_signal_after_start_effect_is_cleaned)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385941/probe-cleanup-cuts.py", line 36, in test_qualification_signal_after_start_effect_is_cleaned
+    def test_qualification_signal_after_start_effect_is_cleaned(self):self.start_cut(q,False)
+                                                                      ~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385941/probe-cleanup-cuts.py", line 35, in start_cut
+    self.assertTrue(stopped,'start effect occurred but signal cleanup did not reconcile ownership or stop it')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : start effect occurred but signal cleanup did not reconcile ownership or stop it
+
+======================================================================
+FAIL: test_setup_signal_after_start_effect_is_cleaned (__main__.Cleanup.test_setup_signal_after_start_effect_is_cleaned)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385941/probe-cleanup-cuts.py", line 37, in test_setup_signal_after_start_effect_is_cleaned
+    def test_setup_signal_after_start_effect_is_cleaned(self):self.start_cut(s,True)
+                                                              ~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385941/probe-cleanup-cuts.py", line 35, in start_cut
+    self.assertTrue(stopped,'start effect occurred but signal cleanup did not reconcile ownership or stop it')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : start effect occurred but signal cleanup did not reconcile ownership or stop it
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.009s
+
+FAILED (failures=3)
+UNKNOWN_INSPECT {"exit": 0, "stdout": "cleanup: selected-container no longer exists or did not answer (absent); nothing to release\n"}
+START_CUT {"script": "qualify", "exit": 143, "created": true, "stopped": false, "stdout": ""}
+START_CUT {"script": "setup", "exit": 143, "created": true, "stopped": false, "stdout": ""}

@@ -11,6 +11,7 @@ import unittest
 
 from baton_v12.contracts import ContractRefusal
 from baton_v12.job_manager import (STAGE_KINDS, SUBMISSION_SCHEMA,
+                                   documents,
                                    owned_submission, read_submission,
                                    stage_id, submission_signature)
 
@@ -132,10 +133,28 @@ class SubmissionShape(unittest.TestCase):
             stage("implementation", WORK_B)])]))
 
     def test_every_stage_kind_is_admitted(self):
+        """EVERY KIND AN ORDINARY SUBMISSION MAY NAME, and that is three.
+
+        W385695 added the fourth, `publication`, to the one closed vocabulary
+        and admitted it ONLY through the `/4` recovery generation -- so this
+        document, which is a `/1`, is still exactly the three it always was.
+        The boundary that keeps the fourth out of it is asserted beside this
+        rather than inside it, because an ordinary submission naming a
+        publication stage is a refusal and not an admission.
+        """
         owned = owned_submission(submission(jobs=[job(stages=[
-            stage(kind) for kind in STAGE_KINDS])]))
+            stage(kind) for kind in documents.ORDINARY_STAGE_KINDS])]))
         self.assertEqual([one["kind"] for one in owned["jobs"][0]["stages"]],
-                         list(STAGE_KINDS))
+                         list(documents.ORDINARY_STAGE_KINDS))
+        self.assertEqual(
+            tuple(sorted(STAGE_KINDS)),
+            tuple(sorted(documents.ORDINARY_STAGE_KINDS
+                         + (documents.PUBLICATION_STAGE,))))
+        with self.assertRaises(ContractRefusal) as caught:
+            owned_submission(submission(jobs=[job(stages=[
+                stage(documents.PUBLICATION_STAGE)])]))
+        self.assertIn(documents.SUBMISSION_RECOVERY_SCHEMA,
+                      str(caught.exception))
 
 
 class Dependencies(unittest.TestCase):

@@ -498,6 +498,23 @@ def check_template(definition):
                     f"{name_value(name)} names the stage kind "
                     f"{name_value(role['kind'])}, which is not one of "
                     f"{', '.join(documents.STAGE_KINDS)}")
+        # W385695 / DESIGN REC-9: AND THE FOURTH KIND IS NOT A TEMPLATE'S.
+        # `publication` is in the one closed stage vocabulary -- the
+        # projection and the scheduler carry it -- and it is reachable only
+        # through the `/4` recovery generation the output-publication-recovery
+        # owner admits. A template that could name it would be an ORDINARY
+        # creation composing a recovery stage, which is exactly the misuse
+        # the generation split exists to prevent.
+        if role["kind"] == documents.PUBLICATION_STAGE:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"template {name_value(version)}'s role {name_value(name)} "
+                f"names the {name_value(documents.PUBLICATION_STAGE)} stage "
+                f"kind, which is admitted only by "
+                f"{name_value(documents.SUBMISSION_RECOVERY_SCHEMA)} through "
+                f"the output-publication-recovery owner; an ordinary "
+                f"template's stages are "
+                f"{', '.join(documents.ORDINARY_STAGE_KINDS)}")
         named[name] = role
     # ONE STAGE OF EACH KIND, because that is what a stage identity IS.
     # `documents.stage_id` derives it from the Job and the kind, so two roles

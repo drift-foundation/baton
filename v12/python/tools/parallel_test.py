@@ -508,6 +508,19 @@ PARALLEL_MODULES = ("tests.job_manager.test_accepted_offer_retirement",
     # input manifest from `test_creation` and `test_role_capability` by
     # module attribute and binds none of their test classes.
     "tests.job_manager.test_publication_recovery_admission",
+    # W385695 / DESIGN REC-9 checkpoint 2: the deterministic publication of
+    # that retained output -- its read-only staging, its absolute 900-second
+    # bound, its fresh-assignment custody and intake, and the review gate that
+    # stays shut until the handoff is valid. PARALLEL for
+    # `test_publication_recovery_admission`'s reasons and with its fixture: a
+    # disposable Job store, control store, workspace storage and Authority per
+    # case, a real attempt output tree under this case's own disk-backed root,
+    # a real Authority claim/release/claim, the production publication writer,
+    # and stand-in host/deployment/instance ports plus stand-in Git and
+    # engine/custodian boundaries. One case installs a disposable instance
+    # with `tools.bootstrap` and runs the shipped owner commands over it. No
+    # provider, no model, no image and no container.
+    "tests.job_manager.test_publication_recovery_execution",
     # W383215: the Job-store cancellation owner and its fences. PARALLEL: real
     # disposable stores per case, fake session and operations, no engine.
     "tests.job_manager.test_job_cancellation",

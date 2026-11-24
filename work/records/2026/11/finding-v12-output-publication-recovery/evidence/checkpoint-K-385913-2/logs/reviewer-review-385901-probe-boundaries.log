@@ -1,0 +1,10 @@
+test_measurement_crossing_deadline_cannot_publish (__main__.Deadline.test_measurement_crossing_deadline_cannot_publish) ... ok
+test_installer_accepts_publication_role (__main__.Production.test_installer_accepts_publication_role) ... ok
+test_one_installed_publisher_can_serve_second_work (__main__.Production.test_one_installed_publisher_can_serve_second_work) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.242s
+
+OK
+POST_COPY_DEADLINE {"rc": 1, "clock": "2026-09-02T00:30:00.000Z", "terminal": {"ending": "faulted", "answered": ["describe"], "disposition": null, "fault_code": "agent", "manifest_digest": null, "adapter_failure": null, "terminal_digest": "sha256:250fa79e9845d09a24f452357f5fc4bcbf98ae976c30f83cd19fea7a90b4727e"}}
+SECOND_WORK {"the submitted input": ["sha256:4d40ee137511c94a7486c7757c21238f20070ae68b75c12870531f2896923354", "sha256:a55259380523b2540778abbad98e6ba519357eabc0a9472635292acd1b559b1c"]}

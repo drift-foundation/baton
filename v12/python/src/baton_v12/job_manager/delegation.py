@@ -770,7 +770,8 @@ class ManagerOperations:
                  "_observe_integration",
                  "_dispatch_exchange", "_conclude_attempt",
                  "_refresh_runtime", "_diagnostic_degradations",
-                 "recovery_analysis", "recovery_verification")
+                 "recovery_analysis", "recovery_verification",
+                 "recovery_publication")
 
     # THE CANONICAL STORE IS OPEN. A status document says so, because a
     # projection assembled without the manager can only report what was
@@ -782,7 +783,8 @@ class ManagerOperations:
                  events=None, start_runtime=None, observe_exchange=None,
                  observe_integration=None,
                  dispatch_exchange=None, conclude_attempt=None,
-                 refresh_runtime=None, recovery_analysis=None, recovery_verification=None):
+                 refresh_runtime=None, recovery_analysis=None, recovery_verification=None,
+                 recovery_publication=None):
         self._diagnostic_degradations = set()
         self.control = control
         self.port = port
@@ -871,6 +873,11 @@ class ManagerOperations:
         # failure is analysed because none was configured to be.
         self.recovery_analysis = recovery_analysis
         self.recovery_verification = recovery_verification
+        # W385695 / REC-9: THE PUBLICATION SEAM, optional for the same reason
+        # the two above are. A control plane that installed no deterministic
+        # publication worker carries `None`, `manager._publish` reaches
+        # nothing, and every accepted deployment behaves exactly as it did.
+        self.recovery_publication = recovery_publication
 
     def canonical_operation(self, act, offer_id):
         return canonical_operation(act, offer_id)

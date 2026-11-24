@@ -1,0 +1,15 @@
+{"cwd": "/home/sl/src/baton/work/scratch/w385695-review-385941/v12/python", "argv": ["/home/sl/.local/state/baton-v12-venv/bin/python", "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385941/probe-qualification-r3.py"], "timeout_seconds": 30, "scratch": "/home/sl/src/baton/work/scratch/w385695-review-385941-tests"}
+test_cleanup_leaves_a_container_that_is_not_paused_or_is_gone (__main__.Preparation.test_cleanup_leaves_a_container_that_is_not_paused_or_is_gone) ... ok
+test_cleanup_recovers_a_pause_acknowledged_before_the_parent_assigned_it (__main__.Preparation.test_cleanup_recovers_a_pause_acknowledged_before_the_parent_assigned_it) ... ok
+test_cleanup_recovers_a_pause_whose_reply_was_lost (__main__.Preparation.test_cleanup_recovers_a_pause_whose_reply_was_lost) ... ok
+test_every_installed_path_is_the_supported_layout (__main__.Preparation.test_every_installed_path_is_the_supported_layout) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.020s
+
+OK
+PAUSE_CUT {"files": [".pause-intent", ".paused"], "exit": 143, "engine_calls": ["inspect --format {{.State.Paused}} selected-container"]}
+PAUSE_CUT {"files": [".pause-intent", ".paused"], "exit": 143, "engine_calls": ["inspect --format {{.State.Paused}} selected-container"]}
+PAUSE_CUT {"files": [".pause-intent", ".paused"], "exit": 143, "engine_calls": ["inspect --format {{.State.Paused}} selected-container", "unpause selected-container"]}
+PAUSE_CUT {"files": [".pause-intent"], "exit": 143, "engine_calls": ["inspect --format {{.State.Paused}} selected-container", "unpause selected-container"]}
+LAYOUT {"CMD": "/distro/baton-v12-stack", "AUTHORITY": "/db/authority.sqlite3", "STACK_STATE": "/state"}

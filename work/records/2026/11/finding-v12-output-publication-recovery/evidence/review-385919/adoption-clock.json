@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385919/probe-adoption-clock.py"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385919/v12/python",
+  "exit_status": 0,
+  "timed_out": false,
+  "wall_seconds": 0.5138894290430471,
+  "unittest_summary": [
+    "1",
+    "0.289"
+  ],
+  "log_sha256": "ce2263af3b7a46711ff69f28029535fdbda459737a6d1b0f8b80108e25db7a7a"
+}

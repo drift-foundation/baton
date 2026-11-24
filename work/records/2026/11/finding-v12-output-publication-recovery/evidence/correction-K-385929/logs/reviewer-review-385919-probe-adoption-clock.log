@@ -1,0 +1,7 @@
+test_clock_crosses_deadline_during_host_measurement (__main__.Adoption.test_clock_crosses_deadline_during_host_measurement) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.298s
+
+OK
+HOST_COMMIT {"clock": "2026-09-02T00:30:00.000Z", "result": null, "fence": null}

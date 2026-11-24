@@ -1,0 +1,60 @@
+test_copy_time_reduces_remaining_command_allowance (__main__.Timing.test_copy_time_reduces_remaining_command_allowance) ... ok
+test_detached_descendant_is_not_proved_gone_by_group_gone (__main__.Timing.test_detached_descendant_is_not_proved_gone_by_group_gone) ... ERROR
+test_removal_success_can_replay (__main__.Replay.test_removal_success_can_replay) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                d3f7a9c72d4061770fb1bea6b2661d9732af11a5 established from line_declared_base
+configuration /var/tmp/k695b/v12-w71917-u7f5i7fq/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/k695b/v12-w71917-u7f5i7fq/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/k695b/v12-w71917-u7f5i7fq/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/k695b/v12-w71917-u7f5i7fq/publication-instance/deployment.json"
+authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                already established; left alone
+configuration /var/tmp/k695b/v12-w71917-u7f5i7fq/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a", "publication-C1": "impl-a"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/k695b/v12-w71917-u7f5i7fq/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/k695b/v12-w71917-u7f5i7fq/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/k695b/v12-w71917-u7f5i7fq/publication-instance/deployment.json"
+ok
+
+======================================================================
+ERROR: test_detached_descendant_is_not_proved_gone_by_group_gone (__main__.Timing.test_detached_descendant_is_not_proved_gone_by_group_gone)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385926/probe-corrections.py", line 26, in test_detached_descendant_is_not_proved_gone_by_group_gone
+    seen=self.checked(program,command=2);pid=int(marker.read_text());os.kill(pid,0)
+                                                                     ~~~~~~~^^^^^^^
+ProcessLookupError: [Errno 3] No such process
+
+----------------------------------------------------------------------
+Ran 3 tests in 3.558s
+
+FAILED (errors=1)
+COPY_DEADLINE {"elapsed_copy": 10, "invocation": 1, "timeouts": [], "record": {"argv": ["/home/sl/.local/state/baton-v12-venv/bin/python", "-c", "pass"], "seconds_bound": 0, "outcome": "not-run", "status": null, "seconds": null, "descendants_gone": null}}
+FIRST_REMOVAL {"schema": "baton.v12.installed-settlement-removal/1", "selection": {"schema": "baton.v12.installed-settlement-removal/1", "binding": {"instance": "/var/tmp/k695b/v12-w71917-u7f5i7fq/publication-instance", "authority_uuid": "0000000a000000000000000000000000", "runtime_digest": "28847feb31b7e1ee0d9d35a2249ec230123b47a1b0fe5807a916b6ee778920eb", "deployment_digest": "sha256:7f10e289ba12d62636e56ef4f84bcfa0d929727ca50709c4f01836168fc2a911", "job_store": "/var/tmp/k695b/v12-w71917-u7f5i7fq/publication-instance/db/jobs.sqlite3", "control_store": "/var/tmp/k695b/v12-w71917-u7f5i7fq/publication-instance/db/control.sqlite3"}, "job_id": "job-connected-a", "stage_id": "job-connected-a/implementation", "episode": 1}, "attempt_id": "attempt-dceb47b3b0a0c40765f9670e1ccfb15facb1be3f81f84b48daeac5c7e28401e8", "replayed": false, "reason": "stopped original removed for recovery", "before": {"execution_runtime": "quiescent", "cleanup": "pending"}, "after": {"execution_runtime": "destroyed", "cleanup": "retained"}, "removed": true, "abandonment": {"outcome": null, "cleanup": {"attempt_id": "attempt-dceb47b3b0a0c40765f9670e1ccfb15facb1be3f81f84b48daeac5c7e28401e8", "cleanup": "retained", "state": "absent", "why": "the engine answered that this exact identity does not exist", "kept": [], "operation": {"operation_id": "runtime.destroy-abandoned:73152b1839d0b627aea5af5085b2687312aa98d0c3c26c67fca9aa804fed082d", "signature_digest": "sha256:e8e8a8346db6d43abd0c803cfaa2add3ee94554720e5074a59beb5625f682a58"}, "directory_custody": null}, "disposition": null}}

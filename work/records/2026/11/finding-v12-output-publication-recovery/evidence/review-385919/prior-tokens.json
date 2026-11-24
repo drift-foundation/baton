@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385901/probe-tokens.py"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385919/v12/python",
+  "exit_status": 0,
+  "timed_out": false,
+  "wall_seconds": 0.8642854110803455,
+  "unittest_summary": [
+    "2",
+    "0.623"
+  ],
+  "log_sha256": "55e966525c89e9f694b9a18af21bb5e5853a031d587650ce138596ebb6343e25"
+}

@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/harness/setup/validate-option-a.py"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385941/v12/python",
+  "exit_status": 0,
+  "timed_out": false,
+  "wall_seconds": 0.5140556349651888,
+  "unittest_summary": [
+    "1",
+    "0.267"
+  ],
+  "log_sha256": "59e687dfdfc570a61f3ae94d534ece0a5afc2a741606c1457f2da4ce49701c56"
+}

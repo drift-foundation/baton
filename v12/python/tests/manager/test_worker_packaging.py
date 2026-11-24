@@ -35,6 +35,10 @@ WORKER = pathlib.Path(__file__).resolve().parents[3] / "worker"
 CONTEXT = {"Dockerfile": WORKER,
            "Dockerfile.claude": WORKER.parent,
            "Dockerfile.integration": WORKER.parent,
+           # W385695: the deterministic publication worker's recipe. Its
+           # context is the worker directory, like the reference image it
+           # shares a base with.
+           "Dockerfile.publication": WORKER,
            "Dockerfile.reconciliation": WORKER.parent}
 
 # The one target directory every recipe installs into, and the only one these
@@ -255,11 +259,56 @@ assert baton_worker.adapter_refusal is adapter_refusal
         their own gates assert, and the worker still loads -- with the inert
         stand-in in place of the shared module.
         """
-        for name in ("Dockerfile", "Dockerfile.reconciliation"):
+        for name in ("Dockerfile", "Dockerfile.publication",
+                     "Dockerfile.reconciliation"):
             with self.subTest(recipe=name):
                 root = self.staged(name)
                 self.assertFalse((root / SHARED).exists())
                 self.proving(root, INERT)
+
+    def test_the_publication_recipe_carries_its_entry_and_nothing_provider_shaped(self):
+        """W385695 (review 2026-11-23T18-55-03Z R1): THE SOURCE AND ENTRYPOINT
+        DELIVERY, held as far as a recipe can be held without building it.
+
+        WHAT IS PROVED: the files the recipe names are exactly the ordinary
+        worker, the publication entry and the frozen contract; those files
+        alone import the entry; the entry the recipe starts is the one the
+        composed adapter document names; and the copy's own child -- this same
+        file, started ISOLATED, which is how the worker starts it -- runs from
+        the staged directory and copies a tree. WHAT IS NOT: that an image
+        was built, that its base still resolves, or that any container ran.
+        """
+        name = "Dockerfile.publication"
+        root = self.staged(name)
+        self.assertEqual(sorted(one.name for one in root.iterdir()),
+                         ["baton_worker.py", "publication_entry.py",
+                          "worker-control-1.0.schema.json"])
+        recipe = (WORKER / name).read_text(encoding="utf-8")
+        self.assertIn('ENTRYPOINT ["python3", '
+                      '"/opt/baton/publication_entry.py"]', recipe)
+        self.assertIn("USER 65532:65532", recipe)
+        for forbidden in ("ANTHROPIC", "claude_agent", "npm ", "apt-get"):
+            self.assertNotIn(forbidden, [
+                line for line in recipe.splitlines()
+                if not line.lstrip().startswith("#")].__str__())
+        self.proving(root, """
+import publication_entry, baton_worker
+assert publication_entry.baton_worker is baton_worker
+assert callable(publication_entry.PublicationAgent().may_complete)
+assert baton_worker._permitted is not None
+""")
+        scratch = pathlib.Path(tempfile.mkdtemp(prefix="v12-adopted-"))
+        self.addCleanup(shutil.rmtree, scratch, ignore_errors=True)
+        (scratch / "from" / "inner").mkdir(parents=True)
+        (scratch / "from" / "inner" / "one.txt").write_text("adopted\n")
+        child = subprocess.run(
+            [sys.executable, "-I", str(root / "publication_entry.py"),
+             "--adopt", str(scratch / "from"), str(scratch / "into")],
+            cwd=root, env={"PATH": "/usr/bin:/bin"}, capture_output=True,
+            text=True, timeout=120)
+        self.assertEqual((child.returncode, child.stderr), (0, ""))
+        self.assertEqual((scratch / "into" / "inner" / "one.txt").read_text(),
+                         "adopted\n")
 
     def test_an_adapter_without_its_module_fails_loudly_and_early(self):
         """THE CASE THAT GIVES THE GUARD ITS MEANING. The producer imports the

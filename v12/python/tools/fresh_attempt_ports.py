@@ -637,6 +637,88 @@ class DeploymentBinding:
 
         return bootstrap.jobs_of(document)
 
+    def publication_worker(self):
+        """THE INSTALLED DETERMINISTIC PUBLICATION WORKER, or `None`.
+
+        W385695 / DESIGN REC-9 checkpoint 2. A publication recovery is served
+        by a separately selected no-provider worker in the publication lane,
+        and WHICH worker that is is deployment configuration -- so the
+        question is asked of this port and answered from the instance's own
+        emitted document, exactly as every other binding question is.
+
+        `None` IS THE HONEST ANSWER FOR EVERY INSTANCE THAT HAS NOT INSTALLED
+        ONE: the reusable worker is installed once -- composed by
+        `pool compose-worker --role publication` and named in the install
+        document -- and not per recovery. The admission boundary
+        turns that `None` into a HELD prerequisite naming this owner, which is
+        exactly what must happen -- rather than routing a publication stage to
+        the workers that run implementations.
+
+        A CONFIGURED WORKER IS RECOGNISED EXPLICITLY AND NOTHING IS INFERRED.
+        The role word must be the publication lane's own; a worker in another
+        lane, or one eligible for another stage kind, is not answered here
+        even if it is the only worker this deployment has.
+        """
+        from baton_v12.job_manager import scheduler
+
+        for one in self._configuration().get("workers") or []:
+            if one.get("role") != scheduler.PUBLICATION_LANE:
+                continue
+            deployment = one.get("deployment") or {}
+            manifest = deployment.get("input_manifest") or {}
+            # W385695 checkpoint 2: THE JOB-SCOPED IDENTITY, NOT THE WHOLE
+            # RUNTIME MANIFEST DIGEST. The first cut answered
+            # `manifest_digest` here, and a recovery Job submitted under it
+            # could never be served: the worker lifecycle's own `_matches`
+            # holds a Job to `job_input_identity(manifest)` -- the projection
+            # that leaves each worker free to select its own image -- and
+            # refuses the whole digest as a legacy identity. That defect was
+            # invisible while the publication was a host copy that never went
+            # through the worker lifecycle at all.
+            from baton_v12.contracts.manifest import job_input_identity
+            try:
+                identity = job_input_identity(
+                    manifest, what="the installed publication worker's "
+                                   "configured input")
+            except ContractRefusal:
+                identity = None
+            return {"worker_id": one.get("worker_id"),
+                    "participant": deployment.get("participant"),
+                    "lane": scheduler.PUBLICATION_LANE,
+                    "profile_name": deployment.get("profile_name"),
+                    "profile_digest": deployment.get("profile_digest"),
+                    "eligible_kinds": [scheduler.PUBLICATION_LANE],
+                    # THE IDENTITY A RECOVERY JOB IS SUBMITTED UNDER: this
+                    # worker's manifest, projected to its Job-scoped members.
+                    # A Job submitted under anything else is a Job this worker
+                    # could never be offered.
+                    "input_digest": identity}
+        return None
+
+    def publication_input(self, job_id, *, work_id, task=None):
+        """THE INPUT IDENTITY ONE RECOVERY IS SUBMITTED UNDER, or `None`.
+
+        W385695 (review 2026-11-23T18-55-03Z R3). `publication_worker` above
+        answers what is INSTALLED, and an installed worker's manifest names
+        the Work it was installed against. A recovery runs on the ORIGINAL
+        Job's Work under the original Job's task, so the identity its Job
+        carries is the installed declarations bound to those two -- and that
+        binding is `stage_execution`'s own derivation, the one `serving`
+        compares and the serving composition delivers. Asked here rather than
+        composed, for `serving`'s reason: a second derivation in this adapter
+        would be a copy of the selector's, and the pilot proved what a copy
+        costs.
+
+        NOTHING IS WRITTEN AND NOTHING INSTALLED IS CHANGED. The answer is a
+        digest of a document derived in memory from the emitted
+        configuration; the configuration file is read and left alone.
+        """
+        from tools import stage_execution
+
+        return stage_execution.publication_input_identity(
+            self._configuration(),
+            {"job_id": job_id, "job_work_id": work_id}, task)
+
     def serving(self, job_id, *, stage, job, task=None, template=None):
         """Which configured workers can serve THIS stage of THIS Job.
 

@@ -1,0 +1,74 @@
+{
+ "v12/python/tests/job_manager/test_publication_recovery_execution.py": {
+  "added": [
+   "AReviewerWithoutThePublicationDeclarationsHoldsTheAdmission.test_the_repeated_admission_stops_at_the_review_stage",
+   "OneInstalledPublisherServesRecoveriesOnTwoWorks.test_a_stage_is_never_served_under_another_recoverys_operands",
+   "OneInstalledPublisherServesRecoveriesOnTwoWorks.test_the_review_stage_starts_nothing_before_the_handoff",
+   "OneInstalledPublisherServesRecoveriesOnTwoWorks.test_the_selector_refuses_a_wrong_work_task_or_input",
+   "OneInstalledPublisherServesRecoveriesOnTwoWorks.test_two_recoveries_on_two_works_through_one_installed_publisher",
+   "TheBoundCoversMeasurementAndCompletion.test_a_blocked_measurement_ends_the_real_process_at_the_instant",
+   "TheBoundCoversMeasurementAndCompletion.test_a_clock_set_back_does_not_extend_the_bound",
+   "TheBoundCoversMeasurementAndCompletion.test_a_clock_set_forward_reaches_the_bound_early",
+   "TheBoundCoversMeasurementAndCompletion.test_a_copy_that_finished_after_the_instant_did_not_finish_in_time",
+   "TheBoundCoversMeasurementAndCompletion.test_a_measurement_that_crosses_the_instant_publishes_nothing",
+   "TheBoundCoversMeasurementAndCompletion.test_a_restarted_worker_starts_no_second_adoption",
+   "TheBoundCoversMeasurementAndCompletion.test_an_envelope_alone_is_never_a_publication",
+   "TheBoundCoversMeasurementAndCompletion.test_the_gate_asks_nothing_of_an_agent_that_has_no_bound",
+   "TheBoundCoversMeasurementAndCompletion.test_the_ordinary_workers_measurement_is_bounded_too",
+   "TheBoundCoversMeasurementAndCompletion.test_the_watch_ends_a_copy_it_outlives",
+   "TheBoundCoversMeasurementAndCompletion.test_the_watch_ends_the_process_only_where_nothing_else_can"
+  ],
+  "after": 125,
+  "before": 109,
+  "modified": [
+   "TheApprovalNowReachesARealAdmission.test_the_recovery_input_is_the_approved_original_and_not_the_task"
+  ],
+  "removed": []
+ },
+ "v12/python/tests/manager/test_worker_packaging.py": {
+  "added": [
+   "TheRecipeLayersAreEnoughToImportThePrograms.test_the_publication_recipe_carries_its_entry_and_nothing_provider_shaped"
+  ],
+  "after": 10,
+  "before": 9,
+  "modified": [
+   "TheRecipeLayersAreEnoughToImportThePrograms.test_the_two_recipes_without_an_adapter_import_the_worker_alone"
+  ],
+  "removed": []
+ },
+ "v12/python/tests/tools/test_bootstrap.py": {
+  "added": [
+   "ADeploymentMayInstallOnePublicationWorker.test_a_prepared_install_derives_its_staging_and_clones_nothing",
+   "ADeploymentMayInstallOnePublicationWorker.test_one_dedicated_publisher_and_no_other_role_word",
+   "ADeploymentMayInstallOnePublicationWorker.test_the_repeat_installs_it_on_the_route_a_recovery_claims_from"
+  ],
+  "after": 166,
+  "before": 163,
+  "modified": [],
+  "removed": []
+ },
+ "v12/python/tests/tools/test_pool.py": {
+  "added": [
+   "ComposingTheDeterministicPublicationWorker.test_a_provider_operand_is_refused_rather_than_dropped",
+   "ComposingTheDeterministicPublicationWorker.test_it_is_admitted_into_the_pool_in_its_own_lane",
+   "ComposingTheDeterministicPublicationWorker.test_it_is_composed_with_no_provider_from_the_selected_declarations",
+   "ComposingTheDeterministicPublicationWorker.test_the_command_line_composes_one_without_provider_operands",
+   "ComposingTheDeterministicPublicationWorker.test_the_wrapper_admits_the_role"
+  ],
+  "after": 63,
+  "before": 58,
+  "modified": [],
+  "removed": []
+ },
+ "v12/python/tests/tools/test_stage_execution.py": {
+  "added": [
+   "APublicationWorkerIsAConfiguredRoleInItsOwnLane.test_a_deployment_installs_at_most_one_dedicated_publisher",
+   "APublicationWorkerIsAConfiguredRoleInItsOwnLane.test_no_other_role_is_rebound_to_a_jobs_work",
+   "APublicationWorkerIsAConfiguredRoleInItsOwnLane.test_one_installed_publisher_is_derived_for_a_second_work"
+  ],
+  "after": 337,
+  "before": 334,
+  "modified": [],
+  "removed": []
+ }
+}

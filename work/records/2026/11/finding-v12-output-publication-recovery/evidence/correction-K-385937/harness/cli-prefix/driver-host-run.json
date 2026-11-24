@@ -1,0 +1,37 @@
+{
+ "checks": {
+  "a command over the bound was ended at it": true,
+  "a detached descendant's command still answered": true,
+  "an ordinary command kept its own status": true,
+  "at least the over-bound and the background command timed out": true,
+  "every command went through the supervisor, start and finish": true,
+  "every scripted command was answered": true,
+  "every supervisor saw its descendants gone": true,
+  "no scripted process survived": true,
+  "the CLI ended its turn cleanly": true,
+  "the selected bound is the one each supervisor used": true
+ },
+ "cli_exit": 0,
+ "cli_version": "2.1.247",
+ "ledger": {
+  "bounds": [
+   4
+  ],
+  "descendants_gone": true,
+  "finished": 6,
+  "started": 6,
+  "timed_out": 3
+ },
+ "supervisor_sha256": "828b20fe3ea6910824582325dfe86036d6a1126e6aa59411d3e32f23eb4e85f7",
+ "survivors": [],
+ "tool_results": [
+  "\"Exit code 3\\nordinary\"",
+  "\"Exit code 124\\nbaton: this command was ended at its 4s bound\"",
+  "\"started-detached\"",
+  "\"Command running in background with ID: bn6l3s7tz. Output is being written to: /home/sl/src/baton/work/scratch/w385695-K-385929/driver-run/work/tmp/claude-1000/",
+  "\"Exit code 143\\nCommand timed out after 2s\"",
+  "\"Exit code 143\\nCommand timed out after 4s\""
+ ],
+ "verdict": "pass",
+ "why": []
+}

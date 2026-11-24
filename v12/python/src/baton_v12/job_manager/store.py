@@ -107,18 +107,33 @@ def _definition(sql):
     return " ".join(spaced.split())
 
 
-def _created_name(statement):
+def _created_name(statement, *, rebuilt=None):
     """The object one `CREATE` statement makes, or `None`.
 
     Every step from 3 onward only creates, which is what lets the schema-3
     expectation be a subtraction. A step that ALTERED an existing table would
     make that subtraction wrong, so an unrecognised leading verb is refused
     here rather than silently contributing nothing.
+
+    W385695 ADMITS ONE DECLARED EXCEPTION AND PROVES IT. A table `CHECK` is
+    not alterable in place, so widening the scheduler relations' lane
+    vocabulary means rebuilding them -- create beside, copy, drop, rename. The
+    subtraction stays correct exactly when every object such a step replaces
+    was ALREADY created by an earlier step, because then it is already in the
+    subtracted set and the step adds nothing to it. `rebuilt` is that
+    declaration, read from `schema.REBUILT_OBJECTS`, and the proof that it
+    holds is `_rebuild_is_subtractable` rather than this table's own word.
     """
     words = statement.split()
     if not words:
         return None
-    if words[0].upper() != "CREATE":
+    verb = words[0].upper()
+    if verb != "CREATE":
+        if rebuilt and verb in schema.REBUILD_VERBS:
+            # A DECLARED REBUILD'S OWN VERB, contributing no new name: the
+            # objects it puts back are the ones it replaced, and those are
+            # subtracted by the step that first created them.
+            return None
         raise ContractRefusal(
             "integrity", "schema",
             f"a migration after schema 3 performs {name_value(words[0])}; "
@@ -195,6 +210,22 @@ class JobStore:
         # connection rather than from the operand, so it is the database that
         # is actually open.
         self.database = self._path_of(connection)
+
+    @property
+    def schema_version(self):
+        """The generation THIS STORE records, read off its own meta row.
+
+        W385695: a BUILD's generation (`schema.SCHEMA_VERSION`) and a STORE's
+        are different facts, and a capability that needs the newer shape needs
+        the second one. `open` already refuses a store this build cannot own,
+        so an opened handle answers a version `MIGRATIONS` has a path from --
+        which is exactly what a reader asking "is this store at 10 yet" wants
+        to hear, rather than this build's own number restated.
+        """
+        row = self._connection.execute(
+            "SELECT value FROM meta WHERE key = ?",
+            (_META_SCHEMA_VERSION,)).fetchone()
+        return None if row is None else int(row["value"])
 
     # -- opening -------------------------------------------------------------
 
@@ -504,13 +535,45 @@ class JobStore:
         # newest table in the shape a genuine schema-3 store is compared
         # against -- so every schema-3 store would have refused to migrate,
         # reported as missing an object it could not possibly have.
+        #
+        # W385695: AND THE STEPS ARE READ IN ORDER so a declared rebuild can
+        # be PROVED to replace only objects an earlier step already created.
+        # Nothing here trusts the declaration: a rebuild naming an object
+        # nobody created before it refuses, because subtracting it would be
+        # subtracting an object a real schema-3 store does have.
         for at in sorted(one for one in MIGRATIONS if one >= 3):
+            rebuilt = schema.REBUILT_OBJECTS.get(at)
+            if rebuilt:
+                cls._rebuild_is_subtractable(at, rebuilt, added)
             for statement in _statements(MIGRATIONS[at]):
-                name = _created_name(statement)
-                if name is not None:
+                name = _created_name(statement, rebuilt=rebuilt)
+                if name is not None and (not rebuilt or name not in rebuilt):
                     added.add(name)
         return {name: shape for name, shape in whole.items()
                 if name not in added}
+
+    @staticmethod
+    def _rebuild_is_subtractable(at, rebuilt, added):
+        """A declared rebuild replaces only already-created objects, or refuse.
+
+        THE ONE PROPERTY THAT KEEPS `_schema_three_shape` HONEST. A rebuild of
+        `pool_workers` is subtractable because the 3 -> 4 step created it: a
+        genuine schema-3 store has no such table either way. A rebuild of a
+        relation that EXISTED at schema 3 would be a different thing entirely
+        -- the expectation would have to carry its schema-3 shape, which this
+        build no longer holds -- and that is refused here rather than
+        discovered as a store that cannot migrate.
+        """
+        missing = sorted(one for one in rebuilt if one not in added)
+        if missing:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"the schema {at} -> {at + 1} step is declared to rebuild "
+                f"{', '.join(missing)}, which no earlier step creates; this "
+                f"build derives schema 3 by subtracting what the steps after "
+                f"3 create, and an object that predates them cannot be "
+                f"rebuilt without a second expectation for its older shape")
+        return rebuilt
 
     @staticmethod
     def _schema_shape(connection):

@@ -1,0 +1,33 @@
+{"cwd": "/home/sl/src/baton/work/scratch/w385695-review-385934/v12/python", "argv": ["/home/sl/.local/state/baton-v12-venv/bin/python", "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385934/probe-qualification.py"], "timeout_seconds": 30, "scratch": "/home/sl/src/baton/work/scratch/w385695-review-385934-tests"}
+test_authority_locator_is_the_installed_layout (__main__.Preparation.test_authority_locator_is_the_installed_layout) ... FAIL
+test_cleanup_recovers_pause_ack_before_parent_assigns_variable (__main__.Preparation.test_cleanup_recovers_pause_ack_before_parent_assigns_variable) ... FAIL
+
+======================================================================
+FAIL: test_authority_locator_is_the_installed_layout (__main__.Preparation.test_authority_locator_is_the_installed_layout)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385934/probe-qualification.py", line 12, in test_authority_locator_is_the_installed_layout
+    self.assertEqual(actual,expected)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: '/fixture/instance/stores/authority.sqlite3' != '/fixture/instance/db/authority.sqlite3'
+- /fixture/instance/stores/authority.sqlite3
+?                   ^^^^^^
++ /fixture/instance/db/authority.sqlite3
+?                   ^^
+
+
+======================================================================
+FAIL: test_cleanup_recovers_pause_ack_before_parent_assigns_variable (__main__.Preparation.test_cleanup_recovers_pause_ack_before_parent_assigns_variable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385934/probe-qualification.py", line 25, in test_cleanup_recovers_pause_ack_before_parent_assigns_variable
+    self.assertIn('unpause selected-container',calls)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'unpause selected-container' not found in ''
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.005s
+
+FAILED (failures=2)
+AUTHORITY_LAYOUT {"actual": "/fixture/instance/stores/authority.sqlite3", "expected": "/fixture/instance/db/authority.sqlite3"}
+PAUSE_CUT {"exit": 143, "engine_calls": "", "output": "phase deadline ended with status 143\n"}

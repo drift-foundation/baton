@@ -1,0 +1,19 @@
+{"cwd": "/home/sl/src/baton/work/scratch/w385695-review-385901/v12/python", "argv": ["/home/sl/.local/state/baton-v12-venv/bin/python", "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385901/probe.py"], "timeout_seconds": 60, "scratch": "/home/sl/src/baton/work/scratch/w385695-review-385901-tests"}
+test_release_cleanup_cut (__main__.Cuts.test_release_cleanup_cut) ... ok
+test_supervisor_completion_at_expiry (__main__.Cuts.test_supervisor_completion_at_expiry) ... FAIL
+
+======================================================================
+FAIL: test_supervisor_completion_at_expiry (__main__.Cuts.test_supervisor_completion_at_expiry)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385901/probe.py", line 28, in test_supervisor_completion_at_expiry
+    self.assertTrue(result['timed_out'])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.492s
+
+FAILED (failures=1)
+CLEANUP_CUT {"runtime": {"attempt_id": "attempt-1b51e7c3d8287aad7ef32bf78351a0199e8620d24e5aebdc84804102d9f46544", "runtime_id": "runtime-single-1", "execution_runtime": "destroyed", "cleanup": "retained", "assignment": {"work_ref": {"authority_uuid": "0000000a000000000000000000000000", "work_id": "0000000a-W1"}, "participant": "baton.publisher", "generation": 2}}, "spoken": [[{"stage_id": "publication-D1/publication", "episode": 1, "attempt_id": "attempt-1b51e7c3d8287aad7ef32bf78351a0199e8620d24e5aebdc84804102d9f46544", "act": "conclude", "outcome": "performed", "detail": {"attempt_id": "attempt-1b51e7c3d8287aad7ef32bf78351a0199e8620d24e5aebdc84804102d9f46544", "outcome": "published", "disposition": "completed", "adopted": "sha256:d8b3adc0c29d53562bde896a81d8704d47c2b9d6a4f02e41016fd06f165f0b93", "manifest_digest": "sha256:08553cba786df177ac5368c6d5a324cbeb6e5bdbfd9dd57596d540abba992388", "result_id": "result-attempt-1b51e7c3d8287aad7ef32bf78351a0199e8620d24e5aebdc84804102d9f46544", "receipt_digest": "sha256:ac1d8778180014f2c2a3bdd1438bd378211482f63a1c8f794d028716b2007ba9", "artifacts": ["attempt-1b51e7c3d8287aad7ef32bf78351a0199e8620d24e5aebdc84804102d9f46544:proposal", "attempt-1b51e7c3d8287aad7ef32bf78351a0199e8620d24e5aebdc84804102d9f46544:recovery-provenance"], "retention": "retain"}}], [], []]}
+DEADLINE_CUT {"status": 0, "timed_out": false, "started": true, "group_gone": true, "started_at": 0.0, "ended_at": 2.0}

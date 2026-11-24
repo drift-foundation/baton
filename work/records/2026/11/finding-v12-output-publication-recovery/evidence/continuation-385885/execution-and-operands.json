@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "just",
+    "test-one",
+    "tests.job_manager.test_publication_recovery_execution",
+    "tests.manager.test_dependencies.NoPublicOperationTakesInternalState"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385695-385885/v12/python",
+  "exit_status": 1,
+  "timed_out": false,
+  "wall_seconds": 7.721295990981162,
+  "unittest_summary": [
+    "92",
+    "7.461"
+  ],
+  "log_sha256": "e98b052e21896c1048355917150554bd887091ef36dce3e630a2a34b49cd1164"
+}

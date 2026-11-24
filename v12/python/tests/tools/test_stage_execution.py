@@ -13557,3 +13557,197 @@ class TheTraversedTargetPostureIsExplicit(unittest.TestCase):
         self.assertIn("does not change ownership", str(caught.exception))
         self.assertEqual(stat.S_IMODE(os.stat(self.place).st_mode) & stat.S_IWGRP, 0)
 
+
+
+class APublicationWorkerIsAConfiguredRoleInItsOwnLane(StageCase):
+    """W385695 / REC-9 checkpoint 2: the deterministic publication worker is
+    a FOURTH, OPTIONAL configured role.
+
+    WHAT THESE CASES ESTABLISH AND WHAT THEY DO NOT. They hold the
+    configuration boundary and the pool document: the role is admitted, it is
+    optional, it maps to the publication lane and to no other, and a
+    publication worker that declares a credential is refused before anything
+    is opened; and they hold the per-recovery derivation of the one installed
+    worker. `operations_from` over a bootstrapped instance carrying an
+    installer-composed publication worker, serving recoveries on two Works,
+    is `tests.job_manager.test_publication_recovery_execution.
+    OneInstalledPublisherServesRecoveriesOnTwoWorks`.
+    """
+
+    def publication(self, **members):
+        composed = dict(participant="baton.publisher",
+                        principal="publisher-principal",
+                        credential_slots=[], credential_profile={})
+        composed.update(members)
+        return self.worker("publication", **composed)
+
+    def with_publisher(self, **members):
+        workers = self.document()["workers"] + [self.publication(**members)]
+        return self.held(workers=workers)
+
+    def test_the_role_is_admitted_beside_the_three_and_holds_no_credential(self):
+        held = self.with_publisher()
+        roles = [one["role"] for one in held["workers"]]
+        self.assertEqual(roles, ["implementation", "review", "integration",
+                                 "publication"])
+        publisher = held["workers"][-1]["deployment"]
+        self.assertEqual(publisher["launch_role"], "publication")
+        self.assertIsNone(publisher["credential_resolution"])
+
+    def test_the_role_is_optional(self):
+        held = self.held()
+        self.assertNotIn("publication",
+                         [one["role"] for one in held["workers"]])
+
+    def test_it_is_pooled_in_the_publication_lane_and_no_other(self):
+        from baton_v12.job_manager import scheduler
+
+        held = self.with_publisher()
+        pool = stage_execution._pool(held, None)
+        lanes = {one["worker_id"]: (one["lane"], one["eligible_kinds"])
+                 for one in pool["workers"]}
+        self.assertEqual(lanes["publication-worker"],
+                         (scheduler.PUBLICATION_LANE, ["publication"]))
+        self.assertEqual(lanes["implementation-worker"][0], "implementation")
+        self.assertEqual(lanes["review-worker"][0], "review")
+        owned = scheduler.own_pool(pool)
+        self.assertIn(scheduler.PUBLICATION_LANE,
+                      [one["lane"] for one in owned["workers"]])
+
+    def test_a_publication_worker_that_declares_a_credential_is_refused(self):
+        caught = self.refused(
+            workers=self.document()["workers"] + [self.publication(
+                credential_slots=["api"],
+                credential_profile={"api": {"provider": "fixture",
+                                            "reference": "fixture/one"}})])
+        self.assertEqual((caught.category, caught.code), ("policy", "denied"))
+        self.assertIn("declares no credential slot", caught.message)
+
+    def test_every_other_role_still_names_at_least_one_credential_slot(self):
+        caught = self.refused(workers=[
+            self.worker("implementation", credential_slots=[],
+                        credential_profile={})]
+            + self.document()["workers"][1:])
+        self.assertIn("at least one slot", caught.message)
+
+    def test_one_installed_publisher_is_derived_for_a_second_work(self):
+        """Review 2026-11-23T18-55-03Z R3, at the derivation itself.
+
+        The installed publisher names the Work it was installed against. A
+        recovery bound to ANOTHER Work is served under that same worker's
+        declarations rebound to the recovery's Work -- so the selector's own
+        comparison finds nothing to disagree about -- and nothing installed
+        moved to make that true.
+        """
+        from baton_v12.contracts.manifest import check_manifest_structure
+
+        given = self.with_publisher()
+        worker = given["workers"][-1]
+        installed = worker["deployment"]["input_manifest"]
+        before = json.dumps(installed, sort_keys=True)
+        binding = {"job_id": "publication-D9", "job_work_id": "0000000a-W999",
+                   "source_worker_id": "implementation-worker"}
+        served = stage_execution._served_deployment(given, worker, binding)
+        manifest = served["input_manifest"]
+        self.assertEqual(manifest["work_ref"],
+                         {"authority_uuid":
+                              installed["work_ref"]["authority_uuid"],
+                          "work_id": "0000000a-W999"})
+        check_manifest_structure(manifest, "inputManifest")
+        # ONLY THE WORK MOVED.
+        self.assertEqual(
+            {name: value for name, value in manifest.items()
+             if name not in ("work_ref", "manifest_digest")},
+            {name: value for name, value in installed.items()
+             if name not in ("work_ref", "manifest_digest")})
+        self.assertIs(worker["deployment"]["input_manifest"], installed)
+        self.assertEqual(json.dumps(installed, sort_keys=True), before)
+        stage = {"job_id": binding["job_id"], "kind": "publication",
+                 "profile_name": worker["deployment"]["profile_name"],
+                 "profile_digest": worker["deployment"]["profile_digest"]}
+        job = {"input_digest": stage_execution.publication_input_identity(
+                   given, binding),
+               "policy_digest": worker["deployment"]["policy_digest"]}
+        self.assertEqual(
+            stage_execution._disagreements(served, stage, job, binding), {})
+        # AND THE THREE NEGATIVES. A Job submitted under the INSTALLED
+        # identity names the other Work's input; a binding on a third Work is
+        # still a wrong Work; and the same recovery is one input per Work.
+        self.assertEqual(
+            sorted(stage_execution._disagreements(
+                served, stage,
+                dict(job, input_digest=job_input_identity(installed)),
+                binding)), ["the submitted input"])
+        self.assertEqual(
+            stage_execution._disagreements(
+                served, stage, job,
+                dict(binding, job_work_id="0000000a-W7"))["the Work"],
+            ("0000000a-W999", "0000000a-W7"))
+        self.assertNotEqual(
+            job["input_digest"],
+            stage_execution.publication_input_identity(
+                given, dict(binding, job_work_id="0000000a-W7")))
+        # THE UNBOUND ONE-JOB DOCUMENT DERIVES NOTHING, as for every role.
+        self.assertIs(
+            stage_execution._served_deployment(
+                given, worker, dict(binding, job_id=None))["input_manifest"],
+            installed)
+
+    def test_no_other_role_is_rebound_to_a_jobs_work(self):
+        """THE DERIVATION IS THE PUBLICATION ROLE'S ALONE. An implementation
+        or review worker bound to another Work is still exactly the wrong
+        Work it always was; `_disagreements` was not taught to tolerate one.
+        """
+        given = self.with_publisher()
+        binding = {"job_id": "job-z", "job_work_id": "0000000a-W999",
+                   "source_worker_id": "implementation-worker"}
+        for worker in given["workers"][:2]:
+            with self.subTest(role=worker["role"]):
+                served = stage_execution._served_deployment(given, worker,
+                                                            binding)
+                self.assertIs(served["input_manifest"],
+                              worker["deployment"]["input_manifest"])
+                stage = {"job_id": "job-z", "kind": worker["role"],
+                         "profile_name": served["profile_name"],
+                         "profile_digest": served["profile_digest"]}
+                job = {"input_digest": job_input_identity(
+                           served["input_manifest"]),
+                       "policy_digest": served["policy_digest"]}
+                self.assertIn("the Work", stage_execution._disagreements(
+                    served, stage, job, binding))
+
+    def test_a_deployment_installs_at_most_one_dedicated_publisher(self):
+        second = self.publication(participant="baton.publisher-2",
+                                  principal="publisher-2-principal")
+        second["worker_id"] = "publication-worker-2"
+        # IN THE VARIANT THAT ADMITS SEVERAL WORKERS FOR A ROLE, so this is
+        # the publication rule answering and not the one-worker-per-role one.
+        given = self.document(schema=stage_execution.MULTI_CONFIG_SCHEMA,
+                              job_bindings=[],
+                              workers=self.document()["workers"]
+                              + [self.publication(), second])
+        for member in ("job_work_id", "review_work_id", "line_declared_base",
+                       "canonical_target_id"):
+            given.pop(member)
+        with self.assertRaises(ContractRefusal) as raised:
+            stage_execution.held_configuration(given, checkout=self.checkout)
+        self.assertIn("exactly one installed, reusable publisher",
+                      raised.exception.message)
+        # AND IT IS NOBODY ELSE'S PARTICIPANT.
+        caught = self.refused(
+            workers=self.document()["workers"]
+            + [self.publication(participant="baton.reviewer",
+                                principal="reviewer-principal")])
+        self.assertEqual((caught.category, caught.code), ("policy", "denied"))
+        self.assertIn("dedicated participant", caught.message)
+
+    def test_a_worker_configured_under_another_role_is_not_the_publisher(self):
+        caught = self.refused(
+            workers=self.document()["workers"] + [dict(
+                self.publication(), deployment=dict(
+                    self.publication()["deployment"],
+                    launch_role="implementation",
+                    credential_slots=["api"],
+                    credential_profile={"api": {"provider": "fixture",
+                                                "reference": "fixture/one"}}))])
+        self.assertIn("launches the 'implementation' role", caught.message)

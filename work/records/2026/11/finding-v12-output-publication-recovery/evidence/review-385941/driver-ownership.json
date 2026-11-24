@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385941/probe-driver-ownership.py"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385941/v12/python",
+  "exit_status": 1,
+  "timed_out": false,
+  "wall_seconds": 0.031535883084870875,
+  "unittest_summary": [
+    "1",
+    "0.006"
+  ],
+  "log_sha256": "6b24740ed2ff9fb0cfc0f56eae12c718e9d51f8f8701fcf32fb6de3dfe0adf33"
+}

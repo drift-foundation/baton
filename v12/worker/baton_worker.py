@@ -1767,6 +1767,27 @@ def answered(declared, reported):
     return published
 
 
+def _permitted(agent):
+    """W385695: MAY THIS AGENT'S WORK STILL COMPLETE? Asked at commit points.
+
+    AN OPTIONAL CAPABILITY AND NOT A NEW RULE FOR EVERY AGENT. An agent that
+    defines no `may_complete` is asked nothing and every existing worker is
+    byte-for-byte what it was. One that does is an agent whose work is bounded
+    by something this program cannot see -- the deterministic publication
+    worker's ABSOLUTE deadline is the first -- and it is asked immediately
+    before each thing that would make its work a completion: the completion
+    envelope, and the `answered` state the terminal follows. Nothing between
+    those points is a completion, so nothing between them is asked.
+
+    A REFUSAL IS THE AGENT'S OWN FAULT CODE, in the closed vocabulary, and the
+    ordinary faulted ending. It is not a new ending and carries no message.
+    """
+    gate = getattr(agent, "may_complete", None)
+    if callable(gate) and not gate():
+        raise WorkerFault("agent", "this agent's own bound was reached "
+                                   "before its completion was published")
+
+
 def publish_completion(assignment, disposition, outputs):
     """`/output/output.json`, published LAST and ATOMICALLY.
 
@@ -1980,6 +2001,12 @@ def handle(request, identity, seen, agent, spent):
         raise WorkerFault(
             "answer",
             f"a work disposition is one of {', '.join(DISPOSITIONS)}")
+    # W385695: THE COMPLETION ENVELOPE IS A COMMIT POINT, and an agent whose
+    # work is bounded says here whether it may still be published. The
+    # measurement above is this program's and can be slow; an agent that
+    # checked its bound only inside `work` would have checked it before the
+    # part that takes longest.
+    _permitted(agent)
     publish_completion(assignment, disposition, published)
     # TWO SURFACES, AND THEY CARRY DIFFERENT THINGS. The completion envelope
     # above is the durable document and holds the whole record for each output
@@ -2602,6 +2629,17 @@ def serve_exchange(agent, seen, expected, command_root, event_root,
             if manifest is None:
                 return _faulted(event_root, command, digested, operation,
                                 one["operation_id"], answered, "output")
+            # W385695: THE SECOND COMMIT POINT, and the last place a fault can
+            # still be told truthfully. `answered` below is what the terminal
+            # follows, and a faulted terminal over an operation already
+            # published as answered is the contradiction the manager refuses
+            # whole -- so a bounded agent is asked HERE, after the envelope
+            # was read back and before either document says the work is done.
+            try:
+                _permitted(agent)
+            except WorkerFault as fault:
+                return _faulted(event_root, command, digested, operation,
+                                one["operation_id"], answered, fault.code)
         _publish(event_root, f"state-{operation}.json",
                  _bound(command, digested, schema=STATE_SCHEMA,
                         operation=operation,

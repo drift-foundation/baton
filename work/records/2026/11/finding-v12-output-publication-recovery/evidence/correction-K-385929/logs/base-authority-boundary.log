@@ -1,0 +1,17 @@
+test_nothing_reaches_for_v11_the_node_host_or_a_dossier (tests.authority.test_boundary.Isolation.test_nothing_reaches_for_v11_the_node_host_or_a_dossier) ... 
+  test_nothing_reaches_for_v11_the_node_host_or_a_dossier (tests.authority.test_boundary.Isolation.test_nothing_reaches_for_v11_the_node_host_or_a_dossier) (source='publication_recovery.py', word='work/records') ... FAIL
+
+======================================================================
+FAIL: test_nothing_reaches_for_v11_the_node_host_or_a_dossier (tests.authority.test_boundary.Isolation.test_nothing_reaches_for_v11_the_node_host_or_a_dossier) (source='publication_recovery.py', word='work/records')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-tree/v12/python/tests/authority/test_boundary.py", line 329, in test_nothing_reaches_for_v11_the_node_host_or_a_dossier
+    self.assertNotIn(word, literal)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 'work/records' unexpectedly found in 'W385695; work/records/2026/11/finding-v12-output-publication-recovery/FINDING.md: Consolidated owner selection — 2026-11-22'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.852s
+
+FAILED (failures=1)
+error: Recipe `test-one` failed with exit code 1

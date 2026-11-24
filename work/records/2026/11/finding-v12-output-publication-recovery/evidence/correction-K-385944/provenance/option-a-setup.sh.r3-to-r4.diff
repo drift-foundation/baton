@@ -1,0 +1,211 @@
+--- r3/option-a-setup.sh
++++ r4/option-a-setup.sh
+@@ -47,7 +47,7 @@
+ # THE ORDINARY TEMPLATE, NAMED. Its proposal output is admitted under 1048576 bytes, which is the ceiling the
+ # scripted implementer writes past; `/4` (100 MiB) would let the same producer succeed and is refused here.
+ TEMPLATE="baton.v12.job-template.implementation-review/1"
+-MANAGER_STARTED=""; ENDING=""
++MANAGER_STARTED=""; ENDING=""; UNRESOLVED=""
+ 
+ say() { printf '%s %s\n' "$(date -u +%FT%TZ)" "$*" | tee -a "$EVIDENCE/option-a.log"; }
+ fail() { say "FAIL: $*"; exit 1; }
+@@ -113,29 +113,150 @@
+   say "ok   $1"
+ }
+ 
+-stack_live() {
+-  python3 - "$STACK_STATE" <<'PY'
+-import json, os, sys
++stack_live() {  # [TOKEN] -> "name pid" per LIVE process of the instance's stack; status 3 when that cannot be told
++  # THE PRODUCT'S OWN ANSWER, through its supported `status`. A process is `running` there only when the pid AND
++  # the start time its record carries both still match (tools.stack, "OWNERSHIP IS PROVED, NOT ASSUMED");
++  # `unknown` is the product saying it cannot tell, and it is passed on as that (status 3), never as "not
++  # running". A status that names neither state for either process is likewise not an answer.
++  # WITH A TOKEN, only a process that carries THIS run's start token in its own environment is printed. The
++  # stack hands its caller's environment to the processes it starts, so the token is in a process only if this
++  # run's start command is what started it. A record, or a pid, alone is not ownership.
++  local out="$PREFIX.stack-status.txt"
++  timeout --kill-after=10 60 just --justfile "$DEST/justfile" status > "$out" 2>&1 || true
++  python3 - "$out" "$STACK_STATE" "${1:-}" <<'PY'
++import json, os, re, sys
++text, state_root, token = open(sys.argv[1], errors="replace").read(), sys.argv[2], sys.argv[3]
++said = {m.group(1): (m.group(2), m.group(3)) for m in
++        re.finditer(r"^(manager|publisher)\s+(absent|running|stale|unknown)(?: pid (\d+))?\s*$", text, re.M)}
++if set(said) != {"manager", "publisher"} or any(s == "unknown" or (s == "running" and p is None) for s, p in said.values()):
++    sys.exit(3)
++started = lambda raw: int(raw[raw.rfind(b")") + 2:].split()[19])
+ for name in ("manager", "publisher"):
+-    try:
+-        pid = json.load(open(os.path.join(sys.argv[1], name + ".json"))).get("pid")
+-    except (OSError, ValueError):
+-        continue
+-    if isinstance(pid, int) and os.path.exists("/proc/%d" % pid):
+-        print(name, pid)
++    state, pid = said[name]
++    if state != "running":
++        continue                      # absent or stale: the product says POSITIVELY not running
++    if token:
++        try:
++            record = json.load(open(os.path.join(state_root, name + ".json")))
++            first = open("/proc/%s/stat" % pid, "rb").read()
++            carried = open("/proc/%s/environ" % pid, "rb").read().split(b"\0")
++            again = open("/proc/%s/stat" % pid, "rb").read()
++            same = record.get("pid") == int(pid) and record.get("started_at") == started(first) == started(again)
++        except (OSError, ValueError, IndexError):
++            sys.exit(3)
++        if not same:
++            sys.exit(3)               # the process changed under the reading: not told
++        if ("W385695_STACK_START=" + token).encode() not in carried:
++            continue                  # live, and not this run's start
++    print(name, pid)
+ PY
+ }
+ finish() {
+   local code=$?
+   [ -z "$ENDING" ] || return 0
+   ENDING=1; set +e
+-  if [ -n "$MANAGER_STARTED" ]; then
+-    timeout --kill-after=10 120 just --justfile "$DEST/justfile" stop >> "$PREFIX.cleanup.log" 2>&1 \
+-      && say "cleanup: instance stack stopped" || say "UNRESOLVED: the instance stack did not stop; see $PREFIX.cleanup.log"
+-  fi
++  # ON EVERY EXIT, from the start records: see `start_stack` and `reconcile_stack` (the same text as in
++  # `qualify-w385695.sh`).
++  reconcile_stack
++  if [ -n "${UNRESOLVED:-}" ]; then say "phase $phase leaves UNRESOLVED cleanup; what is retained is named above"; [ "$code" != 0 ] || code=1; fi
+   say "phase $phase ended with status $code"
+   exit "$code"
+ }
++op_alive() {  # FILE holding "pid start-tick" -> success while THAT process (pid AND start time) has not ended
++  local pid tick now
++  read -r pid tick < "$1" 2>/dev/null || return 1
++  now="$(awk '{print $3 ":" $22}' "/proc/$pid/stat" 2>/dev/null)" || return 1
++  case "$now" in ""|Z:*) return 1;; esac
++  [ "${now#*:}" = "$tick" ]
++}
++start_stack() {  # LOG -> start the instance's stack as THIS run's. Refuses over another's; stops nothing itself
++  # OWNERSHIP IS PROVED, NEVER ASSUMED, AND THE INTENT IS ON DISK BEFORE THE EFFECT. A stack with a live process
++  # before this start is somebody else's, and one whose state cannot be told is not known to be nobody's: both
++  # are refused and nothing is started or stopped. Then, in this order: the intent with this start's token; the
++  # start command, which first records its own process; its ending. `reconcile_stack` works from those records
++  # on EVERY exit, so an interruption at any point between them is reconciled and not forgotten.
++  local before token code=0 owned="" me
++  [ ! -e "$PREFIX.stack-start-intent" ] || fail "an earlier start of this phase is not reconciled ($PREFIX.stack-start-intent); it is reconciled now and nothing new is started over it"
++  before="$(stack_live)" || fail "the instance stack's state cannot be established before the start (see $PREFIX.stack-status.txt); nothing was started"
++  [ -z "$before" ] || fail "the instance stack is already running ($(echo $before)); this phase starts and stops its own and will not stop another's"
++  token="${RUN:-run}-$$-$(date +%s%N)"
++  rm -f "$PREFIX.stack-start-op" "$PREFIX.stack-start-op-done" "$PREFIX.stack-started"
++  echo "$token" > "$PREFIX.stack-start-intent"
++  # The recorded process outlives a signal sent to this run's whole group: it handles it and stays until the
++  # start command, which `timeout` runs in a group of its own, has ended.
++  ( trap : TERM INT HUP; me="$BASHPID"; echo "$me $(awk '{print $22}' "/proc/$me/stat")" > "$PREFIX.stack-start-op"
++    W385695_STACK_START="$token" timeout --kill-after=10 300 just --justfile "$DEST/justfile" start > "$1" 2>&1 ) &
++  wait $! || code=$?
++  echo "$code" > "$PREFIX.stack-start-op-done"
++  owned="$(stack_live "$token")" || fail "the instance stack's state cannot be established after the start (status $code); the start intent is retained and reconciled at the end"
++  [ -z "$owned" ] || { MANAGER_STARTED=1; echo "$owned" > "$PREFIX.stack-started"; }
++  if [ "$code" != 0 ]; then
++    if [ -n "$MANAGER_STARTED" ]; then fail "the instance stack did not start (status $code); the processes it recorded are this run's and will be stopped"
++    else fail "the instance stack did not start (status $code); it recorded no live process of this run"; fi
++  fi
++  [ -n "$MANAGER_STARTED" ] || fail "the start command succeeded and the stack records no live process of this run; ownership is not established"
++}
++reconcile_stack() {
++  # FROM THE RECORDS, NOT FROM A VARIABLE: a start whose intent is on disk is reconciled whether or not this
++  # process lived to hear its answer. Only what is POSITIVELY this run's is stopped, through the instance's own
++  # `stop`, and only a positive read-back ends the matter; anything else is left as it is, reported UNRESOLVED,
++  # and the intent is retained for the operator.
++  [ -s "$PREFIX.stack-start-intent" ] || return 0
++  local token end all="" owned="" rc=0 stray=""
++  token="$(head -1 "$PREFIX.stack-start-intent")"
++  # 1. THE START COMMAND MUST HAVE ENDED. It records its own process before it asks for anything; a moment is
++  #    allowed for a child forked just before an interruption to write that record. Its own bound is 310 s.
++  if [ ! -e "$PREFIX.stack-start-op-done" ]; then
++    end=$(( $(date +%s) + 3 )); until [ -s "$PREFIX.stack-start-op" ] || [ "$(date +%s)" -ge "$end" ]; do sleep 0.2; done
++    if [ -s "$PREFIX.stack-start-op" ]; then
++      end=$(( $(date +%s) + 330 )); while op_alive "$PREFIX.stack-start-op" && [ "$(date +%s)" -lt "$end" ]; do sleep 0.2; done
++      if op_alive "$PREFIX.stack-start-op"; then
++        say "UNRESOLVED: this run's start command ($(cat "$PREFIX.stack-start-op")) has not ended; nothing is stopped under a start in flight; intent retained at $PREFIX.stack-start-intent"
++        UNRESOLVED=1; return 0
++      fi
++    fi
++  fi
++  # 2. WHAT IS LIVE, AND WHICH OF IT IS THIS RUN'S.
++  all="$(stack_live)" || rc=$?
++  [ "$rc" != 0 ] || owned="$(stack_live "$token")" || rc=$?
++  if [ "$rc" != 0 ]; then
++    say "UNRESOLVED: the instance stack's state could not be established (see $PREFIX.stack-status.txt); nothing was stopped; intent retained at $PREFIX.stack-start-intent"
++    UNRESOLVED=1; return 0
++  fi
++  if [ -z "$all" ]; then
++    say "cleanup: the instance stack positively records no live process; nothing to stop"
++  elif [ "$all" != "$owned" ]; then
++    say "UNRESOLVED: the stack's live process(es) ($(echo $all)) are not all this run's start (this run's: $(echo ${owned:-none})); nothing was stopped; intent retained at $PREFIX.stack-start-intent"
++    UNRESOLVED=1; return 0
++  else
++    timeout --kill-after=10 120 just --justfile "$DEST/justfile" stop >> "$PREFIX.cleanup.log" 2>&1 || true
++    rc=0; all="$(stack_live)" || rc=$?
++    if [ "$rc" = 0 ] && [ -z "$all" ]; then say "cleanup: instance stack stopped (this run's: $(echo $owned))"
++    else
++      say "UNRESOLVED: the instance stack was asked to stop and is not positively stopped (see $PREFIX.cleanup.log, $PREFIX.stack-status.txt); intent retained at $PREFIX.stack-start-intent"
++      UNRESOLVED=1; return 0
++    fi
++  fi
++  # 3. NOTHING OF THIS START OUTSIDE THE STACK'S RECORDS. A start command killed between starting a process and
++  #    recording it leaves one no record names; it carries the token. It is REPORTED, never signalled from here.
++  stray="$(python3 - "$token" <<'PY'
++import os, sys
++want = ("W385695_STACK_START=" + sys.argv[1]).encode()
++for name in sorted(os.listdir("/proc"), key=lambda n: (len(n), n)):
++    if name.isdigit():
++        try:
++            if want in open("/proc/%s/environ" % name, "rb").read().split(b"\0") and open("/proc/%s/stat" % name, "rb").read().rsplit(b")", 1)[1].split()[0] != b"Z":
++                print(name, end=" ")
++        except (OSError, IndexError):
++            pass
++PY
++)"
++  if [ -n "$stray" ]; then
++    say "UNRESOLVED: process(es) this run's start command started are alive outside the stack's records: $stray; intent retained at $PREFIX.stack-start-intent"
++    UNRESOLVED=1; return 0
++  fi
++  mv -f "$PREFIX.stack-start-intent" "$PREFIX.stack-start-reconciled"
++}
+ trap finish EXIT
+ trap 'exit 130' INT
+ trap 'exit 143' TERM
+@@ -146,7 +267,8 @@
+   mkdir -p "$EVIDENCE/home"
+   [ -x "$CMD" ] || fail "the instance's installed command $CMD is missing"
+   [ "$(awk '$1 == "fixture"' "$EVIDENCE/images.owned" | wc -l)" = 1 ] || fail "this run recorded no labelled fixture image (run 'qualify-w385695.sh fixture-image')"
+-  [ -z "$(stack_live)" ] || fail "the instance stack is running; workers are admitted with it stopped"
++  local live; live="$(stack_live)" || fail "the instance stack's state cannot be established (see $PREFIX.stack-status.txt); workers are admitted with it positively stopped"
++  [ -z "$live" ] || fail "the instance stack is running; workers are admitted with it stopped"
+   run_step compose-implementation "$PREFIX.compose-implementation.txt"
+   run_step compose-review "$PREFIX.compose-review.txt"
+   run_step compose-publication "$PREFIX.compose-publication.txt"
+@@ -190,11 +312,7 @@
+ failures() {
+   : "${OWNER:?}"
+   local n job stage
+-  [ -z "$(stack_live)" ] || fail "the instance stack is already running; this phase starts and stops its own"
+-  local code=0
+-  timeout --kill-after=10 300 just --justfile "$DEST/justfile" start > "$PREFIX.start.log" 2>&1 || code=$?
+-  [ -z "$(stack_live)" ] || MANAGER_STARTED=1
+-  [ "$code" = 0 ] && [ -n "$MANAGER_STARTED" ] || fail "the instance stack did not start under this run's ownership (status $code)"
++  start_stack "$PREFIX.start.log"
+   # BOTH PRODUCERS MUST STOP AS FAILED PUBLICATIONS, and the product says when: its own settlement preview
+   # answers `eligible` for an attempt whose runtime is positively stopped with nothing collected.
+   local end=$(( $(date +%s) + PRODUCER_SECONDS ))
+@@ -209,9 +327,10 @@
+     say "ok   producer $n ($job) has stopped and is settleable"
+   done
+   # THE MANAGER IS STOPPED BEFORE ANYTHING IS SETTLED: both settlement verbs take the instance's manager guard.
+-  timeout --kill-after=10 120 just --justfile "$DEST/justfile" stop > "$PREFIX.stop.log" 2>&1 || fail "the instance stack did not stop"
++  # The same reconciliation an interrupted run gets: stop what is positively this run's and read it back.
++  reconcile_stack
++  [ -z "$UNRESOLVED" ] && [ ! -e "$PREFIX.stack-start-intent" ] || fail "the instance stack is not positively stopped; nothing is settled under a manager that may be serving"
+   MANAGER_STARTED=""
+-  [ -z "$(stack_live)" ] || fail "the instance stack still records a live process after stop"
+   : > "$PREFIX.env"
+   for n in 1 2; do
+     job="$(field "$PREFIX.create-$n.json" job_id)"; stage="$job/implementation"

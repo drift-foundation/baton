@@ -1,0 +1,507 @@
+######## A. retained from revision 3: selection, refusal, ordinary endings
+== recovery-ok: exit 0
+phase recovery complete
+cleanup: instance stack stopped (this run's: manager 1594300 publisher 1594301)
+phase recovery ended with status 0
+   engine effects: [('exec', 'c-rev')]
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: recovery.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+== deadline-ok: exit 0
+phase deadline complete
+cleanup: c-pub positively no longer exists; nothing to release
+cleanup: instance stack stopped (this run's: manager 1594952 publisher 1594953)
+phase deadline ended with status 0
+   engine effects: [('pause', 'c-pub'), ('unpause', 'c-pub')]
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: deadline.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+== exec-fails: exit 1
+FAIL: the reviewer probe did not answer (exec-failed; see /home/sl/src/baton/work/scratch/w385695-K-385944/runs/exec-fails/evidence/recovery.reviewer-probe.err); an exec failure is not a refusal
+cleanup: instance stack stopped (this run's: manager 1595367 publisher 1595368)
+phase recovery ended with status 1
+   engine effects: [('exec', 'c-rev')]
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: recovery.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+== source-writable: exit 1
+FAIL: the reviewer could write into /input/source
+cleanup: instance stack stopped (this run's: manager 1595845 publisher 1595846)
+phase recovery ended with status 1
+   engine effects: [('exec', 'c-rev')]
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: recovery.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+== decoy-recovery: exit 1
+FAIL: the reviewer container was not observed
+cleanup: instance stack stopped (this run's: manager 1596314 publisher 1596315)
+UNRESOLVED: selected containers remain; see /home/sl/src/baton/work/scratch/w385695-K-385944/runs/decoy-recovery/evidence/recovery.leftover-containers.txt
+phase recovery leaves UNRESOLVED cleanup; what is retained is named above
+phase recovery ended with status 1
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: recovery.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+== decoy-deadline: exit 1
+FAIL: the selected publisher was never observed and frozen
+cleanup: instance stack stopped (this run's: manager 1596984 publisher 1596985)
+UNRESOLVED: selected containers remain; see /home/sl/src/baton/work/scratch/w385695-K-385944/runs/decoy-deadline/evidence/deadline.leftover-containers.txt
+phase deadline leaves UNRESOLVED cleanup; what is retained is named above
+phase deadline ended with status 1
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: deadline.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+== wrong-image: exit 1
+FAIL: the selected publisher was never observed and frozen
+cleanup: instance stack stopped (this run's: manager 1597750 publisher 1597751)
+UNRESOLVED: selected containers remain; see /home/sl/src/baton/work/scratch/w385695-K-385944/runs/wrong-image/evidence/deadline.leftover-containers.txt
+phase deadline leaves UNRESOLVED cleanup; what is retained is named above
+phase deadline ended with status 1
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: deadline.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+== live-provider-selected: exit 1
+FAIL: the deployment's worker images are not this run's Option A selection
+phase preflight ended with status 1
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 0; stops asked: 0
+   product status now: manager absent;publisher absent
+   start intent: 
+   no process of this run is left
+   AS REQUIRED
+== cleanup: exit 0
+cleanup: removed baton-v12-publication:w385695-RUN
+cleanup: baton-v12-provider:w385695-RUN now names sha256:someone-elses, not the sha256:prov this run built; left alone
+cleanup: baton-v12-qualification-fixture:w385695-RUN is already gone (the engine lists no such tag)
+cleanup: only tags recorded in images.owned were considered; no container was touched
+phase cleanup complete
+phase cleanup ended with status 0
+   engine effects: [('image', 'rm baton-v12-publication:w385695-RUN')]
+   unscoped container listings: 0
+   stack starts asked: 0; stops asked: 0
+   product status now: manager absent;publisher absent
+   start intent: 
+   no process of this run is left
+   AS REQUIRED
+== stack-preexisting: exit 1
+FAIL: the instance stack is already running (manager 1598571 publisher 1598572); this phase starts and stops its own and will not stop another's
+phase recovery ended with status 1
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 0; stops asked: 0
+   product status now: manager running pid 1598571;publisher running pid 1598572
+   start intent: 
+   the pre-existing stack process is STILL RUNNING (untouched)
+   processes of this run still alive:
+      1598571 sleep 600
+      1598572 sleep 600
+   AS REQUIRED
+== start-fails-clean: exit 1
+FAIL: the instance stack did not start (status 1); it recorded no live process of this run
+cleanup: the instance stack positively records no live process; nothing to stop
+phase recovery ended with status 1
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 0
+   product status now: manager absent;publisher absent
+   start intent: recovery.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+== start-fails-partial: exit 1
+FAIL: the instance stack did not start (status 1); the processes it recorded are this run's and will be stopped
+cleanup: instance stack stopped (this run's: manager 1599015)
+phase recovery ended with status 1
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: recovery.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+######## B. C5.1 -- the start effect is reconciled on every exit (qualify-w385695.sh)
+   harness: TERM to the script
+== q-term-while-start-in-flight: exit 143
+cleanup: instance stack stopped (this run's: manager 1599350 publisher 1599351)
+phase recovery ended with status 143
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: recovery.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+   harness: TERM to the script
+== q-term-after-effect-before-answer: exit 143
+cleanup: instance stack stopped (this run's: manager 1599557 publisher 1599558)
+phase recovery ended with status 143
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: recovery.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+   harness: TERM to the script
+== q-term-after-acknowledgment: exit 143
+cleanup: instance stack stopped (this run's: manager 1599878 publisher 1599879)
+phase recovery ended with status 143
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: recovery.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+   harness: TERM to the whole process group
+== q-group-term-after-effect: exit 143
+cleanup: instance stack stopped (this run's: manager 1600113 publisher 1600114)
+phase recovery ended with status 143
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: recovery.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+== q-live-but-not-this-runs: exit 1
+FAIL: the start command succeeded and the stack records no live process of this run; ownership is not established
+UNRESOLVED: the stack's live process(es) (manager 1600429 publisher 1600430) are not all this run's start (this run's: none); nothing was stopped; intent retained at /home/sl/src/baton/work/scratch/w385695-K-385944/runs/q-live-but-not-this-runs/evidence/recovery.stack-start-intent
+phase recovery leaves UNRESOLVED cleanup; what is retained is named above
+phase recovery ended with status 1
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 0
+   product status now: manager running pid 1600429;publisher running pid 1600430
+   start intent: recovery.stack-start-intent
+   processes of this run still alive:
+      1600429 sleep 600
+      1600430 sleep 600
+   AS REQUIRED
+== q-ownership-unknown: exit 1
+FAIL: the instance stack's state cannot be established after the start (status 0); the start intent is retained and reconciled at the end
+UNRESOLVED: the instance stack's state could not be established (see /home/sl/src/baton/work/scratch/w385695-K-385944/runs/q-ownership-unknown/evidence/recovery.stack-status.txt); nothing was stopped; intent retained at /home/sl/src/baton/work/scratch/w385695-K-385944/runs/q-ownership-unknown/evidence/recove
+phase recovery leaves UNRESOLVED cleanup; what is retained is named above
+phase recovery ended with status 1
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 0
+   product status now: manager unknown;publisher running pid 1600625
+   start intent: recovery.stack-start-intent
+   processes of this run still alive:
+      1600624 sleep 600
+      1600625 sleep 600
+   AS REQUIRED
+== q-status-does-not-answer: exit 1
+FAIL: the instance stack's state cannot be established after the start (status 0); the start intent is retained and reconciled at the end
+UNRESOLVED: the instance stack's state could not be established (see /home/sl/src/baton/work/scratch/w385695-K-385944/runs/q-status-does-not-answer/evidence/recovery.stack-status.txt); nothing was stopped; intent retained at /home/sl/src/baton/work/scratch/w385695-K-385944/runs/q-status-does-not-answer/evide
+phase recovery leaves UNRESOLVED cleanup; what is retained is named above
+phase recovery ended with status 1
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 0
+   product status now: manager running pid 1600813;publisher running pid 1600814
+   start intent: recovery.stack-start-intent
+   processes of this run still alive:
+      1600813 sleep 600
+      1600814 sleep 600
+   AS REQUIRED
+== q-started-but-unrecorded: exit 1
+FAIL: the instance stack did not start (status 1); it recorded no live process of this run
+cleanup: the instance stack positively records no live process; nothing to stop
+UNRESOLVED: process(es) this run's start command started are alive outside the stack's records: 1601000 ; intent retained at /home/sl/src/baton/work/scratch/w385695-K-385944/runs/q-started-but-unrecorded/evidence/recovery.stack-start-intent
+phase recovery leaves UNRESOLVED cleanup; what is retained is named above
+phase recovery ended with status 1
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 0
+   product status now: manager absent;publisher absent
+   start intent: recovery.stack-start-intent
+   processes of this run still alive:
+      1601000 sleep 600
+   AS REQUIRED
+== q-stop-does-not-stop: exit 1
+phase recovery complete
+UNRESOLVED: the instance stack was asked to stop and is not positively stopped (see /home/sl/src/baton/work/scratch/w385695-K-385944/runs/q-stop-does-not-stop/evidence/recovery.cleanup.log, /home/sl/src/baton/work/scratch/w385695-K-385944/runs/q-stop-does-not-stop/evidence/recovery.stack-status.txt); intent 
+phase recovery leaves UNRESOLVED cleanup; what is retained is named above
+phase recovery ended with status 1
+   engine effects: [('exec', 'c-rev')]
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager running pid 1601200;publisher running pid 1601201
+   start intent: recovery.stack-start-intent
+   processes of this run still alive:
+      1601200 sleep 600
+      1601201 sleep 600
+   AS REQUIRED
+######## C. C5.1 -- the same, option-a-setup.sh failures
+== s-ok: exit 0
+ok   producer 1 (job-q-1) has stopped and is settleable
+ok   producer 2 (job-q-2) has stopped and is settleable
+cleanup: instance stack stopped (this run's: manager 1601625 publisher 1601626)
+ok   producer 1 (job-q-1) is settled, removed and an eligible over-ceiling original
+ok   producer 2 (job-q-2) is settled, removed and an eligible over-ceiling original
+failures: source /home/sl/src/baton/work/scratch/w385695-K-385944/runs/s-ok/evidence/option-a.env and run 'qualify-w385695.sh preflight'
+phase failures complete
+phase failures ended with status 0
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: option-a.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+== s-producers-never-stop: exit 1
+FAIL: producer 1 (job-q-1) did not stop as a settleable failure within 8 s; see /home/sl/src/baton/work/scratch/w385695-K-385944/runs/s-producers-never-stop/evidence/option-a.preview-1.err
+cleanup: instance stack stopped (this run's: manager 1601805 publisher 1601806)
+phase failures ended with status 1
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: option-a.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+== s-remove-refused: exit 1
+ok   producer 1 (job-q-1) has stopped and is settleable
+ok   producer 2 (job-q-2) has stopped and is settleable
+cleanup: instance stack stopped (this run's: manager 1601946 publisher 1601947)
+FAIL: settlement-remove refused producer 1
+phase failures ended with status 1
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: option-a.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+   harness: TERM to the script
+== s-term-while-start-in-flight: exit 143
+cleanup: instance stack stopped (this run's: manager 1602221 publisher 1602222)
+phase failures ended with status 143
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: option-a.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+   harness: TERM to the script
+== s-term-after-effect-before-answer: exit 143
+cleanup: instance stack stopped (this run's: manager 1602330 publisher 1602331)
+phase failures ended with status 143
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: option-a.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+   harness: TERM to the script
+== s-term-after-acknowledgment: exit 143
+cleanup: instance stack stopped (this run's: manager 1602557 publisher 1602558)
+phase failures ended with status 143
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: option-a.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+   harness: TERM to the whole process group
+== s-group-term-after-effect: exit 143
+cleanup: instance stack stopped (this run's: manager 1602712 publisher 1602713)
+phase failures ended with status 143
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: option-a.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+== s-stack-preexisting: exit 1
+FAIL: the instance stack is already running (manager 1602910 publisher 1602911); this phase starts and stops its own and will not stop another's
+phase failures ended with status 1
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 0; stops asked: 0
+   product status now: manager running pid 1602910;publisher running pid 1602911
+   start intent: 
+   the pre-existing stack process is STILL RUNNING (untouched)
+   processes of this run still alive:
+      1602910 sleep 600
+      1602911 sleep 600
+   AS REQUIRED
+== s-live-but-not-this-runs: exit 1
+FAIL: the start command succeeded and the stack records no live process of this run; ownership is not established
+UNRESOLVED: the stack's live process(es) (manager 1602999 publisher 1603000) are not all this run's start (this run's: none); nothing was stopped; intent retained at /home/sl/src/baton/work/scratch/w385695-K-385944/runs/s-live-but-not-this-runs/evidence/option-a.stack-start-intent
+phase failures leaves UNRESOLVED cleanup; what is retained is named above
+phase failures ended with status 1
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 0
+   product status now: manager running pid 1602999;publisher running pid 1603000
+   start intent: option-a.stack-start-intent
+   processes of this run still alive:
+      1602999 sleep 600
+      1603000 sleep 600
+   AS REQUIRED
+== s-ownership-unknown: exit 1
+FAIL: the instance stack's state cannot be established after the start (status 0); the start intent is retained and reconciled at the end
+UNRESOLVED: the instance stack's state could not be established (see /home/sl/src/baton/work/scratch/w385695-K-385944/runs/s-ownership-unknown/evidence/option-a.stack-status.txt); nothing was stopped; intent retained at /home/sl/src/baton/work/scratch/w385695-K-385944/runs/s-ownership-unknown/evidence/option
+phase failures leaves UNRESOLVED cleanup; what is retained is named above
+phase failures ended with status 1
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 0
+   product status now: manager unknown;publisher running pid 1603103
+   start intent: option-a.stack-start-intent
+   processes of this run still alive:
+      1603102 sleep 600
+      1603103 sleep 600
+   AS REQUIRED
+== s-stop-does-not-stop: exit 1
+ok   producer 1 (job-q-1) has stopped and is settleable
+ok   producer 2 (job-q-2) has stopped and is settleable
+UNRESOLVED: the instance stack was asked to stop and is not positively stopped (see /home/sl/src/baton/work/scratch/w385695-K-385944/runs/s-stop-does-not-stop/evidence/option-a.cleanup.log, /home/sl/src/baton/work/scratch/w385695-K-385944/runs/s-stop-does-not-stop/evidence/option-a.stack-status.txt); intent 
+FAIL: the instance stack is not positively stopped; nothing is settled under a manager that may be serving
+UNRESOLVED: the instance stack was asked to stop and is not positively stopped (see /home/sl/src/baton/work/scratch/w385695-K-385944/runs/s-stop-does-not-stop/evidence/option-a.cleanup.log, /home/sl/src/baton/work/scratch/w385695-K-385944/runs/s-stop-does-not-stop/evidence/option-a.stack-status.txt); intent 
+phase failures leaves UNRESOLVED cleanup; what is retained is named above
+phase failures ended with status 1
+   engine effects: []
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 2
+   product status now: manager running pid 1603198;publisher running pid 1603199
+   start intent: option-a.stack-start-intent
+   processes of this run still alive:
+      1603198 sleep 600
+      1603199 sleep 600
+   AS REQUIRED
+######## D. C5.2 -- positive absence and not-paused versus an engine that did not answer; requests in flight
+   harness: TERM to the script
+== d-term-mid-freeze: exit 143
+cleanup: c-pub ended while it was being released (read back: positively absent)
+cleanup: instance stack stopped (this run's: manager 1603471 publisher 1603472)
+phase deadline ended with status 143
+   engine effects: [('pause', 'c-pub'), ('unpause', 'c-pub')]
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: deadline.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+   harness: TERM to the script
+== d-pause-reply-lost: exit 143
+cleanup: c-pub ended while it was being released (read back: positively absent)
+cleanup: instance stack stopped (this run's: manager 1603851 publisher 1603852)
+phase deadline ended with status 143
+   engine effects: [('pause', 'c-pub'), ('unpause', 'c-pub')]
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: deadline.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+== d-engine-stops-answering: exit 1
+FAIL: the frozen publisher's pause state could not be read; cleanup tries again and retains what it cannot confirm
+UNRESOLVED: the pause state of c-pub could not be read (see /home/sl/src/baton/work/scratch/w385695-K-385944/runs/d-engine-stops-answering/evidence/deadline.cleanup.log); it was NOT unpaused blind; intent retained at /home/sl/src/baton/work/scratch/w385695-K-385944/runs/d-engine-stops-answering/evidence/dead
+cleanup: instance stack stopped (this run's: manager 1604218 publisher 1604219)
+UNRESOLVED: the engine did not answer for what is left of attempt attempt-pub
+phase deadline leaves UNRESOLVED cleanup; what is retained is named above
+phase deadline ended with status 1
+   engine effects: [('pause', 'c-pub')]
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: deadline.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+== d-unpause-reply-lost: exit 1
+FAIL: the frozen publisher could not be released; cleanup reads its state back
+cleanup: c-pub positively no longer exists; nothing to release
+cleanup: instance stack stopped (this run's: manager 1604927 publisher 1604928)
+phase deadline ended with status 1
+   engine effects: [('pause', 'c-pub'), ('unpause', 'c-pub')]
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: deadline.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+== d-unpause-fails: exit 1
+FAIL: the frozen publisher could not be released; cleanup reads its state back
+UNRESOLVED: container c-pub is still paused and could not be released; intent retained at /home/sl/src/baton/work/scratch/w385695-K-385944/runs/d-unpause-fails/evidence/deadline.pause-intent
+cleanup: instance stack stopped (this run's: manager 1605262 publisher 1605263)
+UNRESOLVED: selected containers remain; see /home/sl/src/baton/work/scratch/w385695-K-385944/runs/d-unpause-fails/evidence/deadline.leftover-containers.txt
+phase deadline leaves UNRESOLVED cleanup; what is retained is named above
+phase deadline ended with status 1
+   engine effects: [('pause', 'c-pub'), ('unpause', 'c-pub'), ('unpause', 'c-pub')]
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: deadline.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+== d-unpause-fails-and-readback-fails: exit 1
+FAIL: the frozen publisher could not be released; cleanup reads its state back
+UNRESOLVED: the pause state of c-pub could not be read (see /home/sl/src/baton/work/scratch/w385695-K-385944/runs/d-unpause-fails-and-readback-fails/evidence/deadline.cleanup.log); it was NOT unpaused blind; intent retained at /home/sl/src/baton/work/scratch/w385695-K-385944/runs/d-unpause-fails-and-readback
+cleanup: instance stack stopped (this run's: manager 1605925 publisher 1605926)
+UNRESOLVED: the engine did not answer for what is left of attempt attempt-pub
+phase deadline leaves UNRESOLVED cleanup; what is retained is named above
+phase deadline ended with status 1
+   engine effects: [('pause', 'c-pub'), ('unpause', 'c-pub')]
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: deadline.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+   harness: TERM to the script
+== d-term-while-pause-in-flight: exit 143
+cleanup: c-pub ended while it was being released (read back: positively absent)
+cleanup: instance stack stopped (this run's: manager 1606634 publisher 1606635)
+phase deadline ended with status 143
+   engine effects: [('pause', 'c-pub'), ('unpause', 'c-pub')]
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: deadline.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+   harness: SIGKILL to the watcher when evidence/deadline.pause-op appeared
+   harness: TERM to the script
+== d-watcher-killed-while-pause-in-flight: exit 143
+cleanup: c-pub ended while it was being released (read back: positively absent)
+cleanup: instance stack stopped (this run's: manager 1607069 publisher 1607070)
+phase deadline ended with status 143
+   engine effects: [('pause', 'c-pub'), ('unpause', 'c-pub')]
+   unscoped container listings: 0
+   stack starts asked: 1; stops asked: 1
+   product status now: manager absent;publisher absent
+   start intent: deadline.stack-start-reconciled
+   no process of this run is left
+   AS REQUIRED
+######## 40 scenarios; 0 not as required

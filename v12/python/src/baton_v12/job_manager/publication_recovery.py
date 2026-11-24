@@ -35,20 +35,28 @@ THE THREE ACTS THIS CHECKPOINT OWNS, and the fourth it refuses to pretend to:
      candidate, the exact measured output bytes, the exact producer
      verification context, the selected stages and the approved profile and
      its digest.
-  3. `admit_publication` -- THE ADMISSION BOUNDARY. It composes the real owner
-     ports, re-establishes every fact an effect would rest on, and then
-     answers with what is TRUE today: the deterministic publication worker,
-     the publication lane, the `/4` submission vocabulary and the schema-10
-     store this admission would need are checkpoint 2's, so there is an
-     explicit HELD PREREQUISITE and no Job, no binding, no reservation and no
-     offer. `execution_gate` reports the same thing in the gate's own shape.
-  4. WHAT IT WILL NOT DO. It will not submit a publication stage into a
-     vocabulary that would map it to the implementation lane, it will not
-     install a stand-in worker so an admission can "succeed", and it will not
-     return a Job identity that nothing can serve. REC-9's own sentence --
-     "Review MUST remain non-runnable until attributable publication custody
-     and the exact candidate handoff are validated" -- is kept here by having
-     nothing to run at all, and by saying so.
+  3. `admit_publication` -- THE ADMISSION. W385695 checkpoint 2 installed the
+     four capabilities checkpoint 1 could only name as owed -- the `/4`
+     submission vocabulary, the `baton.v12.worker-pool/2` publication lane,
+     the schema-10 store and the enforced `output-publication-review/1`
+     control profile -- so this is now a real admission: the prior assignment
+     is ENDED through the Authority's own exact-expect transition, the
+     recovery identity is RESERVED, the Work is REUSED, the deployment binds
+     the Job, and ONE `/4` submission carrying one publication stage and one
+     review stage gated on it is recorded. Every prerequisite is still read
+     from the owners that hold it, and a MISSING one still produces the
+     checkpoint-1 held record and no effect at all -- which is what an older
+     deployment, or a store this build has not migrated, answers with.
+  4. WHAT IT STILL WILL NOT DO. It will not publish anything itself: the
+     deterministic adoption of the retained bytes, its read-only staging, its
+     absolute deadline and its custody are `publication_execution`'s. It will
+     not open the review gate: REC-9's "Review MUST remain non-runnable until
+     attributable publication custody and the exact candidate handoff are
+     validated" is kept by `publication_execution.execution_gate`, which is
+     shut until that module's own handoff record commits -- an approval, a
+     qualified producer result, a candidate digest or a submitted graph edge
+     cannot open it. And it will not run or redispatch an implementation or
+     repeat the producer's verifier under any path.
 
 WHAT IT REFUSES, every one of them a ruling rather than a preference:
 
@@ -67,14 +75,25 @@ WHAT IT REFUSES, every one of them a ruling rather than a preference:
   * NO IMPLEMENTATION AND NO VERIFICATION STAGE. `owned_stages` refuses
     `implementation`, `verification` and `integration` by name, and the only
     admissible set is `("publication", "review")` in that order.
-  * NEVER MAP PUBLICATION TO IMPLEMENTATION. `scheduler._lane` maps every
-    non-review stage to the implementation lane, so this build cannot carry a
-    publication stage without mapping it wrongly. That is reported as a MISSING
-    PREREQUISITE and never worked around.
-  * NO ORDINARY MISUSE. The recovery profile, template, role descriptor and
-    stage set are reachable only through this owner; `require_ordinary_profile`
-    is this module's own guard that an ordinary create/submit/fresh-attempt
-    cannot name them.
+  * NEVER MAP PUBLICATION TO IMPLEMENTATION. `scheduler.lane_of` is now a
+    TABLE whose publication entry is the publication lane and which refuses a
+    kind it has no entry for; the fallthrough that used to answer
+    `implementation` for every non-review stage is gone. A deployment whose
+    installed pool reserves no publication capacity is still a MISSING
+    PREREQUISITE and is never worked around by routing the stage elsewhere.
+  * NO ORDINARY MISUSE, AND THE GUARD IS NAMED ACCURATELY. The guard is
+    `job_control.require_ordinary_profile`, it belongs to the CONTROL owner
+    rather than to this module, and what it refuses is exactly one thing: a
+    Job admitted under a RECOVERY CONTROL PROFILE by an ordinary creation,
+    submission or fresh attempt. Checkpoint 1's text claimed this module owned
+    a guard over the profile, template, role descriptor AND stage set, which
+    was wrong in both halves -- the function is `job_control`'s, and at the
+    time it named only REC-8's profile, so it would not have refused this
+    recovery's own. It now reads `job_control.RECOVERY_PROFILES`, which holds
+    both. The other three identities are kept out of ordinary use by the
+    owners that hold them and each is asserted separately: the `/4` generation
+    is the only one `documents` lets a publication stage into, the template is
+    not a bound role contract, and `owned_stages` is the only admissible set.
   * NO CLOCK IS RESET. The original Job, its admission, its terminal, its
     fences and its deadlines are read and never written.
 """
@@ -95,6 +114,7 @@ __all__ = ["RECOVERY_SELECTION", "RECOVERY_DECISION", "RECOVERY_TEMPLATE",
            "PUBLICATION_PROFILE", "PUBLICATION_DEFINITION",
            "PUBLICATION_DEFINITION_BYTES", "PUBLICATION_PROFILE_DIGEST",
            "PUBLICATION_PROFILES", "CLOCK_ORIGINS", "PROVENANCE",
+           "PROVENANCE_OUTPUT", "PROVENANCE_PATH", "PROVENANCE_TYPE",
            "PROPOSAL_BYTES", "ORIGINAL_PROPOSAL_BYTES",
            "resolved_profile", "admitted_bounds",
            "corrective_declaration",
@@ -113,9 +133,20 @@ __all__ = ["RECOVERY_SELECTION", "RECOVERY_DECISION", "RECOVERY_TEMPLATE",
            "decisions_for", "decide",
            "HELD_KIND", "HELD_MEMBERS", "held_operation_id",
            "held_admission_of", "held_admissions_of",
+           "INTENT_KIND", "INTENT_MEMBERS", "intent_operation_id",
+           "intent_of", "intents_of",
+           "ENDING_KIND", "ENDING_MEMBERS", "ENDING_CAUSES",
+           "ENDING_DISPOSITION", "ENDING_OUTCOMES", "ending_operation_id",
+           "ending_of",
+           "ADMITTED_KIND", "ADMITTED_MEMBERS", "admit_operation_id",
+           "admission_of", "admissions_of", "admission_for", "prior_job_in",
+           "PUBLICATION_BINDING", "PRIOR_ASSIGNMENT", "WORKER_MEMBERS",
+           "RECOVERY_INPUT_SCHEMA", "RECOVERY_INPUT_MEMBERS",
+           "recovery_input", "recovery_input_digest",
+           "end_prior_assignment", "advance_endings",
            "PREREQUISITES", "prerequisites", "admit_publication",
            "recovery_job_id", "recovery_submission_id",
-           "publication_attempt_id", "review_stage_id",
+           "review_stage_id", "publication_stage_id",
            "GATE_UNAVAILABLE", "GATE_REASONS", "execution_gate",
            "admission_readiness"]
 
@@ -262,6 +293,46 @@ PROVENANCE = {"name": "recovery-provenance",
               "max_entries": SELECTED_PROVENANCE_ENTRIES,
               "regular_files_only": True,
               "link_policy": role_contract.LINK_POLICY}
+# AND THE DECLARED OUTPUT THE WORKER CONTRACT ADMITS, derived from exactly
+# those four facts rather than restating them.
+#
+# TWO DOCUMENTS FOR ONE SELECTION, and the reason is a boundary rather than a
+# preference. `PROVENANCE` above is what the OWNER DECISION binds -- it is a
+# member of every committed decision record, so its bytes are immutable
+# history and widening it would change the signature of decisions already
+# taken. `sealing.declared_outputs` admits exactly `name`, `type`, `path`,
+# `required` and `constraints` and refuses an unknown member, which is the
+# right rule for an assignment's declaration and the wrong shape for a
+# decision's. So this composes the second from the first, and the numbers
+# have one source.
+#
+# `record-output` AND NOT `git-change-proposal`: this is one document about a
+# recovery, not a change proposal, and the type travels into the frozen result
+# where a consumer reads it. The PATH is its own, disjoint from the proposal's,
+# which is what `declared_outputs` proves and what keeps the adopted proposal
+# tree digest unchanged.
+PROVENANCE_PATH = "recovery-provenance"
+PROVENANCE_TYPE = "record-output"
+PROVENANCE_OUTPUT = {
+    "name": PROVENANCE["name"], "type": PROVENANCE_TYPE,
+    "path": PROVENANCE_PATH, "required": True,
+    "constraints": {"max_bytes": PROVENANCE["max_bytes"],
+                    "max_entries": PROVENANCE["max_entries"],
+                    "allowed_media_types": [role_contract.OCTET_STREAM,
+                                            role_contract.PLAIN_TEXT],
+                    "link_policy": PROVENANCE["link_policy"],
+                    "validator_digest": None}}
+from ..worker_manager.schema import OUTPUT_TYPES as _OUTPUT_TYPES  # noqa: E402
+if PROVENANCE_TYPE not in _OUTPUT_TYPES:                  # pragma: no cover
+    raise AssertionError(
+        f"the recovery provenance declares output type {PROVENANCE_TYPE!r}, "
+        f"which the worker contract does not carry")
+if PROVENANCE_PATH == role_contract.CANDIDATE_OUTPUT \
+        or PROVENANCE["name"] == role_contract.CANDIDATE_OUTPUT:
+    raise AssertionError(                                 # pragma: no cover
+        "the recovery provenance shares the proposal's name or path; a "
+        "SEPARATE output is what keeps the adopted proposal tree digest "
+        "unchanged, and two declarations at one path are one tree")
 
 CLOCK_ORIGINS = ("accepted_admission", "stage_admission", "command_start",
                  "invocation_start")
@@ -282,11 +353,42 @@ if PUBLICATION_DEFINITION["publication_stage"]["seconds"] \
 # A RAISE AND NOT AN `assert`, for `failure_analysis`'s reason: a build run
 # under `-O` strips assertions, and a self-check that disappears under an
 # optimisation flag is best-effort dressed as a guarantee.
-if PUBLICATION_PROFILE in job_control.PROFILES:           # pragma: no cover
+#
+# CHECKPOINT 1 ASSERTED THE OPPOSITE OF THIS, and deliberately: it required
+# `job_control.PROFILES` to carry NO entry under this name, because it
+# admitted no Job and "an entry nothing admits would be an enforced policy
+# with no execution". Checkpoint 2 admits the Job, so the entry must exist AND
+# must state the same numbers the owner selected -- which is a stronger
+# property than its absence was, and is the one a reader needs: the policy a
+# recovery Job is enforced under is the policy its decision bound.
+if PUBLICATION_PROFILE not in job_control.PROFILES:       # pragma: no cover
     raise AssertionError(
-        f"this build already carries a control profile named "
-        f"{PUBLICATION_PROFILE}; checkpoint 1 admits no Job under it and an "
-        f"entry nothing admits would be an enforced policy with no execution")
+        f"this build admits publication recovery Jobs and its control owner "
+        f"holds no {PUBLICATION_PROFILE} profile; an admitted Job whose "
+        f"finite control nothing enforces is a recovery with no deadline")
+if PUBLICATION_PROFILE != job_control.PUBLICATION_RECOVERY_PROFILE \
+        or PUBLICATION_PROFILE not in job_control.RECOVERY_PROFILES:
+    raise AssertionError(                                 # pragma: no cover
+        f"{PUBLICATION_PROFILE} is not the control owner's own recovery "
+        f"profile identity, so an ordinary submission naming it would not be "
+        f"refused by require_ordinary_profile")
+_enforced = job_control.PROFILES[PUBLICATION_PROFILE]
+if (_enforced["job_seconds"], _enforced["stage_seconds"],
+        _enforced["provider_turn_seconds"],
+        _enforced["verification_command_seconds"],
+        _enforced["correction_rounds"],
+        job_control.CONTINUATIONS[PUBLICATION_PROFILE],
+        job_control.sub_bound_of(PUBLICATION_PROFILE,
+                                 job_control.PUBLICATION_STAGE_KIND)) != (
+        SELECTED_JOB_SECONDS, SELECTED_STAGE_SECONDS,
+        SELECTED_REVIEW_INVOCATION_SECONDS, SELECTED_REVIEW_COMMAND_SECONDS,
+        SELECTED_ALLOWANCE, SELECTED_ALLOWANCE,
+        SELECTED_PUBLICATION_SECONDS):                    # pragma: no cover
+    raise AssertionError(
+        f"the enforced {PUBLICATION_PROFILE} control profile and the owner "
+        f"numbers this module holds disagree; a recovery would be admitted "
+        f"under one account of its limits and enforced under another")
+del _enforced
 
 
 def resolved_profile(profile=PUBLICATION_PROFILE):
@@ -673,15 +775,18 @@ def _failed_publication(jobs, control, *, job_id, stage_id, episode):
 def producer_entries(declaration):
     """WHERE THE ADAPTER'S OWN RECORDS SIT INSIDE THE ORIGINAL.
 
-    UNDER THE DECLARED OUTPUT'S OWN PATH and never at the root of the
-    workspace: the producer writes its proposal into the directory its
-    declaration names, so `result.json` alone would be a path this module
-    chose rather than the one the declaration did. The two names inside it are
-    constants of the producing adapter's contract, which is why they are not
-    operands either.
+    INSIDE THE DECLARED OUTPUT DIRECTORY, WHICH IS WHAT THE ORIGINAL IS
+    (review 2026-11-23T20-28-00Z F1). The host owner is handed the declared
+    output's own path and proves and measures THAT directory, so these names
+    are relative to it. The first cut measured the attempt's whole writable
+    root and prefixed these with the declared path -- which was the same two
+    files only while a fixture's workspace held nothing but the proposal. A
+    real producer's writable root is its candidate's working tree, and its
+    development line is a whole checkout. The two names are constants of the
+    producing adapter's contract, which is why they are not operands.
     """
-    place = declaration["output"]["path"]
-    return (f"{place}/{PRODUCER_RESULT}", f"{place}/{PRODUCER_VERIFICATION}")
+    del declaration
+    return (PRODUCER_RESULT, PRODUCER_VERIFICATION)
 
 
 def _retained_output(host, failed, declaration, *, holds):
@@ -695,7 +800,8 @@ def _retained_output(host, failed, declaration, *, holds):
     _port(host, HOST_OUTPUT, what="the host output port")
     try:
         return host.output_of(failed["attempt_id"],
-                              read=producer_entries(declaration))
+                              read=producer_entries(declaration),
+                              output=declaration["output"]["path"])
     except ContractRefusal as refusal:
         return _held(holds, refusal)
 
@@ -721,7 +827,11 @@ def _shape(output, *, declaration, holds):
     manifest = output["manifest"]
     constraints = declaration["output"]["constraints"]
     paths = {one["path"] for one in manifest["entries"]}
-    if COMPLETION_ENVELOPE in paths:
+    # THE COMPLETION SIGNAL IS AT THE WRITABLE ROOT, beside the declared
+    # output and never inside it, so it is the owner's own answer rather than
+    # an entry of the measured proposal.
+    if output.get("completion_envelope") is True \
+            or COMPLETION_ENVELOPE in paths:
         _hold(holds, "refused", "precondition",
               f"the retained output carries {name_value(COMPLETION_ENVELOPE)}, "
               f"which is the worker's completion signal; this recovery is for "
@@ -736,13 +846,21 @@ def _shape(output, *, declaration, holds):
               f"failed on the declared byte ceiling, and another cause is "
               f"reported rather than classified into this one")
     if manifest["total_bytes"] > constraints["max_bytes"]:
-        _hold(holds, "refused", "limit",
+        # `integrity/limit` AND NOT `refused/limit`. W385695 checkpoint 2:
+        # the pairing is closed -- `contracts.errors._PAIRING` puts `limit`
+        # under `integrity` and nowhere else -- and `decide` re-raises the
+        # first hold under its own category and code. So a `refused/limit`
+        # hold did not refuse an oversized original at all: it raised an
+        # AssertionError out of the error constructor, which is a defect
+        # report rather than the answer an owner is owed. Measured by driving
+        # a real 101-entry original at it.
+        _hold(holds, "integrity", "limit",
               f"the retained output measures {manifest['total_bytes']} bytes "
               f"and the selected {declaration['descriptor']} declares "
               f"{constraints['max_bytes']}; an original the corrective "
               f"declaration cannot carry is not published by widening it here")
     if manifest["entry_count"] > constraints["max_entries"]:
-        _hold(holds, "refused", "limit",
+        _hold(holds, "integrity", "limit",
               f"the retained output carries {manifest['entry_count']} entries "
               f"and the selected declaration allows "
               f"{constraints['max_entries']}; the entry ceiling, the media "
@@ -752,7 +870,8 @@ def _shape(output, *, declaration, holds):
             "entry_count": manifest["entry_count"],
             "total_bytes": manifest["total_bytes"],
             "paths": sorted(paths),
-            "completion_envelope": COMPLETION_ENVELOPE in paths,
+            "completion_envelope": output.get("completion_envelope") is True
+            or COMPLETION_ENVELOPE in paths,
             "exceeded": manifest["total_bytes"] > ORIGINAL_PROPOSAL_BYTES,
             "fits_corrective": (manifest["total_bytes"]
                                 <= constraints["max_bytes"]
@@ -940,6 +1059,14 @@ def _correspondence(source, output, producer, *, holds):
                "entries": [one["path"] for one in output["manifest"]["entries"]],
                "base": producer["base"], "candidate": producer["head"],
                "changed_paths": list(producer["changed_paths"])}
+    # OWNER SELECTION M385913 (option A): WHERE THE BASE MAY BE READ FROM. The
+    # host owner's answer names the line's own durably recorded source for a
+    # line-layout original, with whether that object is still the recorded
+    # one. It is passed through as it was answered -- this module chooses no
+    # repository -- and is absent for an attempt-layout original, where the
+    # correspondence stays bundle-only.
+    if output.get("source") is not None:
+        request["base_source"] = dict(output["source"])
     try:
         answer = source.correspondence_of(request)
     except ContractRefusal as refusal:
@@ -1315,6 +1442,24 @@ def _expected(value):
 # instance.
 DECISION_KIND = "publication.owner-decision"
 HELD_KIND = "publication.admission-held"
+# W385695 checkpoint 2: THE THREE RECORDS A REAL ADMISSION IS MADE OF, each
+# one durable BEFORE the external act it authorizes and each replayed exactly.
+# `retained_recovery`'s split, for its reasons: the INTENT is the reservation
+# of the recovery identity inside this store's write lock, the ENDING is the
+# Authority transition that releases the prior assignment on the reused Work,
+# and the ADMITTED record is the completion that closes the intent.
+#
+# THREE RECORDS AND NOT ONE, because each is a different cut. A crash between
+# the reservation and the ending leaves an identity spoken for and an
+# assignment still held, which is resumable and is reported as such; a crash
+# between the ending and the submission leaves a released Work and a reserved
+# identity, which the same request resumes; and a crash after the submission
+# leaves a Job whose completion record the next incarnation writes from rows
+# rather than from memory. One combined record could not say which of those
+# happened.
+INTENT_KIND = "publication.admission-intent"
+ENDING_KIND = "publication.prior-assignment-ended"
+ADMITTED_KIND = "publication.admitted"
 
 DECISION_MEMBERS = ("job_id", "stage_id", "episode", "attempt_id",
                     "decision_id", "disposition", "owner", "work_id",
@@ -1324,6 +1469,25 @@ HELD_MEMBERS = ("decision_id", "prior_job_id", "job_id", "work_id",
                 "submission_id", "stages", "state", "reserved",
                 "prerequisites", "owners", "candidate", "output",
                 "readiness", "gate", "recorded_at")
+# THE RESERVATION'S OWN OPERANDS. `input_declaration` is the exact recovery
+# input the publication stage is admitted against -- the document whose digest
+# the Job carries -- so a later incarnation can compare the bytes a worker
+# staged against the approved selection without re-deriving anything.
+INTENT_MEMBERS = ("decision_id", "prior_job_id", "job_id", "work_id",
+                  "submission_id", "stages", "state", "publication_stage_id",
+                  "review_stage_id", "candidate",
+                  "output", "input_declaration", "input_digest",
+                  "recovery_input_digest", "worker", "bounds", "intended_at")
+ENDING_MEMBERS = ("decision_id", "job_id", "work_id", "disposition",
+                  "expect", "answer", "cessation", "ended_at")
+ADMITTED_MEMBERS = ("decision_id", "prior_job_id", "job_id", "work_id",
+                    "submission_id", "stages", "state", "stage_ids",
+                    "publication_stage_id", "review_stage_id",
+                    "candidate", "output",
+                    "input_declaration", "input_digest",
+                    "recovery_input_digest", "worker", "bounds",
+                    "work", "binding", "ending", "exclusion", "control",
+                    "readiness", "gate", "admitted_at")
 
 
 def _operation_id(kind, name):
@@ -1402,6 +1566,137 @@ def held_admissions_of(store):
     return _records_of(store, HELD_KIND, HELD_MEMBERS)
 
 
+def intent_operation_id(decision_id):
+    return _operation_id(INTENT_KIND, decision_id)
+
+
+def ending_operation_id(decision_id):
+    return _operation_id(ENDING_KIND, decision_id)
+
+
+def admit_operation_id(decision_id):
+    return _operation_id(ADMITTED_KIND, decision_id)
+
+
+def intent_of(store, decision_id):
+    return _committed(store, INTENT_KIND, intent_operation_id(decision_id),
+                      INTENT_MEMBERS, named="decision_id", value=decision_id)
+
+
+def intents_of(store):
+    return _records_of(store, INTENT_KIND, INTENT_MEMBERS)
+
+
+def ending_of(store, decision_id):
+    return _committed(store, ENDING_KIND, ending_operation_id(decision_id),
+                      ENDING_MEMBERS, named="decision_id", value=decision_id)
+
+
+def admission_of(store, decision_id):
+    return _committed(store, ADMITTED_KIND, admit_operation_id(decision_id),
+                      ADMITTED_MEMBERS, named="decision_id",
+                      value=decision_id)
+
+
+def admissions_of(store):
+    return _records_of(store, ADMITTED_KIND, ADMITTED_MEMBERS)
+
+
+def admission_for(store, job_id):
+    """The committed admission of ONE recovery Job, or None.
+
+    BY THE JOB IT ADMITTED rather than by the decision that authorized it,
+    because every consumer downstream of the admission -- the scheduler's
+    independence exclusion, the execution pass, the review gate -- holds a
+    stage and therefore a Job, and deriving a decision id back out of a Job
+    name would be those consumers re-implementing an identity this record
+    already carries.
+    """
+    boundaries.identity(job_id, "a Job id")
+    found = [one for one in admissions_of(store) if one["job_id"] == job_id]
+    return found[0] if len(found) == 1 else None
+
+
+def prior_job_in(connection, job_id):
+    """The FAILED Job whose output recovery Job `job_id` publishes, or None.
+
+    A CONNECTION-LEVEL READ because its one caller is `scheduler._exclusions`,
+    which runs inside another owner's write transaction and has no store
+    handle. The answer comes from the committed admission or, before the
+    submission commits, from the reservation -- both of which carry the
+    lineage. An ordinary Job matches neither and answers None.
+    """
+    boundaries.identity(job_id, "a Job id")
+    for kind in (ADMITTED_KIND, INTENT_KIND):
+        for row in connection.execute(
+                "SELECT result FROM operations WHERE kind = ? AND state = "
+                "'committed' AND result IS NOT NULL ORDER BY operation_id",
+                (kind,)):
+            record = json.loads(row["result"])
+            if type(record) is dict and record.get("job_id") == job_id:
+                return record.get("prior_job_id")
+    return None
+
+
+def publication_input_of(store, job_id):
+    """THE INPUT IDENTITY ONE RECOVERY'S PUBLICATION STAGE IS SERVED UNDER,
+    or `None` for a Job that is not a publication recovery. A read.
+
+    THE TYPED PUBLICATION PRODUCER EDGE (contract section 5: "the /4 binding
+    adds exact recovery input and publication worker/profile"). A recovery Job
+    has two stages served by two different kinds of worker:
+
+      its REVIEW stage is served by the Work's ordinarily configured
+        reviewer, under the ORIGINAL Job's own input identity -- the task,
+        the Work and the declarations that reviewer already carries -- which
+        is therefore what the recovery Job itself is submitted under; and
+      its PUBLICATION stage is served by the installed deterministic
+        publisher, under that publisher's declarations bound to this
+        recovery's Work and original task. That identity is this record's.
+
+    One Job row cannot carry both, and neither lane's comparison is relaxed
+    to make it look as though it did: each stage is held, whole, to the
+    identity that is its own. The answer is the reservation's or the
+    committed admission's, fixed when the recovery identity was taken.
+    """
+    boundaries.identity(job_id, "a Job id")
+    for record in list(admissions_of(store)) + list(intents_of(store)):
+        if record["job_id"] == job_id:
+            return record["input_digest"]
+    return None
+
+
+def stage_job(store, stage, job):
+    """THE JOB AS ONE STAGE IS HELD TO IT: `job` itself for every stage but a
+    recovery's publication stage, and for that one the same Job with the
+    publication stage's own input identity.
+
+    ONE RULE, ASKED BY EVERY READER THAT COMPARES A STAGE WITH ITS JOB'S
+    INPUT -- the scheduler's offer binding, the deployment's selector and the
+    publication capacity -- so the three cannot hold one stage to two
+    identities. Nothing is relaxed: the comparison each of them then makes is
+    the one it always made.
+    """
+    if job is None or stage.get("kind") != PUBLICATION_STAGE:
+        return job
+    expected = publication_input_of(store, stage["job_id"])
+    return job if expected is None else dict(job, input_digest=expected)
+
+
+def prior_job_of(store, job_id):
+    """`prior_job_in`, for a caller that holds the store. A read.
+
+    WHAT THE SERVING COMPOSITION ASKS (review 2026-11-23T18-55-03Z R3). A
+    recovery Job has no task of its own: the task its stages are served under
+    is the ORIGINAL Job's, and `single_worker.job_task_reader` reaches it
+    through this lineage exactly as `creation.job_task_of` reaches a retried
+    Job's through `fresh_attempts`. The record is the reservation or the
+    committed admission, so the answer exists from the moment the recovery
+    identity is spoken for and never moves afterwards.
+    """
+    return prior_job_in(store._connection, job_id)
+
+
 # -- 8. the derived identities -----------------------------------------------
 
 def recovery_job_id(decision_id):
@@ -1423,12 +1718,100 @@ def recovery_submission_id(decision_id):
     return f"sub-{recovery_job_id(decision_id)}"
 
 
-def publication_attempt_id(decision_id):
-    return f"publication-{recovery_job_id(decision_id)}"
+# WHAT IS DELIBERATELY NOT DERIVED HERE: THE PUBLICATION ATTEMPT'S IDENTITY.
+# Checkpoint 1 derived one and reported it, which was harmless while nothing
+# executed and is a FABRICATED FACT now that something does. A stage episode's
+# offer and attempt identities are derived by `episodes.identities` in the
+# AUTHORITY's own namespace when the episode opens, so a name composed here
+# would not be the attempt a claim produced -- and a durable admission record
+# carrying it would bind the handoff to an execution that does not exist.
+# `publication_execution` reads the live episode instead.
 
 
 def review_stage_id(decision_id):
     return documents.stage_id(recovery_job_id(decision_id), REVIEW_STAGE)
+
+
+def publication_stage_id(decision_id):
+    return documents.stage_id(recovery_job_id(decision_id), PUBLICATION_STAGE)
+
+
+# -- 8b. the approved recovery input, as a document --------------------------
+#
+# W385695 checkpoint 2. WHAT THE PUBLICATION STAGE IS ADMITTED AGAINST, and
+# why it is a document rather than a path.
+#
+# The bytes a recovery publishes are staged into a recovery-owned input root
+# AFTER the fresh claim and the host exclusion -- the contract fixes that
+# order, because staging before a claim would be this manager copying an
+# original for an execution nobody authorized. So at ADMISSION there is no
+# staged tree to digest, and a Job's `input_digest` must still be an exact
+# fact about what it will consume. This is that fact: the ORIGINAL root and
+# attempt, the measured tree digest and byte count, the candidate, the owner
+# decision and the exact selection it bound, and the two declarations the
+# publication writes under. The staged payload is compared against THIS
+# before anything launches, which is "content is compared with the approved
+# selection before launch" in one document.
+#
+# IT CARRIES NO PATH, NO LOCATOR AND NO BYTES. A locator would make an
+# operator-supplied directory an operand of the trust root, which is the one
+# thing REC-9 refuses outright; the only door to the original is the host
+# owner's own `output_of`, resolved from the attempt.
+RECOVERY_INPUT_SCHEMA = "baton.v12.output-publication-input/1"
+RECOVERY_INPUT_MEMBERS = ("schema", "decision_id", "attempt_id", "job_id",
+                          "stage_id", "episode", "root_identity",
+                          "tree_digest", "total_bytes", "entry_count",
+                          "candidate", "producer", "selection_digest",
+                          "declaration", "provenance", "delivery")
+
+
+def recovery_input(decision, selection):
+    """The exact recovery input one approved decision admits.
+
+    COMPOSED FROM THE DECISION AND THE READ IT WAS TAKEN ON, both of which
+    this manager holds, and from nothing a caller supplies. Deterministic: two
+    incarnations composing it from the same committed decision and the same
+    unchanged original derive the same document and therefore the same digest,
+    which is what makes the submission replayable.
+    """
+    expected = decision["expected"]
+    return {"schema": RECOVERY_INPUT_SCHEMA,
+            "decision_id": decision["decision_id"],
+            "attempt_id": decision["attempt_id"],
+            "job_id": decision["job_id"], "stage_id": decision["stage_id"],
+            "episode": decision["episode"],
+            "root_identity": selection["output"]["root_identity"],
+            "tree_digest": expected["output_tree_digest"],
+            "total_bytes": expected["output_total_bytes"],
+            "entry_count": selection["output"]["entry_count"],
+            "candidate": {"base": expected["candidate_base"],
+                          "head": expected["candidate_head"]},
+            # THE PRODUCER'S OWN ACCOUNT TRAVELS, AND SAYS WHAT IT IS. The
+            # publication stage does not run this command and the reviewer
+            # still owes its own; what the input carries is the attribution,
+            # so a reader of the staged manifest can see whose evidence it is.
+            "producer": {"argv": list(expected["producer_argv"]),
+                         "status": expected["producer_status"],
+                         "context_digest":
+                             expected["verification_context_digest"],
+                         "qualification": "producer-evidence",
+                         "independent_acceptance": False},
+            "selection_digest": expected["selection_digest"],
+            "declaration": decision["declaration_digest"],
+            "provenance": dict(decision["provenance"]),
+            # HOW IT IS DELIVERED, in the document the Job is admitted on, so
+            # a worker cannot be handed a writable original by a deployment
+            # that composed the root differently than the owner approved.
+            "delivery": "read-only"}
+
+
+def recovery_input_digest(document):
+    missing = [one for one in RECOVERY_INPUT_MEMBERS if one not in document]
+    if missing:                                           # pragma: no cover
+        _refuse(f"a recovery input declaration carries "
+                f"{', '.join(RECOVERY_INPUT_MEMBERS)}; this one has no "
+                f"{', '.join(missing)}", category="integrity", code="schema")
+    return digest({one: document[one] for one in RECOVERY_INPUT_MEMBERS})
 
 
 # -- 9. the owner decision ---------------------------------------------------
@@ -1615,11 +1998,13 @@ def _fenced_decision(connection, store, attempt_id, decision_id):
 # them all so the answer is a LIST of what is owed rather than whichever one
 # the control flow reached first.
 #
-# THREE OF THE FIVE ARE FACTS ABOUT THIS BUILD, and that is why no port can
-# talk this boundary into opening. A deployment that answered "yes, I have a
-# publication worker" would still be answering about a stage kind this build's
-# submission vocabulary cannot carry, a lane its scheduler maps to
-# implementation, and a store generation its schema is not at.
+# FOUR OF THE FIVE ARE FACTS ABOUT THIS BUILD, and that is why no port can
+# talk this boundary into opening. A deployment that answers "yes, I have a
+# publication worker" is answering about a stage kind, a lane, a store
+# generation and a control profile this build must ALSO hold; checkpoint 2
+# installed all four, so the deployment's answer is now the one that decides,
+# and a build that was rolled back answers `False` for its own four again
+# without one line of this module changing.
 PREREQUISITES = (
     {"name": "publication-stage-vocabulary",
      "owner": "the Job submission document owner",
@@ -1645,49 +2030,64 @@ PREREQUISITES = (
 )
 
 
-def prerequisites(store):
+def prerequisites(store, *, worker=None):
     """WHICH CAPABILITIES AN ACTUAL ADMISSION IS STILL MISSING, from the
-    owners that would hold them.
+    owners that hold them.
 
-    THE HONEST ANSWER IS A LIST AND NOT A BOOLEAN. REC-9's admission composes
-    a deterministic publication worker, a publication lane, a `/4` submission
-    and a schema-10 store, and checkpoint 2 owns every one of them. What this
-    checkpoint owes its owner is the exact statement of that, read from the
-    modules that would carry it, so the day one of them lands the answer
-    changes by itself rather than by somebody remembering to edit a flag.
+    THE HONEST ANSWER IS A LIST AND NOT A BOOLEAN, and every entry is read
+    from the module or the owner that carries the fact rather than from a
+    flag. Checkpoint 2 installed this build's four -- the `/4` generation, the
+    publication lane under `baton.v12.worker-pool/2`, store generation 10 and
+    the enforced control profile -- so the day one of them is absent again
+    (an un-migrated store, a build rolled back) the answer changes by itself.
 
-    THE LANE CHECK IS THE ONE WORTH READING TWICE. `scheduler._lane` maps
-    every non-review stage to `implementation`, so a publication stage
-    submitted into this build would be OFFERED to implementation workers --
-    which is precisely "never map publication to implementation by default".
-    The absence of the lane is therefore not a missing convenience; it is what
-    stands between this capability and a recovery Job that an ordinary
-    implementation worker would pick up.
+    `worker` IS THE DEPLOYMENT'S OWN ANSWER, resolved by the caller through
+    the binding port and passed in rather than fetched here, because this
+    function is also a pure read a status command calls with no ports at all.
+    `None` means nobody asked, and `None` is not availability: a prerequisite
+    nobody asked about is reported as missing, with `not asked` in its own
+    observation, which is the checkpoint-1 behaviour and the honest one.
+
+    THE LANE CHECK IS STILL THE ONE WORTH READING TWICE. What makes it
+    available is not the word `publication` appearing in a tuple: it is
+    `scheduler.lane_of` answering the publication lane FOR a publication
+    stage, which is the routing decision itself, asked here of the function
+    that makes it.
     """
+    lane = None
+    try:
+        lane = scheduler.lane_of(PUBLICATION_STAGE)
+    except ContractRefusal:                               # pragma: no cover
+        lane = None
     available = {
         "publication-stage-vocabulary": (
             PUBLICATION_STAGE in documents.STAGE_KINDS
-            and RECOVERY_SUBMISSION in documents.SUBMISSION_SCHEMAS),
-        "publication-lane": (PUBLICATION_LANE in scheduler.LANES
+            and RECOVERY_SUBMISSION in documents.SUBMISSION_SCHEMAS
+            and documents.RECOVERY_STAGES == SELECTED_STAGES),
+        "publication-lane": (lane == PUBLICATION_LANE
+                             and PUBLICATION_LANE in scheduler.LANES
                              and scheduler.POOL_SCHEMA == RECOVERY_POOL),
         "job-store-generation": (schema.SCHEMA_VERSION
+                                 >= RECOVERY_STORE_GENERATION
+                                 and store.schema_version
                                  >= RECOVERY_STORE_GENERATION),
-        # ASKED OF THE DEPLOYMENT ONLY WHEN THE BUILD COULD COMPOSE THE STAGE
-        # AT ALL. Asking a binding owner to serve a stage kind this build
-        # cannot submit would be asking a question whose only truthful answer
-        # is about a Job that could not exist.
-        "publication-worker": False,
-        "publication-control-profile": PUBLICATION_PROFILE
-        in job_control.PROFILES,
+        # THE DEPLOYMENT'S OWN FACT, and the only one of the five that is.
+        "publication-worker": worker is not None,
+        "publication-control-profile": (
+            PUBLICATION_PROFILE in job_control.PROFILES
+            and job_control.sub_bound_of(
+                PUBLICATION_PROFILE, PUBLICATION_STAGE)
+            == SELECTED_PUBLICATION_SECONDS),
     }
     held = []
     for entry in PREREQUISITES:
         held.append({**entry, "available": bool(available[entry["name"]]),
-                     "observed": _observed(entry["name"])})
+                     "observed": _observed(entry["name"], store=store,
+                                           lane=lane, worker=worker)})
     return held
 
 
-def _observed(name):
+def _observed(name, *, store=None, lane=None, worker=None):
     """The exact current fact behind one prerequisite, in its owner's words."""
     if name == "publication-stage-vocabulary":
         return (f"this build's stage vocabulary is "
@@ -1695,15 +2095,25 @@ def _observed(name):
                 f"generations are {', '.join(documents.SUBMISSION_SCHEMAS)}")
     if name == "publication-lane":
         return (f"this build's lanes are {', '.join(scheduler.LANES)} under "
-                f"{scheduler.POOL_SCHEMA}, and its stage-to-lane map sends "
-                f"every non-review stage to implementation")
+                f"{scheduler.POOL_SCHEMA}, and its stage-to-lane map sends a "
+                f"{PUBLICATION_STAGE} stage to {name_value(lane)}")
     if name == "job-store-generation":
-        return f"this Job store's schema generation is {schema.SCHEMA_VERSION}"
+        return (f"this build's Job schema generation is "
+                f"{schema.SCHEMA_VERSION}"
+                + (f" and this store is at {store.schema_version}"
+                   if store is not None else ""))
     if name == "publication-worker":
-        return ("not asked: a deployment cannot be asked to serve a stage "
-                "kind this build's submission vocabulary cannot carry")
+        if worker is None:
+            return ("not asked: no deployment binding port answered for an "
+                    "installed publication worker")
+        return (f"this deployment installs publication worker "
+                f"{worker['worker_id']} as {worker['participant']} under "
+                f"profile {worker['profile_name']}/{worker['profile_digest']}")
     return (f"this build's enforced control profiles are "
-            f"{', '.join(sorted(job_control.PROFILES))}")
+            f"{', '.join(sorted(job_control.PROFILES))} and "
+            f"{PUBLICATION_PROFILE} bounds a {PUBLICATION_STAGE} stage at "
+            f"{name_value(job_control.sub_bound_of(PUBLICATION_PROFILE, PUBLICATION_STAGE))}"
+            f" seconds")
 
 
 GATE_UNAVAILABLE = "publication-custody-handoff-unavailable"
@@ -1737,75 +2147,736 @@ def execution_gate(store, decision_id):
         prerequisites=[one["name"] for one in held["prerequisites"]
                        if not one["available"]])
 
-
 def admission_readiness(record):
     """WHICH ACT IS OWED NEXT, said out loud rather than implied.
 
-    THE ADMISSION BOUNDARY'S OWN TRUTHFULNESS REQUIREMENT, and this slice's is
-    stronger than REC-8's because less happened: no Job was submitted, no Work
-    was bound, no identity was reserved and no offer exists. An answer that
-    merely reported a Job id would read as a recovery that was admitted, which
-    is exactly the false success REC-9 exists to prevent -- so the answer says
-    `reserved: False` and names the owner of every act still owed.
+    TWO SHAPES BECAUSE THERE ARE TWO OUTCOMES, and neither of them is
+    "recovered". A HELD admission performed nothing: no Job, no binding, no
+    reservation, no offer, and it says so in the words checkpoint 1 wrote. An
+    ADMITTED one reserved an identity, ended the prior assignment, bound the
+    Job and recorded one `/4` submission -- and it still published nothing,
+    took no custody and opened no gate, because the deterministic adoption of
+    the retained bytes is `publication_execution`'s and the review gate is
+    shut until that module's handoff commits.
+
+    AN ANSWER THAT MERELY REPORTED A JOB ID WOULD READ AS A RECOVERY THAT
+    HAPPENED, which is the false success REC-9 exists to prevent -- so this
+    names the owner of every act still owed, in both shapes.
     """
+    if record.get("state") == "admitted":
+        return {
+            "admission": "admitted",
+            "publication": "queued",
+            "review": "blocked",
+            "offers": 0,
+            "owed_by": "the deterministic publication worker, through the "
+                       "ordinary serving tick",
+            "detail": "this admission reserved the recovery Job identity, "
+                      "ended the prior assignment on the reused Work through "
+                      "the Authority's own transition, bound the Job and "
+                      "recorded one publication/review submission under the "
+                      "approved finite profile. NOTHING HAS BEEN PUBLISHED: "
+                      "no original byte has been staged, no publication "
+                      "attempt has been claimed, no result is frozen, no "
+                      "custody exists and the review gate is shut. The "
+                      "original Job remains failed and its retained output is "
+                      "unchanged"}
     return {
         "admission": "held",
         "publication": "unavailable",
         "review": "blocked",
         "offers": 0,
-        "owed_by": "the deterministic publication worker, staging, deadline "
-                   "and custody slice (checkpoint 2)",
+        "owed_by": "the capabilities this deployment or this store is "
+                   "missing, named one by one in `prerequisites`",
         "detail": "this checkpoint inspected the original output through its "
                   "host owner, recorded the owner's exact decision and "
                   "composed the admission's owners; it reserved no Job "
                   "identity, bound no Work, submitted no document and issued "
-                  "no offer, because the publication lane, worker, submission "
-                  "vocabulary and store generation an admission needs are not "
-                  "installed. The original Job remains failed and its "
-                  "retained output is unchanged"}
+                  "no offer, because a capability an admission needs is not "
+                  "installed on this instance. The original Job remains "
+                  "failed and its retained output is unchanged"}
+
+
+# -- 11. the two ports a real admission adds ---------------------------------
+#
+# W385695 checkpoint 2. THE DEPLOYMENT BINDING grows one member and the
+# ASSIGNMENT ENDING is new.
+#
+# `publication_worker` is the deployment's own answer about the installed
+# deterministic publication worker -- its participant, its lane and the
+# profile a publication stage must name to be selectable. It is a port member
+# rather than a lookup in this module because WHICH worker serves a lane is
+# deployment configuration: a manager that chose one would be configuring the
+# instance it is supposed to be reading. A deployment that answers `None` has
+# installed none, and that REFUSES the admission; it is never worked around by
+# submitting the stage under some other lane's profile.
+#
+# `PRIOR_ASSIGNMENT` is the supported ending path, and it is deliberately
+# narrow. The Authority's `end` is a COMPARE-AND-SWAP on an exact assignment,
+# performed through a session bound to the participant that HOLDS it -- which
+# is why this is a port the deployment composes from the session it already
+# mints for that worker, and not a capability this module could hold. There is
+# no new recovery-only takeover power here and none was selected: this module
+# cannot end an assignment it cannot name exactly, cannot end one belonging to
+# another handler, and cannot reach the Authority any other way.
+PUBLICATION_BINDING = ("instance", "binding_of", "bind", "serving",
+                       "publication_worker", "publication_input")
+PRIOR_ASSIGNMENT = ("instance", "assignment_of", "end")
+WORKER_MEMBERS = ("worker_id", "participant", "lane", "profile_name",
+                  "profile_digest", "eligible_kinds", "input_digest")
+# The two dispositions the Authority's own release transition carries, read
+# from the owner that defines them rather than respelled. `recovered` is the
+# one a manager uses when it is reconciling an assignment whose holder is
+# gone; `release` is an ordinary hand-back.
+ENDING_DISPOSITION = "recovered"
+ENDING_CAUSES = ("release", "recovered")
+# What this module records having done about the prior assignment. `none` is
+# a real outcome and not a skipped step: a Work whose claim was already
+# released has nothing to end, and saying so is different from saying an
+# ending was performed.
+ENDING_OUTCOMES = ("ended", "none")
+
+
+def _installed_worker(binding):
+    """The deployment's installed deterministic publication worker, or refuse.
+
+    PROVED TO BE A PUBLICATION WORKER rather than merely present. Its lane is
+    the publication lane, it is eligible for the publication stage kind and
+    nothing else, and it carries a profile a stage can name. A deployment that
+    answered with its implementation worker would otherwise install the
+    provider-backed producer as the publisher -- which is the one thing the
+    separately selected deterministic worker exists to prevent.
+    """
+    _port(binding, PUBLICATION_BINDING, what="the deployment binding port")
+    held = binding.publication_worker()
+    if held is None:
+        _refuse(f"this deployment installs no deterministic "
+                f"{PUBLICATION_STAGE} worker; a publication recovery is "
+                f"served by the separately selected publication lane and is "
+                f"never routed to the workers that run implementations. "
+                f"Install the {RECOVERY_POOL} publication worker once, as "
+                f"part of the deployment, and admit this decision again",
+                category="refused", code="capability")
+    taken = boundaries.document(held, "the installed publication worker",
+                                required=WORKER_MEMBERS)
+    boundaries.identity(taken["worker_id"], "a publication worker id")
+    boundaries.text(taken["participant"], "a publication worker participant")
+    boundaries.text(taken["profile_name"], "a publication worker profile name")
+    boundaries.text(taken["profile_digest"],
+                    "a publication worker profile digest")
+    # THE INSTALLED WORKER'S OWN INPUT MANIFEST IDENTITY, which is what the
+    # recovery Job must be SUBMITTED under. `delegation.stage_intent` carries
+    # the Job's `input_digest` into the offer and `check_binding` refuses an
+    # offer whose intent names another -- so a Job submitted under anything
+    # else is a Job this deployment's own worker could never be offered.
+    #
+    # IT IS THE DEPLOYMENT'S FACT AND NOT THIS MODULE'S. The approved recovery
+    # INPUT -- the original root, its measured digest and the owner decision --
+    # is a separate document the admission binds and the staging compares; it
+    # is not the worker-contract manifest an offer is made against, and
+    # conflating the two is what made that refusal fire.
+    boundaries.text(taken["input_digest"],
+                    "a publication worker input manifest digest")
+    if taken["lane"] != PUBLICATION_LANE:
+        _refuse(f"this deployment's {name_value(taken['worker_id'])} is in "
+                f"lane {name_value(taken['lane'])} and a publication stage is "
+                f"allocated in {name_value(PUBLICATION_LANE)}; lanes are "
+                f"immutable and a worker in another lane cannot serve this "
+                f"stage", category="integrity", code="schema")
+    kinds = taken["eligible_kinds"]
+    if type(kinds) not in (list, tuple) \
+            or tuple(sorted(kinds)) != (PUBLICATION_STAGE,):
+        _denied(f"this deployment's {name_value(taken['worker_id'])} declares "
+                f"eligible kinds {sample_of(sorted(kinds) if type(kinds) in (list, tuple) else [])} "
+                f"and a deterministic publication worker serves exactly "
+                f"{name_value(PUBLICATION_STAGE)}; a worker that could also "
+                f"take an implementation stage is not the no-provider "
+                f"capacity this recovery reserves")
+    return {name: (list(taken[name]) if name == "eligible_kinds"
+                   else taken[name]) for name in WORKER_MEMBERS}
+
+
+def _prior(jobs, decision):
+    """The failed Job's own specification, and the reviewer profile it reuses.
+
+    THE SUBMITTED DOCUMENT IS THE SPECIFICATION, `retained_recovery._prior`'s
+    rule: rebuilding an entry out of rows would silently normalize it. What a
+    recovery carries forward is narrow on purpose -- the policy digest, the
+    test scope, the terminal policy and the REVIEW stage's own profile --
+    because those are what make the configured reviewer able to serve the
+    recovery without per-recovery installation.
+
+    AND THE INPUT IDENTITY IS CARRIED FORWARD FOR THE JOB, BUT NOT FOR ITS
+    PUBLICATION STAGE (COMPLETION-PLAN-385909 outcome 4). The first cut
+    carried none of it, on the ground that a publication consumes the approved
+    retained output and not the producer's task -- which is true of the
+    PUBLICATION stage and remains so: that stage is held to its own identity,
+    `publication_input_of`. It is not true of the REVIEW stage, which judges
+    the candidate against the task, the Work and the declarations the
+    original Job was admitted under, and which the ordinarily configured
+    reviewer can only serve under that Job's own identity. Submitting the
+    recovery under anything else left a review stage no production reviewer
+    could be selected for.
+    """
+    job_id = decision["job_id"]
+    held = submission.job_of(jobs, job_id)
+    if held is None:                                      # pragma: no cover
+        _refuse(f"this store holds no Job {name_value(job_id)}")
+    recorded = submission.submission_of(jobs, held["submission_id"])
+    if recorded is None:
+        _refuse(f"Job {name_value(job_id)} names submission "
+                f"{name_value(held['submission_id'])} and this store holds no "
+                f"such submission; the specification a recovery reuses is "
+                f"that document's")
+    entry = None
+    for one in json.loads(recorded["document"])["jobs"]:
+        if one["job_id"] == job_id:
+            entry = one
+    if entry is None:                                     # pragma: no cover
+        _refuse(f"submission {name_value(held['submission_id'])} records Job "
+                f"{name_value(job_id)} and its document does not carry it",
+                category="integrity", code="schema")
+    review = None
+    for one in entry["stages"]:
+        if one["kind"] == REVIEW_STAGE:
+            review = one
+    if review is None:
+        _refuse(f"Job {name_value(job_id)} carries no "
+                f"{name_value(REVIEW_STAGE)} stage; its recovery hands the "
+                f"published candidate to the independent review this "
+                f"deployment already configures for it, and there is no "
+                f"configured profile here to reuse")
+    works = {one["work_id"] for one in submission.stages_of(jobs, job_id)}
+    if works != {decision["work_id"]}:
+        _refuse(f"Job {name_value(job_id)}'s stages name "
+                f"{sample_of(sorted(works))} and the owner decided in "
+                f"{name_value(decision['work_id'])}; a recovery inherits one "
+                f"Work and this build cannot choose between them",
+                category="integrity", code="schema")
+    return {"job_id": job_id, "entry": entry, "review": review,
+            "submission_id": held["submission_id"],
+            "work_id": decision["work_id"]}
+
+
+def _composed(prior, decision, *, job_id, submission_id, worker,
+              input_digest):
+    """THE RECOVERY JOB'S OWN `/4` SPECIFICATION, and look at what is in it.
+
+    ONE PUBLICATION STAGE AND ONE REVIEW STAGE GATED ON IT, on the original
+    open Work, under the owner-approved finite profile. No implementation to
+    redispatch, no verification stage to repeat the producer's own command
+    with, no integration. The publication stage names the INSTALLED
+    deterministic worker's profile, which is what makes it selectable in the
+    publication lane and unselectable by anything else; the review stage names
+    the profile the failed Job's own review was configured with, which is what
+    makes the configured reviewer able to serve it.
+
+    THE EXECUTION LIMITS ARE OMITTED ON PURPOSE, `retained_recovery._composed`'s
+    reason: the approved profile pins the provider invocation at 3600 s and
+    each verification command at 900 s, and those are this build's runner
+    defaults -- `job_control.agreeing` proves the agreement at submit either
+    way, and stating them again would be a second account of two ceilings the
+    profile already owns.
+    """
+    entry = {"job_id": job_id,
+             "input_digest": input_digest,
+             "policy_digest": prior["entry"]["policy_digest"],
+             "test_scope": list(prior["entry"]["test_scope"]),
+             "terminal_policy": prior["entry"]["terminal_policy"],
+             "control": {"profile": PUBLICATION_PROFILE},
+             "stages": [
+                 {"kind": PUBLICATION_STAGE, "work_id": prior["work_id"],
+                  "profile_name": worker["profile_name"],
+                  "profile_digest": worker["profile_digest"],
+                  "depends_on": []},
+                 {"kind": REVIEW_STAGE, "work_id": prior["work_id"],
+                  "profile_name": prior["review"]["profile_name"],
+                  "profile_digest": prior["review"]["profile_digest"],
+                  "depends_on": [{"job_id": job_id,
+                                  "kind": PUBLICATION_STAGE}]}]}
+    return documents.owned_submission(
+        {"schema": documents.SUBMISSION_RECOVERY_SCHEMA,
+         "submission_id": submission_id, "jobs": [entry]})
+
+
+def _incomplete(why, *, reserved):
+    """A refusal AFTER the reservation, which says so.
+
+    `retained_recovery._incomplete`'s correction in this operation's words: a
+    reserved identity with no Job is a real, recorded, resumable state, and an
+    operator told "nothing happened" would go looking for a row that is there.
+    """
+    return ContractRefusal(
+        "refused", "precondition",
+        f"{why}. The recovery identity {name_value(reserved)} is already "
+        f"RESERVED in this store and this admission is incomplete rather than "
+        f"undone: correct what is named above and run the same request again, "
+        f"which resumes from the reservation. A different request under this "
+        f"decision is refused as the collision it is")
+
+
+def _refusing(why, reserved):
+    if reserved is None:
+        return ContractRefusal("refused", "precondition", why)
+    return _incomplete(why, reserved=reserved)
+
+
+def _reserved(jobs, operands, record, *, document, prior_job_id):
+    """CUT A: the recovery identity is spoken for, durably, inside the lock.
+
+    NOTHING OUTSIDE THIS STORE HAS BEEN TOUCHED WHEN THIS COMMITS, which is
+    `fresh_attempt`'s review R4: an admission that authorized the Work first
+    performed an Authority effect and then refused as a collision -- an effect
+    for an operation that was never admitted. So the identity is taken here,
+    and every external act below is after it and resumable.
+
+    THE THREE TABLES THAT CAN ALREADY OWN A JOB NAME are asked, and so is the
+    submission's own journal identity: an operation already settled for a
+    DIFFERENT document can never record this one, and finding that out after
+    ending somebody's assignment would be finding it out too late.
+    """
+    job_id = operands["job_id"]
+    intended = job_signature("submission.record", document)
+
+    def act(connection):
+        _refuse_cancelled(connection, prior_job_id,
+                          "a publication recovery admission")
+        job_control.refuse_uncertain(connection, prior_job_id,
+                                     "a publication recovery admission for "
+                                     "it", now=jobs._now())
+        taken = connection.execute(
+            "SELECT job_id FROM jobs WHERE job_id = ?", (job_id,)).fetchone()
+        if taken is not None:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"Job {name_value(job_id)} is already recorded in this store "
+                f"by another submission; the identity this decision's "
+                f"recovery would carry names another pipeline", durable=True)
+        for table, what in (("fresh_attempts", "a fresh attempt"),
+                            ("template_jobs", "a template creation")):
+            other = connection.execute(
+                f"SELECT job_id FROM {table} WHERE job_id = ? OR "
+                f"submission_id = ?",
+                (job_id, operands["submission_id"])).fetchone()
+            if other is not None:
+                raise ContractRefusal(
+                    "refused", "precondition",
+                    f"{name_value(other[0])} is RESERVED by {what}; that "
+                    f"operation owns the identity, so a recovery taking the "
+                    f"name would strand whatever it has already published")
+        journalled = connection.execute(
+            "SELECT signature, state FROM operations WHERE operation_id = ?",
+            (submission.operation_id(operands["submission_id"]),)).fetchone()
+        if journalled is not None and journalled[0] != intended:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"the submission operation "
+                f"{name_value(submission.operation_id(operands['submission_id']))} "
+                f"is already settled in this store's journal as "
+                f"{name_value(journalled[1])} for a DIFFERENT document, so "
+                f"that identity can never record this one. An operation's "
+                f"outcome is immutable and repeating this request will not "
+                f"change it: this recovery needs a new owner decision "
+                f"identity. Nothing was reserved and no Work, binding or "
+                f"assignment was touched")
+        return record
+
+    operands_for_signature = {name: record[name] for name in INTENT_MEMBERS
+                              if name not in ("state", "bounds",
+                                              "intended_at")}
+    return jobs.transact(intent_operation_id(operands["decision_id"]),
+                         INTENT_KIND,
+                         job_signature(INTENT_KIND, operands_for_signature),
+                         act)
+
+
+def _expected_assignment(failed):
+    """The EXACT assignment the failed execution held, in the Authority's
+    shape. Not an operand anywhere on this surface: it is read off the
+    attempt's own row, which is what makes an ending a compare-and-swap on one
+    generation rather than a request to release whatever is there."""
+    return {"work_ref": {"authority_uuid": failed["authority_uuid"],
+                         "work_id": failed["work_id"]},
+            "participant": failed["participant"],
+            "generation": failed["generation"]}
+
+
+def _ended_prior(jobs, ending, *, decision, failed, evidence, reserved,
+                 now=None):
+    """CUT B1: THE PRIOR ASSIGNMENT IS ENDED THROUGH THE AUTHORITY, or this
+    stops before any publication effect.
+
+    THE RULE REC-9'S CONTRACT STATES AND THE ONE THING IT FORBIDS. "Fresh
+    assignments on reused Work still require the previous assignment to be
+    ended/fenced through the Authority's existing exact-expect transition and
+    positive host cessation" -- and "a host-only stopped-settlement receipt
+    does not release the Authority claim". So the host's own cessation
+    evidence is necessary and is NOT sufficient: the claim is held at the
+    Authority and only the Authority's own transition releases it.
+
+    THREE ANSWERS AND ONLY ONE OF THEM ENDS ANYTHING:
+
+      NOTHING IS HELD. The Work's claim was already released -- by an earlier
+        incarnation of this operation, by the ordinary ending path, or because
+        the producer's own settlement got that far. There is nothing to end,
+        `none` is recorded, and this is NOT reported as an ending performed.
+      THIS EXECUTION HOLDS IT. The live assignment is exactly the failed
+        attempt's participant and generation, the host says that attempt has
+        CEASED and returned its resource, and the ending is performed through
+        a session bound to THAT participant -- the deployment's own, because
+        this module holds no session and may not impersonate one.
+      SOMEBODY ELSE HOLDS IT. Another participant, or another generation of
+        this one, is the live handler. That is reported with the exact held
+        assignment and this stops: ending it would be taking over a claim
+        nobody authorized this recovery to take, and no new recovery-only
+        takeover power was selected.
+
+    THE EARLIER ASSIGNMENT EVENTS ARE PRESERVED. The Authority appends an
+    assignment event; nothing here rewrites, deletes or re-attributes one, and
+    the original attempt's own rows are untouched.
+    """
+    _port(ending, PRIOR_ASSIGNMENT, what="the prior-assignment ending port")
+    # A COMMITTED ENDING REPLAYS BEFORE THE AUTHORITY IS ASKED ANYTHING.
+    # W385695 checkpoint 2: without this, a re-entry after the ending had
+    # committed -- a crash before the admission record, or the serving
+    # manager's own ending followed by the owner's repeated admission -- read
+    # a now-released Work, composed disposition `none`, and COLLIDED with the
+    # `ended` record it was replaying. The record is this operation's own
+    # answer about what it did, and it is read rather than re-decided.
+    recorded = ending_of(jobs, decision["decision_id"])
+    if recorded is not None:
+        return recorded
+    work_id = failed["work_id"]
+    expect = _expected_assignment(failed)
+    live = ending.assignment_of(work_id)
+    ended_at = boundaries.instant(now if now is not None else jobs._now(),
+                                  "a prior-assignment ending instant")
+    cessation = evidence.get(failed["attempt_id"]) or {}
+    if live is None:
+        record = {"decision_id": decision["decision_id"],
+                  "job_id": recovery_job_id(decision["decision_id"]),
+                  "work_id": work_id, "disposition": "none",
+                  "expect": expect, "answer": None,
+                  "cessation": dict(cessation), "ended_at": ended_at}
+    else:
+        held = boundaries.document(live, "the Work's live assignment",
+                                   required=("work_ref", "participant",
+                                             "generation"))
+        if {"work_ref": held["work_ref"], "participant": held["participant"],
+                "generation": held["generation"]} != expect:
+            raise _refusing(
+                f"Work {name_value(work_id)}'s live assignment is "
+                f"{name_value(held['participant'])} generation "
+                f"{name_value(held['generation'])} and the failed execution "
+                f"this recovery is about held "
+                f"{name_value(expect['participant'])} generation "
+                f"{name_value(expect['generation'])}; another handler owns "
+                f"this Work, and a publication recovery ends the assignment "
+                f"it is about or stops. No takeover power was selected and "
+                f"none is used here", reserved)
+        if not cessation.get("ceased"):
+            raise _refusing(
+                f"the host cannot say attempt "
+                f"{name_value(failed['attempt_id'])} has ceased and returned "
+                f"its resource (runtime {name_value(cessation.get('runtime'))}, "
+                f"cleanup {name_value(cessation.get('cleanup'))}, resource "
+                f"{name_value(cessation.get('resource'))}); an assignment is "
+                f"ended after POSITIVE cessation and never on the strength of "
+                f"a deadline having passed", reserved)
+        answer = ending.end(expect,
+                            operation_id=ending_operation_id(
+                                decision["decision_id"]),
+                            disposition=ENDING_DISPOSITION,
+                            reason=f"publication recovery "
+                                   f"{decision['decision_id']}")
+        taken = boundaries.document(answer, "the Authority's ending answer",
+                                    required=("cause", "assignment", "phase"),
+                                    optional=("gate", "fenced", "route"))
+        if taken["cause"] not in ENDING_CAUSES:
+            raise _refusing(
+                f"the Authority answered cause "
+                f"{name_value(taken['cause'])} and an assignment ending is "
+                f"one of {', '.join(ENDING_CAUSES)}; a transition that did "
+                f"something else is not the one this admission asked for",
+                reserved)
+        if taken["assignment"] != expect:
+            raise _refusing(
+                f"the Authority ended "
+                f"{name_value(json.dumps(taken['assignment']))} and this "
+                f"admission named {name_value(json.dumps(expect))}; an "
+                f"ending that settled another assignment proves nothing about "
+                f"this one", reserved)
+        if taken["phase"] != "queued":
+            raise _refusing(
+                f"the Work is {name_value(taken['phase'])} after the ending "
+                f"and a fresh claim needs it queued; a publication recovery "
+                f"does not route, gate or reopen somebody else's Work",
+                reserved)
+        record = {"decision_id": decision["decision_id"],
+                  "job_id": recovery_job_id(decision["decision_id"]),
+                  "work_id": work_id, "disposition": "ended",
+                  "expect": expect,
+                  "answer": {one: taken[one] for one in
+                             ("cause", "assignment", "phase")},
+                  "cessation": dict(cessation), "ended_at": ended_at}
+    operands = {name: record[name] for name in ENDING_MEMBERS
+                if name not in ("ended_at",)}
+    return jobs.transact(ending_operation_id(decision["decision_id"]),
+                         ENDING_KIND, job_signature(ENDING_KIND, operands),
+                         lambda connection: record)
+
+
+def end_prior_assignment(jobs, control, *, decision_id, ending, exclusion,
+                         now=None):
+    """CUT B1 AS ITS OWN ENTRY, for the owner that actually holds the session.
+
+    W385695 checkpoint 2. `admit_publication` performs this cut itself when
+    the deployment it runs in can end the failed execution's assignment. The
+    owner command's process cannot: it holds a READ-ONLY Authority and no
+    participant session, and must never mint one, so its admission stops at
+    this cut with the exact held assignment named. The session that CAN end
+    that assignment is the producer participant's own, and the process that
+    already holds it is the SERVING manager.
+
+    So this is the same cut, entered by that manager: the same recorded
+    decision, the same failed execution read through the same owners, the
+    same positive host cessation, the same exact-expect transition under the
+    same operation identity, and the same journalled record. Nothing is
+    decided here that the admission does not decide; the admission then
+    REPLAYS this record instead of asking the Authority again.
+
+    WHAT MUST ALREADY EXIST, and each is somebody's durable act:
+
+      an APPROVED owner decision -- an ending is never performed for a
+        recovery nobody approved;
+      the admission's own RESERVATION -- so an ending is performed only for a
+        recovery whose admission really began and stopped here, never for a
+        decision nobody has tried to admit;
+      and no committed admission -- an admitted recovery ended its prior
+        assignment already.
+
+    It is not a takeover: `_ended_prior` ends exactly the failed execution's
+    assignment or stops, and the port can only ask the deployment for the
+    session of the participant the Authority reports as the live handler.
+    """
+    boundaries.identity(decision_id, "a publication decision id")
+    recorded = ending_of(jobs, decision_id)
+    if recorded is not None:
+        return recorded
+    decision = decision_of(jobs, decision_id)
+    if decision is None or decision["disposition"] != APPROVED:
+        _refuse(f"decision {name_value(decision_id)} is not a recorded "
+                f"approval; a prior assignment is ended for an approved "
+                f"publication recovery and for nothing else")
+    job_id = recovery_job_id(decision_id)
+    if intent_of(jobs, decision_id) is None:
+        _refuse(f"recovery {name_value(job_id)} has no admission "
+                f"reservation; the prior assignment is ended as part of an "
+                f"admission that began, never ahead of one")
+    failed = _failed_publication(jobs, control, job_id=decision["job_id"],
+                                 stage_id=decision["stage_id"],
+                                 episode=decision["episode"])
+    evidence = _required_cessation(exclusion, failed, reserved=job_id)
+    return _ended_prior(jobs, ending, decision=decision, failed=failed,
+                        evidence=evidence, reserved=job_id, now=now)
+
+
+def advance_endings(jobs, control, *, ending, exclusion, now=None):
+    """ONE TICK of the serving manager's prior-assignment endings.
+
+    LEVEL-TRIGGERED, like every pass beside it: every reserved, approved,
+    not-yet-admitted recovery with no ending record is offered its ending
+    once per tick, derived from durable rows. A contained refusal -- another
+    handler owns the Work, the host cannot say the failed execution ceased,
+    this deployment holds no session for the holder -- is reported with its
+    typed category and code and does not stop the pass or the tick.
+
+    IT ADMITS NOTHING. The admission is the owner command's; what this makes
+    true is the one precondition that command could not establish.
+    """
+    acts = []
+    for reserved in intents_of(jobs):
+        decision_id = reserved["decision_id"]
+        if ending_of(jobs, decision_id) is not None \
+                or admission_of(jobs, decision_id) is not None:
+            continue
+        try:
+            record = end_prior_assignment(
+                jobs, control, decision_id=decision_id, ending=ending,
+                exclusion=exclusion, now=now)
+        except ContractRefusal as refusal:
+            acts.append({"decision_id": decision_id,
+                         "job_id": recovery_job_id(decision_id),
+                         "act": "end-prior-assignment", "outcome": "refused",
+                         "detail": {"category": refusal.category,
+                                    "code": refusal.code}})
+            continue
+        acts.append({"decision_id": decision_id,
+                     "job_id": record["job_id"],
+                     "act": "end-prior-assignment", "outcome": "performed",
+                     "detail": {"disposition": record["disposition"]}})
+    return acts
+
+
+def _bound(binding, jobs, *, job_id, prior_job_id, work_id, document, worker,
+           reserved):
+    """CUT B2: the deployment binds the recovery Job, and a worker can serve
+    EVERY stage of it.
+
+    THE SERVABILITY QUESTION IS ASKED WITH THE SUBMITTED OPERANDS, which is
+    `fresh_attempt`'s review R3 and this contract's own sentence: "servability
+    must compare actual submitted input/policy/profile/task/Work rather than
+    self-confirm a worker's own fields". So what travels is this recovery's
+    own composed input digest, its policy digest and each stage's own profile,
+    and the answer is required to be non-empty for BOTH stages -- a publication
+    nothing can serve is a Job that would sit queued forever, and a review
+    nothing can serve is a candidate nobody will judge.
+    """
+    entry = document["jobs"][0]
+    job = {"input_digest": entry["input_digest"],
+           "policy_digest": entry["policy_digest"]}
+    # EACH STAGE IS HELD TO ITS OWN IDENTITY: the publication stage to the
+    # reservation's publication input, the review stage to the Job's.
+    publication = dict(job, input_digest=publication_input_of(jobs, job_id))
+    held = binding.binding_of(job_id)
+    if held is None:
+        held = binding.bind(job_id, like=prior_job_id, work_id=work_id)
+        disposition = "added"
+    else:
+        disposition = "already configured"
+    if held is None:
+        raise _refusing(
+            f"the deployment reports no binding for Job {name_value(job_id)} "
+            f"after being asked to add one; nothing further was attempted",
+            reserved)
+    if held.get("job_work_id") not in (None, work_id):
+        raise _refusing(
+            f"the deployment binds Job {name_value(job_id)} to Work "
+            f"{name_value(held.get('job_work_id'))} and this recovery runs "
+            f"under {name_value(work_id)}; a Job's Work is a fact about the "
+            f"Job and this operation will not quietly move it", reserved)
+    serving = {}
+    for stage in entry["stages"]:
+        workers = binding.serving(
+            job_id, stage=dict(stage),
+            job=dict(publication if stage["kind"] == PUBLICATION_STAGE
+                     else job),
+            task=creation.job_task_of(jobs, prior_job_id))
+        if not workers:
+            raise _refusing(
+                f"no configured worker can serve Job {name_value(job_id)}'s "
+                f"{name_value(stage['kind'])} stage under its own submitted "
+                f"input, policy and profile "
+                f"({stage['profile_name']}/{stage['profile_digest']}); a "
+                f"stage that cannot be selected is a Job that would sit "
+                f"queued forever", reserved)
+        serving[stage["kind"]] = sorted(workers)
+    # BY WORKER IDENTITY, which is what the selector answers (review
+    # 2026-11-23T18-55-03Z R1). `DeploymentBinding.serving` returns the
+    # configured `worker_id`s `stage_execution.servable_workers` found
+    # compatible; this compared the installed worker's PARTICIPANT against
+    # them, so the shipped binding could never satisfy it and only a stand-in
+    # port that answered participants did. The pool tells its workers apart
+    # by `worker_id`, and that is the identity compared here.
+    if worker["worker_id"] not in serving[PUBLICATION_STAGE]:
+        raise _refusing(
+            f"this deployment's installed publication worker "
+            f"{name_value(worker['worker_id'])} is not among the workers "
+            f"that can serve the publication stage "
+            f"({sample_of(serving[PUBLICATION_STAGE])}); the stage was "
+            f"composed under that worker's own profile, so a deployment that "
+            f"answers otherwise is describing two different installations",
+            reserved)
+    return {"job_id": job_id, "disposition": disposition,
+            "job_work_id": work_id, "serving": serving,
+            "publication_worker": dict(worker)}
+
+
+def _completed(jobs, operands, *, record, recorded, work, bound, ending,
+               evidence, now):
+    """CUT C: the reservation becomes an admission, and the answer is
+    journalled.
+
+    THE RESULT IS RECORDED RATHER THAN RECOMPOSED, `retained_recovery.
+    _completed`'s rule: a caller repeating the command is told exactly what
+    the first one was told -- which evidence the admission rested on, which
+    assignment was ended, which workers can serve it and which act is still
+    owed -- instead of a second rendering derived from a store that has moved
+    on.
+    """
+    job_id = operands["job_id"]
+    answer = {**{name: record[name] for name in INTENT_MEMBERS
+                 if name not in ("state", "intended_at")},
+              "state": "admitted",
+              "stage_ids": list(recorded["stages"]),
+              "work": work, "binding": bound,
+              "ending": {one: ending[one] for one in
+                         ("disposition", "expect", "answer", "ended_at")},
+              "exclusion": evidence,
+              "control": job_control.control_of(jobs, job_id),
+              "readiness": admission_readiness({"state": "admitted"}),
+              # THE GATE AS IT STANDS AT ADMISSION, which is SHUT. It is read
+              # from the execution owner rather than asserted here, so an
+              # admission cannot report a gate state the gate's own owner
+              # disagrees with.
+              "gate": {"open": False, "reason": GATE_UNAVAILABLE,
+                       "runnable": False},
+              "admitted_at": boundaries.instant(now, "an admission instant")}
+    missing = [one for one in ADMITTED_MEMBERS if one not in answer]
+    if missing:                                           # pragma: no cover
+        _refuse(f"a publication admission record carries "
+                f"{', '.join(ADMITTED_MEMBERS)}; this one has no "
+                f"{', '.join(missing)}", category="integrity", code="schema")
+
+    def act(connection):
+        row = connection.execute(
+            "SELECT result FROM operations WHERE operation_id = ? AND "
+            "kind = ? AND state = 'committed'",
+            (intent_operation_id(operands["decision_id"]),
+             INTENT_KIND)).fetchone()
+        if row is None:                                   # pragma: no cover
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"the reservation for {name_value(job_id)} is gone between "
+                f"this operation's own two cuts")
+        return answer
+
+    return jobs.transact(admit_operation_id(operands["decision_id"]),
+                         ADMITTED_KIND, job_signature(ADMITTED_KIND, operands),
+                         act)
 
 
 def admit_publication(jobs, control, *, decision_id, exclusion, authorization,
-                      binding, ownership, host, source, now=None):
-    """Compose the admission one approved decision reaches, and ANSWER WITH
-    WHAT IS TRUE.
+                      binding, ownership, host, source, ending=None,
+                      now=None):
+    """Admit THE one linked publication/review recovery Job of one approved
+    owner decision, or replay having admitted it.
 
     THE ORDER IS THE RECOVERY STORY, and it is `fresh_attempt`'s order for
-    `fresh_attempt`'s reasons, up to the point where this checkpoint stops:
+    `fresh_attempt`'s reasons:
 
       1. every owner port is present and they all answer for ONE instance
       2. read the committed decision; a denial or a hold admits nothing
-      3. recheck the fences: cancellation of the original, uncertain timing
-      4. re-establish the TRUST ROOT -- the original bytes, through the host
+      3. a REPLAY answers before any owner is asked anything
+      4. recheck the fences: cancellation of the original, uncertain timing
+      5. re-establish the TRUST ROOT -- the original bytes, through the host
          owner, under positive cessation -- and hold it to what the decision
          bound. A decision carried out against bytes that moved is not that
          decision
-      5. the Work, REUSED: open, the original's own, never minted and never
-         taken over
-      6. the PREREQUISITES of an actual admission, from the owners that would
-         hold them
-      7. and then the honest answer. Every prerequisite available would be
-         checkpoint 2's path; one missing is a HELD PREREQUISITE, journalled
-         once, replayed exactly, and carrying no reservation, no binding, no
-         submission and no offer.
+      6. the PREREQUISITES, from the owners that hold them. One missing is a
+         HELD PREREQUISITE: journalled once, replayed exactly, carrying no
+         reservation, no binding, no submission and no offer
+      7. the Work, REUSED: open, the original's own, never minted
+      8. CUT A: reserve the recovery identity, inside this store's write lock
+      9. CUT B: end the prior assignment through the Authority, then bind the
+         Job and prove every stage servable
+     10. CUT C: the `/4` submission, and the completion that closes the intent
 
-    WHAT IS NOT DONE HERE AND WHY IT IS NOT A SHORTFALL. There is no Job
-    identity reserved in this store, so nothing can be stranded by a crash;
-    there is no Work binding published, so no deployment is left describing a
-    Job nobody will submit; and there is no stand-in worker installed, so no
-    offer can be issued for a stage this build would route to the wrong lane.
-    An admission that reserved identities it could not use would be an
-    incomplete effect dressed as progress, and REC-9's "prevent new conflicting
-    effects and be reported explicitly" is kept by having no effect to conflict
-    with and by reporting precisely that.
-
-    THE PRIOR ASSIGNMENT IS NOT ENDED HERE EITHER, and that is the same
-    ruling. The contract's supported path is "the previous assignment ended or
-    fenced through the Authority's existing exact-expect transition and
-    positive host cessation, then a fresh claim" -- and a fresh claim is for an
-    execution. Ending a live assignment now would release the original's own
-    Work claim for a publication that cannot run, which is an effect performed
-    for an operation that was never admitted.
+    WHAT IS STILL NOT DONE HERE. No byte is staged, no publication attempt is
+    claimed, no result is frozen, no custody exists and the review gate stays
+    shut -- `publication_execution` owns all of it, and `admission_readiness`
+    says so in the record this returns rather than leaving a Job id to read as
+    progress.
     """
     boundaries.identity(decision_id, "an owner decision id")
     for port, members, what in (
@@ -1825,13 +2896,15 @@ def admit_publication(jobs, control, *, decision_id, exclusion, authorization,
     # that module rather than restated: composing owner ports over somebody
     # else's deployment is what reviews R14, R17 and R18 are about, and a
     # second implementation here would be a second chance to get them wrong.
-    fresh_attempt.one_instance(
-        jobs, {"the host exclusion port": exclusion,
-               "the Work authorization port": authorization,
-               "the deployment binding port": binding,
-               "the instance ownership port": ownership,
-               "the host output port": host,
-               "the source correspondence port": source})
+    ports = {"the host exclusion port": exclusion,
+             "the Work authorization port": authorization,
+             "the deployment binding port": binding,
+             "the instance ownership port": ownership,
+             "the host output port": host,
+             "the source correspondence port": source}
+    if ending is not None:
+        ports["the prior-assignment ending port"] = ending
+    fresh_attempt.one_instance(jobs, ports)
 
     decision = decision_of(jobs, decision_id)
     if decision is None:
@@ -1854,7 +2927,13 @@ def admit_publication(jobs, control, *, decision_id, exclusion, authorization,
     # A REPLAY ANSWERS BEFORE ANY OWNER IS ASKED ANYTHING. The whole operation
     # is already recorded, so re-deriving its preconditions would mean a
     # completed answer could start refusing later because the host moved on --
-    # the stale-check defect REC-7 removed.
+    # the stale-check defect REC-7 removed. Both outcomes replay: an admission
+    # and a held prerequisite are each immutable facts about one request.
+    found, value = jobs.replay(admit_operation_id(decision_id),
+                               job_signature(ADMITTED_KIND, operands),
+                               kind=ADMITTED_KIND)
+    if found:
+        return value
     found, value = jobs.replay(held_operation_id(decision_id),
                                job_signature(HELD_KIND, operands),
                                kind=HELD_KIND)
@@ -1891,6 +2970,19 @@ def admit_publication(jobs, control, *, decision_id, exclusion, authorization,
                     f"it was taken about",
                     category="integrity", code="digest")
 
+    # -- THE PREREQUISITES, before any effect. A deployment that installs no
+    #    publication worker is asked ONCE and its refusal is a HELD record
+    #    rather than an exception, because "this instance cannot serve a
+    #    publication stage" is an operational fact an owner reads, not a
+    #    malformed request.
+    worker = None
+    try:
+        worker = _installed_worker(binding)
+    except ContractRefusal:
+        worker = None
+    owed = prerequisites(jobs, worker=worker)
+    missing = [one for one in owed if not one["available"]]
+
     # -- THE WORK, REUSED. Open, the original's own, never minted.
     work = authorization.work_of(decision["work_id"])
     if work is None:
@@ -1903,34 +2995,168 @@ def admit_publication(jobs, control, *, decision_id, exclusion, authorization,
                 f"{name_value(work.get('status'))} and a recovery reuses an "
                 f"OPEN authorization; reopening somebody else's Work is not "
                 f"this operation's to do")
+    reused = {"work_id": decision["work_id"], "disposition": "reused",
+              "status": work.get("status")}
 
-    owed = prerequisites(jobs)
-    missing = [one for one in owed if not one["available"]]
-    if not missing:                                       # pragma: no cover
-        # CHECKPOINT 2'S DOOR, AND IT IS NOT PROPPED OPEN. If every
-        # prerequisite is installed, the act this boundary should perform is
-        # the real admission -- the reservation, the binding, the `/4`
-        # submission and the publication stage's own execution admission --
-        # and that is the slice that owns them. Refusing here is the honest
-        # answer for a build that has the parts and not the operation, and it
-        # is NOT a fallback that quietly admits something lesser.
-        _refuse(f"every prerequisite of an actual publication admission is "
-                f"installed and this build carries only the checkpoint-1 "
-                f"boundary; the reservation, the {RECOVERY_SUBMISSION} "
-                f"submission, the publication stage's execution admission and "
-                f"its custody are the deterministic publication worker "
-                f"slice's, and admitting something lesser under this decision "
-                f"would strand the identity it names")
+    if missing:
+        return _held_admission(jobs, operands, decision=decision,
+                               selection=selection, owed=owed, work=reused,
+                               ownership=ownership, recorded_at=recorded_at)
 
+    # -- EVERYTHING BELOW IS THE REAL ADMISSION.
+    if ending is None:
+        _refuse("a publication recovery admission composes the prior-"
+                "assignment ending port; a fresh assignment on the reused "
+                "Work requires the previous one to be ended through the "
+                "Authority's own exact-expect transition, and this operation "
+                "does not decide that owner's fact for it by assuming one",
+                category="refused", code="capability")
+    _port(ending, PRIOR_ASSIGNMENT, what="the prior-assignment ending port")
+    failed = _failed_publication(jobs, control, job_id=decision["job_id"],
+                                 stage_id=decision["stage_id"],
+                                 episode=decision["episode"])
+    prior = _prior(jobs, decision)
+    declaration = recovery_input(decision, selection)
+    # THE JOB'S INPUT IDENTITY IS THIS RECOVERY'S OWN (review
+    # 2026-11-23T18-55-03Z R3), derived by the deployment from its installed
+    # publication worker's declarations bound to THIS recovery's Work and the
+    # ORIGINAL Job's task -- the document that worker will actually be
+    # delivered for this Job. The first cut submitted every recovery under
+    # the installed worker's own identity, which names the one Work that
+    # worker was installed against: a recovery on any other Work was a Job
+    # the selector refused, so the reusable capacity served exactly one Work.
+    #
+    # THE DERIVATION IS THE DEPLOYMENT'S AND IS ASKED, NOT REPEATED. The same
+    # rule answers `serving` below and composes the delivery when the stage
+    # is served, so the three cannot disagree; this module compares nothing
+    # about a manifest and holds the answer only as the identity it submits.
+    submitted = boundaries.text(
+        binding.publication_input(
+            job_id, work_id=decision["work_id"],
+            task=creation.job_task_of(jobs, decision["job_id"])),
+        "a publication recovery's input identity")
+    # THE JOB ITSELF IS SUBMITTED UNDER THE ORIGINAL JOB'S INPUT IDENTITY
+    # (COMPLETION-PLAN-385909 outcome 4). That is what the Work's ordinarily
+    # configured reviewer is servable under, so no reviewer is reconfigured,
+    # no declaration is copied into the review lane and no cross-lane check is
+    # weakened. The publication stage's own identity is `submitted`, recorded
+    # on the reservation and read back through `publication_input_of` by the
+    # selector and by the publication capacity.
+    document = _composed(prior, decision, job_id=job_id,
+                         submission_id=operands["submission_id"],
+                         worker=worker,
+                         input_digest=prior["entry"]["input_digest"])
+    bounds = admitted_bounds(resolved_profile(decision["profile"]),
+                             admitted_at=recorded_at,
+                             stages=decision["stages"])
+    record = {
+        **operands, "state": "intended",
+        "publication_stage_id": publication_stage_id(decision_id),
+        "review_stage_id": review_stage_id(decision_id),
+        "candidate": {"base": selection["producer"]["base"],
+                      "head": selection["producer"]["head"],
+                      "changed_paths": selection["producer"]["changed_paths"],
+                      "attempt_id": selection["selector"]["attempt_id"],
+                      # THE ORIGINAL PRODUCER'S OWN ATTRIBUTION, carried on
+                      # the reservation. REC-9 keeps "original producer and
+                      # recovery provenance" both, and the publisher's
+                      # provenance cannot name the producer it preserves from
+                      # an attempt id alone. It is also what the reviewer's
+                      # independence is enforced against.
+                      "participant": selection["selector"]["participant"],
+                      "principal": selection["selector"]["principal"]},
+        "output": dict(selection["output"]),
+        "input_declaration": declaration,
+        "input_digest": submitted,
+        "recovery_input_digest": recovery_input_digest(declaration),
+        "worker": dict(worker), "bounds": bounds,
+        "intended_at": recorded_at}
+
+    with ownership.held(), ownership.invocation(job_id):
+        # -- CUT A.
+        reservation = _reserved(jobs, operands, record, document=document,
+                                prior_job_id=decision["job_id"])
+        if reservation["recovery_input_digest"] \
+                != record["recovery_input_digest"]:
+            _refuse(f"this store's reservation for {name_value(job_id)} was "
+                    f"taken against recovery input "
+                    f"{name_value(reservation['recovery_input_digest'])} and "
+                    f"this request composes "
+                    f"{name_value(record['recovery_input_digest'])}; a "
+                    f"publication is admitted against the input its "
+                    f"reservation named", category="integrity", code="digest")
+        # -- re-ask the host, because cut A took time and a reservation is not
+        #    a lock on somebody else's store.
+        evidence = _required_cessation(exclusion, failed, reserved=job_id)
+        # -- CUT B.
+        released = _ended_prior(jobs, ending, decision=decision,
+                                failed=failed, evidence=evidence,
+                                reserved=job_id, now=recorded_at)
+        bound = _bound(binding, jobs, job_id=job_id,
+                       prior_job_id=decision["job_id"],
+                       work_id=decision["work_id"], document=document,
+                       worker=worker, reserved=job_id)
+        # -- CUT C.
+        try:
+            recorded = submission._submit_owned(jobs, document)
+        except ContractRefusal as refusal:
+            if refusal.code == "operation-collision":
+                _refuse(f"the submission for this recovery collided with an "
+                        f"operation this store had already settled: "
+                        f"{refusal.message}. The recovery identity "
+                        f"{name_value(job_id)} is RESERVED and its binding "
+                        f"may already be published; repeating this request "
+                        f"cannot change an immutable outcome, so this "
+                        f"recovery needs a new owner decision identity")
+            raise _incomplete(f"the submission for this recovery was refused: "
+                              f"{refusal.message}",
+                              reserved=job_id) from refusal
+        return _completed(jobs, operands, record=reservation,
+                          recorded=recorded, work=reused, bound=bound,
+                          ending=released, evidence=evidence,
+                          now=recorded_at)
+
+
+def _required_cessation(exclusion, failed, *, reserved):
+    """POSITIVE CESSATION OF THE FAILED EXECUTION, re-asked, and `unknown`
+    REFUSES.
+
+    THE DIFFERENCE FROM `_exclusion` ABOVE IS WHAT HAPPENS TO THE ANSWER.
+    There it is reported, because an inspection performs no effect and an
+    owner is owed the whole picture; here it RAISES, because the next act
+    ends an Authority assignment and stages bytes for a new execution --
+    `retained_recovery._excluded`'s split, in this operation's words.
+    """
+    holds = []
+    evidence = _exclusion(exclusion, (failed["attempt_id"],), holds=holds)
+    if holds:
+        first = holds[0]
+        raise _refusing(
+            f"the host cannot account for attempt "
+            f"{name_value(failed['attempt_id'])} now: "
+            f"{first['category']}/{first['code']}: {first['message']}",
+            reserved)
+    return evidence
+
+
+def _held_admission(jobs, operands, *, decision, selection, owed, work,
+                    ownership, recorded_at):
+    """THE CHECKPOINT-1 ANSWER, kept exactly, for a deployment that cannot
+    serve a publication stage.
+
+    IT IS NOT A FALLBACK THAT ADMITS SOMETHING LESSER. No identity is
+    reserved, no assignment is ended, no binding is published and no document
+    is submitted: the record says `reserved: False` in so many words and names
+    every capability that is owed. A build rolled back, a store nobody has
+    migrated to generation 10 and a deployment that installs no publication
+    worker all land here, and each is told exactly which of those it is.
+    """
+    job_id = operands["job_id"]
     record = {
         **operands, "state": "held", "reserved": False,
         "prerequisites": owed,
-        # WHICH OWNERS THIS BOUNDARY ACTUALLY COMPOSED, named so a reader can
-        # tell "the owners refused" from "the owners were never asked".
         "owners": {"instance": (ownership.instance() or {}).get("root"),
-                   "work": {"work_id": decision["work_id"],
-                            "disposition": "reused",
-                            "status": work.get("status")},
+                   "work": dict(work),
                    "host_output": selection["output"]["root_identity"],
                    "exclusion": selection["exclusion"],
                    "source": selection["correspondence"]["owner"]},
@@ -1940,7 +3166,8 @@ def admit_publication(jobs, control, *, decision_id, exclusion, authorization,
                       "attempt_id": selection["selector"]["attempt_id"]},
         "output": dict(selection["output"]),
         "readiness": admission_readiness(operands),
-        "gate": {"open": False, "reason": GATE_UNAVAILABLE, "runnable": False},
+        "gate": {"open": False, "reason": GATE_UNAVAILABLE,
+                 "runnable": False},
         "recorded_at": recorded_at}
 
     def act(connection):
@@ -1953,7 +3180,7 @@ def admit_publication(jobs, control, *, decision_id, exclusion, authorization,
                                      "a publication recovery admission for "
                                      "it", now=jobs._now())
         # AND NOTHING MAY HAVE TAKEN THE DERIVED IDENTITY, even though this
-        # checkpoint does not reserve it. An identity another pipeline already
+        # answer does not reserve it. An identity another pipeline already
         # owns is one a later admission could not use, and finding that out
         # then would be finding it out with an owner decision already
         # committed against it.
@@ -1968,5 +3195,6 @@ def admit_publication(jobs, control, *, decision_id, exclusion, authorization,
         return record
 
     with ownership.held(), ownership.invocation(job_id):
-        return jobs.transact(held_operation_id(decision_id), HELD_KIND,
+        return jobs.transact(held_operation_id(operands["decision_id"]),
+                             HELD_KIND,
                              job_signature(HELD_KIND, operands), act)

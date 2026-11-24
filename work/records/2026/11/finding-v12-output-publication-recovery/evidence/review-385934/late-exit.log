@@ -1,0 +1,17 @@
+{"cwd": "/home/sl/src/baton/work/scratch/w385695-review-385934/v12/python", "argv": ["/home/sl/.local/state/baton-v12-venv/bin/python", "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385934/probe-late-exit.py"], "timeout_seconds": 30, "scratch": "/home/sl/src/baton/work/scratch/w385695-review-385934-tests"}
+test_child_exits_only_after_the_absolute_deadline (__main__.Late.test_child_exits_only_after_the_absolute_deadline) ... FAIL
+
+======================================================================
+FAIL: test_child_exits_only_after_the_absolute_deadline (__main__.Late.test_child_exits_only_after_the_absolute_deadline)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385934/probe-late-exit.py", line 21, in test_child_exits_only_after_the_absolute_deadline
+    self.assertEqual(status,b.TIMED_OUT)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 124
+
+----------------------------------------------------------------------
+Ran 1 test in 0.016s
+
+FAILED (failures=1)
+{"exit": 0, "record": {"descendants_ended": 0, "descendants_gone": true, "label": "check", "outcome": "exited", "schema": "baton.bounded-command/1", "seconds": 2.0, "seconds_bound": 1, "status": 0}, "release_at": 2, "deadline": 1}

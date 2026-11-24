@@ -1,0 +1,9 @@
+{
+  "review": "work/records/2026/11/finding-v12-output-publication-recovery/review-2026-11-24T01-52-00Z.md",
+  "review_sha256": "97dbe2c71fd7efe2c97a3aa67fb21b2e4cba8e71d7fcbcc43580ca875f45375f",
+  "manifest_sha256": "9475646dcbb06f8fc5f65a0a73150cdde2f16c98c51e7b75abb5c065f5d2f783",
+  "claim": 385926,
+  "last_message_read": 385925,
+  "prior_probe_source": "work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385919/probe-fence-binding.py",
+  "prior_probe_sha256": "c2ee93e58f1167634510c9ce03ecbf88539e4462a26680be671215482cde6863"
+}

@@ -1,0 +1,8 @@
+{"cwd": "/home/sl/src/baton/work/scratch/w385695-review-385919/v12/python", "argv": ["/home/sl/.local/state/baton-v12-venv/bin/python", "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385919/probe-adoption-clock.py"], "timeout_seconds": 60, "scratch": "/home/sl/src/baton/work/scratch/w385695-review-385919-tests"}
+test_clock_crosses_deadline_during_host_measurement (__main__.Adoption.test_clock_crosses_deadline_during_host_measurement) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.289s
+
+OK
+HOST_COMMIT {"clock": "2026-09-02T00:30:00.000Z", "result": null, "fence": null}

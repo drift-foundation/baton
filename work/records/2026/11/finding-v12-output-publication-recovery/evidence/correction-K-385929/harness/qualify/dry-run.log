@@ -1,0 +1,77 @@
+== recovery-ok: exit 0
+phase recovery complete
+cleanup: instance stack stopped
+phase recovery ended with status 0
+   engine effects: [('exec', 'c-rev')]
+   unscoped container listings: 0
+   stack stops: 1
+   no process of this run is left
+== deadline-ok: exit 0
+phase deadline complete
+cleanup: instance stack stopped
+phase deadline ended with status 0
+   engine effects: [('pause', 'c-pub'), ('unpause', 'c-pub')]
+   unscoped container listings: 0
+   stack stops: 1
+   no process of this run is left
+== exec-fails: exit 1
+FAIL: the reviewer probe did not answer (exec-failed; see /home/sl/src/baton/work/scratch/w385695-K-385929/qualify-harness/runs/exec-fails/evidence/recovery.reviewer-probe.err); a
+cleanup: instance stack stopped
+phase recovery ended with status 1
+   engine effects: [('exec', 'c-rev')]
+   unscoped container listings: 0
+   stack stops: 1
+   no process of this run is left
+== source-writable: exit 1
+FAIL: the reviewer could write into /input/source
+cleanup: instance stack stopped
+phase recovery ended with status 1
+   engine effects: [('exec', 'c-rev')]
+   unscoped container listings: 0
+   stack stops: 1
+   no process of this run is left
+== decoy-recovery: exit 1
+FAIL: the reviewer container was not observed
+cleanup: instance stack stopped
+UNRESOLVED: selected containers remain; see /home/sl/src/baton/work/scratch/w385695-K-385929/qualify-harness/runs/decoy-recovery/evidence/recovery.leftover-containers.txt
+phase recovery ended with status 1
+   engine effects: []
+   unscoped container listings: 0
+   stack stops: 1
+   no process of this run is left
+== decoy-deadline: exit 1
+FAIL: the selected publisher was never observed and frozen
+cleanup: instance stack stopped
+UNRESOLVED: selected containers remain; see /home/sl/src/baton/work/scratch/w385695-K-385929/qualify-harness/runs/decoy-deadline/evidence/deadline.leftover-containers.txt
+phase deadline ended with status 1
+   engine effects: []
+   unscoped container listings: 0
+   stack stops: 1
+   no process of this run is left
+== wrong-image: exit 1
+FAIL: the selected publisher was never observed and frozen
+cleanup: instance stack stopped
+UNRESOLVED: selected containers remain; see /home/sl/src/baton/work/scratch/w385695-K-385929/qualify-harness/runs/wrong-image/evidence/deadline.leftover-containers.txt
+phase deadline ended with status 1
+   engine effects: []
+   unscoped container listings: 0
+   stack stops: 1
+   no process of this run is left
+== interrupted: exit 143
+cleanup: unpaused c-pub
+cleanup: instance stack stopped
+phase deadline ended with status 143
+   engine effects: [('pause', 'c-pub'), ('unpause', 'c-pub')]
+   unscoped container listings: 0
+   stack stops: 1
+   no process of this run is left
+== cleanup: exit 0
+cleanup: removed baton-v12-publication:w385695-RUN
+cleanup: baton-v12-provider:w385695-RUN now names sha256:someone-elses, not the sha256:prov this run built; left alone
+cleanup: only tags recorded in images.owned were considered; no container was touched
+phase cleanup complete
+phase cleanup ended with status 0
+   engine effects: [('image', 'rm baton-v12-publication:w385695-RUN')]
+   unscoped container listings: 0
+   stack stops: 0
+   no process of this run is left

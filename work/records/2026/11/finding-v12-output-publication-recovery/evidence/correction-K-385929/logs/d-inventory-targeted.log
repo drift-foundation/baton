@@ -1,0 +1,29 @@
+test_every_stated_owner_names_a_witness_that_exists (tests.manager.test_boundary_inventory.EveryStatedOwnerHasAWitness.test_every_stated_owner_names_a_witness_that_exists) ... ok
+test_a_relation_without_its_claimed_row_cannot_discharge_the_repeat (tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses.test_a_relation_without_its_claimed_row_cannot_discharge_the_repeat) ... ok
+test_an_unrelated_same_label_call_and_another_origin_cannot_borrow_the_link (tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses.test_an_unrelated_same_label_call_and_another_origin_cannot_borrow_the_link) ... ok
+test_exact_delegate_queries_keep_their_existing_selection (tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses.test_exact_delegate_queries_keep_their_existing_selection) ... ok
+test_identity_column_and_later_rule_are_identical_and_the_row_owns_a_fresh_value (tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses.test_identity_column_and_later_rule_are_identical_and_the_row_owns_a_fresh_value) ... ok
+test_missing_declaration_or_source_witness_refuses (tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses.test_missing_declaration_or_source_witness_refuses) ... ok
+test_missing_or_ambiguous_row_or_later_occurrence_refuses (tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses.test_missing_or_ambiguous_row_or_later_occurrence_refuses) ... ok
+test_outer_document_equivalence_does_not_cover_nested_intent_validation (tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses.test_outer_document_equivalence_does_not_cover_nested_intent_validation) ... ok
+test_row_result_flow_and_nullable_guard_match_the_reviewed_relations (tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses.test_row_result_flow_and_nullable_guard_match_the_reviewed_relations) ... ok
+test_source_changes_require_fresh_review_instead_of_refreshing_witnesses (tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses.test_source_changes_require_fresh_review_instead_of_refreshing_witnesses) ... ok
+test_two_exact_entries_use_the_same_row_in_labels_and_accounting (tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses.test_two_exact_entries_use_the_same_row_in_labels_and_accounting) ... ok
+test_unchanged_ast_uses_current_call_spans_and_ambiguous_sources_refuse (tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses.test_unchanged_ast_uses_current_call_spans_and_ambiguous_sources_refuse) ... ok
+test_recovery_freeze_excludes_a_later_or_active_writer (tests.manager.test_boundary_inventory.StatedRules.test_recovery_freeze_excludes_a_later_or_active_writer)
+`line_writers` at the freeze: an existence answer, asked under the ... ok
+test_recovery_freeze_excludes_a_writer_that_already_has_a_checkpoint (tests.manager.test_boundary_inventory.StatedRules.test_recovery_freeze_excludes_a_writer_that_already_has_a_checkpoint)
+`line_checkpoints` at the freeze: an existence answer for this ... ok
+test_recovery_freeze_replay_hands_the_committed_fence_on_unread (tests.manager.test_boundary_inventory.StatedRules.test_recovery_freeze_replay_hands_the_committed_fence_on_unread)
+`replay` at the freeze: the committed fence is handed whole to ... ok
+test_recovery_freeze_profile_owner (tests.manager.test_boundary_inventory.StatedRules.test_recovery_freeze_profile_owner)
+`profile` at the freeze: an injected aggregate whose name and whose ... ok
+test_retained_line_home_excludes_a_later_or_active_writer (tests.manager.test_boundary_inventory.StatedRules.test_retained_line_home_excludes_a_later_or_active_writer)
+`line_writers` at the retained line home read: an existence answer ... ok
+test_review_cycle_stated_owners (tests.manager.test_boundary_inventory.StatedRules.test_review_cycle_stated_owners)
+The aggregate owners are live and the focused lifecycle suite runs. ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 9.226s
+
+OK

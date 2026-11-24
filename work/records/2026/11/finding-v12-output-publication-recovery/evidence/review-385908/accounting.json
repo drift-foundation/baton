@@ -1,0 +1,122 @@
+{
+  "runs": {
+    "required": {
+      "argv": [
+        "just",
+        "test-one",
+        "tests.job_manager.test_publication_recovery_execution",
+        "tests.job_manager.test_publication_recovery_admission",
+        "tests.job_manager.test_retained_recovery_admission",
+        "tests.job_manager.test_role_contract"
+      ],
+      "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385908/v12/python",
+      "exit_status": 0,
+      "timed_out": false,
+      "wall_seconds": 38.84985483903438,
+      "unittest_summary": [
+        "342",
+        "38.153"
+      ],
+      "log_sha256": "0cdf128cba3cd7be1ba6a1772dd0fef59e2573886606c4c3fe579c1a06cfa344"
+    },
+    "prior-probes": {
+      "argv": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385901/probe.py"
+      ],
+      "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385908/v12/python",
+      "exit_status": 0,
+      "timed_out": false,
+      "wall_seconds": 0.714109540975187,
+      "unittest_summary": [
+        "2",
+        "0.497"
+      ],
+      "log_sha256": "96e3c2fee28db3af0ce80e47d542d8984c99f276f0da8c543171dc571f7b5610"
+    },
+    "prior-boundaries": {
+      "argv": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385901/probe-boundaries.py"
+      ],
+      "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385908/v12/python",
+      "exit_status": 0,
+      "timed_out": false,
+      "wall_seconds": 0.4638935460243374,
+      "unittest_summary": [
+        "3",
+        "0.242"
+      ],
+      "log_sha256": "1ceb36ee5225762cb5e44c069fee077e439bbca66e668a39344837a823791c8a"
+    },
+    "prior-tokens": {
+      "argv": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385901/probe-tokens.py"
+      ],
+      "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385908/v12/python",
+      "exit_status": 0,
+      "timed_out": false,
+      "wall_seconds": 0.8143898430280387,
+      "unittest_summary": [
+        "2",
+        "0.587"
+      ],
+      "log_sha256": "7519e4897d6e267f719d62ab513efedc98cd43e5d4e6044aa9b42957ac68427c"
+    },
+    "deadline-window": {
+      "argv": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385908/probe-window.py"
+      ],
+      "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385908/v12/python",
+      "exit_status": 1,
+      "timed_out": false,
+      "wall_seconds": 0.6642502179602161,
+      "unittest_summary": [
+        "1",
+        "0.422"
+      ],
+      "log_sha256": "10fec5cff8c1440ec0eddbd19973faa2d3c160e550c95f8ecfe0b091640df517"
+    },
+    "pooled-settlement": {
+      "argv": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385908/probe-pooled.py"
+      ],
+      "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385908/v12/python",
+      "exit_status": 0,
+      "timed_out": false,
+      "wall_seconds": 0.9643461849773303,
+      "unittest_summary": [
+        "1",
+        "0.741"
+      ],
+      "log_sha256": "7a58ccf6273884028ae51cac1fbd505b97dfa3e68e46cec7dec05d55217debd9"
+    },
+    "expired-token": {
+      "argv": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385908/probe-failure.py"
+      ],
+      "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385908/v12/python",
+      "exit_status": 1,
+      "timed_out": false,
+      "wall_seconds": 0.6641547809704207,
+      "unittest_summary": [
+        "1",
+        "0.419"
+      ],
+      "log_sha256": "c0bc1d460ed1a6e47623f9be408e4205e2c4f7e7d775a39a7db961962dddc3e4"
+    }
+  },
+  "executions": 352,
+  "passed": 350,
+  "failed": 2,
+  "errors": 0,
+  "skipped": 0,
+  "timeouts": 0,
+  "wall_seconds": 43.13499895296991,
+  "unittest_seconds": 41.061,
+  "classification": "342 required + 7 prior probes + 3 new probes; new deadline and expired-token probes fail; pooled-settlement confirms refusal and passes"
+}

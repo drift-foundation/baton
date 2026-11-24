@@ -425,6 +425,17 @@ class GitCheckpointProfile:
         self._clean(repository)
         return {"profile": GIT_PROFILE, "base": base, "head": head}
 
+    def head_of(self, repository):
+        """The clean checkout's current commit, read and nothing else.
+
+        W385695 R1. A recovery freeze must know the head it would freeze BEFORE
+        it revokes a writer, and `freeze` retains a reference as it answers.
+        This runs the same two reads `freeze` starts with and writes nothing.
+        """
+        repository = _path(repository, "a private line repository")
+        self._clean(repository)
+        return self._head(repository)
+
     def freeze(self, repository, *, line_id, revision, declared_base):
         repository = _path(repository, "a private line repository")
         base = check_declared_base(declared_base)

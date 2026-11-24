@@ -61,7 +61,12 @@ _DISPOSITIONS = {"completed": "completed", "unable": "exceptional",
 # Which state a claimed stage with a live runtime is IN, by what the stage is
 # for. One vocabulary, three kinds, written down rather than inferred.
 _RUNNING = {"implementation": "running", "review": "reviewing",
-            "integration": "integrating"}
+            "integration": "integrating",
+            # W385695: A PUBLICATION STAGE WITH AN ATTACHED RUNTIME IS RUNNING.
+            # It had no entry, so the first publication stage ever served
+            # would have raised `KeyError` out of the projection instead of
+            # being reported.
+            "publication": "running"}
 
 
 def receipt_rows(store):
@@ -496,6 +501,7 @@ def materialized(store, stages=None):
     whatever rows were handed in, and only the remaining tables are read.
     """
     from .integration_capacity import failed_integration_of
+    from .publication_execution import execution_gate as publication_gate
     from .retained_recovery import execution_gate
 
     with store.read_snapshot():
@@ -513,6 +519,20 @@ def materialized(store, stages=None):
             owned[stage_id] = {
                 "stage": stage, "episode": live,
                 "recovery_gate": execution_gate(store, stage["job_id"]),
+                # W385695 / DESIGN REC-9: AND THE PUBLICATION RECOVERY'S OWN
+                # GATE, beside REC-8's rather than folded into it. The two
+                # close on different facts -- that one on a validated retained
+                # candidate handoff, this one on attributable publication
+                # custody -- and one member that could mean either would be a
+                # reader guessing which recovery it is looking at. Both answer
+                # `None` for an ordinary Job, which is what makes composing
+                # them cost an ordinary stage nothing.
+                # SCOPED TO THE STAGE, because a publication recovery Job
+                # carries two of them: the gate is the REVIEW stage's, and a
+                # gate that also answered for the publication stage would
+                # hold that stage shut behind a handoff only it can produce.
+                "publication_gate": publication_gate(store, stage["job_id"],
+                                                     stage_id),
                 "attempt": (episodes.attempting(stage, live)
                             if live is not None else None),
                 "history": episodes.episodes_of(store, stage_id),
@@ -751,9 +771,23 @@ def stage_states(store, operations, stages=None, snapshot=None):
 
 
 def gates_of(stage, held):
-    """This stage's dependency gates, each with the state that decides it."""
-    recovery = held.get(stage["stage_id"], {}).get("recovery_gate")
+    """This stage's dependency gates, each with the state that decides it.
+
+    W385695: THE PUBLICATION GATE IS ONE OF THEM, and it is ANDed with the
+    dependency gates exactly as REC-8's is. `projection.stage_states` reads it
+    for every stage of a publication recovery Job, so a review stage whose
+    publication stage is `completed` -- and whose custody or candidate handoff
+    is not validated -- is `blocked` rather than `queued`. That is REC-9's
+    "Review MUST remain non-runnable until attributable publication custody
+    and the exact candidate handoff are validated", kept where eligibility is
+    decided rather than at whichever caller happens to check.
+    """
+    entry = held.get(stage["stage_id"], {})
+    recovery = entry.get("recovery_gate")
     gates = [] if recovery is None else [recovery]
+    publication = entry.get("publication_gate")
+    if publication is not None:
+        gates.append(publication)
     for gate in json.loads(stage["depends_on"]):
         stage_id = documents.stage_id(gate["job_id"], gate["kind"])
         found = held.get(stage_id)

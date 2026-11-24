@@ -1,0 +1,36 @@
+{"cwd": "/home/sl/src/baton/work/scratch/w385695-review-385919/v12/python", "argv": ["/home/sl/.local/state/baton-v12-venv/bin/python", "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385919/probe-fence-binding.py"], "timeout_seconds": 60, "scratch": "/home/sl/src/baton/work/scratch/w385695-review-385919-tests"}
+test_committed_recovery_fence_must_bind_its_checkpoint_row (__main__.Fence.test_committed_recovery_fence_must_bind_its_checkpoint_row) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route integration    -> baton.integrator
+route impl           -> baton.publisher
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+owner 0000000a-W1    approve/integrate/close in its own scope; no verify or review grant
+target                9cb6113dc8262aab440c2aec12e867a99aa63b54 established from line_declared_base
+configuration /home/sl/src/baton/work/scratch/w385695-review-385919-tests/v12-w71917-qpsmuzen/publication-instance/deployment.json
+capacity      {"job_affinity": {"job-connected-a": "impl-a"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["target-1"], "workers_by_role": {"implementation": ["impl-a"], "integration": ["integ-a"], "review": ["review-a"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/home/sl/src/baton/work/scratch/w385695-review-385919-tests/v12-w71917-qpsmuzen/publication-instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/home/sl/src/baton/work/scratch/w385695-review-385919-tests/v12-w71917-qpsmuzen/publication-instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/home/sl/src/baton/work/scratch/w385695-review-385919-tests/v12-w71917-qpsmuzen/publication-instance/deployment.json"
+FAIL
+
+======================================================================
+FAIL: test_committed_recovery_fence_must_bind_its_checkpoint_row (__main__.Fence.test_committed_recovery_fence_must_bind_its_checkpoint_row)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385919/probe-fence-binding.py", line 14, in test_committed_recovery_fence_must_bind_its_checkpoint_row
+    with self.assertRaises(ContractRefusal):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.676s
+
+FAILED (failures=1)
+TRANSPLANTED_FENCE {"row_checkpoint": "checkpoint-review-transplant", "fence_checkpoint": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a", "row_writer": "writer-de293d78f19581595082a63f19be353c86438fd135837a6dafae1057b72e7c72", "fence_writer": "writer-de293d78f19581595082a63f19be353c86438fd135837a6dafae1057b72e7c72"}

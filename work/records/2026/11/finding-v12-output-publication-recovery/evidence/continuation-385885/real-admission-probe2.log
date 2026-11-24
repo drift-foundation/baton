@@ -1,0 +1,7 @@
+{"cwd": "/home/sl/src/baton/work/scratch/w385695-385885/v12/python", "argv": ["just", "test-one", "tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_process_loss_after_intent_never_repeats_the_writer"], "timeout_seconds": 60, "scratch": "/home/sl/src/baton/work/scratch/w385695-385885/work/scratch/verification"}
+test_process_loss_after_intent_never_repeats_the_writer (tests.job_manager.test_publication_recovery_execution.UncertaintyHoldsAndNeverPublishesTwice.test_process_loss_after_intent_never_repeats_the_writer) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.104s
+
+OK

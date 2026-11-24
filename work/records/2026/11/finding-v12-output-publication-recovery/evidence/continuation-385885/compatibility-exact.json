@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "just",
+    "test-one",
+    "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle",
+    "tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget.test_the_successor_materializes_publishes_and_completes"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385695-385885/v12/python",
+  "exit_status": 0,
+  "timed_out": false,
+  "wall_seconds": 25.28677098499611,
+  "unittest_summary": [
+    "12",
+    "25.055"
+  ],
+  "log_sha256": "c779246c362e966b378b5a877ffce5b61372f29703764c5b0398e9182be46b9b"
+}

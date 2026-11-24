@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "just",
+    "test-one",
+    "tests.manager.test_review_cycles",
+    "tests.manager.test_provider_context",
+    "tests.manager.test_provider_context_delivery",
+    "tests.tools.test_review_driver"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385919/v12/python",
+  "exit_status": 1,
+  "timed_out": false,
+  "wall_seconds": 13.224084950052202,
+  "unittest_summary": [
+    "257",
+    "12.988"
+  ],
+  "log_sha256": "396466aca7b75ca89ec85517d4ac1a73f195a639a32a6fd3a2bb990034532a16"
+}

@@ -1,0 +1,9 @@
+test_release_cleanup_cut (__main__.Cuts.test_release_cleanup_cut) ... ok
+test_supervisor_completion_at_expiry (__main__.Cuts.test_supervisor_completion_at_expiry) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.499s
+
+OK
+CLEANUP_CUT {"runtime": {"attempt_id": "attempt-1b51e7c3d8287aad7ef32bf78351a0199e8620d24e5aebdc84804102d9f46544", "runtime_id": "runtime-single-1", "execution_runtime": "destroyed", "cleanup": "retained", "assignment": {"work_ref": {"authority_uuid": "0000000a000000000000000000000000", "work_id": "0000000a-W1"}, "participant": "baton.publisher", "generation": 2}}, "spoken": [[{"stage_id": "publication-D1/publication", "episode": 1, "attempt_id": "attempt-1b51e7c3d8287aad7ef32bf78351a0199e8620d24e5aebdc84804102d9f46544", "act": "conclude", "outcome": "performed", "detail": {"attempt_id": "attempt-1b51e7c3d8287aad7ef32bf78351a0199e8620d24e5aebdc84804102d9f46544", "outcome": "published", "disposition": "completed", "adopted": "sha256:d8b3adc0c29d53562bde896a81d8704d47c2b9d6a4f02e41016fd06f165f0b93", "manifest_digest": "sha256:142cddee45e2133ce50b823b21868b7c94b355845db6435e6a1bdf468cbd6a09", "result_id": "result-attempt-1b51e7c3d8287aad7ef32bf78351a0199e8620d24e5aebdc84804102d9f46544", "receipt_digest": "sha256:d926cdb3a4d1280a1499e35fb7cc00cd99746c2a9d1f82d0753415bd962e9564", "artifacts": ["attempt-1b51e7c3d8287aad7ef32bf78351a0199e8620d24e5aebdc84804102d9f46544:proposal", "attempt-1b51e7c3d8287aad7ef32bf78351a0199e8620d24e5aebdc84804102d9f46544:recovery-provenance"], "retention": "retain"}}], [], []]}
+DEADLINE_CUT {"status": null, "timed_out": true, "started": false, "group_gone": true, "started_at": 0.0, "ended_at": 0.0}

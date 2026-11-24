@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "just",
+    "test-one",
+    "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_serving_observation_reads_only_existing_owners",
+    "tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_every_public_parameter_is_a_declared_operand"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385695-385885/v12/python",
+  "exit_status": 1,
+  "timed_out": false,
+  "wall_seconds": 2.6663164570345543,
+  "unittest_summary": [
+    "2",
+    "2.076"
+  ],
+  "log_sha256": "6b0a517158e51b1c517fd0209eef510d1992f8c81a9b4de766c7eba5e4b99b20"
+}

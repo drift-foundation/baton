@@ -398,6 +398,13 @@ class NoPublicOperationTakesInternalState(unittest.TestCase):
     # deriving "is this an operand" from a name is the guessing this case exists
     # to stop -- and an entry here is a claim somebody has to make deliberately.
     OPERANDS = {
+        # The retained checkpoint passed to freeze_recovered_checkpoint is an
+        # externally selected candidate, not traversal bookkeeping.
+        "candidate",
+        # W385695: `OUTPUT` is the declared output's own relative path, which the
+        # caller selects from the admitted declaration so the retained-output read
+        # measures that directory and never a whole writable root.
+        "output",
         # W275774 child A: the shared resource token's own operands. Declared rather than
         # the check weakened -- each names a fact the token owner is given, not internal
         # state it carries: the governed conflict DOMAIN and its RESOURCE_KIND, the

@@ -1,0 +1,5 @@
+unprobed 2
+   unprobed [['adopted', 'review_cycles.py:_freeze_checkpoint', 'line_checkpoints'], 'a persisted line checkpoint identity']
+   unprobed [['adopted', 'review_cycles.py:_freeze_checkpoint', 'line_checkpoints.checkpoint_id'], 'a persisted line checkpoint identity']
+unowned 1
+   unowned [['caller', 'review_cycles.py:freeze_checkpoint', 'generation'], 'a checkpoint assignment generation']

@@ -1,0 +1,28 @@
+== setup-ok: exit 0
+ok   producer 1 (job-q-1) has stopped and is settleable
+ok   producer 2 (job-q-2) has stopped and is settleable
+ok   producer 1 (job-q-1) is settled, removed and an eligible over-ceiling original
+ok   producer 2 (job-q-2) is settled, removed and an eligible over-ceiling original
+failures: source /home/sl/src/baton/work/scratch/w385695-K-385929/qualify-harness/runs/setup-ok/evidence/option-a.env and run 'qualify-w385695.sh preflight'
+phase failures complete
+phase failures ended with status 0
+   installed verbs: ['settlement-preview', 'settlement-preview', 'settlement-preview', 'settlement-preview', 'settle-stopped', 'settlement-remove', 'publication-inspect', 'settlement-preview', 'settle-stopped', 'settlement-remove', 'publication-inspect']
+   stack stops: 1; record left: no
+   export JOB=job-q-1 STAGE=job-q-1/implementation EPISODE=1 DECISION=option-a-RUN-D1
+   export JOB2=job-q-2 STAGE2=job-q-2/implementation EPISODE2=1 DECISION2=option-a-RUN-D2
+   no process of this run is left
+== setup-producers-never-stop: exit 1
+FAIL: producer 1 (job-q-1) did not stop as a settleable failure within 12 s; see /home/sl/src/baton/work/scratch/w385695-K-385929/qualify-harness/runs/setup-producers-ne
+cleanup: instance stack stopped
+phase failures ended with status 1
+   installed verbs: ['settlement-preview', 'settlement-preview', 'settlement-preview']
+   stack stops: 1; record left: no
+   no process of this run is left
+== setup-remove-refused: exit 1
+ok   producer 1 (job-q-1) has stopped and is settleable
+ok   producer 2 (job-q-2) has stopped and is settleable
+FAIL: settlement-remove refused producer 1
+phase failures ended with status 1
+   installed verbs: ['settlement-preview', 'settlement-preview', 'settlement-preview', 'settlement-preview', 'settle-stopped', 'settlement-remove']
+   stack stops: 1; record left: no
+   no process of this run is left

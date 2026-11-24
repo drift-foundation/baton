@@ -1698,6 +1698,11 @@ class TheFiniteProfileIsTheOwnersExactPublishedDefinition(unittest.TestCase):
         self.assertEqual(sorted(job_control.PROFILES),
                          ["documentation/1", "native-handoff-heavy/1",
                           "native-handoff/1",
+                          # W385695 / DESIGN REC-9's own recovery profile,
+                          # added as a NEW immutable entry rather than by
+                          # widening any of the four beside it -- which is
+                          # what this case is about.
+                          "output-publication-review/1",
                           "stage1-verification-review/1"])
         self.assertEqual(job_control.PROFILES["documentation/1"],
                          {"correction_rounds": 0, "stage_seconds": 4800,

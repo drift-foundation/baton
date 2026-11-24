@@ -1,0 +1,48 @@
+test_every_step_is_accepted_by_the_real_commands (__main__.OptionA.test_every_step_is_accepted_by_the_real_commands) ... authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route impl           -> baton.publisher
+routing               reviewer baton.reviewer, decisions to baton.slaw
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+answer               answer-handoff to baton.reviewer in its own scope; no review grant
+target                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa established from line_declared_base
+configuration /var/tmp/k695b/v12-w71917-lbel_bhx/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-w385695-qualify-RUN-1": "qualify-impl"}, "jobs": 1, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"], "workers_by_role": {"implementation": ["qualify-impl"], "integration": [], "review": ["qualify-review"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/k695b/v12-w71917-lbel_bhx/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/k695b/v12-w71917-lbel_bhx/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/k695b/v12-w71917-lbel_bhx/bootstrap-deployment/deployment.json"
+authority 0000000a...    reused from this root's record
+route impl           -> baton.impl-a
+route rview          -> baton.reviewer
+route impl           -> baton.publisher
+routing               reviewer baton.reviewer, decisions to baton.slaw
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+answer               answer-handoff to baton.reviewer in its own scope; no review grant
+work  0000000a-W1    already exists; left alone
+grant 0000000a-W1    approve/review/verify/integrate in its own scope
+answer               answer-handoff to baton.reviewer in its own scope; no review grant
+target                already established; left alone
+configuration /var/tmp/k695b/v12-w71917-lbel_bhx/bootstrap-deployment/deployment.json
+capacity      {"job_affinity": {"job-w385695-qualify-RUN-1": "qualify-impl", "job-w385695-qualify-RUN-2": "qualify-impl"}, "jobs": 2, "note": "each Job is bound to one producer, one Work, one declared base and one canonical target; Jobs sharing a canonical target are serialized at integration by the accepted composition, so this is configured capacity rather than a concurrency guarantee", "schema": "baton.v12.stage-execution-deployment/2", "targets": ["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"], "workers_by_role": {"implementation": ["qualify-impl"], "integration": [], "review": ["qualify-review"]}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/k695b/v12-w71917-lbel_bhx/bootstrap-deployment/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/k695b/v12-w71917-lbel_bhx/bootstrap-deployment/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="0000000a000000000000000000000000"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/k695b/v12-w71917-lbel_bhx/bootstrap-deployment/deployment.json"
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.278s
+
+OK
+OPTION_A_ARGV {"steps": ["compose-implementation", "compose-publication", "compose-review", "repeat", "create-1", "create-2"], "jobs": ["job-w385695-qualify-RUN-1", "job-w385695-qualify-RUN-2"], "workers": ["qualify-impl", "qualify-publisher", "qualify-review"]}

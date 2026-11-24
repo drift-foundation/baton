@@ -1,0 +1,5 @@
+ENTRY ('adopted', 'review_cycles.py:freeze_unreleased_recovered_checkpoint', 'replay')
+OWNERS {"entry": ["adopted", "review_cycles.py:freeze_unreleased_recovered_checkpoint", "replay"], "present": true, "claims": [false, true, false, false], "labels": [], "stated": "the replayed committed fence is handed on whole and unread to `_freeze_checkpoint`, which requires the row fence `checkpoint_of` authenticated to be this exact document; no member is read here", "delegated": false}
+ENTRY ('adopted', 'workspaces.py:_retained_line_home', 'line_writers.writer_id')
+OWNERS {"entry": ["adopted", "workspaces.py:_retained_line_home", "line_writers.writer_id"], "present": false, "claims": [false, false, false, false], "labels": [], "stated": null, "delegated": false}
+ELAPSED 5.994444452924654

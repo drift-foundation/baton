@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385948/probe-cleanup-cuts.py"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385941/v12/python",
+  "exit_status": 0,
+  "timed_out": false,
+  "wall_seconds": 5.118884513969533,
+  "unittest_summary": [
+    "3",
+    "5.070"
+  ],
+  "log_sha256": "69681ebfd1b83bd52e19a1016fef5f0c4e6e1e4eee27d44fffb83e07f0c60f15"
+}

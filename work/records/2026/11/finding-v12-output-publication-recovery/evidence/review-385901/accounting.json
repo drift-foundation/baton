@@ -1,0 +1,75 @@
+{
+  "runs": [
+    {
+      "argv": [
+        "just",
+        "test-one",
+        "tests.job_manager.test_publication_recovery_execution",
+        "tests.job_manager.test_publication_recovery_admission",
+        "tests.job_manager.test_retained_recovery_admission",
+        "tests.job_manager.test_role_contract"
+      ],
+      "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385901/v12/python",
+      "exit_status": 0,
+      "timed_out": false,
+      "wall_seconds": 28.090423460002057,
+      "unittest_summary": [
+        "326",
+        "27.439"
+      ],
+      "log_sha256": "f3c836f1895af0b38ef931794dc964cb12b1be34505dd1142fedeab554d1eeec"
+    },
+    {
+      "argv": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385901/probe.py"
+      ],
+      "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385901/v12/python",
+      "exit_status": 1,
+      "timed_out": false,
+      "wall_seconds": 0.7141825300059281,
+      "unittest_summary": [
+        "2",
+        "0.492"
+      ],
+      "log_sha256": "1fd954a832af42f7d1d35657270f409d0b727245e25a5dab999a71751dc03707"
+    },
+    {
+      "argv": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385901/probe-boundaries.py"
+      ],
+      "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385901/v12/python",
+      "exit_status": 1,
+      "timed_out": false,
+      "wall_seconds": 0.4638595550204627,
+      "unittest_summary": [
+        "3",
+        "0.236"
+      ],
+      "log_sha256": "21630d7d13c1dd7de332f8d6a835bef4bd5102b7049e65b10428a2a3a1dc4042"
+    },
+    {
+      "argv": [
+        "/home/sl/.local/state/baton-v12-venv/bin/python",
+        "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385901/probe-tokens.py"
+      ],
+      "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385901/v12/python",
+      "exit_status": 0,
+      "timed_out": false,
+      "wall_seconds": 0.8143938870052807,
+      "unittest_summary": [
+        "2",
+        "0.577"
+      ],
+      "log_sha256": "52ad4e30f58aa69a2bd437fd8feda12db39784a76dbc0714deb58a3f143ebe8b"
+    }
+  ],
+  "wall_seconds": 30.08285943203373,
+  "tests_executed": 333,
+  "passed": 329,
+  "failed": 3,
+  "errors": 1,
+  "skipped": 0,
+  "qualification": "deterministic source review; no engine/container/image run"
+}

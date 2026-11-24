@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385941/probe-late-exit.py"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385941/v12/python",
+  "exit_status": 0,
+  "timed_out": false,
+  "wall_seconds": 0.06355069705750793,
+  "unittest_summary": [
+    "1",
+    "0.015"
+  ],
+  "log_sha256": "3ec3ecd3bafcf8cc134a536d874bab0fccbb52695b9b32aa7d72f9fcceb2d1e1"
+}

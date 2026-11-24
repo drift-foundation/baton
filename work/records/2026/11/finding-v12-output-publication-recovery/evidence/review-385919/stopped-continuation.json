@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385919/probe-stopped-continuation.py"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385919/v12/python",
+  "exit_status": 0,
+  "timed_out": false,
+  "wall_seconds": 0.9642973479349166,
+  "unittest_summary": [
+    "1",
+    "0.762"
+  ],
+  "log_sha256": "101f842526310a560ed3098be6424755840a23d8b273b454fcaa1b8a51b6e707"
+}

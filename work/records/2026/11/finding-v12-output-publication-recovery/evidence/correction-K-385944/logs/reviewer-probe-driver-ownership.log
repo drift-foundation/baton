@@ -1,0 +1,7 @@
+test_survivor_cleanup_does_not_select_a_process_outside_the_driver (__main__.Driver.test_survivor_cleanup_does_not_select_a_process_outside_the_driver) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+OK
+FOREIGN_SELECTION {"sentinel": 1582795, "selected": false, "driver_started": false}

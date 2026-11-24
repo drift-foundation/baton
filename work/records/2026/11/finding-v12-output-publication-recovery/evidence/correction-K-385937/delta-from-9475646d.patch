@@ -1,0 +1,2215 @@
+diff --git a/v12/python/DEPLOYMENT.md b/v12/python/DEPLOYMENT.md
+index cf630b1f3ef9069573cb4bad265ce24b0a21599e..df489e2df0f902c7442c9dde0b953cf51e9e5c5a 100644
+--- a/v12/python/DEPLOYMENT.md
++++ b/v12/python/DEPLOYMENT.md
+@@ -1287,15 +1287,45 @@ the bindings it started with; there is no hot reload.
+    approved head and base. The producer's writer is revoked in that operation.
+ 6. The reviewer is delivered `recovery-review.json` (the hand-off, its digest
+    and the reviewer-verification requirement) beside the read-only candidate.
+-   The reviewer's worker itself runs the task's verification command, in a
+-   private copy and in its own process group, under the owner-selected
+-   900-second per-command bound and never past what is left of the 3600-second
+-   invocation; at the bound the whole group is killed. The provider is told
+-   the outcome and is handed only the remaining invocation time. The report
+-   must claim the hand-off digest. An `accepted` verdict is published only
+-   when that command passed; the manager additionally holds an acceptance
+-   whose frozen result does not carry the worker's own passed, bounded run of
+-   the approved command. Any other verdict is the reviewer's own.
++   The whole review invocation runs against ONE absolute 3600-second
++   deadline measured from the moment the worker begins it: source
++   observation, scratch preparation, the private copy, the required check and
++   the provider are all charged to it, and what remains is re-read
++   immediately before each launch. Ending a command's descendants may take
++   up to 5 seconds, and that grace is charged too: every command's own
++   deadline is 5 seconds short of the invocation's.
++   EVERY command of the review runs under the worker image's command
++   supervisor (`/opt/baton/bounded_command.py`, in the read-only root):
++   the worker's own run of the task's verification command in a private
++   copy; the provider itself; and each shell-tool command the provider
++   chooses to run. The provider CLI is started with that supervisor as its
++   shell prefix, so it hands every such command to it -- foreground,
++   backgrounded, or moved to the background by the CLI -- and each is ended
++   at the owner-selected 900-second per-command bound or the invocation
++   deadline, whichever is sooner. A supervisor adopts every descendant of its
++   command, including one that left the command's session, ends them all at
++   the bound and after an ordinary exit, and records whether a scan of the
++   process table then found none; a background process does not outlive the
++   command that started it. A supervisor that started and left no finish
++   record is an unfinished command. A command still running when its bound
++   passes is a timeout whatever status it then leaves: the supervisor reads
++   the clock after it sees the command ended and before it believes that
++   ending, and the worker applies its own clock to the supervisor's answer.
++   This is a bound on work, not a sandbox, and it is not a security boundary
++   against the reviewer: the supervisor runs as the same user as the command.
++   A supervisor that is killed leaves a start with no finish, which is
++   counted; a command that rewrites the supervisors' records is NOT detected
++   by them. What still bounds such a command is the provider's own
++   supervisor, the invocation deadline and the
++   container's cessation. A worker image without the supervisor refuses a
++   required review rather than running it unbounded.
++   The provider is told the check's outcome. The report must claim the
++   hand-off digest. An `accepted` verdict is published only when the required
++   command passed and every command of the review was observed to have ended
++   with its descendants; the manager additionally holds an acceptance whose
++   frozen result does not carry the worker's own passed, bounded run of the
++   approved command and a clean account of its commands. Any other verdict is
++   the reviewer's own.
+ 7. `manager publication-status --decision-id …` reports the original failure,
+    the recovery, the custody, the review (stage, reviewer, recorded verdict)
+    and any owner item as separate statements.
+@@ -1312,11 +1342,24 @@ the next command. With the manager stopped:
+ 
+ This runs the serving composition's own abandonment ending for that exact
+ attempt: the runtime is removed and proved absent, the workspace is retained
+-and the token returned. It refuses an attempt whose runtime is not recorded
+-`quiescent`, and exits non-zero unless the runtime is then recorded destroyed
+-with settled cleanup. Repeat `publication-inspect`; an eligible answer no
+-longer carries a `continuation`. A producer that faulted and was never
+-settled is ended the same way.
++and the token returned. A first removal refuses an attempt whose runtime is
++not recorded `quiescent`, and the command exits non-zero unless the runtime
++is then recorded destroyed with settled cleanup. Repeat `publication-inspect`;
++an eligible answer no longer carries a `continuation`. A producer that
++faulted and was never settled is ended the same way.
++
++The command is safe to repeat. Its ending is declared in the control store
++before anything is removed, so the same command given again -- because the
++reply was lost, or because it was interrupted after the removal and before
++the ending settled -- finds that declaration, answers `"replayed": true`, and
++either returns the committed result or finishes the ending it started. It
++uses the declaration's own reason (reported as `reason`), declares nothing a
++second time and removes nothing twice. An attempt that is not `quiescent` and
++carries no such declaration -- running, uncertain, never started, another
++episode, or ended some other way -- is still refused. A serving manager, in
++this or any other process, excludes the command: it takes the instance's
++manager guard exactly as serving does and is refused before it declares or
++removes anything.
+ 
+ **When the review does not conclude.** A recovery cancelled or expired during
+ review stops the reviewer through the ordinary cancellation pass. Once the
+diff --git a/v12/python/src/baton_v12/job_manager/review_driver.py b/v12/python/src/baton_v12/job_manager/review_driver.py
+index 0a6592d99bfa7f3ce627ac0f0c1e688247424dc4..f734b9593809bc952be8241dd6b2d538c92926c6 100644
+--- a/v12/python/src/baton_v12/job_manager/review_driver.py
++++ b/v12/python/src/baton_v12/job_manager/review_driver.py
+@@ -2131,10 +2131,28 @@ def review_verdict_from_result(control, *, attachment_id, recovery_digest=None,
+         seen = _claim_output(result, FINDINGS_OUTPUT)["result_metadata"].get(
+             REVIEWER_VERIFICATION_CLAIM)
+         bound = seen.get("seconds_bound") if type(seen) is dict else None
++        # AND EVERY COMMAND THE REVIEW RAN WAS SUPERVISED TO ITS END (review
++        # 2026-11-24T01-52-00Z C2): the worker counts the provider's own
++        # shell-tool commands under the same per-command bound, none started
++        # without a finish record, and each supervisor -- the check's, the
++        # provider's and every command's -- saw its descendants gone. An
++        # empty process group is not that observation and is not accepted
++        # as one.
++        commands = seen.get("commands") if type(seen) is dict else None
++        counted = [commands.get(name) if type(commands) is dict else None
++                   for name in ("supervised", "timed_out", "unfinished")]
+         if type(seen) is not dict \
+                 or seen.get("argv") != list(reviewer_verification["argv"]) \
+                 or seen.get("outcome") != "passed" or seen.get("status") != 0 \
+-                or seen.get("group_gone") is not True \
++                or seen.get("descendants_gone") is not True \
++                or type(commands) is not dict \
++                or set(commands) != {"supervised", "timed_out", "unfinished",
++                                     "descendants_gone"} \
++                or any(type(each) is not int or type(each) is bool
++                       or each < 0 for each in counted) \
++                or commands["unfinished"] != 0 \
++                or commands["timed_out"] > commands["supervised"] \
++                or commands["descendants_gone"] is not True \
+                 or type(bound) is not int or type(bound) is bool \
+                 or not 1 <= bound <= reviewer_verification["command_seconds"]:
+             _refuse("the reviewer accepted without a passed, bounded run of "
+diff --git a/v12/python/src/baton_v12/worker_manager/intake.py b/v12/python/src/baton_v12/worker_manager/intake.py
+index 3b77ca430579a91e17743504f9a5460eaa00a18a..61c22e864ac6175a53999c0adc45a5417b558ed2 100644
+--- a/v12/python/src/baton_v12/worker_manager/intake.py
++++ b/v12/python/src/baton_v12/worker_manager/intake.py
+@@ -3234,6 +3234,31 @@ def _abandoned_absence(store, taken, attempt_id, operation, what):
+     return cleanup
+ 
+ 
++def abandonment_declared(store, *, attempt_id):
++    """The committed abandonment DECLARATION of this exact attempt, or `None`.
++
++    W385695 (review 2026-11-24T01-52-00Z C4). An installed caller that lost
++    the reply to a removal, or was cut after the runtime was recorded
++    destroyed and before the ending settled, has to tell "this attempt's
++    abandonment already began" from "this attempt ended some other way" --
++    and the mutable axes cannot: both are `destroyed`. The journal can. This
++    answers the declaration `abandon_attempt` committed before any external
++    call, validated exactly as every other reader of it validates it, so the
++    caller can let that owner replay or finish what it started.
++
++    IT IS NOT EVIDENCE OF ABSENCE and not an ending: a declaration whose
++    removal never committed is an abandonment that has not finished.
++    `abandonment_cleanup_of` remains the one reader of the finished act.
++    It writes nothing and calls nothing.
++    """
++    boundaries.identity(attempt_id, "a runtime attempt id")
++    attempt = _attempt_of(store._connection, attempt_id)
++    if _fixed_assignment(attempt) is None:
++        return None
++    declared = _abandonment_declaration(store, attempt, attempt_id)
++    return None if declared is None else dict(declared["document"])
++
++
+ def abandonment_cleanup_of(store, *, attempt_id, retention_policy_digest):
+     """The committed ABANDONED cleanup for this attempt and policy, or absence.
+ 
+diff --git a/v12/python/tests/job_manager/test_publication_recovery_execution.py b/v12/python/tests/job_manager/test_publication_recovery_execution.py
+index 40d89feb8507d843ce373969858d3df3e90a2fbe..527de5407cd5cd215bd0eaeaeed1b3764870f5bd 100644
+--- a/v12/python/tests/job_manager/test_publication_recovery_execution.py
++++ b/v12/python/tests/job_manager/test_publication_recovery_execution.py
+@@ -108,6 +108,16 @@ from tests.job_manager import test_publication_recovery_admission as checkpoint1
+ from tests.job_manager.fixtures import NOW, WORK_A
+ from tools import publication_worker, single_worker, stage_execution
+ 
++
++def _worker_source(name):
++    """A worker-image source file, where the image recipe copies it from."""
++    here = os.path.dirname(os.path.abspath(__file__))
++    return os.path.normpath(os.path.join(here, "..", "..", "..", "worker",
++                                         name))
++
++
++SUPERVISOR = _worker_source("bounded_command.py")
++
+ # WHERE THE CONTAINER WORKER'S OWN MODULES LIVE. They are not importable from
+ # the manager distribution, exactly as in an image; a case that runs the real
+ # worker entry puts this directory on its path for its own duration.
+@@ -4892,6 +4902,9 @@ class TheReviewersRequiredVerificationIsSupervisedAndBounded(
+         import claude_agent
+ 
+         self.module = claude_agent
++        held = claude_agent.COMMAND_SUPERVISOR
++        claude_agent.COMMAND_SUPERVISOR = SUPERVISOR
++        self.addCleanup(setattr, claude_agent, "COMMAND_SUPERVISOR", held)
+         self.root = tempfile.mkdtemp(dir=os.environ.get("TMPDIR"))
+         self.addCleanup(__import__("shutil").rmtree, self.root, True)
+         self.source = os.path.join(self.root, "source")
+@@ -4899,6 +4912,14 @@ class TheReviewersRequiredVerificationIsSupervisedAndBounded(
+         with open(os.path.join(self.source, "kept.txt"), "w") as out:
+             out.write("reviewed\n")
+         self.count = 0
++        # A FILE THAT SAYS IT IS NOT A CREDENTIAL; its content is never read.
++        credentials = os.path.join(self.root, "credentials")
++        os.makedirs(credentials)
++        with open(os.path.join(credentials, "claude"), "w") as out:
++            out.write("not-a-credential\n")
++        held = claude_agent.CREDENTIAL_ROOT
++        claude_agent.CREDENTIAL_ROOT = credentials
++        self.addCleanup(setattr, claude_agent, "CREDENTIAL_ROOT", held)
+         self.agent = claude_agent.ClaudeAgent(
+             run=subprocess.run, home=os.path.join(self.root, "home"))
+         self.agent._seen = None
+@@ -4915,7 +4936,7 @@ class TheReviewersRequiredVerificationIsSupervisedAndBounded(
+     def test_a_shorter_command_passes_under_the_selected_bound(self):
+         seen = self.checked("open('written.txt', 'w').write('x')")
+         self.assertEqual((seen["outcome"], seen["status"],
+-                          seen["seconds_bound"], seen["group_gone"]),
++                          seen["seconds_bound"], seen["descendants_gone"]),
+                          ("passed", 0, 900, True))
+         # IT WROTE INTO ITS PRIVATE COPY, never into the reviewed tree.
+         self.assertEqual(os.listdir(self.source), ["kept.txt"])
+@@ -4939,7 +4960,7 @@ class TheReviewersRequiredVerificationIsSupervisedAndBounded(
+         seen = self.checked(program, command=1)
+         self.assertLess(time.monotonic() - began, 30)
+         self.assertEqual((seen["outcome"], seen["status"],
+-                          seen["seconds_bound"], seen["group_gone"]),
++                          seen["seconds_bound"], seen["descendants_gone"]),
+                          ("timed-out", None, 1, True))
+         descendant = int(open(marker).read())
+         deadline = time.monotonic() + 5
+@@ -4968,13 +4989,442 @@ class TheReviewersRequiredVerificationIsSupervisedAndBounded(
+             "'import time; time.sleep(120)'])\n"
+             f"open({marker!r}, 'w').write(str(child.pid))\n")
+         seen = self.checked(program)
+-        self.assertEqual((seen["outcome"], seen["group_gone"]),
++        self.assertEqual((seen["outcome"], seen["descendants_gone"]),
+                          ("passed", True))
+ 
+     def test_the_remaining_invocation_truncates_the_command_bound(self):
+-        seen = self.checked("import time; time.sleep(60)", invocation=1)
++        """What remains of the invocation, LESS THE ENDING GRACE, is the
++        command's bound: the ending is finished by the invocation deadline."""
++        grace = self.module.COMMAND_END_GRACE_SECONDS
++        began = time.monotonic()
++        seen = self.checked("import time; time.sleep(60)",
++                            invocation=grace + 1)
++        self.assertEqual((seen["seconds_bound"], seen["outcome"],
++                          seen["descendants_gone"]), (1, "timed-out", True))
++        self.assertLess(time.monotonic() - began, grace + 1)
++        # AND AN INVOCATION WITH ONLY THE GRACE LEFT RUNS NOTHING.
++        seen = self.checked("pass", invocation=grace)
+         self.assertEqual((seen["seconds_bound"], seen["outcome"]),
+-                         (1, "timed-out"))
++                         (0, "not-run"))
++
++    def test_time_the_copy_took_comes_off_the_command_before_it_launches(
++            self):
++        """REVIEW 2026-11-24T01-52-00Z C2.2, deterministically: the clock
++        advances past the invocation while the private copy is made. No
++        command is launched, whatever was allowed before the copy began."""
++        from unittest import mock
++
++        clock, launched = [0.0], []
++        actual_copy, actual_popen = (self.module.shutil.copytree,
++                                     subprocess.Popen)
++
++        def copy(*operands, **named):
++            answer = actual_copy(*operands, **named)
++            clock[0] += 60
++            return answer
++
++        def popen(*operands, **named):
++            launched.append(operands)
++            return actual_popen(*operands, **named)
++
++        with mock.patch.object(self.module.shutil, "copytree", copy), \
++                mock.patch.object(self.module.time, "monotonic",
++                                  lambda: clock[0]), \
++                mock.patch.object(self.module.subprocess, "Popen", popen):
++            seen = self.checked("pass", invocation=30)
++        self.assertEqual((seen["outcome"], seen["seconds_bound"], launched),
++                         ("not-run", 0, []))
++
++    def test_a_copy_that_blocks_is_left_at_the_deadline_and_runs_nothing(
++            self):
++        from unittest import mock
++
++        release = __import__("threading").Event()
++        self.addCleanup(release.set)
++        grace = self.module.COMMAND_END_GRACE_SECONDS
++        began = time.monotonic()
++        with mock.patch.object(self.module.shutil, "copytree",
++                               lambda *a, **k: release.wait(60)):
++            seen = self.checked("pass", invocation=grace + 1)
++        self.assertLess(time.monotonic() - began, grace + 1)
++        self.assertEqual(seen["outcome"], "not-run")
++
++    def gone(self, marker, within=5):
++        """Whether the process whose id `marker` holds has ENDED."""
++        pid = int(open(marker).read())
++        self.addCleanup(self.ended, pid)
++        deadline = time.monotonic() + within
++        while time.monotonic() < deadline:
++            try:
++                with open(f"/proc/{pid}/stat") as held:
++                    if held.read().rpartition(")")[2].split()[0] == "Z":
++                        return True
++            except OSError:
++                return True
++            time.sleep(0.05)
++        return False
++
++    @staticmethod
++    def ended(pid):
++        try:
++            os.kill(pid, 9)
++        except (ProcessLookupError, PermissionError):
++            pass
++
++    def detaching(self, marker, then):
++        """A command whose child LEAVES ITS SESSION -- and so its process
++        group -- and would outlive it."""
++        ready = marker + ".ready"
++        inner = (f"import pathlib, time; pathlib.Path({ready!r})"
++                 f".write_text(str(1)); time.sleep(120)")
++        return (
++            "import pathlib, subprocess, sys, time\n"
++            f"child = subprocess.Popen([sys.executable, '-c', {inner!r}], "
++            "start_new_session=True)\n"
++            f"pathlib.Path({marker!r}).write_text(str(child.pid))\n"
++            f"while not pathlib.Path({ready!r}).exists(): time.sleep(0.01)\n"
++            + then)
++
++    def test_a_detached_descendant_of_a_passing_command_is_ended(self):
++        """REVIEW 2026-11-24T01-52-00Z C2.3: the child that started its own
++        session is not in the command's group, and is ended and observed gone
++        all the same -- the supervisor adopted it."""
++        marker = os.path.join(self.root, "escaped.pid")
++        seen = self.checked(self.detaching(marker, ""))
++        self.assertEqual((seen["outcome"], seen["status"],
++                          seen["descendants_gone"]), ("passed", 0, True))
++        self.assertTrue(self.gone(marker))
++
++    def test_a_detached_descendant_of_a_timed_out_command_is_ended(self):
++        marker = os.path.join(self.root, "escaped.pid")
++        seen = self.checked(self.detaching(marker, "time.sleep(120)\n"),
++                            invocation=self.module.COMMAND_END_GRACE_SECONDS
++                            + 2)
++        self.assertEqual((seen["outcome"], seen["status"],
++                          seen["descendants_gone"]), ("timed-out", None, True))
++        self.assertTrue(self.gone(marker))
++
++    # -- the bound dominates a late completion (review 03-03-48Z C2) ---------
++
++    def supervised_under_a_clock(self, release_at, bound=1, late_setup=None):
++        """The REAL supervisor over a REAL child, with only the clock and the
++        moment the child is released under control. The child cannot end
++        until a release file exists; the wait that would observe it first
++        moves the clock to `release_at`, writes the file and reaps the child.
++        Nothing here sleeps to make a point."""
++        import signal
++        from unittest import mock
++
++        import bounded_command
++
++        ledger = os.path.join(self.root, f"ledger-clock-{release_at}")
++        os.makedirs(ledger)
++        release = os.path.join(self.root, f"release-{release_at}")
++        clock, first, actual = [0.0], [True], os.waitpid
++
++        def wait(pid, flags):
++            if pid > 0 and first[0]:
++                first[0] = False
++                clock[0] = release_at
++                open(release, "w").close()
++                return actual(pid, 0)
++            return actual(pid, flags)
++
++        def written(*operands, **named):
++            if late_setup is not None and operands[1].endswith(".started"):
++                clock[0] = late_setup
++            return kept(*operands, **named)
++
++        kept = bounded_command._written
++        handlers = {number: signal.getsignal(number) for number in (
++            signal.SIGTERM, signal.SIGINT, signal.SIGHUP)}
++        child = ("import os, time\n"
++                 f"while not os.path.exists({release!r}): time.sleep(0.001)\n")
++        try:
++            with mock.patch.object(bounded_command.time, "monotonic",
++                                   lambda: clock[0]), \
++                    mock.patch.object(bounded_command.os, "waitpid", wait), \
++                    mock.patch.object(bounded_command, "_written", written):
++                status = bounded_command.supervise(
++                    [sys.executable, "-c", child], label="check",
++                    seconds=bound, deadline=float(bound), ledger=ledger)
++        finally:
++            for number, handler in handlers.items():
++                signal.signal(number, handler)
++            open(release, "w").close()
++        return status, next(iter(bounded_command.account(ledger).values()))
++
++    def test_a_command_that_ends_inside_its_bound_is_its_own_status(self):
++        status, record = self.supervised_under_a_clock(0.5)
++        self.assertEqual((status, record["outcome"], record["status"]),
++                         (0, "exited", 0))
++
++    def test_a_command_that_ends_after_its_bound_is_a_timeout_not_a_success(
++            self):
++        """The child is released only AFTER the clock has crossed the bound.
++        It then exits 0 -- and the supervisor answers 124, records
++        `timed-out` and publishes no status."""
++        import bounded_command
++
++        for release_at in (1.0, 2.0):
++            with self.subTest(release_at=release_at):
++                status, record = self.supervised_under_a_clock(release_at)
++                self.assertEqual(
++                    (status, record["outcome"], record["status"],
++                     record["descendants_gone"]),
++                    (bounded_command.TIMED_OUT, "timed-out", None, True))
++
++    def test_a_bound_that_expires_while_the_supervisor_sets_up_runs_nothing(
++            self):
++        """The allowance is re-read at the launch: the clock crosses the
++        bound while the start record is being left, and no child exists."""
++        import bounded_command
++        from unittest import mock
++
++        with mock.patch.object(bounded_command.os, "fork",
++                               side_effect=AssertionError("launched")):
++            status, record = self.supervised_under_a_clock(
++                0.5, late_setup=1.5)
++        self.assertEqual((status, record["outcome"]),
++                         (bounded_command.TIMED_OUT, "not-run"))
++
++    def test_a_supervisor_that_answers_after_the_deadline_is_not_a_pass(self):
++        """THE ADAPTER'S OWN CLOCK. The supervisor's record says the check
++        exited 0; the adapter's clock says its supervisor answered after the
++        invocation deadline. The check is `timed-out`, never `passed`."""
++        from unittest import mock
++
++        actual, clock, moved = subprocess.Popen, [None], []
++
++        class Waited:
++            def __init__(self, child):
++                self.child = child
++                self.pid = child.pid
++
++            def wait(self, timeout=None):
++                answer = self.child.wait(timeout=timeout)
++                if not moved:
++                    moved.append(True)
++                    clock[0] = time.monotonic() + 7200
++                return answer
++
++        def now():
++            return clock[0] if clock[0] is not None else monotonic()
++
++        monotonic = time.monotonic
++        with mock.patch.object(self.module.subprocess, "Popen",
++                               lambda *a, **k: Waited(actual(*a, **k))), \
++                mock.patch.object(self.module.time, "monotonic", now):
++            seen = self.checked("pass")
++        self.assertEqual((seen["outcome"], seen["status"]),
++                         ("timed-out", None))
++
++    def test_a_provider_whose_supervisor_answers_late_is_a_timeout(self):
++        """The same rule for the provider: a clean exit recorded by its
++        supervisor, observed by the adapter after the one invocation
++        deadline, is a timed-out turn."""
++        from unittest import mock
++
++        monotonic, jump = time.monotonic, [0.0]
++        ran = self.agent._ran_provider
++
++        def late(*operands, **named):
++            answer = ran(*operands, **named)
++            jump[0] = 7200.0
++            return answer
++
++        with mock.patch.object(self.agent, "_ran_provider", late), \
++                mock.patch.object(self.module.time, "monotonic",
++                                  lambda: monotonic() + jump[0]):
++            answer, account = self.provided("pass\n")
++        self.assertEqual(account["provider"]["outcome"], "exited")
++        self.assertEqual((answer["ok"], answer["failure_reason"]),
++                         (False, self.module.PROVIDER_TIMED_OUT))
++
++    def test_a_missing_supervisor_refuses_instead_of_running_unbounded(self):
++        marker = os.path.join(self.root, "ran")
++        self.module.COMMAND_SUPERVISOR = os.path.join(self.root, "absent")
++        with self.assertRaises(self.module.TaskRefusal):
++            self.checked(f"open({marker!r}, 'w')")
++        self.assertFalse(os.path.exists(marker))
++
++    # -- the provider's own commands, through the shell prefix --------------
++
++    def tool(self, command, seconds=900, remaining=3600, **environment):
++        """One shell-tool command EXACTLY AS THE PINNED CLI HANDS IT OVER:
++        the prefix program, then the whole command as one argument."""
++        ledger = os.path.join(self.root, "ledger")
++        os.makedirs(ledger, exist_ok=True)
++        composed = {"PATH": os.environ["PATH"],
++                    "BATON_COMMAND_SECONDS": str(seconds),
++                    "BATON_COMMAND_DEADLINE": repr(time.monotonic()
++                                                   + remaining),
++                    "BATON_COMMAND_LEDGER": ledger, **environment}
++        return subprocess.run([SUPERVISOR, command], env={
++            name: value for name, value in composed.items()
++            if value is not None}, capture_output=True, text=True,
++            timeout=60), ledger
++
++    def test_a_provider_chosen_command_runs_and_answers_its_own_status(self):
++        done, ledger = self.tool("echo out; echo err >&2; exit 3")
++        self.assertEqual((done.returncode, done.stdout, done.stderr),
++                         (3, "out\n", "err\n"))
++        account = self.module._commands_account(ledger)
++        self.assertEqual({name: account[name] for name in (
++            "supervised", "timed_out", "unfinished", "descendants_gone")},
++            {"supervised": 1, "timed_out": 0, "unfinished": 0,
++             "descendants_gone": True})
++
++    def test_a_provider_chosen_command_is_ended_at_its_own_bound(self):
++        """EACH command has the selected bound, whatever the provider asked
++        for and however much of the invocation remains."""
++        marker = os.path.join(self.root, "escaped.pid")
++        began = time.monotonic()
++        done, ledger = self.tool(
++            f"setsid sleep 120 & echo $! > {marker}; sleep 120", seconds=1)
++        self.assertLess(time.monotonic() - began, 10)
++        self.assertEqual(done.returncode, 124)
++        self.assertIn("ended at its 1s bound", done.stderr)
++        self.assertTrue(self.gone(marker))
++        account = self.module._commands_account(ledger)
++        self.assertEqual((account["supervised"], account["timed_out"],
++                          account["unfinished"], account["descendants_gone"]),
++                         (1, 1, 0, True))
++
++    def test_a_command_is_ended_at_the_invocation_deadline_if_sooner(self):
++        began = time.monotonic()
++        done, ledger = self.tool("sleep 120", seconds=900, remaining=1)
++        self.assertLess(time.monotonic() - began, 10)
++        self.assertEqual(done.returncode, 124)
++        done, ledger = self.tool("touch ran-after-deadline", remaining=-1)
++        self.assertEqual(done.returncode, 124)
++        self.assertIn("no time remained", done.stderr)
++
++    def test_a_background_command_left_by_a_finished_one_is_ended(self):
++        marker = os.path.join(self.root, "escaped.pid")
++        done, ledger = self.tool(
++            f"setsid nohup sleep 120 >/dev/null 2>&1 & echo $! > {marker}")
++        self.assertEqual(done.returncode, 0)
++        self.assertTrue(self.gone(marker))
++
++    def test_a_command_whose_bound_was_not_delivered_is_not_run(self):
++        marker = os.path.join(self.root, "ran")
++        for missing in ("BATON_COMMAND_SECONDS", "BATON_COMMAND_DEADLINE",
++                        "BATON_COMMAND_LEDGER"):
++            with self.subTest(missing):
++                done, _ledger = self.tool(f"touch {marker}",
++                                          **{missing: None})
++                self.assertEqual(done.returncode, 125)
++                self.assertFalse(os.path.exists(marker))
++        done, _ledger = self.tool(f"touch {marker}", BATON_COMMAND_LEDGER=
++                                  os.path.join(self.root, "no-such-ledger"))
++        self.assertEqual(done.returncode, 125)
++        self.assertFalse(os.path.exists(marker))
++
++    def test_a_supervisor_that_was_killed_leaves_an_unfinished_command(self):
++        """NO FALSE SUCCESS: the supervisor is killed outright with its
++        command running. Its start record has no finish, and the account
++        says UNFINISHED rather than counting a command nobody saw end."""
++        ledger = os.path.join(self.root, "ledger")
++        os.makedirs(ledger)
++        marker = os.path.join(self.root, "command.pid")
++        child = subprocess.Popen(
++            [SUPERVISOR, f"echo $$ > {marker}; exec sleep 120"],
++            env={"PATH": os.environ["PATH"], "BATON_COMMAND_SECONDS": "900",
++                 "BATON_COMMAND_DEADLINE": repr(time.monotonic() + 900),
++                 "BATON_COMMAND_LEDGER": ledger})
++        deadline = time.monotonic() + 10
++        while not os.path.exists(marker) or not open(marker).read().strip():
++            self.assertLess(time.monotonic(), deadline)
++            time.sleep(0.02)
++        self.addCleanup(self.ended, int(open(marker).read()))
++        child.kill()
++        child.wait()
++        account = self.module._commands_account(ledger)
++        self.assertEqual((account["supervised"], account["unfinished"]),
++                         (0, 1))
++
++    def provided(self, body, remaining=3600):
++        """`_provider` over a REAL provider process: a stand-in program named
++        as the provider is, launched by the adapter under the real
++        supervisor with the environment the adapter composed."""
++        tools = os.path.join(self.root, "bin")
++        os.makedirs(tools, exist_ok=True)
++        program = os.path.join(tools, self.module.PROVIDER_PROGRAM)
++        with open(program, "w") as out:
++            out.write(f"#!{sys.executable}\n" + body)
++        os.chmod(program, 0o755)
++        self.count += 1
++        scratch = os.path.join(self.root, f"scratch-{self.count}")
++        os.makedirs(scratch)
++        environment = dict(self.agent._child_environments(scratch)["provider"])
++        environment["PATH"] = tools + os.pathsep + os.environ["PATH"]
++        ledger = os.path.join(scratch, "ledger")
++        os.makedirs(ledger)
++        answer = self.agent._provider(
++            {}, scratch, scratch, environment, prompt="x",
++            supervised={"deadline": time.monotonic() + remaining,
++                        "seconds": 900, "ledger": ledger})
++        return answer, self.module._commands_account(ledger)
++
++    def test_the_provider_runs_under_the_supervisor_with_the_shell_prefix(
++            self):
++        """The provider's environment names the supervisor as its shell
++        prefix with the selected bound, and a command the provider runs
++        through it -- leaving a detached child -- is counted and ended."""
++        marker = os.path.join(self.root, "escaped.pid")
++        seen = os.path.join(self.root, "environment.json")
++        answer, account = self.provided(
++            "import json, os, subprocess\n"
++            f"json.dump({{n: os.environ.get(n) for n in ("
++            "'CLAUDE_CODE_SHELL_PREFIX', 'BATON_COMMAND_SECONDS', "
++            "'BASH_MAX_TIMEOUT_MS', 'BASH_DEFAULT_TIMEOUT_MS')}, "
++            f"open({seen!r}, 'w'))\n"
++            "subprocess.run([os.environ['CLAUDE_CODE_SHELL_PREFIX'], "
++            f"'setsid sleep 120 & echo $! > {marker}'])\n")
++        self.assertTrue(answer["ok"], answer)
++        self.assertEqual(json.load(open(seen)), {
++            "CLAUDE_CODE_SHELL_PREFIX": SUPERVISOR,
++            "BATON_COMMAND_SECONDS": "900", "BASH_MAX_TIMEOUT_MS": "900000",
++            "BASH_DEFAULT_TIMEOUT_MS": "900000"})
++        self.assertEqual((account["supervised"], account["unfinished"],
++                          account["descendants_gone"],
++                          account["provider"]["outcome"]),
++                         (1, 0, True, "exited"))
++        self.assertTrue(self.gone(marker))
++
++    def test_a_descendant_the_provider_itself_detached_is_ended_with_it(self):
++        marker = os.path.join(self.root, "escaped.pid")
++        answer, account = self.provided(
++            "import subprocess, sys\n"
++            "child = subprocess.Popen(['sleep', '120'], "
++            "start_new_session=True)\n"
++            f"open({marker!r}, 'w').write(str(child.pid))\n")
++        self.assertTrue(answer["ok"], answer)
++        self.assertEqual((account["provider"]["descendants_ended"],
++                          account["provider"]["descendants_gone"]), (1, True))
++        self.assertTrue(self.gone(marker))
++
++    def test_the_provider_is_ended_at_the_one_invocation_deadline(self):
++        """Not a fresh allowance: with little of the invocation left the
++        provider and what it started are ended before the deadline, and the
++        turn is a timeout rather than a success."""
++        marker = os.path.join(self.root, "escaped.pid")
++        grace = self.module.COMMAND_END_GRACE_SECONDS
++        began = time.monotonic()
++        answer, account = self.provided(
++            "import subprocess, time\n"
++            "child = subprocess.Popen(['sleep', '120'], "
++            "start_new_session=True)\n"
++            f"open({marker!r}, 'w').write(str(child.pid))\n"
++            "time.sleep(120)\n", remaining=grace + 2)
++        self.assertLess(time.monotonic() - began, grace + 2)
++        self.assertEqual((answer["ok"], answer["failure_reason"]),
++                         (False, self.module.PROVIDER_TIMED_OUT))
++        self.assertEqual((account["provider"]["outcome"],
++                          account["provider"]["descendants_gone"]),
++                         ("timed-out", True))
++        self.assertTrue(self.gone(marker))
+ 
+     def test_no_remaining_invocation_runs_nothing(self):
+         marker = os.path.join(self.root, "ran")
+@@ -4995,12 +5445,18 @@ class TheReviewersRequiredVerificationIsSupervisedAndBounded(
+ 
+     def test_the_provider_is_handed_what_the_check_left_of_the_invocation(
+             self):
+-        """`_provider(spent=...)`: the turn bound minus what was spent, and
+-        no provider at all when nothing is left."""
+-        answer = self.agent._provider({}, self.root, self.root, {}, prompt="x",
+-                                      spent=self.module.PROVIDER_SECONDS)
+-        self.assertEqual((answer["ok"], answer["failure_reason"]),
+-                         (False, self.module.PROVIDER_TIMED_OUT))
++        """No provider at all when only the ending grace is left of the one
++        invocation deadline."""
++        launched = []
++        self.agent._run = lambda *operands, **named: launched.append(operands)
++        answer = self.agent._provider(
++            {}, self.root, self.root, self.agent._child_environments(
++                self.root)["provider"], prompt="x", supervised={
++                "deadline": time.monotonic()
++                + self.module.COMMAND_END_GRACE_SECONDS, "seconds": 900,
++                "ledger": self.root})
++        self.assertEqual((answer["ok"], answer["failure_reason"], launched),
++                         (False, self.module.PROVIDER_TIMED_OUT, []))
+ 
+     def test_the_requirement_is_closed_and_never_exceeds_the_selected_bound(
+             self):
+@@ -5508,7 +5964,10 @@ class TheConnectedRecoveryFromARealPooledProducer(
+                 (baton_worker, "OUTPUT_ROOT", roots["workspace"]),
+                 (claude_agent, "INPUT_ROOT", roots["inputs"]),
+                 (claude_agent, "OUTPUT_ROOT", roots["workspace"]),
+-                (claude_agent, "CREDENTIAL_ROOT", credentials)):
++                (claude_agent, "CREDENTIAL_ROOT", credentials),
++                # THE IMAGE'S SUPERVISOR, AT ITS SOURCE. The image copies this
++                # exact file to `/opt/baton`; nothing else about it is doubled.
++                (claude_agent, "COMMAND_SUPERVISOR", SUPERVISOR)):
+             held.append((module, name, getattr(module, name)))
+             setattr(module, name, value)
+         try:
+@@ -5669,6 +6128,32 @@ class TheConnectedRecoveryFromARealPooledProducer(
+                 # WHAT THE ADAPTER TOLD THE REVIEWER about its own run of the
+                 # required verification, read from the prompt it composed.
+                 self.reviewer_prompts.append(" ".join(argv))
++            if argv[0] == claude_agent.COMMAND_SUPERVISOR:
++                # THE SUPERVISOR IS REAL AND THE MODEL IS THE DOUBLE. The
++                # adapter launched the provider under the image's command
++                # supervisor; the scripted provider writes its report through
++                # the ordinary seam, and a REAL child then runs under the REAL
++                # supervisor in its place -- handing each scripted shell-tool
++                # command to the delivered `CLAUDE_CODE_SHELL_PREFIX` exactly
++                # as the pinned CLI does (one argument, the whole command).
++                cut = argv.index("--")
++                answered = run(argv[cut + 1:], **options)
++                stand_in = (
++                    "import os, subprocess, sys\n"
++                    f"for command in {list(getattr(self, 'reviewer_tools', ()))!r}:\n"
++                    "    subprocess.run([os.environ['CLAUDE_CODE_SHELL_PREFIX'],"
++                    " command], stdin=subprocess.DEVNULL,"
++                    " stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)\n"
++                    f"{getattr(self, 'reviewer_ending', '')}\n"
++                    f"sys.exit({answered.returncode})\n")
++                done = subprocess.run(
++                    [*argv[:cut + 1], sys.executable, "-c", stand_in],
++                    cwd=options["cwd"],
++                    env={**options["env"], "PATH": os.environ["PATH"]},
++                    timeout=options["timeout"], stdin=subprocess.DEVNULL,
++                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
++                return subprocess.CompletedProcess(argv, done.returncode,
++                                                   None, None)
+             return actual(argv, **options)
+ 
+         return run
+@@ -5719,7 +6204,10 @@ class TheConnectedRecoveryFromARealPooledProducer(
+                 (baton_worker, "OUTPUT_ROOT", roots["workspace"]),
+                 (claude_agent, "INPUT_ROOT", roots["inputs"]),
+                 (claude_agent, "OUTPUT_ROOT", roots["workspace"]),
+-                (claude_agent, "CREDENTIAL_ROOT", credentials)):
++                (claude_agent, "CREDENTIAL_ROOT", credentials),
++                # THE IMAGE'S SUPERVISOR, AT ITS SOURCE. The image copies this
++                # exact file to `/opt/baton`; nothing else about it is doubled.
++                (claude_agent, "COMMAND_SUPERVISOR", SUPERVISOR)):
+             held.append((module, name, getattr(module, name)))
+             setattr(module, name, value)
+         try:
+@@ -5852,9 +6340,12 @@ class TheConnectedRecoveryFromARealPooledProducer(
+         checked = self.reviewer_check_of(stage)
+         self.assertEqual(
+             {name: checked[name] for name in
+-             ("argv", "seconds_bound", "outcome", "status", "group_gone")},
++             ("argv", "seconds_bound", "outcome", "status",
++              "descendants_gone", "commands")},
+             {"argv": ["python3", "harness.py"], "seconds_bound": 900,
+-             "outcome": "passed", "status": 0, "group_gone": True})
++             "outcome": "passed", "status": 0, "descendants_gone": True,
++             "commands": {"supervised": 0, "timed_out": 0, "unfinished": 0,
++                          "descendants_gone": True}})
+         # AND THE REVIEWER WAS TOLD what the adapter observed, and that the
+         # producer's own verification is not independent acceptance.
+         self.assertEqual(len(self.reviewer_prompts), 1)
+@@ -5936,6 +6427,53 @@ class TheConnectedRecoveryFromARealPooledProducer(
+             publication_execution.publication_readiness(
+                 self.jobs, "C1")["owed"])
+ 
++    def test_the_reviewers_own_commands_are_supervised_and_counted(self):
++        """CONNECTED C2: the reviewer runs commands OF ITS OWN CHOOSING. Each
++        goes through the delivered shell prefix to the real supervisor; one
++        leaves a child that detached into its own session. Both are counted
++        in the adapter's claim, the detached child is ended, and the
++        acceptance is collected."""
++        marker = os.path.join(self.root, "reviewer-detached.pid")
++        self.reviewer_tools = [
++            "python3 harness.py >/dev/null 2>&1; true",
++            f"setsid sleep 120 & echo $! > {marker}"]
++        job_id, recovery, read, stage, handoff = self.reviewed()
++        self.assertEqual(self.verdict_of(stage)["disposition"], "accepted")
++        self.assertEqual(self.reviewer_check_of(stage)["commands"],
++                         {"supervised": 2, "timed_out": 0, "unfinished": 0,
++                          "descendants_gone": True})
++        pid = int(open(marker).read())
++        deadline = time.monotonic() + 5
++        while time.monotonic() < deadline and os.path.exists(f"/proc/{pid}"):
++            time.sleep(0.05)
++        self.assertFalse(os.path.exists(f"/proc/{pid}"))
++
++    def test_an_acceptance_over_a_command_nobody_saw_end_is_not_collected(
++            self):
++        """NO FALSE SUCCESS: a command's supervisor is killed outright while
++        its command runs. The adapter reads a start with no finish, withholds
++        the `accepted` report, and nothing is collected as a verdict. The
++        orphaned command is still ended, by the supervisor the provider
++        itself runs under."""
++        marker = os.path.join(self.root, "orphaned.pid")
++        self.reviewer_ending = (
++            "import time\n"
++            "lost = subprocess.Popen([os.environ['CLAUDE_CODE_SHELL_PREFIX'], "
++            f"'echo $$ > {marker}; exec sleep 120'])\n"
++            f"while not os.path.exists({marker!r}) or not "
++            f"open({marker!r}).read().strip(): time.sleep(0.02)\n"
++            "lost.kill(); lost.wait()\n")
++        job_id, recovery, read, stage, handoff = self.reviewed()
++        self.assertIsNone(self.verdict_of(stage))
++        self.assertEqual(frozen_of(self.control,
++                                   stage["attempt_id"])["disposition"],
++                         "unable")
++        pid = int(open(marker).read())
++        deadline = time.monotonic() + 5
++        while time.monotonic() < deadline and os.path.exists(f"/proc/{pid}"):
++            time.sleep(0.05)
++        self.assertFalse(os.path.exists(f"/proc/{pid}"))
++
+     def test_an_acceptance_over_a_timed_out_required_check_is_not_collected(
+             self):
+         """THE ADAPTER'S OBSERVATION IS FORCED HERE AND LABELLED: the real
+@@ -5950,7 +6488,7 @@ class TheConnectedRecoveryFromARealPooledProducer(
+ 
+         timed_out = {"argv": ["python3", "harness.py"], "seconds_bound": 900,
+                      "outcome": "timed-out", "status": None, "seconds": 900.0,
+-                     "group_gone": True}
++                     "descendants_gone": True}
+         with mock.patch.object(claude_agent.ClaudeAgent, "_reviewer_check",
+                                return_value=timed_out):
+             job_id, recovery, read, stage, handoff = self.reviewed()
+@@ -5974,17 +6512,31 @@ class TheConnectedRecoveryFromARealPooledProducer(
+                 ("no claim at all", None),
+                 ("a bound over the selected one", {"seconds_bound": 3600}),
+                 ("another command", {"argv": ["true"]}),
+-                ("processes left behind", {"group_gone": False})):
++                ("the check's descendants not seen gone",
++                 {"descendants_gone": False}),
++                ("only an empty process group, the superseded observation",
++                 {"descendants_gone": None, "group_gone": True}),
++                ("a command that started and never finished",
++                 {"commands": {"supervised": 1, "timed_out": 0,
++                               "unfinished": 1, "descendants_gone": True}}),
++                ("a command whose descendants were not seen gone",
++                 {"commands": {"supervised": 1, "timed_out": 0,
++                               "unfinished": 0, "descendants_gone": False}}),
++                ("no account of the provider's commands",
++                 {"commands": None})):
+             with self.subTest(label):
+                 if label != "no claim at all":
+                     self.tearDown()
+                     self.setUp()
+ 
+                 def claim(verdict, observed, recovery_digest=None,
+-                          checked=None, changed=changed):
++                          checked=None, commands=None, changed=changed):
++                    if changed is None:
++                        return actual(verdict, observed, recovery_digest)
++                    changed = dict(changed)
++                    counted = changed.pop("commands", commands)
+                     return actual(verdict, observed, recovery_digest,
+-                                  None if changed is None
+-                                  else dict(checked, **changed))
++                                  dict(checked, **changed), counted)
+ 
+                 with mock.patch.object(claude_agent, "_review_claim", claim):
+                     job_id, recovery, read, stage, handoff = self.reviewed()
+@@ -6047,6 +6599,209 @@ class TheConnectedRecoveryFromARealPooledProducer(
+             self.quiescing = fresh
+         return answer
+ 
++    def stopped_original(self):
++        """A real pooled producer that failed at publication and was only
++        `settle-stopped`: its runtime is still present and quiescent."""
++        from unittest import mock
++
++        from tools import single_worker, stopped_settlement
++
++        job_id = self.failed_at_publication(settle=False)
++        stage = self.producer_stage
++        selector = self.instance_selector()
++        with mock.patch.object(single_worker, "effective_engine_run",
++                               return_value=self.engine):
++            preview = stopped_settlement.execute(
++                "settlement-preview", selector, job_id=job_id,
++                stage_id=stage["stage_id"], episode=1,
++                operation_id="stopped-original", clock=lambda: self.now)
++            stopped_settlement.execute(
++                "settle-stopped", selector, document=preview["request"],
++                clock=lambda: self.now)
++        self.restarted(same_engine=True)
++        return job_id, stage
++
++    def reserved(self):
++        """Serve again over the SAME engine double, after a command that
++        refused and so left this fixture without a composition."""
++        held, fresh = self.engine, self.quiescing
++        self.quiescing = lambda: held
++        try:
++            self.jobs, self.control, self.operations = self.serving()
++        finally:
++            self.quiescing = fresh
++
++    def removals(self):
++        """How many times the engine was asked to remove a container."""
++        return len([one for one in self.engine.vectors
++                    if "rm" in one[:3]])
++
++    def test_a_removal_whose_reply_was_lost_answers_its_committed_result(
++            self):
++        """REVIEW 2026-11-24T01-52-00Z C4: the identical command, repeated
++        after it succeeded, answers the committed ending -- no refusal, no
++        second declaration, no second removal -- and the recovery is still
++        admissible afterwards."""
++        from baton_v12.worker_manager import intake
++
++        job_id, stage = self.stopped_original()
++        first = self.removed(self.instance_selector(), job_id, stage,
++                             "stopped original removed for recovery")
++        self.assertEqual((first["removed"], first["replayed"]), (True, False))
++        declared = intake.abandonment_declared(
++            self.control, attempt_id=stage["attempt_id"])
++        asked = self.removals()
++        for reason in ("stopped original removed for recovery",
++                       "a different reason the repeat does not get to choose"):
++            with self.subTest(reason):
++                again = self.removed(self.instance_selector(), job_id, stage,
++                                     reason)
++                self.assertEqual(
++                    (again["removed"], again["replayed"], again["reason"],
++                     again["after"], again["abandonment"]),
++                    (True, True, "stopped original removed for recovery",
++                     first["after"], first["abandonment"]))
++                self.assertEqual(again["before"]["execution_runtime"],
++                                 "destroyed")
++        self.assertEqual(self.removals(), asked)
++        self.assertEqual(intake.abandonment_declared(
++            self.control, attempt_id=stage["attempt_id"]), declared)
++        read = self.inspected(job_id)
++        self.assertTrue(read["eligible"], read["holds"])
++
++    def test_a_removal_cut_before_its_ending_settled_is_finished_by_repeating(
++            self):
++        """Each cut leaves the declaration committed and the ending owed. The
++        repeated command passes the gate on that declaration -- the runtime
++        axis has moved -- and the abandonment owner finishes what it started:
++        one declaration, the ending settled, the token returned."""
++        from unittest import mock
++
++        from baton_v12.worker_manager import intake
++
++        for label, target in (
++                ("after the removal, before the ending settled",
++                 "_settle_recordless_cleanup"),
++                ("after the removal was observed, before it was recorded",
++                 "_record_writer_cessation")):
++            with self.subTest(label):
++                if target != "_settle_recordless_cleanup":
++                    self.tearDown()
++                    self.setUp()
++                job_id, stage = self.stopped_original()
++                selector = self.instance_selector()
++
++                def cut(*operands, **named):
++                    raise RuntimeError("cut: " + label)
++
++                with mock.patch.object(intake, target, cut):
++                    with self.assertRaisesRegex(RuntimeError, "cut: "):
++                        self.removed(selector, job_id, stage,
++                                     "stopped original removed for recovery")
++                from baton_v12.worker_manager import ControlStore
++                with ControlStore.open_readonly(
++                        self.places["control_store"], incarnation="probe",
++                        clock=lambda: self.now) as probe:
++                    declared = intake.abandonment_declared(
++                        probe, attempt_id=stage["attempt_id"])
++                    between = attempt_runtime_of(probe, stage["attempt_id"])
++                self.assertIsNotNone(declared)
++                self.assertNotIn(between["cleanup"], ("complete", "retained"))
++                again = self.removed(selector, job_id, stage, "another reason")
++                self.assertEqual(
++                    (again["removed"], again["replayed"], again["reason"],
++                     again["after"]["execution_runtime"],
++                     again["after"]["cleanup"]),
++                    (True, True, "stopped original removed for recovery",
++                     "destroyed", "retained"))
++                self.assertEqual(intake.abandonment_declared(
++                    self.control, attempt_id=stage["attempt_id"]), declared)
++                read = self.inspected(job_id)
++                self.assertTrue(read["eligible"], read["holds"])
++
++    def test_removal_still_refuses_what_it_never_declared(self):
++        """The replay gate opens on a committed declaration of THIS attempt
++        and on nothing else: a running attempt, another episode, and an
++        attempt that ended some other way are refused, and nothing is
++        declared or removed for them."""
++        from baton_v12.worker_manager import intake
++
++        job_id = self.created()
++        self.jobs, self.control, self.operations = self.serving()
++        self.drive(self.jobs, self.operations, "implementation", "waiting")
++        stage = self.stage_of(job_id, "implementation")
++        asked = self.removals()
++        # RUNNING: not a way to stop work.
++        with self.assertRaisesRegex(ContractRefusal, "positively stopped"):
++            self.removed(self.instance_selector(), job_id, stage, "no")
++        self.reserved()
++        self.assertEqual(attempt_runtime_of(
++            self.control, stage["attempt_id"])["execution_runtime"], "running")
++        self.assertIsNone(intake.abandonment_declared(
++            self.control, attempt_id=stage["attempt_id"]))
++        # ANOTHER EPISODE of the same stage.
++        with self.assertRaises(ContractRefusal):
++            self.removed(self.instance_selector(), job_id,
++                         dict(stage, episode=2), "no")
++        self.reserved()
++        self.assertEqual(self.removals(), asked)
++
++    def test_a_competing_manager_excludes_the_installed_removal(self):
++        """ANOTHER PROCESS holds this instance's manager guard, as a serving
++        manager does. The installed removal is refused by the composition's
++        own preflight before it declares or removes anything; with the guard
++        released the same command succeeds."""
++        from baton_v12.worker_manager import intake
++
++        job_id, stage = self.stopped_original()
++        selector = self.instance_selector()
++        from baton_v12.worker_manager import workspaces
++        # THIS PROCESS LETS GO COMPLETELY. Its holds are counted and a second
++        # composition here answers the guard it already has, which is exactly
++        # why a same-process fixture proves no exclusion.
++        while True:
++            standing = workspaces.held_manager_instance(
++                self.config["workspace_storage"])
++            if standing is None:
++                break
++            standing.release()
++        here = os.path.dirname(os.path.dirname(os.path.dirname(
++            os.path.abspath(__file__))))
++        holder = subprocess.Popen(
++            [sys.executable, "-c",
++             "import sys\n"
++             "from baton_v12.worker_manager import ControlStore, workspaces\n"
++             "from tools.job_manager import _utc_clock\n"
++             "store = ControlStore.open(sys.argv[1], incarnation="
++             "'competing-manager', clock=_utc_clock())\n"
++             "workspaces.hold_manager_instance(store, sys.argv[2])\n"
++             "print('held', flush=True)\n"
++             "sys.stdin.read()\n",
++             self.places["control_store"], self.config["workspace_storage"]],
++            cwd=here, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True,
++            env={**os.environ, "PYTHONPATH": os.pathsep.join(
++                [here, os.path.join(here, "src")])})
++        self.addCleanup(holder.kill)
++        self.assertEqual(holder.stdout.readline().strip(), "held")
++        asked = self.removals()
++        with self.assertRaises(ContractRefusal) as refused:
++            self.removed(selector, job_id, stage, "excluded")
++        self.assertIn("manager", str(refused.exception))
++        holder.stdin.close()
++        holder.wait(timeout=30)
++        holder.stdout.close()
++        self.reserved()
++        self.assertEqual(self.removals(), asked)
++        self.assertEqual(attempt_runtime_of(
++            self.control, stage["attempt_id"])["execution_runtime"],
++            "quiescent")
++        self.assertIsNone(intake.abandonment_declared(
++            self.control, attempt_id=stage["attempt_id"]))
++        answer = self.removed(self.instance_selector(), job_id, stage,
++                              "stopped original removed for recovery")
++        self.assertEqual((answer["removed"], answer["replayed"]),
++                         (True, False))
++
+     def test_a_stopped_original_is_held_then_removed_recovered_and_reviewed(
+             self):
+         """THE STOPPED-ORIGINAL PATH, END TO END: `settle-stopped` leaves the
+diff --git a/v12/python/tests/manager/test_boundary_inventory.py b/v12/python/tests/manager/test_boundary_inventory.py
+index 91c0cd1837d3cec5ff278b4f7fe208300296b6ad..926c8ef5f4af1496dd5371c26bb215de6edc99f2 100644
+--- a/v12/python/tests/manager/test_boundary_inventory.py
++++ b/v12/python/tests/manager/test_boundary_inventory.py
+@@ -10910,6 +10910,11 @@ class EveryProbeProvesItArrived(BoundaryCase):
+                lambda: workspaces.retained_output_of(store, SURROGATE))
+         caller(site, "output", "a declared retained output path",
+                lambda: workspaces.retained_output_of(store, "attempt-probe", output=7))
++        # Review 2026-11-24T01-52-00Z C4: the declaration reader the installed
++        # removal's replay gate asks.
++        from baton_v12.worker_manager import intake
++        caller("intake.py:abandonment_declared", "attempt_id", "a runtime attempt id",
++               lambda: intake.abandonment_declared(store, attempt_id=SURROGATE))
+         entries = receiving_entries()
+         return {key: value for key, value in found.items() if key[0] in entries}
+ 
+@@ -13403,6 +13408,15 @@ WITNESSES[("adopted", "review_cycles.py:consumption_subject", "line_writers")] =
+ # profile owner has its own negative witness that reaches the entry.
+ WITNESSES[("caller", "review_cycles.py:restore_abandoned_correction", "profile")] = "test_restore_abandoned_correction_profile_owner"
+ WITNESSES[("caller", "review_cycles.py:settle_restoration_execution", "profile")] = "test_settle_restoration_execution_profile_owner"
++# W385695 (review 2026-11-24T01-52-00Z C3): the recovery freeze is outside the
++# lifecycle class the blanket witness runs, and its stated owners are an
++# exclusion, a replay and a profile boundary of its own. Each names the witness
++# that reaches that boundary over a world where the freeze really runs.
++WITNESSES[("adopted", "review_cycles.py:freeze_unreleased_recovered_checkpoint", "line_writers")] = "test_recovery_freeze_excludes_a_later_or_active_writer"
++WITNESSES[("adopted", "review_cycles.py:freeze_unreleased_recovered_checkpoint", "line_checkpoints")] = "test_recovery_freeze_excludes_a_writer_that_already_has_a_checkpoint"
++WITNESSES[("adopted", "review_cycles.py:freeze_unreleased_recovered_checkpoint", "replay")] = "test_recovery_freeze_replay_hands_the_committed_fence_on_unread"
++WITNESSES[("caller", "review_cycles.py:freeze_unreleased_recovered_checkpoint", "profile")] = "test_recovery_freeze_profile_owner"
++WITNESSES[("adopted", "workspaces.py:_retained_line_home", "line_writers")] = "test_retained_line_home_excludes_a_later_or_active_writer"
+ WITNESSES.update({entry: _stage_c_witness(entry) for entry in STAGE_C_STATED})
+ 
+ for _entry in DEADLINE_OWNERS:
+@@ -15892,6 +15906,198 @@ class StatedRules(BoundaryCase):
+         self.assertIsInstance(fixture.restore(), dict)
+         self._profile_owner_witness(lambda profile: fixture.restore(profile=profile), ("validate", "restore_checkpoint"))
+ 
++    # -- W385695 (review 2026-11-24T01-52-00Z C3): the recovery freeze's own
++    # witnesses. Each stated owner of `freeze_unreleased_recovered_checkpoint`
++    # and of the retained line home read is exercised AT ITS OWN BOUNDARY, over
++    # a world where the freeze really runs: a second writer granted on a
++    # reviewed line, started, declared abandoned and its gate discharged
++    # through the accepted public operations. Every witness first shows the
++    # sound world passes the boundary it is about, so the refusal that follows
++    # is that boundary's and not the world's.
++
++    def _recovery_freeze_world(self):
++        from . import test_review_cycles as cycles
++
++        fixture = self._restoration_world()
++        line = review_cycles.line_of(fixture.store, fixture.line_id)
++        head = f"{line['revision'] + 1:040x}"
++
++        class Recovering(cycles.Profile):
++            def head_of(self, repository):
++                return head
++
++        fixture.recovering = Recovering()
++
++        def freeze(**changed):
++            return review_cycles.freeze_unreleased_recovered_checkpoint(
++                fixture.store, **{
++                    "attempt_id": fixture.abandoned_attempt, "generation": 2,
++                    "profile": fixture.recovering,
++                    "candidate": {"base": line["declared_base"], "head": head},
++                    "retention_policy_digest": cycles.RETENTION, **changed})
++
++        fixture.freeze = freeze
++        return fixture
++
++    def _row_copied(self, fixture, table, key, value, **changed):
++        """One more row of `table`, a copy of the row `key = value` with the
++        named columns replaced -- a later writer or a second checkpoint is a
++        row no accepted operation will write over this world, which is the
++        point of the exclusion being probed."""
++        connection = fixture.store._connection
++        cursor = connection.execute(f"SELECT * FROM {table} WHERE {key} = ?", (value,))
++        columns = [one[0] for one in cursor.description]
++        row = dict(zip(columns, cursor.fetchone()), **changed)
++        connection.execute(
++            f"INSERT INTO {table} ({', '.join(columns)}) VALUES ({', '.join('?' * len(columns))})",
++            [row[name] for name in columns])
++        connection.commit()
++
++    def _unrecovered(self, fixture):
++        """Nothing of the recovery was committed: the writer is still active,
++        the line still writing at the checkpoint it was granted on."""
++        writer = review_cycles.writer_of(fixture.store, fixture.writer_row["writer_id"])
++        line = review_cycles.line_of(fixture.store, fixture.line_id)
++        self.assertEqual((writer["state"], line["state"], line["current_checkpoint_id"]),
++                         ("active", "writing", fixture.checkpoint["checkpoint_id"]))
++        self.assertIsNone(fixture.store.operation_record(
++            review_cycles.RECOVER_WRITER_KIND + ":" + writer["writer_id"]))
++
++    def test_recovery_freeze_excludes_a_later_or_active_writer(self):
++        """`line_writers` at the freeze: an existence answer, asked under the
++        write lock. A writer granted after this one -- revoked since or still
++        active -- holds the freeze and commits nothing; an EARLIER writer on
++        the same line (round one's, already in this world) does not."""
++        for label, changed in (
++                ("a later writer, since revoked",
++                 {"assignment_generation": 3, "state": "revoked", "revoked_at": NOW,
++                  "revocation_reason": "checkpoint"}),
++                ("another active writer", {"assignment_generation": 1})):
++            with self.subTest(label=label):
++                fixture = self._recovery_freeze_world()
++                connection = fixture.store._connection
++                if changed.get("state") != "revoked":
++                    # The table allows one active writer per line; the probe is
++                    # of the freeze's own question, so the index that would
++                    # answer it first is set aside for this one row.
++                    for (name,) in connection.execute(
++                            "SELECT name FROM sqlite_master WHERE type = 'index' AND tbl_name = 'line_writers' "
++                            "AND sql LIKE '%UNIQUE%' AND sql LIKE '%state%'").fetchall():
++                        connection.execute(f"DROP INDEX {name}")
++                fixture.attempt("writer-attempt-9", 9, "baton.impl", "writer-9")
++                self._row_copied(fixture, "line_writers", "writer_id", fixture.writer_row["writer_id"],
++                                 writer_id="writer-later-probe", runtime_attempt_id="writer-attempt-9", **changed)
++                with self.assertRaises(ContractRefusal) as caught:
++                    fixture.freeze()
++                self.assertIn("another writer has used the line", str(caught.exception))
++                self._unrecovered(fixture)
++        # THE NEGATIVE CONTROL: with only the earlier writer beside it, it freezes.
++        fixture = self._recovery_freeze_world()
++        self.assertEqual(fixture.freeze()["revision"], 2)
++
++    def test_recovery_freeze_excludes_a_writer_that_already_has_a_checkpoint(self):
++        """`line_checkpoints` at the freeze: an existence answer for this
++        writer or this checkpoint identity. Another writer's checkpoint -- the
++        reviewed round one in this world -- is not that answer."""
++        for label, changed in (
++                ("a checkpoint already recorded for this writer",
++                 lambda fixture: {"checkpoint_id": "checkpoint-probe-other", "revision": 7,
++                                  "writer_id": fixture.writer_row["writer_id"]}),
++                ("this checkpoint identity already recorded",
++                 lambda fixture: {"checkpoint_id": review_cycles._id("checkpoint", {
++                     "line_id": fixture.line_id, "revision": 2}), "revision": 7,
++                     "writer_id": "writer-earlier-probe"})):
++            with self.subTest(label=label):
++                fixture = self._recovery_freeze_world()
++                # An EARLIER writer with no checkpoint of its own, so the
++                # identity case is not answered by the later-writer question.
++                fixture.attempt("writer-attempt-9", 9, "baton.impl", "writer-9")
++                self._row_copied(fixture, "line_writers", "writer_id", fixture.writer_row["writer_id"],
++                                 writer_id="writer-earlier-probe", runtime_attempt_id="writer-attempt-9",
++                                 assignment_generation=1, state="revoked", revoked_at=NOW,
++                                 revocation_reason="checkpoint")
++                self._row_copied(
++                    fixture, "line_checkpoints", "checkpoint_id", fixture.checkpoint["checkpoint_id"],
++                    **changed(fixture))
++                with self.assertRaises(ContractRefusal) as caught:
++                    fixture.freeze()
++                self.assertIn("the writer already has a checkpoint", str(caught.exception))
++                self._unrecovered(fixture)
++        fixture = self._recovery_freeze_world()
++        self.assertEqual(fixture.freeze()["revision"], 2)
++
++    def test_recovery_freeze_replay_hands_the_committed_fence_on_unread(self):
++        """`replay` at the freeze: the committed fence is handed whole to
++        `_freeze_checkpoint`, which requires it to BE the fence the row holds.
++        A retry answers the same checkpoint without freezing again; a
++        conflicting retry is refused at the operation's own signature; and a
++        row whose fence is no longer that document is refused by the
++        checkpoint reader -- never patched up or re-derived here."""
++        fixture = self._recovery_freeze_world()
++        first = fixture.freeze()
++        frozen = list(fixture.recovering.freeze_calls)
++        self.assertEqual(fixture.freeze(), first)
++        self.assertEqual(fixture.recovering.freeze_calls, frozen)
++        with self.assertRaises(ContractRefusal):
++            fixture.freeze(candidate={"base": first["evidence"]["base"], "head": "f" * 40})
++        self.assertEqual(review_cycles.checkpoint_of(fixture.store, first["checkpoint_id"])["fence"], first["fence"])
++        # THE ROW'S FENCE MOVES; the replayed act's answer does not.
++        moved = json.loads(json.dumps(first["fence"]))
++        moved["intent"]["exclusion_digest"] = "sha256:" + "0" * 64
++        fixture.store._connection.execute(
++            "UPDATE line_checkpoints SET fence = ?, fence_digest = ? WHERE checkpoint_id = ?",
++            (json.dumps(moved, sort_keys=True, separators=(",", ":")), _contracts_digest(moved),
++             first["checkpoint_id"]))
++        fixture.store._connection.commit()
++        with patch.object(review_cycles, "_freeze_checkpoint", wraps=review_cycles._freeze_checkpoint) as delegated:
++            with self.assertRaises(ContractRefusal):
++                fixture.freeze()
++            # HANDED ON WHOLE: what the freeze passes down is the committed
++            # document, equal to the first answer's and not to the moved row's.
++            self.assertEqual(delegated.call_args.kwargs["_recovery"]["fence"], first["fence"])
++
++    def test_recovery_freeze_profile_owner(self):
++        """`profile` at the freeze: an injected aggregate whose name and whose
++        freeze, validate and head_of capabilities are typed before any use."""
++        fixture = self._recovery_freeze_world()
++        for label, profile in self._spoiled_profiles(("freeze", "validate", "head_of")):
++            with self.subTest(label=label):
++                with self.assertRaises(ContractRefusal) as caught:
++                    fixture.freeze(profile=profile)
++                self.assertIn(label, str(caught.exception))
++                self.assertEqual(fixture.recovering.freeze_calls[1:], [])
++                # THE BYPASS IS NOTICED: skip `_profile` and the same operand
++                # is not refused by that label any more.
++                try:
++                    with patch.object(review_cycles, "_profile", lambda profile, methods: "test-profile"):
++                        fixture.freeze(profile=profile)
++                except Exception as escaped:  # noqa: BLE001 -- whatever fails next
++                    self.assertNotIn(label, str(escaped), "the refusal did not come from `_profile`")
++                self._unrecovered(fixture) if label != "a checkpoint profile name" else None
++        # THE WORLD IS SOUND: the capable profile freezes it.
++        self.assertEqual(fixture.freeze()["revision"], 2)
++
++    def test_retained_line_home_excludes_a_later_or_active_writer(self):
++        """`line_writers` at the retained line home read: an existence answer
++        for a writer granted on this line after the ended attempt's. With one
++        the read refuses before any path is resolved; without one the home is
++        located and proved."""
++        from baton_v12.worker_manager import workspaces as owner
++
++        fixture = self._recovery_freeze_world()
++        line = review_cycles.line_of(fixture.store, fixture.line_id)
++        located = owner._retained_line_home(fixture.store, fixture.abandoned_attempt, None, "a witness read")
++        self.assertEqual(located[0], line["line_path"])
++        fixture.attempt("writer-attempt-9", 9, "baton.impl", "writer-9")
++        self._row_copied(fixture, "line_writers", "writer_id", fixture.writer_row["writer_id"],
++                         writer_id="writer-later-probe", runtime_attempt_id="writer-attempt-9",
++                         assignment_generation=3, state="revoked", revoked_at=NOW, revocation_reason="checkpoint")
++        with patch.object(owner, "configured_workspace_storage", side_effect=AssertionError("resolved a path")):
++            with self.assertRaises(ContractRefusal) as caught:
++                owner._retained_line_home(fixture.store, fixture.abandoned_attempt, None, "a witness read")
++        self.assertIn("was granted to another writer", str(caught.exception))
++        self.assertIn("writer-later-probe", str(caught.exception))
++
+     def test_settle_restoration_execution_profile_owner(self):
+         fixture = self._restoration_world()
+         # THE WORLD REACHES PAST THE CHECK: with the sound profile the entry is
+diff --git a/v12/python/tests/tools/test_parallel_runner.py b/v12/python/tests/tools/test_parallel_runner.py
+index 7fc5f3440a548dbaa1fe1b0b6930f3da1b9c461a..43c1b363fc93d0bd164e182b1992dc3bbceeb126 100644
+--- a/v12/python/tests/tools/test_parallel_runner.py
++++ b/v12/python/tests/tools/test_parallel_runner.py
+@@ -1366,6 +1366,11 @@ SYNTHETIC_RECORD_PATHS = {
+     # test_pool.record_in, test_bootstrap.composed_for and test_connected_creation
+     # write FINDING.md/PLAN.md themselves in disposable checkouts, not from this tree.
+     "work/records/2026/08/finding-v12-work-tags/findings/finding-v12-work-label-protocol-cli",
++    # W385695: the publication-recovery cases (test_bootstrap's publisher fixture and
++    # test_publication_recovery_execution's pooled fixture) bind a Work to this record
++    # LOCATOR and write its FINDING.md/PLAN.md themselves inside their own disposable
++    # checkout; nothing is read from this tree's dossier of the same name.
++    "work/records/2026/11/finding-v12-output-publication-recovery",
+     # the runner's supervisor-locator grammar, a pattern rather than a path
+     r"work/records/[0-9]{4}/(?:0[1-9]|1[0-2])/(?:[A-Za-z0-9_.-]+/)+[A-Za-z0-9_.-]+\.py",
+     # a reference each dossier case creates inside its own temporary repository
+diff --git a/v12/python/tools/single_worker.py b/v12/python/tools/single_worker.py
+index c5b30147fda7d28e508b9361592c719aa879d65a..7389eea7dc22a2e9fc0968a54cf8534cd03d823d 100644
+--- a/v12/python/tools/single_worker.py
++++ b/v12/python/tools/single_worker.py
+@@ -2997,6 +2997,31 @@ class _SingleWorker:
+ 
+     def abandon_attempt(self, *, attempt_id, reason, stage, seconds=None,
+                         reclaim=None):
++        """The fourth ending, and THE ADOPTION WINDOW IT OPENS IS CLOSED BY
++        THIS CALL, WHATEVER THE ENDING.
++
++        W385695 (review 2026-11-24T01-52-00Z C4). A first abandonment's
++        settlement closes the window `_abandon_attempt_over` opens on the
++        attempt's roots. An exact REPLAY returns the committed answer before
++        any settlement runs, and a call cut by a fault never reaches one --
++        and either left the window standing, which holds the stopped
++        execution `quiescence-unknown` for every later reader although no
++        writer is left. The call returning IS that in-process writer's
++        cessation, so the window is released here. The release is idempotent
++        over a window the settlement already closed and does nothing for
++        roots that carry no admission.
++        """
++        opened = []
++        try:
++            return self._abandon_attempt_over(
++                opened, attempt_id=attempt_id, reason=reason, stage=stage,
++                seconds=seconds, reclaim=reclaim)
++        finally:
++            for roots in opened:
++                workspaces.release_adopted_workspace(roots)
++
++    def _abandon_attempt_over(self, opened, *, attempt_id, reason, stage,
++                              seconds=None, reclaim=None):
+         """W247941: the manager's FOURTH ending, reachable by its owner.
+ 
+         THE COMPOSITION OWNS THIS AND AN ORCHESTRATOR CANNOT.
+@@ -3079,6 +3104,7 @@ class _SingleWorker:
+         # process cannot hold, not a substitute invented here: the credential
+         # lifecycle is then settled by cleanup discarding the orphaned root,
+         # which is what the recovery refusal itself describes.
++        opened.append(roots)
+         if self._adapter(roots, None, None, launched,
+                          attempt_id=attempt_id).observe(
+                 state["runtime_id"], seconds=seconds)["state"] == "absent":
+diff --git a/v12/python/tools/stopped_settlement.py b/v12/python/tools/stopped_settlement.py
+index d1e11000032b898ac64d306a25632e004c58eec4..916a84ca96a6e0bf530224ed23432d698e568d50 100644
+--- a/v12/python/tools/stopped_settlement.py
++++ b/v12/python/tools/stopped_settlement.py
+@@ -9,7 +9,7 @@ import sys
+ from baton_v12.authority import Authority
+ from baton_v12.contracts import ContractRefusal, digest
+ from baton_v12.job_manager import JobStore, episodes, scheduler, submission
+-from baton_v12.worker_manager import ControlStore, attempts, boundaries, tokens
++from baton_v12.worker_manager import ControlStore, attempts, boundaries, intake, tokens
+ from baton_v12.worker_manager import stopped_settlement as owner
+ from tools import instance, single_worker, stage_execution
+ from tools.fresh_attempt_ports import InstanceOwnership
+@@ -140,11 +140,24 @@ def remove(selector_path, *, job_id, stage_id, episode, reason, clock=None,
+     exact runtime, proves it absent, retains the workspace and returns the
+     exact token. Nothing installed reached it. This does, and adds no rule.
+ 
+-    FOR A STOPPED ATTEMPT ONLY. The attempt's runtime must be recorded
+-    `quiescent` -- observed stopped, by a cancellation, an expiry or a
+-    failure's own ending. A running or never-started attempt is refused: this
+-    is not a way to stop work, and the abandonment owner's own preconditions
+-    still decide everything else.
++    FOR A STOPPED ATTEMPT ONLY. A FIRST removal requires the attempt's
++    runtime recorded `quiescent` -- observed stopped, by a cancellation, an
++    expiry or a failure's own ending. A running, unknown or never-started
++    attempt is refused: this is not a way to stop work, and the abandonment
++    owner's own preconditions still decide everything else.
++
++    AND THE SAME REMOVAL, REPEATED, ANSWERS OR FINISHES (review
++    2026-11-24T01-52-00Z C4). The abandonment owner commits its declaration
++    before any external call, so once this command has begun, the journal
++    says so for this exact attempt whatever the runtime axis reads since.
++    A caller that lost the reply, or a command cut after the removal and
++    before the ending settled, repeats it: the gate is then the committed
++    declaration rather than `quiescent`, the declaration's OWN reason is the
++    one replayed -- a repeat chooses nothing -- and the owner either answers
++    its committed result or finishes the ending it started. Nothing is
++    declared a second time and no destructive effect is repeated. An attempt
++    that is not quiescent and carries no declaration -- running, uncertain,
++    unstarted, or ended some other way -- is refused exactly as before.
+ 
+     THE MANAGER MUST BE STOPPED. The composition takes the instance's
+     workspace guard exactly as serving does, so a serving manager refuses
+@@ -174,11 +187,18 @@ def remove(selector_path, *, job_id, stage_id, episode, reason, clock=None,
+         control = opened.enter_context(ControlStore.open(selector["control_store"], incarnation="settlement-remove", clock=clock))
+         stage, _allocation = _stage(jobs, held)
+         before = attempts.attempt_runtime_of(control, stage["attempt_id"])
+-        if before is None or before["runtime_id"] is None \
+-                or before["execution_runtime"] != "quiescent":
++        declared = None
++        if before is not None and before["runtime_id"] is not None:
++            declared = intake.abandonment_declared(control, attempt_id=stage["attempt_id"])
++        if declared is None and (before is None or before["runtime_id"] is None
++                                 or before["execution_runtime"] != "quiescent"):
+             _refuse(f"removal is for a positively stopped attempt: this one's runtime is recorded "
+-                    f"{None if before is None else before['execution_runtime']!r}. A running attempt is stopped by "
++                    f"{None if before is None else before['execution_runtime']!r} and no removal of it was "
++                    f"declared. A running attempt is stopped by "
+                     f"cancellation or its deadline first; an attempt with no runtime has nothing to remove")
++        if declared is not None:
++            # THE DECLARATION DECIDES, NOT THIS CALL. See the docstring.
++            reason = declared["reason"]
+         operations = (compose or _composed)(configuration, jobs, control)
+         opened.callback(getattr(operations, "close", lambda: None))
+         answered = operations.abandon_attempt(
+@@ -186,6 +206,9 @@ def remove(selector_path, *, job_id, stage_id, episode, reason, clock=None,
+         after = attempts.attempt_runtime_of(control, stage["attempt_id"])
+         return {"schema": REMOVAL_SCHEMA, "selection": held,
+                 "attempt_id": stage["attempt_id"],
++                # WHETHER THIS CALL FOUND THE REMOVAL ALREADY DECLARED, and the
++                # reason that declaration carries -- the one that was used.
++                "replayed": declared is not None, "reason": reason,
+                 "before": {"execution_runtime": before["execution_runtime"], "cleanup": before["cleanup"]},
+                 "after": {"execution_runtime": after["execution_runtime"], "cleanup": after["cleanup"]},
+                 "removed": after["execution_runtime"] == "destroyed" and after["cleanup"] in ("complete", "retained"),
+diff --git a/v12/worker/Dockerfile.claude b/v12/worker/Dockerfile.claude
+index 1ed1a309d0a1a1d23a0342b2b0e09f92c429241f..5709faff82004af707ed83d37b789a0cac007b08 100644
+--- a/v12/worker/Dockerfile.claude
++++ b/v12/worker/Dockerfile.claude
+@@ -166,6 +166,11 @@ COPY worker/baton_worker.py /opt/baton/baton_worker.py
+ # exist to replace.
+ COPY worker/adapter_refusal.py /opt/baton/adapter_refusal.py
+ COPY worker/claude_agent.py /opt/baton/claude_agent.py
++# W385695 C2: THE COMMAND SUPERVISOR, in the read-only root beside the adapter
++# and executable: the provider CLI is handed this exact path as its shell
++# prefix, and the adapter refuses a required review that cannot find it.
++COPY worker/bounded_command.py /opt/baton/bounded_command.py
++RUN chmod 0555 /opt/baton/bounded_command.py
+ COPY worker/dogfood_entry.py /opt/baton/dogfood_entry.py
+ COPY worker/worker-control-1.0.schema.json \
+      /opt/baton/worker-control-1.0.schema.json
+diff --git a/v12/worker/bounded_command.py b/v12/worker/bounded_command.py
+new file mode 100755
+index 0000000000000000000000000000000000000000..0ef30d8dcdb66e824b0d04d188b72897252892af
+--- /dev/null
++++ b/v12/worker/bounded_command.py
+@@ -0,0 +1,281 @@
++#!/usr/bin/python3
++"""One command, run under one bound, with every descendant accounted for.
++
++W385695 C2 (review 2026-11-24T01-52-00Z). The owner-selected rule is that EACH
++reviewer verification or test command has its own bound inside what remains of
++the review invocation. A prompt cannot enforce that and neither can a process
++group: a command's child that starts its own session leaves the group, outlives
++its parent, and an empty group then says nothing about it.
++
++THIS PROGRAM IS THE ENFORCEMENT, and it is reached two ways, both of which the
++adapter chooses and neither of which the provider does:
++
++  * the provider CLI is started with this file as its `CLAUDE_CODE_SHELL_PREFIX`,
++    so the CLI hands EVERY shell-tool command to it as one argument -- the
++    foreground ones, the ones it moves to the background, and the ones the
++    model asks to run in the background;
++  * the adapter runs its own required check, and the provider itself, through
++    `--exec`.
++
++WHAT IT DOES. It makes itself the child subreaper, so a descendant that
++detaches is re-parented HERE rather than to the container's init. It runs the
++command, ends it at the earlier of its bound and the absolute invocation
++deadline, and then -- whatever the ending -- kills every process that still
++descends from it and waits until none is left, within a stated grace. It
++writes a start record before the command exists and a finish record after its
++descendants are gone, so a supervisor that was itself killed leaves a start
++with no finish, which the adapter reads as unfinished rather than as success.
++
++WHAT IT DOES NOT CLAIM. It runs as the same user as the command, so it is not
++a security boundary against that command. A supervisor that is KILLED leaves a
++start with no finish, which the adapter counts as unfinished. A command that
++REWRITES the ledger is not detected here at all. What still bounds such a
++command is the outer supervisor the provider runs under, the invocation
++deadline and the container's own cessation. This is a bound on work, not a
++sandbox.
++
++Standard library only: it runs in the worker image beside the adapter.
++"""
++
++import json
++import os
++import signal
++import sys
++import time
++
++SCHEMA = "baton.bounded-command/1"
++# HOW LONG ENDING THE DESCENDANTS MAY TAKE after the command is over or its
++# bound has passed. It is counted: the adapter hands every supervisor an
++# absolute deadline that is already this much short of the invocation's.
++END_GRACE_SECONDS = 5.0
++SHELL = "/bin/bash"
++PR_SET_CHILD_SUBREAPER = 36
++# EXIT STATUSES THIS PROGRAM ITSELF ANSWERS WITH. 124 is the conventional
++# "timed out"; 125 is "this supervisor could not do its own job", and a
++# command is never run in that case.
++TIMED_OUT, UNABLE, NOT_STARTED = 124, 125, 127
++
++
++def descendants(root):
++    """Every live, non-zombie process whose parent chain reaches `root`."""
++    parents = {}
++    for name in os.listdir("/proc"):
++        if not name.isdigit():
++            continue
++        try:
++            with open(f"/proc/{name}/stat", "rb") as held:
++                raw = held.read()
++        except OSError:
++            continue
++        # THE COMMAND NAME MAY CONTAIN ANYTHING, including `)` and spaces; the
++        # fields after the LAST `)` are the ones with a fixed shape.
++        rest = raw[raw.rindex(b")") + 2:].split()
++        if rest[0] == b"Z":
++            continue
++        parents[int(name)] = int(rest[1])
++    found = []
++    for pid in parents:
++        seen, at = set(), pid
++        while at in parents and at not in seen:
++            seen.add(at)
++            at = parents[at]
++            if at == root:
++                found.append(pid)
++                break
++    return found
++
++
++def end_descendants(root, grace=END_GRACE_SECONDS):
++    """Kill everything descending from `root` until nothing does.
++
++    Returns `(ended, gone)`: how many distinct processes were signalled, and
++    whether a scan found NONE left within the grace. `gone` is an observation
++    of the process table, not an inference from a group or a wait status.
++    """
++    ended, deadline = set(), time.monotonic() + grace
++    while True:
++        live = descendants(root)
++        for pid in live:
++            ended.add(pid)
++            try:
++                os.kill(pid, signal.SIGKILL)
++            except (ProcessLookupError, PermissionError):
++                pass
++        while True:
++            try:
++                if os.waitpid(-1, os.WNOHANG)[0] == 0:
++                    break
++            except ChildProcessError:
++                break
++        if not live:
++            return len(ended), True
++        if time.monotonic() >= deadline:
++            return len(ended), False
++        time.sleep(0.01)
++
++
++def _written(ledger, name, document):
++    place = os.path.join(ledger, name)
++    handle = os.open(place, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
++                     0o600)
++    with os.fdopen(handle, "w", encoding="utf-8") as out:
++        json.dump(document, out, sort_keys=True)
++
++
++def supervise(argv, *, label, seconds, deadline, ledger):
++    """Run `argv` under the bound and return this program's exit status."""
++    me = os.getpid()
++    began = time.monotonic()
++    allowed = float(seconds)
++    if deadline is not None:
++        allowed = min(allowed, deadline - began)
++    name = f"{label}-{me}-{time.monotonic_ns()}"
++    record = {"schema": SCHEMA, "label": label, "seconds_bound": seconds,
++              "outcome": None, "status": None, "seconds": None,
++              "descendants_ended": 0, "descendants_gone": None}
++    try:
++        import ctypes
++
++        if ctypes.CDLL(None, use_errno=True).prctl(
++                PR_SET_CHILD_SUBREAPER, 1, 0, 0, 0) != 0:
++            raise OSError("prctl refused")
++        _written(ledger, name + ".started", {"schema": SCHEMA, "label": label})
++    except Exception:
++        # NOTHING RUNS UNSUPERVISED. A supervisor that cannot adopt
++        # descendants or cannot leave its start record refuses the command.
++        sys.stderr.write("baton: this command was not run: its supervisor "
++                         "could not be established\n")
++        return UNABLE
++    if allowed <= 0:
++        _written(ledger, name + ".json",
++                 dict(record, outcome="not-run", seconds=0.0,
++                      descendants_gone=True))
++        sys.stderr.write("baton: this command was not run: no time remained "
++                         "of the review invocation\n")
++        return TIMED_OUT
++    stop = []
++    for number in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
++        signal.signal(number, lambda received, _frame: stop.append(received))
++    # THE BOUND IS RE-READ AT THE LAUNCH. Adopting descendants and leaving the
++    # start record took time; a command whose allowance ran out during them
++    # is not started on the allowance it had before.
++    if time.monotonic() - began >= allowed:
++        _written(ledger, name + ".json",
++                 dict(record, outcome="not-run", seconds=0.0,
++                      descendants_gone=True))
++        sys.stderr.write("baton: this command was not run: no time remained "
++                         "of the review invocation\n")
++        return TIMED_OUT
++    try:
++        child = os.fork()
++        if child == 0:
++            try:
++                for number in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
++                    signal.signal(number, signal.SIG_DFL)
++                os.execvp(argv[0], argv)
++            except BaseException:
++                os._exit(NOT_STARTED)
++    except OSError:
++        _written(ledger, name + ".json",
++                 dict(record, outcome="not-started", seconds=0.0,
++                      descendants_gone=True))
++        return NOT_STARTED
++    status = None
++    while True:
++        try:
++            pid, raw = os.waitpid(child, os.WNOHANG)
++        except ChildProcessError:
++            pid, raw = child, 0
++        if pid:
++            # THE BOUND DOMINATES A LATE COMPLETION (review
++            # 2026-11-24T03-03-48Z C2). The clock is read AFTER the child is
++            # seen ended and before its ending is believed: a command that
++            # was still running when its bound passed did not finish inside
++            # it, whatever status it then left, and that status is not
++            # published. Only an ending observed inside the bound is `exited`.
++            if time.monotonic() - began >= allowed:
++                record["outcome"] = "timed-out"
++            else:
++                status = os.waitstatus_to_exitcode(raw)
++            break
++        if stop:
++            record["outcome"] = "signalled"
++            break
++        if time.monotonic() - began >= allowed:
++            record["outcome"] = "timed-out"
++            break
++        time.sleep(0.02)
++    ended, gone = end_descendants(me)
++    if record["outcome"] is None:
++        record["outcome"] = "exited"
++    record.update(status=status, seconds=round(time.monotonic() - began, 3),
++                  descendants_ended=ended, descendants_gone=gone)
++    _written(ledger, name + ".json", record)
++    if record["outcome"] == "timed-out":
++        sys.stderr.write(f"baton: this command was ended at its "
++                         f"{round(allowed)}s bound\n")
++        return TIMED_OUT
++    if record["outcome"] == "signalled":
++        return 128 + stop[0]
++    return status if status >= 0 else 128 - status
++
++
++def account(ledger):
++    """What the supervisors in `ledger` recorded, read by the adapter.
++
++    A start with no finish is UNFINISHED: its supervisor did not get to end
++    and observe its descendants, so nothing is known about them from here.
++    """
++    started, finished = set(), {}
++    for name in sorted(os.listdir(ledger)):
++        stem, _dot, kind = name.rpartition(".")
++        if kind == "started":
++            started.add(stem)
++        elif kind == "json":
++            try:
++                handle = os.open(os.path.join(ledger, name),
++                                 os.O_RDONLY | os.O_NOFOLLOW)
++                with os.fdopen(handle, "rb") as held:
++                    document = json.loads(held.read(65536).decode("utf-8"))
++            except (OSError, ValueError):
++                document = None
++            finished[stem] = document if type(document) is dict else None
++    return {stem: finished.get(stem) for stem in sorted(started | set(finished))}
++
++
++def main(arguments):
++    if arguments[:1] == ["--exec"]:
++        try:
++            cut = arguments.index("--")
++            options = dict(zip(arguments[1:cut:2], arguments[2:cut:2]))
++            argv = arguments[cut + 1:]
++            seconds = int(options["--seconds"])
++            deadline = (float(options["--deadline"])
++                        if "--deadline" in options else None)
++            label, ledger = options["--label"], options["--ledger"]
++            if not argv or set(options) - {"--seconds", "--deadline",
++                                           "--label", "--ledger"}:
++                raise ValueError(arguments)
++        except (KeyError, ValueError):
++            return UNABLE
++        return supervise(argv, label=label, seconds=seconds,
++                         deadline=deadline, ledger=ledger)
++    # THE SHELL PREFIX FORM: exactly one argument, the whole command string
++    # the CLI composed. The bound and ledger come from the environment the
++    # adapter composed for the CLI; a missing or unreadable one refuses.
++    if len(arguments) != 1:
++        return UNABLE
++    try:
++        seconds = int(os.environ["BATON_COMMAND_SECONDS"])
++        deadline = float(os.environ["BATON_COMMAND_DEADLINE"])
++        ledger = os.environ["BATON_COMMAND_LEDGER"]
++    except (KeyError, ValueError):
++        sys.stderr.write("baton: this command was not run: its bound was not "
++                         "delivered\n")
++        return UNABLE
++    return supervise([SHELL, "-c", arguments[0]], label="tool",
++                     seconds=seconds, deadline=deadline, ledger=ledger)
++
++
++if __name__ == "__main__":
++    sys.exit(main(sys.argv[1:]))
+diff --git a/v12/worker/claude_agent.py b/v12/worker/claude_agent.py
+index d3d4ea41804c1ebd58ea0e4e436078f9bca6e3e4..6aa6e2bcfbf2986c01727e26d856bd6c6bf8d195 100644
+--- a/v12/worker/claude_agent.py
++++ b/v12/worker/claude_agent.py
+@@ -627,14 +627,32 @@ REVIEW_CLAIM_NAMESPACE = "baton.checkpoint-review/1"
+ # (900 seconds). The provider's turn bound is not that bound: a provider
+ # supervises its own tools, and a promise in a prompt enforces nothing. So the
+ # adapter runs the read-only task's verification command itself, in a private
+-# copy of the reviewed tree and in its own process group, ends the whole group
+-# at the bound, and publishes what happened. An `accepted` report is not
+-# published as a verdict unless that command passed.
++# copy of the reviewed tree and under the image's command supervisor, which
++# ends the command and every descendant at the bound, and publishes what
++# happened. An `accepted` report is not published as a verdict unless that
++# command passed and every command of the review was observed to have ended.
+ REVIEWER_VERIFICATION_NAMESPACE = "baton.reviewer-verification/1"
+ REVIEWER_VERIFICATION_ROOM = "review-verification"
+ REVIEWER_VERIFICATION_OUTCOMES = ("passed", "failed", "timed-out",
+-                                  "not-started", "not-run")
+-REVIEWER_GROUP_GRACE_SECONDS = 5.0
++                                  "not-started", "not-run", "unsupervised")
++# W385695 C2 (review 2026-11-24T01-52-00Z): EVERY COMMAND OF A REQUIRED REVIEW
++# RUNS UNDER THE IMAGE'S OWN SUPERVISOR -- the adapter's check, the provider,
++# and each shell-tool command the provider chooses. `bounded_command.py` says
++# how; this names where it is and how it is reached. The provider CLI hands
++# every shell-tool command to the program named by `CLAUDE_CODE_SHELL_PREFIX`
++# as ONE argument, so the prefix must be one executable path, and it is one in
++# the image's read-only root beside this adapter rather than anywhere the
++# provider can write. A prefix that cannot be executed makes the CLI's command
++# fail; it is never run without it.
++COMMAND_SUPERVISOR = "/opt/baton/bounded_command.py"
++COMMAND_LEDGER_ROOM = "review-commands"
++# WHAT ENDING A COMMAND'S DESCENDANTS MAY COST, and it is charged: every
++# supervisor's absolute deadline is this much short of the invocation's, so
++# the ending is finished by the invocation deadline rather than after it.
++COMMAND_END_GRACE_SECONDS = 5.0
++# HOW LONG PAST ITS OWN DEADLINE A SUPERVISOR IS WAITED FOR before this
++# adapter stops believing it will answer.
++COMMAND_SUPERVISOR_SLACK_SECONDS = 10.0
+ REVIEW_CLAIM_MEMBERS = ("base", "head", "tree", "verdict")
+ 
+ # THE COMMIT'S AUTHOR, spelled here and composed onto the argv. The container
+@@ -2604,6 +2622,12 @@ class ClaudeAgent:
+         after writing a valid report still did not earn a decision, because a
+         turn that failed is a turn whose account is incomplete.
+         """
++        # W385695 C2: ONE ORIGIN FOR THE WHOLE INVOCATION, read before anything
++        # this turn does. A required review charges its source observation,
++        # scratch preparation, private copy, check and provider to one
++        # absolute deadline measured from here; nothing below starts a second
++        # clock or hands out an allowance computed before work that then ran.
++        origin = time.monotonic()
+         produce, absent = _selected(declared, REVIEW_OUTPUTS, "review")
+         findings_output, logs_output = produce
+         # W385331: A REVIEWER OVER A YIELDED CHECKPOINT IS ANSWERING A
+@@ -2652,15 +2676,18 @@ class ClaudeAgent:
+         # and inside the same invocation bound. Nothing is run unless the
+         # delivered recovery input requires it.
+         requirement = _reviewer_requirement()
+-        checked, spent = None, 0
++        checked, supervised, commands = None, None, None
+         if requirement is not None:
+-            began = time.monotonic()
++            deadline = origin + self._bound(self._seen, "provider_turn",
++                                            PROVIDER_SECONDS)
+             checked = self._reviewer_check(
+                 task, source, scratch, environments["verification"],
+-                invocation=self._bound(self._seen, "provider_turn",
+-                                       PROVIDER_SECONDS),
++                invocation=deadline - time.monotonic(),
+                 command=requirement["command_seconds"])
+-            spent = int(time.monotonic() - began) + 1
++            supervised = {
++                "deadline": deadline,
++                "seconds": requirement["command_seconds"],
++                "ledger": self._new_directory(scratch, COMMAND_LEDGER_ROOM)}
+         provider = self._provider(
+             task, room, scratch, environments["provider"],
+             prompt=(_response_prompt(task, source, response_context,
+@@ -2668,7 +2695,19 @@ class ClaudeAgent:
+                     if response_context is not None
+                     else _review_prompt(task, source, REVIEW_REPORT,
+                                         checked)),
+-            spent=spent)
++            supervised=supervised)
++        if supervised is not None:
++            # THE ACCOUNT IS READ AFTER THE PROVIDER'S SUPERVISOR ANSWERED,
++            # so every command it adopted has been ended and recorded. The
++            # provider's own record must be there: without it nobody observed
++            # the provider's descendants gone.
++            account = _commands_account(supervised["ledger"])
++            commands = {
++                "supervised": account["supervised"],
++                "timed_out": account["timed_out"],
++                "unfinished": account["unfinished"],
++                "descendants_gone": account["descendants_gone"]
++                and account["provider"] is not None}
+         report = _review_report(room) if provider["ok"] else None
+         # AN ACCEPTANCE IS NOT PUBLISHED OVER A REQUIRED CHECK THAT DID NOT
+         # PASS. The report is the provider's; whether the required command
+@@ -2684,6 +2723,18 @@ class ClaudeAgent:
+                         f"{checked['seconds_bound']}s bound; an acceptance "
+                         f"is not published without it")
+             report = None
++        # NOR OVER COMMANDS WHOSE ENDING NOBODY OBSERVED. A supervisor that
++        # started and left no finish record, or one that could not see its
++        # descendants gone, is work this review may still have running.
++        if commands is not None and report is not None \
++                and report["verdict"] == "accepted" \
++                and (commands["unfinished"] != 0
++                     or commands["descendants_gone"] is not True
++                     or checked["descendants_gone"] is not True):
++            withheld = ("a command of this review was not observed to have "
++                        "ended with all of its descendants; an acceptance is "
++                        "not published over work that may still be running")
++            report = None
+         # W385331: THE REPLY, read only when a question was delivered. Both a
+         # report and a reply in one turn are surfaced as the two claims they
+         # are, and the host holds on the ambiguity rather than this adapter
+@@ -2712,6 +2763,8 @@ class ClaudeAgent:
+                                  **_bound_member(provider),
+                                  **_diagnostic_member(provider)},
+                              "verification": checked,
++                             **({"commands": commands}
++                                if commands is not None else {}),
+                              # ONLY A REVIEW THAT WAS REQUIRED TO VERIFY SAYS
+                              # WHETHER ITS VERDICT WAS WITHHELD; every other
+                              # review's log is the document it always was.
+@@ -2765,7 +2818,7 @@ class ClaudeAgent:
+                              "status": "present",
+                              "result_metadata": (_review_claim(
+                                  report["verdict"], observed, report.get("recovery_digest"),
+-                                 checked)
++                                 checked, commands)
+                                  if report is not None else {})},
+                             {"name": logs_output["name"], "status": "present",
+                              "result_metadata": {}}]
+@@ -4401,7 +4454,7 @@ class ClaudeAgent:
+         return tuple(descriptor for _name, descriptor in directories)
+ 
+     def _provider(self, task, candidate, scratch, environment, prompt=None,
+-                  spent=0):
++                  supervised=None):
+         """One provider turn, over a closed argv and a closed environment.
+ 
+         THE ENVIRONMENT IS COMPOSED, NEVER INHERITED. `os.environ` is not
+@@ -4442,21 +4495,53 @@ class ClaudeAgent:
+         # other in the first place.
+         bound = self._resolved_bound(self._seen, "provider_turn",
+                                      PROVIDER_SECONDS)
+-        # W385695: WHAT THIS INVOCATION ALREADY SPENT COMES OFF THE TURN. A
+-        # required reviewer verification runs inside the same invocation
+-        # bound, so the provider is handed what is left of it and never a
+-        # fresh allowance. `spent` is 0 for every other caller.
+-        seconds = bound["seconds_bound"] - spent
+-        if seconds < 1:
+-            return {"ok": False, "status": None,
+-                    "failure_reason": PROVIDER_TIMED_OUT, **bound,
+-                    "why": f"no time remained of the {bound['seconds_bound']}s "
+-                           f"invocation bound for the provider"}
++        # W385695 C2: A REQUIRED REVIEW'S PROVIDER RUNS INSIDE WHAT IS LEFT OF
++        # THE ONE INVOCATION DEADLINE, read now -- after the setup and the
++        # check, immediately before the launch -- and never a fresh allowance.
++        # It runs under the image's supervisor, which ends the provider and
++        # every descendant short of that deadline by the ending grace, and
++        # the CLI is told to hand each shell-tool command to the same
++        # supervisor under the owner-selected per-command bound.
++        # `supervised` is None for every other caller, whose turn is unchanged.
++        seconds = bound["seconds_bound"]
++        launched = self._revalidated_environment(scratch, environment)
++        if supervised is not None:
++            ending = supervised["deadline"] - COMMAND_END_GRACE_SECONDS
++            seconds = int(ending - time.monotonic())
++            if seconds < 1:
++                return {"ok": False, "status": None,
++                        "failure_reason": PROVIDER_TIMED_OUT, **bound,
++                        "why": f"no time remained of the "
++                               f"{bound['seconds_bound']}s invocation bound "
++                               f"for the provider"}
++            _supervisor_ready()
++            limit = str(supervised["seconds"] * 1000)
++            launched = dict(
++                launched, CLAUDE_CODE_SHELL_PREFIX=COMMAND_SUPERVISOR,
++                BATON_COMMAND_SECONDS=str(supervised["seconds"]),
++                BATON_COMMAND_DEADLINE=repr(ending),
++                BATON_COMMAND_LEDGER=supervised["ledger"],
++                # NOT ENFORCEMENT, only so the CLI's own foreground window
++                # does not end a command sooner than the selected bound.
++                BASH_DEFAULT_TIMEOUT_MS=limit, BASH_MAX_TIMEOUT_MS=limit)
++            argv = [COMMAND_SUPERVISOR, "--exec", "--seconds", str(seconds),
++                    "--deadline", repr(ending), "--label", "provider",
++                    "--ledger", supervised["ledger"], "--", *argv]
+         try:
+             status, record, partial = self._ran_provider(
+-                argv, cwd=candidate, seconds=seconds, scratch=scratch,
+-                env=self._revalidated_environment(scratch, environment),
+-                umask=PROVIDER_UMASK)
++                argv, cwd=candidate,
++                seconds=seconds if supervised is None
++                else seconds + COMMAND_END_GRACE_SECONDS
++                + COMMAND_SUPERVISOR_SLACK_SECONDS,
++                scratch=scratch, env=launched, umask=PROVIDER_UMASK)
++            if supervised is not None:
++                ended = _commands_account(supervised["ledger"])["provider"]
++                # AND THIS ADAPTER'S OWN CLOCK: a provider whose supervisor
++                # answered after the one invocation deadline is a timeout,
++                # whatever that record says.
++                if ended is None or ended["outcome"] == "timed-out" \
++                        or time.monotonic() > supervised["deadline"]:
++                    raise subprocess.TimeoutExpired(argv, seconds)
+         except subprocess.TimeoutExpired:
+             return {"ok": False, "status": None,
+                     "failure_reason": PROVIDER_TIMED_OUT, **bound,
+@@ -5387,66 +5472,124 @@ class ClaudeAgent:
+         """Run the task's verification command for a REVIEW, bounded, and say
+         exactly what happened.
+ 
+-        THE BOUND IS THE SMALLEST OF THREE and is fixed before the child
+-        exists: the owner-selected per-command bound the recovery input
+-        delivered, this worker's own delivered verification bound, and the
+-        invocation bound this command runs inside. A bound of less than one
+-        second runs nothing and says so.
++        ONE DEADLINE, AND IT IS RE-READ BEFORE THE LAUNCH. `invocation` is
++        what remains of the review invocation when this is entered. The
++        private copy is made inside it -- waited for only until it -- and the
++        command's allowance is computed AFTER the copy, from the same absolute
++        deadline less the ending grace. A copy that used the time up runs no
++        command, whatever was allowed before it began (review
++        2026-11-24T01-52-00Z C2.2).
++
++        THE BOUND IS THE SMALLEST OF THREE: the owner-selected per-command
++        bound the recovery input delivered, this worker's own delivered
++        verification bound, and that remainder. `seconds_bound` is the whole
++        seconds published; the supervisor holds the exact deadline.
+ 
+         IN A PRIVATE COPY. The reviewed tree is mounted read-only and stays
+         the object the verdict is about; a command that writes -- bytecode,
+         build output -- writes into the copy, which is never published.
+ 
+-        THE WHOLE PROCESS GROUP ENDS, WHATEVER THE ENDING. The command is
+-        started as the leader of its own session; at the bound, and also
+-        after an ordinary exit, the group is killed and the leader reaped, and
+-        the group is then observed empty within a short grace. A descendant
+-        that outlived its parent would otherwise keep running inside the
+-        review's remaining time. `group_gone` reports that observation rather
+-        than assuming it.
++        UNDER THE IMAGE'S SUPERVISOR, WHICH ACCOUNTS FOR DESCENDANTS. It
++        adopts every descendant, including one that left the command's
++        session, ends them all at the bound and also after an ordinary exit,
++        and records whether a scan of the process table then found none
++        (C2.3). `descendants_gone` is that record. A supervisor that left no
++        record is `unsupervised`, never a pass.
+ 
+         BOTH STREAMS GO TO `/dev/null`, `_ran`'s rule for its reason: this is
+         code out of a candidate somebody else wrote.
+         """
++        import math
+         import signal
+ 
+-        seconds = min(int(command),
+-                      self._bound(self._seen, "ordinary_verification",
+-                                  VERIFICATION_SECONDS),
+-                      int(invocation))
++        deadline = time.monotonic() + invocation
++        limit = min(int(command),
++                    self._bound(self._seen, "ordinary_verification",
++                                VERIFICATION_SECONDS))
+         record = {"argv": list(task["verification"]),
+-                  "seconds_bound": seconds, "outcome": None, "status": None,
+-                  "seconds": None, "group_gone": None}
+-        if seconds < 1:
++                  "seconds_bound": max(0, min(limit, math.ceil(
++                      invocation - COMMAND_END_GRACE_SECONDS))),
++                  "outcome": None, "status": None, "seconds": None,
++                  "descendants_gone": None}
++        if record["seconds_bound"] < 1:
+             return dict(record, outcome="not-run")
++        _supervisor_ready()
+         copy = os.path.join(self._new_directory(scratch,
+                                                 REVIEWER_VERIFICATION_ROOM),
+                             "tree")
+-        shutil.copytree(source, copy, symlinks=True)
++        ledger = self._new_directory(scratch, REVIEWER_VERIFICATION_ROOM
++                                     + "-ledger")
++        # THE COPY IS WAITED FOR ONLY UNTIL THE DEADLINE. It runs beside this
++        # thread so a copy that blocks cannot hold the invocation past it; an
++        # abandoned copy ends with this process and its command is never run.
++        failed = []
++
++        def copied():
++            try:
++                shutil.copytree(source, copy, symlinks=True)
++            except BaseException as refused:
++                failed.append(refused)
++
++        copying = threading.Thread(target=copied, daemon=True)
++        copying.start()
++        copying.join(max(0.0, deadline - COMMAND_END_GRACE_SECONDS
++                         - time.monotonic()))
++        ending = deadline - COMMAND_END_GRACE_SECONDS
++        remaining = ending - time.monotonic()
++        if copying.is_alive() or failed or remaining <= 0:
++            return dict(record, seconds_bound=max(0, min(
++                limit, math.ceil(remaining))), outcome="not-run")
++        record["seconds_bound"] = min(limit, math.ceil(remaining))
+         began = time.monotonic()
+         try:
+             child = subprocess.Popen(
+-                list(task["verification"]), cwd=copy, env=environment,
+-                stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+-                stderr=subprocess.DEVNULL, start_new_session=True)
++                [COMMAND_SUPERVISOR, "--exec", "--seconds", str(limit),
++                 "--deadline", repr(ending), "--label", "check",
++                 "--ledger", ledger, "--", *task["verification"]],
++                cwd=copy, env=environment, stdin=subprocess.DEVNULL,
++                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
++                start_new_session=True)
+         except OSError:
+-            return dict(record, outcome="not-started")
++            return dict(record, outcome="unsupervised")
+         try:
+-            status = child.wait(timeout=seconds)
+-            record.update(outcome="passed" if status == 0 else "failed",
+-                          status=status)
++            child.wait(timeout=min(limit, remaining)
++                       + COMMAND_END_GRACE_SECONDS
++                       + COMMAND_SUPERVISOR_SLACK_SECONDS)
+         except subprocess.TimeoutExpired:
+-            record.update(outcome="timed-out")
+-        finally:
++            # THE SUPERVISOR ITSELF DID NOT ANSWER. Its session is ended and
++            # nothing is claimed about what it had adopted.
+             try:
+                 os.killpg(child.pid, signal.SIGKILL)
+             except (ProcessLookupError, PermissionError):
+                 pass
+             child.wait()
+-            record["seconds"] = round(time.monotonic() - began, 3)
+-            record["group_gone"] = _group_gone(child.pid)
+-        if record["group_gone"] is not True and record["outcome"] == "passed":
+-            # A PASS WHOSE PROCESSES ARE STILL THERE IS NOT A FINISHED CHECK.
++        returned = time.monotonic()
++        record["seconds"] = round(returned - began, 3)
++        seen = _commands_account(ledger)["check"]
++        if seen is None:
++            return dict(record, outcome="unsupervised")
++        record["descendants_gone"] = seen["descendants_gone"] is True
++        if returned > deadline:
++            # THIS ADAPTER'S OWN CLOCK, independently of the supervisor's
++            # word (review 2026-11-24T03-03-48Z C2): a check whose supervisor
++            # answered after the invocation deadline did not finish inside
++            # it, and no status it reports is read as a pass.
++            record["outcome"] = "timed-out"
++        elif seen["outcome"] == "exited":
++            record.update(outcome="passed" if seen["status"] == 0
++                          else "failed", status=seen["status"])
++            if seen["status"] == 127 and seen["descendants_ended"] == 0 \
++                    and shutil.which(task["verification"][0],
++                                     path=environment.get("PATH")) is None:
++                record.update(outcome="not-started", status=None)
++        elif seen["outcome"] in ("timed-out", "not-run", "not-started"):
++            record["outcome"] = seen["outcome"]
++        else:
++            record["outcome"] = "failed"
++        if record["descendants_gone"] is not True \
++                and record["outcome"] == "passed":
++            # A PASS WHOSE DESCENDANTS WERE NOT SEEN GONE IS NOT A FINISHED
++            # CHECK.
+             record["outcome"] = "failed"
+         return record
+ 
+@@ -6643,19 +6786,63 @@ def _read_bounded(root, relative, what):
+     return None if len(raw) > MAX_REPORT_BYTES else raw
+ 
+ 
+-def _group_gone(group):
+-    """Whether process group `group` is observed EMPTY within the grace."""
+-    deadline = time.monotonic() + REVIEWER_GROUP_GRACE_SECONDS
+-    while True:
+-        try:
+-            os.killpg(group, 0)
+-        except ProcessLookupError:
+-            return True
+-        except PermissionError:
+-            return False
+-        if time.monotonic() >= deadline:
+-            return False
+-        time.sleep(0.02)
++def _supervisor_ready():
++    """Refuse a required review whose command supervisor is not the image's.
++
++    One regular executable file, reached without a symbolic link, that this
++    process does not own-and-may-rewrite by accident of being under a
++    writable root: the image puts it in the read-only root beside this
++    adapter. A review that must bound its commands and cannot is refused
++    rather than run unbounded.
++    """
++    try:
++        seen = os.lstat(COMMAND_SUPERVISOR)
++    except OSError:
++        seen = None
++    if seen is None or not stat.S_ISREG(seen.st_mode) \
++            or not os.access(COMMAND_SUPERVISOR, os.X_OK):
++        raise TaskRefusal(
++            "this review is required to bound each of its commands and the "
++            "worker image carries no command supervisor; a required bound is "
++            "enforced or the review is refused")
++
++
++def _commands_account(ledger):
++    """What the supervisors under `ledger` recorded, as this adapter read it.
++
++    `provider` and `check` are the single records of those two labels, or
++    None. The rest are the provider's shell-tool commands: how many were
++    supervised, how many were ended at their bound, how many STARTED AND LEFT
++    NO FINISH RECORD, and whether every finished one saw its descendants
++    gone. Nothing here is taken from the provider's report.
++    """
++    import bounded_command
++
++    records = bounded_command.account(ledger)
++    single = {"provider": None, "check": None}
++    tools, unfinished, gone = [], 0, True
++    for stem, document in records.items():
++        label = stem.split("-", 1)[0]
++        usable = (type(document) is dict
++                  and document.get("schema") == bounded_command.SCHEMA
++                  and document.get("label") == label)
++        if label in single:
++            if usable:
++                single[label] = document
++            elif label == "provider":
++                unfinished += 1
++            continue
++        if not usable:
++            unfinished += 1
++            continue
++        tools.append(document)
++        gone = gone and document.get("descendants_gone") is True
++    if single["provider"] is not None:
++        gone = gone and single["provider"].get("descendants_gone") is True
++    return {**single, "supervised": len(tools),
++            "timed_out": len([each for each in tools
++                              if each.get("outcome") == "timed-out"]),
++            "unfinished": unfinished, "descendants_gone": gone}
+ 
+ 
+ def _reviewer_requirement():
+@@ -6682,7 +6869,8 @@ def _reviewer_requirement():
+     return held
+ 
+ 
+-def _review_claim(verdict, observed, recovery_digest=None, checked=None):
++def _review_claim(verdict, observed, recovery_digest=None, checked=None,
++                  commands=None):
+     """The worker-owned checkpoint-review claim, and every member is this
+     turn's own.
+ 
+@@ -6700,8 +6888,10 @@ def _review_claim(verdict, observed, recovery_digest=None, checked=None):
+             # verification, published beside the verdict so the manager can
+             # hold an acceptance that does not carry a passed one.
+             **({REVIEWER_VERIFICATION_NAMESPACE: {
+-                name: checked[name] for name in
+-                ("argv", "seconds_bound", "outcome", "status", "group_gone")}}
++                **{name: checked[name] for name in
++                   ("argv", "seconds_bound", "outcome", "status",
++                    "descendants_gone")},
++                "commands": commands}}
+                if checked is not None else {})}
+ 
+ 

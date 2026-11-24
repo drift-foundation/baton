@@ -5271,8 +5271,201 @@ def directory_manifest(root):
 MAX_RETAINED_ENTRY_BYTES = 1 << 16
 
 
+# W385695 (review 2026-11-23T20-28-00Z F1): THE WORKER'S COMPLETION SIGNAL, at
+# the root of its writable output mount and never inside a declared output.
+# `baton_worker.OUTPUT_MANIFEST` and `output.COMPLETION` spell the same name;
+# it is read here only as present or absent.
+RETAINED_COMPLETION_ENVELOPE = "output.json"
+
+
+def _retained_line_home(control, assignment_id, prepared, what):
+    """THE PERSISTENT LINE HOME ONE ENDED ATTEMPT WROTE, located from durable
+    provenance and proved. A read.
+
+    W385695, review 2026-11-23T20-28-00Z F1. An implementation attempt served
+    through the pooled composition writes into its Job's persistent
+    development line, not into `<storage>/<attempt>/workspace`, and its
+    completed-preparation record carries that object's `device:inode` and no
+    path. So the path comes from the two records that DO hold it, each this
+    store's own and each fixed when it was written:
+
+      the WRITER GRANT this exact attempt and generation was given -- the
+        append-only `line_writers` row, read through the line owner's own
+        history reader, which re-derives its identity and binds it to the
+        committed grant; and
+      the LINE that grant names, whose row holds the one path and the
+        persisted object identity the line was materialized with.
+
+    FOUR THINGS ARE THEN REQUIRED, and each refuses on its own:
+
+      the writer CANNOT WRITE: its grant is revoked, or it is still this
+        attempt's grant and the attempt's runtime is destroyed with a settled
+        cleanup -- which is what an abandoned attempt leaves, and whose
+        standing grant keeps every other writer off the line;
+      NO LATER WRITER WAS EVER GRANTED ON THIS LINE and none is active. A line
+        is persistent: the next attempt of the same Job writes into the same
+        home, and after that the tree is no longer what THIS attempt left;
+      the home is a real directory in the reserved line namespace of this
+        manager's own storage, not a link, with its persisted identity; and
+      that identity IS THE ONE THIS ATTEMPT'S PREPARATION COMPLETED OVER, so
+        a line re-pointed or re-materialized since is a substituted object.
+    """
+    from . import attempts, custody, review_cycles
+
+    assignment = attempts.assignment_of(control, assignment_id)
+    writer = review_cycles.writer_for_attempt(
+        control, attempt_id=assignment_id,
+        generation=assignment["generation"])
+    if writer is None:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"{what} is refused: attempt {name_value(assignment_id)}'s "
+            f"completed preparation states a line workspace and this store "
+            f"holds no line writer granted to that attempt; a line home "
+            f"nobody recorded for it cannot be located, and one is not "
+            f"guessed at")
+    if writer["state"] != "revoked":
+        # STILL THE LINE'S WRITER ON RECORD. That is what an ABANDONED attempt
+        # leaves: the fourth ending fences the assignment and removes the
+        # runtime, and the grant stays this attempt's until a later round
+        # recovers the line. Such a grant is itself the exclusion -- the
+        # sole-writer index admits nobody else while it stands -- PROVIDED the
+        # one process that could write through it is positively gone. So the
+        # runtime axis is asked, from this store, and anything short of a
+        # destroyed runtime with a settled cleanup refuses.
+        state = attempts.attempt_runtime_of(control, assignment_id)
+        if state is None or state["execution_runtime"] != "destroyed" \
+                or state["cleanup"] not in ("complete", "retained"):
+            raise ContractRefusal(
+                "runtime-observation", "quiescence-unknown",
+                f"{what} is refused: attempt {name_value(assignment_id)} is "
+                f"still its development line's "
+                f"{name_value(writer['state'])} writer and its runtime is "
+                f"recorded "
+                f"{name_value((state or {}).get('execution_runtime'))} with "
+                f"cleanup {name_value((state or {}).get('cleanup'))}; a tree "
+                f"its writer may still reach is not measured")
+    later = control._connection.execute(
+        "SELECT writer_id, state FROM line_writers WHERE line_id = ? AND "
+        "writer_id != ? AND (state = 'active' OR granted_at > ? OR "
+        "(granted_at = ? AND assignment_generation > ?)) LIMIT 1",
+        (writer["line_id"], writer["writer_id"], writer["granted_at"],
+         writer["granted_at"], writer["assignment_generation"])).fetchone()
+    if later is not None:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"{what} is refused: development line "
+            f"{name_value(writer['line_id'])} was granted to another writer "
+            f"({name_value(later[0])}) after attempt "
+            f"{name_value(assignment_id)}; a persistent line somebody wrote "
+            f"into since is not the output this attempt left")
+    line = review_cycles.line_of(control, writer["line_id"])
+    storage = configured_workspace_storage(control)
+    root = _real(storage.place, "the manager's workspace storage")
+    reserved = os.path.join(root, _REVIEW_LINE_HOME)
+    place = line["line_path"]
+    if type(place) is not str or os.path.realpath(place) != place \
+            or not place.startswith(reserved + os.sep):
+        raise ContractRefusal(
+            "integrity", "path",
+            f"{what} is refused: development line "
+            f"{name_value(writer['line_id'])}'s recorded home is not its own "
+            f"directory in this manager's reserved line namespace")
+    custody._no_link(place, what="the development line home")
+    resolved = _contained(place, root, "the development line home")
+    identity = _entry_identity(resolved)
+    persisted = f"{line['line_device']}:{line['line_inode']}"
+    if identity != persisted:
+        raise ContractRefusal(
+            "runtime-observation", "identity-mismatch",
+            f"{what} is refused: development line "
+            f"{name_value(writer['line_id'])} was materialized as object "
+            f"{name_value(persisted)} and the entry at its home now is "
+            f"{name_value(identity)}; a replaced line is not the one this "
+            f"attempt wrote")
+    return resolved, storage, _recorded_line_source(line)
+
+
+def _recorded_line_source(line):
+    """THE REPOSITORY THIS LINE WAS MATERIALIZED FROM, as its record names
+    it, with whether that object is still the one recorded. A read.
+
+    W385695, owner selection M385913 (option A). A producer's retained bundle
+    is a thin `base..HEAD` transport: it carries the candidate and not the
+    base it was cut from. The base is read from the line's OWN durably
+    recorded source -- the one path and the one `device:inode` the line owner
+    wrote when it materialized the line -- and from nowhere else: not a branch
+    tip, not a caller's path and not the producer's writable line home.
+
+    IT IS REPORTED, NOT REFUSED, when the source is missing, replaced or a
+    link: the retained OUTPUT is still what it is, and it is the
+    correspondence that then has no base to read. `verified` is False with
+    the reason, and the Git-aware consumer holds on it.
+    """
+    from . import custody
+
+    place = line["source_path"]
+    recorded = f"{line['source_device']}:{line['source_inode']}"
+    answer = {"path": place, "identity": recorded,
+              "declared_base": line["declared_base"], "verified": False,
+              "why": None}
+    if type(place) is not str or not os.path.isabs(place) \
+            or os.path.realpath(place) != place:
+        return dict(answer, why="the line's recorded source is not one "
+                                "canonical absolute path")
+    try:
+        custody._no_link(place, what="the line's recorded source")
+    except ContractRefusal as refused:
+        return dict(answer, why=f"the line's recorded source is not a "
+                                f"directory this manager can prove "
+                                f"({refused.code})")
+    observed = _entry_identity(place)
+    if observed != recorded:
+        return dict(answer, why=f"the line's recorded source was object "
+                                f"{recorded} and the entry there now is "
+                                f"{observed}")
+    return dict(answer, verified=True)
+
+
+def _retained_output_place(resolved, output, what):
+    """The DECLARED OUTPUT DIRECTORY inside one proved writable root.
+
+    W385695, review 2026-11-23T20-28-00Z F1. THE OUTPUT IS WHAT THE WORKER
+    DECLARED, NOT EVERYTHING IT COULD WRITE. A worker's writable mount holds
+    its candidate's working tree, its scratch and its declared outputs side by
+    side, and a development line holds a whole version-controlled checkout.
+    Measuring the mount would call a source tree and a repository's object
+    store "the proposal". So the caller names the declared output's own path
+    -- one component, the declaration's -- and that directory is what is
+    proved, measured and read.
+    """
+    from . import custody
+
+    boundaries.text(output, "a declared output path")
+    if "/" in output or "\\" in output or output in (".", "..") \
+            or output.startswith("."):
+        raise ContractRefusal(
+            "integrity", "path",
+            f"{what} names declared output {name_value(output)}; a retained "
+            f"output is one directly declared directory of the attempt's "
+            f"writable root and never a path into it")
+    place = os.path.join(resolved, output)
+    if not os.path.lexists(place):
+        # A MISSING ORIGINAL, said as that. The link check below would refuse
+        # an absent entry too, in words about what kind of object it is; an
+        # owner reading the hold is owed the plainer fact.
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"{what} is refused: the attempt's writable root holds no "
+            f"declared output {name_value(output)}; an original that is not "
+            f"there holds rather than being read from somewhere else")
+    custody._no_link(place, what="the attempt's declared output")
+    return _contained(place, resolved, "the attempt's declared output")
+
+
 def retained_output_of(control, assignment_id,
-                       *, names=(), what="a retained output read"):
+                       *, names=(), what="a retained output read",
+                       output=None):
     """THE ORIGINAL OUTPUT ONE ATTEMPT LEFT ON THIS HOST, PROVED AND MEASURED.
     A READ: it creates nothing, repairs nothing and changes no mode.
 
@@ -5310,10 +5503,26 @@ def retained_output_of(control, assignment_id,
     it was taken over; it carries no bytes, because a reader that wanted one
     file's content asks for it by its measured digest.
 
-    A LINE-LAYOUT PREPARATION IS REFUSED RATHER THAN GUESSED AT, for
-    `_revalidated_roots`' reason: the recorded identities carry no path, so a
-    persistent line home is an object this reader cannot locate and must not
-    compare against the attempt's own.
+    A LINE-LAYOUT PREPARATION IS LOCATED FROM ITS OWN DURABLE PROVENANCE AND
+    NEVER GUESSED AT (review 2026-11-23T20-28-00Z F1). The recorded identities
+    carry no path, so the attempt's own `<storage>/<attempt>/workspace` is NOT
+    compared against them; `_retained_line_home` finds the line through the
+    writer grant this attempt was given and the line that grant names, and
+    requires the writer revoked, no later writer, the reserved namespace and
+    the persisted identity before the same comparison is made.
+
+    `output` NAMES THE DECLARED OUTPUT DIRECTORY, and the measurement is then
+    of THAT directory and nothing beside it -- see `_retained_output_place`.
+    It is REQUIRED for a line layout, where the writable root is a whole
+    checkout. Omitted for an attempt layout, the whole writable root is
+    measured, which is what this read did before the operand existed.
+
+    THE ANSWER NAMES BOTH OBJECTS. `identity` is the writable root's, the one
+    the completed preparation recorded and the one a substitution is judged
+    against; `output_identity` is the declared directory's own; and
+    `completion_envelope` says whether the worker's completion signal is at
+    the writable root, which a caller could otherwise only learn by measuring
+    a tree it has no business measuring.
     """
     from . import custody
 
@@ -5323,26 +5532,40 @@ def retained_output_of(control, assignment_id,
     # internal call site and a caller's string is invisible in the body.
     what = label_of(what)
     boundaries.identity(assignment_id, "an assignment identity")
+    if output is not None:
+        boundaries.text(output, "a declared retained output path")
     # THE WRITERS FIRST. Everything below reads a tree, and reading one while
     # this manager cannot say every governed writer finished is exactly the
     # measurement REC-9 refuses to trust.
     prepared = settlement_preparation(control, assignment_id)
-    if prepared.get("workspace_layout") != "attempt":
+    layout = prepared.get("workspace_layout")
+    if layout == "line":
+        if output is None:
+            raise ContractRefusal(
+                "refused", "precondition",
+                f"{what} is refused: attempt {name_value(assignment_id)} "
+                f"wrote into a development line, whose home is a whole "
+                f"checkout; its retained output is read by the declared "
+                f"output's own path and the line is never measured whole")
+        resolved, storage, source = _retained_line_home(
+            control, assignment_id, prepared, what)
+    elif layout == "attempt":
+        source = None
+        storage = configured_workspace_storage(control)
+        root = _real(storage.place, "the manager's workspace storage")
+        home = os.path.join(root, assignment_id)
+        custody._no_link(home, what="the attempt home")
+        place = os.path.join(home, "workspace")
+        custody._no_link(place, what="the attempt's workspace")
+        resolved = _contained(place, root, "the attempt's workspace root")
+    else:
         raise ContractRefusal(
             "refused", "precondition",
             f"{what} is refused: attempt {name_value(assignment_id)}'s "
             f"completed preparation states workspace layout "
-            f"{name_value(prepared.get('workspace_layout'))}, and this read "
-            f"reconstructs the attempt layout only; an identity comparison "
-            f"whose operands are not known to be the same object is refused "
-            f"rather than performed")
-    storage = configured_workspace_storage(control)
-    root = _real(storage.place, "the manager's workspace storage")
-    home = os.path.join(root, assignment_id)
-    custody._no_link(home, what="the attempt home")
-    place = os.path.join(home, "workspace")
-    custody._no_link(place, what="the attempt's workspace")
-    resolved = _contained(place, root, "the attempt's workspace root")
+            f"{name_value(layout)}, which this read cannot locate; an "
+            f"identity comparison whose operands are not known to be the "
+            f"same object is refused rather than performed")
     identity = _entry_identity(resolved)
     if identity != prepared.get("workspace"):
         raise ContractRefusal(
@@ -5352,12 +5575,22 @@ def retained_output_of(control, assignment_id,
             f"its preparation completed and the entry there now is "
             f"{name_value(identity)}; a replaced object is not the original "
             f"output this attempt wrote")
-    manifest = directory_manifest(resolved)
-    return {"attempt_id": assignment_id, "root": resolved,
+    measured = resolved if output is None \
+        else _retained_output_place(resolved, output, what)
+    manifest = directory_manifest(measured)
+    return {"attempt_id": assignment_id, "root": measured,
             "identity": identity, "storage": storage.place,
+            "layout": layout, "output": output,
+            # THE LINE'S OWN RECORDED SOURCE for a line layout, and `None`
+            # for an attempt layout, which has no line record to read one
+            # from and keeps the bundle-only correspondence it always had.
+            "source": source,
+            "output_identity": _entry_identity(measured),
+            "completion_envelope": os.path.lexists(
+                os.path.join(resolved, RETAINED_COMPLETION_ENVELOPE)),
             "published": list(prepared.get("published") or ()),
             "manifest": manifest,
-            "entries": _retained_entries(resolved, manifest, names,
+            "entries": _retained_entries(measured, manifest, names,
                                          what)}
 
 

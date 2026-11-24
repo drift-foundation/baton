@@ -1,0 +1,42 @@
+{"cwd": "/home/sl/src/baton/work/scratch/w385695-review-385901/v12/python", "argv": ["/home/sl/.local/state/baton-v12-venv/bin/python", "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385901/probe-boundaries.py"], "timeout_seconds": 60, "scratch": "/home/sl/src/baton/work/scratch/w385695-review-385901-tests"}
+test_measurement_crossing_deadline_cannot_publish (__main__.Deadline.test_measurement_crossing_deadline_cannot_publish) ... FAIL
+test_installer_accepts_publication_role (__main__.Production.test_installer_accepts_publication_role) ... ERROR
+test_one_installed_publisher_can_serve_second_work (__main__.Production.test_one_installed_publisher_can_serve_second_work) ... FAIL
+
+======================================================================
+ERROR: test_installer_accepts_publication_role (__main__.Production.test_installer_accepts_publication_role)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385901/probe-boundaries.py", line 28, in test_installer_accepts_publication_role
+    pool.held_worker(value)
+    ~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-review-385901/v12/python/tools/pool.py", line 179, in held_worker
+    raise PoolRefusal(
+        "this deployment serves " + ", ".join(bootstrap.ROLES)
+        + " and this worker names the role " + repr(worker["role"]) + ".")
+tools.bootstrap.BootstrapRefusal: this deployment serves implementation, review, integration and this worker names the role 'publication'.
+
+======================================================================
+FAIL: test_measurement_crossing_deadline_cannot_publish (__main__.Deadline.test_measurement_crossing_deadline_cannot_publish)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385901/probe-boundaries.py", line 22, in test_measurement_crossing_deadline_cannot_publish
+    self.assertNotEqual(terminal['ending'],'answered')
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'answered' == 'answered'
+
+======================================================================
+FAIL: test_one_installed_publisher_can_serve_second_work (__main__.Production.test_one_installed_publisher_can_serve_second_work)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385901/probe-boundaries.py", line 37, in test_one_installed_publisher_can_serve_second_work
+    self.assertNotIn('the Work',disagreement)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'the Work' unexpectedly found in {'the Work': ('0000000a-W1', '0000000a-W999')}
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.236s
+
+FAILED (failures=2, errors=1)
+POST_COPY_DEADLINE {"rc": 0, "clock": "2026-09-02T00:30:00.000Z", "terminal": {"ending": "answered", "answered": ["describe", "work"], "disposition": "completed", "fault_code": null, "manifest_digest": "sha256:89c30bd56230f6edaa4620809357f711a506d6364d84a0de8f6322e967aaf644", "adapter_failure": null, "terminal_digest": "sha256:758f9d6974d2390028fa5ac791737e6342d7e5290a2bf34e639015f130ea89c9"}}
+SECOND_WORK {"the Work": ["0000000a-W1", "0000000a-W999"]}

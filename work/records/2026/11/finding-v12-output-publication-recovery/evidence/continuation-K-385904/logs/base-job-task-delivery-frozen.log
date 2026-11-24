@@ -1,0 +1,712 @@
+test_a_crash_at_the_boundary_resumes_delivered (tests.tools.test_job_task_delivery.ARestartAdoptsTheDeliveredAttempt.test_a_crash_at_the_boundary_resumes_delivered) ... ok
+test_a_crash_at_the_credential_resumes_delivered (tests.tools.test_job_task_delivery.ARestartAdoptsTheDeliveredAttempt.test_a_crash_at_the_credential_resumes_delivered) ... ok
+test_a_crash_at_the_published_input_resumes_delivered (tests.tools.test_job_task_delivery.ARestartAdoptsTheDeliveredAttempt.test_a_crash_at_the_published_input_resumes_delivered)
+THE ONE THAT MATTERS MOST: the root is on disk, half-trusted. ... ok
+test_a_crash_at_the_recorded_attempt_resumes_delivered (tests.tools.test_job_task_delivery.ARestartAdoptsTheDeliveredAttempt.test_a_crash_at_the_recorded_attempt_resumes_delivered)
+The point where `record_attempt` has fixed the input digest. ... ok
+test_a_crash_at_the_retained_manifest_resumes_delivered (tests.tools.test_job_task_delivery.ARestartAdoptsTheDeliveredAttempt.test_a_crash_at_the_retained_manifest_resumes_delivered) ... ok
+test_a_crash_before_the_claim_resumes_on_the_delivered_identity (tests.tools.test_job_task_delivery.ARestartAdoptsTheDeliveredAttempt.test_a_crash_before_the_claim_resumes_on_the_delivered_identity)
+THE EARLY CONTROL: nothing has been prepared yet. ... ok
+test_a_restart_that_would_deliver_another_task_publishes_nothing (tests.tools.test_job_task_delivery.ARestartAdoptsTheDeliveredAttempt.test_a_restart_that_would_deliver_another_task_publishes_nothing)
+AND THE ADOPTION IS NOT A RE-PREPARATION. ... ok
+test_a_job_naming_a_verification_gets_it_and_the_other_keeps_the_installed (tests.tools.test_job_task_delivery.EachJobCarriesItsOwnVerification.test_a_job_naming_a_verification_gets_it_and_the_other_keeps_the_installed) ... ok
+test_a_malformed_verification_refuses_before_anything_is_composed (tests.tools.test_job_task_delivery.EachJobCarriesItsOwnVerification.test_a_malformed_verification_refuses_before_anything_is_composed) ... ok
+test_an_installed_task_without_a_verification_cannot_take_one (tests.tools.test_job_task_delivery.EachJobCarriesItsOwnVerification.test_an_installed_task_without_a_verification_cannot_take_one) ... ok
+test_a_fresh_reader_over_the_same_state_reproduces_the_context (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_a_fresh_reader_over_the_same_state_reproduces_the_context)
+RESTART. A reader that remembered anything would fail here. ... ok
+test_a_removed_root_refuses_rather_than_substituting_the_installed (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_a_removed_root_refuses_rather_than_substituting_the_installed)
+A ROOT THAT CANNOT BE PROVED IS NOT ANSWERED FROM ELSEWHERE. ... ok
+test_a_stage_that_resolves_the_wrong_input_refuses (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_a_stage_that_resolves_the_wrong_input_refuses)
+THE OTHER ROUTE TO THE SAME WRONG ANSWER, closed. ... ok
+test_an_attempt_whose_WHOLE_root_was_substituted_refuses (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_an_attempt_whose_WHOLE_root_was_substituted_refuses)
+A COMPLETE, INTERNALLY VALID PAIR, refused by the RECORD alone. ... ok
+test_an_attempt_whose_root_HALF_was_substituted_refuses (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_an_attempt_whose_root_HALF_was_substituted_refuses)
+ONE DOCUMENT REPLACED, which is a MISMATCHED pair. ... ok
+test_an_installed_attempt_with_no_root_still_reconciles (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_an_installed_attempt_with_no_root_still_reconciles)
+THE PRESERVED PATH, and it must not acquire a new failure. ... ok
+test_the_installed_delivery_is_still_what_a_jobless_task_gets (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_the_installed_delivery_is_still_what_a_jobless_task_gets)
+THE FALLBACK, preserved. A Job with no own task is every Job that ... ok
+test_the_observation_adopts_the_materialized_launch (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_the_observation_adopts_the_materialized_launch)
+THE BEHAVIOUR AN OPERATOR SEES, through the real surface. ... ok
+test_the_policy_digest_and_the_limits_are_still_the_deployments (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_the_policy_digest_and_the_limits_are_still_the_deployments)
+ONLY the input manifest and the task move. ... ok
+test_the_recovery_entrypoint_identifies_the_delivered_attempt (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_the_recovery_entrypoint_identifies_the_delivered_attempt)
+`refresh_runtime`, the serving loop's own runtime read. ... ok
+test_the_shared_configuration_is_never_written_to (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_the_shared_configuration_is_never_written_to)
+NO CONTAMINATION. The installed document is shared by every Job ... ok
+test_the_stageless_adapter_describes_the_delivered_input (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_the_stageless_adapter_describes_the_delivered_input)
+THE CORRECTION, asked of the function the recovery callers use. ... ok
+test_the_started_attempt_is_recorded_against_the_delivered_input (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_the_started_attempt_is_recorded_against_the_delivered_input)
+THE RECORD AND THE DISK, after a real start. ... ok
+test_the_two_compositions_agree_on_the_launch_context (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_the_two_compositions_agree_on_the_launch_context)
+THE IDENTITY AGREEMENT, asserted directly on the bytes. ... ok
+test_two_jobs_on_one_worker_resolve_their_own_contexts (tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity.test_two_jobs_on_one_worker_resolve_their_own_contexts)
+CROSS-CONTAMINATION, asked of the reader rather than the writer. ... ok
+test_a_missing_published_task_refuses (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_a_missing_published_task_refuses) ... ok
+test_a_restart_proves_the_published_task_and_continues (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_a_restart_proves_the_published_task_and_continues)
+NOT A SECOND RENDERING COMPARED WITH ITSELF. ... /home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py:354: ResourceWarning: unclosed file <_io.BufferedReader name='/home/sl/src/baton/work/scratch/w385695-K-385897/verification-r/v12-w71917-0ysm9sm0/inputs-job-first/inputs/task.json'>
+  "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_restart_that_would_deliver_another_task_refuses (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_a_restart_that_would_deliver_another_task_refuses)
+THE MISMATCH, which is the cross-Job accident made concrete. ... ok
+test_a_tampered_published_task_refuses (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_a_tampered_published_task_refuses) ... ok
+test_publishing_over_an_existing_task_refuses (tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished.test_publishing_over_an_existing_task_refuses)
+PROVENANCE THIS COMPOSITION CANNOT PROVE. ... ok
+test_a_job_with_no_own_task_prepares_the_installed_one (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_job_with_no_own_task_prepares_the_installed_one)
+THE PRESERVED PATH, through the same owning sequence. ... ERROR
+test_a_missing_task_refuses_on_the_reopened_preparation (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_missing_task_refuses_on_the_reopened_preparation) ... ERROR
+test_a_reopened_preparation_proves_the_same_root (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_reopened_preparation_proves_the_same_root)
+RESTART THROUGH THE OWNING PATH, not a second rendering. ... ERROR
+test_a_tampered_root_refuses_on_the_reopened_preparation (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_tampered_root_refuses_on_the_reopened_preparation) ... ERROR
+test_an_assignment_from_the_installed_manifest_refuses (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_an_assignment_from_the_installed_manifest_refuses)
+THE REVIEWER'S R2, AS A CASE. ... ERROR
+test_both_ordinary_roles_prepare_the_requested_task (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_both_ordinary_roles_prepare_the_requested_task)
+THE WHOLE SEQUENCE, for implementation AND review. ... 
+  test_both_ordinary_roles_prepare_the_requested_task (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_both_ordinary_roles_prepare_the_requested_task) (role='implementation')
+THE WHOLE SEQUENCE, for implementation AND review. ... ERROR
+  test_both_ordinary_roles_prepare_the_requested_task (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_both_ordinary_roles_prepare_the_requested_task) (role='review')
+THE WHOLE SEQUENCE, for implementation AND review. ... ERROR
+test_the_recorded_and_launch_identities_are_the_delivered_one (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_the_recorded_and_launch_identities_are_the_delivered_one)
+EVERY OWNER DESCRIBES ONE RUNTIME INPUT. ... ERROR
+test_two_jobs_prepare_independently_on_one_worker (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_two_jobs_prepare_independently_on_one_worker) ... ERROR
+test_a_job_with_no_own_task_is_served_the_installed_one (tests.tools.test_job_task_delivery.TheCreatedJobRunsThroughThePoolServingLoop.test_a_job_with_no_own_task_is_served_the_installed_one)
+THE PRESERVED PATH, through the same loop and the same fix. ... ok
+test_the_created_jobs_own_task_reaches_a_started_runtime (tests.tools.test_job_task_delivery.TheCreatedJobRunsThroughThePoolServingLoop.test_the_created_jobs_own_task_reaches_a_started_runtime)
+THE WHOLE SCENARIO: creation, loop, publication, start. ... ok
+test_the_stageless_adapter_over_the_pool_attempt_is_the_delivered_one (tests.tools.test_job_task_delivery.TheCreatedJobRunsThroughThePoolServingLoop.test_the_stageless_adapter_over_the_pool_attempt_is_the_delivered_one)
+THE RECOVERY IDENTITY, after a real pool start. ... ok
+test_a_job_the_reader_answers_none_for_gets_the_installed_task (tests.tools.test_job_task_delivery.TheInstalledDeliveryIsPreserved.test_a_job_the_reader_answers_none_for_gets_the_installed_task) ... ok
+test_a_stage_with_no_job_gets_the_installed_task (tests.tools.test_job_task_delivery.TheInstalledDeliveryIsPreserved.test_a_stage_with_no_job_gets_the_installed_task)
+THE BOOTSTRAP COMPOSITION, which binds no Job. ... ok
+test_a_worker_with_no_reader_at_all_gets_the_installed_task (tests.tools.test_job_task_delivery.TheInstalledDeliveryIsPreserved.test_a_worker_with_no_reader_at_all_gets_the_installed_task) ... ok
+test_a_corrupted_launch_document_is_refused (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_a_corrupted_launch_document_is_refused)
+TAMPERING. The bytes on disk are proved, not trusted. ... ok
+test_a_removed_root_refuses_rather_than_substituting_the_installed (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_a_removed_root_refuses_rather_than_substituting_the_installed)
+A ROOT THAT CANNOT BE PROVED IS NOT ANSWERED FROM ELSEWHERE. ... ok
+test_a_stage_naming_another_attempt_is_refused (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_a_stage_naming_another_attempt_is_refused)
+CROSS-ATTEMPT. The launch on disk belongs to one attempt. ... ok
+test_a_stage_naming_another_job_is_refused (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_a_stage_naming_another_job_is_refused)
+THE EXACT-BYTE CHECK, still doing its work. ... ok
+test_a_stage_naming_no_job_is_refused (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_a_stage_naming_no_job_is_refused)
+AN UNBOUND EXECUTION. Both compositions refuse it, identically, ... ok
+test_a_stage_that_resolves_the_wrong_input_refuses (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_a_stage_that_resolves_the_wrong_input_refuses)
+THE OTHER ROUTE TO THE SAME WRONG ANSWER, closed. ... ok
+test_an_attempt_whose_WHOLE_root_was_substituted_refuses (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_an_attempt_whose_WHOLE_root_was_substituted_refuses)
+A COMPLETE, INTERNALLY VALID PAIR, refused by the RECORD alone. ... ok
+test_an_attempt_whose_root_HALF_was_substituted_refuses (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_an_attempt_whose_root_HALF_was_substituted_refuses)
+ONE DOCUMENT REPLACED, which is a MISMATCHED pair. ... ok
+test_an_installed_attempt_with_no_root_still_reconciles (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_an_installed_attempt_with_no_root_still_reconciles)
+THE PRESERVED PATH, and it must not acquire a new failure. ... ok
+test_the_observation_still_holds_no_act_and_no_engine (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_the_observation_still_holds_no_act_and_no_engine)
+WHAT IT IS NOT, re-asserted after the correction added a reader. ... ok
+test_the_recovery_entrypoint_identifies_the_delivered_attempt (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_the_recovery_entrypoint_identifies_the_delivered_attempt)
+`refresh_runtime`, the serving loop's own runtime read. ... ok
+test_the_stageless_adapter_describes_the_delivered_input (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_the_stageless_adapter_describes_the_delivered_input)
+THE CORRECTION, asked of the function the recovery callers use. ... ok
+test_the_started_attempt_is_recorded_against_the_delivered_input (tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce.test_the_started_attempt_is_recorded_against_the_delivered_input)
+THE RECORD AND THE DISK, after a real start. ... ok
+test_it_answers_the_stored_document_and_none_for_everything_else (tests.tools.test_job_task_delivery.TheReaderOverARealStore.test_it_answers_the_stored_document_and_none_for_everything_else) ... ok
+test_a_review_job_with_no_own_task_is_delivered_the_installed_one (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_a_review_job_with_no_own_task_is_delivered_the_installed_one)
+THE PRESERVED PATH for the review role, through the same mount. ... ERROR
+test_one_job_gives_both_roles_one_job_scoped_identity (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_one_job_gives_both_roles_one_job_scoped_identity)
+ONE JOB, TWO ROLES, TWO RUNTIME MANIFESTS, ONE IDENTITY. ... ERROR
+test_the_review_attempt_is_delivered_the_jobs_requested_task (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_review_attempt_is_delivered_the_jobs_requested_task)
+THE BYTES IN THE REVIEW ATTEMPT'S OWN INPUT ROOT. ... ERROR
+test_the_review_mount_is_the_frozen_checkpoint_read_only (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_review_mount_is_the_frozen_checkpoint_read_only)
+REVIEW SEMANTICS, from the boundary the manager composed. ... ERROR
+test_the_stageless_adapter_over_a_review_attempt_is_the_delivered_one (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_stageless_adapter_over_a_review_attempt_is_the_delivered_one)
+AND THE RECOVERY PATH, for the role that was never covered. ... ERROR
+test_the_review_attempt_is_recorded_and_adapted_on_the_delivered_input (tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop.test_the_review_attempt_is_recorded_and_adapted_on_the_delivered_input)
+THE IDENTITIES: recorded, manifest, context and adapter. ... ok
+test_the_review_mount_is_the_checkpoint_the_round_froze (tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop.test_the_review_mount_is_the_checkpoint_the_round_froze)
+REVIEW SEMANTICS, from the attachment the loop granted. ... ok
+test_the_review_runtime_is_started_with_the_requested_task (tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop.test_the_review_runtime_is_started_with_the_requested_task)
+THE MILESTONE: the loop, the ending, and the review runtime. ... ok
+test_a_removed_root_refuses_rather_than_substituting_the_installed (tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity.test_a_removed_root_refuses_rather_than_substituting_the_installed)
+A ROOT THAT CANNOT BE PROVED IS NOT ANSWERED FROM ELSEWHERE. ... ok
+test_a_stage_that_resolves_the_wrong_input_refuses (tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity.test_a_stage_that_resolves_the_wrong_input_refuses)
+THE OTHER ROUTE TO THE SAME WRONG ANSWER, closed. ... ok
+test_an_attempt_whose_WHOLE_root_was_substituted_refuses (tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity.test_an_attempt_whose_WHOLE_root_was_substituted_refuses)
+A COMPLETE, INTERNALLY VALID PAIR, refused by the RECORD alone. ... ok
+test_an_attempt_whose_root_HALF_was_substituted_refuses (tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity.test_an_attempt_whose_root_HALF_was_substituted_refuses)
+ONE DOCUMENT REPLACED, which is a MISMATCHED pair. ... ok
+test_an_installed_attempt_with_no_root_still_reconciles (tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity.test_an_installed_attempt_with_no_root_still_reconciles)
+THE PRESERVED PATH, and it must not acquire a new failure. ... ok
+test_the_recovery_entrypoint_identifies_the_delivered_attempt (tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity.test_the_recovery_entrypoint_identifies_the_delivered_attempt)
+`refresh_runtime`, the serving loop's own runtime read. ... ok
+test_the_stageless_adapter_describes_the_delivered_input (tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity.test_the_stageless_adapter_describes_the_delivered_input)
+THE CORRECTION, asked of the function the recovery callers use. ... ok
+test_the_started_attempt_is_recorded_against_the_delivered_input (tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity.test_the_started_attempt_is_recorded_against_the_delivered_input)
+THE RECORD AND THE DISK, after a real start. ... ok
+test_both_attempts_are_recorded_against_their_own_identity (tests.tools.test_job_task_delivery.TwoCreatedJobsRunThroughOnePoolServingLoop.test_both_attempts_are_recorded_against_their_own_identity)
+THE DURABLE RECORD, for both, written by the loop. ... ok
+test_both_created_jobs_are_served_their_own_requested_bytes (tests.tools.test_job_task_delivery.TwoCreatedJobsRunThroughOnePoolServingLoop.test_both_created_jobs_are_served_their_own_requested_bytes)
+TWO JOBS, ONE LOOP, TWO DELIVERIES, NOTHING CROSSED. ... ok
+test_both_jobs_reach_their_own_started_runtime (tests.tools.test_job_task_delivery.TwoCreatedJobsRunThroughOnePoolServingLoop.test_both_jobs_reach_their_own_started_runtime)
+TWO JOBS CODING SIMULTANEOUSLY, through one loop. ... ok
+test_each_job_reached_its_own_line_and_producer (tests.tools.test_job_task_delivery.TwoCreatedJobsRunThroughOnePoolServingLoop.test_each_job_reached_its_own_line_and_producer)
+THE POOL'S OWN PER-JOB BINDING, read back through its reader. ... ok
+test_the_single_container_engine_refuses_the_second_delivery (tests.tools.test_job_task_delivery.TwoCreatedJobsRunThroughOnePoolServingLoop.test_the_single_container_engine_refuses_the_second_delivery)
+AND THE REFUSAL IS KEPT, because it is worth keeping. ... ok
+test_neither_jobs_bytes_reach_the_others_root (tests.tools.test_job_task_delivery.TwoJobsOnOneWorkerGetTheirOwnBytes.test_neither_jobs_bytes_reach_the_others_root)
+NO CROSS-JOB EFFECT, from ONE worker object. ... /home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py:190: ResourceWarning: unclosed file <_io.BufferedReader name='/home/sl/src/baton/work/scratch/w385695-K-385897/verification-r/v12-w71917-uscapt4y/inputs-job-first/inputs/task.json'>
+  "rb").read().decode("utf-8")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py:193: ResourceWarning: unclosed file <_io.BufferedReader name='/home/sl/src/baton/work/scratch/w385695-K-385897/verification-r/v12-w71917-uscapt4y/inputs-job-second/inputs/task.json'>
+  "rb").read().decode("utf-8")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_the_published_file_is_this_jobs_own_task (tests.tools.test_job_task_delivery.TwoJobsOnOneWorkerGetTheirOwnBytes.test_the_published_file_is_this_jobs_own_task)
+THE BYTES ON DISK, read back and compared whole. ... ok
+test_the_review_role_is_delivered_the_same_task (tests.tools.test_job_task_delivery.TwoJobsOnOneWorkerGetTheirOwnBytes.test_the_review_role_is_delivered_the_same_task)
+ROLE-SPECIFIC SEMANTICS PRESERVED, and the task is the JOB's. ... ok
+test_the_two_jobs_input_identities_differ_and_both_are_consistent (tests.tools.test_job_task_delivery.TwoJobsOnOneWorkerGetTheirOwnBytes.test_the_two_jobs_input_identities_differ_and_both_are_consistent) ... ok
+test_each_job_gets_its_own_bytes_identity_and_root (tests.tools.test_job_task_delivery.TwoRequestedJobsThroughOnePool.test_each_job_gets_its_own_bytes_identity_and_root)
+TWO ATTEMPTS, TWO ROOTS, NOTHING OF EITHER IN THE OTHER. ... ok
+test_each_job_is_granted_its_own_line (tests.tools.test_job_task_delivery.TwoRequestedJobsThroughOnePool.test_each_job_is_granted_its_own_line)
+THE POOL'S OWN REASON this is possible at all. ... ok
+test_the_shared_configuration_is_not_mutated_by_either_job (tests.tools.test_job_task_delivery.TwoRequestedJobsThroughOnePool.test_the_shared_configuration_is_not_mutated_by_either_job)
+ONE WORKER OBJECT, SERVING TWO JOBS, UNCHANGED BY BOTH. ... ok
+test_the_served_job_gets_its_own_bytes_and_the_second_waits (tests.tools.test_job_task_delivery.TwoRequestedJobsThroughOneServingLoop.test_the_served_job_gets_its_own_bytes_and_the_second_waits)
+WHAT ONE BOOTSTRAP LOOP CAN ACTUALLY SERVE, measured. ... ok
+test_a_caller_cannot_add_a_whole_category_either (tests.manager.test_frozen.ThePairIsCheckedWhereItIsRaised.test_a_caller_cannot_add_a_whole_category_either) ... ok
+test_a_caller_cannot_open_the_frozen_pairing (tests.manager.test_frozen.ThePairIsCheckedWhereItIsRaised.test_a_caller_cannot_open_the_frozen_pairing) ... ok
+test_an_unpaired_category_or_code_is_a_defect_not_a_refusal (tests.manager.test_frozen.ThePairIsCheckedWhereItIsRaised.test_an_unpaired_category_or_code_is_a_defect_not_a_refusal) ... ok
+test_every_frozen_pair_is_accepted (tests.manager.test_frozen.ThePairIsCheckedWhereItIsRaised.test_every_frozen_pair_is_accepted) ... ok
+test_the_authoritative_pairing_is_actually_frozen (tests.manager.test_frozen.ThePairIsCheckedWhereItIsRaised.test_the_authoritative_pairing_is_actually_frozen) ... ok
+test_the_readable_vocabulary_agrees_with_what_is_enforced (tests.manager.test_frozen.ThePairIsCheckedWhereItIsRaised.test_the_readable_vocabulary_agrees_with_what_is_enforced) ... ok
+test_both_documents_declare_draft_2020_12 (tests.manager.test_frozen.TheSchemaTravelsWithTheDistribution.test_both_documents_declare_draft_2020_12) ... ok
+test_the_packaged_copy_is_byte_identical_to_the_canonical_asset (tests.manager.test_frozen.TheSchemaTravelsWithTheDistribution.test_the_packaged_copy_is_byte_identical_to_the_canonical_asset) ... ok
+test_the_recorded_digests_still_hold (tests.manager.test_frozen.TheSchemaTravelsWithTheDistribution.test_the_recorded_digests_still_hold) ... ok
+test_the_schema_is_read_from_wherever_the_package_was_imported (tests.manager.test_frozen.TheSchemaTravelsWithTheDistribution.test_the_schema_is_read_from_wherever_the_package_was_imported) ... ok
+test_the_tracked_build_copy_is_not_a_fourth_contract (tests.manager.test_frozen.TheSchemaTravelsWithTheDistribution.test_the_tracked_build_copy_is_not_a_fourth_contract)
+W14251 review: the repository tracks `build/lib` too. ... FAIL
+test_the_worker_image_carries_the_same_contract (tests.manager.test_frozen.TheSchemaTravelsWithTheDistribution.test_the_worker_image_carries_the_same_contract)
+W19784 review [P0]. The OCI worker derives its closed member sets ... ok
+test_no_code_is_paired_with_two_categories (tests.manager.test_frozen.TheSemanticRulesAreDerivedFromTheSchema.test_no_code_is_paired_with_two_categories) ... ok
+test_the_category_code_pairing_covers_the_schema_exactly (tests.manager.test_frozen.TheSemanticRulesAreDerivedFromTheSchema.test_the_category_code_pairing_covers_the_schema_exactly)
+§12's semantic pairing, checked against the frozen vocabularies. ... ok
+test_the_opaque_id_bound_is_taken_from_the_schema (tests.manager.test_frozen.TheSemanticRulesAreDerivedFromTheSchema.test_the_opaque_id_bound_is_taken_from_the_schema) ... ok
+test_the_protocol_and_capabilities_are_the_frozen_ones (tests.manager.test_frozen.TheSemanticRulesAreDerivedFromTheSchema.test_the_protocol_and_capabilities_are_the_frozen_ones) ... ok
+test_the_schemas_are_proved_valid_at_import_rather_than_trusted (tests.manager.test_frozen.TheValidatorIsTheRuledOne.test_the_schemas_are_proved_valid_at_import_rather_than_trusted) ... ok
+test_the_validator_is_reachable_from_the_exported_surface (tests.manager.test_frozen.TheValidatorIsTheRuledOne.test_the_validator_is_reachable_from_the_exported_surface) ... ok
+
+======================================================================
+ERROR: test_a_job_with_no_own_task_prepares_the_installed_one (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_job_with_no_own_task_prepares_the_installed_one)
+THE PRESERVED PATH, through the same owning sequence.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6334, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/w385695-K-385897/verification-r/v12-w71917-txy8h6l8/inputs-legacy/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1709, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6337, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 697, in test_a_job_with_no_own_task_prepares_the_installed_one
+    worker._input({"inputs": root}, assignment,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  SimpleNamespace(mountpoint=mount), stage)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1736, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1791, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_a_missing_task_refuses_on_the_reopened_preparation (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_missing_task_refuses_on_the_reopened_preparation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6334, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/w385695-K-385897/verification-r/v12-w71917-en_w71mr/inputs-implementation-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1709, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6337, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 672, in test_a_missing_task_refuses_on_the_reopened_preparation
+    held = self.prepared("implementation", FIRST, "The requested task.")
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 521, in prepared
+    read = worker._input({"inputs": root}, assignment,
+                         SimpleNamespace(mountpoint=mount), stage)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1736, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1791, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_a_reopened_preparation_proves_the_same_root (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_reopened_preparation_proves_the_same_root)
+RESTART THROUGH THE OWNING PATH, not a second rendering.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6334, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/w385695-K-385897/verification-r/v12-w71917-fwu912a3/inputs-implementation-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1709, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6337, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 613, in test_a_reopened_preparation_proves_the_same_root
+    held = self.prepared("implementation", FIRST, "The requested task.")
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 521, in prepared
+    read = worker._input({"inputs": root}, assignment,
+                         SimpleNamespace(mountpoint=mount), stage)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1736, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1791, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_a_tampered_root_refuses_on_the_reopened_preparation (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_tampered_root_refuses_on_the_reopened_preparation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6334, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/w385695-K-385897/verification-r/v12-w71917-lgn2ike9/inputs-implementation-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1709, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6337, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 658, in test_a_tampered_root_refuses_on_the_reopened_preparation
+    held = self.prepared("implementation", FIRST, "The requested task.")
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 521, in prepared
+    read = worker._input({"inputs": root}, assignment,
+                         SimpleNamespace(mountpoint=mount), stage)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1736, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1791, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_an_assignment_from_the_installed_manifest_refuses (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_an_assignment_from_the_installed_manifest_refuses)
+THE REVIEWER'S R2, AS A CASE.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6334, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/w385695-K-385897/verification-r/v12-w71917-bofraeb9/inputs-mismatched/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1709, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6337, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 650, in test_an_assignment_from_the_installed_manifest_refuses
+    worker._input({"inputs": root}, assignment,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  SimpleNamespace(mountpoint=mount), stage)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1736, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1791, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_both_ordinary_roles_prepare_the_requested_task (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_both_ordinary_roles_prepare_the_requested_task) (role='implementation')
+THE WHOLE SEQUENCE, for implementation AND review.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6334, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/w385695-K-385897/verification-r/v12-w71917-2qgvsr6f/inputs-implementation-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1709, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6337, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 536, in test_both_ordinary_roles_prepare_the_requested_task
+    held = self.prepared(role, FIRST, "The requested task.")
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 521, in prepared
+    read = worker._input({"inputs": root}, assignment,
+                         SimpleNamespace(mountpoint=mount), stage)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1736, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1791, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_both_ordinary_roles_prepare_the_requested_task (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_both_ordinary_roles_prepare_the_requested_task) (role='review')
+THE WHOLE SEQUENCE, for implementation AND review.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6334, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/w385695-K-385897/verification-r/v12-w71917-2qgvsr6f/inputs-review-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1709, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6337, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 536, in test_both_ordinary_roles_prepare_the_requested_task
+    held = self.prepared(role, FIRST, "The requested task.")
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 521, in prepared
+    read = worker._input({"inputs": root}, assignment,
+                         SimpleNamespace(mountpoint=mount), stage)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1736, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1791, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_the_recorded_and_launch_identities_are_the_delivered_one (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_the_recorded_and_launch_identities_are_the_delivered_one)
+EVERY OWNER DESCRIBES ONE RUNTIME INPUT.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6334, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/w385695-K-385897/verification-r/v12-w71917-0o64vsfm/inputs-implementation-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1709, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6337, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 561, in test_the_recorded_and_launch_identities_are_the_delivered_one
+    held = self.prepared("implementation", FIRST, "The requested task.")
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 521, in prepared
+    read = worker._input({"inputs": root}, assignment,
+                         SimpleNamespace(mountpoint=mount), stage)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1736, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1791, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_two_jobs_prepare_independently_on_one_worker (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_two_jobs_prepare_independently_on_one_worker)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6334, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/w385695-K-385897/verification-r/v12-w71917-fz4z0h8k/inputs-two-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1709, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6337, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 595, in test_two_jobs_prepare_independently_on_one_worker
+    worker._input({"inputs": root}, assignment,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  SimpleNamespace(mountpoint=mount), stage)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1736, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/single_worker.py", line 1791, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_a_review_job_with_no_own_task_is_delivered_the_installed_one (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_a_review_job_with_no_own_task_is_delivered_the_installed_one)
+THE PRESERVED PATH for the review role, through the same mount.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 1867, in test_a_review_job_with_no_own_task_is_delivered_the_installed_one
+    held = self.reviewed(task=False)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 1770, in reviewed
+    held = self.delivered_through(worker, composition, stage)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 936, in delivered_through
+    roots, boundary = self.mounted(worker, composition, stage)
+                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 920, in mounted
+    composed = composition.mount(worker, stage, roots)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/stage_execution.py", line 1441, in mount
+    or self._prepare(stage, preparing=preparing))
+       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/stage_execution.py", line 1578, in _prepare
+    handoff = retained_verification.handoff_of(deployment.jobs, stage["job_id"])
+                                               ^^^^^^^^^^^^^^^
+AttributeError: 'Deployment' object has no attribute 'jobs'
+
+======================================================================
+ERROR: test_one_job_gives_both_roles_one_job_scoped_identity (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_one_job_gives_both_roles_one_job_scoped_identity)
+ONE JOB, TWO ROLES, TWO RUNTIME MANIFESTS, ONE IDENTITY.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 1796, in test_one_job_gives_both_roles_one_job_scoped_identity
+    held = self.reviewed()
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 1770, in reviewed
+    held = self.delivered_through(worker, composition, stage)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 936, in delivered_through
+    roots, boundary = self.mounted(worker, composition, stage)
+                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 920, in mounted
+    composed = composition.mount(worker, stage, roots)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/stage_execution.py", line 1441, in mount
+    or self._prepare(stage, preparing=preparing))
+       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/stage_execution.py", line 1578, in _prepare
+    handoff = retained_verification.handoff_of(deployment.jobs, stage["job_id"])
+                                               ^^^^^^^^^^^^^^^
+AttributeError: 'Deployment' object has no attribute 'jobs'
+
+======================================================================
+ERROR: test_the_review_attempt_is_delivered_the_jobs_requested_task (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_review_attempt_is_delivered_the_jobs_requested_task)
+THE BYTES IN THE REVIEW ATTEMPT'S OWN INPUT ROOT.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 1777, in test_the_review_attempt_is_delivered_the_jobs_requested_task
+    held = self.reviewed()
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 1770, in reviewed
+    held = self.delivered_through(worker, composition, stage)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 936, in delivered_through
+    roots, boundary = self.mounted(worker, composition, stage)
+                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 920, in mounted
+    composed = composition.mount(worker, stage, roots)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/stage_execution.py", line 1441, in mount
+    or self._prepare(stage, preparing=preparing))
+       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/stage_execution.py", line 1578, in _prepare
+    handoff = retained_verification.handoff_of(deployment.jobs, stage["job_id"])
+                                               ^^^^^^^^^^^^^^^
+AttributeError: 'Deployment' object has no attribute 'jobs'
+
+======================================================================
+ERROR: test_the_review_mount_is_the_frozen_checkpoint_read_only (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_review_mount_is_the_frozen_checkpoint_read_only)
+REVIEW SEMANTICS, from the boundary the manager composed.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 1818, in test_the_review_mount_is_the_frozen_checkpoint_read_only
+    held = self.reviewed()
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 1770, in reviewed
+    held = self.delivered_through(worker, composition, stage)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 936, in delivered_through
+    roots, boundary = self.mounted(worker, composition, stage)
+                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 920, in mounted
+    composed = composition.mount(worker, stage, roots)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/stage_execution.py", line 1441, in mount
+    or self._prepare(stage, preparing=preparing))
+       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/stage_execution.py", line 1578, in _prepare
+    handoff = retained_verification.handoff_of(deployment.jobs, stage["job_id"])
+                                               ^^^^^^^^^^^^^^^
+AttributeError: 'Deployment' object has no attribute 'jobs'
+
+======================================================================
+ERROR: test_the_stageless_adapter_over_a_review_attempt_is_the_delivered_one (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_stageless_adapter_over_a_review_attempt_is_the_delivered_one)
+AND THE RECOVERY PATH, for the role that was never covered.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 1855, in test_the_stageless_adapter_over_a_review_attempt_is_the_delivered_one
+    held = self.reviewed()
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 1770, in reviewed
+    held = self.delivered_through(worker, composition, stage)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 936, in delivered_through
+    roots, boundary = self.mounted(worker, composition, stage)
+                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/tools/test_job_task_delivery.py", line 920, in mounted
+    composed = composition.mount(worker, stage, roots)
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/stage_execution.py", line 1441, in mount
+    or self._prepare(stage, preparing=preparing))
+       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tools/stage_execution.py", line 1578, in _prepare
+    handoff = retained_verification.handoff_of(deployment.jobs, stage["job_id"])
+                                               ^^^^^^^^^^^^^^^
+AttributeError: 'Deployment' object has no attribute 'jobs'
+
+======================================================================
+FAIL: test_the_tracked_build_copy_is_not_a_fourth_contract (tests.manager.test_frozen.TheSchemaTravelsWithTheDistribution.test_the_tracked_build_copy_is_not_a_fourth_contract)
+W14251 review: the repository tracks `build/lib` too.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/tests/manager/test_frozen.py", line 117, in test_the_tracked_build_copy_is_not_a_fourth_contract
+    self.assertTrue(built.is_file(), f"tracked build copy missing: {built}")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : tracked build copy missing: /home/sl/src/baton/work/scratch/w385695-K-385897/base-wt/v12/python/build/lib/baton_v12/contracts/schema/worker-control-1.0.schema.json
+
+----------------------------------------------------------------------
+Ran 105 tests in 11.115s
+
+FAILED (failures=1, errors=14)
+error: Recipe `test-one` failed with exit code 1

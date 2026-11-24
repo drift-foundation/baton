@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385919/probe-fence-binding.py"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385695-review-385926/v12/python",
+  "exit_status": 0,
+  "timed_out": false,
+  "wall_seconds": 0.9143596079666167,
+  "unittest_summary": [
+    "1",
+    "0.672"
+  ],
+  "log_sha256": "bf8bedf25a2321e27d465de29f125c730ce7dea94a101f31744e80568944a0a7"
+}

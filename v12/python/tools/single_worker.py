@@ -147,6 +147,13 @@ HANDOFF_DOCUMENT = "handoff.json"
 # `/input/judgment.json` for a verification failure would be reading a path
 # that lies about what is in it.
 WORKLOAD_DOCUMENT = "judgment.json"
+# W385695: the pinned request a deterministic publication worker reads. One
+# fixed name, spelled where the task and handoff names are.
+PUBLICATION_DOCUMENT = "publication.json"
+# The launch role of the deterministic publication worker. Spelled once here
+# because this module's own preflight decides with it; it is the same word the
+# Job manager's publication stage kind and lane carry.
+PUBLICATION_ROLE = "publication"
 SOURCE_DESTINATION = "source"
 # THE WORKER'S OWN READ CEILING. `claude_agent._task` reads at most 1 MiB and
 # a document wider than that is one it will never see whole, so this refuses it
@@ -437,8 +444,25 @@ def _held(document, *, roles=("implementation",)):
         _refuse("the configuration's credential_slots is one list")
     if type(given["credential_profile"]) is not dict:
         _refuse("the configuration's credential_profile is one object")
-    given["credential_resolution"] = credentials.resolved_delivery(
-        given["credential_slots"], profile=given["credential_profile"])
+    if given["launch_role"] == PUBLICATION_ROLE:
+        # W385695 / REC-9: THE DETERMINISTIC PUBLICATION WORKER HOLDS NO
+        # CREDENTIAL, AND THAT IS A REFUSAL RATHER THAN A DEFAULT. The
+        # contract's words are "no provider configuration, credential mount or
+        # implementation instruction", so a publication worker configured
+        # with a slot is refused here, before anything is opened -- and one
+        # configured with none composes NO delivery, which `_credential`
+        # already answers as "nothing to materialize, nothing to tear down".
+        # Every other role keeps `resolved_delivery`'s own rule that an
+        # assignment authorizing a credential names at least one slot.
+        if given["credential_slots"] or given["credential_profile"]:
+            _refuse("a deterministic publication worker declares no "
+                    "credential slot and no credential profile; it invokes "
+                    "no provider and is delivered no secret",
+                    category="policy", code="denied")
+        given["credential_resolution"] = None
+    else:
+        given["credential_resolution"] = credentials.resolved_delivery(
+            given["credential_slots"], profile=given["credential_profile"])
     # W81857: THE PRODUCTION LAUNCH IS `/2`, and the preflight authors the
     # exact version this deployment will write. Proving `/1` and then writing
     # `/2` would be proving a document nothing composes.
@@ -734,6 +758,19 @@ class _AuthoritySession:
 
     def cancel(self, *arguments):
         return self._session.cancel(*arguments)
+
+    def end(self, *arguments):
+        """W385695: the holder's own exact-expect release, forwarded.
+
+        A deterministic publication ends because it FINISHED, and the Work it
+        reused must return to `queued` for the independent reviewer -- which
+        is the Authority's `end` and not its `cancel`: a cancellation fences
+        the generation behind a quiescence gate, and there is nothing here to
+        hold a gate for once the runtime is positively stopped and its result
+        collected. Forwarded and not composed: the operands are the caller's
+        and the session is this participant's own.
+        """
+        return self._session.end(*arguments)
 
     def claim(self, *arguments):
         return self._session.claim(*arguments)
@@ -1736,6 +1773,11 @@ class _SingleWorker:
             recovery = self._recovery_document(stage)
             if recovery is not None:
                 self._published_task(roots["inputs"], name="recovery-review.json", content=recovery)
+            publication = self._publication_document(stage)
+            if publication is not None:
+                self._published_task(roots["inputs"],
+                                     name=PUBLICATION_DOCUMENT,
+                                     content=publication)
             handoff = self._handoff_document(stage)
             if handoff is not None:
                 self._published_task(roots["inputs"], name=HANDOFF_DOCUMENT,
@@ -1781,6 +1823,10 @@ class _SingleWorker:
         recovery = self._recovery_document(stage)
         if recovery is not None:
             self._proved_task(roots["inputs"], name="recovery-review.json", content=recovery)
+        publication = self._publication_document(stage)
+        if publication is not None:
+            self._proved_task(roots["inputs"], name=PUBLICATION_DOCUMENT,
+                              content=publication)
         handoff = self._handoff_document(stage)
         if handoff is not None:
             self._proved_task(roots["inputs"], name=HANDOFF_DOCUMENT,
@@ -1789,6 +1835,23 @@ class _SingleWorker:
 
     def _recovery_document(self, stage):
         compose = getattr(self.stage, "recovery_document_for", None)
+        return compose(stage) if compose is not None else None
+
+    def _publication_document(self, stage):
+        """W385695: the pinned request a deterministic publication worker
+        reads, or `None`.
+
+        COMPOSED BY THE STAGE OWNER AND NEVER HERE, for `_handoff_document`'s
+        reason: what an adoption is bounded by and which staged bytes it
+        adopts are facts of the Job store's own committed records. The stage
+        owner answers bytes; this publishes them at one fixed name beside the
+        task, read-only, and re-proves them on every restart.
+
+        `None` IS THE ANSWER FOR EVERY STAGE OWNER THAT HAS NO SUCH HOOK,
+        which is every owner but the publication one: nothing is published
+        and the input root is byte for byte what it always was.
+        """
+        compose = getattr(self.stage, "publication_document_for", None)
         return compose(stage) if compose is not None else None
 
     def _handoff_document(self, stage):
@@ -2438,7 +2501,9 @@ class _SingleWorker:
                                 if self.judgment_document is not None else ())
             + ((HANDOFF_DOCUMENT,)
                if self._handoff_document(stage) is not None else ())
-            + (("recovery-review.json",) if self._recovery_document(stage) is not None else ()))
+            + (("recovery-review.json",) if self._recovery_document(stage) is not None else ())
+            + ((PUBLICATION_DOCUMENT,)
+               if self._publication_document(stage) is not None else ()))
         self.checkpoint("prepared")
         state = attempt_runtime_of(self.control, attempt_id)
         fresh = state["execution_runtime"] == "not-started"
@@ -2932,6 +2997,31 @@ class _SingleWorker:
 
     def abandon_attempt(self, *, attempt_id, reason, stage, seconds=None,
                         reclaim=None):
+        """The fourth ending, and THE ADOPTION WINDOW IT OPENS IS CLOSED BY
+        THIS CALL, WHATEVER THE ENDING.
+
+        W385695 (review 2026-11-24T01-52-00Z C4). A first abandonment's
+        settlement closes the window `_abandon_attempt_over` opens on the
+        attempt's roots. An exact REPLAY returns the committed answer before
+        any settlement runs, and a call cut by a fault never reaches one --
+        and either left the window standing, which holds the stopped
+        execution `quiescence-unknown` for every later reader although no
+        writer is left. The call returning IS that in-process writer's
+        cessation, so the window is released here. The release is idempotent
+        over a window the settlement already closed and does nothing for
+        roots that carry no admission.
+        """
+        opened = []
+        try:
+            return self._abandon_attempt_over(
+                opened, attempt_id=attempt_id, reason=reason, stage=stage,
+                seconds=seconds, reclaim=reclaim)
+        finally:
+            for roots in opened:
+                workspaces.release_adopted_workspace(roots)
+
+    def _abandon_attempt_over(self, opened, *, attempt_id, reason, stage,
+                              seconds=None, reclaim=None):
         """W247941: the manager's FOURTH ending, reachable by its owner.
 
         THE COMPOSITION OWNS THIS AND AN ORCHESTRATOR CANNOT.
@@ -3014,6 +3104,7 @@ class _SingleWorker:
         # process cannot hold, not a substitute invented here: the credential
         # lifecycle is then settled by cleanup discarding the orphaned root,
         # which is what the recovery refusal itself describes.
+        opened.append(roots)
         if self._adapter(roots, None, None, launched,
                          attempt_id=attempt_id).observe(
                 state["runtime_id"], seconds=seconds)["state"] == "absent":
@@ -3798,10 +3889,26 @@ def job_task_reader(job_store):
     """
     def reader(*, job_id):
         from baton_v12.job_manager import creation as job_creation
+        from baton_v12.job_manager import publication_recovery
 
         if job_id is None:
             return None
-        return job_creation.job_task_of(job_store, job_id)
+        held = job_creation.job_task_of(job_store, job_id)
+        if held is not None:
+            return held
+        # W385695 (review 2026-11-23T18-55-03Z R3): A PUBLICATION RECOVERY'S
+        # TASK IS THE ORIGINAL JOB'S. The recovery Job is submitted by the
+        # recovery owner and has no creation of its own, so the read above
+        # answers `None` for it -- and the stage would be served the INSTALLED
+        # task while its admission compared the original's, which is two
+        # derivations of one delivery. The lineage is the recovery owner's
+        # own committed record (the reservation, then the admission), read
+        # and not inferred from the Job's name; an ordinary Job matches
+        # neither and keeps the `None` it always had.
+        prior = publication_recovery.prior_job_of(job_store, job_id)
+        if prior is None:
+            return None
+        return job_creation.job_task_of(job_store, prior)
 
     return reader
 

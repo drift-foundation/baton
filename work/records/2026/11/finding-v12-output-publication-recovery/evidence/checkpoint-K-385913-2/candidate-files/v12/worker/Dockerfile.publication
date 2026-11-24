@@ -1,0 +1,71 @@
+# The v12 DETERMINISTIC PUBLICATION worker image: one confined adoption of an
+# approved retained output, and nothing else.
+#
+# W385695 / DESIGN REC-9, `work/records/2026/11/
+# finding-v12-output-publication-recovery/`. This is the SOURCE AND ENTRYPOINT
+# DELIVERY RECIPE for the worker `tools.pool compose-worker --role publication`
+# configures. IT HAS NOT BEEN BUILT OR RUN: building it produces a CANDIDATE
+# whose digest an owner then selects, and neither act is performed by this
+# file or claimed by the source review that added it.
+#
+# THE BASE IS THE REFERENCE IMAGE'S, PINNED BY THE SAME DIGEST. This worker
+# needs a Python interpreter and nothing more, which is exactly what
+# `Dockerfile` already selected and reviewed; a second base would be a second
+# thing to keep current for no capability gained. It is deliberately NOT
+# derived from a provider image: an image carrying a provider runtime it never
+# calls is an image whose credential surface nobody needed.
+FROM python@sha256:8fef26df932191825664e4957ff488c96dfe64918327634a357a55facbc994d3
+
+# THE TWO FILES ARE THE PROGRAM, as in the reference image. `baton_worker.py`
+# travels because this entry IS `baton_worker.main`: launch validation, the
+# exchange, the replay fence, the output measurement and the completion
+# envelope are the ordinary worker's. `publication_entry.py` adds the one
+# thing that differs -- the supervised copy and its absolute bound -- and is
+# also the copy's own child, started isolated from the same path.
+#
+# NOTHING FROM `baton_v12` IS COPIED IN, and nothing provider-shaped either:
+# no `claude_agent.py`, no `adapter_refusal.py` (the ordinary worker treats
+# its absence as "no typed adapter refusal exists here", which is true), no
+# source profiles. The worker contract the two ends share is spelled on both
+# sides and held equal by a conformance case, because a worker in a container
+# cannot import the manager.
+COPY baton_worker.py /opt/baton/baton_worker.py
+COPY publication_entry.py /opt/baton/publication_entry.py
+
+# AND THE FROZEN CONTRACT, AS DATA, for the reference image's reason: the
+# ordinary worker derives the closed member sets of the manager's two
+# `/input/` documents from it rather than from a hand-typed copy.
+COPY worker-control-1.0.schema.json /opt/baton/worker-control-1.0.schema.json
+
+# THE SAME FIXED NON-ROOT PAIR as every other image and as the adapter's
+# `--user` restriction. This worker writes only its own declared outputs under
+# the writable workspace mount and reads the staged original through a
+# read-only bind; neither needs any privilege, and `read_launch`'s read-only
+# proof depends on this process not being root.
+USER 65532:65532
+
+# ONE SHOT, EXEC FORM, NO SHELL IN THE PROCESS TREE. The manager stops this
+# container by signalling PID 1, and PID 1 is Python. The copy runs as a child
+# in its own process group, which this program ends and observes gone at the
+# absolute bound; the watch thread ends PID 1 itself when the bound is reached
+# while the main thread is measuring, and the container then exits with no
+# terminal document, which the manager reads as a lost execution and holds.
+ENTRYPOINT ["python3", "/opt/baton/publication_entry.py"]
+
+# Deterministic bytes and an explicit module path, as in the images before
+# this one.
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/opt/baton \
+    PYTHONHASHSEED=0
+
+# THERE IS DELIBERATELY NO `ENV ANTHROPIC_*`, NO `ENV BATON_WORKER_*`, AND NO
+# CREDENTIAL PATH OF ANY KIND. This image asks no model. The deployment that
+# configures it declares no credential slot and `single_worker` REFUSES a
+# publication worker that declares one, so no credential mount is composed for
+# a container built from this image.
+#
+# No `VOLUME`, no `EXPOSE`, no `HEALTHCHECK`, and the deployment names network
+# `none`: the launch, the read-only input and the declared outputs are mounts
+# the manager names per attempt, and this container's health is observed by
+# the adapter through the engine rather than announced by the container.

@@ -12,16 +12,47 @@ from ..contracts import ContractRefusal, canonical_text, digest
 from ..contracts.errors import name_value
 from ..worker_manager import boundaries
 from .store import job_signature
-from . import cancellation, job_control
+from . import cancellation, documents, job_control
 
 __all__ = ["ALLOCATION_STATES", "INTEGRATION_COMPLETED", "LANES", "POOL_SCHEMA",
+           "ORDINARY_POOL_SCHEMA", "POOL_SCHEMAS", "ORDINARY_LANES",
+           "PUBLICATION_LANE", "STAGE_LANES", "lane_of",
            "SEPARATION_CLASSES", "PooledManagerOperations", "activate_pool",
            "active_generation", "allocation_of", "allocation_refusal_of", "allocation_rows",
            "own_pool", "pool_workers", "reconcile_allocations", "release",
            "require_recovery", "reserve"]
 
-POOL_SCHEMA = "baton.v12.worker-pool/1"
-LANES = ("implementation", "review")
+# W385695 / DESIGN REC-9 moved this to /2, and the version is in the name for
+# the reason every other revision in this build carries one: /2 declares a
+# DEDICATED DETERMINISTIC PUBLICATION WORKER in a lane of its own, and an
+# older binary that read it as /1 would see a worker whose lane it does not
+# know and -- worse -- would be asked to serve a publication stage from the
+# implementation lane. Refusing an unrecognised pool generation is the refusal
+# such a build already has.
+#
+# /1 IS STILL OWNED, AND THAT IS THE POINT. A deployment that configures the
+# two ordinary lanes configures exactly what it always did; `own_pool` reads
+# both generations and only /2 may name the publication lane.
+ORDINARY_POOL_SCHEMA = "baton.v12.worker-pool/1"
+POOL_SCHEMA = "baton.v12.worker-pool/2"
+POOL_SCHEMAS = (ORDINARY_POOL_SCHEMA, POOL_SCHEMA)
+PUBLICATION_LANE = "publication"
+# EVERY LANE THIS SCHEDULER ALLOCATES IN. `ORDINARY_LANES` is the pair a /1
+# pool may name, and the publication lane is reserved capacity with its own
+# principal that the ordinary implementation lane cannot serve.
+ORDINARY_LANES = ("implementation", "review")
+LANES = ("implementation", PUBLICATION_LANE, "review")
+# WHICH LANE SERVES WHICH STAGE KIND, AS A TABLE AND NEVER AS A FALLTHROUGH.
+# This used to be `"review" if kind == "review" else "implementation"`, which
+# is exactly the defect REC-9's contract names twice: a publication stage
+# submitted into that expression is OFFERED TO IMPLEMENTATION WORKERS. A
+# missing entry is now a refusal rather than a default, so a kind added to the
+# vocabulary without a lane is a loud failure at the one place that routes it
+# instead of a silent misroute.
+STAGE_LANES = {"implementation": "implementation",
+               PUBLICATION_LANE: PUBLICATION_LANE,
+               "review": "review",
+               "integration": "implementation"}
 SEPARATION_CLASSES = ("provider-diverse", "same-provider/different-model",
                       "same-provider/same-model-fresh-context")
 ALLOCATION_STATES = ("reserved", "recovery-required", "released")
@@ -48,9 +79,18 @@ def own_pool(document):
     """Own one closed pool document; principals arrive from deployment."""
     taken = boundaries.document(document, "a worker pool",
                                 required=POOL_MEMBERS)
-    if taken["schema"] != POOL_SCHEMA:
-        _refuse(f"a worker pool is {name_value(POOL_SCHEMA)}; this is "
-                f"{name_value(taken['schema'])}")
+    if taken["schema"] not in POOL_SCHEMAS:
+        _refuse(f"a worker pool is one of "
+                f"{', '.join(name_value(one) for one in POOL_SCHEMAS)}; this "
+                f"is {name_value(taken['schema'])}")
+    generation = taken["schema"]
+    # WHICH LANES THIS GENERATION MAY NAME. A /1 document is exactly what it
+    # always was; the publication lane is /2's own addition and a /1 pool
+    # naming it is refused as the generation mismatch it is rather than
+    # quietly admitted because this build happens to know the word.
+    admitted_lanes = (LANES if generation == POOL_SCHEMA else ORDINARY_LANES)
+    admitted_kinds = (documents.STAGE_KINDS if generation == POOL_SCHEMA
+                      else documents.ORDINARY_STAGE_KINDS)
     variant = boundaries.text(taken["variant"], "a pool variant")
     separation = taken["separation_class"]
     if separation not in SEPARATION_CLASSES:
@@ -66,9 +106,14 @@ def own_pool(document):
                                      required=WORKER_MEMBERS)
         worker_id = boundaries.identity(worker["worker_id"], "a worker id")
         lane = worker["lane"]
-        if lane not in LANES:
+        if lane not in admitted_lanes:
             _refuse(f"worker {name_value(worker_id)} names lane "
-                    f"{name_value(lane)}; a lane is implementation or review")
+                    f"{name_value(lane)} and {name_value(generation)} "
+                    f"configures {', '.join(admitted_lanes)}"
+                    + (f"; the {PUBLICATION_LANE} lane is "
+                       f"{POOL_SCHEMA}'s own and an older pool generation "
+                       f"does not reserve its capacity"
+                       if lane in LANES else ""))
         participant = boundaries.text(worker["participant"],
                                       "a worker participant")
         profile_name = boundaries.text(worker["profile_name"],
@@ -81,10 +126,11 @@ def own_pool(document):
                     f"eligible stage kind")
         allowed = []
         for kind in kinds:
-            if kind not in ("implementation", "review", "integration"):
+            if kind not in admitted_kinds:
                 _refuse(f"worker {name_value(worker_id)} names unknown stage "
-                        f"kind {name_value(kind)}")
-            expected_lane = "review" if kind == "review" else "implementation"
+                        f"kind {name_value(kind)}; {name_value(generation)} "
+                        f"serves {', '.join(admitted_kinds)}")
+            expected_lane = lane_of(kind)
             if lane != expected_lane:
                 _refuse(f"worker {name_value(worker_id)} is in {lane} lane but "
                         f"names {kind} eligibility; lanes are immutable")
@@ -99,7 +145,12 @@ def own_pool(document):
                       "eligible_kinds": sorted(allowed)})
     _unique([one["worker_id"] for one in owned], "worker id")
     _unique([one["participant"] for one in owned], "participant")
-    return {"schema": POOL_SCHEMA, "variant": variant,
+    # THE DOCUMENT KEEPS ITS OWN GENERATION, for `documents.owned_submission`'s
+    # reason: the normalized text is the durable identity an activation is
+    # compared against, so rewriting a /1 deployment's pool as /2 would give
+    # one configuration two identities and make an already-journalled
+    # activation unreplayable the day this build shipped.
+    return {"schema": generation, "variant": variant,
             "separation_class": separation,
             "workers": sorted(owned, key=lambda one: one["worker_id"])}
 
@@ -293,8 +344,29 @@ def allocation_refusal_of(store, assignment_id):
             else json.loads(row["refusal"]))
 
 
+def lane_of(kind):
+    """THE LANE THAT SERVES ONE STAGE KIND, from the table and nowhere else.
+
+    A KIND WITH NO ENTRY IS A REFUSAL. The old expression answered
+    `implementation` for everything that was not a review, so the day a
+    publication stage became submittable it would have been routed to the
+    workers that run implementations -- which is "never map publication to
+    implementation by default", and it would have happened without one line
+    of this module changing. A table refuses instead, here, where the routing
+    decision is made.
+    """
+    lane = STAGE_LANES.get(kind)
+    if lane is None:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"this scheduler allocates {', '.join(LANES)} capacity and holds "
+            f"no lane for a {name_value(kind)} stage; a stage kind with no "
+            f"lane is not routed to whichever lane happens to be the default")
+    return lane
+
+
 def _lane(kind):
-    return "review" if kind == "review" else "implementation"
+    return lane_of(kind)
 
 
 def _exclusions(connection, stage, excluded):
@@ -303,15 +375,45 @@ def _exclusions(connection, stage, excluded):
     participants = set(excluded.get("participants", ()))
     principals = set(excluded.get("principals", ()))
     if stage["kind"] == "review":
+        # W385695 / DESIGN REC-9: EVERY PRODUCER OF THE CANDIDATE THIS REVIEW
+        # IS ABOUT, and for a publication recovery that is TWO Jobs' worth.
+        #
+        # The reviewer must be independent of the original implementation
+        # principal AND of the publication principal -- REC-9's own
+        # requirement, and the contract's sentence that "a new Job must not
+        # erase the original producer exclusion". The original implementation
+        # ran under the FAILED Job, which is not this stage's Job at all, so
+        # an exclusion scoped to `stage["job_id"]` alone would hand a recovery
+        # review to the very worker whose output it is judging.
+        producing = [stage["job_id"]]
+        prior = _prior_producer_job(connection, stage["job_id"])
+        if prior is not None:
+            producing.append(prior)
+        names = ", ".join("?" * len(producing))
         for row in connection.execute(
-                "SELECT allocation.* FROM stage_allocations allocation "
-                "JOIN stages producer ON producer.stage_id = allocation.stage_id "
-                "WHERE producer.job_id = ? AND producer.kind = 'implementation'",
-                (stage["job_id"],)):
+                f"SELECT allocation.* FROM stage_allocations allocation "
+                f"JOIN stages producer ON producer.stage_id = allocation.stage_id "
+                f"WHERE producer.job_id IN ({names}) AND producer.kind IN "
+                f"('implementation', '{PUBLICATION_LANE}')",
+                tuple(producing)):
             worker_ids.add(row["worker_id"])
             participants.add(row["participant"])
             principals.add(row["canonical_principal"])
     return worker_ids, participants, principals
+
+
+def _prior_producer_job(connection, job_id):
+    """The FAILED Job whose output a recovery Job publishes, or None.
+
+    READ FROM THE DURABLE ADMISSION RECORD and never from a name pattern: the
+    recovery Job's identity is derived from an owner decision id, and deriving
+    the prior Job back out of a string would be this module inventing a
+    lineage the admission already wrote down. An ordinary Job has no such
+    record and answers None, which is the ordinary case.
+    """
+    from .publication_recovery import prior_job_in
+
+    return prior_job_in(connection, job_id)
 
 
 def reserve(store, stage, *, excluded=None):
@@ -862,8 +964,14 @@ class PooledManagerOperations:
                    for worker in self.workers.values())
 
     def binding_intent(self, stage, job):
+        from . import publication_recovery
         from .delegation import stage_intent
-        intent = stage_intent(stage, job)
+        # W385695: A RECOVERY'S PUBLICATION STAGE IS OFFERED UNDER ITS OWN
+        # INPUT IDENTITY (`publication_recovery.stage_job`), so that is the
+        # intent its canonical offer is held to. Every other stage is held to
+        # its Job's, exactly as before.
+        intent = stage_intent(
+            stage, publication_recovery.stage_job(self.store, stage, job))
         allocation = self._allocation(stage)
         if allocation is None:
             operation_id = self.canonical_operation("admit", stage["offer_id"])

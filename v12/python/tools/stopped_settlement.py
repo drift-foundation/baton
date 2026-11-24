@@ -9,13 +9,15 @@ import sys
 from baton_v12.authority import Authority
 from baton_v12.contracts import ContractRefusal, digest
 from baton_v12.job_manager import JobStore, episodes, scheduler, submission
-from baton_v12.worker_manager import ControlStore, attempts, boundaries, tokens
+from baton_v12.worker_manager import ControlStore, attempts, boundaries, intake, tokens
 from baton_v12.worker_manager import stopped_settlement as owner
 from tools import instance, single_worker, stage_execution
 from tools.fresh_attempt_ports import InstanceOwnership
 
 SCHEMA = "baton.v12.installed-settlement/1"
-COMMANDS = ("settlement-preview", "settle-stopped", "settlement-status")
+COMMANDS = ("settlement-preview", "settle-stopped", "settlement-status",
+            "settlement-remove")
+REMOVAL_SCHEMA = "baton.v12.installed-settlement-removal/1"
 
 
 def _refuse(message):
@@ -116,12 +118,109 @@ def _core_request(control, stage, held, delivery):
             "failure_digest": owner.failure_digest(delivery)}
 
 
+def _composed(configuration, jobs, control):
+    """The instance's own serving composition, built and never served."""
+    return stage_execution.operations_from(
+        configuration, jobs, control,
+        lifetime_policy=stage_execution.native_lifetime_policy(configuration))
+
+
+def remove(selector_path, *, job_id, stage_id, episode, reason, clock=None,
+           compose=None):
+    """REMOVE ONE POSITIVELY STOPPED ATTEMPT'S RUNTIME, through the
+    composition's own supported abandonment ending.
+
+    W385695 (review 2026-11-24T00-28-00Z C4). `settle-stopped` is retain-only
+    by design: it returns the token and leaves the stopped container, the
+    pending cleanup and -- for a producer -- the line's active writer exactly
+    where they were. Publication inspection then HOLDS such an original, and
+    a recovered checkpoint can never be frozen for it, because both require
+    the runtime positively absent. The removal that establishes that already
+    exists: the serving composition's `abandon_attempt`, which removes the
+    exact runtime, proves it absent, retains the workspace and returns the
+    exact token. Nothing installed reached it. This does, and adds no rule.
+
+    FOR A STOPPED ATTEMPT ONLY. A FIRST removal requires the attempt's
+    runtime recorded `quiescent` -- observed stopped, by a cancellation, an
+    expiry or a failure's own ending. A running, unknown or never-started
+    attempt is refused: this is not a way to stop work, and the abandonment
+    owner's own preconditions still decide everything else.
+
+    AND THE SAME REMOVAL, REPEATED, ANSWERS OR FINISHES (review
+    2026-11-24T01-52-00Z C4). The abandonment owner commits its declaration
+    before any external call, so once this command has begun, the journal
+    says so for this exact attempt whatever the runtime axis reads since.
+    A caller that lost the reply, or a command cut after the removal and
+    before the ending settled, repeats it: the gate is then the committed
+    declaration rather than `quiescent`, the declaration's OWN reason is the
+    one replayed -- a repeat chooses nothing -- and the owner either answers
+    its committed result or finishes the ending it started. Nothing is
+    declared a second time and no destructive effect is repeated. An attempt
+    that is not quiescent and carries no declaration -- running, uncertain,
+    unstarted, or ended some other way -- is refused exactly as before.
+
+    THE MANAGER MUST BE STOPPED. The composition takes the instance's
+    workspace guard exactly as serving does, so a serving manager refuses
+    this command rather than racing it.
+
+    The same command settles a recovery's REVIEW attempt that a cancellation
+    or expiry left stopped, which is what a `publication.review-item` asks of
+    the operator.
+    """
+    from tools.job_manager import _utc_clock
+    clock = clock or _utc_clock()
+    selector = instance.read(selector_path)
+    instance.verify(selector)
+    configuration = _document(selector["deployment"])
+    places = instance.layout(selector["destination"])
+    if configuration.get("authority_uuid") != selector["authority_uuid"] or Path(configuration.get("authority_store", "")).resolve() != Path(places["authority_store"]).resolve():
+        _refuse("removal deployment and instance Authority do not agree")
+    held = {"schema": REMOVAL_SCHEMA, "binding": _binding(selector, configuration),
+            "job_id": job_id, "stage_id": stage_id, "episode": episode}
+    for key in ("job_id", "stage_id"):
+        boundaries.identity(held[key], "an installed removal identity")
+    boundaries.text(reason, "an installed removal reason")
+    if type(episode) is not int or type(episode) is bool or episode < 1:
+        _refuse("removal episode counts from one")
+    with ExitStack() as opened:
+        jobs = opened.enter_context(JobStore.open(selector["job_store"], authority_uuid=selector["authority_uuid"], incarnation="settlement-remove", clock=clock))
+        control = opened.enter_context(ControlStore.open(selector["control_store"], incarnation="settlement-remove", clock=clock))
+        stage, _allocation = _stage(jobs, held)
+        before = attempts.attempt_runtime_of(control, stage["attempt_id"])
+        declared = None
+        if before is not None and before["runtime_id"] is not None:
+            declared = intake.abandonment_declared(control, attempt_id=stage["attempt_id"])
+        if declared is None and (before is None or before["runtime_id"] is None
+                                 or before["execution_runtime"] != "quiescent"):
+            _refuse(f"removal is for a positively stopped attempt: this one's runtime is recorded "
+                    f"{None if before is None else before['execution_runtime']!r} and no removal of it was "
+                    f"declared. A running attempt is stopped by "
+                    f"cancellation or its deadline first; an attempt with no runtime has nothing to remove")
+        if declared is not None:
+            # THE DECLARATION DECIDES, NOT THIS CALL. See the docstring.
+            reason = declared["reason"]
+        operations = (compose or _composed)(configuration, jobs, control)
+        opened.callback(getattr(operations, "close", lambda: None))
+        answered = operations.abandon_attempt(
+            attempt_id=stage["attempt_id"], stage=stage, reason=reason)
+        after = attempts.attempt_runtime_of(control, stage["attempt_id"])
+        return {"schema": REMOVAL_SCHEMA, "selection": held,
+                "attempt_id": stage["attempt_id"],
+                # WHETHER THIS CALL FOUND THE REMOVAL ALREADY DECLARED, and the
+                # reason that declaration carries -- the one that was used.
+                "replayed": declared is not None, "reason": reason,
+                "before": {"execution_runtime": before["execution_runtime"], "cleanup": before["cleanup"]},
+                "after": {"execution_runtime": after["execution_runtime"], "cleanup": after["cleanup"]},
+                "removed": after["execution_runtime"] == "destroyed" and after["cleanup"] in ("complete", "retained"),
+                "abandonment": {name: (answered or {}).get(name) for name in ("outcome", "cleanup", "disposition")} if type(answered) is dict else None}
+
+
 def execute(command, selector_path, *, document=None, job_id=None, stage_id=None,
             episode=None, operation_id=None, clock=None):
     """Compose public owners over the stores derived by the installed selector."""
     from tools.job_manager import _utc_clock
     clock = clock or _utc_clock()
-    if command not in COMMANDS:
+    if command not in COMMANDS or command == "settlement-remove":
         _refuse("unknown installed settlement command")
     selector = instance.read(selector_path)
     instance.verify(selector)
@@ -182,7 +281,16 @@ def main(argv, *, clock=None, stream=None):
     parser.add_argument("--stage")
     parser.add_argument("--episode", type=int)
     parser.add_argument("--operation-id")
+    parser.add_argument("--reason", help="settlement-remove: the operator's own reason")
     args = parser.parse_args(argv)
+    if args.command == "settlement-remove":
+        if args.document is not None or args.operation_id is not None or any(value is None for value in (args.job, args.stage, args.episode, args.reason)):
+            parser.error("settlement-remove needs --job, --stage, --episode and --reason, without --document or --operation-id")
+        answer = remove(args.instance, job_id=args.job, stage_id=args.stage, episode=args.episode, reason=args.reason, clock=clock)
+        print(json.dumps(answer, sort_keys=True), file=stream or sys.stdout)
+        return 0 if answer["removed"] else 1
+    if args.reason is not None:
+        parser.error("--reason belongs to settlement-remove")
     if args.command == "settlement-preview":
         if args.document is not None or any(value is None for value in (args.job, args.stage, args.episode, args.operation_id)):
             parser.error("preview needs --job, --stage, --episode and --operation-id, without --document")

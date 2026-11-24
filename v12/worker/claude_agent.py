@@ -621,6 +621,38 @@ REVIEW_LOG_SCHEMA = "baton.review-log/1"
 # assignment reference, generation or operation identity. Those are the
 # manager's, and it re-reads every one of them from its own owner.
 REVIEW_CLAIM_NAMESPACE = "baton.checkpoint-review/1"
+# W385695 (review 2026-11-24T00-28-00Z C2; contract section 5): THE REVIEWER'S
+# OWN REQUIRED VERIFICATION, RUN AND BOUNDED BY THIS ADAPTER. A recovery review
+# input may REQUIRE it and names the per-command bound the owner selected
+# (900 seconds). The provider's turn bound is not that bound: a provider
+# supervises its own tools, and a promise in a prompt enforces nothing. So the
+# adapter runs the read-only task's verification command itself, in a private
+# copy of the reviewed tree and under the image's command supervisor, which
+# ends the command and every descendant at the bound, and publishes what
+# happened. An `accepted` report is not published as a verdict unless that
+# command passed and every command of the review was observed to have ended.
+REVIEWER_VERIFICATION_NAMESPACE = "baton.reviewer-verification/1"
+REVIEWER_VERIFICATION_ROOM = "review-verification"
+REVIEWER_VERIFICATION_OUTCOMES = ("passed", "failed", "timed-out",
+                                  "not-started", "not-run", "unsupervised")
+# W385695 C2 (review 2026-11-24T01-52-00Z): EVERY COMMAND OF A REQUIRED REVIEW
+# RUNS UNDER THE IMAGE'S OWN SUPERVISOR -- the adapter's check, the provider,
+# and each shell-tool command the provider chooses. `bounded_command.py` says
+# how; this names where it is and how it is reached. The provider CLI hands
+# every shell-tool command to the program named by `CLAUDE_CODE_SHELL_PREFIX`
+# as ONE argument, so the prefix must be one executable path, and it is one in
+# the image's read-only root beside this adapter rather than anywhere the
+# provider can write. A prefix that cannot be executed makes the CLI's command
+# fail; it is never run without it.
+COMMAND_SUPERVISOR = "/opt/baton/bounded_command.py"
+COMMAND_LEDGER_ROOM = "review-commands"
+# WHAT ENDING A COMMAND'S DESCENDANTS MAY COST, and it is charged: every
+# supervisor's absolute deadline is this much short of the invocation's, so
+# the ending is finished by the invocation deadline rather than after it.
+COMMAND_END_GRACE_SECONDS = 5.0
+# HOW LONG PAST ITS OWN DEADLINE A SUPERVISOR IS WAITED FOR before this
+# adapter stops believing it will answer.
+COMMAND_SUPERVISOR_SLACK_SECONDS = 10.0
 REVIEW_CLAIM_MEMBERS = ("base", "head", "tree", "verdict")
 
 # THE COMMIT'S AUTHOR, spelled here and composed onto the argv. The container
@@ -2590,6 +2622,12 @@ class ClaudeAgent:
         after writing a valid report still did not earn a decision, because a
         turn that failed is a turn whose account is incomplete.
         """
+        # W385695 C2: ONE ORIGIN FOR THE WHOLE INVOCATION, read before anything
+        # this turn does. A required review charges its source observation,
+        # scratch preparation, private copy, check and provider to one
+        # absolute deadline measured from here; nothing below starts a second
+        # clock or hands out an allowance computed before work that then ran.
+        origin = time.monotonic()
         produce, absent = _selected(declared, REVIEW_OUTPUTS, "review")
         findings_output, logs_output = produce
         # W385331: A REVIEWER OVER A YIELDED CHECKPOINT IS ANSWERING A
@@ -2634,13 +2672,69 @@ class ClaudeAgent:
                 f"the review report destination already exists; a report is "
                 f"authored by this turn and never inherited")
         environments = self._child_environments(scratch)
+        # W385695 C2: THE REQUIRED REVIEWER VERIFICATION, BEFORE THE PROVIDER
+        # and inside the same invocation bound. Nothing is run unless the
+        # delivered recovery input requires it.
+        requirement = _reviewer_requirement()
+        checked, supervised, commands = None, None, None
+        if requirement is not None:
+            deadline = origin + self._bound(self._seen, "provider_turn",
+                                            PROVIDER_SECONDS)
+            checked = self._reviewer_check(
+                task, source, scratch, environments["verification"],
+                invocation=deadline - time.monotonic(),
+                command=requirement["command_seconds"])
+            supervised = {
+                "deadline": deadline,
+                "seconds": requirement["command_seconds"],
+                "ledger": self._new_directory(scratch, COMMAND_LEDGER_ROOM)}
         provider = self._provider(
             task, room, scratch, environments["provider"],
             prompt=(_response_prompt(task, source, response_context,
                                      RESPONSE_REPORT)
                     if response_context is not None
-                    else _review_prompt(task, source, REVIEW_REPORT)))
+                    else _review_prompt(task, source, REVIEW_REPORT,
+                                        checked)),
+            supervised=supervised)
+        if supervised is not None:
+            # THE ACCOUNT IS READ AFTER THE PROVIDER'S SUPERVISOR ANSWERED,
+            # so every command it adopted has been ended and recorded. The
+            # provider's own record must be there: without it nobody observed
+            # the provider's descendants gone.
+            account = _commands_account(supervised["ledger"])
+            commands = {
+                "supervised": account["supervised"],
+                "timed_out": account["timed_out"],
+                "unfinished": account["unfinished"],
+                "descendants_gone": account["descendants_gone"]
+                and account["provider"] is not None}
         report = _review_report(room) if provider["ok"] else None
+        # AN ACCEPTANCE IS NOT PUBLISHED OVER A REQUIRED CHECK THAT DID NOT
+        # PASS. The report is the provider's; whether the required command
+        # passed is this adapter's own observation, and an `accepted` verdict
+        # beside a timed-out, failed or unstarted check would be a success
+        # nobody substantiated. Any other verdict is the reviewer's to give.
+        withheld = None
+        if checked is not None and report is not None \
+                and report["verdict"] == "accepted" \
+                and checked["outcome"] != "passed":
+            withheld = (f"the required reviewer verification "
+                        f"{checked['outcome']} under its "
+                        f"{checked['seconds_bound']}s bound; an acceptance "
+                        f"is not published without it")
+            report = None
+        # NOR OVER COMMANDS WHOSE ENDING NOBODY OBSERVED. A supervisor that
+        # started and left no finish record, or one that could not see its
+        # descendants gone, is work this review may still have running.
+        if commands is not None and report is not None \
+                and report["verdict"] == "accepted" \
+                and (commands["unfinished"] != 0
+                     or commands["descendants_gone"] is not True
+                     or checked["descendants_gone"] is not True):
+            withheld = ("a command of this review was not observed to have "
+                        "ended with all of its descendants; an acceptance is "
+                        "not published over work that may still be running")
+            report = None
         # W385331: THE REPLY, read only when a question was delivered. Both a
         # report and a reply in one turn are surfaced as the two claims they
         # are, and the host holds on the ambiguity rather than this adapter
@@ -2668,7 +2762,14 @@ class ClaudeAgent:
                                      provider.get("failure_reason"),
                                  **_bound_member(provider),
                                  **_diagnostic_member(provider)},
-                             "verification": None},
+                             "verification": checked,
+                             **({"commands": commands}
+                                if commands is not None else {}),
+                             # ONLY A REVIEW THAT WAS REQUIRED TO VERIFY SAYS
+                             # WHETHER ITS VERDICT WAS WITHHELD; every other
+                             # review's log is the document it always was.
+                             **({"verdict_withheld": withheld}
+                                if checked is not None else {})},
                             indent=1, sort_keys=True) + "\n")
         unanswered = ([] if response_output is None
                       else _absent([response_output]))
@@ -2684,7 +2785,9 @@ class ClaudeAgent:
                                 {"name": logs_output["name"],
                                  "status": "present", "result_metadata": {}}]
                             + unanswered + _absent(absent),
-                    "recap": (f"unable: the review produced no usable report "
+                    "recap": (f"unable: {withheld}" if withheld is not None
+                              else
+                              f"unable: the review produced no usable report "
                               f"({provider.get('failure_reason') or 'absent'})"
                               )[:MAX_RECAP]}
         _made(findings)
@@ -2714,7 +2817,8 @@ class ClaudeAgent:
                 "outputs": [{"name": findings_output["name"],
                              "status": "present",
                              "result_metadata": (_review_claim(
-                                 report["verdict"], observed, report.get("recovery_digest"))
+                                 report["verdict"], observed, report.get("recovery_digest"),
+                                 checked, commands)
                                  if report is not None else {})},
                             {"name": logs_output["name"], "status": "present",
                              "result_metadata": {}}]
@@ -4349,7 +4453,8 @@ class ClaudeAgent:
                     f"object")
         return tuple(descriptor for _name, descriptor in directories)
 
-    def _provider(self, task, candidate, scratch, environment, prompt=None):
+    def _provider(self, task, candidate, scratch, environment, prompt=None,
+                  supervised=None):
         """One provider turn, over a closed argv and a closed environment.
 
         THE ENVIRONMENT IS COMPOSED, NEVER INHERITED. `os.environ` is not
@@ -4390,12 +4495,53 @@ class ClaudeAgent:
         # other in the first place.
         bound = self._resolved_bound(self._seen, "provider_turn",
                                      PROVIDER_SECONDS)
+        # W385695 C2: A REQUIRED REVIEW'S PROVIDER RUNS INSIDE WHAT IS LEFT OF
+        # THE ONE INVOCATION DEADLINE, read now -- after the setup and the
+        # check, immediately before the launch -- and never a fresh allowance.
+        # It runs under the image's supervisor, which ends the provider and
+        # every descendant short of that deadline by the ending grace, and
+        # the CLI is told to hand each shell-tool command to the same
+        # supervisor under the owner-selected per-command bound.
+        # `supervised` is None for every other caller, whose turn is unchanged.
         seconds = bound["seconds_bound"]
+        launched = self._revalidated_environment(scratch, environment)
+        if supervised is not None:
+            ending = supervised["deadline"] - COMMAND_END_GRACE_SECONDS
+            seconds = int(ending - time.monotonic())
+            if seconds < 1:
+                return {"ok": False, "status": None,
+                        "failure_reason": PROVIDER_TIMED_OUT, **bound,
+                        "why": f"no time remained of the "
+                               f"{bound['seconds_bound']}s invocation bound "
+                               f"for the provider"}
+            _supervisor_ready()
+            limit = str(supervised["seconds"] * 1000)
+            launched = dict(
+                launched, CLAUDE_CODE_SHELL_PREFIX=COMMAND_SUPERVISOR,
+                BATON_COMMAND_SECONDS=str(supervised["seconds"]),
+                BATON_COMMAND_DEADLINE=repr(ending),
+                BATON_COMMAND_LEDGER=supervised["ledger"],
+                # NOT ENFORCEMENT, only so the CLI's own foreground window
+                # does not end a command sooner than the selected bound.
+                BASH_DEFAULT_TIMEOUT_MS=limit, BASH_MAX_TIMEOUT_MS=limit)
+            argv = [COMMAND_SUPERVISOR, "--exec", "--seconds", str(seconds),
+                    "--deadline", repr(ending), "--label", "provider",
+                    "--ledger", supervised["ledger"], "--", *argv]
         try:
             status, record, partial = self._ran_provider(
-                argv, cwd=candidate, seconds=seconds, scratch=scratch,
-                env=self._revalidated_environment(scratch, environment),
-                umask=PROVIDER_UMASK)
+                argv, cwd=candidate,
+                seconds=seconds if supervised is None
+                else seconds + COMMAND_END_GRACE_SECONDS
+                + COMMAND_SUPERVISOR_SLACK_SECONDS,
+                scratch=scratch, env=launched, umask=PROVIDER_UMASK)
+            if supervised is not None:
+                ended = _commands_account(supervised["ledger"])["provider"]
+                # AND THIS ADAPTER'S OWN CLOCK: a provider whose supervisor
+                # answered after the one invocation deadline is a timeout,
+                # whatever that record says.
+                if ended is None or ended["outcome"] == "timed-out" \
+                        or time.monotonic() > supervised["deadline"]:
+                    raise subprocess.TimeoutExpired(argv, seconds)
         except subprocess.TimeoutExpired:
             return {"ok": False, "status": None,
                     "failure_reason": PROVIDER_TIMED_OUT, **bound,
@@ -5320,6 +5466,132 @@ class ClaudeAgent:
                     _verification.MATERIALIZATION,
                     f"verification_context.inputs[{index}].name",
                     stage=_verification.VIEW_STAGE) from None
+
+    def _reviewer_check(self, task, source, scratch, environment, *,
+                        invocation, command):
+        """Run the task's verification command for a REVIEW, bounded, and say
+        exactly what happened.
+
+        ONE DEADLINE, AND IT IS RE-READ BEFORE THE LAUNCH. `invocation` is
+        what remains of the review invocation when this is entered. The
+        private copy is made inside it -- waited for only until it -- and the
+        command's allowance is computed AFTER the copy, from the same absolute
+        deadline less the ending grace. A copy that used the time up runs no
+        command, whatever was allowed before it began (review
+        2026-11-24T01-52-00Z C2.2).
+
+        THE BOUND IS THE SMALLEST OF THREE: the owner-selected per-command
+        bound the recovery input delivered, this worker's own delivered
+        verification bound, and that remainder. `seconds_bound` is the whole
+        seconds published; the supervisor holds the exact deadline.
+
+        IN A PRIVATE COPY. The reviewed tree is mounted read-only and stays
+        the object the verdict is about; a command that writes -- bytecode,
+        build output -- writes into the copy, which is never published.
+
+        UNDER THE IMAGE'S SUPERVISOR, WHICH ACCOUNTS FOR DESCENDANTS. It
+        adopts every descendant, including one that left the command's
+        session, ends them all at the bound and also after an ordinary exit,
+        and records whether a scan of the process table then found none
+        (C2.3). `descendants_gone` is that record. A supervisor that left no
+        record is `unsupervised`, never a pass.
+
+        BOTH STREAMS GO TO `/dev/null`, `_ran`'s rule for its reason: this is
+        code out of a candidate somebody else wrote.
+        """
+        import math
+        import signal
+
+        deadline = time.monotonic() + invocation
+        limit = min(int(command),
+                    self._bound(self._seen, "ordinary_verification",
+                                VERIFICATION_SECONDS))
+        record = {"argv": list(task["verification"]),
+                  "seconds_bound": max(0, min(limit, math.ceil(
+                      invocation - COMMAND_END_GRACE_SECONDS))),
+                  "outcome": None, "status": None, "seconds": None,
+                  "descendants_gone": None}
+        if record["seconds_bound"] < 1:
+            return dict(record, outcome="not-run")
+        _supervisor_ready()
+        copy = os.path.join(self._new_directory(scratch,
+                                                REVIEWER_VERIFICATION_ROOM),
+                            "tree")
+        ledger = self._new_directory(scratch, REVIEWER_VERIFICATION_ROOM
+                                     + "-ledger")
+        # THE COPY IS WAITED FOR ONLY UNTIL THE DEADLINE. It runs beside this
+        # thread so a copy that blocks cannot hold the invocation past it; an
+        # abandoned copy ends with this process and its command is never run.
+        failed = []
+
+        def copied():
+            try:
+                shutil.copytree(source, copy, symlinks=True)
+            except BaseException as refused:
+                failed.append(refused)
+
+        copying = threading.Thread(target=copied, daemon=True)
+        copying.start()
+        copying.join(max(0.0, deadline - COMMAND_END_GRACE_SECONDS
+                         - time.monotonic()))
+        ending = deadline - COMMAND_END_GRACE_SECONDS
+        remaining = ending - time.monotonic()
+        if copying.is_alive() or failed or remaining <= 0:
+            return dict(record, seconds_bound=max(0, min(
+                limit, math.ceil(remaining))), outcome="not-run")
+        record["seconds_bound"] = min(limit, math.ceil(remaining))
+        began = time.monotonic()
+        try:
+            child = subprocess.Popen(
+                [COMMAND_SUPERVISOR, "--exec", "--seconds", str(limit),
+                 "--deadline", repr(ending), "--label", "check",
+                 "--ledger", ledger, "--", *task["verification"]],
+                cwd=copy, env=environment, stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                start_new_session=True)
+        except OSError:
+            return dict(record, outcome="unsupervised")
+        try:
+            child.wait(timeout=min(limit, remaining)
+                       + COMMAND_END_GRACE_SECONDS
+                       + COMMAND_SUPERVISOR_SLACK_SECONDS)
+        except subprocess.TimeoutExpired:
+            # THE SUPERVISOR ITSELF DID NOT ANSWER. Its session is ended and
+            # nothing is claimed about what it had adopted.
+            try:
+                os.killpg(child.pid, signal.SIGKILL)
+            except (ProcessLookupError, PermissionError):
+                pass
+            child.wait()
+        returned = time.monotonic()
+        record["seconds"] = round(returned - began, 3)
+        seen = _commands_account(ledger)["check"]
+        if seen is None:
+            return dict(record, outcome="unsupervised")
+        record["descendants_gone"] = seen["descendants_gone"] is True
+        if returned > deadline:
+            # THIS ADAPTER'S OWN CLOCK, independently of the supervisor's
+            # word (review 2026-11-24T03-03-48Z C2): a check whose supervisor
+            # answered after the invocation deadline did not finish inside
+            # it, and no status it reports is read as a pass.
+            record["outcome"] = "timed-out"
+        elif seen["outcome"] == "exited":
+            record.update(outcome="passed" if seen["status"] == 0
+                          else "failed", status=seen["status"])
+            if seen["status"] == 127 and seen["descendants_ended"] == 0 \
+                    and shutil.which(task["verification"][0],
+                                     path=environment.get("PATH")) is None:
+                record.update(outcome="not-started", status=None)
+        elif seen["outcome"] in ("timed-out", "not-run", "not-started"):
+            record["outcome"] = seen["outcome"]
+        else:
+            record["outcome"] = "failed"
+        if record["descendants_gone"] is not True \
+                and record["outcome"] == "passed":
+            # A PASS WHOSE DESCENDANTS WERE NOT SEEN GONE IS NOT A FINISHED
+            # CHECK.
+            record["outcome"] = "failed"
+        return record
 
     def _verified_context(self, task, root, environment, directories):
         """The task's own command, IN THE VIEW, with the derived import path.
@@ -6514,7 +6786,91 @@ def _read_bounded(root, relative, what):
     return None if len(raw) > MAX_REPORT_BYTES else raw
 
 
-def _review_claim(verdict, observed, recovery_digest=None):
+def _supervisor_ready():
+    """Refuse a required review whose command supervisor is not the image's.
+
+    One regular executable file, reached without a symbolic link, that this
+    process does not own-and-may-rewrite by accident of being under a
+    writable root: the image puts it in the read-only root beside this
+    adapter. A review that must bound its commands and cannot is refused
+    rather than run unbounded.
+    """
+    try:
+        seen = os.lstat(COMMAND_SUPERVISOR)
+    except OSError:
+        seen = None
+    if seen is None or not stat.S_ISREG(seen.st_mode) \
+            or not os.access(COMMAND_SUPERVISOR, os.X_OK):
+        raise TaskRefusal(
+            "this review is required to bound each of its commands and the "
+            "worker image carries no command supervisor; a required bound is "
+            "enforced or the review is refused")
+
+
+def _commands_account(ledger):
+    """What the supervisors under `ledger` recorded, as this adapter read it.
+
+    `provider` and `check` are the single records of those two labels, or
+    None. The rest are the provider's shell-tool commands: how many were
+    supervised, how many were ended at their bound, how many STARTED AND LEFT
+    NO FINISH RECORD, and whether every finished one saw its descendants
+    gone. Nothing here is taken from the provider's report.
+    """
+    import bounded_command
+
+    records = bounded_command.account(ledger)
+    single = {"provider": None, "check": None}
+    tools, unfinished, gone = [], 0, True
+    for stem, document in records.items():
+        label = stem.split("-", 1)[0]
+        usable = (type(document) is dict
+                  and document.get("schema") == bounded_command.SCHEMA
+                  and document.get("label") == label)
+        if label in single:
+            if usable:
+                single[label] = document
+            elif label == "provider":
+                unfinished += 1
+            continue
+        if not usable:
+            unfinished += 1
+            continue
+        tools.append(document)
+        gone = gone and document.get("descendants_gone") is True
+    if single["provider"] is not None:
+        gone = gone and single["provider"].get("descendants_gone") is True
+    return {**single, "supervised": len(tools),
+            "timed_out": len([each for each in tools
+                              if each.get("outcome") == "timed-out"]),
+            "unfinished": unfinished, "descendants_gone": gone}
+
+
+def _reviewer_requirement():
+    """The delivered REQUIREMENT that this review run its own verification,
+    or `None` when none was delivered.
+
+    Closed and bounded: a requirement this adapter cannot read is a refusal,
+    never a review that quietly ran without the check it was told to make.
+    """
+    recovery = _read_bounded(INPUT_ROOT, "recovery-review.json", "recovery review input")
+    if recovery is None:
+        return None
+    held = json.loads(recovery.decode("utf-8")).get("reviewer_verification")
+    if held is None:
+        return None
+    seconds = held.get("command_seconds") if type(held) is dict else None
+    if type(held) is not dict or set(held) != {"required", "command_seconds"} \
+            or held["required"] is not True or type(seconds) is not int \
+            or type(seconds) is bool or not 1 <= seconds <= VERIFICATION_SECONDS:
+        raise TaskRefusal(
+            "the recovery review input carries a reviewer verification "
+            "requirement this adapter cannot read; a required check is run "
+            "as delivered or the review is refused")
+    return held
+
+
+def _review_claim(verdict, observed, recovery_digest=None, checked=None,
+                  commands=None):
     """The worker-owned checkpoint-review claim, and every member is this
     turn's own.
 
@@ -6527,10 +6883,19 @@ def _review_claim(verdict, observed, recovery_digest=None):
                                      "base": observed["base"],
                                      "head": observed["head"],
                                      "tree": observed["tree"]},
-            **({"baton.recovery-review/1": {"handoff_digest": recovery_digest}} if recovery_digest is not None else {})}
+            **({"baton.recovery-review/1": {"handoff_digest": recovery_digest}} if recovery_digest is not None else {}),
+            # W385695 C2: what THIS ADAPTER observed of the required reviewer
+            # verification, published beside the verdict so the manager can
+            # hold an acceptance that does not carry a passed one.
+            **({REVIEWER_VERIFICATION_NAMESPACE: {
+                **{name: checked[name] for name in
+                   ("argv", "seconds_bound", "outcome", "status",
+                    "descendants_gone")},
+                "commands": commands}}
+               if checked is not None else {})}
 
 
-def _review_prompt(task, source, report):
+def _review_prompt(task, source, report, checked=None):
     """The review prompt, composed from the frozen task and pinned recovery evidence.
 
     THE PROVIDER IS STILL NOT TOLD ABOUT THE PROTOCOL. It learns where the
@@ -6555,6 +6920,16 @@ def _review_prompt(task, source, report):
         context = ("This is an owner-approved retained-candidate recovery. Assess the same candidate "
                    "and the attributable verifier evidence below. Include a fourth report member "
                    "recovery_digest equal to " + json.dumps(document["handoff_digest"]) + ".\n" + recovery.decode("utf-8") + "\n")
+        if checked is not None:
+            # W385695 C2: WHAT THE ADAPTER ITSELF OBSERVED, stated as that. Any
+            # producer verification named in the document above is the
+            # PRODUCER'S evidence and is not independent acceptance.
+            context += ("Any producer verification recorded above is producer evidence, not independent "
+                        "acceptance. This worker ran the task's verification command itself, independently, "
+                        "against a private copy of the tree you are reviewing, under a "
+                        f"{checked['seconds_bound']}-second bound: outcome {checked['outcome']}"
+                        + (f", exit status {checked['status']}" if checked["status"] is not None else "")
+                        + ". An accepted verdict is not published unless that outcome is passed.\n")
     return (context + f"You are reviewing a change on a read-only source tree at "
             f"{source}. Do not modify anything there, and do not attempt to "
             f"build, commit or edit it.\n\n"

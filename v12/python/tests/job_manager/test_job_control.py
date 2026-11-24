@@ -246,8 +246,15 @@ class TheClocks(ControlCase):
         self.assertEqual(held["job"]["elapsed_seconds"], 100)
         self.assertFalse(held["job"]["reached"])
         # NOT ADMITTED YET: no stage origin, no stage deadline.
+        #
+        # W385695 added `sub_bound` to every stage view, and `None` is what an
+        # ordinary profile answers: only the publication recovery's profile
+        # bounds a stage KIND any further than `stage_seconds`, so a stage of
+        # any other Job carries the member and no narrower ceiling.
         self.assertEqual(held["stages"], [{"stage_id": "job-a/implementation",
                                           "origin": None, "deadline_at": None,
+                                          "stage_wall_at": None,
+                                          "sub_bound": None,
                                           "elapsed_seconds": None,
                                           "reached": False}])
         self.assertIsNone(held["first"])

@@ -1318,10 +1318,10 @@ def main(argv, *, clock=None, stream=None):
         prog="job_manager",
         description="Submit Jobs to the v12 Job manager, read its status, or "
                     "run its control loop. Instance-addressed commands: "
-                    "settlement-preview, settle-stopped, settlement-status, "
+                    "settlement-preview, settle-stopped, settlement-status, settlement-remove, "
                     "cancel-job, cancel-status, recovery-item, "
                     "recovery-decide, publication-inspect, "
-                    "publication-decide "
+                    "publication-decide, publication-status "
                     "(invoke the command first, then --help).")
     parser.add_argument("--store", required=True,
                         help="the Job store's path; there is no default, and "

@@ -139,6 +139,30 @@ restart resumes that checkout and changed recovery operands refuse. Exact
 operation retries replay, while reuse with changed operands refuses as an
 operation collision.
 
+A checkpoint's fence is one of two kinds, and `checkpoint_of` authenticates the
+kind it finds against that kind's own committed act. A recovery fence is also
+bound to the row that carries it: the act's identity is derived from the row's
+own writer, and the proof's checkpoint, writer, line, attempt, generation and
+candidate must be the row's, its writer's and its sealed evidence's. The ordinary
+kind is the writer's assignment finalization. The other is the recovery fence
+(`review-line.recovery-fence`, DESIGN REC-9 owner clarification 2026-11-23),
+under which `freeze_unreleased_recovered_checkpoint` freezes the exact
+owner-approved candidate of a writer that was never released because its
+producer faulted at output publication. That operation requires the writer to
+be the attempt's own, still active, on a line still at the checkpoint it was
+granted on; the attempt's runtime positively absent with a settled cleanup and
+exactly one committed removal read back through its own family reader; no
+later writer; and the clean checkout's head equal to the approved candidate
+and its base equal to the line's declared base. One transaction revokes the
+writer (reason `recovered`), writes the fenced `preparing` checkpoint row and
+moves the line to `freezing`; the profile freeze then completes exactly as an
+ordinary one does, and a retry resumes the same checkpoint. A hold changes
+nothing. The recovery fence ends no assignment and installs no gate, is never
+an attempt's own current fence, and a writer revoked as recovered is refused
+where the writer's own assignment fence is required (provider-context
+finalization). The released
+case keeps `freeze_recovered_checkpoint` and its committed release.
+
 After successful ordinary cleanup, eligibility and exact review-ending replay
 read retained history instead of asking the destroyed runtime to become
 quiescent. This requires the exact ended attachment, committed verdict and fence,

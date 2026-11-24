@@ -175,9 +175,13 @@ def held_worker(worker):
     # installation could not have made a directory from is not one this verb
     # admits into the same pool.
     bootstrap._safe_name(worker["worker_id"])
-    if worker["role"] not in bootstrap.ROLES:
+    # W385695 (review 2026-11-23T18-55-03Z R1): `WORKER_ROLES`, which is the
+    # three a Job is made of plus the optional deterministic publication
+    # worker. This verb is how an installed pool grows, and a role the
+    # accepted validator configures is a role this must be able to admit.
+    if worker["role"] not in bootstrap.WORKER_ROLES:
         raise PoolRefusal(
-            "this deployment serves " + ", ".join(bootstrap.ROLES)
+            "this deployment serves " + ", ".join(bootstrap.WORKER_ROLES)
             + " and this worker names the role " + repr(worker["role"]) + ".")
     return worker
 
@@ -411,7 +415,27 @@ _MAX_MARKER_BYTES = 64 * 1024
 # integration. `tests/tools/test_bootstrap.ValidFixture` and the standard
 # next-run packet agree on these two values.
 REVIEW_ROUTES = {"implementation": "rview", "review": "integration",
-                 "integration": "owner"}
+                 "integration": "owner",
+                 # A PUBLISHED RECOVERY IS REVIEWED NEXT, exactly as an
+                 # implementation's candidate is: the publication stands
+                 # where the failed producer's publication would have.
+                 bootstrap.PUBLICATION_ROLE: "rview"}
+# W385695 / REC-9: WHAT A DETERMINISTIC PUBLICATION WORKER IS COMPOSED AS.
+# Its image runs `v12/worker/publication_entry.py` (the recipe is
+# `v12/worker/Dockerfile.publication`), it reaches no network and it invokes
+# no provider -- so its runtime profile and adapter are its own documents and
+# not the provider worker's with members blanked. The EXECUTION POLICY is not
+# its own: a recovery Job carries the failed Job's policy digest and every
+# stage of a Job is held to it, so the publisher declares the policy this
+# build composes for the instance's other workers.
+PUBLICATION_PROFILE_NAME = "deterministic-publication"
+PUBLICATION_ADAPTER_NAME = "docker-publication-worker"
+PUBLICATION_ENTRYPOINT = ["python3", "/opt/baton/publication_entry.py"]
+PUBLICATION_NETWORK = "none"
+# The publisher's own installed task: what `/input/task.json` says when no
+# recovery is in hand. A recovery's stage is delivered the ORIGINAL Job's
+# task in its place (`stage_execution._served_deployment`).
+PUBLICATION_TASK_SCHEMA = "baton.v12.output-publication-task/1"
 
 
 def _credential_profile(mappings):
@@ -691,10 +715,25 @@ def composed(held, *, worker_id, role, participant, image_reference,
                               "configuration: it names no " + name
                               + ". Nothing was changed.")
     bootstrap._safe_name(worker_id)
-    if role not in REVIEW_ROUTES or role not in bootstrap.ROLES:
-        raise PoolRefusal("this deployment serves " + ", ".join(bootstrap.ROLES)
+    if role not in REVIEW_ROUTES or role not in bootstrap.WORKER_ROLES:
+        raise PoolRefusal("this deployment serves "
+                          + ", ".join(bootstrap.WORKER_ROLES)
                           + " and this worker names the role " + repr(role)
                           + ". Nothing was changed.")
+    if role == bootstrap.PUBLICATION_ROLE:
+        # W385695 (review 2026-11-23T18-55-03Z R1): THE DETERMINISTIC
+        # PUBLICATION WORKER IS COMPOSED BY ITS OWN RULE, below. It selects
+        # no provider, so the operands that name one are refused rather than
+        # accepted and dropped.
+        return _composed_publication(
+            held, worker_id=worker_id, participant=participant,
+            image_reference=image_reference, image_digest=image_digest,
+            cli_build=cli_build, network=network,
+            credential_sources=credential_sources, credentials=credentials,
+            workspace_group=workspace_group, task_document=task_document,
+            record_path=record_path, checkout=checkout, work_id=work_id,
+            runtime_uid=runtime_uid, now=now,
+            verifier_layout=verifier_layout, legacy_layout=legacy_layout)
     for name, value in (("participant", participant),
                         ("image_reference", image_reference),
                         ("cli_build", cli_build), ("network", network)):
@@ -823,6 +862,239 @@ def composed(held, *, worker_id, role, participant, image_reference,
                            "adapter_digest": identities["adapter_digest"]}}
 
 
+def _composed_publication(held, *, worker_id, participant, image_reference,
+                          image_digest, cli_build, network,
+                          credential_sources, credentials, workspace_group,
+                          task_document, record_path, checkout, work_id,
+                          runtime_uid, now, verifier_layout, legacy_layout):
+    """One DETERMINISTIC PUBLICATION worker document for this instance.
+
+    W385695 / REC-9 (review 2026-11-23T18-55-03Z R1). The contract's own
+    description is what is composed: "a dedicated deterministic publication
+    worker/participant and profile, no provider configuration, credential
+    mount or implementation instruction", installed once and reused.
+
+    WHAT IS THIS BUILD'S AND WHAT IS THE OPERATOR'S. The declared outputs are
+    the two a recovery publishes under -- W385694's exact selected proposal
+    revision, from the descriptor owner, and the owner-selected provenance
+    descriptor -- read from `publication_recovery` and never assembled here.
+    The execution policy is the one this build composes for every worker of
+    an instance, because a recovery Job carries the failed Job's policy and
+    its stages are held to it. The runtime profile and the adapter are the
+    publisher's own documents: no network, no CLI, no model, and the entry
+    `v12/worker/Dockerfile.publication` bakes in. What the operator names is
+    the image, the workspace group, the record, the identity and the task
+    document the idle worker is sealed over.
+
+    WHAT IS REFUSED RATHER THAN IGNORED: a credential mapping or registry, a
+    provider CLI build, a provider network and a verifier-layout selection.
+    Each is a statement about a provider this worker does not have, and
+    accepting one silently would leave an operator believing it took effect.
+
+    THE WORK IT NAMES IS ONLY WHERE IT IS INSTALLED. A recovery is served
+    under its own Work and the original Job's task, derived per recovery by
+    `stage_execution._served_deployment`; the Work here is the one the idle
+    composition proves exists.
+    """
+    from baton_v12.contracts import digest
+    from baton_v12.contracts.manifest import check_manifest_structure
+    from baton_v12.job_manager import execution_limits, publication_recovery
+    from baton_v12.worker_manager import source_boundary
+    from tools import instance, next_run_bindings
+
+    said = [name for name, value in (
+        ("--credential", credentials), ("--credential-sources",
+                                        credential_sources),
+        ("--cli-build", cli_build),
+        ("--verifier-layout", verifier_layout),
+        ("--legacy-verifier-layout", legacy_layout or None))
+        if value not in (None, "", [], ())]
+    if said:
+        raise PoolRefusal(
+            "a deterministic publication worker invokes no provider and is "
+            "delivered no credential, so " + ", ".join(said) + " "
+            + ("names" if len(said) == 1 else "name") + " nothing it has. "
+            "Drop " + ("it" if len(said) == 1 else "them") + ". Nothing was "
+            "changed.")
+    if network not in (None, "", PUBLICATION_NETWORK):
+        raise PoolRefusal(
+            "a deterministic publication worker reaches no network; this "
+            "names " + repr(network) + ". Omit --network or name "
+            + repr(PUBLICATION_NETWORK) + ". Nothing was changed.")
+    for name, value in (("participant", participant),
+                        ("image_reference", image_reference)):
+        if type(value) is not str or not value:
+            raise PoolRefusal("a worker names one " + name + ". Nothing was "
+                              "changed.")
+    if type(image_digest) is not str or not image_digest.startswith(_SHA256) \
+            or len(image_digest) != len(_SHA256) + 64:
+        raise PoolRefusal("an image digest is sha256: followed by 64 hex "
+                          "characters; this is " + repr(image_digest)
+                          + ". Nothing was changed.")
+    if type(workspace_group) is not int or workspace_group <= 0:
+        raise PoolRefusal("the workspace group is one positive group id; this "
+                          "is " + repr(workspace_group) + ". Nothing was "
+                          "changed.")
+    if type(task_document) is not str or not os.path.isabs(task_document):
+        raise PoolRefusal("the task document is named by an absolute path; "
+                          "this is " + repr(task_document) + ". Nothing was "
+                          "changed.")
+    destination = Path(held["state_root"]).parent
+    places = instance.layout(destination)
+    if places["authority_store"] != held["authority_store"]:
+        raise PoolRefusal(
+            "this configuration's state_root " + str(held["state_root"])
+            + " does not sit in the destination whose Authority store is "
+            + str(held["authority_store"]) + ", so the instance's paths "
+            "cannot be derived. Nothing was changed.")
+    work = work_id or held.get("job_work_id") or (held["authority_uuid"][:8]
+                                                 + "-W1")
+    raw, task_id = _task_artifact(task_document)
+    record = _record_binding(record_path, checkout)
+    limits = execution_limits.resolved(None)["boundaries"]
+    uid = os.getuid() if runtime_uid is None else runtime_uid
+    declaration = publication_recovery.corrective_declaration()
+    declared = [dict(declaration["output"]),
+                dict(publication_recovery.PROVENANCE_OUTPUT)]
+    runtime_profile = {
+        "schema": "baton.publication-runtime-profile/1",
+        "name": PUBLICATION_PROFILE_NAME,
+        "engine": "docker", "network": PUBLICATION_NETWORK,
+        "image_reference": image_reference, "image_digest": image_digest,
+        "runtime_uid": uid,
+        "scratch": {"tmp_bytes": 64 * 1024 * 1024,
+                    "shm_bytes": 16 * 1024 * 1024},
+        "workspace_min_bytes": max(
+            source_boundary.MIN_WORKSPACE_BYTES + 1,
+            declaration["output"]["constraints"]["max_bytes"]
+            + publication_recovery.PROVENANCE_OUTPUT["constraints"]
+            ["max_bytes"] + source_boundary.MIN_WORKSPACE_BYTES),
+        "provider": None,
+        "note": "one deterministic adoption of an approved retained output; "
+                "W385695"}
+    adapter = {
+        "schema": "baton.publication-adapter/1",
+        "adapter_name": PUBLICATION_ADAPTER_NAME,
+        "engine": "docker", "network": PUBLICATION_NETWORK,
+        "entrypoint": list(PUBLICATION_ENTRYPOINT),
+        "provider": None}
+    try:
+        # THE INSTANCE'S EXECUTION POLICY, composed by the owner that composes
+        # it for every other worker. Only the policy is taken from this
+        # answer; the provider operands it also takes are the publisher's
+        # absent ones and reach nothing that is kept.
+        policy_digest = next_run_bindings.deployment_identities(
+            image_reference=image_reference, image_digest=image_digest,
+            cli_build=None, provider_network=PUBLICATION_NETWORK,
+            runtime_uid=uid,
+            turn_seconds=limits["provider_turn"]["seconds"],
+            verification_seconds=limits["ordinary_verification"]["seconds"],
+            implementer_invocations=1, contextual=False)["policy_digest"]
+        from datetime import datetime, timezone
+
+        consumption = source_boundary.source_consumption("generic")
+        bound = {
+            "credential_policy_digest": digest(
+                {"schema": "baton.worker-credential-policy/1", "profile": {}}),
+            "tool_policy_digest": digest(
+                {"schema": "baton.worker-tool-policy/1", "provider": None,
+                 "entrypoint": list(PUBLICATION_ENTRYPOINT)}),
+            "network_policy_digest": digest(
+                {"schema": "baton.worker-network-policy/1",
+                 "engine": "docker", "network": PUBLICATION_NETWORK}),
+            "resource_policy_digest": digest(
+                {"schema": "baton.worker-resource-policy/1",
+                 "scratch": dict(runtime_profile["scratch"]),
+                 "workspace_min_bytes":
+                     runtime_profile["workspace_min_bytes"]}),
+            "mount_policy_digest": digest(
+                {"schema": "baton.worker-mount-policy/1",
+                 "source_destination": single_worker.SOURCE_DESTINATION,
+                 "consumption": consumption}),
+            "toolchain_digest": digest(
+                {"schema": "baton.worker-toolchain/1",
+                 "image_reference": image_reference,
+                 "image_digest": image_digest, "cli_build": None}),
+            "role_instructions_digest": digest(
+                {"schema": "baton.worker-role-instructions/1",
+                 "role": bootstrap.PUBLICATION_ROLE,
+                 "declaration": declaration["digest"],
+                 "provenance": dict(publication_recovery.PROVENANCE_OUTPUT)}),
+            "retention_policy_digest": held["retention_policy_digest"],
+            "record_binding": record,
+            "manifest_id": "input-manifest-" + worker_id,
+            "created_at": (now or datetime.now(timezone.utc).strftime(
+                "%Y-%m-%dT%H:%M:%S.000Z"))}
+        manifest = next_run_bindings.input_manifest(
+            None, authority_uuid=held["authority_uuid"], work_id=work,
+            policy_digest=policy_digest,
+            profile_digest=digest(runtime_profile),
+            image_digest=image_digest, task_bytes=raw, artifact_id=task_id,
+            contextual=False, bound=bound, declared=declared)
+        # THE STAGED ORIGINAL IS AN ORDINARY TREE AND NOT A LINE. The shared
+        # composer declares the provider workers' version-controlled source;
+        # this worker's one source is the read-only staged root, consumed as
+        # bytes, so the declaration says so and the manifest is resealed.
+        manifest = dict(manifest)
+        manifest["sources"] = [dict(manifest["sources"][0],
+                                    consumption=consumption)]
+        manifest.pop("manifest_digest", None)
+        manifest["manifest_digest"] = digest(manifest)
+        manifest = check_manifest_structure(
+            manifest, "inputManifest",
+            what="the composed publication input manifest")
+        _no_specimen(manifest)
+    except (next_run_bindings.BindingRefusal, Exception) as failure:  # noqa: BLE001
+        raise PoolRefusal("the publication worker could not be composed from "
+                          "this build's documents: " + str(failure)
+                          + ". Nothing was changed.")
+    deployment = {
+        "schema": single_worker.CONFIG_SCHEMA,
+        "profile_name": PUBLICATION_PROFILE_NAME,
+        "profile_digest": digest(runtime_profile),
+        "policy_digest": policy_digest,
+        "adapter_name": PUBLICATION_ADAPTER_NAME,
+        "adapter_digest": digest(adapter),
+        "engine": "docker", "image_digest": image_digest,
+        "network": PUBLICATION_NETWORK,
+        "workspace_storage": os.path.join(places["state"], "workspaces"),
+        "workspace_group": workspace_group,
+        "launch_home": os.path.join(places["state"], "launch"),
+        "credential_home": os.path.join(places["state"], "credentials"),
+        # NO REGISTRY, NO SLOT, NO PROFILE: `single_worker._held` REQUIRES
+        # exactly this of the publication role and composes no delivery.
+        "credential_sources": None,
+        "credential_slots": [],
+        "credential_profile": {},
+        # THE INSTANCE'S PRIVATE STAGING ROOT, which is where each approved
+        # original is staged and what the engine binds read-only. Derived
+        # from the destination, like every other path here, and prepared
+        # with the worker's other roots by the installation.
+        "nominated_source": bootstrap.publication_staging(destination),
+        "workspace_capacity": {
+            "max_bytes": runtime_profile["workspace_min_bytes"]},
+        "input_manifest": manifest,
+        "task_document": str(task_document),
+        "launch_contract": "v12-assignment-1",
+        "review_route": REVIEW_ROUTES[bootstrap.PUBLICATION_ROLE],
+        "retention_policy_digest": held["retention_policy_digest"],
+        "retention_disposition": held["retention_disposition"]}
+    worker = held_worker({"worker_id": worker_id,
+                          "role": bootstrap.PUBLICATION_ROLE,
+                          "participant": participant,
+                          "deployment": deployment})
+    return {"worker": worker, "work_id": work, "template": None,
+            "declared": [one["name"] for one in manifest["outputs"]],
+            "manifest_digest": manifest["manifest_digest"],
+            "human_contract": manifest["human_contract"],
+            "layout": {"selection": "legacy", "layout_digest": None},
+            "identities": {"profile_digest": digest(runtime_profile),
+                           "policy_digest": policy_digest,
+                           "adapter_digest": digest(adapter)},
+            "documents": {"runtime_profile": runtime_profile,
+                          "adapter": adapter}}
+
+
 def _written_fresh(target, body):
     """ONE NEW FILE, created exclusively at the filesystem operation.
 
@@ -864,17 +1136,21 @@ def compose(place, *, into, stream=sys.stdout, admit_into_pool=False,
           file=stream)
     print("work      %s" % answer["work_id"], file=stream)
     print("image     %s" % worker["deployment"]["image_digest"], file=stream)
-    print("layout    %s" % (
-        "trusted " + answer["layout"]["layout_digest"]
-        if answer["layout"]["selection"] == "trusted"
-        else "legacy (explicitly selected: the image declares no "
-             "verifier-layout marker)"), file=stream)
+    if worker["role"] == bootstrap.PUBLICATION_ROLE:
+        print("layout    none: a deterministic publication worker runs no "
+              "verifier", file=stream)
+    else:
+        print("layout    %s" % (
+            "trusted " + answer["layout"]["layout_digest"]
+            if answer["layout"]["selection"] == "trusted"
+            else "legacy (explicitly selected: the image declares no "
+                 "verifier-layout marker)"), file=stream)
     print("profile   %s %s" % (worker["deployment"]["profile_name"],
                                worker["deployment"]["profile_digest"]),
           file=stream)
-    print("template  %s declaring %s" % (answer["template"],
-                                         ", ".join(answer["declared"])),
-          file=stream)
+    print("template  %s declaring %s" % (
+        answer["template"] or "none (the selected publication declarations)",
+        ", ".join(answer["declared"])), file=stream)
     print("task      %s (%s)" % (worker["deployment"]["task_document"],
                                  answer["human_contract"]["artifact_id"]),
           file=stream)
@@ -912,24 +1188,33 @@ def main(argv=None, *, stream=sys.stdout):
     composing.add_argument("--deployment", required=True,
                            help="the instance's deployment.json")
     composing.add_argument("--worker-id", required=True)
-    composing.add_argument("--role", required=True, choices=bootstrap.ROLES)
+    composing.add_argument("--role", required=True,
+                           choices=bootstrap.WORKER_ROLES)
     composing.add_argument("--participant", required=True)
     composing.add_argument("--image-reference", required=True,
                            help="the worker image as named to the engine, "
                                 "e.g. baton-v12-worker:f34e1576")
     composing.add_argument("--image-digest", required=True,
                            help="its immutable digest, sha256:…")
-    composing.add_argument("--cli-build", required=True,
+    # THE FOUR PROVIDER OPERANDS ARE REQUIRED OF EVERY ROLE THAT HAS A
+    # PROVIDER, and that rule is `composed`'s rather than the parser's: the
+    # deterministic publication role has none and REFUSES them, so the parser
+    # cannot demand them of every invocation. An ordinary role that omits one
+    # is refused by name below, before anything is read or written.
+    composing.add_argument("--cli-build", default=None,
                            help="the provider CLI build the image carries, "
-                                "as the recipe pins it")
-    composing.add_argument("--network", required=True,
-                           help="the approved OCI network name")
-    composing.add_argument("--credential-sources", required=True,
+                                "as the recipe pins it (every role but "
+                                "publication)")
+    composing.add_argument("--network", default=None,
+                           help="the approved OCI network name (every role "
+                                "but publication, which reaches none)")
+    composing.add_argument("--credential-sources", default=None,
                            help="absolute path of the private credential "
-                                "registry")
-    composing.add_argument("--credential", action="append", required=True,
+                                "registry (every role but publication)")
+    composing.add_argument("--credential", action="append", default=None,
                            metavar="SLOT=PROVIDER:REFERENCE",
-                           help="one credential slot mapping, repeatable")
+                           help="one credential slot mapping, repeatable "
+                                "(every role but publication)")
     composing.add_argument("--workspace-group", required=True, type=int,
                            help="the provisioned workspace group id")
     composing.add_argument("--task-document", required=True,
@@ -980,6 +1265,18 @@ def main(argv=None, *, stream=sys.stdout):
                                 "(needs the nominated source to exist)")
     taken = parser.parse_args(argv)
     try:
+        if taken.verb == VERB_COMPOSE \
+                and taken.role != bootstrap.PUBLICATION_ROLE:
+            absent = [flag for flag, value in (
+                ("--cli-build", taken.cli_build), ("--network", taken.network),
+                ("--credential-sources", taken.credential_sources),
+                ("--credential", taken.credential)) if not value]
+            if absent:
+                raise PoolRefusal(
+                    "a " + taken.role + " worker names "
+                    + ", ".join(absent) + "; only the deterministic "
+                    "publication role has no provider to name them for. "
+                    "Nothing was changed.")
         if taken.verb == VERB_COMPOSE:
             compose(taken.deployment, into=taken.into, stream=stream,
                     admit_into_pool=taken.admit, worker_id=taken.worker_id,

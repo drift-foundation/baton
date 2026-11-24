@@ -1,0 +1,29 @@
+{
+ "base": "6079ad78345aa87b7148db302d48fb9b1867f940",
+ "candidate_manifest": "evidence/correction-K-385937/candidate-manifest.json",
+ "candidate_manifest_sha256": "162152b462b8ab0907a43b5dd41f85e8c7c2a6218053b6a93bbf9edc1762a8dd",
+ "earlier_packet_entries": 81,
+ "earlier_packet_entries_differing": [],
+ "earlier_packet_sha256_file": "b57f29ae6a242de6a500dfcaf8bdc2359ae1856f8f666a41e768671329c0756b",
+ "path_set_equals_scratch_diff_from_base": true,
+ "paths": 50,
+ "paths_differing_from_manifest": [],
+ "scratch_head": "6d6a4fc8fb1defceeacfaaf97927ffc867fa1ef9",
+ "scratch_status_lines": 0,
+ "scripts": {
+  "cli-in-image-driver.py": {
+   "reviewed_r3_sha256": "b61c12d1f278c7ebde9a01078d74158759020ce31891bd3ca65395f42640e9b6",
+   "this_r4_sha256": "b3a722ef406bb81ed0e84cadf2c0a4983dc3fe92a61532b9992d9a4217a1370d"
+  },
+  "option-a-setup.sh": {
+   "reviewed_r3_sha256": "df694163ff9d5afcc1d668ceb8184ac41f8f89ec3a665f3ae9adf5f35f4290f0",
+   "this_r4_sha256": "976476acd42b6328265680d64f4868f9511c086875318bac340c37b4e8f2dc86"
+  },
+  "qualify-w385695.sh": {
+   "reviewed_r3_sha256": "18d8f260d519619f7fbc81827c8e52e2cb6869c0837997641d9d6955c7e9547a",
+   "this_r4_sha256": "d8c579d3e9b0122581ce445aeabf02ac5e59a5edcbbaeba0e5911ede1f5da591"
+  }
+ },
+ "statement": "the accepted source candidate is unchanged; this packet carries qualification preparation only",
+ "work": "W385695"
+}

@@ -265,6 +265,21 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
     # recovery gate. A caller that wants the per-act list drives
     # `advance_verification` and is handed it.
     _verify(store, operations, now)
+    # W385695 / REC-9: AND THE PUBLICATION RECOVERY PASS, AFTER THE ENDINGS
+    # AND BEFORE THE CAPACITY IS SETTLED, for the verification pass's reasons.
+    #
+    # AFTER THE ENDINGS, because what it binds is a publication stage's
+    # ORDINARY ending -- the freeze and the intake this same tick's exchange
+    # pass may just have performed. BEFORE THE CAPACITY SETTLES, because the
+    # handoff it commits opens the review stage's gate and the admission that
+    # gate releases is the next tick's: this pass never launches a publisher
+    # and never offers a reviewer.
+    #
+    # NOT ADDED TO THE REPORT, by the same standing rule: the `sweep`
+    # document's member contract is closed, and what this pass did is visible
+    # in `publication_execution.publication_readiness`, in the six durable
+    # records it reads, and in the review stage's own gate.
+    _publish(store, operations, now)
     # W316918: AND THE CAPACITY IS SETTLED FROM THE STATE THIS TICK LEAVES,
     # not from the state it began with.
     #
@@ -370,6 +385,55 @@ def _verify(store, operations, now):
             failure_key=None, job_id=None, act="materialize",
             outcome="refused", detail={"category": refusal.category,
                                        "code": refusal.code})]
+
+
+def _publish(store, operations, now):
+    """Run the configured publication recovery pass, or nothing.
+
+    W385695 / REC-9. THE ONE PRODUCTION CALLER of
+    `publication_execution.advance_publication`, and of the serving
+    manager's prior-assignment endings. The seam is an OPTIONAL capability
+    discovered exactly as `recovery_verification` is: a deployment that
+    installed the deterministic publication worker supplies it, and every
+    other operations object answers `None` and reaches none of this.
+
+    TWO THINGS, IN THE ORDER A RECOVERY NEEDS THEM:
+
+      the PRIOR-ASSIGNMENT ENDINGS, when the seam carries the serving
+        deployment's own ending port -- which is the one composition holding
+        the producer participant's session. A reserved, approved recovery
+        whose admission stopped for want of that session is offered its
+        ending here, through the Authority's own exact-expect transition;
+      then ONE ACT per admitted recovery of the publication execution pass:
+        stage, account for the launched adoption, bind custody, hand off.
+
+    IT NEVER LAUNCHES. The confined publication worker is an ordinary stage
+    of this same sweep, admitted, claimed, started, commanded and concluded
+    by the passes above through its own composed lifecycle.
+
+    A CONTAINED REFUSAL IS A CONDITION, as it is in `_verify`: a misconfigured
+    recovery seam must not stop a tick that is otherwise serving Jobs.
+    """
+    from . import publication_execution, publication_recovery
+
+    seam = getattr(operations, "recovery_publication", None)
+    if seam is None:
+        return []
+    acts = []
+    try:
+        ending = getattr(seam, "ending", None)
+        if ending is not None:
+            acts += publication_recovery.advance_endings(
+                store, seam.control, ending=ending,
+                exclusion=seam.exclusion, now=now)
+        acts += publication_execution.advance_publication(
+            store, seam, now=now)["acts"]
+    except ContractRefusal as refusal:
+        acts.append({"decision_id": None, "job_id": None, "act": "stage",
+                     "outcome": "refused",
+                     "detail": {"category": refusal.category,
+                                "code": refusal.code}})
+    return acts
 
 
 def _converse(store, operations, held):

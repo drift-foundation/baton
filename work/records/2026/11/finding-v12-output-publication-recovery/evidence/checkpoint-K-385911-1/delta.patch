@@ -1,0 +1,2170 @@
+diff --git a/v12/python/src/baton_v12/job_manager/publication_execution.py b/v12/python/src/baton_v12/job_manager/publication_execution.py
+index 92959b23..d5e36d80 100644
+--- a/v12/python/src/baton_v12/job_manager/publication_execution.py
++++ b/v12/python/src/baton_v12/job_manager/publication_execution.py
+@@ -143,6 +143,11 @@ __all__ = ["PUBLICATION_SEAM", "HOST_OUTPUT", "HOST_EXCLUSION",
+            "deadline_of", "fresh_assignment_of", "provenance_document",
+            "stage_input", "publish", "take_custody", "hand_off",
+            "execution_gate", "publication_readiness", "advance_publication",
++           "ENDED_KIND", "ENDED_MEMBERS", "ENDED_OUTCOMES", "ending_of",
++           "UNKNOWN_KIND", "KNOWN_KIND", "UNKNOWN_MEMBERS", "unknown_of",
++           "SETTLED_KIND", "SETTLED_MEMBERS", "settlement_of",
++           "OWNER_ITEM_KIND", "OWNER_ITEM_MEMBERS", "owner_item_of",
++           "owner_items_of", "settle",
+            "ACTS", "ACT_OUTCOMES"]
+ 
+ 
+@@ -191,7 +196,14 @@ def _denied(message):
+ PUBLICATION_SEAM = ("control", "host", "exclusion", "workspaces", "runtime")
+ HOST_OUTPUT = ("instance", "output_of")
+ HOST_EXCLUSION = ("instance", "evidence_of")
+-RUNTIME_PORT = ("instance", "terminal_of")
++# `observation_of` and `settle` are the two members review
++# 2026-11-23T20-28-00Z's settlement finding added. The first is a FRESH read
++# of the engine through the serving composition, answered as known or not
++# known -- the recorded runtime axis is the last thing somebody saw and is not
++# that. The second is the composition's own supported fourth ending
++# (`abandon_attempt`): the one operation that removes the exact runtime,
++# proves it absent, retains the workspace and returns the exact token.
++RUNTIME_PORT = ("instance", "terminal_of", "observation_of", "settle")
+ 
+ # WHERE THE STAGED ORIGINAL AND THE RECOVERY'S OWN PROVENANCE SIT inside the
+ # private staging root. Two names and they are two: the staged original is
+@@ -324,6 +336,30 @@ RESULT_KIND = "publication.adopted"
+ HOLD_KIND = "publication.adoption-uncertain"
+ CUSTODY_KIND = "publication.custody"
+ HANDOFF_KIND = "publication.candidate-handoff"
++# FOUR MORE, for what happens when a recovery does NOT publish (review
++# 2026-11-23T20-28-00Z; COMPLETION-PLAN-385909 outcomes 1 and 3).
++#
++#   ENDED      this recovery's publication did not and will not publish, and
++#              WHY is known: its worker faulted, its bound was reached, or it
++#              was cancelled. A different durable fact from HOLD, which says
++#              nobody knows. Recorded once and never revised.
++#   UNKNOWN    a fresh read of the engine could not be made. It records that
++#              the runtime's cessation is NOT KNOWN as of an instant, so a
++#              status read never presents the last recorded axis as current.
++#   SETTLED    the supported settlement finished: the exact runtime is
++#              positively gone, its workspace retained, its token returned.
++#   OWNER_ITEM the one durable item delivered to the owner who decided, with
++#              the retained evidence and whatever effects remain.
++ENDED_KIND = "publication.ended"
++UNKNOWN_KIND = "publication.runtime-unknown"
++# AND ITS COUNTERPART: a later fresh read that DID succeed. The pair is
++# appended in alternation, one record per change of knowledge and never one
++# per tick, so "not known since T" is true exactly until something was learned
++# again -- and a journal of immutable records can still say so.
++KNOWN_KIND = "publication.runtime-known"
++SETTLED_KIND = "publication.settled"
++OWNER_ITEM_KIND = "publication.owner-item"
++ENDED_OUTCOMES = ("failed", "expired", "cancelled")
+ 
+ STAGING_MEMBERS = ("decision_id", "job_id", "prior_job_id", "attempt_id",
+                    "original", "staged", "provenance", "input_digest",
+@@ -338,6 +374,15 @@ HOLD_MEMBERS = ("decision_id", "job_id", "stage_id", "attempt_id", "outcome",
+ CUSTODY_MEMBERS = ("decision_id", "job_id", "stage_id", "attempt_id",
+                    "frozen", "artifacts", "intake", "adopted", "provenance",
+                    "settled_at")
++ENDED_MEMBERS = ("decision_id", "job_id", "stage_id", "attempt_id",
++                 "outcome", "cause", "ended_at")
++UNKNOWN_MEMBERS = ("decision_id", "job_id", "attempt_id", "recorded",
++                   "why", "observed_at")
++SETTLED_MEMBERS = ("decision_id", "job_id", "stage_id", "attempt_id",
++                   "outcome", "runtime", "settlement", "settled_at")
++OWNER_ITEM_MEMBERS = ("decision_id", "job_id", "prior_job_id", "outcome",
++                      "cause", "destination", "evidence", "remaining",
++                      "automatic_retry", "delivered_at")
+ HANDOFF_MEMBERS = ("decision_id", "job_id", "prior_job_id",
+                    "review_stage_id", "publication_stage_id",
+                    "publication_attempt_id", "failed_attempt_id",
+@@ -370,6 +415,26 @@ def custody_operation_id(job_id):
+     return _operation_id(CUSTODY_KIND, job_id)
+ 
+ 
++def ended_operation_id(job_id):
++    return _operation_id(ENDED_KIND, job_id)
++
++
++def unknown_operation_id(job_id, sequence=1):
++    return _operation_id(UNKNOWN_KIND, f"{job_id}:{sequence}")
++
++
++def known_operation_id(job_id, sequence=1):
++    return _operation_id(KNOWN_KIND, f"{job_id}:{sequence}")
++
++
++def settled_operation_id(job_id):
++    return _operation_id(SETTLED_KIND, job_id)
++
++
++def owner_item_operation_id(job_id):
++    return _operation_id(OWNER_ITEM_KIND, job_id)
++
++
+ def handoff_operation_id(job_id):
+     return _operation_id(HANDOFF_KIND, job_id)
+ 
+@@ -423,6 +488,52 @@ def custody_of(store, job_id):
+                       CUSTODY_MEMBERS, named="job_id", value=job_id)
+ 
+ 
++def ending_of(store, job_id):
++    return _committed(store, ENDED_KIND, ended_operation_id(job_id),
++                      ENDED_MEMBERS, named="job_id", value=job_id)
++
++
++def _knowledge(store, job_id):
++    """`(unknown records, known records)` of one recovery, oldest first."""
++    def held(kind):
++        return [one for one in publication_recovery._records_of(
++            store, kind, UNKNOWN_MEMBERS) if one["job_id"] == job_id]
++    return (sorted(held(UNKNOWN_KIND), key=lambda one: one["observed_at"]),
++            sorted(held(KNOWN_KIND), key=lambda one: one["observed_at"]))
++
++
++def unknown_of(store, job_id):
++    """The STANDING failed observation of this recovery's runtime, or `None`.
++
++    Standing means not yet superseded by a later successful read: the two
++    kinds alternate, so it stands exactly while there are more failures on
++    record than recoveries.
++    """
++    unknown, known = _knowledge(store, job_id)
++    return unknown[-1] if len(unknown) > len(known) else None
++
++
++def settlement_of(store, job_id):
++    return _committed(store, SETTLED_KIND, settled_operation_id(job_id),
++                      SETTLED_MEMBERS, named="job_id", value=job_id)
++
++
++def owner_item_of(store, job_id):
++    return _committed(store, OWNER_ITEM_KIND, owner_item_operation_id(job_id),
++                      OWNER_ITEM_MEMBERS, named="job_id", value=job_id)
++
++
++def owner_items_of(store):
++    """Every publication owner item this store delivered, oldest first.
++
++    THE LIST A STATUS SURFACE READS. Each is one recovery that did not
++    publish, addressed to the owner who decided it, and none of them is a
++    retry, an analysis or a verdict.
++    """
++    return publication_recovery._records_of(store, OWNER_ITEM_KIND,
++                                            OWNER_ITEM_MEMBERS)
++
++
+ def handoff_of(store, job_id):
+     return _committed(store, HANDOFF_KIND, handoff_operation_id(job_id),
+                       HANDOFF_MEMBERS, named="job_id", value=job_id)
+@@ -791,11 +902,16 @@ def _original(seam, held, *, what):
+     decision is a SUBSTITUTED original and the owner says so.
+     """
+     attempt_id = held["candidate"]["attempt_id"]
+-    output = seam["host"].output_of(attempt_id)
++    output = seam["host"].output_of(
++        attempt_id,
++        output=publication_recovery.corrective_declaration()["output"]["path"])
+     taken = boundaries.document(output, "the host's retained output read",
+                                 required=("attempt_id", "root", "identity",
+                                           "manifest"),
+-                                optional=("storage", "published", "entries"))
++                                optional=("storage", "published", "entries",
++                                          "layout", "output",
++                                          "output_identity",
++                                          "completion_envelope"))
+     if taken["attempt_id"] != attempt_id:                 # pragma: no cover
+         _refuse(f"the host answered about attempt "
+                 f"{name_value(taken['attempt_id'])} and {what} is about "
+@@ -1452,9 +1568,121 @@ def record_adoption(store, seam, *, decision_id, now=None):
+         "adopted_at": at}
+     operands = {name: record[name] for name in RESULT_MEMBERS
+                 if name != "adopted_at"}
+-    return store.transact(result_operation_id(job_id), RESULT_KIND,
+-                          job_signature(RESULT_KIND, operands),
+-                          lambda connection: record)
++
++    def act(connection):
++        # THE AUTHORITATIVE COMMIT BOUNDARY (review 2026-11-23T20-28-00Z R2;
++        # COMPLETION-PLAN-385909 outcome 1). Everything above is evidence that
++        # a worker finished; none of it is permission to record a NEW
++        # publication. That is decided here, inside the one transaction that
++        # would write the result, against this store's own fence and the
++        # persisted absolute bound at the manager's own instant -- so a
++        # terminal that says `completed`, published in the window after the
++        # worker's last gate, cannot carry an adoption past a cancellation or
++        # past the instant.
++        #
++        # A RESULT COMMITTED EARLIER IS NOT RE-JUDGED: the replay above
++        # returned it before this function measured anything, and
++        # `transact` replays a committed operation without running this.
++        del connection
++        _open_for_adoption(store, held, at)
++        return record
++
++    try:
++        return store.transact(result_operation_id(job_id), RESULT_KIND,
++                              job_signature(RESULT_KIND, operands), act)
++    except ContractRefusal as refusal:
++        closed = _closure_of(store, held, at)
++        if closed is None:
++            raise
++        # KNOWN, AND SAID AS WHAT IT IS. Not an uncertainty: the bytes are
++        # there, measured, and they are NOT a publication. They stay where
++        # they are as evidence for the owner.
++        _ended(store, held, attempt_id, outcome=closed["outcome"],
++               cause=closed["cause"]
++               + "; the confined worker's output is retained as evidence "
++                 "and was not recorded as published", now=at)
++        raise refusal
++
++
++def _closure_of(store, held, at):
++    """Why this recovery admits no NEW effect at `at`, or `None`.
++
++    ONE CLASSIFICATION, from this store's own rows: the original's explicit
++    cancellation, then this recovery's own fence, then its own reached bound.
++    `_unfenced` and `_within_deadline` refuse on these; this names which, so
++    an ending is recorded as what it was rather than as "refused".
++    """
++    fence = cancellation.fenced(store._connection, held["prior_job_id"])
++    if fence is not None and fence.get("trigger", "operator") == "operator":
++        return {"outcome": "cancelled",
++                "cause": f"the original Job was cancelled at "
++                         f"{fence['requested_at']} ({fence['reason']})"}
++    own = cancellation.fenced(store._connection, held["job_id"])
++    if own is not None:
++        expired = own.get("trigger", "operator") != "operator"
++        return {"outcome": "expired" if expired else "cancelled",
++                "cause": f"this recovery was "
++                         f"{'expired' if expired else 'cancelled'} at "
++                         f"{own['requested_at']} ({own['reason']})"}
++    closed = job_control.closed_of(store, held["job_id"], at,
++                                   any_stage=True)
++    if closed is not None and closed["cause"] == "deadline":
++        first = closed["first"]
++        return {"outcome": "expired",
++                "cause": f"this recovery reached its {first['trigger']} at "
++                         f"{first['deadline_at']}"}
++    deadline = deadline_of(store, held["decision_id"], now=at)
++    if deadline["reached"]:
++        return {"outcome": "expired",
++                "cause": f"the publication stage reached its "
++                         f"{deadline['seconds']}-second bound at "
++                         f"{deadline['deadline_at']}"}
++    return None
++
++
++def _open_for_adoption(store, held, at):
++    """Refuse a NEW adoption this recovery's own control no longer admits."""
++    what = "a new publication adoption"
++    _unfenced(store, held, what)
++    closed = job_control.closed_of(store, held["job_id"], at, any_stage=True)
++    if closed is not None:
++        _refuse(f"this recovery Job {name_value(held['job_id'])} admits "
++                f"nothing more: "
++                f"{job_control.closed_message(closed, what)}. A worker that "
++                f"answered `completed` does not make a late adoption an "
++                f"on-time one; its output is retained as evidence",
++                category="policy", code="denied")
++    _within_deadline(store, held, now=at, what=what)
++
++
++def _ended(store, held, attempt_id, *, outcome, cause, now):
++    """ONE durable ending per recovery: it did not publish, and why is known.
++
++    FIRST WRITER WINS AND IS NEVER REVISED. A recovery that faulted and then
++    also reached its bound ended because it faulted; recording the later fact
++    over the earlier one would be rewriting history to match the clock.
++    """
++    recorded = ending_of(store, held["job_id"])
++    if recorded is not None:
++        return recorded
++    if outcome not in ENDED_OUTCOMES:                     # pragma: no cover
++        _refuse(f"a publication ending is one of "
++                f"{', '.join(ENDED_OUTCOMES)}", category="integrity",
++                code="schema")
++    record = {"decision_id": held["decision_id"], "job_id": held["job_id"],
++              "stage_id": held["publication_stage_id"],
++              "attempt_id": attempt_id, "outcome": outcome,
++              "cause": boundaries.text(cause, "a publication ending cause"),
++              "ended_at": boundaries.instant(now, "an ending instant")}
++    try:
++        return store.transact(
++            ended_operation_id(held["job_id"]), ENDED_KIND,
++            job_signature(ENDED_KIND,
++                          {"decision_id": record["decision_id"],
++                           "job_id": record["job_id"]}),
++            lambda connection: record)
++    except ContractRefusal:                               # pragma: no cover
++        return ending_of(store, held["job_id"])
+ 
+ 
+ def publish(store, seam, *, decision_id, now=None):
+@@ -1540,6 +1768,21 @@ def _published(store, seam, held, *, decision_id, now=None):
+                 f"published and no second launch is started",
+                 category="runtime-observation", code="quiescence-unknown")
+     if not stopped and runtime != "destroyed":
++        # IN FLIGHT ON THE RECORD -- AND THE RECORD IS THE LAST OBSERVATION,
++        # NOT NOW (review 2026-11-23T20-28-00Z). So the engine is asked. A
++        # read that fails is journalled: the runtime's state is then UNKNOWN
++        # and is reported as unknown, where this used to answer "in flight"
++        # off an axis nobody had been able to refresh. It is not a hold --
++        # nothing is latched, and an engine that answers again lets the same
++        # adoption be accounted for.
++        if _observed(store, seam, held, attempt_id, at) is None:
++            _refuse(f"publication attempt {name_value(attempt_id)}'s runtime "
++                    f"could not be observed; it is recorded "
++                    f"{name_value(runtime)}, which is the last observation "
++                    f"and not current knowledge. Nothing is recorded as "
++                    f"published, nothing is released and no second launch "
++                    f"is started",
++                    category="runtime-observation", code="quiescence-unknown")
+         _refuse(f"publication attempt {name_value(attempt_id)}'s runtime is "
+                 f"{name_value(runtime)}; the confined adoption is in flight "
+                 f"and is accounted for only once its runtime has positively "
+@@ -2043,13 +2286,231 @@ def execution_gate(store, job_id, stage_id=None):
+                   for one in GATE_BINDINGS])
+ 
+ 
++# -- 10b. a recovery that did not publish: settle it and tell the owner ------
++#
++# REVIEW 2026-11-23T20-28-00Z; COMPLETION-PLAN-385909 outcome 3. A publication
++# that faulted, expired or was cancelled used to stop at a journalled hold:
++# its runtime quiescent or still recorded as running, its cleanup pending, its
++# workspace token never returned, and nobody told. Four things are owed and
++# this act performs them in order, each replayable:
++#
++#   1. SAY WHAT ENDED IT, once (`ENDED`), when that is known. An exchange that
++#      ended faulted is a worker saying it did not publish; a closed fence or
++#      a reached bound is this store's own fact. A runtime nobody can read is
++#      NOT an ending -- it stays an uncertainty.
++#   2. ASK THE ENGINE NOW (`observation_of`). An answer that could not be
++#      obtained is journalled as UNKNOWN and the act stops there: nothing is
++#      removed, no token is returned and no item claims an outcome.
++#   3. SETTLE THROUGH THE SUPPORTED ENDING (`settle`), which is the
++#      composition's own `abandon_attempt`: it removes the exact runtime,
++#      requires it positively absent, retains the workspace and returns the
++#      exact token. Resource release does not wait on anybody accepting a
++#      result, because there is no result.
++#   4. DELIVER ONE OWNER ITEM, to the participant who decided, naming the
++#      retained evidence and any effect that remains. No retry is started, no
++#      analysis is requested and nothing is re-admitted.
++
++def _known_ending(store, seam, held, intent, at):
++    """The ending this recovery has, classified from facts, or `None` while
++    nobody can say."""
++    job_id = held["job_id"]
++    recorded = ending_of(store, job_id)
++    if recorded is not None:
++        return recorded
++    attempt_id = None if intent is None else intent["attempt_id"]
++    terminal = None if intent is None else _terminal_of(seam, attempt_id)
++    if terminal is not None and terminal["ending"] != "answered":
++        return _ended(
++            store, held, attempt_id, outcome="failed",
++            cause=f"the confined publication worker ended its command "
++                  f"{terminal['ending']} and published nothing", now=at)
++    closed = _closure_of(store, held, at)
++    if closed is not None:
++        return _ended(store, held, attempt_id, outcome=closed["outcome"],
++                      cause=closed["cause"], now=at)
++    return None
++
++
++def _unknown(store, held, attempt_id, *, recorded, why, now):
++    """Journal that the runtime's cessation is NOT KNOWN as of `now`.
++
++    ONE RECORD PER CHANGE OF KNOWLEDGE. A failure that is already standing is
++    returned as it is: an engine that stays unreachable for an hour is one
++    fact with one instant, not a row per tick.
++    """
++    standing = unknown_of(store, held["job_id"])
++    if standing is not None:
++        return standing
++    return _noted(store, held, attempt_id, UNKNOWN_KIND, recorded, why, now)
++
++
++def _known(store, held, attempt_id, *, recorded, now):
++    """Journal that a fresh read SUCCEEDED after one that did not. Nothing is
++    written when no failure is standing."""
++    if unknown_of(store, held["job_id"]) is None:
++        return None
++    return _noted(store, held, attempt_id, KNOWN_KIND, recorded,
++                  "the engine answered", now)
++
++
++def _noted(store, held, attempt_id, kind, recorded, why, now):
++    unknown, known = _knowledge(store, held["job_id"])
++    sequence = (len(unknown) if kind == UNKNOWN_KIND else len(known)) + 1
++    record = {"decision_id": held["decision_id"], "job_id": held["job_id"],
++              "attempt_id": attempt_id, "recorded": recorded,
++              "why": boundaries.text(why, "an observation note"),
++              "observed_at": boundaries.instant(now, "an observation "
++                                                     "instant")}
++    operation = (unknown_operation_id if kind == UNKNOWN_KIND
++                 else known_operation_id)(held["job_id"], sequence)
++    try:
++        return store.transact(
++            operation, kind,
++            job_signature(kind, {"decision_id": record["decision_id"],
++                                 "job_id": record["job_id"],
++                                 "sequence": sequence}),
++            lambda connection: record)
++    except ContractRefusal:                               # pragma: no cover
++        return unknown_of(store, held["job_id"])
++
++
++def _observed(store, seam, held, attempt_id, at):
++    """A FRESH READ of the publication runtime, journalled as knowledge.
++
++    Answers the port's own document. A read that failed leaves a standing
++    UNKNOWN; one that succeeded clears a standing one. The recorded runtime
++    axis is never returned as though it were this answer.
++    """
++    seen = seam["runtime"].observation_of(attempt_id)
++    if type(seen) is not dict or seen.get("known") is not True:
++        _unknown(store, held, attempt_id,
++                 recorded=(seen or {}).get("recorded")
++                 if type(seen) is dict else None,
++                 why=str((seen or {}).get("why") if type(seen) is dict
++                         else "") or "the engine could not be read", now=at)
++        return None
++    _known(store, held, attempt_id, recorded=seen.get("recorded"), now=at)
++    return seen
++
++
++def settle(store, seam, *, decision_id, now=None):
++    """SETTLE ONE RECOVERY THAT DID NOT PUBLISH, and deliver its owner item.
++
++    Replays its committed item. Refuses -- as a HELD act, changing nothing --
++    while the ending is not known or the engine cannot be read.
++    """
++    taken = check_publication_seam(seam)
++    _agreeing_instance(taken, what="this publication settlement")
++    held = _admitted(store, decision_id)
++    job_id = held["job_id"]
++    delivered = owner_item_of(store, job_id)
++    if delivered is not None:
++        return delivered
++    if result_of(store, job_id) is not None:
++        _refuse(f"recovery {name_value(job_id)} published; there is no "
++                f"failed publication to settle")
++    at = boundaries.instant(now if now is not None else store._now(),
++                            "a settlement instant")
++    intent = launch_of(store, job_id)
++    ended = _known_ending(store, taken, held, intent, at)
++    if ended is None:
++        _refuse(f"recovery {name_value(job_id)}'s publication has no known "
++                f"ending; an uncertain adoption is held and is not settled "
++                f"as a failure nobody observed",
++                category="runtime-observation", code="quiescence-unknown")
++    settled = settlement_of(store, job_id)
++    if settled is None and intent is not None:
++        attempt_id = intent["attempt_id"]
++        if _observed(store, taken, held, attempt_id, at) is None:
++            _refuse(f"publication attempt {name_value(attempt_id)}'s runtime "
++                    f"could not be observed; its cessation is UNKNOWN, so "
++                    f"nothing is removed, its workspace token stays held and "
++                    f"no outcome is delivered as settled",
++                    category="runtime-observation", code="quiescence-unknown")
++        answered = taken["runtime"].settle(
++            attempt_id,
++            reason=f"publication recovery {decision_id} "
++                   f"{ended['outcome']}: {ended['cause']}"[:480])
++        state = _runtime_of(taken, attempt_id)
++        if not (state["execution_runtime"] == "destroyed"
++                and state["cleanup"] in ("complete", "retained")):
++            _refuse(f"publication attempt {name_value(attempt_id)} was "
++                    f"settled and its runtime is recorded "
++                    f"{name_value(state['execution_runtime'])} with cleanup "
++                    f"{name_value(state['cleanup'])}; a settlement is "
++                    f"recorded only over a positively absent runtime",
++                    category="runtime-observation", code="quiescence-unknown")
++        record = {"decision_id": decision_id, "job_id": job_id,
++                  "stage_id": held["publication_stage_id"],
++                  "attempt_id": attempt_id, "outcome": ended["outcome"],
++                  "runtime": {"execution_runtime":
++                                  state["execution_runtime"],
++                              "cleanup": state["cleanup"]},
++                  "settlement": {name: (answered or {}).get(name)
++                                 for name in ("outcome", "cleanup",
++                                              "disposition")
++                                 if type(answered) is dict},
++                  "settled_at": at}
++        settled = store.transact(
++            settled_operation_id(job_id), SETTLED_KIND,
++            job_signature(SETTLED_KIND, {"decision_id": decision_id,
++                                         "job_id": job_id,
++                                         "attempt_id": attempt_id}),
++            lambda connection: record)
++    return _delivered(store, held, ended, settled, intent, at)
++
++
++def _delivered(store, held, ended, settled, intent, at):
++    """THE OWNER ITEM, addressed to the participant who decided.
++
++    WHAT IT CARRIES IS WHAT AN OWNER NEEDS TO DISPOSE OF IT: what ended the
++    publication, where the retained material is, and what -- if anything --
++    is still owed. It carries no bytes, no path an agent could redirect and
++    no verdict.
++    """
++    job_id = held["job_id"]
++    decision = publication_recovery.decision_of(store, held["decision_id"])
++    staging = staging_of(store, job_id)
++    remaining = []
++    if intent is not None and settled is None:              # pragma: no cover
++        remaining.append("the publication runtime's settlement")
++    record = {
++        "decision_id": held["decision_id"], "job_id": job_id,
++        "prior_job_id": held["prior_job_id"],
++        "outcome": ended["outcome"], "cause": ended["cause"],
++        # THE PARTICIPANT WHO DECIDED, read off the committed decision. The
++        # item goes to whoever approved this recovery and to nobody else.
++        "destination": ((decision or {}).get("owner") or {}).get("endpoint"),
++        "evidence": {
++            "original": "the failed Job's retained output, unchanged; read "
++                        "it with publication-inspect",
++            "original_attempt_id": held["candidate"].get("attempt_id"),
++            "staged_input": None if staging is None
++            else staging["staged"]["locator"],
++            "publication_attempt_id": None if intent is None
++            else intent["attempt_id"],
++            "publication_workspace": (
++                None if intent is None else
++                "retained under the publication attempt; not published, not "
++                "frozen and not a candidate"),
++            "runtime": None if settled is None else settled["runtime"]},
++        "remaining": remaining,
++        "automatic_retry": False,
++        "delivered_at": at}
++    return store.transact(
++        owner_item_operation_id(job_id), OWNER_ITEM_KIND,
++        job_signature(OWNER_ITEM_KIND, {"decision_id": record["decision_id"],
++                                        "job_id": job_id}),
++        lambda connection: record)
++
++
+ # -- 11. the level-triggered pass --------------------------------------------
+ #
+ # WHICH ACT ONE TICK PERFORMS, DERIVED FROM DURABLE ROWS and never from a
+ # process's memory. `retained_verification.advance_verification`'s shape and
+ # its reason: a restarted manager must owe exactly what the records say is
+ # owed, and a pass that remembered where it was would owe something else.
+-ACTS = ("stage", "publish", "custody", "hand-off")
++ACTS = ("stage", "publish", "custody", "hand-off", "settle")
+ ACT_OUTCOMES = ("performed", "held", "refused")
+ 
+ 
+@@ -2070,9 +2531,21 @@ def publication_readiness(store, decision_id):
+     handoff = handoff_of(store, job_id)
+     uncertain = hold_of(store, job_id)
+     launched = launch_of(store, job_id)
++    ended = ending_of(store, job_id)
++    unknown = unknown_of(store, job_id)
++    settled = settlement_of(store, job_id)
++    item = owner_item_of(store, job_id)
++    # A RECOVERY THAT DID NOT PUBLISH OWES ITS SETTLEMENT, and one whose own
++    # control has closed before anything was recorded owes it too -- an
++    # expired recovery nobody settled is an owner nobody told.
++    closed = adopted is None and item is None and ended is None \
++        and _closure_of(store, held, store._now()) is not None
+     owed = None
+-    if uncertain is not None and adopted is None:
++    if adopted is None and item is not None:
+         owed = None
++    elif adopted is None and (uncertain is not None or ended is not None
++                              or closed):
++        owed = "settle"
+     elif staged is None:
+         owed = "stage"
+     elif adopted is None:
+@@ -2081,6 +2554,13 @@ def publication_readiness(store, decision_id):
+         owed = "custody"
+     elif handoff is None:
+         owed = "hand-off"
++    # WHAT IS KNOWN ABOUT THE RUNTIME, said so a reader cannot take the last
++    # recorded axis for current knowledge (review 2026-11-23T20-28-00Z). A
++    # failed observation stands until a settlement or a result supersedes it.
++    not_known = unknown is not None and settled is None and adopted is None
++    outcome = ("published" if adopted is not None else
++               ended["outcome"] if ended is not None else
++               "unknown" if (uncertain is not None or not_known) else None)
+     return {"decision_id": decision_id, "job_id": job_id,
+             "prior_job_id": held["prior_job_id"],
+             "staged": staged is not None,
+@@ -2088,7 +2568,26 @@ def publication_readiness(store, decision_id):
+             "published": adopted is not None,
+             "custody": custody is not None,
+             "handed_off": handoff is not None,
+-            "uncertain": uncertain is not None and adopted is None,
++            "uncertain": adopted is None and ended is None
++            and (uncertain is not None or not_known),
++            "outcome": outcome,
++            "ended": None if ended is None else {
++                "outcome": ended["outcome"], "cause": ended["cause"],
++                "ended_at": ended["ended_at"]},
++            "runtime_knowledge": (
++                "settled: positively absent" if settled is not None else
++                f"unknown: the engine could not be read at "
++                f"{unknown['observed_at']}; the recorded runtime axis is the "
++                f"last observation and is not current knowledge"
++                if not_known else
++                "recorded: the Worker Manager's own journal; read the "
++                "attempt for it"),
++            "settled": settled is not None,
++            "owner_item": None if item is None else {
++                "destination": item["destination"],
++                "outcome": item["outcome"],
++                "delivered_at": item["delivered_at"],
++                "remaining": list(item["remaining"])},
+             "review": "runnable" if handoff is not None else "blocked",
+             "owed": owed,
+             "original_job": "failed; unchanged by this recovery",
+@@ -2139,7 +2638,8 @@ def advance_publication(store, seam, *, now=None):
+         if owed is None:
+             continue
+         performer = {"stage": stage_input, "publish": publish,
+-                     "custody": take_custody, "hand-off": hand_off}[owed]
++                     "custody": take_custody, "hand-off": hand_off,
++                     "settle": settle}[owed]
+         try:
+             answer = performer(store, taken, decision_id=decision_id, now=at)
+         except ContractRefusal as refusal:
+diff --git a/v12/python/src/baton_v12/job_manager/publication_recovery.py b/v12/python/src/baton_v12/job_manager/publication_recovery.py
+index 8fa35e34..957d8bf2 100644
+--- a/v12/python/src/baton_v12/job_manager/publication_recovery.py
++++ b/v12/python/src/baton_v12/job_manager/publication_recovery.py
+@@ -775,15 +775,18 @@ def _failed_publication(jobs, control, *, job_id, stage_id, episode):
+ def producer_entries(declaration):
+     """WHERE THE ADAPTER'S OWN RECORDS SIT INSIDE THE ORIGINAL.
+ 
+-    UNDER THE DECLARED OUTPUT'S OWN PATH and never at the root of the
+-    workspace: the producer writes its proposal into the directory its
+-    declaration names, so `result.json` alone would be a path this module
+-    chose rather than the one the declaration did. The two names inside it are
+-    constants of the producing adapter's contract, which is why they are not
+-    operands either.
++    INSIDE THE DECLARED OUTPUT DIRECTORY, WHICH IS WHAT THE ORIGINAL IS
++    (review 2026-11-23T20-28-00Z F1). The host owner is handed the declared
++    output's own path and proves and measures THAT directory, so these names
++    are relative to it. The first cut measured the attempt's whole writable
++    root and prefixed these with the declared path -- which was the same two
++    files only while a fixture's workspace held nothing but the proposal. A
++    real producer's writable root is its candidate's working tree, and its
++    development line is a whole checkout. The two names are constants of the
++    producing adapter's contract, which is why they are not operands.
+     """
+-    place = declaration["output"]["path"]
+-    return (f"{place}/{PRODUCER_RESULT}", f"{place}/{PRODUCER_VERIFICATION}")
++    del declaration
++    return (PRODUCER_RESULT, PRODUCER_VERIFICATION)
+ 
+ 
+ def _retained_output(host, failed, declaration, *, holds):
+@@ -797,7 +800,8 @@ def _retained_output(host, failed, declaration, *, holds):
+     _port(host, HOST_OUTPUT, what="the host output port")
+     try:
+         return host.output_of(failed["attempt_id"],
+-                              read=producer_entries(declaration))
++                              read=producer_entries(declaration),
++                              output=declaration["output"]["path"])
+     except ContractRefusal as refusal:
+         return _held(holds, refusal)
+ 
+@@ -823,7 +827,11 @@ def _shape(output, *, declaration, holds):
+     manifest = output["manifest"]
+     constraints = declaration["output"]["constraints"]
+     paths = {one["path"] for one in manifest["entries"]}
+-    if COMPLETION_ENVELOPE in paths:
++    # THE COMPLETION SIGNAL IS AT THE WRITABLE ROOT, beside the declared
++    # output and never inside it, so it is the owner's own answer rather than
++    # an entry of the measured proposal.
++    if output.get("completion_envelope") is True \
++            or COMPLETION_ENVELOPE in paths:
+         _hold(holds, "refused", "precondition",
+               f"the retained output carries {name_value(COMPLETION_ENVELOPE)}, "
+               f"which is the worker's completion signal; this recovery is for "
+@@ -862,7 +870,8 @@ def _shape(output, *, declaration, holds):
+             "entry_count": manifest["entry_count"],
+             "total_bytes": manifest["total_bytes"],
+             "paths": sorted(paths),
+-            "completion_envelope": COMPLETION_ENVELOPE in paths,
++            "completion_envelope": output.get("completion_envelope") is True
++            or COMPLETION_ENVELOPE in paths,
+             "exceeded": manifest["total_bytes"] > ORIGINAL_PROPOSAL_BYTES,
+             "fits_corrective": (manifest["total_bytes"]
+                                 <= constraints["max_bytes"]
+diff --git a/v12/python/src/baton_v12/worker_manager/workspaces.py b/v12/python/src/baton_v12/worker_manager/workspaces.py
+index f77f07df..770f60e5 100644
+--- a/v12/python/src/baton_v12/worker_manager/workspaces.py
++++ b/v12/python/src/baton_v12/worker_manager/workspaces.py
+@@ -5271,8 +5271,160 @@ def directory_manifest(root):
+ MAX_RETAINED_ENTRY_BYTES = 1 << 16
+ 
+ 
++# W385695 (review 2026-11-23T20-28-00Z F1): THE WORKER'S COMPLETION SIGNAL, at
++# the root of its writable output mount and never inside a declared output.
++# `baton_worker.OUTPUT_MANIFEST` and `output.COMPLETION` spell the same name;
++# it is read here only as present or absent.
++RETAINED_COMPLETION_ENVELOPE = "output.json"
++
++
++def _retained_line_home(control, assignment_id, prepared, what):
++    """THE PERSISTENT LINE HOME ONE ENDED ATTEMPT WROTE, located from durable
++    provenance and proved. A read.
++
++    W385695, review 2026-11-23T20-28-00Z F1. An implementation attempt served
++    through the pooled composition writes into its Job's persistent
++    development line, not into `<storage>/<attempt>/workspace`, and its
++    completed-preparation record carries that object's `device:inode` and no
++    path. So the path comes from the two records that DO hold it, each this
++    store's own and each fixed when it was written:
++
++      the WRITER GRANT this exact attempt and generation was given -- the
++        append-only `line_writers` row, read through the line owner's own
++        history reader, which re-derives its identity and binds it to the
++        committed grant; and
++      the LINE that grant names, whose row holds the one path and the
++        persisted object identity the line was materialized with.
++
++    FOUR THINGS ARE THEN REQUIRED, and each refuses on its own:
++
++      the writer CANNOT WRITE: its grant is revoked, or it is still this
++        attempt's grant and the attempt's runtime is destroyed with a settled
++        cleanup -- which is what an abandoned attempt leaves, and whose
++        standing grant keeps every other writer off the line;
++      NO LATER WRITER WAS EVER GRANTED ON THIS LINE and none is active. A line
++        is persistent: the next attempt of the same Job writes into the same
++        home, and after that the tree is no longer what THIS attempt left;
++      the home is a real directory in the reserved line namespace of this
++        manager's own storage, not a link, with its persisted identity; and
++      that identity IS THE ONE THIS ATTEMPT'S PREPARATION COMPLETED OVER, so
++        a line re-pointed or re-materialized since is a substituted object.
++    """
++    from . import attempts, custody, review_cycles
++
++    assignment = attempts.assignment_of(control, assignment_id)
++    writer = review_cycles.writer_for_attempt(
++        control, attempt_id=assignment_id,
++        generation=assignment["generation"])
++    if writer is None:
++        raise ContractRefusal(
++            "refused", "precondition",
++            f"{what} is refused: attempt {name_value(assignment_id)}'s "
++            f"completed preparation states a line workspace and this store "
++            f"holds no line writer granted to that attempt; a line home "
++            f"nobody recorded for it cannot be located, and one is not "
++            f"guessed at")
++    if writer["state"] != "revoked":
++        # STILL THE LINE'S WRITER ON RECORD. That is what an ABANDONED attempt
++        # leaves: the fourth ending fences the assignment and removes the
++        # runtime, and the grant stays this attempt's until a later round
++        # recovers the line. Such a grant is itself the exclusion -- the
++        # sole-writer index admits nobody else while it stands -- PROVIDED the
++        # one process that could write through it is positively gone. So the
++        # runtime axis is asked, from this store, and anything short of a
++        # destroyed runtime with a settled cleanup refuses.
++        state = attempts.attempt_runtime_of(control, assignment_id)
++        if state is None or state["execution_runtime"] != "destroyed" \
++                or state["cleanup"] not in ("complete", "retained"):
++            raise ContractRefusal(
++                "runtime-observation", "quiescence-unknown",
++                f"{what} is refused: attempt {name_value(assignment_id)} is "
++                f"still its development line's "
++                f"{name_value(writer['state'])} writer and its runtime is "
++                f"recorded "
++                f"{name_value((state or {}).get('execution_runtime'))} with "
++                f"cleanup {name_value((state or {}).get('cleanup'))}; a tree "
++                f"its writer may still reach is not measured")
++    later = control._connection.execute(
++        "SELECT writer_id, state FROM line_writers WHERE line_id = ? AND "
++        "writer_id != ? AND (state = 'active' OR granted_at > ? OR "
++        "(granted_at = ? AND assignment_generation > ?)) LIMIT 1",
++        (writer["line_id"], writer["writer_id"], writer["granted_at"],
++         writer["granted_at"], writer["assignment_generation"])).fetchone()
++    if later is not None:
++        raise ContractRefusal(
++            "refused", "precondition",
++            f"{what} is refused: development line "
++            f"{name_value(writer['line_id'])} was granted to another writer "
++            f"({name_value(later[0])}) after attempt "
++            f"{name_value(assignment_id)}; a persistent line somebody wrote "
++            f"into since is not the output this attempt left")
++    line = review_cycles.line_of(control, writer["line_id"])
++    storage = configured_workspace_storage(control)
++    root = _real(storage.place, "the manager's workspace storage")
++    reserved = os.path.join(root, _REVIEW_LINE_HOME)
++    place = line["line_path"]
++    if type(place) is not str or os.path.realpath(place) != place \
++            or not place.startswith(reserved + os.sep):
++        raise ContractRefusal(
++            "integrity", "path",
++            f"{what} is refused: development line "
++            f"{name_value(writer['line_id'])}'s recorded home is not its own "
++            f"directory in this manager's reserved line namespace")
++    custody._no_link(place, what="the development line home")
++    resolved = _contained(place, root, "the development line home")
++    identity = _entry_identity(resolved)
++    persisted = f"{line['line_device']}:{line['line_inode']}"
++    if identity != persisted:
++        raise ContractRefusal(
++            "runtime-observation", "identity-mismatch",
++            f"{what} is refused: development line "
++            f"{name_value(writer['line_id'])} was materialized as object "
++            f"{name_value(persisted)} and the entry at its home now is "
++            f"{name_value(identity)}; a replaced line is not the one this "
++            f"attempt wrote")
++    return resolved, storage
++
++
++def _retained_output_place(resolved, output, what):
++    """The DECLARED OUTPUT DIRECTORY inside one proved writable root.
++
++    W385695, review 2026-11-23T20-28-00Z F1. THE OUTPUT IS WHAT THE WORKER
++    DECLARED, NOT EVERYTHING IT COULD WRITE. A worker's writable mount holds
++    its candidate's working tree, its scratch and its declared outputs side by
++    side, and a development line holds a whole version-controlled checkout.
++    Measuring the mount would call a source tree and a repository's object
++    store "the proposal". So the caller names the declared output's own path
++    -- one component, the declaration's -- and that directory is what is
++    proved, measured and read.
++    """
++    from . import custody
++
++    boundaries.text(output, "a declared output path")
++    if "/" in output or "\\" in output or output in (".", "..") \
++            or output.startswith("."):
++        raise ContractRefusal(
++            "integrity", "path",
++            f"{what} names declared output {name_value(output)}; a retained "
++            f"output is one directly declared directory of the attempt's "
++            f"writable root and never a path into it")
++    place = os.path.join(resolved, output)
++    if not os.path.lexists(place):
++        # A MISSING ORIGINAL, said as that. The link check below would refuse
++        # an absent entry too, in words about what kind of object it is; an
++        # owner reading the hold is owed the plainer fact.
++        raise ContractRefusal(
++            "refused", "precondition",
++            f"{what} is refused: the attempt's writable root holds no "
++            f"declared output {name_value(output)}; an original that is not "
++            f"there holds rather than being read from somewhere else")
++    custody._no_link(place, what="the attempt's declared output")
++    return _contained(place, resolved, "the attempt's declared output")
++
++
+ def retained_output_of(control, assignment_id,
+-                       *, names=(), what="a retained output read"):
++                       *, names=(), what="a retained output read",
++                       output=None):
+     """THE ORIGINAL OUTPUT ONE ATTEMPT LEFT ON THIS HOST, PROVED AND MEASURED.
+     A READ: it creates nothing, repairs nothing and changes no mode.
+ 
+@@ -5310,10 +5462,26 @@ def retained_output_of(control, assignment_id,
+     it was taken over; it carries no bytes, because a reader that wanted one
+     file's content asks for it by its measured digest.
+ 
+-    A LINE-LAYOUT PREPARATION IS REFUSED RATHER THAN GUESSED AT, for
+-    `_revalidated_roots`' reason: the recorded identities carry no path, so a
+-    persistent line home is an object this reader cannot locate and must not
+-    compare against the attempt's own.
++    A LINE-LAYOUT PREPARATION IS LOCATED FROM ITS OWN DURABLE PROVENANCE AND
++    NEVER GUESSED AT (review 2026-11-23T20-28-00Z F1). The recorded identities
++    carry no path, so the attempt's own `<storage>/<attempt>/workspace` is NOT
++    compared against them; `_retained_line_home` finds the line through the
++    writer grant this attempt was given and the line that grant names, and
++    requires the writer revoked, no later writer, the reserved namespace and
++    the persisted identity before the same comparison is made.
++
++    `output` NAMES THE DECLARED OUTPUT DIRECTORY, and the measurement is then
++    of THAT directory and nothing beside it -- see `_retained_output_place`.
++    It is REQUIRED for a line layout, where the writable root is a whole
++    checkout. Omitted for an attempt layout, the whole writable root is
++    measured, which is what this read did before the operand existed.
++
++    THE ANSWER NAMES BOTH OBJECTS. `identity` is the writable root's, the one
++    the completed preparation recorded and the one a substitution is judged
++    against; `output_identity` is the declared directory's own; and
++    `completion_envelope` says whether the worker's completion signal is at
++    the writable root, which a caller could otherwise only learn by measuring
++    a tree it has no business measuring.
+     """
+     from . import custody
+ 
+@@ -5327,22 +5495,33 @@ def retained_output_of(control, assignment_id,
+     # this manager cannot say every governed writer finished is exactly the
+     # measurement REC-9 refuses to trust.
+     prepared = settlement_preparation(control, assignment_id)
+-    if prepared.get("workspace_layout") != "attempt":
++    layout = prepared.get("workspace_layout")
++    if layout == "line":
++        if output is None:
++            raise ContractRefusal(
++                "refused", "precondition",
++                f"{what} is refused: attempt {name_value(assignment_id)} "
++                f"wrote into a development line, whose home is a whole "
++                f"checkout; its retained output is read by the declared "
++                f"output's own path and the line is never measured whole")
++        resolved, storage = _retained_line_home(control, assignment_id,
++                                                prepared, what)
++    elif layout == "attempt":
++        storage = configured_workspace_storage(control)
++        root = _real(storage.place, "the manager's workspace storage")
++        home = os.path.join(root, assignment_id)
++        custody._no_link(home, what="the attempt home")
++        place = os.path.join(home, "workspace")
++        custody._no_link(place, what="the attempt's workspace")
++        resolved = _contained(place, root, "the attempt's workspace root")
++    else:
+         raise ContractRefusal(
+             "refused", "precondition",
+             f"{what} is refused: attempt {name_value(assignment_id)}'s "
+             f"completed preparation states workspace layout "
+-            f"{name_value(prepared.get('workspace_layout'))}, and this read "
+-            f"reconstructs the attempt layout only; an identity comparison "
+-            f"whose operands are not known to be the same object is refused "
+-            f"rather than performed")
+-    storage = configured_workspace_storage(control)
+-    root = _real(storage.place, "the manager's workspace storage")
+-    home = os.path.join(root, assignment_id)
+-    custody._no_link(home, what="the attempt home")
+-    place = os.path.join(home, "workspace")
+-    custody._no_link(place, what="the attempt's workspace")
+-    resolved = _contained(place, root, "the attempt's workspace root")
++            f"{name_value(layout)}, which this read cannot locate; an "
++            f"identity comparison whose operands are not known to be the "
++            f"same object is refused rather than performed")
+     identity = _entry_identity(resolved)
+     if identity != prepared.get("workspace"):
+         raise ContractRefusal(
+@@ -5352,12 +5531,18 @@ def retained_output_of(control, assignment_id,
+             f"its preparation completed and the entry there now is "
+             f"{name_value(identity)}; a replaced object is not the original "
+             f"output this attempt wrote")
+-    manifest = directory_manifest(resolved)
+-    return {"attempt_id": assignment_id, "root": resolved,
++    measured = resolved if output is None \
++        else _retained_output_place(resolved, output, what)
++    manifest = directory_manifest(measured)
++    return {"attempt_id": assignment_id, "root": measured,
+             "identity": identity, "storage": storage.place,
++            "layout": layout, "output": output,
++            "output_identity": _entry_identity(measured),
++            "completion_envelope": os.path.lexists(
++                os.path.join(resolved, RETAINED_COMPLETION_ENVELOPE)),
+             "published": list(prepared.get("published") or ()),
+             "manifest": manifest,
+-            "entries": _retained_entries(resolved, manifest, names,
++            "entries": _retained_entries(measured, manifest, names,
+                                          what)}
+ 
+ 
+diff --git a/v12/python/tests/job_manager/test_publication_recovery_admission.py b/v12/python/tests/job_manager/test_publication_recovery_admission.py
+index 9ec43047..8ee0ec2b 100644
+--- a/v12/python/tests/job_manager/test_publication_recovery_admission.py
++++ b/v12/python/tests/job_manager/test_publication_recovery_admission.py
+@@ -546,7 +546,9 @@ class PublicationCase(unittest.TestCase):
+             with open(os.path.join((roots or self.roots)["workspace"],
+                                    "output.json"), "wb") as handle:
+                 handle.write(b"{}")
+-        return workspaces.directory_manifest((roots or self.roots)["workspace"])
++        # THE ORIGINAL IS THE DECLARED OUTPUT DIRECTORY, which is what the
++        # host owner proves and measures (review 2026-11-23T20-28-00Z F1).
++        return workspaces.directory_manifest(place)
+ 
+     # -- the installed command ----------------------------------------------
+ 
+@@ -660,8 +662,9 @@ class PublicationCase(unittest.TestCase):
+             return hashlib.sha256(handle.read()).hexdigest()
+ 
+     def original_digest(self):
+-        return workspaces.directory_manifest(
+-            self.roots["workspace"])["tree_digest"]
++        return workspaces.directory_manifest(os.path.join(
++            self.roots["workspace"],
++            role_contract.CANDIDATE_OUTPUT))["tree_digest"]
+ 
+     def ported(self):
+         """The product's own ports, composed exactly as the command does."""
+@@ -754,7 +757,9 @@ class TheOwnerInspectsTheOriginalAndDecidesIt(PublicationCase):
+                          self.original["total_bytes"])
+         self.assertTrue(read["output"]["exceeded"])
+         self.assertTrue(read["output"]["fits_corrective"])
+-        self.assertIn("proposal/result.json", read["output"]["paths"])
++        # PATHS INSIDE THE DECLARED OUTPUT DIRECTORY, which is the original.
++        self.assertIn("result.json", read["output"]["paths"])
++        self.assertNotIn("proposal/result.json", read["output"]["paths"])
+ 
+     def test_the_producer_account_is_qualified_and_is_not_acceptance(self):
+         read = self.read()
+@@ -1290,10 +1295,17 @@ class TheCandidateMustCorrespondThroughTheSourceOwner(PublicationCase):
+                                "objects.bundle.keep"))
+         import shutil
+ 
++        # A SECOND BUNDLE OF THE SAME NAME INSIDE THE ORIGINAL, one level
++        # down. It used to be placed at the writable root beside the declared
++        # output, which is no longer part of what is measured.
++        os.mkdir(os.path.join(self.roots["workspace"],
++                              role_contract.CANDIDATE_OUTPUT, "second"))
+         shutil.copyfile(
+             os.path.join(self.roots["workspace"],
+                          role_contract.CANDIDATE_OUTPUT, "objects.bundle"),
+-            os.path.join(self.roots["workspace"], "objects.bundle"))
++            os.path.join(self.roots["workspace"],
++                         role_contract.CANDIDATE_OUTPUT, "second",
++                         "objects.bundle"))
+         read = self.read()
+         self.assertFalse(read["eligible"])
+         self.assertIn("exactly one measured file",
+diff --git a/v12/python/tests/job_manager/test_publication_recovery_execution.py b/v12/python/tests/job_manager/test_publication_recovery_execution.py
+index a6bb446b..5bc81fd0 100644
+--- a/v12/python/tests/job_manager/test_publication_recovery_execution.py
++++ b/v12/python/tests/job_manager/test_publication_recovery_execution.py
+@@ -98,6 +98,7 @@ from baton_v12.job_manager import (cancellation, creation, documents, episodes,
+                                    scheduler, submission)
+ from baton_v12.worker_manager import (attempt_runtime_of, launch,
+                                       source_boundary, workspaces)
++from baton_v12.worker_manager import frozen_output_of as frozen_of
+ from baton_v12.worker_manager.sealing import declared_outputs
+ 
+ from tests.job_manager import test_publication_recovery_admission as checkpoint1
+@@ -724,8 +725,10 @@ class PublicationExecutionCase(checkpoint1.PublicationCase):
+         return f"{found.st_dev}:{found.st_ino}"
+ 
+     def original_bytes(self):
+-        return workspaces.directory_manifest(
+-            self.roots["workspace"])["tree_digest"]
++        """The ORIGINAL, measured now: the declared output directory."""
++        return workspaces.directory_manifest(os.path.join(
++            self.roots["workspace"],
++            role_contract.CANDIDATE_OUTPUT))["tree_digest"]
+ 
+ 
+ # -- 1. the admission that is real now ---------------------------------------
+@@ -1157,8 +1160,7 @@ class TheApprovedOriginalIsStagedReadOnly(PublicationExecutionCase):
+         self.assertEqual(os.stat(place).st_mode & 0o777, 0o555)
+         self.assertEqual(
+             os.stat(os.path.dirname(place)).st_mode & 0o777, 0o555)
+-        entry = os.path.join(place, role_contract.CANDIDATE_OUTPUT,
+-                             "result.json")
++        entry = os.path.join(place, "result.json")
+         self.assertEqual(os.stat(entry).st_mode & 0o777, 0o444)
+         with self.assertRaises(PermissionError):
+             open(entry, "wb")
+@@ -1203,8 +1205,7 @@ class TheApprovedOriginalIsStagedReadOnly(PublicationExecutionCase):
+         # AND IT IS NOT IN THE STAGED PROPOSAL TREE, which is the whole point.
+         staged = held["staged"]["locator"][len("file://"):]
+         self.assertNotIn(publication_execution.PROVENANCE_FILE,
+-                         os.listdir(os.path.join(
+-                             staged, role_contract.CANDIDATE_OUTPUT)))
++                         os.listdir(staged))
+ 
+     def test_staging_replays_and_copies_once(self):
+         self.ready()
+@@ -1254,7 +1255,13 @@ class TheApprovedOriginalIsStagedReadOnly(PublicationExecutionCase):
+         shutil.rmtree(os.path.join(self.roots["workspace"],
+                                    role_contract.CANDIDATE_OUTPUT))
+         caught = self.refusal(self.staged)
+-        self.assertEqual(caught.category, "integrity")
++        # THE OWNER SAYS IT IS MISSING. While the whole writable root was
++        # measured, removing the proposal left an empty root that measured to
++        # another digest (`integrity`); the original is now the declared
++        # output directory itself, and its absence is reported as absence.
++        self.assertEqual((caught.category, caught.code),
++                         ("refused", "precondition"))
++        self.assertIn("holds no declared output", caught.message)
+         self.assertIsNone(publication_execution.staging_of(
+             self.jobs, self.recovery_job_id))
+ 
+@@ -1474,12 +1481,11 @@ class TheRetainedBytesAreAdoptedDeterministically(PublicationExecutionCase):
+         self.ready()
+         held = self.staged()
+         root = held["staged"]["locator"][len("file://"):]
+-        place = os.path.join(root, role_contract.CANDIDATE_OUTPUT)
++        place = root
+         with self.assertRaises(PermissionError):
+             open(os.path.join(place, "result.json"), "ab")
+         os.chmod(os.path.dirname(root), 0o700)
+         os.chmod(root, 0o700)
+-        os.chmod(place, 0o700)
+         os.chmod(os.path.join(place, "result.json"), 0o600)
+         with open(os.path.join(place, "result.json"), "ab") as handle:
+             handle.write(b"x")
+@@ -2153,8 +2159,23 @@ class UncertaintyHoldsAndNeverPublishesTwice(PublicationExecutionCase):
+         self.assertEqual(self.review_offers(), [])
+         held = publication_execution.publication_readiness(self.jobs, "D1")
+         self.assertTrue(held["uncertain"])
+-        self.assertIsNone(held["owed"])
+         self.assertEqual(held["review"], "blocked")
++        # WHAT IS OWED IS THE SETTLEMENT, AND NEVER A SECOND ADOPTION (review
++        # 2026-11-23T20-28-00Z). This case used to assert that nothing at all
++        # was owed and that the pass did nothing -- which is exactly the
++        # stranded runtime, pending cleanup and unreturned token that review
++        # measured. No publish, custody or hand-off act is owed or performed.
++        self.assertEqual(held["owed"], "settle")
++        acts = publication_execution.advance_publication(
++            self.jobs, self.seam(), now=PUBLISHED)["acts"]
++        self.assertEqual([(one["act"], one["outcome"]) for one in acts],
++                         [("settle", "performed")])
++        after = publication_execution.publication_readiness(self.jobs, "D1")
++        self.assertEqual((after["outcome"], after["published"],
++                          after["owed"], after["review"]),
++                         ("failed", False, None, "blocked"))
++        self.assertFalse(self.gate()["open"])
++        self.assertEqual(self.review_offers(), [])
+         self.assertEqual(
+             publication_execution.advance_publication(
+                 self.jobs, self.seam(), now=PUBLISHED)["acts"], [])
+@@ -3540,6 +3561,384 @@ print("RETURNED", flush=True)
+         self.assertEqual(self.review_offers(), [])
+ 
+ 
++# -- 15a'. a recovery that does not publish: fenced, settled, reported -------
++#
++# REVIEW 2026-11-23T20-28-00Z; COMPLETION-PLAN-385909 outcomes 1 and 3. Three
++# measured behaviours: a worker terminal published in the window after its
++# last gate carried a NEW adoption past the installed expiry fence; an expired
++# publication was left quiescent with its cleanup pending and its workspace
++# token unreturned, and nobody was told; and a failed engine read was reported
++# as an in-flight runtime with `uncertain=false`.
++
++
++class ARecoveryThatDoesNotPublishIsFencedSettledAndReported(
++        PublicationExecutionCase):
++    """No new adoption past the fence; finite settlement; a truthful status;
++    one owner item."""
++
++    def token(self):
++        """The publication attempt's own outstanding workspace token."""
++        from baton_v12.worker_manager import tokens
++
++        place = os.path.join(self.storage, self.publication_attempt,
++                             "workspace")
++        found = os.stat(place)
++        domain = tokens.domain_of("workspace",
++                                  f"{found.st_dev}:{found.st_ino}")
++        held = tokens.outstanding(self.control, domain)
++        self.assertEqual(len(held), 1)
++        return domain, held[0]["generation"]
++
++    def returned(self, domain, generation):
++        from baton_v12.worker_manager import tokens
++
++        return tokens.token_of(self.control, domain, generation)["returned"]
++
++    def answered_in_the_window(self):
++        """A REAL worker turn whose clock passes the bound while it publishes
++        its `answered` state -- after its last gate. It answers completed."""
++        import baton_worker
++
++        original = baton_worker._publish
++
++        def crossing(root, name, body, *operands, **named):
++            if name == "state-work.json" and body.get("state") == "answered":
++                self.instants.append(LATE)
++            return original(root, name, body, *operands, **named)
++
++        baton_worker._publish = crossing
++        self.addCleanup(setattr, baton_worker, "_publish", original)
++        try:
++            return self.turn()
++        finally:
++            baton_worker._publish = original
++
++    def settled_item(self, outcome):
++        """The assertions every non-publication shares once it is settled."""
++        ready = publication_execution.publication_readiness(self.jobs, "D1")
++        self.assertEqual((ready["outcome"], ready["published"],
++                          ready["settled"], ready["owed"], ready["review"],
++                          ready["uncertain"]),
++                         (outcome, False, True, None, "blocked", False))
++        state = attempt_runtime_of(self.control, self.publication_attempt)
++        self.assertEqual((state["execution_runtime"], state["cleanup"]),
++                         ("destroyed", "retained"))
++        item = publication_execution.owner_item_of(self.jobs,
++                                                   self.recovery_job_id)
++        self.assertEqual((item["destination"], item["outcome"],
++                          item["automatic_retry"], item["remaining"]),
++                         (OWNER, outcome, False, []))
++        self.assertEqual(item["evidence"]["publication_attempt_id"],
++                         self.publication_attempt)
++        self.assertEqual(item["evidence"]["original_attempt_id"],
++                         self.attempt_id)
++        self.assertEqual(publication_execution.owner_items_of(self.jobs),
++                         [item])
++        # NOTHING WAS PUBLISHED, FROZEN OR OFFERED, and the original and what
++        # the worker wrote are both still there as evidence.
++        self.assertIsNone(publication_execution.result_of(
++            self.jobs, self.recovery_job_id))
++        self.assertIsNone(publication_execution.custody_of(
++            self.jobs, self.recovery_job_id))
++        self.assertFalse(self.gate()["open"])
++        self.assertEqual(self.review_offers(), [])
++        self.assertEqual(self.original_bytes(), self.original["tree_digest"])
++        return item
++
++    # -- outcome 1: the commit fence -----------------------------------------
++
++    def test_a_completed_terminal_past_the_bound_records_no_adoption(self):
++        """THE TERMINAL RACE, closed where it is authoritative. The worker's
++        last gate passed, the instant passed during its two final writes, and
++        the exchange really says answered/completed. The manager records NO
++        publication: the adoption's own transaction asks this store's fence
++        and bound at the manager's instant."""
++        self.ready()
++        self.launched()
++        self.serving()
++        domain, generation = self.token()
++        self.assertEqual(self.answered_in_the_window(), 0)
++        terminal = self.exchange_view()["terminal"]
++        self.assertEqual((terminal["ending"], terminal["disposition"]),
++                         ("answered", "completed"))
++        place = self.workspace_of(self.publication_attempt)
++        self.assertTrue(os.path.isfile(os.path.join(place, "output.json")))
++        self.tick(LATE)
++        self.assertIsNone(publication_execution.result_of(
++            self.jobs, self.recovery_job_id))
++        ended = publication_execution.ending_of(self.jobs,
++                                                self.recovery_job_id)
++        self.assertEqual(ended["outcome"], "expired")
++        self.assertIn("retained as evidence", ended["cause"])
++        # AND A DIRECT CALL AT THE BOUNDARY IS REFUSED TOO, whatever the
++        # runtime is doing by then: no path records this adoption.
++        self.refusal(
++            publication_execution.record_adoption, self.jobs, self.seam(),
++            decision_id="D1", now=LATE)
++        self.assertIsNone(publication_execution.result_of(
++            self.jobs, self.recovery_job_id))
++        for _ in range(4):
++            self.tick(LATE)
++        self.settled_item("expired")
++        self.assertTrue(self.returned(domain, generation))
++        # THE WORKER'S OUTPUT IS RETAINED, NOT REMOVED AND NOT RENAMED.
++        self.assertTrue(os.path.isdir(
++            os.path.join(place, role_contract.CANDIDATE_OUTPUT)))
++
++    def test_an_adoption_committed_in_time_replays_after_the_bound(self):
++        """REPLAY IS NOT A NEW EFFECT. A result committed inside the bound is
++        returned unchanged when the same act is re-entered after it, by a
++        restarted manager too; nothing is re-judged and no clock is reset."""
++        self.ready()
++        held = self.published_once()
++        self.assertEqual(held["outcome"], "published")
++        self.restarted()
++        again = publication_execution.record_adoption(
++            self.jobs, self.seam(), decision_id="D1", now=LATE)
++        self.assertEqual(again, held)
++        self.assertEqual(
++            publication_execution.publish(self.jobs, self.seam(),
++                                          decision_id="D1", now=LATE), held)
++        self.assertIsNone(publication_execution.ending_of(
++            self.jobs, self.recovery_job_id))
++
++    def test_a_cancelled_recovery_records_no_new_adoption(self):
++        """CANCELLATION BETWEEN THE ANSWER AND THE COMMIT. The worker answered
++        in time; the owner cancels the recovery before the manager accounts
++        for it. No adoption is recorded and the ending says cancelled."""
++        self.ready()
++        self.launched()
++        self.serving()
++        domain, generation = self.token()
++        self.assertEqual(self.turn(), 0)
++        cancellation.request(self.jobs, job_id=self.recovery_job_id,
++                             reason="the owner stops this recovery")
++        for _ in range(5):
++            self.tick(PUBLISHED)
++        self.assertEqual(
++            publication_execution.ending_of(
++                self.jobs, self.recovery_job_id)["outcome"], "cancelled")
++        self.settled_item("cancelled")
++        self.assertTrue(self.returned(domain, generation))
++
++    # -- outcome 3: failure, expiry, restart ----------------------------------
++
++    def test_a_faulted_publication_is_settled_and_its_token_returned(self):
++        self.ready()
++        self.launched()
++        self.serving()
++        domain, generation = self.token()
++        self.assertEqual(self.turn(executable="/bin/false"), 1)
++        for _ in range(4):
++            self.tick(PUBLISHED)
++        item = self.settled_item("failed")
++        self.assertIn("faulted", item["cause"])
++        self.assertTrue(self.returned(domain, generation))
++        # EXACTLY ONE CONTAINER WAS EVER STARTED. No retry.
++        self.assertEqual(len(self.oci.starts), 1)
++        # AND IT REPLAYS: the act, the item and the pass.
++        self.assertEqual(
++            publication_execution.settle(self.jobs, self.seam(),
++                                         decision_id="D1", now=LATE), item)
++        self.assertEqual(self.tick(PUBLISHED)["publication"]["acts"]
++                         if "publication" in self.tick(PUBLISHED) else [],
++                         [])
++
++    def test_an_expired_worker_is_settled_by_the_ordinary_pass(self):
++        """THE REVIEW'S OWN FAILING PROBE, as a case: the worker's measurement
++        crosses the bound, it faults, and ordinary late manager ticks finish
++        the settlement -- runtime positively gone, exact token returned,
++        owner told -- with no relaunch."""
++        import baton_worker
++
++        self.ready()
++        self.launched()
++        self.serving()
++        domain, generation = self.token()
++        real = baton_worker.measured
++
++        def late(*operands, **named):
++            self.instants.append(LATE)
++            return real(*operands, **named)
++
++        baton_worker.measured = late
++        self.addCleanup(setattr, baton_worker, "measured", real)
++        self.assertEqual(self.turn(), 1)
++        baton_worker.measured = real
++        for _ in range(4):
++            self.tick(LATE)
++        self.settled_item("failed")
++        self.assertTrue(self.returned(domain, generation))
++        self.assertEqual(len(self.oci.starts), 1)
++
++    def test_a_restart_between_the_ending_and_the_settlement_finishes_it(self):
++        """A LOST REPLY AND A NEW INCARNATION. The ending is journalled and
++        the manager dies before the settlement; and separately the settlement
++        itself is interrupted after the runtime was removed. Each re-entry
++        finishes from records and performs nothing twice."""
++        from unittest import mock
++
++        from baton_v12.worker_manager import intake
++
++        self.ready()
++        self.launched()
++        self.serving()
++        domain, generation = self.token()
++        self.assertEqual(self.turn(executable="/bin/false"), 1)
++        self.tick(PUBLISHED)                       # journals the uncertainty
++        real = intake.abandon_attempt
++        calls = []
++
++        def interrupted(*operands, **named):
++            calls.append("abandon")
++            real(*operands, **named)
++            raise KeyboardInterrupt("the reply was lost")
++
++        with mock.patch.object(intake, "abandon_attempt", interrupted):
++            with self.assertRaises(KeyboardInterrupt):
++                self.tick(PUBLISHED)
++        # THE RUNTIME IS GONE AND NOTHING WAS RECORDED AS SETTLED YET.
++        self.assertIsNone(publication_execution.settlement_of(
++            self.jobs, self.recovery_job_id))
++        self.assertIsNone(publication_execution.owner_item_of(
++            self.jobs, self.recovery_job_id))
++        self.restarted()
++        self.serving()
++        for _ in range(3):
++            self.tick(PUBLISHED)
++        self.settled_item("failed")
++        self.assertTrue(self.returned(domain, generation))
++        self.assertEqual(calls, ["abandon"])
++        self.assertEqual(len(self.oci.starts), 1)
++
++    # -- outcome 3: what is not known stays not known -------------------------
++
++    def unreachable(self):
++        self.engine_hook = lambda argv: (
++            {"status": 125, "stdout": "",
++             "stderr": "Cannot connect to the Docker daemon"}
++            if argv[1] in ("ps", "inspect", "rm", "stop") else None)
++
++    def test_an_unreadable_engine_in_flight_is_reported_unknown(self):
++        """THE RECORDED AXIS IS THE LAST OBSERVATION, NOT NOW. With the engine
++        unreachable the status used to say `uncertain=false` over a runtime
++        recorded `running`. It now says the runtime's state is unknown and
++        since when; nothing is released; and when the engine answers again
++        the same adoption is accounted for."""
++        self.ready()
++        self.launched()
++        self.serving()
++        domain, generation = self.token()
++        self.unreachable()
++        for _ in range(3):
++            self.tick(PUBLISHED)
++        ready = publication_execution.publication_readiness(self.jobs, "D1")
++        self.assertTrue(ready["uncertain"])
++        self.assertEqual(ready["outcome"], "unknown")
++        self.assertIn("is not current knowledge", ready["runtime_knowledge"])
++        self.assertFalse(self.returned(domain, generation))
++        self.assertFalse(self.gate()["open"])
++        self.assertEqual(self.review_offers(), [])
++        self.assertIsNone(publication_execution.owner_item_of(
++            self.jobs, self.recovery_job_id))
++        # ONE RECORD FOR THREE FAILED TICKS.
++        unknown, known = publication_execution._knowledge(
++            self.jobs, self.recovery_job_id)
++        self.assertEqual((len(unknown), len(known)), (1, 0))
++        # THE ENGINE ANSWERS AGAIN, and the worker meanwhile finished.
++        self.engine_hook = None
++        self.assertEqual(self.turn(), 0)
++        for _ in range(4):
++            self.tick(PUBLISHED)
++        after = publication_execution.publication_readiness(self.jobs, "D1")
++        self.assertEqual((after["outcome"], after["uncertain"]),
++                         ("published", False))
++        self.assertTrue(self.returned(domain, generation))
++
++    def test_a_failed_publication_is_not_settled_over_an_unreadable_engine(self):
++        """THE ENDING IS KNOWN AND THE CESSATION IS NOT. The worker faulted,
++        so the publication failed; the engine cannot be read, so nothing is
++        removed, the token stays held and no item claims a settlement. When
++        the engine answers, the same pass finishes."""
++        self.ready()
++        self.launched()
++        self.serving()
++        domain, generation = self.token()
++        self.assertEqual(self.turn(executable="/bin/false"), 1)
++        self.unreachable()
++        for _ in range(4):
++            self.tick(PUBLISHED)
++        ready = publication_execution.publication_readiness(self.jobs, "D1")
++        self.assertEqual((ready["outcome"], ready["settled"],
++                          ready["owner_item"], ready["owed"]),
++                         ("failed", False, None, "settle"))
++        self.assertIn("unknown", ready["runtime_knowledge"])
++        self.assertFalse(self.returned(domain, generation))
++        self.engine_hook = None
++        for _ in range(3):
++            self.tick(PUBLISHED)
++        self.settled_item("failed")
++        self.assertTrue(self.returned(domain, generation))
++
++    # -- the supported read surface -------------------------------------------
++
++    def status(self):
++        import io
++
++        from tools import job_manager
++
++        said = io.StringIO()
++        code = job_manager.main(
++            ["publication-status", "--store", self.jobs.database,
++             "--authority-uuid", AUTHORITY, "--incarnation", "status-1",
++             "--control", self.control.database, "--decision-id", "D1"],
++            clock=self.clock, stream=said)
++        self.assertEqual(code, 0, said.getvalue())
++        return json.loads(said.getvalue())
++
++    def test_the_installed_status_command_reports_a_failed_recovery(self):
++        """THE OWNER'S READ SURFACE, through the installed command and its
++        read-only stores: the original failure, the recovery, the settlement
++        and the owner item are four separate statements."""
++        self.ready()
++        self.launched()
++        self.serving()
++        self.assertEqual(self.turn(executable="/bin/false"), 1)
++        for _ in range(4):
++            self.tick(PUBLISHED)
++        read = self.status()
++        self.assertEqual(read["schema"],
++                         "baton.v12.output-publication-status/1")
++        self.assertEqual(read["original"]["job_id"], self.job_id)
++        self.assertIn("unchanged", read["original"]["state"])
++        self.assertEqual(read["admission"]["state"], "admitted")
++        self.assertEqual((read["recovery"]["outcome"],
++                          read["recovery"]["settled"],
++                          read["recovery"]["review"]),
++                         ("failed", True, "blocked"))
++        self.assertEqual(read["publication_attempt"]["recorded"],
++                         {"execution_runtime": "destroyed",
++                          "cleanup": "retained"})
++        self.assertEqual(read["owner_item"]["destination"], OWNER)
++        self.assertFalse(read["owner_item"]["automatic_retry"])
++        self.assertFalse(read["gate"]["open"])
++        self.assertFalse(read["recovery"]["publication_deadline"]
++                         ["restart_resets"])
++        # NO BYTES, NO PATH INTO THE WORKSPACE, NO TASK TEXT.
++        text = json.dumps(read)
++        self.assertNotIn(self.storage, text)
++        self.assertNotIn("publish the proposal", text)
++
++    def test_the_status_of_a_published_recovery_names_no_owner_item(self):
++        self.whole_path()
++        read = self.status()
++        self.assertEqual((read["recovery"]["outcome"],
++                          read["recovery"]["review"]),
++                         ("published", "runnable"))
++        self.assertIsNone(read["owner_item"])
++        self.assertTrue(read["gate"]["open"])
++
++
+ # -- 15b. one installed publisher, two Works, the real pooled composition ----
+ #
+ # REVIEW 2026-11-23T18-55-03Z R1 AND R3, JOINED. Every case above this section
+@@ -4192,7 +4591,9 @@ class OneInstalledPublisherServesRecoveriesOnTwoWorks(_InstalledFixture):
+         from baton_v12.worker_manager import workspaces as owner
+         for failed in self.failed.values():
+             self.assertEqual(
+-                owner.directory_manifest(failed["roots"]["workspace"]),
++                owner.directory_manifest(os.path.join(
++                    failed["roots"]["workspace"],
++                    role_contract.CANDIDATE_OUTPUT)),
+                 failed["original"])
+ 
+     def test_a_stage_is_never_served_under_another_recoverys_operands(self):
+@@ -4364,6 +4765,294 @@ class AReviewerWithoutThePublicationDeclarationsHoldsTheAdmission(
+         self.assertEqual(self.oci.starts, [])
+ 
+ 
++# -- 15c. a really pooled producer's failed output, through its line ---------
++#
++# REVIEW 2026-11-23T20-28-00Z F1; COMPLETION-PLAN-385909 outcome 2. An ordinary
++# producer served through `stage_execution.operations_from` writes into its
++# Job's persistent development LINE. The accepted owner read refused that
++# layout outright, so the inspection of any really pooled producer's failed
++# output held and no recovery could be approved for one.
++#
++# NOTHING ABOUT THE FAILED EXECUTION IS WRITTEN BY THIS FIXTURE. The Job is
++# submitted, ordinary manager ticks admit, claim and launch it, the real
++# `claude_agent` workload runs one turn through `baton_worker.serve_exchange`
++# with the provider injected at its own seam and real version control, the
++# candidate it commits is over the declared output ceiling, and the ordinary
++# worker refuses it -- no envelope, nothing frozen, the Work still held. The
++# attempt is then ended by the composition's own supported fourth ending.
++# THE ENGINE IS THE ONE DOUBLE.
++
++from tests.tools.test_stage_execution import (                # noqa: E402
++    ComposedOneJobCase as _ComposedProducerCase)
++
++
++class APooledProducersFailedOutputIsReadThroughItsLine(_ComposedProducerCase):
++    """The line-layout trust root: located from durable provenance, proved,
++    and measured as the declared output directory."""
++
++    maxDiff = None
++    stage_worker = _InstalledFixture.stage_worker
++    workers = _InstalledFixture.workers
++    job = _InstalledFixture.job
++
++    def setUp(self):
++        import pathlib
++
++        from tests.job_manager import fixtures
++        from tools import bootstrap
++
++        self.now = fixtures.NOW
++        super().setUp()
++        self.state = os.path.join(self.root, "publication-instance")
++        self.places = bootstrap.layout(self.state)
++        bootstrap.persist_identity(self.places, self.config["authority_uuid"])
++        self.install_document = _InstalledFixture.document(
++            self, owner_participant=POOLED_OWNER,
++            jobs=[self.job(work_id=self.work, base=self.base)])
++        with open(os.devnull, "w") as quiet:
++            self.installed = bootstrap.prepare(self.install_document,
++                                               stream=quiet)
++        pathlib.Path(self.places["install_inputs"]).write_text(
++            json.dumps(self.install_document))
++        self.authority_path = self.places["authority_store"]
++        self.config["authority_store"] = self.authority_path
++
++    def stores(self, incarnation):
++        from baton_v12.job_manager import JobStore
++        from baton_v12.worker_manager import ControlStore
++
++        jobs = JobStore.open(self.places["job_store"],
++                             authority_uuid=self.config["authority_uuid"],
++                             incarnation=incarnation, clock=lambda: self.now)
++        control = ControlStore.open(self.places["control_store"],
++                                    incarnation=incarnation,
++                                    clock=lambda: self.now)
++        self.addCleanup(jobs.close)
++        self.addCleanup(control.close)
++        return jobs, control
++
++    def composed_document(self, **members):
++        import pathlib
++
++        return json.loads(pathlib.Path(
++            self.places["configuration"]).read_text())
++
++    def overflowed(self, *, settle=True):
++        """One ordinary pooled implementation whose candidate overflows its
++        declared output ceiling, and -- by default -- its supported ending."""
++        from baton_v12.job_manager import submit
++
++        jobs, control, operations = self.serving()
++        submit(jobs, self.submission)
++        self.drive(jobs, operations, "implementation", "waiting")
++        attempt = self.only_attempt(operations, "implementation")
++        self.assertEqual(
++            self.turn(control, "implementation", attempt,
++                      self.mounted(operations, "implementation", attempt),
++                      edits={"big.txt": "x" * (1048576 + 4096)}), 1)
++        # THE CONTAINER'S ONE PROCESS HAS EXITED, at the engine.
++        self.engine.stopped = True
++        for _ in range(6):
++            manager.sweep(jobs, operations, now=self.now)
++        self.jobs, self.control, self.operations = jobs, control, operations
++        self.attempt = attempt
++        if settle:
++            self.settled()
++        return attempt
++
++    def settled(self):
++        stage_id = documents.stage_id("job-a", "implementation")
++        row = next(one for one in submission.stages_of(self.jobs, "job-a")
++                   if one["stage_id"] == stage_id)
++        stage = episodes.attempting(
++            row, episodes.episode_of(self.jobs, stage_id, 1))
++        return self.operations.abandon_attempt(
++            attempt_id=self.attempt, stage=stage,
++            reason="the producer's publication failed; settled for recovery")
++
++    def host(self):
++        from tools.fresh_attempt_ports import instance_identity
++        from tools.publication_ports import HostOutput
++
++        return HostOutput(self.control, instance_identity(self.state))
++
++    def read(self, **named):
++        named.setdefault("output", role_contract.CANDIDATE_OUTPUT)
++        return self.host().output_of(self.attempt, **named)
++
++    def refused(self, **named):
++        with self.assertRaises(ContractRefusal) as caught:
++            self.read(**named)
++        return caught.exception
++
++    def line(self):
++        from baton_v12.worker_manager import attempts, review_cycles
++
++        writer = review_cycles.writer_for_attempt(
++            self.control, attempt_id=self.attempt,
++            generation=attempts.assignment_of(
++                self.control, self.attempt)["generation"])
++        return writer, review_cycles.line_of(self.control, writer["line_id"])
++
++    def test_the_declared_output_of_a_line_attempt_is_located_and_measured(self):
++        from baton_v12.worker_manager import workspaces as owner
++
++        self.overflowed()
++        self.assertIsNone(frozen_of(self.control, self.attempt))
++        state = attempt_runtime_of(self.control, self.attempt)
++        self.assertEqual((state["execution_runtime"], state["cleanup"]),
++                         ("destroyed", "retained"))
++        held = self.read(read=("result.json", "verification.txt"))
++        writer, line = self.line()
++        self.assertEqual(held["layout"], "line")
++        # LOCATED FROM THE WRITER GRANT AND THE LINE RECORD, and the object
++        # there is the one this attempt's preparation completed over.
++        prepared = owner.preparation_completed(self.control, self.attempt)
++        self.assertEqual(prepared["workspace_layout"], "line")
++        self.assertEqual(held["identity"], prepared["workspace"])
++        self.assertEqual(held["identity"],
++                         f"{line['line_device']}:{line['line_inode']}")
++        self.assertEqual(held["root"], os.path.join(
++            line["line_path"], role_contract.CANDIDATE_OUTPUT))
++        # THE DECLARED OUTPUT DIRECTORY AND NOTHING BESIDE IT: four files, no
++        # source tree and no repository.
++        self.assertEqual(
++            [one["path"] for one in held["manifest"]["entries"]],
++            ["change.patch", "objects.bundle", "result.json",
++             "verification.txt"])
++        self.assertGreater(held["manifest"]["total_bytes"], 1048576)
++        self.assertEqual(held["manifest"],
++                         owner.directory_manifest(held["root"]))
++        self.assertFalse(held["completion_envelope"])
++        self.assertTrue(os.path.isdir(os.path.join(line["line_path"],
++                                                   ".git")))
++        # THE ADAPTER'S OWN RECORD, read back against the measurement.
++        result = json.loads(held["entries"]["result.json"])
++        self.assertEqual((result["disposition"], result["base"]),
++                         ("candidate", self.base))
++        self.assertEqual(result["changed_paths"], ["big.txt"])
++        # AND IT WAS A READ: the tree measures the same afterwards.
++        self.assertEqual(self.read()["manifest"], held["manifest"])
++
++    def test_the_default_inspection_reads_that_output(self):
++        """THROUGH THE INSTALLED COMMAND AND ITS DEFAULT PORTS. The original
++        is measured and the producer's account is read; no hold is about the
++        output, its layout, its writer or its cleanup any more.
++
++        WHAT STILL HOLDS HERE IS NOT THIS OUTCOME'S: this fixture's Job is
++        submitted by hand, so it records no admitted task; and the real
++        adapter's bundle is a thin `base..HEAD` transport, which the accepted
++        correspondence port cannot read on its own. Both are reported.
++        """
++        import io
++
++        from tools import job_manager
++
++        self.overflowed()
++        said = io.StringIO()
++        code = job_manager.main(
++            ["publication-inspect", "--store", self.places["job_store"],
++             "--authority-uuid", self.config["authority_uuid"],
++             "--incarnation", "stage-composed",
++             "--control", self.places["control_store"],
++             "--authority", self.places["authority_store"],
++             "--instance", self.state, "--job", "job-a",
++             "--stage", "job-a/implementation", "--episode", "1",
++             "--participant", POOLED_OWNER],
++            clock=lambda: self.now, stream=said)
++        self.assertEqual(code, 0, said.getvalue())
++        read = json.loads(said.getvalue())
++        self.assertEqual(read["output"]["entry_count"], 4)
++        self.assertTrue(read["output"]["exceeded"])
++        self.assertTrue(read["output"]["fits_corrective"])
++        self.assertFalse(read["output"]["completion_envelope"])
++        self.assertEqual(read["producer"]["qualification"],
++                         "producer-evidence")
++        self.assertFalse(read["producer"]["independent_acceptance"])
++        said = " ".join(one["message"] for one in read["holds"])
++        for word in ("layout", "writer", "cleanup", "declared output"):
++            self.assertNotIn(word, said)
++
++    def test_an_unsettled_line_attempt_is_not_measured(self):
++        """POSITIVE CESSATION FIRST. The worker faulted and its container
++        exited, but nothing has settled the attempt: its cleanup is pending
++        and it is still its line's active writer."""
++        self.overflowed(settle=False)
++        caught = self.refused()
++        self.assertEqual((caught.category, caught.code),
++                         ("runtime-observation", "quiescence-unknown"))
++
++    def test_the_line_is_never_measured_whole_and_never_by_a_path(self):
++        self.overflowed()
++        self.assertIn("never measured whole",
++                      self.refused(output=None).message)
++        for path in ("../proposal", "proposal/..", ".git", "a/b", ".."):
++            with self.subTest(path=path):
++                caught = self.refused(output=path)
++                self.assertEqual((caught.category, caught.code),
++                                 ("integrity", "path"))
++        caught = self.refused(output="absent")
++        self.assertIn("holds no declared output", caught.message)
++
++    def test_a_replaced_or_linked_original_is_refused(self):
++        """REPLACEMENT, SYMLINK AND WRONG-ATTEMPT DEFENCES, each at the
++        object it is about."""
++        self.overflowed()
++        _writer, line = self.line()
++        home = line["line_path"]
++        proposal = os.path.join(home, role_contract.CANDIDATE_OUTPUT)
++        # THE DECLARED OUTPUT REPLACED BY A LINK to a tree of the same shape.
++        aside = proposal + ".aside"
++        os.rename(proposal, aside)
++        os.symlink(aside, proposal)
++        self.assertNotEqual(self.refused().code, "quiescence-unknown")
++        os.unlink(proposal)
++        os.rename(aside, proposal)
++        self.read()
++        # THE LINE HOME ITSELF REPLACED: same path, another object.
++        moved = home + ".moved"
++        os.rename(home, moved)
++        os.mkdir(home)
++        os.mkdir(proposal)
++        caught = self.refused()
++        self.assertEqual((caught.category, caught.code),
++                         ("runtime-observation", "identity-mismatch"))
++        os.rmdir(proposal)
++        os.rmdir(home)
++        os.rename(moved, home)
++        self.read()
++        # AN ATTEMPT NOBODY GRANTED A LINE WRITER has no line to be read from.
++        with self.assertRaises(ContractRefusal):
++            self.host().output_of("attempt-" + "0" * 64,
++                                  output=role_contract.CANDIDATE_OUTPUT)
++
++    def test_a_line_another_writer_was_granted_is_no_longer_the_original(self):
++        """A LINE IS PERSISTENT. Once a later writer is granted on it, the
++        tree is no longer what this attempt left, whatever it measures as.
++        The later grant is written as the row the line owner would write, on
++        this fixture's own store, because it is the DEFENCE that is under
++        test and not that owner's granting."""
++        self.overflowed()
++        writer, _line = self.line()
++        self.read()
++        other = "attempt-" + "9" * 64
++        self.control._connection.execute(
++            "INSERT INTO attempts (runtime_attempt_id, adapter_name, "
++            "adapter_digest, profile_digest, created_at) VALUES (?, 'a', "
++            "'d', 'p', ?)", (other, self.now))
++        self.control._connection.execute(
++            "INSERT INTO line_writers (writer_id, line_id, "
++            "runtime_attempt_id, assignment_generation, worker_id, "
++            "participant, principal, state, granted_at, revoked_at, "
++            "revocation_reason) VALUES (?, ?, ?, ?, 'w', 'p', 'q', "
++            "'revoked', ?, ?, 'ended')",
++            ("writer-later", writer["line_id"], other,
++             writer["assignment_generation"] + 1, "2099-01-01T00:00:00.000Z",
++             "2099-01-01T00:00:01.000Z"))
++        caught = self.refused()
++        self.assertIn("granted to another writer", caught.message)
++
++
+ # -- 16. what this checkpoint is, said out loud ------------------------------
+ 
+ 
+diff --git a/v12/python/tools/job_manager.py b/v12/python/tools/job_manager.py
+index 23c8d18a..e1a233d9 100644
+--- a/v12/python/tools/job_manager.py
++++ b/v12/python/tools/job_manager.py
+@@ -1321,7 +1321,7 @@ def main(argv, *, clock=None, stream=None):
+                     "settlement-preview, settle-stopped, settlement-status, "
+                     "cancel-job, cancel-status, recovery-item, "
+                     "recovery-decide, publication-inspect, "
+-                    "publication-decide "
++                    "publication-decide, publication-status "
+                     "(invoke the command first, then --help).")
+     parser.add_argument("--store", required=True,
+                         help="the Job store's path; there is no default, and "
+diff --git a/v12/python/tools/publication_decision.py b/v12/python/tools/publication_decision.py
+index 2998dda3..fbb62eac 100644
+--- a/v12/python/tools/publication_decision.py
++++ b/v12/python/tools/publication_decision.py
+@@ -68,7 +68,8 @@ from baton_v12.worker_manager import ControlStore
+ __all__ = ["COMMANDS", "OWNERS", "OPTIONAL_OWNERS", "owners",
+            "main"]
+ 
+-COMMANDS = ("publication-inspect", "publication-decide")
++COMMANDS = ("publication-inspect", "publication-decide",
++            "publication-status")
+ 
+ # THE OWNER-PORT SET ONE DEPLOYMENT SUPPLIES, written down rather than
+ # discovered from whatever object a factory returned -- `delegation.
+@@ -354,7 +355,98 @@ def _decide(taken, clock, stream):
+         return _say(answer, stream)
+ 
+ 
+-VERBS = {"publication-inspect": _inspect, "publication-decide": _decide}
++def _status(taken, clock, stream):
++    """WHERE ONE DECIDED RECOVERY STANDS. READ-ONLY, and it takes no
++    participant: it reports operational facts under the local instance's
++    existing trust boundary and grants nothing.
++
++    THE ORIGINAL FAILURE, THE RECOVERY, THE CUSTODY AND THE REVIEW ARE FOUR
++    DIFFERENT THINGS and are reported as four. The failed Job is never
++    described as recovered; a recovery that did not publish is reported with
++    what ended it, whether its runtime was settled, and the item delivered to
++    the owner who decided it.
++
++    WHAT IS KNOWN IS SEPARATED FROM WHAT WAS LAST RECORDED. The publication
++    attempt's runtime axis is the Worker Manager's journal -- the last thing
++    somebody observed -- and is printed as `recorded`. Whether that is
++    current knowledge is `runtime_knowledge`, which says `unknown` from the
++    moment an engine read failed until a settlement supersedes it.
++
++    NO BYTES, NO PATH INTO AN OUTPUT, NO TASK TEXT AND NO CREDENTIAL. Only
++    identities, digests, instants, states and the typed ending.
++    """
++    from contextlib import ExitStack
++
++    from baton_v12.job_manager import publication_execution
++    from baton_v12.worker_manager import attempt_runtime_of
++
++    with ExitStack() as opened:
++        jobs, control = _stores(taken, clock, opened)
++        decision = publication_recovery.decision_of(jobs, taken.decision_id)
++        if decision is None:
++            raise ContractRefusal(
++                "refused", "precondition",
++                f"this store records no publication decision "
++                f"{taken.decision_id!r}")
++        answer = {
++            "schema": "baton.v12.output-publication-status/1",
++            "observed_at": clock(),
++            "decision": {
++                "decision_id": decision["decision_id"],
++                "disposition": decision["disposition"],
++                "decided_at": decision["decided_at"],
++                "owner": decision["owner"]["endpoint"]},
++            "original": {
++                "job_id": decision["job_id"],
++                "stage_id": decision["stage_id"],
++                "episode": decision["episode"],
++                "attempt_id": decision["attempt_id"],
++                "work_id": decision["work_id"],
++                "state": "failed at output publication; unchanged by any "
++                         "recovery"},
++            "admission": None, "recovery": None, "publication_attempt": None,
++            "gate": None}
++        admitted = publication_recovery.admission_of(jobs, taken.decision_id)
++        reserved = publication_recovery.intent_of(jobs, taken.decision_id)
++        if admitted is None:
++            answer["admission"] = {
++                "state": "reserved; admission incomplete"
++                if reserved is not None else "not admitted",
++                "job_id": None if reserved is None else reserved["job_id"],
++                "next": "repeat the same publication-decide --approve; it "
++                        "replays the decision and resumes the admission"}
++            return _say(answer, stream)
++        job_id = admitted["job_id"]
++        answer["admission"] = {"state": "admitted", "job_id": job_id,
++                               "admitted_at": admitted["admitted_at"],
++                               "input_digest": admitted["input_digest"]}
++        ready = publication_execution.publication_readiness(
++            jobs, taken.decision_id)
++        answer["recovery"] = ready
++        deadline = publication_execution.deadline_of(
++            jobs, taken.decision_id, now=answer["observed_at"])
++        answer["recovery"]["publication_deadline"] = {
++            "deadline_at": deadline["deadline_at"],
++            "origin": deadline["origin"], "reached": deadline["reached"],
++            "restart_resets": False}
++        launched = publication_execution.launch_of(jobs, job_id)
++        if launched is not None:
++            recorded = attempt_runtime_of(control, launched["attempt_id"])
++            answer["publication_attempt"] = {
++                "attempt_id": launched["attempt_id"],
++                # THE JOURNAL'S LAST WORD, labelled as that.
++                "recorded": None if recorded is None else {
++                    "execution_runtime": recorded["execution_runtime"],
++                    "cleanup": recorded["cleanup"]},
++                "runtime_knowledge": ready["runtime_knowledge"]}
++        item = publication_execution.owner_item_of(jobs, job_id)
++        answer["owner_item"] = item
++        answer["gate"] = publication_execution.execution_gate(jobs, job_id)
++        return _say(answer, stream)
++
++
++VERBS = {"publication-inspect": _inspect, "publication-decide": _decide,
++         "publication-status": _status}
+ 
+ 
+ def main(argv, *, clock=None, stream=None):
+@@ -384,13 +476,13 @@ def main(argv, *, clock=None, stream=None):
+                              "result are read through their owner, and a "
+                              "decision must not be able to change the "
+                              "evidence it is judging")
+-    parser.add_argument("--authority", required=True,
++    parser.add_argument("--authority", default=None,
+                         help="the Authority store whose Work this failure "
+                              "ran under; it resolves the deciding "
+                              "participant's principal and the Work's own "
+                              "effective scope, and this command writes "
+                              "nothing to it")
+-    parser.add_argument("--instance", required=True,
++    parser.add_argument("--instance", default=None,
+                         help="the deployment's state root, whose own layout "
+                              "and emitted configuration say which stores, "
+                              "which Authority and which workspace storage it "
+@@ -403,12 +495,12 @@ def main(argv, *, clock=None, stream=None):
+                              "exclusion, the source-aware consumer, the Work "
+                              "authorization, the deployment binding and the "
+                              "instance guard over this instance's own stores")
+-    parser.add_argument("--job", required=True,
++    parser.add_argument("--job", default=None,
+                         help="the failed Job whose output was never published")
+-    parser.add_argument("--stage", required=True,
++    parser.add_argument("--stage", default=None,
+                         help="that Job's implementation stage; another "
+                              "stage's ending is another ending")
+-    parser.add_argument("--episode", required=True, type=int,
++    parser.add_argument("--episode", default=None, type=int,
+                         help="the episode whose attempt produced the retained "
+                              "output; the attempt is resolved FROM it and is "
+                              "deliberately not an operand")
+@@ -490,6 +582,19 @@ def main(argv, *, clock=None, stream=None):
+                                "name")
+ 
+     taken = parser.parse_args(argv)
++    if taken.command == "publication-status":
++        # A STATUS READ NAMES ONE DECISION AND NOTHING ELSE: no participant,
++        # no Authority, no instance and no selectors of the failed execution,
++        # all of which it reads off the committed decision.
++        if taken.decision_id is None:
++            parser.error("publication-status needs --decision-id")
++    else:
++        absent = sorted(flag for flag, value in (
++            ("--authority", taken.authority), ("--instance", taken.instance),
++            ("--job", taken.job), ("--stage", taken.stage),
++            ("--episode", taken.episode)) if value is None)
++        if absent:
++            parser.error(taken.command + " needs " + ", ".join(absent))
+     if taken.command == "publication-decide":
+         required = {"--participant": taken.participant,
+                     "--decision-id": taken.decision_id,
+diff --git a/v12/python/tools/publication_ports.py b/v12/python/tools/publication_ports.py
+index 4765088c..54d6ef20 100644
+--- a/v12/python/tools/publication_ports.py
++++ b/v12/python/tools/publication_ports.py
+@@ -94,7 +94,7 @@ class HostOutput:
+     def instance(self):
+         return self._identity
+ 
+-    def output_of(self, attempt_id, *, read=()):
++    def output_of(self, attempt_id, *, read=(), output=None):
+         """The proved, measured original, with the named entries' bytes.
+ 
+         ONE COHERENT BOUNDARY, `HostExclusion.evidence_of`'s rule: the
+@@ -104,8 +104,12 @@ class HostOutput:
+         outside any transaction, which is the contract's own requirement.
+         """
+         with self._control.snapshot() as control:
++            # `output` IS THE DECLARED OUTPUT'S OWN PATH, from the selected
++            # declaration and never from an operator: the owner then proves
++            # and measures that one directory of the attempt's writable root
++            # -- or of its development line -- rather than the root itself.
+             return retained_output_of(
+-                control, attempt_id, names=tuple(read),
++                control, attempt_id, names=tuple(read), output=output,
+                 what=f"the original output of attempt "
+                      f"{name_value(attempt_id)}")
+ 
+diff --git a/v12/python/tools/publication_worker.py b/v12/python/tools/publication_worker.py
+index ae411885..6434f42d 100644
+--- a/v12/python/tools/publication_worker.py
++++ b/v12/python/tools/publication_worker.py
+@@ -164,18 +164,93 @@ class PublicationStage:
+         return {one: terminal.get(one) for one in
+                 ("ending", "disposition", "manifest_digest")}
+ 
+-    def _stage_of(self, attempt_id):
++    def _stage_of(self, attempt_id, *, ended=False):
++        """The publication stage this attempt ran under, as a stage document.
++
++        `ended` ALSO ANSWERS FOR AN EPISODE THAT IS NO LONGER LIVE, which is
++        what a settlement needs: by the time a failed publication is settled
++        the manager may already have ended its episode, and the attempt is
++        still that stage's own.
++        """
+         for admitted in publication_recovery.admissions_of(self._jobs):
+             stage_id = documents.stage_id(admitted["job_id"],
+                                           documents.PUBLICATION_STAGE)
+-            live = episodes.live_of(self._jobs, stage_id)
+-            if live is None or live["attempt_id"] != attempt_id:
+-                continue
++            held = episodes.live_of(self._jobs, stage_id)
++            if held is None or held["attempt_id"] != attempt_id:
++                held = None
++                if ended:
++                    for one in episodes.episodes_of(self._jobs, stage_id):
++                        if one["attempt_id"] == attempt_id:
++                            held = one
++                if held is None:
++                    continue
+             for row in submission.stages_of(self._jobs, admitted["job_id"]):
+                 if row["stage_id"] == stage_id:
+-                    return episodes.attempting(row, live)
++                    return episodes.attempting(row, held)
+         return None
+ 
++    def observation_of(self, attempt_id):
++        """A FRESH READ OF THE ENGINE about this attempt's runtime, answered
++        as KNOWN or NOT KNOWN. It starts nothing and removes nothing.
++
++        `single_worker.refresh_runtime` is the serving loop's one runtime
++        read: it asks the engine about the exact attached identity and
++        records the answer. When the engine could not be asked, or refused,
++        NOTHING was learned -- and the axis already on record is then the
++        last observation somebody made, not what is true now. That
++        difference is this method's whole answer.
++        """
++        from baton_v12.job_manager import RefreshUnavailable
++        from baton_v12.worker_manager import attempt_runtime_of
++
++        recorded = attempt_runtime_of(self._control, attempt_id)
++        said = None if recorded is None else {
++            "execution_runtime": recorded["execution_runtime"],
++            "cleanup": recorded["cleanup"]}
++        stage = self._stage_of(attempt_id, ended=True)
++        if stage is None or self._operations is None or recorded is None:
++            return {"known": False, "recorded": said,
++                    "why": "this deployment holds no stage for the attempt"}
++        try:
++            self._operations.refresh_runtime(stage)
++        except RefreshUnavailable as unreachable:
++            return {"known": False, "recorded": said,
++                    "why": "the engine could not be asked ("
++                           + type(unreachable.__cause__
++                                  or unreachable).__name__ + ")"}
++        except ContractRefusal as refusal:
++            return {"known": False, "recorded": said,
++                    "why": f"the engine's answer was refused "
++                           f"({refusal.category}/{refusal.code})"}
++        seen = attempt_runtime_of(self._control, attempt_id)
++        if seen["execution_runtime"] == "uncertain":
++            return {"known": False, "recorded": said,
++                    "why": "the engine cannot say whether the runtime exists"}
++        return {"known": True, "recorded": said,
++                "execution_runtime": seen["execution_runtime"],
++                "cleanup": seen["cleanup"]}
++
++    def settle(self, attempt_id, *, reason):
++        """THE SUPPORTED FOURTH ENDING, for a publication that did not
++        publish: the composition's own `abandon_attempt`.
++
++        IT IS THE OPERATION THAT ALREADY OWNS THIS. It commits or replays its
++        own intent before any external call, force-removes the exact runtime,
++        settles only on positive absence, retains the workspace under the
++        configured retention policy, returns the governed workspace token and
++        discharges the quiescence gate it installed. Nothing here re-decides
++        any of that, and a refusal from it propagates: an engine that cannot
++        prove the runtime absent leaves the token held.
++        """
++        stage = self._stage_of(attempt_id, ended=True)
++        if stage is None or self._operations is None:
++            _refuse(f"this deployment holds no publication stage for attempt "
++                    f"{name_value(attempt_id)}; a settlement is performed "
++                    f"through the composition that started the runtime",
++                    category="refused", code="capability")
++        return self._operations.abandon_attempt(
++            attempt_id=attempt_id, reason=reason, stage=stage)
++
+     def _decision(self, stage):
+         """The admitted recovery THIS stage belongs to, by its own Job."""
+         for admitted in publication_recovery.admissions_of(self._jobs):
+@@ -262,11 +337,11 @@ class PublicationStage:
+           1. order the exact runtime to stop and require it OBSERVED
+              quiescent, then reconcile it -- an absent runtime is not the
+              same proof, because its writer was never seen to finish;
+-          2. record the worker's own disposition;
+-          3. `record_adoption` -- this manager's measurement of both output
++          2. `record_adoption` -- this manager's measurement of both output
+              roots against the approved original, the worker's zero counts,
+-             and the durable result. A refusal here stops the ending with
+-             NOTHING FROZEN;
++             its own fence and bound, and the durable result. A refusal here
++             stops the ending with NOTHING FROZEN and no disposition taken;
++          3. record the worker's own disposition, now that it is accepted;
+           4. the ordinary freeze, held to the terminal's own envelope digest;
+           5. the ordinary intake and the configured retention decision;
+           6. release this execution's OWN assignment through its own session,
+@@ -312,11 +387,18 @@ class PublicationStage:
+                     f"runtime", category="runtime-observation",
+                     code="quiescence-unknown")
+         reconcile_runtime(control, adapter, attempt_id=attempt_id)
+-        observe(control, attempt_id=attempt_id, axis="worker_disposition",
+-                value=disposition)
++        # THE ADOPTION IS DECIDED BEFORE THE WORKER'S ANSWER IS RECORDED AS
++        # ITS DISPOSITION (review 2026-11-23T20-28-00Z). `record_adoption` is
++        # where this store's fence and the absolute bound are asked, and an
++        # answer it refuses is an answer this manager did not accept. Writing
++        # `completed` on the attempt first left a fenced publication that the
++        # supported fourth ending then refused to settle -- it ends an attempt
++        # whose answer was never taken, and the row said this one's had been.
+         adopted = publication_execution.record_adoption(
+             self._jobs, self.seam, decision_id=decision_id,
+             now=self._clock())
++        observe(control, attempt_id=attempt_id, axis="worker_disposition",
++                value=disposition)
+         frozen = request_freeze(control, worker.port, adapter,
+                                 attempt_id=attempt_id,
+                                 disposition=disposition)
+@@ -544,6 +626,14 @@ class PerRecoveryOperations:
+     def refresh_runtime(self, stage):
+         return self._serving(stage).refresh_runtime(stage)
+ 
++    def abandon_attempt(self, *, attempt_id, reason, stage, seconds=None,
++                        reclaim=None):
++        """The fourth ending, routed to the operands THIS stage ran under --
++        the composition whose adapter carries what its start created."""
++        return self._serving(stage).abandon_attempt(
++            attempt_id=attempt_id, reason=reason, stage=stage,
++            seconds=seconds, reclaim=reclaim)
++
+     def close(self):
+         for _job_id, one in sorted(self.held.items()):
+             one.close()

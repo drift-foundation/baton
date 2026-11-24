@@ -1,0 +1,1949 @@
+diff --git a/v12/python/DEPLOYMENT.md b/v12/python/DEPLOYMENT.md
+index 5aee3944c94a932577225a7368a96ef3a2ca10d0..cf630b1f3ef9069573cb4bad265ce24b0a21599e 100644
+--- a/v12/python/DEPLOYMENT.md
++++ b/v12/python/DEPLOYMENT.md
+@@ -1285,24 +1285,48 @@ the bindings it started with; there is no hot reload.
+    answered and was never released, so the freeze rests on the committed
+    removal of its runtime, no later writer, an unmoved line and the exact
+    approved head and base. The producer's writer is revoked in that operation.
+-   A producer that was only stopped (`settle-stopped`) and whose runtime was
+-   not removed does not satisfy it; the review start is refused and held.
+-6. The reviewer is delivered `recovery-review.json` (the hand-off and its
+-   digest) beside the read-only candidate, performs its own verification, and
+-   must claim that digest in its report. The verdict is collected by the
+-   ordinary review ending. A report that does not claim the digest is held.
++6. The reviewer is delivered `recovery-review.json` (the hand-off, its digest
++   and the reviewer-verification requirement) beside the read-only candidate.
++   The reviewer's worker itself runs the task's verification command, in a
++   private copy and in its own process group, under the owner-selected
++   900-second per-command bound and never past what is left of the 3600-second
++   invocation; at the bound the whole group is killed. The provider is told
++   the outcome and is handed only the remaining invocation time. The report
++   must claim the hand-off digest. An `accepted` verdict is published only
++   when that command passed; the manager additionally holds an acceptance
++   whose frozen result does not carry the worker's own passed, bounded run of
++   the approved command. Any other verdict is the reviewer's own.
+ 7. `manager publication-status --decision-id …` reports the original failure,
+    the recovery, the custody, the review (stage, reviewer, recorded verdict)
+    and any owner item as separate statements.
+ 
++**A stopped original must be removed before it can be recovered.**
++`settle-stopped` is retain-only: it returns the workspace token and leaves the
++producer's stopped container, its pending cleanup and its line's active
++writer. `publication-inspect` therefore reports such an original as NOT
++eligible, before any approval, and its answer carries a `continuation` naming
++the next command. With the manager stopped:
++
++    manager settlement-remove --instance <instance.json> \
++      --job JOB --stage STAGE --episode N --reason "why"
++
++This runs the serving composition's own abandonment ending for that exact
++attempt: the runtime is removed and proved absent, the workspace is retained
++and the token returned. It refuses an attempt whose runtime is not recorded
++`quiescent`, and exits non-zero unless the runtime is then recorded destroyed
++with settled cleanup. Repeat `publication-inspect`; an eligible answer no
++longer carries a `continuation`. A producer that faulted and was never
++settled is ended the same way.
++
+ **When the review does not conclude.** A recovery cancelled or expired during
+ review stops the reviewer through the ordinary cancellation pass. Once the
+ reviewer is positively stopped the owner who decided is delivered one
+ `publication.review-item`: the published custody and frozen candidate are
+-retained, no verdict exists, nothing is retried, and the reviewer's stopped
+-runtime remains for the ordinary operator settlement. A review-only
+-continuation from a completed publication is not a command of this build; it
+-needs a new owner decision.
++retained, no verdict exists and nothing is retried. Its `remaining` member
++spells the `settlement-remove` invocation for the stopped review attempt,
++which is the same command as above. A review-only continuation from a
++completed publication is not a command of this build; it needs a new owner
++decision.
+ 
+ ### From preparation to an honest final result
+ 
+diff --git a/v12/python/REVIEW-CYCLES.md b/v12/python/REVIEW-CYCLES.md
+index e019e910cbe8892678f4f0cbc0386638fc995f84..997be1ee9853f3783ce9bcd7d08de83070646205 100644
+--- a/v12/python/REVIEW-CYCLES.md
++++ b/v12/python/REVIEW-CYCLES.md
+@@ -139,8 +139,11 @@ restart resumes that checkout and changed recovery operands refuse. Exact
+ operation retries replay, while reuse with changed operands refuses as an
+ operation collision.
+ 
+-A checkpoint's fence is one of two kinds, and every reader validates the kind
+-it finds against that kind's own committed act (`fence_kind`). The ordinary
++A checkpoint's fence is one of two kinds, and `checkpoint_of` authenticates the
++kind it finds against that kind's own committed act. A recovery fence is also
++bound to the row that carries it: the act's identity is derived from the row's
++own writer, and the proof's checkpoint, writer, line, attempt, generation and
++candidate must be the row's, its writer's and its sealed evidence's. The ordinary
+ kind is the writer's assignment finalization. The other is the recovery fence
+ (`review-line.recovery-fence`, DESIGN REC-9 owner clarification 2026-11-23),
+ under which `freeze_unreleased_recovered_checkpoint` freezes the exact
+@@ -155,8 +158,9 @@ writer (reason `recovered`), writes the fenced `preparing` checkpoint row and
+ moves the line to `freezing`; the profile freeze then completes exactly as an
+ ordinary one does, and a retry resumes the same checkpoint. A hold changes
+ nothing. The recovery fence ends no assignment and installs no gate, is never
+-an attempt's own current fence, and is not accepted where the writer's own
+-assignment fence is required (provider-context finalization). The released
++an attempt's own current fence, and a writer revoked as recovered is refused
++where the writer's own assignment fence is required (provider-context
++finalization). The released
+ case keeps `freeze_recovered_checkpoint` and its committed release.
+ 
+ After successful ordinary cleanup, eligibility and exact review-ending replay
+diff --git a/v12/python/src/baton_v12/job_manager/publication_execution.py b/v12/python/src/baton_v12/job_manager/publication_execution.py
+index 57936bcabcf23d4b593f21158907257fd7480c47..71f0c5beec8e90a87b8a6abb4629d69c43662156 100644
+--- a/v12/python/src/baton_v12/job_manager/publication_execution.py
++++ b/v12/python/src/baton_v12/job_manager/publication_execution.py
+@@ -2673,9 +2673,11 @@ def deliver_review_item(store, seam, *, decision_id, now=None):
+                     f"that did not conclude")
+         if started and not gone:
+             remaining.append(
+-                "the review attempt's runtime is stopped and retained; its "
+-                "settlement is the ordinary supported operator settlement "
+-                "of a stopped attempt")
++                f"the review attempt's runtime is stopped and retained. With "
++                f"the manager stopped, remove it with: manager "
++                f"settlement-remove --instance <instance.json> --job "
++                f"{job_id} --stage {review['stage_id']} --episode "
++                f"{review['episode']} --reason <why>")
+         if not started and state is not None \
+                 and state.get("assignment") is not None:
+             remaining.append(
+diff --git a/v12/python/src/baton_v12/job_manager/review_driver.py b/v12/python/src/baton_v12/job_manager/review_driver.py
+index 9f3f545e664938bc63c3b77643193d468a129487..0a6592d99bfa7f3ce627ac0f0c1e688247424dc4 100644
+--- a/v12/python/src/baton_v12/job_manager/review_driver.py
++++ b/v12/python/src/baton_v12/job_manager/review_driver.py
+@@ -1551,7 +1551,8 @@ def end_review(control, port, adapter, *, attachment_id, disposition, verdict,
+ def end_review_from_result(control, port, adapter, *, attachment_id,
+                            disposition, terminal, profile,
+                            retention_disposition, retention_policy_digest,
+-                           govern=None, recovery_digest=None):
++                           govern=None, recovery_digest=None,
++                           reviewer_verification=None):
+     """End one review attempt on the verdict its own frozen output carries.
+ 
+     W110772. THE PRODUCTION ENTRY POINT, and the whole of its difference from
+@@ -1614,7 +1615,8 @@ def end_review_from_result(control, port, adapter, *, attachment_id,
+         retention_disposition=retention_disposition,
+         retention_policy_digest=retention_policy_digest, govern=govern,
+         resolve=lambda _frozen: review_verdict_from_result(
+-            control, attachment_id=attachment_id, recovery_digest=recovery_digest)["verdict"])
++            control, attachment_id=attachment_id, recovery_digest=recovery_digest,
++            reviewer_verification=reviewer_verification)["verdict"])
+ 
+ 
+ def end_response_from_result(control, port, adapter, *, attachment_id,
+@@ -2046,7 +2048,11 @@ def _review_claim(result):
+     return claim
+ 
+ 
+-def review_verdict_from_result(control, *, attachment_id, recovery_digest=None):
++REVIEWER_VERIFICATION_CLAIM = "baton.reviewer-verification/1"
++
++
++def review_verdict_from_result(control, *, attachment_id, recovery_digest=None,
++                               reviewer_verification=None):
+     """The verdict a completed review actually recorded in its frozen output.
+ 
+     READ-ONLY AND PUBLIC. It opens nothing, writes nothing, reads no mutable
+@@ -2115,6 +2121,25 @@ def review_verdict_from_result(control, *, attachment_id, recovery_digest=None):
+                 f"attempt's assignment is generation {fixed['generation']}",
+                 category="stale-assignment", code="generation")
+     claim = _review_claim(result)
++    if reviewer_verification is not None and claim["verdict"] == "accepted":
++        # W385695 (review 2026-11-24T00-28-00Z C2): AN ACCEPTANCE OF THIS
++        # RECOVERY CARRIES THE REVIEWER'S OWN PASSED VERIFICATION, as the
++        # confined adapter observed it: the approved command, run under a
++        # bound no larger than the owner-selected one, exit 0, its process
++        # group gone. A worker that does not supervise the command publishes
++        # no such claim, and its acceptance is held rather than collected.
++        seen = _claim_output(result, FINDINGS_OUTPUT)["result_metadata"].get(
++            REVIEWER_VERIFICATION_CLAIM)
++        bound = seen.get("seconds_bound") if type(seen) is dict else None
++        if type(seen) is not dict \
++                or seen.get("argv") != list(reviewer_verification["argv"]) \
++                or seen.get("outcome") != "passed" or seen.get("status") != 0 \
++                or seen.get("group_gone") is not True \
++                or type(bound) is not int or type(bound) is bool \
++                or not 1 <= bound <= reviewer_verification["command_seconds"]:
++            _refuse("the reviewer accepted without a passed, bounded run of "
++                    "the required verification command by its own worker",
++                    category="integrity", code="digest")
+     checkpoint = review_cycles.checkpoint_of(control,
+                                              attachment["checkpoint_id"])
+     evidence = checkpoint["evidence"]
+diff --git a/v12/python/src/baton_v12/worker_manager/provider_context.py b/v12/python/src/baton_v12/worker_manager/provider_context.py
+index f7d5aae98a169cd7c9215a1da1960ffdb670ea7a..c7caf0a139e4ddcac8a591efc41a6a3ece6ebd6d 100644
+--- a/v12/python/src/baton_v12/worker_manager/provider_context.py
++++ b/v12/python/src/baton_v12/worker_manager/provider_context.py
+@@ -1038,11 +1038,13 @@ def _finalize_context_use(control, jobs, authority, *, attempt_id, storage, rece
+     checkpoint = review_cycles.checkpoint_of(control, checkpoint_reader(attempt_id, writer["writer_id"]))
+     if writer["state"] != "revoked" or checkpoint["writer_id"] != writer["writer_id"] or checkpoint["state"] != "frozen" or checkpoint["fence"] is None:
+         _refuse("old writer checkpoint is not fenced")
+-    if review_cycles.fence_kind(checkpoint["fence"]) != review_cycles.ASSIGNMENT_FENCE_KIND:
+-        # W385695 R1: a recovery fence proves a never-released writer's runtime
+-        # absent for REVIEW of its candidate. It is not the writer's own
+-        # completed assignment fence, and context finalization reads only that.
+-        _refuse("old writer checkpoint carries a recovery fence, not its own assignment fence")
++    if writer["revocation_reason"] == review_cycles.RECOVERED_REVOCATION:
++        # W385695 R1: a writer revoked as RECOVERED never completed: its
++        # checkpoint carries a recovery fence (the line owner binds the two,
++        # both ways), which proves the runtime absent for REVIEW of its
++        # candidate. It is not the writer's own completed assignment fence,
++        # and context finalization reads only that.
++        _refuse("old writer was recovered, not completed; its checkpoint carries a recovery fence and not its own assignment fence")
+     try:
+         receipt_digest = _receipt(control, admitted, receipt_reader)
+     except ContractRefusal:
+diff --git a/v12/python/src/baton_v12/worker_manager/review_cycles.py b/v12/python/src/baton_v12/worker_manager/review_cycles.py
+index 5efcb792f6630b30abbbc97025c197a295942197..aa188926709f2e736c86dd874caca4140bbc6838 100644
+--- a/v12/python/src/baton_v12/worker_manager/review_cycles.py
++++ b/v12/python/src/baton_v12/worker_manager/review_cycles.py
+@@ -27,7 +27,7 @@ __all__ = ["ABANDONED_CORRECTION", "ABANDONED_CORRECTION_SCHEMA",
+            "RESTORE_KIND", "VERDICT_KIND",
+            "abandoned_correction_of", "attach_review", "audit_checkpoint",
+            "checkpoint_of",
+-           "create_line", "fence_kind", "freeze_checkpoint", "freeze_recovered_checkpoint", "freeze_unreleased_recovered_checkpoint", "grant_writer",
++           "create_line", "freeze_checkpoint", "freeze_recovered_checkpoint", "freeze_unreleased_recovered_checkpoint", "grant_writer",
+            "release_writer",
+            "RESTORE_SETTLED_KIND", "settle_restoration_execution",
+            "integration_checkpoint", "line_of", "line_status",
+@@ -574,8 +574,17 @@ def checkpoint_of(store, checkpoint_id):
+             raise ContractRefusal(
+                 "integrity", "digest",
+                 "persisted checkpoint fence does not match its digest")
+-        _committed_fence(store, taken["fence"],
+-                         "the persisted checkpoint fence")
++        # THE FENCE'S KIND IS READ, NOT ASSUMED (W385695 R1, DESIGN REC-9), and
++        # each kind is authenticated by its own rule against its own
++        # committed act. A recovery fence is additionally BOUND TO THIS ROW
++        # (review 2026-11-24T00-28-00Z C1); an assignment fence is never
++        # accepted for a writer that was revoked as recovered.
++        if _fence_kind(taken["fence"]) == RECOVERY_FENCE_KIND:
++            _bound_recovery_fence(store, taken, "the persisted checkpoint")
++        else:
++            _committed_fence(store, taken["fence"],
++                             "the persisted checkpoint fence")
++            _never_recovered(store, taken, "the persisted checkpoint")
+     if taken["state"] == "frozen":
+         evidence = taken["evidence"]
+         recorded = (taken["profile_name"], taken["base_object"],
+@@ -1442,13 +1451,10 @@ def _fence(value, what):
+ 
+ def _committed_fence(store, fence, what):
+     held = _fence(fence, what)
+-    # THE FENCE'S KIND IS READ, NOT ASSUMED (W385695 R1, DESIGN REC-9). Every
+-    # reader of a checkpoint fence comes through here, and a fence is evidence
+-    # under exactly one of two proofs, each validated by its own rule against
+-    # its own committed act: the writer's assignment finalization below, or
+-    # the recovery act a never-released writer's recovered checkpoint carries.
+-    if fence_kind(held) == RECOVERY_FENCE_KIND:
+-        return _committed_recovery_fence(store, held, what), held["intent"]
++    # AN ASSIGNMENT FENCE AND NOTHING ELSE (W385695 R1). The intent is held to
++    # the closed finalization document, which has no `kind` member: a
++    # recovery fence handed here is refused by that reader rather than read
++    # as an assignment's.
+     intent = attempts.adopt_finalization_record(held["intent"])
+     operation_id = "attempt.finalize-quiescent:" + digest({
+         "attempt_id": intent["attempt_id"],
+@@ -1469,11 +1475,6 @@ def _committed_fence(store, fence, what):
+ 
+ 
+ def _current_fence(store, attempt, fence, what):
+-    if fence_kind(_fence(fence, what)) != ASSIGNMENT_FENCE_KIND:
+-        # A RECOVERY FENCE ENDS NO ASSIGNMENT: it is never an attempt's own
+-        # current fence, whatever attempt is asked about.
+-        raise ContractRefusal("integrity", "schema",
+-                              f"{what} is a recovery fence, not an attempt's committed assignment fence")
+     held, intent = _committed_fence(store, fence, what)
+     assignment = intent["assignment"]
+     current = {"participant": attempt["assignment_participant"],
+@@ -1496,11 +1497,11 @@ RECOVERED_REVOCATION = "recovered"
+ _RECOVERY_INTENT = ("kind", "operation_id", "writer_id", "line_id",
+                     "checkpoint_id", "attempt_id", "generation",
+                     "based_checkpoint_id", "candidate", "exclusion_digest")
+-_RECOVERY_FENCED = ("kind", "revoked_at", "gate")
++_RECOVERY_FENCED = ("kind", "revoked_at")
+ 
+ 
+-def fence_kind(record):
+-    """WHICH PROOF a checkpoint's fence is, for a reader that must say.
++def _fence_kind(fence):
++    """WHICH PROOF a checkpoint's fence is.
+ 
+     W385695 R1. Two kinds exist and no reader may treat one as the other: the
+     writer's committed assignment fence (`ASSIGNMENT_FENCE_KIND`), and the
+@@ -1508,61 +1509,118 @@ def fence_kind(record):
+     owner-approved recovered candidate for a writer that was never released.
+ 
+     THE ENVELOPE IS THE COLUMN'S OWN CONTRACT -- `intent` and `fenced`, which
+-    `LINE_CHECKPOINT_COLUMNS` and `_fence` both hold every checkpoint fence to
+-    -- and the KIND is what the intent says it is. An assignment intent is the
+-    closed `attempt.finalize-intent` document, which has no `kind` member and
+-    refuses one; a recovery intent is the closed document below, which names
+-    its kind and is refused by the finalization reader. So neither can be
+-    read as the other, and a document of neither shape refuses.
++    `LINE_CHECKPOINT_COLUMNS` and `_fence` hold every checkpoint fence to
++    before this is asked -- and the KIND is what the intent says it is. An
++    assignment intent is the closed `attempt.finalize-intent` document, which
++    has no `kind` member and refuses one; a recovery intent is the closed
++    document `_recovery_fence` reads, which names its kind and is refused by
++    the finalization reader. So neither can be read as the other.
+     """
+-    if type(record) is not dict or set(record) != {"intent", "fenced"}:
+-        raise ContractRefusal("integrity", "schema",
+-                              "a checkpoint fence is of no kind this build reads")
+-    intent = record["intent"]
+-    if type(intent) is dict and intent.get("kind") == RECOVERY_FENCE_KIND:
++    intent = fence["intent"]
++    # THE PRESENCE OF A `kind` MEMBER IS THE DISCRIMINATOR, and its VALUE is
++    # then held by the recovery reader: the finalization document has no such
++    # member, so an intent that names any kind is never an assignment's, and
++    # one that names a kind this build does not read is refused there.
++    if type(intent) is dict and "kind" in intent:
+         return RECOVERY_FENCE_KIND
+     return ASSIGNMENT_FENCE_KIND
+ 
+ 
+ def _recovery_fence(value, what):
+-    taken = _fence(value, what)
+-    intent = boundaries.document(taken["intent"], what + "'s recovery intent",
++    """The closed recovery fence, every member held to its own rule."""
++    intent = boundaries.document(value["intent"], "a recovery fence intent",
+                                  required=_RECOVERY_INTENT)
+-    fenced = boundaries.document(taken["fenced"], what + "'s recovery record",
++    fenced = boundaries.document(value["fenced"], "a recovery fence record",
+                                  required=_RECOVERY_FENCED)
+-    if intent["kind"] != RECOVERY_FENCE_KIND or fenced["kind"] != RECOVERY_FENCE_KIND \
+-            or fenced["gate"] is not None:
++    boundaries.text(intent["kind"], "a recovery fence kind")
++    boundaries.text(fenced["kind"], "a recovery fence record kind")
++    if intent["kind"] != RECOVERY_FENCE_KIND or fenced["kind"] != RECOVERY_FENCE_KIND:
+         raise ContractRefusal("integrity", "schema",
+-                              f"{what} is not a recovery fence")
+-    boundaries.text(intent["operation_id"], what + "'s operation")
+-    candidate = boundaries.document(intent["candidate"], what + "'s candidate",
++                              f"{what} names a fence kind this build does not read")
++    boundaries.text(intent["operation_id"], "a recovery fence operation")
++    boundaries.identity(intent["writer_id"], "a recovery fence writer identity")
++    boundaries.identity(intent["line_id"], "a recovery fence line identity")
++    boundaries.identity(intent["checkpoint_id"], "a recovery fence checkpoint identity")
++    boundaries.identity(intent["attempt_id"], "a recovery fence attempt identity")
++    boundaries.generation(intent["generation"], "a recovery fence generation")
++    if intent["based_checkpoint_id"] is not None:
++        boundaries.identity(intent["based_checkpoint_id"], "a recovery fence based checkpoint identity")
++    boundaries.text(intent["exclusion_digest"], "a recovery fence exclusion digest")
++    boundaries.instant(fenced["revoked_at"], "a recovery fence revocation instant")
++    candidate = boundaries.document(intent["candidate"], "a recovery fence candidate",
+                                     required=("base", "head"))
+-    for key in ("base", "head"):
+-        boundaries.text(candidate[key], what + "'s candidate " + key)
+-    return taken
++    boundaries.text(candidate["base"], "a recovery fence candidate base")
++    boundaries.text(candidate["head"], "a recovery fence candidate head")
++    return {"intent": dict(intent, candidate=candidate), "fenced": fenced}
+ 
+ 
+-def _committed_recovery_fence(store, fence, what, *, writer_id=None,
+-                              checkpoint_id=None):
+-    """A recovery fence is evidence only as the committed act that wrote it.
+-
+-    The act's identity is derived from the writer the fence itself names, the
+-    committed result must be this exact document, and a caller holding the
+-    row the fence was read from binds it to that row's writer and checkpoint.
++def _never_recovered(store, row, what):
++    """THE CONVERSE BINDING: a writer revoked as recovered answers under its
++    recovery fence and under no other kind."""
++    writer = writer_of(store, row["writer_id"])
++    if writer["state"] == "revoked" \
++            and writer["revocation_reason"] == RECOVERED_REVOCATION:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what} belongs to a writer revoked as recovered and does not "
++            f"carry that writer's recovery fence")
++
++
++def _bound_recovery_fence(store, row, what):
++    """AUTHENTICATE A RECOVERY FENCE AS THIS ROW'S (W385695 R1; review
++    2026-11-24T00-28-00Z C1).
++
++    Three statements, and each refuses on its own:
++
++      the fence is the closed recovery document (`_recovery_fence`);
++      it is exactly the result of the committed recovery act of THIS ROW'S
++        WRITER -- the act's identity is derived from the row's own writer and
++        never from what the fence says about itself, so a valid proof
++        transplanted from another writer names an act that is not this one's;
++      and every identity the proof fixed is the consuming row's: its
++        checkpoint, its writer and its line; the writer's own row, which must
++        be the recovered attempt's at that generation, granted on the same
++        checkpoint and revoked as recovered; and, once frozen, the sealed
++        evidence, whose base and head must be the approved candidate's.
++
++    The reviewer's probe changed only a checkpoint row's identity and the row
++    was answered with another checkpoint's untouched proof. A committed act is
++    not the same statement as "this checkpoint's act".
+     """
+-    held = _recovery_fence(fence, what)
++    held = _recovery_fence(row["fence"], what)
+     intent = held["intent"]
+-    if intent["operation_id"] != RECOVER_WRITER_KIND + ":" + intent["writer_id"] \
+-            or (writer_id is not None and intent["writer_id"] != writer_id) \
+-            or (checkpoint_id is not None and intent["checkpoint_id"] != checkpoint_id):
+-        raise ContractRefusal("integrity", "schema",
+-                              f"{what} belongs to another writer or checkpoint")
+     committed = _committed_act(store, RECOVER_WRITER_KIND,
+-                               intent["operation_id"], what)
+-    if committed != held:
++                               RECOVER_WRITER_KIND + ":" + row["writer_id"],
++                               what)
++    if committed != row["fence"] \
++            or intent["operation_id"] != RECOVER_WRITER_KIND + ":" + row["writer_id"]:
+         raise ContractRefusal("integrity", "schema",
+-                              f"{what} has no exact committed recovery act")
+-    return held
++                              f"{what} carries a recovery fence that is not "
++                              f"its writer's exact committed recovery act")
++    if (intent["checkpoint_id"], intent["writer_id"], intent["line_id"]) != \
++            (row["checkpoint_id"], row["writer_id"], row["line_id"]):
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what} carries a recovery fence committed for another "
++            f"checkpoint, writer or line")
++    writer = writer_of(store, row["writer_id"])
++    if writer["state"] != "revoked" \
++            or writer["revocation_reason"] != RECOVERED_REVOCATION \
++            or writer["line_id"] != intent["line_id"] \
++            or writer["runtime_attempt_id"] != intent["attempt_id"] \
++            or writer["assignment_generation"] != intent["generation"] \
++            or writer["based_checkpoint_id"] != intent["based_checkpoint_id"]:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what} carries a recovery fence its writer's own row does not "
++            f"agree with")
++    if row["state"] == "frozen" and (
++            row["evidence"]["base"] != intent["candidate"]["base"]
++            or row["evidence"]["head"] != intent["candidate"]["head"]):
++        raise ContractRefusal(
++            "integrity", "digest",
++            f"{what} is frozen at a candidate its recovery fence did not "
++            f"approve")
+ 
+ 
+ def _review_result(value):
+@@ -2272,8 +2330,8 @@ def freeze_recovered_checkpoint(store, *, attempt_id, generation, profile, candi
+     it creates no assignment or writer and never reopens the original one.
+     """
+     candidate = boundaries.document(candidate, "the recovery checkpoint identity", required=("base", "head"))
+-    for key in ("base", "head"):
+-        boundaries.text(candidate[key], "the approved candidate " + key)
++    boundaries.text(candidate["base"], "the approved candidate base")
++    boundaries.text(candidate["head"], "the approved candidate head")
+     writer = writer_for_attempt(store, attempt_id=attempt_id, generation=generation)
+     if writer is None:
+         raise ContractRefusal("refused", "precondition", "retained recovery has no original writer")
+@@ -2376,12 +2434,14 @@ def freeze_unreleased_recovered_checkpoint(store, *, attempt_id, generation,
+     committed checkpoint; unknown or conflicting evidence refuses with nothing
+     changed.
+     """
+-    profile_name = _profile(profile, ("freeze", "validate", "head_of"))
+     what = "a recovered checkpoint for a never-released writer"
+-    candidate = boundaries.document(candidate, "the recovery checkpoint identity", required=("base", "head"))
+-    for key in ("base", "head"):
+-        boundaries.text(candidate[key], "the approved candidate " + key)
+-    boundaries.text(retention_policy_digest, "a retention policy digest")
++    boundaries.identity(attempt_id, "a recovered writer's attempt id")
++    boundaries.generation(generation, "a recovered writer's assignment generation")
++    candidate = boundaries.document(candidate, "the unreleased recovery checkpoint identity", required=("base", "head"))
++    boundaries.text(candidate["base"], "the unreleased recovery candidate base")
++    boundaries.text(candidate["head"], "the unreleased recovery candidate head")
++    boundaries.text(retention_policy_digest, "an unreleased recovery retention policy digest")
++    profile_name = _profile(profile, ("freeze", "validate", "head_of"))
+     writer = writer_for_attempt(store, attempt_id=attempt_id, generation=generation)
+     if writer is None:
+         raise ContractRefusal("refused", "precondition", f"{what} has no original writer")
+@@ -2467,7 +2527,7 @@ def freeze_unreleased_recovered_checkpoint(store, *, attempt_id, generation,
+                                 "attempt_id": attempt_id, "generation": generation,
+                                 "based_checkpoint_id": current["based_checkpoint_id"],
+                                 "candidate": candidate, "exclusion_digest": exclusion},
+-                     "fenced": {"kind": RECOVERY_FENCE_KIND, "revoked_at": now, "gate": None}}
++                     "fenced": {"kind": RECOVERY_FENCE_KIND, "revoked_at": now}}
+             connection.execute(
+                 "UPDATE line_writers SET state = 'revoked', revoked_at = ?, "
+                 "revocation_reason = ? WHERE writer_id = ? AND state = 'active'",
+@@ -2483,16 +2543,15 @@ def freeze_unreleased_recovered_checkpoint(store, *, attempt_id, generation,
+             return fence
+ 
+         fenced = store.transact(operation_id, RECOVER_WRITER_KIND, signature, act)
+-    _committed_recovery_fence(store, fenced, what, writer_id=writer_id)
+-    held = checkpoint_of(store, fenced["intent"]["checkpoint_id"])
+-    if held["writer_id"] != writer_id or held["fence"] != fenced:
+-        raise ContractRefusal("integrity", "schema", f"{what}'s checkpoint row does not carry its committed recovery fence")
+-    result = _freeze_checkpoint(store, writer_id=writer_id, generation=generation,
+-                                profile=profile, port=None,
+-                                _recovery={"release": None, "candidate": candidate})
+-    if result["fence"] != fenced or any(result["evidence"][key] != candidate[key] for key in ("base", "head")):
+-        raise ContractRefusal("integrity", "digest", "recovery checkpoint replay names another candidate or fence")
+-    return result
++    # THE COMMITTED FENCE IS HANDED ON WHOLE AND UNREAD. `_freeze_checkpoint`
++    # finds this writer's checkpoint row through `checkpoint_of`, which
++    # authenticates the row's fence as this writer's exact committed recovery
++    # act and binds it to the row; the freeze then requires that validated
++    # fence to be this very document, before and after it freezes.
++    return _freeze_checkpoint(store, writer_id=writer_id, generation=generation,
++                              profile=profile, port=None,
++                              _recovery={"release": None, "candidate": candidate,
++                                         "fence": fenced})
+ 
+ 
+ def freeze_checkpoint(store, *, writer_id, generation, profile, port):
+@@ -2527,6 +2586,9 @@ def _freeze_checkpoint(store, *, writer_id, generation, profile, port, _recovery
+         held = checkpoint_of(store, existing_id)
+         revision = held["revision"]
+         checkpoint_id = held["checkpoint_id"]
++        if _recovery is not None and "fence" in _recovery \
++                and held["fence"] != _recovery["fence"]:
++            raise ContractRefusal("integrity", "digest", "the recovered writer's checkpoint does not carry its committed recovery fence")
+         if held["state"] == "frozen":
+             evidence = held["evidence"]
+             operands = {"writer_id": writer_id, "generation": generation,
+diff --git a/v12/python/src/baton_v12/worker_manager/workspaces.py b/v12/python/src/baton_v12/worker_manager/workspaces.py
+index e4c8b671aabcee3afaec25ad6d489130680fc9f5..72cbfe591b6beeb22fdd34ab1d801a1dcb2be6fb 100644
+--- a/v12/python/src/baton_v12/worker_manager/workspaces.py
++++ b/v12/python/src/baton_v12/worker_manager/workspaces.py
+@@ -5532,6 +5532,8 @@ def retained_output_of(control, assignment_id,
+     # internal call site and a caller's string is invisible in the body.
+     what = label_of(what)
+     boundaries.identity(assignment_id, "an assignment identity")
++    if output is not None:
++        boundaries.text(output, "a declared retained output path")
+     # THE WRITERS FIRST. Everything below reads a tree, and reading one while
+     # this manager cannot say every governed writer finished is exactly the
+     # measurement REC-9 refuses to trust.
+diff --git a/v12/python/tests/job_manager/test_publication_recovery_execution.py b/v12/python/tests/job_manager/test_publication_recovery_execution.py
+index 805da84ec929f4382c6d321cd16d25a0fcaa9630..40d89feb8507d843ce373969858d3df3e90a2fbe 100644
+--- a/v12/python/tests/job_manager/test_publication_recovery_execution.py
++++ b/v12/python/tests/job_manager/test_publication_recovery_execution.py
+@@ -89,6 +89,8 @@ import os
+ import subprocess
+ 
+ import sys
++import time
++import unittest
+ 
+ from baton_v12.contracts import ContractRefusal, digest, digest_of_bytes
+ from baton_v12.contracts.manifest import job_input_identity
+@@ -4874,6 +4876,165 @@ class OneInstalledPublisherServesRecoveriesOnTwoWorks(_InstalledFixture):
+         self.assertIsNone(item["evidence"]["review"]["verdict"])
+ 
+ 
++# -- 15b2. the reviewer's own required verification, in the real adapter -----
++#
++# REVIEW 2026-11-24T00-28-00Z C2; contract section 5: each reviewer
++# verification command is bounded at 900 seconds, inside the remaining
++# invocation. These drive `claude_agent.ClaudeAgent._reviewer_check` -- the
++# method the connected review turn runs -- with REAL child processes.
++
++class TheReviewersRequiredVerificationIsSupervisedAndBounded(
++        unittest.TestCase):
++
++    def setUp(self):
++        import tempfile
++
++        import claude_agent
++
++        self.module = claude_agent
++        self.root = tempfile.mkdtemp(dir=os.environ.get("TMPDIR"))
++        self.addCleanup(__import__("shutil").rmtree, self.root, True)
++        self.source = os.path.join(self.root, "source")
++        os.makedirs(self.source)
++        with open(os.path.join(self.source, "kept.txt"), "w") as out:
++            out.write("reviewed\n")
++        self.count = 0
++        self.agent = claude_agent.ClaudeAgent(
++            run=subprocess.run, home=os.path.join(self.root, "home"))
++        self.agent._seen = None
++
++    def checked(self, program, **bounds):
++        self.count += 1
++        scratch = os.path.join(self.root, f"scratch-{self.count}")
++        os.makedirs(scratch)
++        return self.agent._reviewer_check(
++            {"verification": [sys.executable, "-c", program]}, self.source,
++            scratch, {"PATH": os.environ["PATH"]},
++            **{"invocation": 3600, "command": 900, **bounds})
++
++    def test_a_shorter_command_passes_under_the_selected_bound(self):
++        seen = self.checked("open('written.txt', 'w').write('x')")
++        self.assertEqual((seen["outcome"], seen["status"],
++                          seen["seconds_bound"], seen["group_gone"]),
++                         ("passed", 0, 900, True))
++        # IT WROTE INTO ITS PRIVATE COPY, never into the reviewed tree.
++        self.assertEqual(os.listdir(self.source), ["kept.txt"])
++
++    def test_a_failing_command_is_failed_and_never_passed(self):
++        seen = self.checked("raise SystemExit(3)")
++        self.assertEqual((seen["outcome"], seen["status"]), ("failed", 3))
++
++    def test_the_bound_ends_the_command_and_every_descendant(self):
++        """A command that outlives its bound, with a descendant in the same
++        group that would outlive the command: both are gone, and the outcome
++        is `timed-out` with no status -- never a pass."""
++        marker = os.path.join(self.root, "descendant.pid")
++        program = (
++            "import os, subprocess, sys, time\n"
++            "child = subprocess.Popen([sys.executable, '-c', "
++            "'import time; time.sleep(120)'])\n"
++            f"open({marker!r}, 'w').write(str(child.pid))\n"
++            "time.sleep(120)\n")
++        began = time.monotonic()
++        seen = self.checked(program, command=1)
++        self.assertLess(time.monotonic() - began, 30)
++        self.assertEqual((seen["outcome"], seen["status"],
++                          seen["seconds_bound"], seen["group_gone"]),
++                         ("timed-out", None, 1, True))
++        descendant = int(open(marker).read())
++        deadline = time.monotonic() + 5
++        while time.monotonic() < deadline:
++            try:
++                os.kill(descendant, 0)
++            except ProcessLookupError:
++                break
++            # A killed descendant re-parented to this process's reaper may
++            # linger as a zombie; it is ended, which is what is asked.
++            try:
++                with open(f"/proc/{descendant}/stat") as stat:
++                    if stat.read().split(")")[-1].split()[0] == "Z":
++                        break
++            except OSError:
++                break
++            time.sleep(0.05)
++        else:
++            self.fail("the descendant survived the bound")
++
++    def test_a_descendant_left_by_a_passing_command_is_ended_too(self):
++        marker = os.path.join(self.root, "left.pid")
++        program = (
++            "import subprocess, sys\n"
++            "child = subprocess.Popen([sys.executable, '-c', "
++            "'import time; time.sleep(120)'])\n"
++            f"open({marker!r}, 'w').write(str(child.pid))\n")
++        seen = self.checked(program)
++        self.assertEqual((seen["outcome"], seen["group_gone"]),
++                         ("passed", True))
++
++    def test_the_remaining_invocation_truncates_the_command_bound(self):
++        seen = self.checked("import time; time.sleep(60)", invocation=1)
++        self.assertEqual((seen["seconds_bound"], seen["outcome"]),
++                         (1, "timed-out"))
++
++    def test_no_remaining_invocation_runs_nothing(self):
++        marker = os.path.join(self.root, "ran")
++        seen = self.checked(f"open({marker!r}, 'w')", invocation=0)
++        self.assertEqual((seen["outcome"], seen["seconds_bound"]),
++                         ("not-run", 0))
++        self.assertFalse(os.path.exists(marker))
++
++    def test_a_command_that_cannot_start_is_not_started(self):
++        self.count += 1
++        scratch = os.path.join(self.root, f"scratch-{self.count}")
++        os.makedirs(scratch)
++        seen = self.agent._reviewer_check(
++            {"verification": ["/nonexistent/reviewer-check"]}, self.source,
++            scratch, {"PATH": os.environ["PATH"]}, invocation=3600,
++            command=900)
++        self.assertEqual(seen["outcome"], "not-started")
++
++    def test_the_provider_is_handed_what_the_check_left_of_the_invocation(
++            self):
++        """`_provider(spent=...)`: the turn bound minus what was spent, and
++        no provider at all when nothing is left."""
++        answer = self.agent._provider({}, self.root, self.root, {}, prompt="x",
++                                      spent=self.module.PROVIDER_SECONDS)
++        self.assertEqual((answer["ok"], answer["failure_reason"]),
++                         (False, self.module.PROVIDER_TIMED_OUT))
++
++    def test_the_requirement_is_closed_and_never_exceeds_the_selected_bound(
++            self):
++        held = self.module.INPUT_ROOT
++        inputs = os.path.join(self.root, "inputs")
++        os.makedirs(inputs)
++        self.module.INPUT_ROOT = inputs
++        self.addCleanup(setattr, self.module, "INPUT_ROOT", held)
++        self.assertIsNone(self.module._reviewer_requirement())
++        place = os.path.join(inputs, "recovery-review.json")
++
++        def delivered(requirement):
++            with open(place, "w") as out:
++                json.dump({"schema": "baton.recovery-review-input/1",
++                           "handoff": {}, "handoff_digest": "sha256:" + "0" * 64,
++                           **({} if requirement is None else
++                              {"reviewer_verification": requirement})}, out)
++
++        delivered(None)
++        self.assertIsNone(self.module._reviewer_requirement())
++        delivered({"required": True, "command_seconds": 900})
++        self.assertEqual(self.module._reviewer_requirement()["command_seconds"],
++                         900)
++        for bad in ({"required": True, "command_seconds": 901},
++                    {"required": True, "command_seconds": 0},
++                    {"required": False, "command_seconds": 900},
++                    {"required": True, "command_seconds": 900, "extra": 1},
++                    {"required": True}, "yes"):
++            with self.subTest(bad=bad):
++                delivered(bad)
++                with self.assertRaises(self.module.TaskRefusal):
++                    self.module._reviewer_requirement()
++
++
+ # -- 15c. a really pooled producer's failed output, through its line ---------
+ #
+ # REVIEW 2026-11-23T20-28-00Z F1; COMPLETION-PLAN-385909 outcome 2. An ordinary
+@@ -5480,10 +5641,11 @@ class TheConnectedRecoveryFromARealPooledProducer(
+ 
+     def provider(self, edits=None, status=0):
+         """THE REVIEWER'S PROVIDER, at the provider boundary and LABELLED: the
+-        model is scripted. What it does before answering is real -- it reads
+-        the candidate and the hand-off the deployment delivered, and it RUNS
+-        the task's verification command as a real child against the delivered
+-        read-only source. That run is counted, and nothing else is."""
++        model is scripted. It reads the candidate and the hand-off the
++        deployment delivered. It does NOT run the verification: the real
++        adapter does, supervised and bounded, before this is ever called
++        (review 2026-11-24T00-28-00Z C2), and what the adapter observed is
++        read back from the frozen result."""
+         import pathlib
+         import subprocess
+         import sys
+@@ -5504,14 +5666,9 @@ class TheConnectedRecoveryFromARealPooledProducer(
+                 self.assertEqual(
+                     (inputs / "source" / "big.txt").stat().st_size,
+                     1048576 + 4096)
+-                ran = subprocess.run(
+-                    [sys.executable, "-B", "harness.py"],
+-                    cwd=str(inputs / "source"), stdout=subprocess.PIPE,
+-                    stderr=subprocess.PIPE)
+-                self.reviewer_verifications.append(
+-                    {"argv": ["python3", "harness.py"],
+-                     "status": ran.returncode,
+-                     "handoff": delivered["handoff"]})
++                # WHAT THE ADAPTER TOLD THE REVIEWER about its own run of the
++                # required verification, read from the prompt it composed.
++                self.reviewer_prompts.append(" ".join(argv))
+             return actual(argv, **options)
+ 
+         return run
+@@ -5543,7 +5700,9 @@ class TheConnectedRecoveryFromARealPooledProducer(
+         self.assertEqual(json.loads(document.read_text()),
+                          {"schema": "baton.recovery-review-input/1",
+                           "handoff": handoff,
+-                          "handoff_digest": digest(handoff)})
++                          "handoff_digest": digest(handoff),
++                          "reviewer_verification": {
++                              "required": True, "command_seconds": 900}})
+         report = {"schema": "baton.review-report/1", "verdict": verdict,
+                   "findings": "Scripted review: read the published candidate "
+                               "and ran the task's verification."}
+@@ -5578,6 +5737,18 @@ class TheConnectedRecoveryFromARealPooledProducer(
+             for module, name, value in held:
+                 setattr(module, name, value)
+ 
++    def reviewer_check_of(self, stage):
++        """What the REAL ADAPTER published about its own run of the required
++        reviewer verification, read from the frozen review result."""
++        from baton_v12.worker_manager import load_manifest
++
++        frozen = frozen_of(self.control, stage["attempt_id"])
++        result = load_manifest(self.control, frozen["manifest_digest"],
++                               "resultManifest")
++        return next(one for one in result["outputs"]
++                    if one["name"] == "findings")["result_metadata"].get(
++                        "baton.reviewer-verification/1")
++
+     def published(self, decision="C1"):
+         """Carry a real failed producer to the publication hand-off."""
+         job_id = self.failed_at_publication()
+@@ -5635,7 +5806,7 @@ class TheConnectedRecoveryFromARealPooledProducer(
+ 
+     def reviewed(self, verdict="accepted", claim="valid"):
+         job_id, recovery, read = self.published()
+-        self.reviewer_verifications = []
++        self.reviewer_prompts = []
+         self.review_running(recovery)
+         code, stage, handoff = self.review_turn(recovery, verdict=verdict,
+                                                 claim=claim)
+@@ -5678,10 +5849,19 @@ class TheConnectedRecoveryFromARealPooledProducer(
+         # THE REVIEWER RAN ITS OWN VERIFICATION, once, as a real child over
+         # the delivered read-only candidate -- and the recovery pipeline ran
+         # neither a provider nor the producer's verifier.
++        checked = self.reviewer_check_of(stage)
+         self.assertEqual(
+-            [(one["argv"], one["status"])
+-             for one in self.reviewer_verifications],
+-            [(["python3", "harness.py"], 0)])
++            {name: checked[name] for name in
++             ("argv", "seconds_bound", "outcome", "status", "group_gone")},
++            {"argv": ["python3", "harness.py"], "seconds_bound": 900,
++             "outcome": "passed", "status": 0, "group_gone": True})
++        # AND THE REVIEWER WAS TOLD what the adapter observed, and that the
++        # producer's own verification is not independent acceptance.
++        self.assertEqual(len(self.reviewer_prompts), 1)
++        self.assertIn("producer evidence, not independent acceptance",
++                      self.reviewer_prompts[0])
++        self.assertIn("900-second bound: outcome passed",
++                      self.reviewer_prompts[0])
+         self.assertEqual(
+             publication_execution.result_of(self.jobs, recovery)[
+                 "invocations"],
+@@ -5724,7 +5904,7 @@ class TheConnectedRecoveryFromARealPooledProducer(
+         writer, line, checkpoint = self.line_facts()
+         self.assertEqual((writer["state"], writer["revocation_reason"]),
+                          ("revoked", "recovered"))
+-        self.assertEqual(review_cycles.fence_kind(checkpoint["fence"]),
++        self.assertEqual(review_cycles._fence_kind(checkpoint["fence"]),
+                          review_cycles.RECOVERY_FENCE_KIND)
+         self.assertEqual(checkpoint["fence"]["intent"]["candidate"],
+                          {"base": self.base,
+@@ -5756,6 +5936,211 @@ class TheConnectedRecoveryFromARealPooledProducer(
+             publication_execution.publication_readiness(
+                 self.jobs, "C1")["owed"])
+ 
++    def test_an_acceptance_over_a_timed_out_required_check_is_not_collected(
++            self):
++        """THE ADAPTER'S OBSERVATION IS FORCED HERE AND LABELLED: the real
++        timeout, with real children, is `TheReviewersRequiredVerification
++        IsSupervisedAndBounded`. What this shows is the rest of the path: an
++        `accepted` report beside a timed-out required check is withheld by
++        the adapter, nothing is collected as a verdict, and the owner is told
++        when the recovery closes."""
++        from unittest import mock
++
++        import claude_agent
++
++        timed_out = {"argv": ["python3", "harness.py"], "seconds_bound": 900,
++                     "outcome": "timed-out", "status": None, "seconds": 900.0,
++                     "group_gone": True}
++        with mock.patch.object(claude_agent.ClaudeAgent, "_reviewer_check",
++                               return_value=timed_out):
++            job_id, recovery, read, stage, handoff = self.reviewed()
++        self.assertIsNone(self.verdict_of(stage))
++        frozen = frozen_of(self.control, stage["attempt_id"])
++        self.assertEqual(frozen["disposition"], "unable")
++        self.assertIn("outcome timed-out",
++                      self.reviewer_prompts[0])
++        self.assertEqual(len(self.engine.starts), 2)
++
++    def test_an_acceptance_without_the_workers_own_passed_check_is_held(self):
++        """THE MANAGER'S HALF: a worker that publishes an `accepted` verdict
++        and no passed, bounded verification of its own -- an image that does
++        not supervise the command -- is held, not collected."""
++        from unittest import mock
++
++        import claude_agent
++
++        actual = claude_agent._review_claim
++        for label, changed in (
++                ("no claim at all", None),
++                ("a bound over the selected one", {"seconds_bound": 3600}),
++                ("another command", {"argv": ["true"]}),
++                ("processes left behind", {"group_gone": False})):
++            with self.subTest(label):
++                if label != "no claim at all":
++                    self.tearDown()
++                    self.setUp()
++
++                def claim(verdict, observed, recovery_digest=None,
++                          checked=None, changed=changed):
++                    return actual(verdict, observed, recovery_digest,
++                                  None if changed is None
++                                  else dict(checked, **changed))
++
++                with mock.patch.object(claude_agent, "_review_claim", claim):
++                    job_id, recovery, read, stage, handoff = self.reviewed()
++                self.assertEqual(
++                    frozen_of(self.control,
++                              stage["attempt_id"])["disposition"],
++                    "completed")
++                self.assertIsNone(self.verdict_of(stage))
++
++    # -- a stopped original, and a stopped reviewer (review C4) -----------------
++
++    def instance_selector(self):
++        """The installed instance selector the settlement commands address."""
++        import pathlib
++
++        from baton_v12.worker_manager import workspaces
++        from tools import instance
++
++        self.operations.close()
++        workspaces.held_manager_instance(
++            self.config["workspace_storage"]).release()
++        places = instance.layout(self.state)
++        distro = pathlib.Path(places["distro"])
++        distro.mkdir(parents=True, exist_ok=True)
++        pathlib.Path(places["command"]).write_text(
++            "deterministic installed selector fixture")
++        selector = instance.emit(
++            self.state, authority_uuid=self.config["authority_uuid"],
++            identity={"fixture": True}, runtime=instance.manifest(distro),
++            now=1)
++        instance.publish(places["instance"], selector)
++        return places["instance"]
++
++    def removed(self, selector, job_id, stage, reason):
++        """`manager settlement-remove`, through the installed command's own
++        function. The composition it builds is this fixture's -- the same
++        document, the engine double and no real credential source."""
++        from unittest import mock
++
++        from tools import single_worker, stage_execution, stopped_settlement
++
++        def compose(configuration, jobs, control):
++            return stage_execution.operations_from(
++                configuration, jobs, control, engine_run=self.engine,
++                credential_provider=lambda provider, reference: self.secret,
++                clock=lambda: self.now, checkout=self.checkout)
++
++        with mock.patch.object(single_worker, "effective_engine_run",
++                               return_value=self.engine):
++            answer = stopped_settlement.remove(
++                selector, job_id=job_id, stage_id=stage["stage_id"],
++                episode=stage["episode"], reason=reason,
++                clock=lambda: self.now, compose=compose)
++        self.jobs, self.control, self.operations = None, None, None
++        held, fresh = self.engine, self.quiescing
++        self.quiescing = lambda: held
++        try:
++            self.jobs, self.control, self.operations = self.serving()
++        finally:
++            self.quiescing = fresh
++        return answer
++
++    def test_a_stopped_original_is_held_then_removed_recovered_and_reviewed(
++            self):
++        """THE STOPPED-ORIGINAL PATH, END TO END: `settle-stopped` leaves the
++        producer's runtime present, so inspection HOLDS it before any
++        approval and names the continuation; `settlement-remove` establishes
++        positive absence; the same recovery then runs through to the ordinary
++        reviewer's collected verdict."""
++        from unittest import mock
++
++        from tools import single_worker, stopped_settlement
++
++        job_id = self.failed_at_publication(settle=False)
++        stage = self.producer_stage
++        selector = self.instance_selector()
++        with mock.patch.object(single_worker, "effective_engine_run",
++                               return_value=self.engine):
++            preview = stopped_settlement.execute(
++                "settlement-preview", selector, job_id=job_id,
++                stage_id=stage["stage_id"], episode=1,
++                operation_id="stopped-original", clock=lambda: self.now)
++            settled = stopped_settlement.execute(
++                "settle-stopped", selector, document=preview["request"],
++                clock=lambda: self.now)
++        self.assertEqual(settled["settlement"]["state"], "settled")
++        self.restarted(same_engine=True)
++        # HELD BEFORE APPROVAL, with the exact supported next step.
++        held = self.inspected(job_id)
++        self.assertFalse(held["eligible"])
++        self.assertTrue(all(one["code"] == "quiescence-unknown"
++                            for one in held["holds"]), held["holds"])
++        self.assertEqual(held["continuation"]["command"][:2],
++                         ["manager", "settlement-remove"])
++        self.assertIn(job_id, held["continuation"]["command"])
++        self.unrecovered()
++        # A DECISION ON A HELD ORIGINAL ADMITS NOTHING.
++        self.assertEqual(publication_recovery.admissions_of(self.jobs), [])
++        # THE SUPPORTED REMOVAL, with the manager stopped.
++        selector = self.instance_selector()
++        answer = self.removed(selector, job_id, stage,
++                              "stopped original removed for recovery")
++        self.assertTrue(answer["removed"], answer)
++        self.assertEqual((answer["before"]["execution_runtime"],
++                          answer["after"]["execution_runtime"]),
++                         ("quiescent", "destroyed"))
++        read = self.inspected(job_id)
++        self.assertTrue(read["eligible"], read["holds"])
++        self.assertNotIn("continuation", read)
++        # AND THE RECOVERY RUNS THROUGH TO THE REVIEWER'S VERDICT.
++        code, answer = self.decided(job_id, read)
++        self.assertEqual(code, 0, answer)
++        recovery = answer["admission"]["job_id"]
++        self.restarted()
++        for _ in range(8):
++            manager.sweep(self.jobs, self.operations, now=self.now)
++            state = attempt_runtime_of(
++                self.control,
++                self.stage_of(recovery, "publication")["attempt_id"])
++            if state is not None \
++                    and state["execution_runtime"] == "running":
++                break
++        code, _, _ = self.publication_turn("C1")
++        self.assertEqual(code, 0)
++        self.reviewer_prompts = []
++        self.review_running(recovery)
++        code, review_stage, handoff = self.review_turn(recovery)
++        self.assertEqual(code, 0)
++        for _ in range(8):
++            manager.sweep(self.jobs, self.operations, now=self.now)
++        verdict = self.verdict_of(review_stage)
++        self.assertEqual(verdict["disposition"], "accepted")
++        self.assertEqual(verdict["head_object"], read["producer"]["head"])
++        writer, _, checkpoint = self.line_facts()
++        self.assertEqual(writer["revocation_reason"], "recovered")
++
++    def test_a_running_or_unstarted_attempt_is_not_removed(self):
++        """`settlement-remove` is for a positively stopped attempt and
++        refuses every other shape before composing anything."""
++        from tools import stopped_settlement
++
++        job_id = self.created()
++        self.jobs, self.control, self.operations = self.serving()
++        self.drive(self.jobs, self.operations, "implementation", "waiting")
++        stage = self.stage_of(job_id, "implementation")
++        selector = self.instance_selector()
++        composed = []
++        with self.assertRaises((ContractRefusal, SystemExit, Exception)) as caught:
++            stopped_settlement.remove(
++                selector, job_id=job_id, stage_id=stage["stage_id"],
++                episode=1, reason="not stopped",
++                clock=lambda: self.now,
++                compose=lambda *a: composed.append(a))
++        self.assertIn("positively stopped", str(caught.exception))
++        self.assertEqual(composed, [])
++
+     def test_a_rejection_is_the_reviewers_own_outcome(self):
+         job_id, recovery, read, stage, handoff = self.reviewed(
+             verdict="rejected")
+@@ -5815,6 +6200,8 @@ class TheConnectedRecoveryFromARealPooledProducer(
+         runtime = attempt_runtime_of(self.control, stage["attempt_id"])
+         self.assertEqual(runtime["execution_runtime"], "quiescent")
+         self.assertEqual(len(item["remaining"]), 1)
++        self.assertIn("manager settlement-remove", item["remaining"][0])
++        self.assertIn(stage["stage_id"], item["remaining"][0])
+         # EVERYTHING PUBLISHED IS RETAINED UNCHANGED, no verdict exists, no
+         # third container was started and no second item is written.
+         self.assertEqual(publication_execution.custody_of(self.jobs,
+@@ -5834,6 +6221,17 @@ class TheConnectedRecoveryFromARealPooledProducer(
+         self.assertEqual(status["recovery"]["outcome"], "published")
+         self.assertEqual(status["recovery"]["review"], item["outcome"])
+         self.assertIsNone(status["review"]["verdict"])
++        # AND THE NAMED OPERATOR STEP WORKS: the stopped reviewer's runtime is
++        # removed through the installed command, and the item is unchanged.
++        answer = self.removed(self.instance_selector(), recovery, stage,
++                              "stopped reviewer removed after " + item["outcome"])
++        self.assertTrue(answer["removed"], answer)
++        self.assertEqual(
++            attempt_runtime_of(self.control,
++                               stage["attempt_id"])["execution_runtime"],
++            "destroyed")
++        self.assertEqual(
++            publication_execution.review_item_of(self.jobs, recovery), item)
+         return item
+ 
+     def test_a_cancellation_during_review_stops_it_and_tells_the_owner(self):
+@@ -5886,7 +6284,7 @@ class TheConnectedRecoveryFromARealPooledProducer(
+         and the original Job is still failed."""
+         job_id, recovery, read = self.published()
+         original = submission.job_of(self.jobs, job_id)
+-        self.reviewer_verifications = []
++        self.reviewer_prompts = []
+         self.review_running(recovery)
+         code, stage, handoff = self.review_turn(recovery)
+         self.assertEqual(code, 0)
+@@ -5899,7 +6297,8 @@ class TheConnectedRecoveryFromARealPooledProducer(
+         for _ in range(4):
+             manager.sweep(self.jobs, self.operations, now=self.now)
+         self.assertEqual(self.verdict_of(stage), verdict)
+-        self.assertEqual(len(self.reviewer_verifications), 1)
++        self.assertEqual(len(self.reviewer_prompts), 1)
++        self.assertEqual(self.reviewer_check_of(stage)["outcome"], "passed")
+         # ONE PUBLISHER AND ONE REVIEWER CONTAINER, across both restarts.
+         self.assertEqual(len(self.engine.starts), 2)
+         self.assertEqual(submission.job_of(self.jobs, job_id), original)
+@@ -6068,11 +6467,11 @@ class TheConnectedRecoveryFromARealPooledProducer(
+                          operands["candidate"]["head"])
+         # ITS OWN KIND, ITS OWN COMMITTED ACT, and no assignment fence.
+         fence = checkpoint["fence"]
+-        self.assertEqual(review_cycles.fence_kind(fence),
++        self.assertEqual(review_cycles._fence_kind(fence),
+                          review_cycles.RECOVERY_FENCE_KIND)
+         self.assertEqual(fence, frozen["fence"])
+         self.assertEqual(fence["intent"]["attempt_id"], self.attempt)
+-        self.assertIsNone(fence["fenced"]["gate"])
++        self.assertNotIn("gate", fence["fenced"])
+         act = self.control.operation_record(fence["intent"]["operation_id"])
+         self.assertEqual((act["kind"], act["state"]),
+                          (review_cycles.RECOVER_WRITER_KIND, "committed"))
+@@ -6096,7 +6495,8 @@ class TheConnectedRecoveryFromARealPooledProducer(
+                 self.control,
+                 attempts._require_attempt(self.control, self.attempt), fence,
+                 "a probe")
+-        self.assertIn("recovery fence", str(caught.exception))
++        self.assertEqual((caught.exception.category, caught.exception.code),
++                         ("integrity", "schema"))
+         # AND A FENCE THE JOURNAL DOES NOT HOLD IS NOT EVIDENCE: the row's
+         # fence altered in place, with a digest that agrees with itself.
+         forged = json.loads(json.dumps(fence))
+@@ -6112,6 +6512,108 @@ class TheConnectedRecoveryFromARealPooledProducer(
+         self.assertEqual((caught.exception.category, caught.exception.code),
+                          ("integrity", "schema"))
+ 
++    def test_a_recovery_fence_is_bound_to_the_row_that_carries_it(self):
++        """REVIEW 2026-11-24T00-28-00Z C1. A committed recovery act is not
++        the same statement as "this checkpoint's act": every identity the
++        proof fixed is compared with the row consuming it, and each mismatch
++        refuses -- while the untouched row still reads and replays."""
++        from baton_v12.worker_manager import review_cycles
++
++        self.failed_at_publication()
++        operands = self.recovery_operands()
++        frozen = review_cycles.freeze_unreleased_recovered_checkpoint(
++            self.control, **operands)
++        checkpoint_id = frozen["checkpoint_id"]
++        connection = self.control._connection
++        good = review_cycles.checkpoint_of(self.control, checkpoint_id)
++        fence = good["fence"]
++
++        def refused(label, statement, *values, restore):
++            with self.subTest(label):
++                connection.execute("PRAGMA foreign_keys = OFF")
++                connection.execute("PRAGMA ignore_check_constraints = ON")
++                connection.execute(statement, values)
++                try:
++                    with self.assertRaises(ContractRefusal) as caught:
++                        review_cycles.checkpoint_of(self.control, values[0]
++                                                    if label == "row identity"
++                                                    else checkpoint_id)
++                    # A row naming a writer with NO committed recovery act is
++                    # refused as unexplained (`refused/precondition`, the
++                    # journal reader's own answer); every other mismatch is
++                    # an integrity refusal. Neither is ever an answer.
++                    self.assertEqual(
++                        caught.exception.category,
++                        "refused" if label == "writer_id" else "integrity")
++                finally:
++                    connection.execute(*restore)
++                    connection.execute("PRAGMA ignore_check_constraints = OFF")
++                    connection.execute("PRAGMA foreign_keys = ON")
++                self.assertEqual(
++                    review_cycles.checkpoint_of(self.control, checkpoint_id),
++                    good)
++
++        def spelled(document):
++            return json.dumps(document, sort_keys=True, separators=(",", ":"))
++
++        # THE REVIEWER'S PROBE: only the row's identity changes.
++        refused("row identity",
++                "UPDATE line_checkpoints SET checkpoint_id = ? WHERE "
++                "checkpoint_id = ?", "checkpoint-moved", checkpoint_id,
++                restore=("UPDATE line_checkpoints SET checkpoint_id = ? "
++                         "WHERE checkpoint_id = ?",
++                         (checkpoint_id, "checkpoint-moved")))
++        # ANOTHER LINE, ANOTHER WRITER.
++        for column, value in (("line_id", "line-other"),
++                              ("writer_id", "writer-other")):
++            refused(column,
++                    f"UPDATE line_checkpoints SET {column} = ? WHERE "
++                    f"checkpoint_id = ?", value, checkpoint_id,
++                    restore=(f"UPDATE line_checkpoints SET {column} = ? "
++                             f"WHERE checkpoint_id = ?",
++                             (good[column], checkpoint_id)))
++        # A FROZEN CANDIDATE THE PROOF DID NOT APPROVE: the sealed evidence
++        # and its columns moved together, consistently with each other.
++        moved = dict(good["evidence"], head="e" * 40)
++        refused("candidate",
++                "UPDATE line_checkpoints SET evidence = ?, head_object = ?, "
++                "checkpoint_digest = ? WHERE checkpoint_id = ?",
++                spelled(moved), "e" * 40, digest(moved), checkpoint_id,
++                restore=("UPDATE line_checkpoints SET evidence = ?, "
++                         "head_object = ?, checkpoint_digest = ? WHERE "
++                         "checkpoint_id = ?",
++                         (spelled(good["evidence"]), good["head_object"],
++                          good["checkpoint_digest"], checkpoint_id)))
++        # THE WRITER'S OWN ROW NO LONGER AGREES: not revoked as recovered.
++        refused("writer row",
++                "UPDATE line_writers SET revocation_reason = ? WHERE "
++                "writer_id = ?", "checkpoint", good["writer_id"],
++                restore=("UPDATE line_writers SET revocation_reason = ? "
++                         "WHERE writer_id = ?",
++                         ("recovered", good["writer_id"])))
++        # A WELL-FORMED PROOF NO ACT COMMITTED, an unknown kind, and a
++        # malformed one -- each with a digest that agrees with itself.
++        for label, mutate in (
++                ("uncommitted", lambda held: held["intent"].update(
++                    exclusion_digest="sha256:" + "9" * 64)),
++                ("unknown kind", lambda held: held["intent"].update(
++                    kind="review-line.some-other-fence")),
++                ("malformed", lambda held: held["intent"].pop("candidate"))):
++            forged = json.loads(json.dumps(fence))
++            mutate(forged)
++            refused(label,
++                    "UPDATE line_checkpoints SET fence = ?, fence_digest = ? "
++                    "WHERE checkpoint_id = ?", spelled(forged),
++                    digest(forged), checkpoint_id,
++                    restore=("UPDATE line_checkpoints SET fence = ?, "
++                             "fence_digest = ? WHERE checkpoint_id = ?",
++                             (spelled(fence), good["fence_digest"],
++                              checkpoint_id)))
++        # AN ASSIGNMENT FENCE IS NEVER ACCEPTED FOR A RECOVERED WRITER, and
++        # the exact replay is still the same committed checkpoint.
++        self.assertEqual(review_cycles.freeze_unreleased_recovered_checkpoint(
++            self.control, **operands), frozen)
++
+     def test_the_recovery_freeze_holds_on_unproved_or_conflicting_evidence(
+             self):
+         """EACH HOLD CHANGES NOTHING: the writer stays active, the line stays
+diff --git a/v12/python/tests/manager/test_boundary_inventory.py b/v12/python/tests/manager/test_boundary_inventory.py
+index 2a0f2a4a1701d994047f0575cafc3a3fc1393bed..91c0cd1837d3cec5ff278b4f7fe208300296b6ad 100644
+--- a/v12/python/tests/manager/test_boundary_inventory.py
++++ b/v12/python/tests/manager/test_boundary_inventory.py
+@@ -1770,7 +1770,14 @@ _DUPLICATE_COLUMN_ENTRIES = (
+ _DUPLICATE_COLUMN_CHECKS = {
+     _DUPLICATE_COLUMN_ENTRIES[0]: (
+         "a persisted line checkpoint", "_fence", "document", "a persisted assignment fence", "LINE_CHECKPOINT_COLUMNS",
+-        "sha256:fb9dae348f9d5b414b1e1dc5222e1c068f778780e58458223e39982cab4b3167",
++        # W385695 (review 2026-11-24T00-28-00Z C1): `checkpoint_of` gained one
++        # kind dispatch after the unchanged fence adoption: a recovery fence is
++        # authenticated and bound to the row consuming it (`_bound_recovery_fence`),
++        # an assignment fence by `_committed_fence` as before. The row call, the
++        # `_fence` repeat and the nullable guard this relation witnesses are the
++        # same statements (`test_row_result_flow_and_nullable_guard_match_the_
++        # reviewed_relations` still pins them); the receiver fingerprint moves.
++        "sha256:6a80d36ac09a46e27ce706a7ff5161f152822229016cbf38c477076a2b5503b2",
+         "sha256:c78baefcecee401ebc78736a2d5cb234f8abb08c62cc519fa46ca16dbdde9eca",
+         "sha256:be6932d1a17b8b457fd9358de46fcb812c77868707c78b1c8f2f17486a60d5e2"),
+     _DUPLICATE_COLUMN_ENTRIES[1]: (
+@@ -2639,6 +2646,19 @@ STATED_OWNERS = {
+         "the complete row is forwarded through line_of's canonical row decoder",
+     ("adopted", "review_cycles.py:attach_review", "line_writers"):
+         "a SELECT 1 existence answer; no row member crosses into this manager",
++    # W385695 (review 2026-11-24T00-28-00Z C3): the recovery freeze's two
++    # exclusion questions, asked under the write lock, and the retained-output
++    # read's later-writer question. Each is an existence answer.
++    ("adopted", "review_cycles.py:freeze_unreleased_recovered_checkpoint", "line_writers"):
++        "a SELECT 1 existence answer (a later or active writer on the line holds the freeze); no row member crosses into this manager",
++    ("adopted", "review_cycles.py:freeze_unreleased_recovered_checkpoint", "line_checkpoints"):
++        "a SELECT 1 existence answer (a checkpoint already recorded for the writer or identity holds the freeze); no row member crosses into this manager",
++    ("adopted", "workspaces.py:_retained_line_home", "line_writers"):
++        "an existence read (`LIMIT 1`) of a later or active writer; the projected id and state reach only the refusal prose",
++    ("adopted", "review_cycles.py:freeze_unreleased_recovered_checkpoint", "replay"):
++        "the replayed committed fence is handed on whole and unread to `_freeze_checkpoint`, which requires the row fence `checkpoint_of` authenticated to be this exact document; no member is read here",
++    ("caller", "review_cycles.py:freeze_unreleased_recovered_checkpoint", "profile"):
++        "an injected profile aggregate whose freeze, validate and head_of capabilities are typed before use (`_profile`)",
+     # W385331: the continuation-hold reader scans the journal by kind for
+     # identities only, and every candidate row is then read through
+     # `operation_record`, the journal's own decoder, before any member is
+@@ -3526,8 +3546,11 @@ SHADOWED = {
+     # set (`a persisted line checkpoint's fence needs intent` / `also carries`),
+     # and a replaced `intent` fails the fence digest; `_fence`'s own document
+     # rule over the decoded value never sees a damaged member first.
+-    (("adopted", "review_cycles.py:checkpoint_of", "line_checkpoints.fence.intent"), "a persisted assignment fence"):
+-        ("a persisted line checkpoint's fence", "test_the_checkpoint_row_refuses_a_damaged_fence_before_the_fence_owner"),
++    # (W385695, review 2026-11-24T00-28-00Z C3: the pair that stood here --
++    # `checkpoint_of` `fence.intent` under `a persisted assignment fence` -- is
++    # retired. The intent has an owner of its own now, the recovery fence's
++    # closed rule, so the envelope's label no longer covers it and there is
++    # nothing left to shadow; its probe is in `w385695_probes`.)
+     # W384870 stage C: `_context_delivery` compares the delivery's attempt_id
+     # with the job's (`_denied`) before the `_text` loop reaches it, and a value
+     # equal to the job's text attempt id is text already.
+@@ -9827,6 +9850,7 @@ class EveryProbeProvesItArrived(BoundaryCase):
+                 **self.worker_entry_probes(),
+                 **self.token_probes(),
+                 **self.w384870_probes(),
++                **self.w385695_probes(),
+                 **self.dynamic_table_probes(),
+                 **self.stage_b_probes(),
+                 **self.stage_c_probes()}
+@@ -10658,8 +10682,10 @@ class EveryProbeProvesItArrived(BoundaryCase):
+                        "review_result.artifacts.locator", "review_result.artifacts.output_name", "review_result.manifest_digest"):
+             probe("review_cycles.py:_verdict_row", f"checkpoint_verdicts.{member}", "a persisted checkpoint verdict",
+                   self.spoiling_review_row("_verdict_row", "checkpoint_verdicts", member))
+-        probe("review_cycles.py:checkpoint_of", "line_checkpoints.fence.intent", "a persisted line checkpoint",
+-              self.spoiling_review_row("checkpoint_of", "line_checkpoints", "fence.intent"))
++        # (W385695: `fence.intent` is owned by the recovery fence's own closed
++        # rule now and is probed there -- `w385695_probes`. The row-level probe
++        # that stood here spoiled the whole `fence` column, which the derived
++        # column probe for `line_checkpoints.fence` already does.)
+         # (`a persisted assignment fence` for `fence.intent` is SHADOWED by the
+         # row's own closed rule over the JSON column; see the witness.)
+         # attempts.request_runtime_start: the governance capability and the declared mount plan
+@@ -10771,6 +10797,122 @@ class EveryProbeProvesItArrived(BoundaryCase):
+                        "environment_policy_digest", "layout_version", "reported_model", "model", "cwd",
+                        "state_paths", "max_entries", "max_bytes", "retention_policy_digest")
+ 
++    def w385695_probes(self):
++        """W385695 (review 2026-11-24T00-28-00Z C3): the recovery fence's
++        members at the checkpoint reader, and the new caller operands.
++
++        ONE MEMBER SPOILED PER PROBE. The checkpoint row keeps a well-formed
++        recovery fence with a digest that agrees with it, so the refusal that
++        arrives is the spoiled member's own rule and not the row's, the
++        envelope's or the digest's.
++        """
++        store = self.store
++        found = {}
++
++        def fence():
++            return {"intent": {"kind": review_cycles.RECOVERY_FENCE_KIND,
++                               "operation_id": review_cycles.RECOVER_WRITER_KIND + ":writer-probe",
++                               "writer_id": "writer-probe", "line_id": "line-probe",
++                               "checkpoint_id": "checkpoint-probe",
++                               "attempt_id": "writer-attempt", "generation": 1,
++                               "based_checkpoint_id": None,
++                               "candidate": {"base": "a" * 40, "head": "b" * 40},
++                               "exclusion_digest": "sha256:" + "f" * 64},
++                    "fenced": {"kind": review_cycles.RECOVERY_FENCE_KIND,
++                               "revoked_at": NOW}}
++
++        def spoiling(mutate):
++            def run():
++                self.review_cycle_world()
++                held = fence()
++                mutate(held)
++                self.corrupt("UPDATE line_checkpoints SET fence = ?, fence_digest = ?",
++                             json.dumps(held, sort_keys=True, separators=(",", ":")),
++                             _contracts_digest(held))
++                review_cycles.checkpoint_of(store, "checkpoint-probe")
++            return run
++
++        def setting(part, member, value):
++            def mutate(held):
++                held[part][member] = value
++            return mutate
++
++        def dropping(part, member):
++            def mutate(held):
++                del held[part][member]
++            return mutate
++
++        def candidate(member, value):
++            def mutate(held):
++                held["intent"]["candidate"][member] = value
++            return mutate
++
++        def member(subject, label, mutate):
++            found[(("adopted", "review_cycles.py:checkpoint_of",
++                    "line_checkpoints.fence." + subject), label)] = (label, spoiling(mutate))
++
++        member("intent", "a recovery fence intent", dropping("intent", "exclusion_digest"))
++        member("fenced", "a recovery fence record", dropping("fenced", "revoked_at"))
++        member("intent.kind", "a recovery fence kind", setting("intent", "kind", ""))
++        member("fenced.kind", "a recovery fence record kind", setting("fenced", "kind", ""))
++        member("fenced.revoked_at", "a recovery fence revocation instant",
++               setting("fenced", "revoked_at", "not-an-instant"))
++        member("intent.operation_id", "a recovery fence operation", setting("intent", "operation_id", ""))
++        for name, what in (("writer_id", "writer"), ("line_id", "line"),
++                           ("checkpoint_id", "checkpoint"), ("attempt_id", "attempt"),
++                           ("based_checkpoint_id", "based checkpoint")):
++            member("intent." + name, f"a recovery fence {what} identity",
++                   setting("intent", name, self.SPOILED["identity"]))
++        member("intent.generation", "a recovery fence generation", setting("intent", "generation", "one"))
++        member("intent.exclusion_digest", "a recovery fence exclusion digest",
++               setting("intent", "exclusion_digest", ""))
++        member("intent.candidate", "a recovery fence candidate", setting("intent", "candidate", []))
++        member("intent.candidate.base", "a recovery fence candidate base", candidate("base", ""))
++        member("intent.candidate.head", "a recovery fence candidate head", candidate("head", ""))
++
++        def caller(site, subject, label, run):
++            found[(("caller", site, subject), label)] = (label, run)
++
++        good = {"attempt_id": "writer-attempt", "generation": 1, "profile": None,
++                "candidate": {"base": "a" * 40, "head": "b" * 40},
++                "retention_policy_digest": "sha256:" + "a" * 64}
++
++        def unreleased(**changed):
++            return lambda: review_cycles.freeze_unreleased_recovered_checkpoint(
++                store, **dict(good, **changed))
++
++        site = "review_cycles.py:freeze_unreleased_recovered_checkpoint"
++        caller(site, "attempt_id", "a recovered writer's attempt id", unreleased(attempt_id=SURROGATE))
++        caller(site, "generation", "a recovered writer's assignment generation", unreleased(generation="one"))
++        caller(site, "candidate", "the unreleased recovery checkpoint identity", unreleased(candidate=[]))
++        caller(site, "candidate.base", "the unreleased recovery candidate base",
++               unreleased(candidate={"base": "", "head": "b" * 40}))
++        caller(site, "candidate.head", "the unreleased recovery candidate head",
++               unreleased(candidate={"base": "a" * 40, "head": ""}))
++        caller(site, "retention_policy_digest", "an unreleased recovery retention policy digest",
++               unreleased(retention_policy_digest=""))
++
++        def released(candidate):
++            return lambda: review_cycles.freeze_recovered_checkpoint(
++                store, attempt_id="writer-attempt", generation=1, profile=None,
++                candidate=candidate)
++
++        site = "review_cycles.py:freeze_recovered_checkpoint"
++        caller(site, "candidate", "the recovery checkpoint identity", released([]))
++        caller(site, "candidate.base", "the approved candidate base",
++               released({"base": "", "head": "b" * 40}))
++        caller(site, "candidate.head", "the approved candidate head",
++               released({"base": "a" * 40, "head": ""}))
++
++        from baton_v12.worker_manager import workspaces
++        site = "workspaces.py:retained_output_of"
++        caller(site, "assignment_id", "an assignment identity",
++               lambda: workspaces.retained_output_of(store, SURROGATE))
++        caller(site, "output", "a declared retained output path",
++               lambda: workspaces.retained_output_of(store, "attempt-probe", output=7))
++        entries = receiving_entries()
++        return {key: value for key, value in found.items() if key[0] in entries}
++
+     def w384870_probes(self):
+         """W384870 S1: one probe per delegated entry added under M384898.
+ 
+@@ -21144,7 +21286,10 @@ class DuplicateColumnChecksRequireOwnedWitnesses(unittest.TestCase):
+         self.assertEqual((caught.exception.category, caught.exception.code), ("integrity", "schema"))
+         nested = ("adopted", "review_cycles.py:checkpoint_of", "line_checkpoints.fence.intent")
+         self.assertNotIn(nested, _column_check_relations(self.records, {nested}, self.sources))
+-        self.assertEqual(set(layer_labels(nested)), {"a persisted assignment fence", "a persisted line checkpoint"})
++        # W385695: the intent now has ONE owner of its own -- the recovery
++        # fence's closed document rule -- so the covering envelope and row
++        # labels no longer stand in for it.
++        self.assertEqual(set(layer_labels(nested)), {"a recovery fence intent"})
+ 
+ 
+ class StoppedSettlementInventory(BoundaryCase):
+diff --git a/v12/python/tools/job_manager.py b/v12/python/tools/job_manager.py
+index e1a233d9c1bcbed578a2421fb8d2673a535446e3..927a33bf2e3c4d3c16e63e942ff9616f487cd141 100644
+--- a/v12/python/tools/job_manager.py
++++ b/v12/python/tools/job_manager.py
+@@ -1318,7 +1318,7 @@ def main(argv, *, clock=None, stream=None):
+         prog="job_manager",
+         description="Submit Jobs to the v12 Job manager, read its status, or "
+                     "run its control loop. Instance-addressed commands: "
+-                    "settlement-preview, settle-stopped, settlement-status, "
++                    "settlement-preview, settle-stopped, settlement-status, settlement-remove, "
+                     "cancel-job, cancel-status, recovery-item, "
+                     "recovery-decide, publication-inspect, "
+                     "publication-decide, publication-status "
+diff --git a/v12/python/tools/publication_decision.py b/v12/python/tools/publication_decision.py
+index 9ec2e94c516f38a446c5d921c67cc5c2b2f7e333..29429ca788f30624308e8219420e743b6145eb02 100644
+--- a/v12/python/tools/publication_decision.py
++++ b/v12/python/tools/publication_decision.py
+@@ -270,12 +270,43 @@ def _inspect(taken, clock, stream):
+                             needed=needed)
+         if held.get("release") is not None:
+             opened.callback(held["release"])
+-        return _say(publication_recovery.inspect(
++        read = publication_recovery.inspect(
+             jobs, control, job_id=taken.job, stage_id=taken.stage,
+             episode=taken.episode, host=held["host"],
+             exclusion=held["exclusion"], source=held["source"],
+             authorization=held.get("owner") if taken.participant else None,
+-            now=clock() if taken.control_report else None), stream)
++            now=clock() if taken.control_report else None)
++        return _say(_with_continuation(read, control, taken), stream)
++
++
++def _with_continuation(read, control, taken):
++    """NAME THE SUPPORTED NEXT STEP for an original that is held only because
++    its stopped runtime is still present (review 2026-11-24T00-28-00Z C4).
++
++    A producer settled with `settle-stopped` keeps its container, a pending
++    cleanup and its line's writer, so its original is HELD here -- before any
++    approval -- and would also be refused a recovered review checkpoint. The
++    removal that establishes positive absence is `settlement-remove`. This
++    adds the instruction and changes no hold and no eligibility.
++    """
++    from baton_v12.worker_manager import attempt_runtime_of
++
++    attempt_id = (read.get("selector") or {}).get("attempt_id")
++    if read.get("eligible") or attempt_id is None:
++        return read
++    recorded = attempt_runtime_of(control, attempt_id)
++    if recorded is None or recorded["runtime_id"] is None \
++            or recorded["execution_runtime"] != "quiescent":
++        return read
++    return dict(read, continuation={
++        "state": "the original attempt's runtime is stopped and still "
++                 "present; its output is not read and no recovery can be "
++                 "approved until it is positively absent",
++        "command": ["manager", "settlement-remove", "--instance",
++                    "<instance.json>", "--job", taken.job, "--stage",
++                    taken.stage, "--episode", str(taken.episode),
++                    "--reason", "<why>"],
++        "requires": "the manager stopped; then repeat publication-inspect"})
+ 
+ 
+ def _decide(taken, clock, stream):
+diff --git a/v12/python/tools/stage_execution.py b/v12/python/tools/stage_execution.py
+index 70809dca09cb6e85563d82af801fcd99934d0c1a..a0d62cc75879572d977ee05c58a25c07291c0e80 100644
+--- a/v12/python/tools/stage_execution.py
++++ b/v12/python/tools/stage_execution.py
+@@ -1484,22 +1484,50 @@ class StageComposition:
+                     category="refused", code="precondition")
+         return held["boundary"]
+ 
++    def reviewer_verification_for(self, stage):
++        """W385695 (review 2026-11-24T00-28-00Z C2): the reviewer's OWN required
++        verification for a publication recovery, or `None`.
++
++        `argv` is the command the owner's decision bound -- the admitted
++        task's own verification, read from the committed decision and not
++        from a worker -- and `command_seconds` is the owner-selected
++        per-command bound. Only a publication recovery carries one: a retained
++        verification recovery exists because the task's verifier was wrong,
++        and its corrected command already ran in the manager's own stage.
++        """
++        from baton_v12.job_manager import publication_execution, publication_recovery
++        if self.role != "review":
++            return None
++        handoff = publication_execution.handoff_of(self.deployment.jobs, stage["job_id"])
++        if handoff is None:
++            return None
++        decision = publication_recovery.decision_of(self.deployment.jobs, handoff["decision_id"])
++        return {"argv": list(decision["expected"]["producer_argv"]),
++                "command_seconds": publication_recovery.SELECTED_REVIEW_COMMAND_SECONDS}
++
+     def recovery_document_for(self, stage):
+         from baton_v12.job_manager import retained_verification
+         if self.role != "review":
+             return None
+         handoff = retained_verification.handoff_of(self.deployment.jobs, stage["job_id"])
++        required = None
+         if handoff is None:
+             # W385695: THE PUBLICATION RECOVERY'S HAND-OFF IS THE SAME KIND OF
+             # INPUT. A Job is one recovery or the other, never both, so the
+             # second read is asked only where the first found nothing.
+             from baton_v12.job_manager import publication_execution
+             handoff = publication_execution.handoff_of(self.deployment.jobs, stage["job_id"])
++            required = self.reviewer_verification_for(stage)
+         if handoff is None:
+             return None
+-        return (json.dumps({"schema": "baton.recovery-review-input/1",
+-                            "handoff": handoff, "handoff_digest": digest(handoff)},
+-                           sort_keys=True) + "\n").encode("utf-8")
++        document = {"schema": "baton.recovery-review-input/1",
++                    "handoff": handoff, "handoff_digest": digest(handoff)}
++        if required is not None:
++            # THE REQUIREMENT TRAVELS WITH THE INPUT, so the confined adapter
++            # runs and bounds the command itself rather than being trusted to.
++            document["reviewer_verification"] = {
++                "required": True, "command_seconds": required["command_seconds"]}
++        return (json.dumps(document, sort_keys=True) + "\n").encode("utf-8")
+ 
+     def handoff_document_for(self, stage):
+         """W385331: the native handoff context THIS attempt is delivered.
+@@ -2000,6 +2028,7 @@ class StageComposition:
+                 retention_policy_digest=deployment.retention_policy_digest,
+                 recovery_digest=(None if self.recovery_document_for(stage) is None else
+                                  json.loads(self.recovery_document_for(stage))["handoff_digest"]),
++                reviewer_verification=self.reviewer_verification_for(stage),
+                 # W275774: and the reviewer's own governed workspace, for the same
+                 # reason the producer's is returned above.
+                 govern=tokens.workspace_governance())
+diff --git a/v12/python/tools/stopped_settlement.py b/v12/python/tools/stopped_settlement.py
+index daa18b81be86008249a95d0405810acac1ab1282..d1e11000032b898ac64d306a25632e004c58eec4 100644
+--- a/v12/python/tools/stopped_settlement.py
++++ b/v12/python/tools/stopped_settlement.py
+@@ -15,7 +15,9 @@ from tools import instance, single_worker, stage_execution
+ from tools.fresh_attempt_ports import InstanceOwnership
+ 
+ SCHEMA = "baton.v12.installed-settlement/1"
+-COMMANDS = ("settlement-preview", "settle-stopped", "settlement-status")
++COMMANDS = ("settlement-preview", "settle-stopped", "settlement-status",
++            "settlement-remove")
++REMOVAL_SCHEMA = "baton.v12.installed-settlement-removal/1"
+ 
+ 
+ def _refuse(message):
+@@ -116,12 +118,86 @@ def _core_request(control, stage, held, delivery):
+             "failure_digest": owner.failure_digest(delivery)}
+ 
+ 
++def _composed(configuration, jobs, control):
++    """The instance's own serving composition, built and never served."""
++    return stage_execution.operations_from(
++        configuration, jobs, control,
++        lifetime_policy=stage_execution.native_lifetime_policy(configuration))
++
++
++def remove(selector_path, *, job_id, stage_id, episode, reason, clock=None,
++           compose=None):
++    """REMOVE ONE POSITIVELY STOPPED ATTEMPT'S RUNTIME, through the
++    composition's own supported abandonment ending.
++
++    W385695 (review 2026-11-24T00-28-00Z C4). `settle-stopped` is retain-only
++    by design: it returns the token and leaves the stopped container, the
++    pending cleanup and -- for a producer -- the line's active writer exactly
++    where they were. Publication inspection then HOLDS such an original, and
++    a recovered checkpoint can never be frozen for it, because both require
++    the runtime positively absent. The removal that establishes that already
++    exists: the serving composition's `abandon_attempt`, which removes the
++    exact runtime, proves it absent, retains the workspace and returns the
++    exact token. Nothing installed reached it. This does, and adds no rule.
++
++    FOR A STOPPED ATTEMPT ONLY. The attempt's runtime must be recorded
++    `quiescent` -- observed stopped, by a cancellation, an expiry or a
++    failure's own ending. A running or never-started attempt is refused: this
++    is not a way to stop work, and the abandonment owner's own preconditions
++    still decide everything else.
++
++    THE MANAGER MUST BE STOPPED. The composition takes the instance's
++    workspace guard exactly as serving does, so a serving manager refuses
++    this command rather than racing it.
++
++    The same command settles a recovery's REVIEW attempt that a cancellation
++    or expiry left stopped, which is what a `publication.review-item` asks of
++    the operator.
++    """
++    from tools.job_manager import _utc_clock
++    clock = clock or _utc_clock()
++    selector = instance.read(selector_path)
++    instance.verify(selector)
++    configuration = _document(selector["deployment"])
++    places = instance.layout(selector["destination"])
++    if configuration.get("authority_uuid") != selector["authority_uuid"] or Path(configuration.get("authority_store", "")).resolve() != Path(places["authority_store"]).resolve():
++        _refuse("removal deployment and instance Authority do not agree")
++    held = {"schema": REMOVAL_SCHEMA, "binding": _binding(selector, configuration),
++            "job_id": job_id, "stage_id": stage_id, "episode": episode}
++    for key in ("job_id", "stage_id"):
++        boundaries.identity(held[key], "an installed removal identity")
++    boundaries.text(reason, "an installed removal reason")
++    if type(episode) is not int or type(episode) is bool or episode < 1:
++        _refuse("removal episode counts from one")
++    with ExitStack() as opened:
++        jobs = opened.enter_context(JobStore.open(selector["job_store"], authority_uuid=selector["authority_uuid"], incarnation="settlement-remove", clock=clock))
++        control = opened.enter_context(ControlStore.open(selector["control_store"], incarnation="settlement-remove", clock=clock))
++        stage, _allocation = _stage(jobs, held)
++        before = attempts.attempt_runtime_of(control, stage["attempt_id"])
++        if before is None or before["runtime_id"] is None \
++                or before["execution_runtime"] != "quiescent":
++            _refuse(f"removal is for a positively stopped attempt: this one's runtime is recorded "
++                    f"{None if before is None else before['execution_runtime']!r}. A running attempt is stopped by "
++                    f"cancellation or its deadline first; an attempt with no runtime has nothing to remove")
++        operations = (compose or _composed)(configuration, jobs, control)
++        opened.callback(getattr(operations, "close", lambda: None))
++        answered = operations.abandon_attempt(
++            attempt_id=stage["attempt_id"], stage=stage, reason=reason)
++        after = attempts.attempt_runtime_of(control, stage["attempt_id"])
++        return {"schema": REMOVAL_SCHEMA, "selection": held,
++                "attempt_id": stage["attempt_id"],
++                "before": {"execution_runtime": before["execution_runtime"], "cleanup": before["cleanup"]},
++                "after": {"execution_runtime": after["execution_runtime"], "cleanup": after["cleanup"]},
++                "removed": after["execution_runtime"] == "destroyed" and after["cleanup"] in ("complete", "retained"),
++                "abandonment": {name: (answered or {}).get(name) for name in ("outcome", "cleanup", "disposition")} if type(answered) is dict else None}
++
++
+ def execute(command, selector_path, *, document=None, job_id=None, stage_id=None,
+             episode=None, operation_id=None, clock=None):
+     """Compose public owners over the stores derived by the installed selector."""
+     from tools.job_manager import _utc_clock
+     clock = clock or _utc_clock()
+-    if command not in COMMANDS:
++    if command not in COMMANDS or command == "settlement-remove":
+         _refuse("unknown installed settlement command")
+     selector = instance.read(selector_path)
+     instance.verify(selector)
+@@ -182,7 +258,16 @@ def main(argv, *, clock=None, stream=None):
+     parser.add_argument("--stage")
+     parser.add_argument("--episode", type=int)
+     parser.add_argument("--operation-id")
++    parser.add_argument("--reason", help="settlement-remove: the operator's own reason")
+     args = parser.parse_args(argv)
++    if args.command == "settlement-remove":
++        if args.document is not None or args.operation_id is not None or any(value is None for value in (args.job, args.stage, args.episode, args.reason)):
++            parser.error("settlement-remove needs --job, --stage, --episode and --reason, without --document or --operation-id")
++        answer = remove(args.instance, job_id=args.job, stage_id=args.stage, episode=args.episode, reason=args.reason, clock=clock)
++        print(json.dumps(answer, sort_keys=True), file=stream or sys.stdout)
++        return 0 if answer["removed"] else 1
++    if args.reason is not None:
++        parser.error("--reason belongs to settlement-remove")
+     if args.command == "settlement-preview":
+         if args.document is not None or any(value is None for value in (args.job, args.stage, args.episode, args.operation_id)):
+             parser.error("preview needs --job, --stage, --episode and --operation-id, without --document")
+diff --git a/v12/worker/claude_agent.py b/v12/worker/claude_agent.py
+index 1474f18f61d8f78ef54b39b3ea1beb8321dd9b66..d3d4ea41804c1ebd58ea0e4e436078f9bca6e3e4 100644
+--- a/v12/worker/claude_agent.py
++++ b/v12/worker/claude_agent.py
+@@ -621,6 +621,20 @@ REVIEW_LOG_SCHEMA = "baton.review-log/1"
+ # assignment reference, generation or operation identity. Those are the
+ # manager's, and it re-reads every one of them from its own owner.
+ REVIEW_CLAIM_NAMESPACE = "baton.checkpoint-review/1"
++# W385695 (review 2026-11-24T00-28-00Z C2; contract section 5): THE REVIEWER'S
++# OWN REQUIRED VERIFICATION, RUN AND BOUNDED BY THIS ADAPTER. A recovery review
++# input may REQUIRE it and names the per-command bound the owner selected
++# (900 seconds). The provider's turn bound is not that bound: a provider
++# supervises its own tools, and a promise in a prompt enforces nothing. So the
++# adapter runs the read-only task's verification command itself, in a private
++# copy of the reviewed tree and in its own process group, ends the whole group
++# at the bound, and publishes what happened. An `accepted` report is not
++# published as a verdict unless that command passed.
++REVIEWER_VERIFICATION_NAMESPACE = "baton.reviewer-verification/1"
++REVIEWER_VERIFICATION_ROOM = "review-verification"
++REVIEWER_VERIFICATION_OUTCOMES = ("passed", "failed", "timed-out",
++                                  "not-started", "not-run")
++REVIEWER_GROUP_GRACE_SECONDS = 5.0
+ REVIEW_CLAIM_MEMBERS = ("base", "head", "tree", "verdict")
+ 
+ # THE COMMIT'S AUTHOR, spelled here and composed onto the argv. The container
+@@ -2634,13 +2648,42 @@ class ClaudeAgent:
+                 f"the review report destination already exists; a report is "
+                 f"authored by this turn and never inherited")
+         environments = self._child_environments(scratch)
++        # W385695 C2: THE REQUIRED REVIEWER VERIFICATION, BEFORE THE PROVIDER
++        # and inside the same invocation bound. Nothing is run unless the
++        # delivered recovery input requires it.
++        requirement = _reviewer_requirement()
++        checked, spent = None, 0
++        if requirement is not None:
++            began = time.monotonic()
++            checked = self._reviewer_check(
++                task, source, scratch, environments["verification"],
++                invocation=self._bound(self._seen, "provider_turn",
++                                       PROVIDER_SECONDS),
++                command=requirement["command_seconds"])
++            spent = int(time.monotonic() - began) + 1
+         provider = self._provider(
+             task, room, scratch, environments["provider"],
+             prompt=(_response_prompt(task, source, response_context,
+                                      RESPONSE_REPORT)
+                     if response_context is not None
+-                    else _review_prompt(task, source, REVIEW_REPORT)))
++                    else _review_prompt(task, source, REVIEW_REPORT,
++                                        checked)),
++            spent=spent)
+         report = _review_report(room) if provider["ok"] else None
++        # AN ACCEPTANCE IS NOT PUBLISHED OVER A REQUIRED CHECK THAT DID NOT
++        # PASS. The report is the provider's; whether the required command
++        # passed is this adapter's own observation, and an `accepted` verdict
++        # beside a timed-out, failed or unstarted check would be a success
++        # nobody substantiated. Any other verdict is the reviewer's to give.
++        withheld = None
++        if checked is not None and report is not None \
++                and report["verdict"] == "accepted" \
++                and checked["outcome"] != "passed":
++            withheld = (f"the required reviewer verification "
++                        f"{checked['outcome']} under its "
++                        f"{checked['seconds_bound']}s bound; an acceptance "
++                        f"is not published without it")
++            report = None
+         # W385331: THE REPLY, read only when a question was delivered. Both a
+         # report and a reply in one turn are surfaced as the two claims they
+         # are, and the host holds on the ambiguity rather than this adapter
+@@ -2668,7 +2711,12 @@ class ClaudeAgent:
+                                      provider.get("failure_reason"),
+                                  **_bound_member(provider),
+                                  **_diagnostic_member(provider)},
+-                             "verification": None},
++                             "verification": checked,
++                             # ONLY A REVIEW THAT WAS REQUIRED TO VERIFY SAYS
++                             # WHETHER ITS VERDICT WAS WITHHELD; every other
++                             # review's log is the document it always was.
++                             **({"verdict_withheld": withheld}
++                                if checked is not None else {})},
+                             indent=1, sort_keys=True) + "\n")
+         unanswered = ([] if response_output is None
+                       else _absent([response_output]))
+@@ -2684,7 +2732,9 @@ class ClaudeAgent:
+                                 {"name": logs_output["name"],
+                                  "status": "present", "result_metadata": {}}]
+                             + unanswered + _absent(absent),
+-                    "recap": (f"unable: the review produced no usable report "
++                    "recap": (f"unable: {withheld}" if withheld is not None
++                              else
++                              f"unable: the review produced no usable report "
+                               f"({provider.get('failure_reason') or 'absent'})"
+                               )[:MAX_RECAP]}
+         _made(findings)
+@@ -2714,7 +2764,8 @@ class ClaudeAgent:
+                 "outputs": [{"name": findings_output["name"],
+                              "status": "present",
+                              "result_metadata": (_review_claim(
+-                                 report["verdict"], observed, report.get("recovery_digest"))
++                                 report["verdict"], observed, report.get("recovery_digest"),
++                                 checked)
+                                  if report is not None else {})},
+                             {"name": logs_output["name"], "status": "present",
+                              "result_metadata": {}}]
+@@ -4349,7 +4400,8 @@ class ClaudeAgent:
+                     f"object")
+         return tuple(descriptor for _name, descriptor in directories)
+ 
+-    def _provider(self, task, candidate, scratch, environment, prompt=None):
++    def _provider(self, task, candidate, scratch, environment, prompt=None,
++                  spent=0):
+         """One provider turn, over a closed argv and a closed environment.
+ 
+         THE ENVIRONMENT IS COMPOSED, NEVER INHERITED. `os.environ` is not
+@@ -4390,7 +4442,16 @@ class ClaudeAgent:
+         # other in the first place.
+         bound = self._resolved_bound(self._seen, "provider_turn",
+                                      PROVIDER_SECONDS)
+-        seconds = bound["seconds_bound"]
++        # W385695: WHAT THIS INVOCATION ALREADY SPENT COMES OFF THE TURN. A
++        # required reviewer verification runs inside the same invocation
++        # bound, so the provider is handed what is left of it and never a
++        # fresh allowance. `spent` is 0 for every other caller.
++        seconds = bound["seconds_bound"] - spent
++        if seconds < 1:
++            return {"ok": False, "status": None,
++                    "failure_reason": PROVIDER_TIMED_OUT, **bound,
++                    "why": f"no time remained of the {bound['seconds_bound']}s "
++                           f"invocation bound for the provider"}
+         try:
+             status, record, partial = self._ran_provider(
+                 argv, cwd=candidate, seconds=seconds, scratch=scratch,
+@@ -5321,6 +5382,74 @@ class ClaudeAgent:
+                     f"verification_context.inputs[{index}].name",
+                     stage=_verification.VIEW_STAGE) from None
+ 
++    def _reviewer_check(self, task, source, scratch, environment, *,
++                        invocation, command):
++        """Run the task's verification command for a REVIEW, bounded, and say
++        exactly what happened.
++
++        THE BOUND IS THE SMALLEST OF THREE and is fixed before the child
++        exists: the owner-selected per-command bound the recovery input
++        delivered, this worker's own delivered verification bound, and the
++        invocation bound this command runs inside. A bound of less than one
++        second runs nothing and says so.
++
++        IN A PRIVATE COPY. The reviewed tree is mounted read-only and stays
++        the object the verdict is about; a command that writes -- bytecode,
++        build output -- writes into the copy, which is never published.
++
++        THE WHOLE PROCESS GROUP ENDS, WHATEVER THE ENDING. The command is
++        started as the leader of its own session; at the bound, and also
++        after an ordinary exit, the group is killed and the leader reaped, and
++        the group is then observed empty within a short grace. A descendant
++        that outlived its parent would otherwise keep running inside the
++        review's remaining time. `group_gone` reports that observation rather
++        than assuming it.
++
++        BOTH STREAMS GO TO `/dev/null`, `_ran`'s rule for its reason: this is
++        code out of a candidate somebody else wrote.
++        """
++        import signal
++
++        seconds = min(int(command),
++                      self._bound(self._seen, "ordinary_verification",
++                                  VERIFICATION_SECONDS),
++                      int(invocation))
++        record = {"argv": list(task["verification"]),
++                  "seconds_bound": seconds, "outcome": None, "status": None,
++                  "seconds": None, "group_gone": None}
++        if seconds < 1:
++            return dict(record, outcome="not-run")
++        copy = os.path.join(self._new_directory(scratch,
++                                                REVIEWER_VERIFICATION_ROOM),
++                            "tree")
++        shutil.copytree(source, copy, symlinks=True)
++        began = time.monotonic()
++        try:
++            child = subprocess.Popen(
++                list(task["verification"]), cwd=copy, env=environment,
++                stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
++                stderr=subprocess.DEVNULL, start_new_session=True)
++        except OSError:
++            return dict(record, outcome="not-started")
++        try:
++            status = child.wait(timeout=seconds)
++            record.update(outcome="passed" if status == 0 else "failed",
++                          status=status)
++        except subprocess.TimeoutExpired:
++            record.update(outcome="timed-out")
++        finally:
++            try:
++                os.killpg(child.pid, signal.SIGKILL)
++            except (ProcessLookupError, PermissionError):
++                pass
++            child.wait()
++            record["seconds"] = round(time.monotonic() - began, 3)
++            record["group_gone"] = _group_gone(child.pid)
++        if record["group_gone"] is not True and record["outcome"] == "passed":
++            # A PASS WHOSE PROCESSES ARE STILL THERE IS NOT A FINISHED CHECK.
++            record["outcome"] = "failed"
++        return record
++
+     def _verified_context(self, task, root, environment, directories):
+         """The task's own command, IN THE VIEW, with the derived import path.
+ 
+@@ -6514,7 +6643,46 @@ def _read_bounded(root, relative, what):
+     return None if len(raw) > MAX_REPORT_BYTES else raw
+ 
+ 
+-def _review_claim(verdict, observed, recovery_digest=None):
++def _group_gone(group):
++    """Whether process group `group` is observed EMPTY within the grace."""
++    deadline = time.monotonic() + REVIEWER_GROUP_GRACE_SECONDS
++    while True:
++        try:
++            os.killpg(group, 0)
++        except ProcessLookupError:
++            return True
++        except PermissionError:
++            return False
++        if time.monotonic() >= deadline:
++            return False
++        time.sleep(0.02)
++
++
++def _reviewer_requirement():
++    """The delivered REQUIREMENT that this review run its own verification,
++    or `None` when none was delivered.
++
++    Closed and bounded: a requirement this adapter cannot read is a refusal,
++    never a review that quietly ran without the check it was told to make.
++    """
++    recovery = _read_bounded(INPUT_ROOT, "recovery-review.json", "recovery review input")
++    if recovery is None:
++        return None
++    held = json.loads(recovery.decode("utf-8")).get("reviewer_verification")
++    if held is None:
++        return None
++    seconds = held.get("command_seconds") if type(held) is dict else None
++    if type(held) is not dict or set(held) != {"required", "command_seconds"} \
++            or held["required"] is not True or type(seconds) is not int \
++            or type(seconds) is bool or not 1 <= seconds <= VERIFICATION_SECONDS:
++        raise TaskRefusal(
++            "the recovery review input carries a reviewer verification "
++            "requirement this adapter cannot read; a required check is run "
++            "as delivered or the review is refused")
++    return held
++
++
++def _review_claim(verdict, observed, recovery_digest=None, checked=None):
+     """The worker-owned checkpoint-review claim, and every member is this
+     turn's own.
+ 
+@@ -6527,10 +6695,17 @@ def _review_claim(verdict, observed, recovery_digest=None):
+                                      "base": observed["base"],
+                                      "head": observed["head"],
+                                      "tree": observed["tree"]},
+-            **({"baton.recovery-review/1": {"handoff_digest": recovery_digest}} if recovery_digest is not None else {})}
++            **({"baton.recovery-review/1": {"handoff_digest": recovery_digest}} if recovery_digest is not None else {}),
++            # W385695 C2: what THIS ADAPTER observed of the required reviewer
++            # verification, published beside the verdict so the manager can
++            # hold an acceptance that does not carry a passed one.
++            **({REVIEWER_VERIFICATION_NAMESPACE: {
++                name: checked[name] for name in
++                ("argv", "seconds_bound", "outcome", "status", "group_gone")}}
++               if checked is not None else {})}
+ 
+ 
+-def _review_prompt(task, source, report):
++def _review_prompt(task, source, report, checked=None):
+     """The review prompt, composed from the frozen task and pinned recovery evidence.
+ 
+     THE PROVIDER IS STILL NOT TOLD ABOUT THE PROTOCOL. It learns where the
+@@ -6555,6 +6730,16 @@ def _review_prompt(task, source, report):
+         context = ("This is an owner-approved retained-candidate recovery. Assess the same candidate "
+                    "and the attributable verifier evidence below. Include a fourth report member "
+                    "recovery_digest equal to " + json.dumps(document["handoff_digest"]) + ".\n" + recovery.decode("utf-8") + "\n")
++        if checked is not None:
++            # W385695 C2: WHAT THE ADAPTER ITSELF OBSERVED, stated as that. Any
++            # producer verification named in the document above is the
++            # PRODUCER'S evidence and is not independent acceptance.
++            context += ("Any producer verification recorded above is producer evidence, not independent "
++                        "acceptance. This worker ran the task's verification command itself, independently, "
++                        "against a private copy of the tree you are reviewing, under a "
++                        f"{checked['seconds_bound']}-second bound: outcome {checked['outcome']}"
++                        + (f", exit status {checked['status']}" if checked["status"] is not None else "")
++                        + ". An accepted verdict is not published unless that outcome is passed.\n")
+     return (context + f"You are reviewing a change on a read-only source tree at "
+             f"{source}. Do not modify anything there, and do not attempt to "
+             f"build, commit or edit it.\n\n"

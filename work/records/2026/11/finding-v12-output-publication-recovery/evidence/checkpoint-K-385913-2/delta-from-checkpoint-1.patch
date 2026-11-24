@@ -1,0 +1,1471 @@
+diff --git a/v12/python/src/baton_v12/job_manager/publication_execution.py b/v12/python/src/baton_v12/job_manager/publication_execution.py
+index d5e36d80..eba956b0 100644
+--- a/v12/python/src/baton_v12/job_manager/publication_execution.py
++++ b/v12/python/src/baton_v12/job_manager/publication_execution.py
+@@ -911,7 +911,7 @@ def _original(seam, held, *, what):
+                                 optional=("storage", "published", "entries",
+                                           "layout", "output",
+                                           "output_identity",
+-                                          "completion_envelope"))
++                                          "completion_envelope", "source"))
+     if taken["attempt_id"] != attempt_id:                 # pragma: no cover
+         _refuse(f"the host answered about attempt "
+                 f"{name_value(taken['attempt_id'])} and {what} is about "
+diff --git a/v12/python/src/baton_v12/job_manager/publication_recovery.py b/v12/python/src/baton_v12/job_manager/publication_recovery.py
+index 957d8bf2..5bd133d4 100644
+--- a/v12/python/src/baton_v12/job_manager/publication_recovery.py
++++ b/v12/python/src/baton_v12/job_manager/publication_recovery.py
+@@ -1059,6 +1059,14 @@ def _correspondence(source, output, producer, *, holds):
+                "entries": [one["path"] for one in output["manifest"]["entries"]],
+                "base": producer["base"], "candidate": producer["head"],
+                "changed_paths": list(producer["changed_paths"])}
++    # OWNER SELECTION M385913 (option A): WHERE THE BASE MAY BE READ FROM. The
++    # host owner's answer names the line's own durably recorded source for a
++    # line-layout original, with whether that object is still the recorded
++    # one. It is passed through as it was answered -- this module chooses no
++    # repository -- and is absent for an attempt-layout original, where the
++    # correspondence stays bundle-only.
++    if output.get("source") is not None:
++        request["base_source"] = dict(output["source"])
+     try:
+         answer = source.correspondence_of(request)
+     except ContractRefusal as refusal:
+@@ -1630,6 +1638,51 @@ def prior_job_in(connection, job_id):
+     return None
+ 
+ 
++def publication_input_of(store, job_id):
++    """THE INPUT IDENTITY ONE RECOVERY'S PUBLICATION STAGE IS SERVED UNDER,
++    or `None` for a Job that is not a publication recovery. A read.
++
++    THE TYPED PUBLICATION PRODUCER EDGE (contract section 5: "the /4 binding
++    adds exact recovery input and publication worker/profile"). A recovery Job
++    has two stages served by two different kinds of worker:
++
++      its REVIEW stage is served by the Work's ordinarily configured
++        reviewer, under the ORIGINAL Job's own input identity -- the task,
++        the Work and the declarations that reviewer already carries -- which
++        is therefore what the recovery Job itself is submitted under; and
++      its PUBLICATION stage is served by the installed deterministic
++        publisher, under that publisher's declarations bound to this
++        recovery's Work and original task. That identity is this record's.
++
++    One Job row cannot carry both, and neither lane's comparison is relaxed
++    to make it look as though it did: each stage is held, whole, to the
++    identity that is its own. The answer is the reservation's or the
++    committed admission's, fixed when the recovery identity was taken.
++    """
++    boundaries.identity(job_id, "a Job id")
++    for record in list(admissions_of(store)) + list(intents_of(store)):
++        if record["job_id"] == job_id:
++            return record["input_digest"]
++    return None
++
++
++def stage_job(store, stage, job):
++    """THE JOB AS ONE STAGE IS HELD TO IT: `job` itself for every stage but a
++    recovery's publication stage, and for that one the same Job with the
++    publication stage's own input identity.
++
++    ONE RULE, ASKED BY EVERY READER THAT COMPARES A STAGE WITH ITS JOB'S
++    INPUT -- the scheduler's offer binding, the deployment's selector and the
++    publication capacity -- so the three cannot hold one stage to two
++    identities. Nothing is relaxed: the comparison each of them then makes is
++    the one it always made.
++    """
++    if job is None or stage.get("kind") != PUBLICATION_STAGE:
++        return job
++    expected = publication_input_of(store, stage["job_id"])
++    return job if expected is None else dict(job, input_digest=expected)
++
++
+ def prior_job_of(store, job_id):
+     """`prior_job_in`, for a caller that holds the store. A read.
+ 
+@@ -2251,10 +2304,19 @@ def _prior(jobs, decision):
+     recovery carries forward is narrow on purpose -- the policy digest, the
+     test scope, the terminal policy and the REVIEW stage's own profile --
+     because those are what make the configured reviewer able to serve the
+-    recovery without per-recovery installation. The input digest is NOT
+-    carried forward: a recovery consumes the approved retained output, not the
+-    task the producer was given, and reusing the original digest would admit a
+-    publication against an input it does not read.
++    recovery without per-recovery installation.
++
++    AND THE INPUT IDENTITY IS CARRIED FORWARD FOR THE JOB, BUT NOT FOR ITS
++    PUBLICATION STAGE (COMPLETION-PLAN-385909 outcome 4). The first cut
++    carried none of it, on the ground that a publication consumes the approved
++    retained output and not the producer's task -- which is true of the
++    PUBLICATION stage and remains so: that stage is held to its own identity,
++    `publication_input_of`. It is not true of the REVIEW stage, which judges
++    the candidate against the task, the Work and the declarations the
++    original Job was admitted under, and which the ordinarily configured
++    reviewer can only serve under that Job's own identity. Submitting the
++    recovery under anything else left a review stage no production reviewer
++    could be selected for.
+     """
+     job_id = decision["job_id"]
+     held = submission.job_of(jobs, job_id)
+@@ -2673,6 +2735,9 @@ def _bound(binding, jobs, *, job_id, prior_job_id, work_id, document, worker,
+     entry = document["jobs"][0]
+     job = {"input_digest": entry["input_digest"],
+            "policy_digest": entry["policy_digest"]}
++    # EACH STAGE IS HELD TO ITS OWN IDENTITY: the publication stage to the
++    # reservation's publication input, the review stage to the Job's.
++    publication = dict(job, input_digest=publication_input_of(jobs, job_id))
+     held = binding.binding_of(job_id)
+     if held is None:
+         held = binding.bind(job_id, like=prior_job_id, work_id=work_id)
+@@ -2692,9 +2757,11 @@ def _bound(binding, jobs, *, job_id, prior_job_id, work_id, document, worker,
+             f"Job and this operation will not quietly move it", reserved)
+     serving = {}
+     for stage in entry["stages"]:
+-        workers = binding.serving(job_id, stage=dict(stage), job=dict(job),
+-                                  task=creation.job_task_of(jobs,
+-                                                            prior_job_id))
++        workers = binding.serving(
++            job_id, stage=dict(stage),
++            job=dict(publication if stage["kind"] == PUBLICATION_STAGE
++                     else job),
++            task=creation.job_task_of(jobs, prior_job_id))
+         if not workers:
+             raise _refusing(
+                 f"no configured worker can serve Job {name_value(job_id)}'s "
+@@ -2968,9 +3035,17 @@ def admit_publication(jobs, control, *, decision_id, exclusion, authorization,
+             job_id, work_id=decision["work_id"],
+             task=creation.job_task_of(jobs, decision["job_id"])),
+         "a publication recovery's input identity")
++    # THE JOB ITSELF IS SUBMITTED UNDER THE ORIGINAL JOB'S INPUT IDENTITY
++    # (COMPLETION-PLAN-385909 outcome 4). That is what the Work's ordinarily
++    # configured reviewer is servable under, so no reviewer is reconfigured,
++    # no declaration is copied into the review lane and no cross-lane check is
++    # weakened. The publication stage's own identity is `submitted`, recorded
++    # on the reservation and read back through `publication_input_of` by the
++    # selector and by the publication capacity.
+     document = _composed(prior, decision, job_id=job_id,
+                          submission_id=operands["submission_id"],
+-                         worker=worker, input_digest=submitted)
++                         worker=worker,
++                         input_digest=prior["entry"]["input_digest"])
+     bounds = admitted_bounds(resolved_profile(decision["profile"]),
+                              admitted_at=recorded_at,
+                              stages=decision["stages"])
+diff --git a/v12/python/src/baton_v12/job_manager/scheduler.py b/v12/python/src/baton_v12/job_manager/scheduler.py
+index 81e33e9d..f1639ad2 100644
+--- a/v12/python/src/baton_v12/job_manager/scheduler.py
++++ b/v12/python/src/baton_v12/job_manager/scheduler.py
+@@ -964,8 +964,14 @@ class PooledManagerOperations:
+                    for worker in self.workers.values())
+ 
+     def binding_intent(self, stage, job):
++        from . import publication_recovery
+         from .delegation import stage_intent
+-        intent = stage_intent(stage, job)
++        # W385695: A RECOVERY'S PUBLICATION STAGE IS OFFERED UNDER ITS OWN
++        # INPUT IDENTITY (`publication_recovery.stage_job`), so that is the
++        # intent its canonical offer is held to. Every other stage is held to
++        # its Job's, exactly as before.
++        intent = stage_intent(
++            stage, publication_recovery.stage_job(self.store, stage, job))
+         allocation = self._allocation(stage)
+         if allocation is None:
+             operation_id = self.canonical_operation("admit", stage["offer_id"])
+diff --git a/v12/python/src/baton_v12/worker_manager/workspaces.py b/v12/python/src/baton_v12/worker_manager/workspaces.py
+index 770f60e5..e4c8b671 100644
+--- a/v12/python/src/baton_v12/worker_manager/workspaces.py
++++ b/v12/python/src/baton_v12/worker_manager/workspaces.py
+@@ -5383,7 +5383,48 @@ def _retained_line_home(control, assignment_id, prepared, what):
+             f"{name_value(persisted)} and the entry at its home now is "
+             f"{name_value(identity)}; a replaced line is not the one this "
+             f"attempt wrote")
+-    return resolved, storage
++    return resolved, storage, _recorded_line_source(line)
++
++
++def _recorded_line_source(line):
++    """THE REPOSITORY THIS LINE WAS MATERIALIZED FROM, as its record names
++    it, with whether that object is still the one recorded. A read.
++
++    W385695, owner selection M385913 (option A). A producer's retained bundle
++    is a thin `base..HEAD` transport: it carries the candidate and not the
++    base it was cut from. The base is read from the line's OWN durably
++    recorded source -- the one path and the one `device:inode` the line owner
++    wrote when it materialized the line -- and from nowhere else: not a branch
++    tip, not a caller's path and not the producer's writable line home.
++
++    IT IS REPORTED, NOT REFUSED, when the source is missing, replaced or a
++    link: the retained OUTPUT is still what it is, and it is the
++    correspondence that then has no base to read. `verified` is False with
++    the reason, and the Git-aware consumer holds on it.
++    """
++    from . import custody
++
++    place = line["source_path"]
++    recorded = f"{line['source_device']}:{line['source_inode']}"
++    answer = {"path": place, "identity": recorded,
++              "declared_base": line["declared_base"], "verified": False,
++              "why": None}
++    if type(place) is not str or not os.path.isabs(place) \
++            or os.path.realpath(place) != place:
++        return dict(answer, why="the line's recorded source is not one "
++                                "canonical absolute path")
++    try:
++        custody._no_link(place, what="the line's recorded source")
++    except ContractRefusal as refused:
++        return dict(answer, why=f"the line's recorded source is not a "
++                                f"directory this manager can prove "
++                                f"({refused.code})")
++    observed = _entry_identity(place)
++    if observed != recorded:
++        return dict(answer, why=f"the line's recorded source was object "
++                                f"{recorded} and the entry there now is "
++                                f"{observed}")
++    return dict(answer, verified=True)
+ 
+ 
+ def _retained_output_place(resolved, output, what):
+@@ -5504,9 +5545,10 @@ def retained_output_of(control, assignment_id,
+                 f"wrote into a development line, whose home is a whole "
+                 f"checkout; its retained output is read by the declared "
+                 f"output's own path and the line is never measured whole")
+-        resolved, storage = _retained_line_home(control, assignment_id,
+-                                                prepared, what)
++        resolved, storage, source = _retained_line_home(
++            control, assignment_id, prepared, what)
+     elif layout == "attempt":
++        source = None
+         storage = configured_workspace_storage(control)
+         root = _real(storage.place, "the manager's workspace storage")
+         home = os.path.join(root, assignment_id)
+@@ -5537,6 +5579,10 @@ def retained_output_of(control, assignment_id,
+     return {"attempt_id": assignment_id, "root": measured,
+             "identity": identity, "storage": storage.place,
+             "layout": layout, "output": output,
++            # THE LINE'S OWN RECORDED SOURCE for a line layout, and `None`
++            # for an attempt layout, which has no line record to read one
++            # from and keeps the bundle-only correspondence it always had.
++            "source": source,
+             "output_identity": _entry_identity(measured),
+             "completion_envelope": os.path.lexists(
+                 os.path.join(resolved, RETAINED_COMPLETION_ENVELOPE)),
+diff --git a/v12/python/tests/job_manager/test_publication_recovery_execution.py b/v12/python/tests/job_manager/test_publication_recovery_execution.py
+index 5bc81fd0..5e0cc0c1 100644
+--- a/v12/python/tests/job_manager/test_publication_recovery_execution.py
++++ b/v12/python/tests/job_manager/test_publication_recovery_execution.py
+@@ -369,9 +369,15 @@ class PublicationExecutionCase(checkpoint1.PublicationCase):
+             self.fail("the publication stage was not offered and claimed")
+         entry = projection.stage_states(self.jobs, operations)[
+             self.publication_stage_id]
++        # THE JOB AS THE PUBLICATION STAGE IS HELD TO IT. This helper reaches
++        # the worker lifecycle directly, beneath the capacity's own
++        # operations, so it is handed the view those operations would have
++        # handed it: the publication stage's own input identity.
+         prepare_managed_parent(
+             operations, entry["attempt"],
+-            submission.job_of(self.jobs, self.recovery_job_id))
++            operations._job(entry["attempt"],
++                            submission.job_of(self.jobs,
++                                              self.recovery_job_id)))
+         self.publication_attempt = entry["attempt"]["attempt_id"]
+         return {"attempt_id": self.publication_attempt,
+                 "assignment": self.authority.assignment_of(WORK_A)}
+@@ -1244,7 +1250,8 @@ class TheApprovedOriginalIsStagedReadOnly(PublicationExecutionCase):
+         job = submission.job_of(self.jobs, self.recovery_job_id)
+         operations.admit(entry["attempt"], job)
+         operations.claim(entry["attempt"])
+-        prepare_managed_parent(operations, entry["attempt"], job)
++        prepare_managed_parent(operations, entry["attempt"],
++                               operations._job(entry["attempt"], job))
+         caught = self.refusal(self.staged)
+         self.assertIn("no persisted execution admission", caught.message)
+ 
+@@ -3811,6 +3818,40 @@ class ARecoveryThatDoesNotPublishIsFencedSettledAndReported(
+         self.assertEqual(calls, ["abandon"])
+         self.assertEqual(len(self.oci.starts), 1)
+ 
++    def test_a_recovery_that_closes_before_any_launch_is_reported_too(self):
++        """FAILURE BEFORE LAUNCH. The recovery is admitted and cancelled
++        before its publication worker was ever started: there is no runtime
++        to settle and no token to return, and the owner is still told, once,
++        with what exists as evidence."""
++        self.ready()
++        self.serving()
++        cancellation.request(self.jobs, job_id=self.recovery_job_id,
++                             reason="the owner stops this recovery")
++        for _ in range(4):
++            self.tick(PUBLISHED)
++        self.assertEqual(len(self.oci.starts), 0)
++        self.assertIsNone(publication_execution.launch_of(
++            self.jobs, self.recovery_job_id))
++        ready = publication_execution.publication_readiness(self.jobs, "D1")
++        self.assertEqual((ready["outcome"], ready["launched"],
++                          ready["settled"], ready["owed"], ready["review"]),
++                         ("cancelled", False, False, None, "blocked"))
++        item = publication_execution.owner_item_of(self.jobs,
++                                                   self.recovery_job_id)
++        self.assertEqual((item["destination"], item["outcome"],
++                          item["remaining"], item["automatic_retry"]),
++                         (OWNER, "cancelled", [], False))
++        self.assertIsNone(item["evidence"]["publication_attempt_id"])
++        self.assertIsNone(item["evidence"]["runtime"])
++        self.assertEqual(self.original_bytes(), self.original["tree_digest"])
++        self.assertFalse(self.gate()["open"])
++        self.assertEqual(self.review_offers(), [])
++        # ONE ITEM, however many more ticks follow.
++        for _ in range(3):
++            self.tick(PUBLISHED)
++        self.assertEqual(publication_execution.owner_items_of(self.jobs),
++                         [item])
++
+     # -- outcome 3: what is not known stays not known -------------------------
+ 
+     def unreachable(self):
+@@ -4147,33 +4188,21 @@ class OneInstalledPublisherServesRecoveriesOnTwoWorks(_InstalledFixture):
+                                             POOLED_WORK_B), **self.paths),
+             self.reviewer("review-b", "baton.reviewer-b", POOLED_WORK_B)]
+ 
+-    # WHETHER THE REVIEW LANE CARRIES THE PUBLICATION DECLARATIONS. See the
+-    # section comment: this is a fixture selection standing in for checkpoint
+-    # 3's review binding, and the one case that is about its absence turns it
+-    # off.
+-    reviewers_agree = True
+-
+     def reviewer(self, worker_id, participant, work):
+-        if self.publisher is None or not self.reviewers_agree:
+-            return self.stage_worker(
+-                worker_id, "review", participant,
+-                review_route=self.INTEGRATION_ROUTE,
+-                input_manifest=self.on_work(self.config["input_manifest"],
+-                                            work), **self.paths)
+-        manifest = copy.deepcopy(self.publisher["deployment"]
+-                                 ["input_manifest"])
+-        manifest["work_ref"] = dict(manifest["work_ref"], work_id=work)
+-        # ITS OWN IMAGE AND PROFILE, which are not Job-scoped members.
+-        manifest["worker_image_digest"] = self.config["image_digest"]
+-        manifest["runtime_profile_digest"] = \
+-            self.config["input_manifest"]["runtime_profile_digest"]
+-        manifest.pop("manifest_digest")
+-        manifest["manifest_digest"] = digest(manifest)
++        """AN ORDINARILY CONFIGURED REVIEWER for one Work: the pool's own
++        shared declarations, on that Work, under the instance's policy. It is
++        given nothing about publication."""
++        manifest = self.on_work(self.config["input_manifest"], work)
++        members = dict(self.paths)
++        if self.publisher is not None:
++            manifest = dict(manifest, policy_digest=self.policy)
++            manifest.pop("manifest_digest")
++            manifest["manifest_digest"] = digest(manifest)
++            members["policy_digest"] = self.policy
+         return self.stage_worker(
+             worker_id, "review", participant,
+             review_route=self.INTEGRATION_ROUTE, input_manifest=manifest,
+-            policy_digest=self.policy, task_document=self.publication_task,
+-            **self.paths)
++            **members)
+ 
+     # -- the two failed executions --------------------------------------------
+ 
+@@ -4193,9 +4222,11 @@ class OneInstalledPublisherServesRecoveriesOnTwoWorks(_InstalledFixture):
+                     "profile_name": reviewer["deployment"]["profile_name"],
+                     "profile_digest":
+                         reviewer["deployment"]["profile_digest"]}},
++            # THE JOB IS ADMITTED UNDER THE POOL'S OWN DECLARATIONS: the Work's
++            # reviewer's manifest naming this Job's task, which is the
++            # identity that reviewer serves it under.
+             task=lambda selection, verification=None:
+-                checkpoint1.PublicationCase.composed_task(
+-                    self, selection, verification))
++                self.pool_task(reviewer, selection, verification))
+         derivation.answer["declarations"] = {
+             "implementation": {producer["worker_id"]:
+                                [dict(one) for one in outputs]},
+@@ -4216,6 +4247,31 @@ class OneInstalledPublisherServesRecoveriesOnTwoWorks(_InstalledFixture):
+                 "attempt_id": episodes.episode_of(self.jobs, stage_id,
+                                                   1)["attempt_id"]}
+ 
++    def pool_task(self, reviewer, selection, verification=None):
++        from tools import job_task
++
++        installed = json.dumps(
++            {"schema": "baton.dogfood-task/2", "task_id": "installed",
++             "instructions": "the installed delivery template",
++             "declared_base": BASE, "source_profile": "git-line",
++             "source_root": "source",
++             "verification": ["bash", "-c", "true"]},
++            sort_keys=True).encode("utf-8")
++        task = job_task.compose_task(
++            installed, task_id=selection["job_id"],
++            instructions="publish the proposal",
++            verification=list(checkpoint1.PRODUCER_ARGV
++                              if verification is None else verification))
++        manifest = dict(reviewer["deployment"]["input_manifest"])
++        manifest["human_contract"] = dict(
++            manifest["human_contract"],
++            media_type=job_task.CONTRACT_MEDIA_TYPE)
++        manifest.pop("manifest_digest")
++        manifest["manifest_digest"] = digest(manifest)
++        composed = job_task.manifest_for(manifest, task)
++        return {"task_document": task, "input_manifest": composed,
++                "input_digest": job_input_identity(composed)}
++
+     def failed_attempt(self, failed, participant):
+         """The failed execution's host state: a REAL claim on its Work, the
+         attempt row under that exact assignment, a completed preparation, a
+@@ -4520,10 +4576,20 @@ class OneInstalledPublisherServesRecoveriesOnTwoWorks(_InstalledFixture):
+                 configured, worker, bindings[job_id],
+                 creation.job_task_of(self.jobs, failed["job_id"]))
+             identities[name] = job_input_identity(served["input_manifest"])
++            # THE PUBLICATION STAGE'S OWN IDENTITY, on the admission record
++            # and through the typed edge...
+             self.assertEqual(second[name]["input_digest"], identities[name])
+             self.assertEqual(
+-                submission.job_of(self.jobs, job_id)["input_digest"],
++                publication_recovery.publication_input_of(self.jobs, job_id),
+                 identities[name])
++            # ...AND THE JOB ITSELF UNDER THE ORIGINAL JOB'S, which is what
++            # the Work's ordinary reviewer serves.
++            original = submission.job_of(self.jobs,
++                                         failed["job_id"])["input_digest"]
++            self.assertEqual(
++                submission.job_of(self.jobs, job_id)["input_digest"],
++                original)
++            self.assertNotEqual(original, identities[name])
+         self.assertNotEqual(identities["a"], identities["b"])
+         # AND THE INSTALLED DOCUMENT WAS NOT MOVED TO MAKE THAT TRUE.
+         self.assertEqual(worker, publisher[0])
+@@ -4672,6 +4738,86 @@ class OneInstalledPublisherServesRecoveriesOnTwoWorks(_InstalledFixture):
+             dict(bindings[job_id], job_work_id=self.work))
+         self.assertEqual(found["the Work"], (POOLED_WORK_B, self.work))
+ 
++    def test_the_review_stage_is_served_by_the_works_ordinary_reviewer(self):
++        """NO DECLARATION WAS COPIED INTO THE REVIEW LANE. Each Work's
++        reviewer is the pool's ordinary one, and it serves its recovery's
++        review stage under the ORIGINAL Job's identity -- while the
++        publication stage's own identity selects no reviewer and the Job's
++        identity selects no publisher. Each lane is held, whole, to its own.
++        """
++        held, _first, _ended, second = self.both_admitted()
++        for name, reviewer in (("a", "review-a"), ("b", "review-b")):
++            with self.subTest(recovery=name):
++                failed = self.failed[name]
++                admitted = second[name]
++                self.assertEqual(admitted["state"], "admitted", admitted)
++                self.assertEqual(admitted["binding"]["serving"],
++                                 {"publication": ["publisher"],
++                                  "review": [reviewer]})
++                job_id = admitted["job_id"]
++                original = submission.job_of(self.jobs, failed["job_id"])
++                task = creation.job_task_of(self.jobs, failed["job_id"])
++                review = [one for one in json.loads(json.dumps(
++                    submission.stages_of(self.jobs, job_id)))
++                    if one["kind"] == "review"][0]
++                stage = {"kind": "review", "work_id": failed["work"],
++                         "profile_name": review["profile_name"],
++                         "profile_digest": review["profile_digest"]}
++                job = {"input_digest": original["input_digest"],
++                       "policy_digest": self.policy}
++                binding = held["binding"]
++                self.assertEqual(binding.serving(job_id, stage=stage,
++                                                 job=job, task=task),
++                                 [reviewer])
++                # THE PUBLICATION IDENTITY SELECTS NO REVIEWER...
++                self.assertEqual(binding.serving(
++                    job_id, stage=stage,
++                    job=dict(job, input_digest=admitted["input_digest"]),
++                    task=task), [])
++                # ...AND THE JOB'S IDENTITY SELECTS NO PUBLISHER.
++                self.assertEqual(binding.serving(
++                    job_id,
++                    stage={"kind": documents.PUBLICATION_STAGE,
++                           "work_id": failed["work"],
++                           "profile_name":
++                               admitted["worker"]["profile_name"],
++                           "profile_digest":
++                               admitted["worker"]["profile_digest"]},
++                    job=job, task=task), [])
++
++    def test_a_cancelled_recovery_is_stopped_and_settled_through_the_pool(self):
++        """CANCELLATION IN FLIGHT, in the pooled composition. The pool routes
++        the stop to the publication capacity by the recorded allocation, the
++        capacity routes it to the operands the attempt was started under, and
++        the pass then settles it: runtime positively gone, owner told, the
++        one publisher free for the other recovery."""
++        self.both_admitted()
++        self.serving()
++        failed = self.failed["a"]
++        job_id = publication_recovery.recovery_job_id(failed["decision"])
++        stage = self.launched(failed)
++        cancellation.request(self.jobs, job_id=job_id,
++                             reason="the owner stops this recovery")
++        for _ in range(8):
++            self.tick()
++        state = attempt_runtime_of(self.control, stage["attempt_id"])
++        self.assertEqual((state["execution_runtime"], state["cleanup"]),
++                         ("destroyed", "retained"))
++        ready = publication_execution.publication_readiness(
++            self.jobs, failed["decision"])
++        self.assertEqual((ready["outcome"], ready["settled"],
++                          ready["review"]),
++                         ("cancelled", True, "blocked"))
++        self.assertEqual(
++            publication_execution.owner_item_of(
++                self.jobs, job_id)["destination"], POOLED_OWNER)
++        # AND THE OTHER RECOVERY IS STILL SERVED BY THE SAME PUBLISHER.
++        other = self.failed["b"]
++        self.published(other)
++        self.assertEqual(
++            publication_execution.publication_readiness(
++                self.jobs, other["decision"])["outcome"], "published")
++
+     def test_the_review_stage_starts_nothing_before_the_handoff(self):
+         """THE GATE, in the pooled composition: until a recovery's custody
+         and hand-off exist its review stage is offered to nobody, whatever
+@@ -4706,65 +4852,6 @@ class OneInstalledPublisherServesRecoveriesOnTwoWorks(_InstalledFixture):
+                 (review,))], ["review-a"])
+ 
+ 
+-class AReviewerWithoutThePublicationDeclarationsHoldsTheAdmission(
+-        OneInstalledPublisherServesRecoveriesOnTwoWorks):
+-    """WHAT THE SELECTOR DOES WHEN THE REVIEW LANE WAS NOT GIVEN THEM.
+-
+-    A recovery Job carries ONE input identity and both of its stages are held
+-    to it. Here each Work's reviewer is the ordinary one this fixture pool
+-    otherwise configures, so its Job-scoped manifest is not the recovery's.
+-    The repeated admission then stops at the review stage -- reserved,
+-    incomplete, nothing submitted, nothing published -- which is the
+-    fail-closed answer and is ALSO the open item this pins: how a production
+-    reviewer comes to be servable for a recovery is checkpoint 3's review
+-    binding.
+-    """
+-
+-    reviewers_agree = False
+-
+-    # ONLY THIS CASE: the inherited ones are the parent's and would be the
+-    # same cases run under another class name.
+-    test_two_recoveries_on_two_works_through_one_installed_publisher = None
+-    test_a_stage_is_never_served_under_another_recoverys_operands = None
+-    test_the_selector_refuses_a_wrong_work_task_or_input = None
+-    test_the_review_stage_starts_nothing_before_the_handoff = None
+-
+-    def test_the_repeated_admission_stops_at_the_review_stage(self):
+-        held, _first, _ended, second = self.both_admitted()
+-        for name, failed in self.failed.items():
+-            with self.subTest(recovery=name):
+-                refused = second[name]
+-                self.assertIsInstance(refused, ContractRefusal)
+-                self.assertIn("'review' stage", refused.message)
+-                self.assertIn("RESERVED", refused.message)
+-                job_id = publication_recovery.recovery_job_id(
+-                    failed["decision"])
+-                self.assertEqual(self.jobs._connection.execute(
+-                    "SELECT count(*) FROM jobs WHERE job_id = ?",
+-                    (job_id,)).fetchone()[0], 0)
+-                self.assertIsNone(publication_recovery.admission_of(
+-                    self.jobs, failed["decision"]))
+-                # THE PUBLICATION STAGE ITSELF WAS SERVABLE: the refusal is
+-                # about the review lane and nothing else.
+-                intent = publication_recovery.intent_of(self.jobs,
+-                                                        failed["decision"])
+-                self.assertEqual(held["binding"].serving(
+-                    job_id,
+-                    stage={"kind": documents.PUBLICATION_STAGE,
+-                           "work_id": failed["work"],
+-                           "profile_name": intent["worker"]["profile_name"],
+-                           "profile_digest":
+-                               intent["worker"]["profile_digest"]},
+-                    job={"input_digest": intent["input_digest"],
+-                         "policy_digest": self.policy},
+-                    task=creation.job_task_of(self.jobs, failed["job_id"])),
+-                    ["publisher"])
+-        self.serving()
+-        for _ in range(4):
+-            self.tick()
+-        self.assertEqual(self.oci.starts, [])
+-
+-
+ # -- 15c. a really pooled producer's failed output, through its line ---------
+ #
+ # REVIEW 2026-11-23T20-28-00Z F1; COMPLETION-PLAN-385909 outcome 2. An ordinary
+@@ -5053,6 +5140,539 @@ class APooledProducersFailedOutputIsReadThroughItsLine(_ComposedProducerCase):
+         self.assertIn("granted to another writer", caught.message)
+ 
+ 
++# -- 15d. the connected path: commands, a real producer, the ordinary pool ---
++#
++# COMPLETION-PLAN-385909 outcomes 2 and 4, as far as the hand-off. NOTHING IN
++# THE POSITIVE PATH IS FIXTURE-WRITTEN: the publisher is composed by the
++# installer; the Job is created by the installed `create` command; the
++# producer is the pool's own implementation worker running the real adapter
++# with real version control; its output really overflows its declared ceiling;
++# the inspection, the decision and the admission are the installed
++# `publication-inspect` and `publication-decide` commands over their default
++# ports -- including the real Git consumer, which reads the declared base
++# from the line's recorded source (owner selection M385913) and the candidate
++# from the retained thin bundle; the recovery's review stage is servable by
++# the pool's ORDINARY reviewer, which was given nothing about publication;
++# and the publication is the installed publisher's.
++#
++# THE DOUBLES ARE THE ENGINE AND THE PROVIDER, at their normal boundaries.
++#
++# WHAT ENDS THE FAILED PRODUCER HERE is the composition's own fourth ending
++# (`abandon_attempt`), which is the supported operation the independent
++# review also used. It ends the producer's assignment itself, so the
++# admission finds the Work unheld; the held-assignment path is section 15b's.
++#
++# WHERE THIS STOPS. The review stage is admitted to the ordinary reviewer and
++# is NOT run: delivering it the published candidate needs the review line to
++# freeze a checkpoint for a producer writer that was never released, which
++# the line owner does not do today. That is reported as an open decision and
++# is asserted below as what it currently is.
++
++
++class TheConnectedRecoveryFromARealPooledProducer(
++        APooledProducersFailedOutputIsReadThroughItsLine):
++    """create -> real producer overflow -> settle -> inspect -> decide/admit
++    -> restart -> publication -> custody -> hand-off -> review admitted."""
++
++    # ONLY THE CONNECTED CASES: the inherited owner-read cases are the
++    # parent's and would be the same cases under another class name.
++    test_the_declared_output_of_a_line_attempt_is_located_and_measured = None
++    test_the_default_inspection_reads_that_output = None
++    test_an_unsettled_line_attempt_is_not_measured = None
++    test_the_line_is_never_measured_whole_and_never_by_a_path = None
++    test_a_replaced_or_linked_original_is_refused = None
++    test_a_line_another_writer_was_granted_is_no_longer_the_original = None
++
++    def setUp(self):
++        import io
++        import pathlib
++
++        from baton_v12.job_manager import execution_limits
++        from tests.job_manager import fixtures
++        from tools import bootstrap, instance, next_run_bindings, pool
++
++        self.now = fixtures.NOW
++        _ComposedProducerCase.setUp(self)
++        # THE INSTANCE'S EXECUTION POLICY, which the installer composes for
++        # every worker of an instance. The fixture pool is given the same
++        # one, as a pool composed by `pool compose-worker` would have.
++        limits = execution_limits.resolved(None)["boundaries"]
++        self.policy = next_run_bindings.deployment_identities(
++            image_reference="unused", image_digest=self.config["image_digest"],
++            cli_build=None, provider_network="none", runtime_uid=None,
++            turn_seconds=limits["provider_turn"]["seconds"],
++            verification_seconds=limits["ordinary_verification"]["seconds"],
++            implementer_invocations=1, contextual=False)["policy_digest"]
++        manifest = dict(self.config["input_manifest"],
++                        policy_digest=self.policy)
++        manifest.pop("manifest_digest")
++        manifest["manifest_digest"] = digest(manifest)
++        self.config["input_manifest"] = manifest
++        self.config["policy_digest"] = self.policy
++        self.manifest = manifest
++        self.state = os.path.join(self.root, "publication-instance")
++        self.places = bootstrap.layout(self.state)
++        bootstrap.persist_identity(self.places, self.config["authority_uuid"])
++        base = _InstalledFixture.document(
++            self, owner_participant=POOLED_OWNER, jobs=[],
++            line_declared_base=self.base, canonical_target_id="target-1")
++        with open(os.devnull, "w") as quiet:
++            first = bootstrap.prepare(base, stream=quiet)
++        record = pathlib.Path(self.checkout, POOLED_RECORD)
++        record.mkdir(parents=True, exist_ok=True)
++        (record / "FINDING.md").write_text("# Finding\n")
++        (record / "PLAN.md").write_text("# Plan\n")
++        task = os.path.join(self.root, "publication-task.json")
++        pathlib.Path(task).write_text(json.dumps(
++            {"schema": pool.PUBLICATION_TASK_SCHEMA,
++             "task_id": "publication-idle",
++             "instructions": "adopt the approved retained output"},
++            sort_keys=True))
++        self.publisher = pool.composed(
++            first["configuration"], worker_id="publisher",
++            role="publication", participant=POOLED_PUBLISHER,
++            image_reference="baton-v12-publication:candidate",
++            image_digest=self.config["image_digest"], cli_build=None,
++            network=None, credential_sources=None, credentials=None,
++            workspace_group=self.config["workspace_group"],
++            task_document=task, record_path=POOLED_RECORD,
++            checkout=self.checkout, now="2026-11-23T00:00:00.000Z")["worker"]
++        self.assertEqual(self.publisher["deployment"]["policy_digest"],
++                         self.policy)
++        # ONE WORKSPACE ROOT PER INSTANCE: this fixture pool's own.
++        for name in ("workspace_storage", "launch_home", "credential_home"):
++            self.publisher["deployment"][name] = self.config[name]
++        document = dict(base, workers=base["workers"] + [self.publisher])
++        bootstrap.prepare_prerequisites(document, instance.layout(self.state),
++                                        made={}, stream=io.StringIO())
++        with open(os.devnull, "w") as quiet:
++            self.installed = bootstrap.prepare(document, stream=quiet)
++        self.install_document = document
++        pathlib.Path(self.places["install_inputs"]).write_text(
++            json.dumps(document))
++        self.authority_path = self.places["authority_store"]
++        self.config["authority_store"] = self.authority_path
++
++    # -- the installed commands -----------------------------------------------
++
++    def cli(self, *argv, clocked=True):
++        import io
++
++        from tools import job_manager
++
++        said = io.StringIO()
++        named = {"clock": lambda: self.now} if clocked else {}
++        code = job_manager.main(list(argv), stream=said, **named)
++        text = said.getvalue()
++        start = text.find("{")
++        return code, (json.loads(text[start:]) if start >= 0 else text)
++
++    def common(self):
++        return ["--store", self.places["job_store"],
++                "--authority-uuid", self.config["authority_uuid"],
++                "--incarnation", "cli-1",
++                "--control", self.places["control_store"],
++                "--authority", self.places["authority_store"],
++                "--instance", self.state]
++
++    def created(self):
++        """One Job, through the installed `create` command."""
++        from baton_v12.worker_manager import ControlStore
++
++        with ControlStore.open(self.places["control_store"],
++                               incarnation="manager-1",
++                               clock=lambda: self.now):
++            pass
++        code, answer = self.cli(
++            "--store", self.places["job_store"], "--incarnation", "cli-1",
++            "--authority-uuid", self.config["authority_uuid"], "create",
++            "--instance", self.state,
++            "--control", self.places["control_store"],
++            "--authority", self.places["authority_store"],
++            "--task", "connected-a",
++            "--statement", "Deliver the connected slice.",
++            "--acceptance", "The harness passes.",
++            "--work-scope", "harness.py", clocked=False)
++        self.assertEqual(code, 0, answer)
++        return answer["job_id"]
++
++    def stage_of(self, job_id, kind):
++        stage_id = documents.stage_id(job_id, kind)
++        held = episodes.live_of(self.jobs, stage_id) \
++            or episodes.episode_of(self.jobs, stage_id, 1)
++        return episodes.attempting(
++            next(one for one in submission.stages_of(self.jobs, job_id)
++                 if one["stage_id"] == stage_id), held)
++
++    def producer_turn(self, stage, **operands):
++        """ONE REAL IMPLEMENTATION TURN over the launch this deployment
++        composed for the CREATED Job: the real adapter, real version control,
++        and the provider injected at its own seam."""
++        import baton_worker
++        import claude_agent
++
++        attempt_id = stage["attempt_id"]
++        delivered = self.worker_of(self.operations,
++                                   "implementation")._adopted(stage)
++        roots = self.mounted(self.operations, "implementation", attempt_id)
++        credentials = os.path.join(self.root,
++                                   "credential-" + attempt_id[:12])
++        os.makedirs(credentials, exist_ok=True)
++        self.write(os.path.join(credentials, "claude"), "not-a-credential\n")
++        held = []
++        for module, name, value in (
++                (baton_worker, "INPUT_ROOT", roots["inputs"]),
++                (baton_worker, "OUTPUT_ROOT", roots["workspace"]),
++                (claude_agent, "INPUT_ROOT", roots["inputs"]),
++                (claude_agent, "OUTPUT_ROOT", roots["workspace"]),
++                (claude_agent, "CREDENTIAL_ROOT", credentials)):
++            held.append((module, name, getattr(module, name)))
++            setattr(module, name, value)
++        try:
++            scratch = os.path.join(self.root, "scratch-" + attempt_id[:12])
++            os.makedirs(scratch, exist_ok=True)
++            seen = launch.payload_of(delivered.document)
++            return baton_worker.serve_exchange(
++                claude_agent.ClaudeAgent(run=self.provider(**operands),
++                                         home=scratch),
++                seen, seen["session"], delivered.exchange.command_root,
++                delivered.exchange.event_root)
++        finally:
++            for module, name, value in held:
++                setattr(module, name, value)
++
++    def failed_at_publication(self):
++        """Create, serve, overflow and settle. Answers the failed Job id."""
++        job_id = self.created()
++        self.jobs, self.control, self.operations = self.serving()
++        self.drive(self.jobs, self.operations, "implementation", "waiting")
++        stage = self.stage_of(job_id, "implementation")
++        self.attempt = stage["attempt_id"]
++        self.assertEqual(self.producer_turn(
++            stage, edits={"big.txt": "x" * (1048576 + 4096)}), 1)
++        self.engine.stopped = True
++        for _ in range(6):
++            manager.sweep(self.jobs, self.operations, now=self.now)
++        self.operations.abandon_attempt(
++            attempt_id=self.attempt, stage=stage,
++            reason="the producer's publication failed; settled for recovery")
++        return job_id
++
++    def inspected(self, job_id):
++        code, read = self.cli(
++            "publication-inspect", *self.common(), "--job", job_id,
++            "--stage", documents.stage_id(job_id, "implementation"),
++            "--episode", "1", "--participant", POOLED_OWNER)
++        self.assertEqual(code, 0, read)
++        return read
++
++    def decided(self, job_id, read, decision="C1"):
++        argv = ["publication-decide", *self.common(), "--job", job_id,
++                "--stage", documents.stage_id(job_id, "implementation"),
++                "--episode", "1", "--approve",
++                "--participant=" + POOLED_OWNER,
++                "--decision-id=" + decision,
++                "--expect-attempt=" + read["selector"]["attempt_id"],
++                "--expect-selection-digest=" + read["selection_digest"],
++                "--expect-candidate-base=" + read["producer"]["base"],
++                "--expect-candidate-head=" + read["producer"]["head"],
++                "--expect-output-digest=" + read["output"]["tree_digest"],
++                "--expect-output-bytes="
++                + str(read["output"]["total_bytes"]),
++                "--expect-producer-status=0",
++                "--context-digest=" + read["producer"]["context_digest"],
++                "--declaration-digest=" + read["declaration"]["digest"],
++                "--profile=" + read["profile"]["profile"],
++                "--profile-digest=" + read["profile"]["digest"]]
++        argv += ["--producer-verification=" + word
++                 for word in read["producer"]["argv"]]
++        argv += ["--stage-word=" + word
++                 for word in publication_recovery.SELECTED_STAGES]
++        return self.cli(*argv)
++
++    def restarted(self):
++        self.operations.close()
++        self.jobs, self.control, self.operations = self.serving()
++
++    def publication_turn(self, decision):
++        import baton_worker
++        import publication_entry
++        from datetime import datetime
++
++        stage = self.stage_of(publication_recovery.recovery_job_id(decision),
++                              "publication")
++        capacity = [one for one in self.operations.workers
++                    if one["role"] == "publication"][0]["operations"]
++        delivered = capacity.worker_for(stage)._adopted(stage)
++        home = os.path.join(self.config["workspace_storage"],
++                            stage["attempt_id"])
++        source = None
++        for vector in reversed(self.engine.starts):
++            if not any(stage["attempt_id"] in str(word) for word in vector):
++                continue
++            for index, word in enumerate(vector[:-1]):
++                if word == "--mount":
++                    parts = dict(part.split("=", 1) for part in
++                                 vector[index + 1].split(",") if "=" in part)
++                    if parts.get("target") == "/input/source":
++                        self.assertEqual(parts["readonly"], "true")
++                        source = parts["source"]
++            break
++        held = [(name, getattr(baton_worker, name))
++                for name in ("INPUT_ROOT", "OUTPUT_ROOT")]
++        baton_worker.INPUT_ROOT = os.path.join(home, "inputs")
++        baton_worker.OUTPUT_ROOT = os.path.join(home, "workspace")
++        agent = publication_entry.PublicationAgent(
++            input_root=baton_worker.INPUT_ROOT,
++            output_root=baton_worker.OUTPUT_ROOT, source_root=source,
++            watch=False,
++            clock=lambda: datetime.fromisoformat(
++                self.now.replace("Z", "+00:00")).timestamp())
++        try:
++            return baton_worker.serve_exchange(
++                agent, delivered.document,
++                launch.payload_of(delivered.document)["session"],
++                delivered.exchange.command_root,
++                delivered.exchange.event_root), home, stage
++        finally:
++            agent.stand_down()
++            for name, value in held:
++                setattr(baton_worker, name, value)
++
++    # -- the connected cases ----------------------------------------------------
++
++    def test_the_commands_carry_a_real_failed_producer_to_the_handoff(self):
++        from baton_v12.worker_manager import workspaces as owner
++
++        job_id = self.failed_at_publication()
++        original = submission.job_of(self.jobs, job_id)
++        # INSPECT, through the installed command and its default ports.
++        read = self.inspected(job_id)
++        self.assertTrue(read["eligible"], read["holds"])
++        self.assertEqual(read["holds"], [])
++        self.assertEqual(read["output"]["entry_count"], 4)
++        self.assertEqual(read["producer"]["argv"], ["python3", "harness.py"])
++        self.assertEqual(read["producer"]["base"], self.base)
++        # THE REAL GIT CONSUMER READ THE BASE FROM THE LINE'S RECORDED SOURCE
++        # AND THE CANDIDATE FROM THE RETAINED BUNDLE (owner selection
++        # M385913), and compared the two trees itself.
++        self.assertEqual(read["correspondence"]["base"], self.base)
++        self.assertEqual(read["correspondence"]["candidate"],
++                         read["producer"]["head"])
++        self.assertEqual(read["correspondence"]["changed_paths"],
++                         ["big.txt"])
++        # (That the base came from the recorded source and from nowhere else
++        # is what `test_a_replaced_or_wrong_base_source_holds_the_inspection`
++        # shows: with that one repository moved aside this same read holds.)
++        # DECIDE AND ADMIT, through the installed command.
++        code, answer = self.decided(job_id, read)
++        self.assertEqual(code, 0, answer)
++        self.assertTrue(answer["admitted"], answer)
++        admission = answer["admission"]
++        recovery = admission["job_id"]
++        # BOTH STAGES ARE SERVABLE, the review by the ORDINARY reviewer.
++        self.assertEqual(admission["binding"]["serving"],
++                         {"publication": ["publisher"],
++                          "review": ["review-a"]})
++        self.assertEqual(
++            submission.job_of(self.jobs, recovery)["input_digest"],
++            original["input_digest"])
++        self.assertNotEqual(admission["input_digest"],
++                            original["input_digest"])
++        # NOTHING RAN BECAUSE OF THE ADMISSION: still the one producer.
++        self.assertEqual(len(self.engine.starts), 1)
++        # A RESTARTED MANAGER serves the amended configuration, over a fresh
++        # engine double -- so every container it starts is counted from zero.
++        self.restarted()
++        for _ in range(8):
++            manager.sweep(self.jobs, self.operations, now=self.now)
++            stage = self.stage_of(recovery, "publication")
++            state = attempt_runtime_of(self.control, stage["attempt_id"])
++            if state is not None \
++                    and state["execution_runtime"] == "running":
++                break
++        self.assertEqual(len(self.engine.starts), 1)
++        code, home, stage = self.publication_turn("C1")
++        self.assertEqual(code, 0)
++        for _ in range(8):
++            manager.sweep(self.jobs, self.operations, now=self.now)
++        ready = publication_execution.publication_readiness(self.jobs, "C1")
++        self.assertEqual((ready["outcome"], ready["custody"],
++                          ready["handed_off"], ready["review"]),
++                         ("published", True, True, "runnable"))
++        # THE PUBLISHED PROPOSAL IS THE PRODUCER'S OWN FOUR FILES, at the
++        # declared path and not nested beneath it, byte for byte.
++        published = os.path.join(home, "workspace",
++                                 role_contract.CANDIDATE_OUTPUT)
++        self.assertEqual(sorted(os.listdir(published)),
++                         ["change.patch", "objects.bundle", "result.json",
++                          "verification.txt"])
++        self.assertEqual(owner.directory_manifest(published)["tree_digest"],
++                         read["output"]["tree_digest"])
++        result = publication_execution.result_of(self.jobs, recovery)
++        self.assertEqual(result["adopted"]["tree_digest"],
++                         read["output"]["tree_digest"])
++        self.assertEqual(result["invocations"],
++                         {"provider": 0, "verifier": 0, "commands": 0})
++        # UNDER THE PUBLISHER'S OWN FRESH ASSIGNMENT, and the producer was
++        # never redispatched: one implementation container, ever.
++        state = attempt_runtime_of(self.control, stage["attempt_id"])
++        self.assertEqual(state["assignment"]["participant"],
++                         POOLED_PUBLISHER)
++        self.assertEqual(
++            len(episodes.episodes_of(
++                self.jobs, documents.stage_id(job_id, "implementation"))), 1)
++        # THE ORIGINAL JOB AND ITS OUTPUT ARE UNCHANGED.
++        self.assertEqual(submission.job_of(self.jobs, job_id), original)
++        self.assertEqual(self.inspected(job_id)["output"]["tree_digest"],
++                         read["output"]["tree_digest"])
++        # THE STATUS COMMAND SAYS THE FOUR THINGS SEPARATELY.
++        code, status = self.cli(
++            "publication-status", "--store", self.places["job_store"],
++            "--authority-uuid", self.config["authority_uuid"],
++            "--incarnation", "cli-1",
++            "--control", self.places["control_store"],
++            "--decision-id", "C1")
++        self.assertEqual(code, 0, status)
++        self.assertEqual(status["original"]["job_id"], job_id)
++        self.assertEqual((status["recovery"]["outcome"],
++                          status["recovery"]["review"]),
++                         ("published", "runnable"))
++        self.assertTrue(status["gate"]["open"])
++        self.assertIsNone(status["owner_item"])
++        # AND THE REVIEW STAGE: admitted to the Work's ordinary reviewer and
++        # to nobody else, after the hand-off and not before.
++        review = documents.stage_id(recovery, "review")
++        self.assertEqual(
++            [row[0] for row in self.jobs._connection.execute(
++                "SELECT worker_id FROM stage_allocations WHERE stage_id = ?",
++                (review,))], ["review-a"])
++        # WHERE THIS STOPS, ASSERTED AS WHAT IT IS. The reviewer's container
++        # is not started: its mount needs a frozen line checkpoint of the
++        # candidate, and the review line freezes a recovered checkpoint only
++        # for a writer that was RELEASED. This producer's writer never was.
++        review_stage = self.stage_of(recovery, "review")
++        self.assertIsNone(attempt_runtime_of(
++            self.control, review_stage["attempt_id"])
++            and attempt_runtime_of(
++                self.control, review_stage["attempt_id"])["runtime_id"])
++
++    def test_the_decision_command_is_refused_on_changed_evidence(self):
++        """EXACT BINDING, through the command: a decision naming another
++        output digest, candidate or selection is refused and admits nothing."""
++        job_id = self.failed_at_publication()
++        read = self.inspected(job_id)
++        for member, value in (
++                (("output", "tree_digest"), "sha256:" + "0" * 64),
++                (("producer", "head"), "f" * 40)):
++            with self.subTest(member=member):
++                changed = json.loads(json.dumps(read))
++                changed[member[0]][member[1]] = value
++                code, answer = self.decided(job_id, changed,
++                                            decision="X-" + member[1])
++                self.assertNotEqual(code, 0)
++        self.assertEqual(publication_recovery.admissions_of(self.jobs), [])
++        self.assertEqual(len(self.engine.starts), 1)
++
++    def test_a_replaced_or_wrong_base_source_holds_the_inspection(self):
++        """OWNER SELECTION M385913, THE NEGATIVES, with the real Git
++        consumer. The base is read from the line's recorded source only while
++        that object is the recorded one; there is no fallback."""
++        job_id = self.failed_at_publication()
++        self.assertTrue(self.inspected(job_id)["eligible"])
++        aside = self.source + ".aside"
++        os.rename(self.source, aside)
++        # MISSING.
++        held = self.inspected(job_id)
++        self.assertFalse(held["eligible"])
++        self.assertIn("declared base cannot be read",
++                      " ".join(one["message"] for one in held["holds"]))
++        # REPLACED: another repository at the recorded path, even one that
++        # holds the same commit.
++        import shutil
++
++        shutil.copytree(aside, self.source, symlinks=True)
++        held = self.inspected(job_id)
++        self.assertFalse(held["eligible"])
++        self.assertIn("the entry there now is",
++                      " ".join(one["message"] for one in held["holds"]))
++        shutil.rmtree(self.source)
++        # A LINK TO THE REAL ONE.
++        os.symlink(aside, self.source)
++        self.assertFalse(self.inspected(job_id)["eligible"])
++        os.unlink(self.source)
++        os.rename(aside, self.source)
++        self.assertTrue(self.inspected(job_id)["eligible"])
++
++
++class TheBaseIsReadFromTheRecordedSourceOrNotAtAll(
++        PublicationExecutionCase):
++    """`publication_ports._base_origin_of`, at the function: what it accepts
++    and every refusal it makes before any Git process is started."""
++
++    def request(self, **changed):
++        place = os.path.join(self.root, "recorded-source")
++        os.makedirs(place, exist_ok=True)
++        found = os.lstat(place)
++        source = {"path": place,
++                  "identity": f"{found.st_dev}:{found.st_ino}",
++                  "declared_base": BASE, "verified": True, "why": None}
++        source.update(changed.pop("source", {}))
++        request = {"base": BASE, "candidate": HEAD, "base_source": source}
++        request.update(changed)
++        return request
++
++    def refused(self, **changed):
++        from tools import publication_ports
++
++        with self.assertRaises(ContractRefusal) as caught:
++            publication_ports._base_origin_of(self.request(**changed),
++                                              "/the/bundle")
++        return caught.exception
++
++    def test_the_recorded_source_is_the_origin_only_when_everything_holds(self):
++        from tools import publication_ports
++
++        request = self.request()
++        self.assertEqual(
++            publication_ports._base_origin_of(request, "/the/bundle"),
++            request["base_source"]["path"])
++        # NO LINE RECORD: the bundle, as before.
++        self.assertEqual(publication_ports._base_origin_of(
++            {"base": BASE, "candidate": HEAD}, "/the/bundle"), "/the/bundle")
++
++    def test_every_other_source_holds(self):
++        for changed, said in (
++                ({"source": {"verified": False,
++                             "why": "the entry there now is another"}},
++                 "the entry there now is another"),
++                ({"source": {"identity": "1:1"}}, "replaced source"),
++                ({"source": {"declared_base": "d" * 40}},
++                 "for no other revision"),
++                ({"base": BASE[:12],
++                  "source": {"declared_base": BASE[:12]}},
++                 "not one full object name"),
++                ({"base": "main", "source": {"declared_base": "main"}},
++                 "not one full object name"),
++                ({"source": {"path": "relative/source"}},
++                 "no longer its own directory")):
++            with self.subTest(changed=changed):
++                self.assertIn(said, self.refused(**changed).message)
++        # A SOURCE THAT IS A LINK TO A REAL DIRECTORY.
++        place = self.request()["base_source"]["path"]
++        link = place + ".link"
++        os.symlink(place, link)
++        self.assertIn("no longer its own directory",
++                      self.refused(source={"path": link}).message)
++        # AND A DOCUMENT WITH ANOTHER MEMBER SET.
++        from tools import publication_ports
++
++        with self.assertRaises(ContractRefusal):
++            publication_ports._base_origin_of(
++                {"base": BASE, "candidate": HEAD,
++                 "base_source": {"path": place}}, "/the/bundle")
++
++
+ # -- 16. what this checkpoint is, said out loud ------------------------------
+ 
+ 
+diff --git a/v12/python/tests/tools/test_bootstrap.py b/v12/python/tests/tools/test_bootstrap.py
+index f48f8c28..0aa6ddf3 100644
+--- a/v12/python/tests/tools/test_bootstrap.py
++++ b/v12/python/tests/tools/test_bootstrap.py
+@@ -338,6 +338,17 @@ class ADeploymentMayInstallOnePublicationWorker(ValidFixture):
+         finally:
+             authority.dispose()
+ 
++    def test_a_deployment_with_a_publisher_says_its_bindings_out_loud(self):
++        """ONE JOB, ONE WORKER PER ROLE, AND A PUBLISHER is still the
++        multi-Job document: every recovery it serves is a second Job bound
++        beside the one it recovers, which the one-Job document cannot name."""
++        document = dict(self.installing(),
++                        jobs=[self.job(work_id=self.work)])
++        self.assertEqual(bootstrap.variant(document),
++                         bootstrap.MULTI_JOB_SCHEMA)
++        self.assertEqual(bootstrap.variant(self.document()),
++                         bootstrap.ONE_JOB_SCHEMA)
++
+     def test_one_dedicated_publisher_and_no_other_role_word(self):
+         os.makedirs(self.staging, mode=0o700)
+         second = self.composing(worker_id="publisher-2",
+diff --git a/v12/python/tools/bootstrap.py b/v12/python/tools/bootstrap.py
+index 8fd0ef02..8f712657 100644
+--- a/v12/python/tools/bootstrap.py
++++ b/v12/python/tools/bootstrap.py
+@@ -754,6 +754,14 @@ def variant(document):
+     for worker in workers_of(document):
+         by_role.setdefault(worker["role"], []).append(worker["worker_id"])
+     one_each = all(len(by_role.get(role, [])) == 1 for role in ROLES)
++    # W385695: AND A DEPLOYMENT THAT INSTALLS A PUBLICATION WORKER SAYS ITS
++    # BINDINGS OUT LOUD. That worker exists to serve recovery Jobs, each of
++    # which is a SECOND Job bound beside the one it recovers -- and the
++    # one-Job document derives its single binding and can name no other. So
++    # such a deployment is the multi-Job document from the start, rather than
++    # one that would have to change shape at its first recovery.
++    if by_role.get(PUBLICATION_ROLE):
++        one_each = False
+     # AN INSTANCE THAT BINDS NOTHING IS THE MULTI-JOB DOCUMENT WITH AN EMPTY
+     # BINDING LIST. `/1` DERIVES its single binding from its own global Work,
+     # base and target, so it cannot express "none" -- the shape that can is the
+diff --git a/v12/python/tools/publication_ports.py b/v12/python/tools/publication_ports.py
+index 54d6ef20..961c30a3 100644
+--- a/v12/python/tools/publication_ports.py
++++ b/v12/python/tools/publication_ports.py
+@@ -241,9 +241,19 @@ class SourceCorrespondence:
+       a private BARE repository is created under this port's own scratch root,
+         so nothing is read into, or written beside, any repository that
+         matters;
+-      the candidate and the base are FETCHED FROM THE MEASURED BUNDLE, by the
+-        path the trust-root owner measured -- not from a nominated checkout,
+-        not from a remote and not from a path a caller named;
++      the CANDIDATE is fetched FROM THE MEASURED BUNDLE, by the path the
++        trust-root owner measured -- not from a remote and not from a path a
++        caller named;
++      the BASE is fetched from that same bundle when the original has no line
++        record (the first cut's rule, unchanged); and, by owner selection
++        M385913, FROM THE LINE'S OWN DURABLY RECORDED SOURCE REPOSITORY when
++        the host owner answered one. A real producer's bundle is a thin
++        `base..HEAD` transport and does not carry its base, so bundle-only
++        could correspond no real output. The source is used only after its
++        recorded `device:inode` is proved again HERE, the base is asked for
++        by its exact full object name, that name must be the base the line
++        was declared on, and there is no fallback -- not a branch tip, not
++        the producer's writable line home and not a caller's path;
+       both are RESOLVED, which is what proves the objects are really there and
+         are really commits with trees, rather than names somebody wrote down;
+       and the two trees are listed and compared, which is what produces the
+@@ -264,6 +274,10 @@ class SourceCorrespondence:
+     def instance(self):
+         return self._identity
+ 
++    @staticmethod
++    def _base_origin(request, bundle):
++        return _base_origin_of(request, bundle)
++
+     def correspondence_of(self, request):
+         root = request["root"]
+         named = [one for one in request["entries"]
+@@ -288,11 +302,20 @@ class SourceCorrespondence:
+                     "refused", "precondition",
+                     "this port could not create a private object store for "
+                     "the correspondence read; nothing was read")
+-            for revision in (request["base"], request["candidate"]):
+-                vectors.append(git_profile.import_vector(repository, bundle,
+-                                                        revision))
++            origin = self._base_origin(request, bundle)
++            for revision, origin_of in ((request["base"], origin),
++                                        (request["candidate"], bundle)):
++                vectors.append(git_profile.import_vector(repository,
++                                                        origin_of, revision))
+                 held = self._engine(tuple(vectors[-1]))
+                 if type(held) is not dict or held.get("returncode") != 0:
++                    if origin_of != bundle:
++                        raise ContractRefusal(
++                            "refused", "precondition",
++                            f"the line's recorded source does not hold the "
++                            f"admitted base {name_value(revision)}; a base "
++                            f"that cannot be read from the recorded source "
++                            f"holds, and it is not looked for anywhere else")
+                     raise ContractRefusal(
+                         "refused", "precondition",
+                         f"the measured bundle does not carry "
+@@ -321,6 +344,69 @@ class SourceCorrespondence:
+                 "vectors": [list(one) for one in vectors]}
+ 
+ 
++def _base_origin_of(request, bundle):
++    """WHERE THE DECLARED BASE IS IMPORTED FROM for this request.
++
++    THE BUNDLE, when the host owner answered no line source: the attempt
++    layout, unchanged. THE LINE'S RECORDED SOURCE otherwise, and only when
++    every one of these holds -- each a refusal that leaves the inspection
++    HELD:
++
++      the owner said the source is still the recorded object;
++      the object at that path, asked again here immediately before use, has
++        that same `device:inode` and is a real directory, not a link;
++      the base being asked for is the exact base the line was declared on --
++        so a result naming another base is not given the source's objects;
++      and it is a FULL object name. A short name is a search, and a search
++        can be answered by more than one object.
++    """
++    source = request.get("base_source")
++    if source is None:
++        return bundle
++    members = ("path", "identity", "declared_base", "verified", "why")
++    if type(source) is not dict or sorted(source) != sorted(members):
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"the line's recorded source is exactly {', '.join(members)}")
++    taken = dict(source)
++    if taken["verified"] is not True:
++        raise ContractRefusal(
++            "refused", "precondition",
++            f"the declared base cannot be read: "
++            f"{taken['why'] or 'the line source is unverified'}; a missing, "
++            f"replaced or unverifiable source holds")
++    place = taken["path"]
++    if type(place) is not str or not os.path.isabs(place) \
++            or os.path.islink(place) or not os.path.isdir(place) \
++            or os.path.realpath(place) != place:
++        raise ContractRefusal(
++            "refused", "precondition",
++            "the line's recorded source is no longer its own directory; a "
++            "replaced source holds")
++    found = os.lstat(place)
++    if f"{found.st_dev}:{found.st_ino}" != taken["identity"]:
++        raise ContractRefusal(
++            "runtime-observation", "identity-mismatch",
++            f"the line's recorded source was object "
++            f"{name_value(taken['identity'])} and the entry there now is "
++            f"another; a replaced source holds")
++    base = request["base"]
++    if type(base) is not str or len(base) not in (40, 64) \
++            or any(one not in "0123456789abcdef" for one in base):
++        raise ContractRefusal(
++            "refused", "precondition",
++            f"the declared base {name_value(base)} is not one full object "
++            f"name; a base is imported by its exact name or not at all")
++    if base != taken["declared_base"]:
++        raise ContractRefusal(
++            "refused", "precondition",
++            f"the retained result declares base {name_value(base)} and its "
++            f"line was declared on {name_value(taken['declared_base'])}; the "
++            f"recorded source is read for the line's own admitted base and "
++            f"for no other revision")
++    return place
++
++
+ def publication_owners(request):
+     """The two ports beside the four a recovery admission already composes.
+ 
+diff --git a/v12/python/tools/publication_worker.py b/v12/python/tools/publication_worker.py
+index 6434f42d..a6bcd7f9 100644
+--- a/v12/python/tools/publication_worker.py
++++ b/v12/python/tools/publication_worker.py
+@@ -508,6 +508,7 @@ def publication_operations(given, *, jobs, control, authority, provider,
+             lifetime_policy=lifetime_policy)
+ 
+     operations = composed(given)
++    held = None
+     if served is not None:
+         held = {}
+         try:
+@@ -519,7 +520,12 @@ def publication_operations(given, *, jobs, control, authority, provider,
+                 one.close()
+             operations.close()
+             raise
+-        operations = PerRecoveryOperations(operations, held)
++    # ONE WRAPPER EITHER WAY, because the typed publication edge is the
++    # CAPACITY'S and not the per-recovery selection's: a single composition
++    # over one already-derived document presents its stage the publication
++    # input identity exactly as a pooled one does.
++    operations = PerRecoveryOperations(operations, held, jobs=jobs,
++                                       stage=stage)
+     stage.bind(operations)
+     stage.seam.ending = ending
+     # THE SEAM RIDES ON THE OPERATIONS IT WAS COMPOSED WITH, which is where
+@@ -551,17 +557,50 @@ class PerRecoveryOperations:
+ 
+     canonical = True
+ 
+-    def __init__(self, installed, held):
++    def __init__(self, installed, held, *, jobs=None, stage=None):
+         self.installed = installed
+-        self.held = dict(held)
++        # `None` IS THE SINGLE COMPOSITION: one already-derived document, and
++        # every stage is served by it.
++        self.held = None if held is None else dict(held)
+         self.port = installed.port
+         self.recovery_publication = None
++        self._jobs = jobs
++        self._stage = stage
++
++    def __getattr__(self, name):
++        # WHAT IS ABOUT THE DEPLOYMENT AND NAMED NOWHERE BELOW is the
++        # installed composition's own answer: its control handle, its
++        # canonical flag, its recovery seams. Nothing stage-specific is
++        # reached this way -- every operation that takes a stage is defined
++        # on this class and routes it.
++        if name.startswith("__"):
++            raise AttributeError(name)
++        return getattr(self.installed, name)
+ 
+     @property
+     def _worker(self):
+         return self.installed._worker
+ 
++    def _job(self, stage, job):
++        """THE JOB AS THE PUBLICATION STAGE IS HELD TO IT.
++
++        The recovery Job row carries the identity its REVIEW stage is served
++        under. This capacity is offered, matched and launched under the
++        publication stage's own -- `publication_recovery.
++        publication_input_of`, the reservation's record -- so the view handed
++        to the worker lifecycle names that one, and the lifecycle's own
++        comparison is left exactly as strict as it is for every other worker.
++        A Job that is not a publication recovery is passed through untouched,
++        and is then refused by that same comparison.
++        """
++        if self._jobs is None or job is None:
++            return job
++        return publication_recovery.stage_job(
++            self._jobs, dict(stage, kind=documents.PUBLICATION_STAGE), job)
++
+     def _serving(self, stage):
++        if self.held is None:
++            return self.installed
+         job_id = stage.get("job_id")
+         held = self.held.get(job_id)
+         if held is None:
+@@ -589,7 +628,7 @@ class PerRecoveryOperations:
+         return self.installed.receipt_of(operation_id)
+ 
+     def binding_intent(self, stage, job):
+-        return self.installed.binding_intent(stage, job)
++        return self.installed.binding_intent(stage, self._job(stage, job))
+ 
+     def recover(self, *, now):
+         return self.installed.recover(now=now)
+@@ -603,7 +642,7 @@ class PerRecoveryOperations:
+     # -- about one recovery's stage -------------------------------------------
+ 
+     def admit(self, stage, job):
+-        return self._serving(stage).admit(stage, job)
++        return self._serving(stage).admit(stage, self._job(stage, job))
+ 
+     def claim(self, stage):
+         return self._serving(stage).claim(stage)
+@@ -612,13 +651,40 @@ class PerRecoveryOperations:
+         return self._serving(stage).settle_offer(stage, now=now)
+ 
+     def launch(self, stage, job):
+-        return self._serving(stage).launch(stage, job)
++        return self._serving(stage).launch(stage, self._job(stage, job))
+ 
+     def dispatch(self, stage, job):
+-        return self._serving(stage).dispatch(stage, job)
++        return self._serving(stage).dispatch(stage, self._job(stage, job))
+ 
+     def conclude(self, stage, job):
+-        return self._serving(stage).conclude(stage, job)
++        return self._serving(stage).conclude(stage, self._job(stage, job))
++
++    def cancel_attempt(self, *, attempt_id, reason):
++        """A STOP, routed to the operands the attempt was started under.
++
++        The pooled manager routes a cancellation to the worker the scheduler
++        allocated, by identity, and asks it for this capability. Without it a
++        cancelled or expired recovery's publication runtime could not be
++        ordered to stop through the pool at all.
++        """
++        return self._for_attempt(attempt_id).cancel_attempt(
++            attempt_id=attempt_id, reason=reason)
++
++    def fence_unstarted_attempt(self, stage, *, reason):
++        return self._serving(stage).fence_unstarted_attempt(stage,
++                                                            reason=reason)
++
++    def _for_attempt(self, attempt_id):
++        if self.held is None:
++            return self.installed
++        stage = None if self._stage is None \
++            else self._stage._stage_of(attempt_id, ended=True)
++        if stage is None:
++            _refuse(f"this publication capacity started no attempt "
++                    f"{name_value(attempt_id)}; a stop is ordered through "
++                    f"the composition that holds the attempt's adapter",
++                    category="refused", code="precondition")
++        return self._serving(stage)
+ 
+     def observe(self, stage):
+         return self._serving(stage).observe(stage)
+@@ -635,7 +701,7 @@ class PerRecoveryOperations:
+             seconds=seconds, reclaim=reclaim)
+ 
+     def close(self):
+-        for _job_id, one in sorted(self.held.items()):
++        for _job_id, one in sorted((self.held or {}).items()):
+             one.close()
+         self.installed.close()
+ 
+diff --git a/v12/python/tools/stage_execution.py b/v12/python/tools/stage_execution.py
+index e29a6081..29a83805 100644
+--- a/v12/python/tools/stage_execution.py
++++ b/v12/python/tools/stage_execution.py
+@@ -6268,6 +6268,15 @@ def _job_workers(deployment, stage, job=None):
+     binding = deployment.binding_for(stage["job_id"])
+     if job is None:
+         job = job_of(deployment.jobs, stage["job_id"])
++    if stage.get("kind") == PUBLICATION_ROLE:
++        # W385695: THE TYPED PUBLICATION EDGE. A recovery Job's row carries
++        # the identity its REVIEW stage is served under; its publication stage
++        # is held to its own, the reservation's recorded publication input.
++        # `_disagreements` is unchanged and compares exactly as it always
++        # does -- it is handed the identity that is this stage's.
++        from baton_v12.job_manager import publication_recovery
++
++        job = publication_recovery.stage_job(deployment.jobs, stage, job)
+     # THE JOB'S OWN HELD IDENTITY, not the deployment's global one.
+     if stage.get("work_id") not in (None, binding["job_work_id"]):
+         _refuse(f"stage {stage.get('stage_id')!r} names Work "

@@ -1,0 +1,15 @@
+[
+  "env",
+  "BATON_V12_DISK_ROOT=/scratch",
+  "BATON_V12_STACK_TEST_ROOT=/scratch",
+  "TMPDIR=/scratch",
+  "PYTHONPATH=v12/python/src:v12/python",
+  "python3",
+  "-m",
+  "unittest",
+  "-v",
+  "tests.job_manager.test_publication_recovery_execution",
+  "tests.job_manager.test_publication_recovery_admission",
+  "tests.job_manager.test_retained_recovery_admission",
+  "tests.job_manager.test_role_contract"
+]

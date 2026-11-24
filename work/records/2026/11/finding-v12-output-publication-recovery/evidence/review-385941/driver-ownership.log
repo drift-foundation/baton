@@ -1,0 +1,1484 @@
+{"cwd": "/home/sl/src/baton/work/scratch/w385695-review-385941/v12/python", "argv": ["/home/sl/.local/state/baton-v12-venv/bin/python", "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385941/probe-driver-ownership.py"], "timeout_seconds": 20, "scratch": "/home/sl/src/baton/work/scratch/w385695-review-385941-tests"}
+test_survivor_cleanup_does_not_select_a_process_outside_the_driver (__main__.Driver.test_survivor_cleanup_does_not_select_a_process_outside_the_driver) ... /home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/2/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/3/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/4/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/5/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/6/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/7/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/8/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/11/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/13/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/14/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/15/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/16/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/17/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/18/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/19/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/20/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/21/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/22/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/23/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/24/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/26/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/27/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/28/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/29/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/30/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/32/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/33/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/34/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/35/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/36/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/38/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/39/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/40/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/41/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/42/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/44/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/45/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/46/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/47/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/48/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/50/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/51/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/52/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/53/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/54/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/56/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/57/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/58/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/59/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/60/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/62/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/63/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/64/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/65/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/66/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/68/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/69/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/70/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/71/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/72/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/74/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/75/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/76/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/77/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/78/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/80/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/81/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/82/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/83/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/84/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/86/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/87/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/88/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/89/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/90/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/92/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/93/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/94/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/95/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/96/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/98/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/99/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/100/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/101/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/102/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/104/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/105/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/106/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/107/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/108/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/110/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/111/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/112/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/113/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/114/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/116/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/117/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/118/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/119/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/120/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/121/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/123/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/124/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/125/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/126/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/127/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/129/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/130/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/131/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/132/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/133/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/135/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/136/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/137/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/138/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/139/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/141/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/142/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/143/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/144/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/145/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/147/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/148/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/149/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/150/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/151/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/153/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/154/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/155/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/156/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/157/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/159/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/160/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/161/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/162/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/163/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/165/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/166/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/167/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/168/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/169/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/171/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/172/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/173/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/174/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/175/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/177/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/178/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/179/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/180/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/181/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/183/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/184/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/185/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/186/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/187/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/189/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/190/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/191/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/192/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/193/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/195/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/196/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/197/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/198/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/199/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/201/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/202/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/203/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/204/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/205/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/207/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/210/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/211/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/212/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/213/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/214/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/215/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/216/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/218/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/220/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/221/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/222/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/223/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/224/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/225/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/226/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/227/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/230/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/231/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/232/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/233/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/234/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/235/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/236/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/238/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/239/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/241/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/242/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/243/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/244/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/245/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/246/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/247/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/248/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/251/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/252/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/253/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/254/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/265/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/281/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/305/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/307/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/311/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/329/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/335/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/336/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/339/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/340/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/342/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/349/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/350/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/351/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/354/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/356/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/360/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/362/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/370/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/374/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/375/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/378/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/380/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/381/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/383/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/384/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/385/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/386/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/392/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/393/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/429/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/430/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/431/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/432/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/433/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/434/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/435/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/436/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/437/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/438/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/439/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/440/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/441/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/442/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/443/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/444/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/445/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/512/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/513/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/519/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/566/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/604/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/609/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/632/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/763/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/777/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/812/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/819/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1009/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1010/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1011/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1012/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1013/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1014/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1015/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1016/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1017/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1018/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1019/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1020/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1021/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1022/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1023/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1024/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1025/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1026/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1027/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1028/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1029/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1030/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1031/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1032/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1058/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1063/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1064/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1066/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1067/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1069/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1076/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1080/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1090/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1096/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1099/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1161/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1167/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1205/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1207/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1208/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1224/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1242/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1259/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1265/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1271/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1279/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1383/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1493/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1501/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1503/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1506/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1522/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1541/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1586/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1604/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1606/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1631/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1632/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1633/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1634/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1635/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1636/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1637/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1640/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1667/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1674/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1677/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1696/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1698/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1718/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/2059/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/2083/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/2175/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/2181/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/2295/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/2305/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/2307/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/2327/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/2328/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/2330/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/2335/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/2337/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/2338/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/2638/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/2879/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/2900/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/2901/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/3347/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/3349/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/3738/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/3743/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/3749/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/3952/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/5634/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/5655/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/5656/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/6460/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/6461/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/6463/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/6812/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/7092/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/7113/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/7114/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/7887/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/7888/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/7890/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/8261/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/9177/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/45356/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/45366/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/266882/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/266883/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/518650/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/518651/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/519731/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/649567/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/649576/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/698074/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/700483/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/700484/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/745574/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/745575/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/891294/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/900320/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/900322/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/900429/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/901949/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/903476/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/904609/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/905906/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/910004/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/916471/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/942061/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/953017/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/956886/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/961293/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/972252/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/977981/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/989988/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1083041/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1083630/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1092862/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1096020/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1141563/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1150610/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1168739/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1200262/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1205801/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1206069/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1209957/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1222252/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1252934/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1272677/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1298576/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1309770/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1310983/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1318538/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1325508/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1331655/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1336338/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1385685/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1421408/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1430468/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1430469/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1431896/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1437949/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1448161/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1461692/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1461693/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1461960/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1475437/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1476572/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1476576/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1494971/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1520922/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1529299/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1535637/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1535658/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1549985/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1550574/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1550646/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1551161/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1551279/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1551870/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1552608/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1552835/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1553611/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1554105/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1555450/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1555451/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1555462/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1556735/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1556755/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1558099/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1558100/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1558114/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1558555/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1559019/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1559124/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1559296/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1559297/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1559299/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1562138/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1562157/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1564255/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1564257/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/1564258/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/2131478/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/3464617/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/3504747/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/3504748/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/3593688/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/3593689/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/3923304/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/4030449/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/4063681/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/4063682/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/4121301/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/4121302/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/4176714/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/correction-K-385937/cli-in-image-driver.py:38: ResourceWarning: unclosed file <_io.BufferedReader name='/proc/4176715/cmdline'>
+  argv = open(f"/proc/{name}/cmdline", "rb").read().split(b"\0")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+FAIL
+
+======================================================================
+FAIL: test_survivor_cleanup_does_not_select_a_process_outside_the_driver (__main__.Driver.test_survivor_cleanup_does_not_select_a_process_outside_the_driver)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-output-publication-recovery/evidence/review-385941/probe-driver-ownership.py", line 11, in test_survivor_cleanup_does_not_select_a_process_outside_the_driver
+    self.assertNotIn(child.pid,got,'driver finally would SIGKILL this unrelated process without ownership proof')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1564258 unexpectedly found in [1564258] : driver finally would SIGKILL this unrelated process without ownership proof
+
+----------------------------------------------------------------------
+Ran 1 test in 0.006s
+
+FAILED (failures=1)
+FOREIGN_SELECTION {"sentinel": 1564258, "selected": true, "driver_started": false}

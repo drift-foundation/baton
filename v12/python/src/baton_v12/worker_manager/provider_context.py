@@ -1038,6 +1038,13 @@ def _finalize_context_use(control, jobs, authority, *, attempt_id, storage, rece
     checkpoint = review_cycles.checkpoint_of(control, checkpoint_reader(attempt_id, writer["writer_id"]))
     if writer["state"] != "revoked" or checkpoint["writer_id"] != writer["writer_id"] or checkpoint["state"] != "frozen" or checkpoint["fence"] is None:
         _refuse("old writer checkpoint is not fenced")
+    if writer["revocation_reason"] == review_cycles.RECOVERED_REVOCATION:
+        # W385695 R1: a writer revoked as RECOVERED never completed: its
+        # checkpoint carries a recovery fence (the line owner binds the two,
+        # both ways), which proves the runtime absent for REVIEW of its
+        # candidate. It is not the writer's own completed assignment fence,
+        # and context finalization reads only that.
+        _refuse("old writer was recovered, not completed; its checkpoint carries a recovery fence and not its own assignment fence")
     try:
         receipt_digest = _receipt(control, admitted, receipt_reader)
     except ContractRefusal:
