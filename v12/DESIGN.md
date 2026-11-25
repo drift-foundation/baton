@@ -663,6 +663,26 @@ it is offered for inspection. This owner selection supersedes earlier ART-7
 requirements for proactive host output validation at completion as well as
 mandatory maintenance-container retention.
 
+Owner clarification 2026-11-25 — phase ending and substantive judgment:
+An observed invocation or phase ending is an execution fact, not an equivalent
+of task-success exit code zero. Provider exit codes and structured terminal
+signals MAY describe execution; they MUST NOT establish substantive task success.
+Generated prose, activity-event types and inferred model status MUST NOT decide
+whether the work satisfies its objective. Adapters MUST NOT require a catalogue
+of ordinary editing/tool activity events merely to recognize that execution ended.
+The worker's disposition is a claim, not the review verdict.
+
+After the existing handoff, containment, identity, attribution and custody checks,
+the independent reviewer MUST inspect the exact retained artifacts and relevant
+verification evidence and judge them against the task. If that judgment is
+uncertain, the reviewer MUST send the uncertainty and evidence to the operator
+for decision rather than guessing acceptance. Missing or invalid artifacts and
+explicit execution/protocol faults remain recorded honestly; this rule does not
+waive structural checks or turn a timeout, reroute or verification failure into
+success. A reviewer verdict likewise requires validation and binding to the
+reviewed candidate; review-phase termination alone is not acceptance.
+See the [owner clarification](../work/records/2026/11/finding-v12-native-provider-selection/evidence/phase-ending-owner-ruling/RULING.md).
+
 **ART-8.** Normal result publication occurs under the appropriate live generation
 and ending contract. Revoked/late output is retained or quarantined as evidence;
 it is not published on behalf of a dead assignment. A later authorized consumer

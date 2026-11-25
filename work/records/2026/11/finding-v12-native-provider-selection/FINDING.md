@@ -536,3 +536,94 @@ select I2 early. Remaining native route and P3/P4 are in the report and
 [evidence/native-readiness-386143/PLAN.md](evidence/native-readiness-386143/PLAN.md).
 No native qualification claim; W386048/W386057, fast and resume remain separate.
 Canonical incoming discussion consumed through M386157; claim E386158.
+
+
+## 2026-11-25 — I2 implementation complete for independent review (baton.codxpc, E386173)
+
+M386168/M386172 resolved the historical ownership gate; canonical claim E386173
+resumed the retained source from2d9a1f5a. [I2 report](evidence/i2-386165/REPORT.md):
+22-path candidate `sha256:87c3ba728e7fe75e649816a3bc44ae0bb6ff7bc6b3b915a84e70bbb495aa1627`. Production mapping,
+automatic exact-byte first copy, D1 audited withdrawal/separate retry and D2
+1MiB handling implemented; X1–X3 verified synthetically. C5–C8 dispositions are
+in the report. Actual Codex participation remains unknown; Claude requirements
+are preserved. No engine/build/real-credential/provider/native action.
+
+Final focused selection: 1240 collected/executed, 1237 passed,
+3 pre-existing failing IDs (five failure blocks exactly equal to baseline),
+zero skips/unaccounted/drift; 54.263172s. Full selection is not
+green and no failures are waived. Total retained verification 245.215088s.
+All shared candidate targets remain baseline; DESIGN and five isolation paths
+excluded, prerequisites unchanged. Fixture root empty/removed; archive, manifest,
+diff, logs and source identity retained. Next: K exact-byte independent review,
+routine corrections directly; owner import/checkpoint after acceptance. Suggested
+commit: `Realize Codex homes and audited subscription credential lifecycle`.
+Remaining selected-execution gates Q1–Q4 and editing I3 stay in the finite
+[native-readiness plan](evidence/native-readiness-386143/PLAN.md); W386048/W386057
+remain separate. No new owner decision requested.
+
+## 2026-11-25 — Q1 build/offline packet prepared (baton.codxpc, E386185)
+
+M386183/E386184 select preparation only from I2 checkpoint54fa5319. Claimed
+E386185; ownership M386186 is new packet evidence plus append-only dossier,
+with no product/shared-source edits. The complete packet is
+[evidence/q1-preparation-386185/REPORT.md](evidence/q1-preparation-386185/REPORT.md).
+All22 I2 paths match the checkpoint. Candidate archive SHA256
+`5a9d8f8239ff1b65b2aa11445c19b7ef1e071b98c627677a5ca48973def34b0d`
+contains27 paths; execution payload manifest SHA256
+`95b750b5484d247f29b9c364bbcc0b9e051ceb1613fea1bc185cc03562930289`.
+
+The proposed selected run is one pinned-source build and one production-entry
+container through real manager/OCI owners, with synthetic Authority/login,
+network none and UID:GID1000:1000. Real F1 engine observation must persist after
+positive exact-container removal and manager reopen. Local build image/config-ID
+binding is explicit; registry digest resolution is not guessed. The default
+owner-run check has no engine capability. Deterministic preparation passed;
+engine/image/native outcomes remain unknown. No build, engine operation, real
+credential read, provider call or native activation occurred. Independent packet
+review and owner execution selection remain separate gates. Existing attribution,
+Claude requirements, baseline failures and finite Q2/I3/Q3/Q4 route are unchanged.
+
+
+## 2026-11-25 — owner-selected local Q1 correction
+
+B1/B2 corrected in evidence/q1-correction-prompt/REPORT.md, original preserved. One launcher keyword change; three end-to-end fake execute scenarios and two existing preparation scripts pass. Candidate 5b6db7649c2518a0d9142164c2641f67721a677b8425761dc6981ad0f57e0916, payload 07cdf3c098202c8f4f925d6868fc73450c4b63e87e5a2fc42a7799f2bb44697f. Independent narrow delta review next; no build/engine/provider/credential execution selected. Copilot direct scope M386190; no handler claim held.
+
+
+## 2026-11-25 — Q1 executed once and passed
+
+Owner selection M386193; evidence/q1-execution-386185/REPORT.md and RESULT.json. Image sha256:34364fb17d18b9abd1d155c33123888313a31141cc433322e68a7ad170a98fa7 from54fa5319. Real manager/engine receipt survives removal/reopen; offline identity/tools/home checks pass; container ceased/removed. Zero provider calls, synthetic credentials only. No native Job qualification claimed. Next: concrete Q2 editing-capture selection packet; no execution selected.
+
+## 2026-11-25 — Q2 fixed selections and complete preparation (baton.codxpc)
+
+The owner's Q2 instruction carries forward gpt-6-astra, fast unset,
+codex-pushcoin-subscription sourced from ~/.codex-pushcoin/auth.json, automatic
+private first-copy into the Job/worker home and no source writeback. These are
+settled choices; they supersede the earlier Q1 review wording that the model
+and credential source still needed selection. Credential access and execution
+are NOT selected. M386197 confirms packet/dossier ownership, E386198 resolves
+routing and claim E386199 authorizes preparation only.
+
+[Q2 complete packet](evidence/q2-preparation-386199/REPORT.md) proposes one native
+editing attempt through the actual manager/file-exchange/production entry,
+using accepted Q1 image34364fb1 and source54fa5319. Fresh private placement,
+bridge egress without an allowlist,180s turn/15s verification/300s outer plus90s
+cleanup, one CLI invocation and no retry are concrete proposed settings for
+subsequent owner selection. Private raw evidence is distinct from a fixed public
+projection; novel events and all acceptance remain held for private review.
+Actual contributors stay unknown; stronger Claude requirements are unchanged.
+No build, engine operation, real credential access or provider call was made.
+
+Candidate archive79 paths, SHA256
+`abb0f083ef37f1a6fd7a2985a8bc93f1b57786ddd1829fbd8668e5181d74fbfc`;
+payload SHA256
+`6841dc66747ab5c5bfc2c9ccd4a7f614bbdc93526b3ef2cbaad33b8921f42f14`.
+Six accounted preparation checks pass; they include real execute-path negatives
+and a real Codex adapter path stopped at the substituted provider seam. Synthetic
+edit/terminal evidence is labelled and is not an invented successful provider
+fixture. No product edit or acceptance relaxation. Q1's92 retained evidence
+hashes verified read-only; I2 remains1237/1240 with its three baseline failures.
+
+
+## 2026-11-25 — phase ending is not substantive success
+
+Owner ruling pinned in evidence/phase-ending-owner-ruling/RULING.md: reviewer judgment of artifacts, uncertain judgment escalates to Slawomir; no inferred success from activity stream. Supersedes event-family enumeration as a phase-ending gate. Owner knowingly accepts current Docker-contained sandbox bypass/copied login/open egress posture, no egress restriction work selected. No new Q2 execution selected.
