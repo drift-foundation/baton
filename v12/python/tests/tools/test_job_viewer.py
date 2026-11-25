@@ -123,16 +123,16 @@ class TheViewShowsTheJobsThatAreThere(ViewerCase):
         self.assertNotIn("'open':", shown)
         self.assertNotIn("job-a/", shown[second:])
 
-    def test_the_exact_identities_are_shown_not_summarised(self):
-        """An operator chasing a stuck Job has to be able to hand somebody
-        else the identity, so the detail view carries the real ones."""
+    def test_reserved_identities_are_not_presented_as_attempts(self):
+        """Phase/work identities remain visible; unadmitted attempt identities do not."""
         detail = "\n".join(render_detail(self.snapshot(), "job-a",
                                           now=self.now))
         stage = self.document()["jobs"][0]["stages"][0]
         self.assertIn(stage["stage_id"], detail)
         self.assertIn(stage["work_id"], detail)
-        self.assertIn(stage["attempt_id"], detail)
-        self.assertIn(stage["offer_id"], detail)
+        self.assertNotIn(stage["attempt_id"], detail)
+        self.assertNotIn(stage["offer_id"], detail)
+        self.assertIn("reserved identity — admission unknown", detail)
 
     def test_a_foreign_identity_refuses_instead_of_rendering_empty(self):
         """An empty detail view for a Job that is not here reads exactly like
@@ -167,14 +167,14 @@ class NothingIsInvented(ViewerCase):
             for episode in stage.get("episodes") or []:
                 episode["opened_at"] = None
         shown = self.listed(self.snapshot(document))
-        self.assertIn("running unknown", shown)
+        self.assertIn("duration unknown", shown)
 
     def test_episode_opening_is_not_an_invocation_start(self):
         """An episode is opened before admission/launch and cannot time a turn."""
         document = self.document()
         document["observed_at"] = "2026-09-02T00:05:00.000Z"
         shown = self.listed(self.snapshot(document))
-        self.assertIn("running unknown", shown)
+        self.assertIn("duration unknown", shown)
         self.assertNotIn("running 5m00s", shown)
 
     def test_an_unread_manager_says_nobody_looked(self):
@@ -658,8 +658,7 @@ class TheKnownIdentitiesAreShown(ViewerCase):
             "assignment": {"work_ref": "0000000a-W1",
                            "participant": "baton.worker", "generation": 3},
             "activity": None}
-        if allocation is not None:
-            stage["allocation"] = allocation
+        stage["allocation"] = allocation or {"episode": stage["episode"], "assignment_id": stage["attempt_id"]}
         return document
 
     def test_the_real_scheduler_reservation_is_displayed(self):
@@ -687,8 +686,8 @@ class TheKnownIdentitiesAreShown(ViewerCase):
         detail = "\n".join(render_detail(snapshot, "job-a", now=self.now))
         self.assertIn(str(allocation["worker_id"]), detail)
         self.assertIn(str(allocation["assignment_id"]), detail)
-        # AND THE RUNTIME FIELDS STILL SAY UNKNOWN, because there is none.
-        self.assertRegex(detail, r"runtime\s+unknown")
+        # No runtime fact is asserted when none was published.
+        self.assertNotIn("runtime recorded:", detail)
 
     def test_the_runtime_fixed_assignment_fields_are_rendered(self):
         """These are the runtime's OWN assignment, retained beside the
@@ -703,10 +702,8 @@ class TheKnownIdentitiesAreShown(ViewerCase):
     def test_an_absent_runtime_and_reservation_say_unknown(self):
         snapshot = self.snapshot()
         detail = "\n".join(render_detail(snapshot, "job-a", now=self.now))
-        self.assertRegex(detail, r"runtime\s+unknown")
-        self.assertRegex(detail, r"assigned to\s+unknown")
-        self.assertRegex(detail, r"reserved worker\s+unknown")
-        self.assertRegex(detail, r"reservation\s+unknown")
+        self.assertNotIn("runtime recorded:", detail)
+        self.assertIn("reserved identity — admission unknown", detail)
 
     def test_an_exact_identifier_is_never_clipped_in_detail(self):
         """A 100-column clamp cut identifiers in half -- precisely the view an
@@ -803,10 +800,10 @@ class TheViewerPerformsNoAct(ViewerCase):
         viewer = JobViewer(lambda: held.pop(), clock=lambda: self.now,
                            interval=1.0, sleeper=lambda _: None)
         viewer.refresh()
-        self.assertNotRegex("\n".join(render_list(viewer.snapshot, now=self.now)), r"implementation\s+running\s+running")
+        self.assertNotRegex("\n".join(render_list(viewer.snapshot, now=self.now)), r"unknown \(reported state: running\)")
         viewer.refresh()
         shown = "\n".join(render_list(viewer.snapshot, now=self.now))
-        self.assertRegex(shown, r"implementation\s+running\s+running")
+        self.assertRegex(shown, r"unknown \(reported state: running\)")
         self.assertIn("2026-09-02T00:00:05.000Z", shown)
         # ONE tick, not two: at a 1s interval that is a 1s worst case.
         self.assertEqual(viewer.reads, 2)
@@ -1164,6 +1161,8 @@ class TheDurationSaysWhetherItIsStillRunning(ViewerCase):
         stage = document["jobs"][0]["stages"][0]
         stage["state"] = state
         stage["attempt_id"] = self.ATTEMPT
+        stage["episodes"][0]["attempt_id"] = self.ATTEMPT
+        stage["allocation"] = {"episode": stage["episode"], "assignment_id": self.ATTEMPT}
         invocation = {"attempt_id": self.ATTEMPT, "operation": "work",
                       "scope": "provider-process", "sequence_id": self.SEQUENCE,
                       "command_digest": self.DIGEST,
@@ -1233,7 +1232,7 @@ class TheDurationSaysWhetherItIsStillRunning(ViewerCase):
                               {"command_digest": "sha256:" + "d" * 64})):
             with self.subTest(why=why):
                 listed, detail = self.shown(self.observed(**spoiled))
-                self.assertIn("running unknown", mine(listed.splitlines()))
+                self.assertIn("duration unknown", mine(listed.splitlines()))
                 self.assertNotIn("provider ran", listed + detail)
                 self.assertNotIn("has not ended", listed + detail)
 
@@ -1646,9 +1645,9 @@ class TheWorkerDeclaredEndingIsRenderedFromTheRealProjection(ViewerCase):
             self.assertIn("verification ended 1", rendered)
             self.assertNotIn("provider timed out", rendered)
 
-    def test_an_UNDECLARED_ending_renders_EXACTLY_as_it_did_before(self):
+    def test_an_unadmitted_exceptional_state_keeps_unknown_cause(self):
         for rendered in self.shown(self.failing()):
-            self.assertIn("stage ended exceptionally", rendered)
+            self.assertIn("unknown (reported state: exceptional)", rendered)
             self.assertIn("cause unknown", rendered)
             self.assertNotIn("worker declared", rendered)
 

@@ -245,24 +245,22 @@ def render_list(snapshot, *, now, width=100, wall_now=None,
         return lines
     observed_at = snapshot.observed_at
     for job in jobs:
-        stages = job.get("stages") or []
         lines.append("")
         lines.append("JOB " + str(job.get("job_id") or UNKNOWN)
                      + "   submission " + str(job.get("submission_id")
                                               or UNKNOWN) + "   " + job_observation.job_outcome(job))
         lines.append("  Job age " + job_observation.job_age(job, observed_at))
-        for stage in stages:
-            one = _stage_line(stage, observed_at, job)
+        observed = job_observation.job_view(snapshot.document, job)
+        lines.append("  " + observed["summary"])
+        for one in observed["phases"]:
             # THE LABEL IS PART OF THE VALUE, because which label is honest
             # depends on whether the invocation recorded an ending and a fixed
             # format string cannot ask. See `job_observation._INVOCATION_LABELS`.
             #
-            # NINETEEN COLUMNS is every spelling the labelled duration has
-            # under a hundred hours -- `running unknown`, `not started`,
-            # `running 45s` and `provider ran 59m59s` -- so the columns after
-            # it do not shift between two stages of the same Job.
+            # Keep timing and the phase identity in fixed columns. Positions
+            # and evidence have their own lines so long words are not clipped.
             lines.append(
-                "  {kind:<16} {state:<16} {duration:<19} "
+                "  {kind:<16} {duration:<19} "
                 "activity {activity:<8} {stage_id}".format(**one)[:width])
             # BOUNDED AND ON ITS OWN LINE, for the reason the activity instant
             # is: it is the sentence a frozen duration under an open stage
@@ -277,7 +275,10 @@ def render_list(snapshot, *, now, width=100, wall_now=None,
             if one["activity_when"]:
                 lines.append("      activity " + one["activity_when"])
             lines.append("      " + one["timeout"])
-            lines.append("      attempt " + str(one["attempt_id"]))
+            lines.append("      " + one["position"])
+            lines.append("      " + str(one["attempt_count"]) + " admitted attempt(s)")
+            lines.extend("      " + line for line in job_observation.attempt_lines(one))
+            lines.extend("      " + line for line in one["facts"])
             lines.append("      operation " + one["operation"])
             if isinstance(one.get("model_attribution"), str):
                 lines.append("      " + one["model_attribution"])
@@ -346,29 +347,24 @@ def render_detail(snapshot, job_id, *, now, wall_now=None,
              "  terminal     " + str(job.get("terminal_policy") or UNKNOWN)]
     observed_at = snapshot.observed_at
     lines.append("  Job age " + job_observation.job_age(job, observed_at))
-    for stage in job.get("stages") or []:
-        one = _stage_line(stage, observed_at, job)
+    observed = job_observation.job_view(snapshot.document, job)
+    lines.append("  " + observed["summary"])
+    for stage, one in zip(job.get("stages") or [], observed["phases"]):
         lines.append("")
-        lines.append("  STAGE " + one["stage_id"] + "  [" + one["state"] + "]")
-        rows = [("work", one["work_id"]),
-                ("episode", one["episode"]),
-                ("offer", one["offer_id"]),
-                ("attempt", one["attempt_id"]),
-                ("operation", one["operation"]),
-                ("runtime", one["runtime_id"]),
-                ("engine", one["execution_runtime"]),
-                ("assigned to", one["assignment_participant"]),
-                ("assigned work", one["assignment_work"]),
-                ("assigned gen", one["assignment_generation"]),
-                ("reserved worker", one["allocation_worker"]),
-                ("reserved as", one["allocation_participant"]),
-                ("reservation", one["allocation_assignment"]),
-                ("reservation state", one["allocation_state"]),
-                ("lane", one["allocation_lane"]),
-                ("pool generation", one["allocation_generation"]),
-                ("selection", one["allocation_selection"]),
-                ("started", one["started_at"]),
-                ("duration", one["duration"])]
+        lines.append("  STAGE " + one["stage_id"] + "  [" + one["position"] + "]")
+        lines.extend("    " + line for line in job_observation.attempt_lines(one, detail=True))
+        lines.extend("    " + line for line in one["facts"])
+        rows = [("work", one["work_id"]), ("role", one["role"]),
+                ("dependencies", ", ".join(one["dependencies"]) or "none published"),
+                ("operation", one["operation"]), ("duration" if one["invocation"] else "", one["duration"])]
+        if one["admission"] == "admitted":
+            rows.extend([(label, one[key]) for label, key in (
+                ("episode", "episode"), ("offer", "offer_id"),
+                ("assigned to", "assignment_participant"), ("assigned work", "assignment_work"),
+                ("assigned gen", "assignment_generation"), ("reserved worker", "allocation_worker"),
+                ("reserved as", "allocation_participant"), ("reservation", "allocation_assignment"),
+                ("reservation state", "allocation_state"), ("lane", "allocation_lane"),
+                ("pool generation", "allocation_generation"), ("selection", "allocation_selection"))])
         # THE SENTENCE KEEPS THE DURATION'S COMPANY rather than trailing the
         # stage, so the figure and what it does not say are read together.
         if one["duration_note"]:

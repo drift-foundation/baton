@@ -458,10 +458,11 @@ class JobOutcomesFirst(Fixture):
         job["stages"][1]["gates"] = [{"stage_id": "job-a/implementation", "state": "exceptional", "open": False}]
         text = self.shown([job])
         self.assertIn("Job job-a: FAILED", text)
-        self.assertIn("implementation: exceptional; agent fault; cause unknown", text)
-        self.assertIn("review: blocked; waiting on job-a/implementation (exceptional)", text)
+        self.assertIn("implementation: unknown (reported state: exceptional); admission unknown", text)
+        self.assertIn("agent fault; cause unknown", text)
+        self.assertIn("review: planned — waiting on job-a/implementation (exceptional)", text)
         self.assertLess(text.index("Job job-a:"), text.index("Services:"))
-        self.assertLess(text.index("review: blocked"), text.index("manager"))
+        self.assertLess(text.index("review: planned"), text.index("manager"))
         self.assertIn("manager    running", text)
         self.assertIn("publisher  running", text)
         self.assertNotIn("no proposal", text)
@@ -496,10 +497,11 @@ class JobOutcomesFirst(Fixture):
 
     def test_missing_reason_output_and_gate_evidence_stay_unknown(self):
         text = self.shown([self.job()])
-        self.assertIn("exceptional; cause unknown", text)
-        self.assertIn("blocked; blocker unknown", text)
+        self.assertIn("unknown (reported state: exceptional)", text)
+        self.assertIn("cause unknown", text)
+        self.assertIn("planned — waiting on unknown; admission unknown", text)
         self.assertNotIn("no proposal", text)
-        self.assertNotIn("waiting on", text)
+        self.assertIn("waiting on unknown", text)
         self.assertNotIn("agent fault", text)
 
     def test_typed_adapter_failure_is_shown_without_worker_prose(self):
@@ -552,7 +554,7 @@ class JobOutcomesFirst(Fixture):
     def test_launcher_vocabulary_matches_its_producers(self):
         from baton_v12.job_manager import documents
         from baton_v12.worker_manager import exchange
-        self.assertEqual(stack._STATUS_STAGE_STATES, documents.STAGE_STATES)
+        self.assertEqual(stack._STATUS_STAGE_STATES, documents.STAGE_STATES + ("awaiting-answer", "answered"))
         self.assertEqual(stack._STATUS_FAULT_CODES, exchange.FAULT_CODES)
         self.assertEqual(stack._STATUS_ADAPTER_CODES, exchange.ADAPTER_CODES)
 
@@ -1383,7 +1385,9 @@ class RuntimeBoundary(Fixture):
 
     def test_open_episodes_and_recorded_runtimes_are_counted(self):
         self.publish_snapshot(jobs=[{"stages": [
-            {"episodes": [{"ended_state": None}, {"ended_state": "ended"}],
+            {"state": "running", "episode": 1, "attempt_id": "a",
+             "allocation": {"episode": 1, "assignment_id": "a"},
+             "episodes": [{"episode": 1, "attempt_id": "a", "ended_state": None}, {"ended_state": "ended"}],
              "runtime": {"state": "running"}},
             {"episodes": [{"ended_state": "ended"}], "runtime": None}]}])
         answer = stack.runtime_boundary(self.root)
@@ -1394,10 +1398,12 @@ class RuntimeBoundary(Fixture):
     def test_stop_reports_what_it_did_not_resolve(self):
         self.start_both()
         self.publish_snapshot(jobs=[{"stages": [
-            {"episodes": [{"ended_state": None}], "runtime": None}]}])
+            {"state": "running", "episode": 1, "attempt_id": "a",
+             "allocation": {"episode": 1, "assignment_id": "a"},
+             "episodes": [{"episode": 1, "attempt_id": "a", "ended_state": None}], "runtime": None}]}])
         code, text = self.output(lambda s: stack.stop(self.root, stream=s))
         self.assertEqual(code, 0)
-        self.assertIn("1 open episode", text)
+        self.assertIn("1 admitted attempt(s) in nonterminal phases", text)
         self.assertIn("does not stop a runtime", text)
 
     def test_stop_without_a_snapshot_says_unknown_rather_than_none(self):

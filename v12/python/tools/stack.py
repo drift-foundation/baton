@@ -852,12 +852,9 @@ def runtime_boundary(root, *, now=None, held=None):
     open_episodes, recorded_runtimes = 0, 0
     # Safe to walk: `_malformed` already refused every shape this traverses.
     for job in (answer["document"].get("jobs") or []):
-        for stage in (job.get("stages") or []):
-            for episode in (stage.get("episodes") or []):
-                if episode.get("ended_state") is None:
-                    open_episodes += 1
-            if stage.get("runtime") is not None:
-                recorded_runtimes += 1
+        observed = job_observation.job_view(answer["document"], job)
+        open_episodes += observed["open_admitted"]
+        recorded_runtimes += observed["recorded_runtimes"]
     return {"state": "observed",
             "observed_age_seconds": answer["observed_age_seconds"],
             "published_age_seconds": answer["published_age_seconds"],
@@ -870,7 +867,7 @@ def _print_runtime_boundary(answer, stream):
         print("runtime   unknown: " + answer["detail"]
               + ", so what is still executing was NOT resolved here", file=stream)
         return
-    print("runtime   %d open episode(s), %d with a recorded runtime, observed "
+    print("runtime   %d admitted attempt(s) in nonterminal phases; %d recorded runtime(s), observed "
           "%.1fs ago" % (answer["open_episodes"], answer["recorded_runtimes"],
                          answer["observed_age_seconds"]), file=stream)
     if answer["open_episodes"]:
@@ -1154,20 +1151,19 @@ def _print_job_outcomes(published, stream):
     for job in jobs:
         print("Job " + _status_text(job.get("job_id")) + ": " + _job_outcome(job), file=stream)
         print("  Job age " + job_observation.job_age(job, published["document"].get("observed_at")), file=stream)
-        for stage in job.get("stages") or []:
-            state = stage.get("state")
-            state = state if state in _STATUS_STAGE_STATES else "unknown"
-            one = job_observation.stage_view(stage, published["document"].get("observed_at"), job)
-            reason = one["reason"]
-            detail = reason.removeprefix("failed: stage ended exceptionally; ").removeprefix("held: ")
-            print("  " + _status_text(stage.get("stage_id") or stage.get("kind")) + ": " + state + ("; " + detail if detail else ""), file=stream)
-            # The duration carries its own label: `running` only while the
-            # invocation has recorded no ending. See job_observation.
+        observed = job_observation.job_view(published["document"], job)
+        print("  " + observed["summary"], file=stream)
+        for one in observed["phases"]:
+            print("  " + _status_text(one["stage_id"]) + ": " + one["position"], file=stream)
             print("    " + one["duration"] + "; " + one["timeout"], file=stream)
             if one["duration_note"]:
                 print("    " + one["duration_note"], file=stream)
-            print("    attempt " + _status_text(one["attempt_id"]) + "; operation " + one["operation"], file=stream)
+            for line in job_observation.attempt_lines(one) + one["facts"]:
+                print("    " + line, file=stream)
+            print("    operation " + one["operation"], file=stream)
             print("    activity " + one["activity"] + ("; " + one["activity_when"] if one["activity_when"] else ""), file=stream)
+            if one["reason"]:
+                print("    " + one["reason"], file=stream)
         cancellation = job.get("cancellation")
         if type(cancellation) is dict:
             print("  Cancellation: " + _status_text(cancellation.get("trigger")) + "; shutdown " + _status_text(cancellation.get("shutdown")), file=stream)

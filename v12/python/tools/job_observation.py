@@ -1,7 +1,7 @@
 """Pure shared interpretation of existing job-status/9 facts (W385263).
 
 No stores, collectors, provider calls or new wire schema. Both operator views
-use these functions; a future TUI can consume stage_view and job_outcome.
+use job_view; a future TUI can consume the same phase and attempt evidence.
 """
 import datetime
 import json
@@ -28,7 +28,7 @@ def observation_age(observed_at, now):
 
 _STATUS_STAGE_STATES = ("blocked", "queued", "offered", "claimed", "starting",
                         "waiting", "running", "reviewing", "integrating", "answering",
-                        "changes-requested", "completed", "exceptional")
+                        "changes-requested", "completed", "exceptional", "awaiting-answer", "answered")
 _STATUS_ADAPTER_CODES = ("declaration-set-invalid", "declaration-name-unsupported",
                          "role-output-missing", "other-role-output-required")
 _STATUS_FAULT_CODES = ("agent", "answer", "entitlement", "exchange", "input",
@@ -42,7 +42,7 @@ def _status_text(value):
 
 
 def _job_outcome(job):
-    states = [stage.get("state") for stage in (job.get("stages") or [])]
+    states = [stage.get("state") for stage in _rows(_mapping(job).get("stages"))]
     if "exceptional" in states:
         return "FAILED"
     if type(job.get("cancellation")) is dict:
@@ -56,6 +56,10 @@ def _job_outcome(job):
     if any(state in ("offered", "claimed", "starting", "waiting", "running",
                      "reviewing", "integrating", "answering") for state in states):
         return "IN PROGRESS"
+    if "awaiting-answer" in states:
+        return "WAITING FOR AN ANSWER"
+    if "answered" in states:
+        return "ANSWERED — HELD"
     if "queued" in states:
         return "QUEUED"
     return "BLOCKED"
@@ -159,7 +163,7 @@ def _activity(stage, state, observed_at):
     runtime = stage.get("runtime") if type(stage.get("runtime")) is dict else {}
     held = runtime.get("activity") if type(runtime.get("activity")) is dict \
         else {}
-    if not stage.get("attempt_id") or held.get("attempt_id") != stage.get("attempt_id"):
+    if type(stage.get("attempt_id")) is not str or not stage["attempt_id"] or held.get("attempt_id") != stage["attempt_id"]:
         return UNKNOWN, None
     count = held.get("bytes_observed")
     if type(count) is not int or type(count) is bool \
@@ -184,7 +188,7 @@ def _live_episode(stage):
     live = stage.get("episode")
     if live is None:
         return None
-    for one in stage.get("episodes") or []:
+    for one in _rows(stage.get("episodes")):
         if one.get("episode") == live:
             return one
     return None
@@ -227,11 +231,13 @@ def stage_timing(stage, job, observed_at):
     has NOT ended owes an operator, and `None` everywhere else.
     """
     state = stage.get("state")
-    never = (state in HELD_STATES and not stage.get("runtime") and not stage.get("exchange")
-             and not stage.get("receipts")
-             and not any(one.get("ended_at") for one in stage.get("episodes") or [])
-             and (not stage.get("attempt_id") or state == "blocked"))
-    result = {"running": "not started" if never else UNKNOWN, "running_seconds": None,
+    # Preserve the existing control-limit selection. This predicate is not
+    # evidence of non-admission or of execution never having started.
+    held_without_timing = (state in HELD_STATES and not stage.get("runtime") and not stage.get("exchange")
+                           and not stage.get("receipts")
+                           and not any(one.get("ended_at") for one in _rows(stage.get("episodes")))
+                           and (not stage.get("attempt_id") or state == "blocked"))
+    result = {"running": UNKNOWN, "running_seconds": None,
               "started_at": None, "ended_at": None, "scope": "provider-process",
               "job_age": job_age(job or {}, observed_at), "deadlines": [],
               "limiting": [], "remaining_seconds": None, "complete": False,
@@ -240,8 +246,8 @@ def stage_timing(stage, job, observed_at):
               # malformed, foreign-attempt or future invocation keeps the
               # qualification it already had rather than gaining a label that
               # would read as a measurement.
-              "invocation": None, "duration_note": None,
-              "duration": "not started" if never else "running " + UNKNOWN}
+              "invocation": None, "invocation_valid": False, "duration_note": None,
+              "duration": "duration unknown"}
     try:
         clock = _instant(observed_at)
     except (ValueError, TypeError, OverflowError):
@@ -250,13 +256,14 @@ def stage_timing(stage, job, observed_at):
     invocation = exchange.get("invocation")
     command = exchange.get("command") if type(exchange.get("command")) is dict else {}
     provider = None
-    if type(invocation) is dict and stage.get("attempt_id") and invocation.get("attempt_id") == stage["attempt_id"] and invocation.get("scope") == "provider-process" and invocation.get("operation") == "work" and invocation.get("command_digest") and invocation.get("command_digest") == command.get("command_digest") and invocation.get("sequence_id") == command.get("sequence_id"):
+    if type(invocation) is dict and type(stage.get("attempt_id")) is str and stage.get("attempt_id") and invocation.get("attempt_id") == stage["attempt_id"] and invocation.get("scope") == "provider-process" and invocation.get("operation") == "work" and type(invocation.get("command_digest")) is str and invocation.get("command_digest") and invocation.get("command_digest") == command.get("command_digest") and type(invocation.get("sequence_id")) is str and invocation.get("sequence_id") and invocation.get("sequence_id") == command.get("sequence_id"):
         try:
             start = _instant(invocation.get("started_at"))
             deadline = _instant(invocation.get("deadline_at"))
             end = None if invocation.get("ended_at") is None else _instant(invocation["ended_at"])
             if start > clock or deadline < start or (end is not None and not start <= end <= clock):
                 raise ValueError("invalid invocation chronology")
+            result.update(invocation_valid=True, started_at=invocation["started_at"])
             if end is not None or state not in TERMINAL_STATES:
                 seconds = (clock if end is None else end) - start
                 recorded = "active" if end is None else "ended"
@@ -293,9 +300,9 @@ def stage_timing(stage, job, observed_at):
     stage_control = next((one for one in stages if type(one) is dict and one.get("stage_id") == stage.get("stage_id")), {})
     missing = []
     limits = [("Job", control.get("job"))]
-    if not never:
+    if not held_without_timing:
         limits.append(("stage", stage_control))
-        if provider != {}:
+        if provider != {} and invocation is not None:
             limits.append(("provider", provider))
     for name, held in limits:
         try:
@@ -323,12 +330,14 @@ def stage_timing(stage, job, observed_at):
 
 
 def _stage_line(stage, observed_at, job=None):
-    episode = _live_episode(stage)
-    started = (episode or {}).get("opened_at")
-    ended = (episode or {}).get("ended_at")
+    stage = _mapping(stage)
+    interpreted = _attempts(stage, job)
     state = stage.get("state")
     state = state if state in _STATUS_STAGE_STATES else UNKNOWN
-    timing = stage_timing(stage, job, observed_at)
+    timing_stage = stage
+    if interpreted["admission"] != "admitted":
+        timing_stage = dict(stage, exchange=dict(_mapping(stage.get("exchange")), invocation=None))
+    timing = stage_timing(timing_stage, job, observed_at)
     held = {
         "timing": timing,
         # THE MEASURE AND THE LABELLED LINE ARE TWO KEYS. `running` is the
@@ -341,8 +350,8 @@ def _stage_line(stage, observed_at, job=None):
         "duration_note": timing["duration_note"],
         "invocation": timing["invocation"],
         "timeout": timing["timeout"],
-        "stage_id": stage.get("stage_id") or UNKNOWN,
-        "kind": stage.get("kind") or UNKNOWN,
+        "stage_id": _status_text(stage.get("stage_id")),
+        "kind": _status_text(stage.get("kind")),
         "state": state,
         # THE EXACT IDENTITIES WHEN THEY ARE KNOWN, and `unknown` when they are
         # not. An operator chasing a stuck Job needs the attempt id to give to
@@ -370,7 +379,7 @@ def _stage_line(stage, observed_at, job=None):
         # else, so the fixed-width columns keep it and the variable-width fact
         # moves to a continuation line, exactly as `reason` already does.
         "activity_when": _activity(stage, state, observed_at)[1],
-        "reason": _reason(stage, state),
+        "reason": _reason(stage, state).removeprefix("failed: stage ended exceptionally; "),
         "operation": reported_operation(stage),
         "model_attribution": ((stage.get("runtime") or {}).get("model_attribution", "Requested: not selected (account default)")
                               if type(stage.get("runtime")) is dict else None),
@@ -392,7 +401,12 @@ def _stage_line(stage, observed_at, job=None):
                                   if assignment.get("generation") is not None
                                   else UNKNOWN),
     })
-    held.update(_allocated(stage.get("allocation")))
+    held.update(_allocated(interpreted["live_allocation"]))
+    held.update(interpreted)
+    held["dependencies"] = [_gate_text(gate) for gate in _rows(stage.get("gates"))]
+    held["role"] = held["kind"]
+    held["position"] = _position(stage, held)
+    held["facts"] = _facts(stage, held, observed_at)
     return held
 
 
@@ -499,8 +513,8 @@ def _declared_ending(stage):
     this", and inventing a sentence for them is the thing this model refuses
     everywhere else.
     """
-    diagnostic = stage.get("attempt_diagnostics")
-    if type(diagnostic) is not dict:
+    diagnostic = _diagnostic(stage, stage.get("attempt_id"))
+    if not diagnostic:
         return None
     held = diagnostic.get(_DECLARATION_MEMBER)
     if _declared_fact(held, "disposition") != _DECLARED_UNABLE:
@@ -583,8 +597,6 @@ def _reason(stage, state):
         return "held: waiting on " + named + more
     if state == "blocked":
         return "held: blocker unknown"
-    if state in HELD_STATES:
-        return "held: no attempt in progress"
     return ""
 
 
@@ -602,3 +614,161 @@ def reported_operation(stage):
 
 stage_view = _stage_line
 job_outcome = _job_outcome
+
+
+# A1: evidence belongs to an episode/attempt pair, never to a phase by proximity.
+def _mapping(value):
+    return value if type(value) is dict else {}
+
+
+def _rows(value):
+    return [row for row in value if type(row) is dict] if type(value) is list else []
+
+
+def _diagnostic(stage, attempt):
+    diagnostic = _mapping(stage.get("attempt_diagnostics"))
+    if type(attempt) is not str or not attempt or diagnostic.get("attempt_id") != attempt or diagnostic.get("schema") != "baton.v12.attempt-failure-cause/1":
+        return {}
+    return diagnostic
+
+
+def _stop_word(target, diagnostic):
+    state = target.get("state")
+    if state == "ceased":
+        return "stopped"
+    if state == "fenced-unstarted":
+        return "cancelled before start"
+    cause = _mapping(diagnostic.get("cause"))
+    if _declared_fact(cause, "outcome") in ("ceased-absent", "ceased-quiescent", "held-attachment-unresolved"):
+        return "stopped"
+    if state in ("pending", "awaiting-offer-lapse", "ordered", "order-failed", "ending-in-progress", "held-unknown"):
+        return "stopping (" + state + ")"
+    return ""
+
+
+def _attempts(stage, job):
+    attempts = []
+    live = None
+    allocations = _rows(stage.get("allocations")) + [_mapping(stage.get("allocation"))]
+    targets = _rows(_mapping(_mapping(job).get("cancellation")).get("targets"))
+    for row in _rows(stage.get("episodes")):
+        number, identity = row.get("episode"), row.get("attempt_id")
+        valid = type(number) is int and number > 0 and type(identity) is str and bool(identity)
+        current = valid and type(stage.get("episode")) is int and number == stage.get("episode") and identity == stage.get("attempt_id")
+        allocation = next((one for one in allocations if valid and type(one.get("episode")) is int and one.get("episode") == number and one.get("assignment_id") == identity), {})
+        target = next((one for one in targets if valid and one.get("stage_id") == stage.get("stage_id") and type(one.get("episode")) is int and one.get("episode") == number and one.get("attempt_id") == identity), {})
+        receipts = [one for one in _rows(stage.get("receipts")) if current and type(one.get("episode")) is int and one.get("episode") == number]
+        offered = any(one.get("act") == "admit" and one.get("state") in ("performed", "adopted") and _mapping(one.get("detail")).get("canonical_state") == "committed" for one in receipts)
+        claimed = any(one.get("act") == "claim" and _mapping(_mapping(one.get("detail")).get("result")).get("state") == "claimed" for one in receipts)
+        admission = "admitted" if allocation or offered or claimed else UNKNOWN
+        if target.get("state") == "retired-before-admission":
+            admission = "not admitted"
+        attempt = {"episode": number, "attempt_id": identity, "admission": admission,
+                   "live": current, "allocation": allocation, "receipts": receipts,
+                   "offered": offered, "ending": row.get("ended_state"), "ended_at": row.get("ended_at"),
+                   "stop": _stop_word(target, _diagnostic(stage, identity) if current else {})}
+        attempts.append(attempt)
+        if current:
+            live = attempt
+    return {"attempts": attempts, "live_attempt": live,
+            "admission": live["admission"] if live else UNKNOWN,
+            "live_allocation": live["allocation"] if live else {},
+            "attempt_count": sum(one["admission"] == "admitted" for one in attempts)}
+
+
+_POSITIONS = {"offered": "admitted", "claimed": "admitted", "starting": "admitted", "waiting": "admitted",
+              "running": "in progress", "reviewing": "in progress", "integrating": "in progress", "answering": "in progress",
+              "awaiting-answer": "waiting for an answer", "answered": "answered — held",
+              "changes-requested": "changes requested", "completed": "done", "exceptional": "failed"}
+
+
+def _position(stage, held):
+    state = stage.get("state")
+    if state == "blocked":
+        closed = [_gate_text(one) for one in _rows(stage.get("gates")) if one.get("open") is False]
+        position = "planned — waiting on " + (", ".join(closed) or UNKNOWN)
+    elif state == "queued":
+        position = "ready"
+    elif type(state) is str and state in _POSITIONS:
+        position = _POSITIONS[state] if held["admission"] == "admitted" else "unknown (reported state: " + state + ")"
+    else:
+        position = UNKNOWN
+    held["plan_position"] = position if state in HELD_STATES else UNKNOWN
+    stop = (held["live_attempt"] or {}).get("stop")
+    if held["admission"] == "admitted" and stop and type(state) is str and state in _POSITIONS:
+        position = position + " — " + stop if stop.startswith("stopping") and state != "exceptional" else stop
+    held["execution_position"] = position if state not in HELD_STATES else UNKNOWN
+    return position + "; admission " + held["admission"]
+
+
+# Ending vocabulary of the published offer settlement result.
+_CLAIM_ENDINGS = ("declined", "expired", "abandoned-after-restart", "claim-refused", "settlement-expired")
+
+
+def _facts(stage, held, observed_at):
+    facts = ["result recorded: " + _status_text(artifact.get("output_name")) for artifact in _rows(stage.get("artifacts"))]
+    live = held["live_attempt"]
+    if live:
+        if live["offered"]:
+            facts.append("offered")
+        for receipt in live["receipts"]:
+            if receipt.get("act") == "admit" and receipt.get("state") == "refused":
+                facts.append("offer refused")
+            if receipt.get("act") == "claim":
+                result = _mapping(_mapping(receipt.get("detail")).get("result")).get("state")
+                facts.append("claimed" if result == "claimed" else "claim not obtained: " + (_status_text(result) if result in _CLAIM_ENDINGS else UNKNOWN))
+    if held["admission"] != "admitted":
+        return facts
+    if held["live_allocation"]:
+        facts.append("reserved on " + held["allocation_worker"])
+    runtime = _mapping(stage.get("runtime"))
+    for key in ("runtime_id", "execution_runtime"):
+        if key in runtime and runtime[key] is not None:
+            facts.append("runtime recorded: " + _status_text(runtime[key]) if type(runtime[key]) is str and runtime[key] else "runtime unknown")
+    diagnostic = _diagnostic(stage, stage.get("attempt_id"))
+    if _declared_fact(diagnostic, "start_failure_recorded") is True:
+        facts.append("runtime start failed")
+    exchange = _mapping(stage.get("exchange"))
+    receipt = _mapping(exchange.get("receipt"))
+    if "accepted_at" in receipt:
+        try:
+            _instant(receipt["accepted_at"])
+            facts.append("command accepted (reported) at " + _status_text(receipt["accepted_at"]))
+        except (ValueError, TypeError, OverflowError):
+            facts.append("command acceptance unknown")
+    if held["timing"]["invocation_valid"]:
+        facts.extend(("execution started", "provider started at " + _status_text(held["started_at"])))
+    elif exchange.get("invocation") is not None:
+        facts.append("execution start unknown; invocation evidence unknown")
+    return facts
+
+
+def attempt_lines(held, *, detail=False):
+    """Shared words; renderers choose indentation, not evidence or positions."""
+    lines = []
+    for attempt in held["attempts"]:
+        if attempt["admission"] != "admitted":
+            if detail and attempt["admission"] == UNKNOWN:
+                lines.append("reserved identity — admission unknown")
+            continue
+        line = "attempt " + str(attempt["episode"]) + " " + _status_text(attempt["attempt_id"])
+        if attempt["stop"]:
+            line += " — " + attempt["stop"]
+        lines.append(line)
+        if not attempt["live"]:
+            allocation = attempt["allocation"]
+            lines.append("  worker " + _status_text(allocation.get("worker_id")) + "; participant " + _status_text(allocation.get("participant"))
+                         + "; allocation " + _status_text(allocation.get("allocation_state")) + "; release reason " + _status_text(allocation.get("release_reason")))
+            lines.append("  " + ("ending " + _status_text(attempt["ending"]) + " at " + _status_text(attempt["ended_at"]) if attempt["ending"] else "no ending recorded"))
+            lines.append("  other facts unknown")
+    return lines
+
+
+def job_view(document, job):
+    """Interpret one Job from a published document, without I/O or mutation."""
+    phases = [stage_view(stage, _mapping(document).get("observed_at"), job)
+              for stage in _rows(_mapping(job).get("stages"))]
+    count = sum(phase["attempt_count"] for phase in phases if phase["state"] in _STATUS_STAGE_STATES and phase["state"] not in TERMINAL_STATES)
+    return {"phases": phases, "open_admitted": count,
+            "recorded_runtimes": sum(stage.get("runtime") is not None for stage in _rows(_mapping(job).get("stages"))),
+            "summary": str(count) + " admitted attempt(s) in nonterminal phases"}

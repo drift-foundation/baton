@@ -66,8 +66,8 @@ control store is not a read.
 
 ## What it shows
 
-- Every Job in the snapshot, with its stages, exact stage/work/offer/attempt
-  identities and the current episode.
+- Every Job in the snapshot, with its phases and exact stage/work identities.
+  Only admitted attempts expose their attempt, offer and episode identities.
 - `duration`, computed **only from recorded source times** — the attributed
   provider invocation's own `started_at` and `ended_at`. It says `running Ns`
   only while no ending is recorded. See below.
@@ -202,10 +202,10 @@ live word, getting more convincing as the clock moved.
 The label follows the invocation and nothing else:
 
 ```text
-  implementation   running          running 30s      activity 1.40 MiB job-a/implementation
+  implementation                    running 30s      activity 1.40 MiB job-a/implementation
       provider timeout in 30s
 
-  implementation   running          provider ran 15s activity 1.40 MiB job-a/implementation
+  implementation                    provider ran 15s activity 1.40 MiB job-a/implementation
       provider invocation ended after 15s; this stage has not ended
       stage timeout in 1m00s
 ```
@@ -217,8 +217,8 @@ The label follows the invocation and nothing else:
   it also carries one sentence saying exactly that, on its own continuation
   line so the fixed columns keep the stage id.
 - timing that is absent, malformed, in the future, stale or attributed to
-  another attempt keeps its `unknown`, and a stage that never started still
-  reads `not started`. Neither acquires a tense.
+  another attempt reads `duration unknown`. A planned phase also has unknown
+  duration; absence of execution evidence never means `not started`.
 
 `provider ran Ns` is a claim about a **process**. It does not say the stage or
 the Job ended, completed, succeeded or was accepted — the state, timeout,
@@ -307,3 +307,48 @@ state is reported evidence, not a current provider tool; exchange attempt bindin
 is explicitly unverified where the snapshot cannot establish it. No reader adds
 collectors or interprets raw logs. JSON schemas and service-health checks remain
 unchanged (W385263).
+
+### Planned phases and admitted attempts
+
+Both `just status` and the monitor use the pure `tools/job_observation.py`
+interpretation of `baton.v12.job-status/9`. Plan position and admission are
+independent. Admission has three answers:
+
+- **admitted**: an allocation bound by episode and assignment id to the row's
+  attempt id; or, for the live episode, an `admit` receipt in `performed` or
+  `adopted` state whose detail says `canonical_state: committed`; or a `claim`
+  receipt whose result state is `claimed`.
+- **not admitted**: a cancellation target for the exact stage, episode and
+  attempt in state `retired-before-admission`.
+- **unknown**: everything else. A row, its opening or ending, a stage state,
+  a refused offer, a gate, and missing evidence prove neither admission nor
+  non-admission.
+
+Only admitted rows are called attempts. Detail shows other reserved rows as
+“reserved identity — admission unknown”. Earlier admitted attempts retain their
+allocation, ending and exactly bound cancellation evidence; other facts are
+unknown. The list counts admitted attempts. Runtime summaries count admitted
+attempts in nonterminal phases, separately from recorded runtimes.
+
+Every fact must name or be published under its exact attempt. Allocations match
+both episode and assignment id; receipts match the live episode; cancellation
+targets match stage, episode and attempt id; diagnostics and activity match
+attempt id. Provider invocation evidence additionally passes the existing scope,
+operation, command digest, sequence and chronology checks. Earlier-attempt stops
+never label a later attempt.
+
+**Command accepted (reported)** means the exchange receipt records acceptance,
+with its instant. **Execution started** and **provider started** require a valid
+attributable provider invocation record. Runtime identity, reported operation
+states, activity and **result recorded** do not prove start or that a model ran.
+Non-provider phases have no attributable execution-start fact in this snapshot;
+their duration is unknown. No provider wording is shown without an invocation.
+Valid invocation durations remain `running Ns` or `provider ran Ns`.
+
+The position words are **planned**, **ready**, **admitted**, **in progress**,
+**waiting for an answer**, **answered — held**, **changes requested**, and
+**done**. Execution states without admission read **unknown (reported state:
+state)**. **Failed** denotes an exceptional ending; **stopping (state)** denotes
+a stop request or order with cessation unconfirmed; **stopped** requires recorded
+cessation; **cancelled before start** requires the exact attempt's
+`fenced-unstarted` target. Cancellation of the Job remains a separate line.

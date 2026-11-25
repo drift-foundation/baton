@@ -21,7 +21,9 @@ def document():
             "canonical": True, "incarnation": "publisher",
             "jobs": [{"job_id": "job-a", "submission_id": "submission-a",
                       "stages": [{"stage_id": "implementation", "kind": "implementation",
-                                  "state": "running", "attempt_id": "attempt-a",
+                                  "state": "running", "attempt_id": "attempt-a", "episode": 1,
+                                  "episodes": [{"episode": 1, "attempt_id": "attempt-a"}],
+                                  "allocation": {"episode": 1, "assignment_id": "attempt-a"},
                                   "runtime": {"activity": {"attempt_id": "attempt-a", "bytes_observed": 0,
                                                            "observed_at": "2026-11-19T17:59:00.000Z"}},
                                   "exchange": {"states": [{"operation": "work", "state": "dispatched"}]}}]}]}
@@ -297,16 +299,16 @@ class Timing(unittest.TestCase):
         before = copy.deepcopy(doc)
         for rendered in views(doc):
             self.assertIn("Job age 1h00m", rendered)
-            self.assertRegex(rendered, r"running\s+unknown")
+            self.assertRegex(rendered, r"duration\s+unknown")
             self.assertIn("stage timeout in 1m00s", rendered)
-            self.assertIn("provider timing unknown (earliest known only)", rendered)
+            self.assertNotIn("provider", rendered)
         self.assertEqual(doc, before)
 
-    def test_blocked_episode_has_not_started(self):
+    def test_blocked_episode_has_unknown_start(self):
         stage = {"state": "blocked", "stage_id": "review", "attempt_id": "future", "episode": 0,
                  "episodes": [{"episode": 0, "opened_at": "2026-11-19T17:00:00Z", "ended_at": None}]}
         view = model.stage_timing(stage, self.job(), NOW)
-        self.assertEqual(view["running"], "not started")
+        self.assertEqual(view["running"], "unknown")
         self.assertEqual(view["timeout"], "Job timeout in 5m00s")
         stage["episodes"][0]["ended_at"] = NOW
         self.assertEqual(model.stage_timing(stage, self.job(), NOW)["running"], "unknown")
@@ -384,6 +386,10 @@ class TheFailureCauseAndTimingShareOneStageLine(unittest.TestCase):
         stage = job["stages"][0]
         fact = InvocationClocks.stage(None)
         stage["attempt_id"] = fact["attempt_id"]
+        stage["episodes"][0]["attempt_id"] = fact["attempt_id"]
+        stage["allocation"]["assignment_id"] = fact["attempt_id"]
+        if stage.get("attempt_diagnostics"):
+            stage["attempt_diagnostics"]["attempt_id"] = fact["attempt_id"]
         stage.setdefault("exchange", {}).update(fact["exchange"])
         stage["exchange"]["invocation"]["ended_at"] = "2026-11-19T17:59:45Z"
         before = copy.deepcopy(doc)
@@ -407,7 +413,7 @@ class TheFailureCauseAndTimingShareOneStageLine(unittest.TestCase):
         doc["jobs"][0].update(Timing.job(None))
         for rendered in views(doc):
             self.assertIn("whether verification ran is unknown", rendered)
-            self.assertRegex(rendered, r"running\s+unknown")
+            self.assertRegex(rendered, r"duration\s+unknown")
             self.assertIn("timeout not applicable (stage ended)", rendered)
 
 
@@ -452,6 +458,10 @@ class AnEndedInvocationIsNotARunningOne(unittest.TestCase):
         fact = InvocationClocks.stage(None)
         stage["state"] = state
         stage["attempt_id"] = fact["attempt_id"]
+        stage["episodes"][0]["attempt_id"] = fact["attempt_id"]
+        stage["allocation"]["assignment_id"] = fact["attempt_id"]
+        if stage.get("attempt_diagnostics"):
+            stage["attempt_diagnostics"]["attempt_id"] = fact["attempt_id"]
         stage["exchange"].update(fact["exchange"])
         if invocation:
             stage["exchange"]["invocation"].update(spoiled)
@@ -568,10 +578,10 @@ class AnEndedInvocationIsNotARunningOne(unittest.TestCase):
         view = model.stage_timing(stage, job, NOW)
         self.assertIsNone(view["invocation"])
         self.assertIsNone(view["running_seconds"])
-        self.assertEqual(view["duration"], "running unknown")
+        self.assertEqual(view["duration"], "duration unknown")
         self.assertIsNone(view["duration_note"])
         for rendered in views(doc):
-            self.assertRegex(rendered, r"running\s+unknown")
+            self.assertRegex(rendered, r"duration\s+unknown")
             self.assertNotIn("provider ran", rendered)
 
     # -- missing and unqualified timing ------------------------------------
@@ -596,16 +606,18 @@ class AnEndedInvocationIsNotARunningOne(unittest.TestCase):
                 self.assertIsNone(view["invocation"])
                 self.assertIsNone(view["running_seconds"])
                 self.assertEqual(view["running"], "unknown")
-                self.assertEqual(view["duration"], "running unknown")
+                self.assertEqual(view["duration"], "duration unknown")
                 self.assertIsNone(view["duration_note"])
-                self.assertIn("provider timing unknown (earliest known only)",
-                              view["timeout"])
+                if members.get("invocation") is False:
+                    self.assertNotIn("provider", view["timeout"])
+                else:
+                    self.assertIn("provider timing unknown (earliest known only)", view["timeout"])
                 for rendered in views(doc):
-                    self.assertRegex(rendered, r"running\s+unknown")
+                    self.assertRegex(rendered, r"duration\s+unknown")
                     self.assertNotIn("provider ran", rendered)
                     self.assertNotIn("has not ended", rendered)
 
-    def test_a_stage_that_NEVER_STARTED_still_says_NOT_STARTED(self):
+    def test_a_planned_stage_has_UNKNOWN_start(self):
         doc = document()
         job = doc["jobs"][0]
         job.update(Timing.job(None))
@@ -613,10 +625,11 @@ class AnEndedInvocationIsNotARunningOne(unittest.TestCase):
                           "kind": "implementation", "state": "queued"}]
         view = model.stage_timing(job["stages"][0], job, NOW)
         self.assertIsNone(view["invocation"])
-        self.assertEqual(view["duration"], "not started")
+        self.assertEqual(view["duration"], "duration unknown")
         self.assertIsNone(view["duration_note"])
         for rendered in views(doc):
-            self.assertIn("not started", rendered)
+            self.assertIn("duration unknown", rendered)
+            self.assertNotIn("not started", rendered)
             self.assertNotIn("provider ran", rendered)
             self.assertNotRegex(rendered, r"running\s+\d")
 
@@ -630,7 +643,7 @@ class AnEndedInvocationIsNotARunningOne(unittest.TestCase):
                 ("running", {}, "running 30s"),
                 ("running", {"ended_at": self.ENDED}, "provider ran 15s"),
                 ("completed", {"ended_at": self.ENDED}, "provider ran 15s"),
-                ("running", {"ended_at": "bad"}, "running unknown")):
+                ("running", {"ended_at": "bad"}, "duration unknown")):
             with self.subTest(expected=expected, state=state):
                 doc, stage, job = self.staged(state=state, **members)
                 self.assertEqual(model.stage_timing(stage, job, NOW)["duration"],
@@ -638,7 +651,7 @@ class AnEndedInvocationIsNotARunningOne(unittest.TestCase):
                 for rendered in views(doc):
                     self.assertIn(expected, rendered)
                     for other in ("running 30s", "provider ran 15s",
-                                  "running unknown"):
+                                  "duration unknown"):
                         if other != expected:
                             self.assertNotIn(other, rendered)
 
@@ -686,3 +699,361 @@ class AnEndedInvocationIsNotARunningOne(unittest.TestCase):
             self.assertNotIn("cause unknown", rendered)
             self.assertNotRegex(rendered, r"running\s+15s")
 
+
+
+class A1Contract(unittest.TestCase):
+    """§6's numbered behaviours on status, monitor list and monitor detail.
+
+    Synthetic documents model published evidence, never owner receipts from a
+    live run. The four byte-identical retained documents have a local manifest.
+    """
+
+    def fixture(self, state="running", admitted=True):
+        doc = document()
+        stage = doc["jobs"][0]["stages"][0]
+        stage.update(state=state, runtime=None, exchange=None, receipts=[],
+                     offer_id="reserved-offer", artifacts=[])
+        if admitted:
+            stage["allocation"].update(worker_id="worker-a", participant="participant-a",
+                                       allocation_state="reserved", release_reason=None)
+        else:
+            stage.pop("allocation")
+        return doc, stage
+
+    def check(self, doc, present=(), absent=()):
+        before = copy.deepcopy(doc)
+        rendered = views(doc)
+        for index, text in enumerate(rendered):
+            with self.subTest(surface=("status", "list", "detail")[index]):
+                for word in present:
+                    self.assertIn(word, text)
+                for word in absent:
+                    self.assertNotIn(word, text)
+        self.assertEqual(doc, before, "interpretation must be pure")
+        return rendered
+
+    def receipt(self, act, state="performed", result=None, **detail):
+        return {"episode": 1, "act": act, "state": state,
+                "detail": {"result": result, **detail}}
+
+    def cancel(self, doc, state, attempt="attempt-a", episode=1):
+        target = {"stage_id": "implementation", "episode": episode,
+                  "attempt_id": attempt, "state": state}
+        doc["jobs"][0]["cancellation"] = {"trigger": "operator", "shutdown": "unresolved",
+                                         "targets": [target]}
+        return target
+
+    def invocation(self, stage):
+        stage["exchange"] = copy.deepcopy(InvocationClocks.stage(None)["exchange"])
+        stage["exchange"]["invocation"]["attempt_id"] = "attempt-a"
+        return stage["exchange"]["invocation"]
+
+    def diagnostic(self, stage, **members):
+        stage["attempt_diagnostics"] = {"schema": "baton.v12.attempt-failure-cause/1",
+                                        "attempt_id": "attempt-a", **members}
+        return stage["attempt_diagnostics"]
+
+    def test_01_allocation_admits_exact_episode_and_attempt(self):
+        doc, stage = self.fixture()
+        self.check(doc, ("admission admitted", "attempt 1 attempt-a", "reserved on worker-a"))
+        for key, value in (("episode", 2), ("episode", True), ("assignment_id", "foreign"), ("assignment_id", None)):
+            changed = copy.deepcopy(doc)
+            changed["jobs"][0]["stages"][0]["allocation"][key] = value
+            self.check(changed, ("admission unknown",), ("attempt 1 attempt-a", "reserved on worker-a"))
+
+    def test_02_only_committed_live_admission_receipt_admits(self):
+        for state in ("performed", "adopted"):
+            doc, stage = self.fixture(admitted=False)
+            stage["receipts"] = [self.receipt("admit", state, canonical_state="committed")]
+            self.check(doc, ("admission admitted", "attempt 1 attempt-a", "offered"))
+            for key, value in (("episode", 2), ("episode", None), ("detail", {"canonical_state": "pending"})):
+                changed = copy.deepcopy(doc)
+                changed["jobs"][0]["stages"][0]["receipts"][0][key] = value
+                self.check(changed, ("admission unknown",), ("attempt 1 attempt-a", "offered"))
+
+    def test_03_claimed_receipt_alone_admits(self):
+        doc, stage = self.fixture(admitted=False)
+        stage["receipts"] = [self.receipt("claim", result={"state": "claimed"})]
+        self.check(doc, ("admission admitted", "attempt 1 attempt-a", "claimed"), ("reserved on",))
+
+    def test_04_ending_is_not_admission(self):
+        doc, stage = self.fixture("completed", admitted=False)
+        stage["episodes"][0].update(ended_state="completed", ended_at=NOW)
+        text = self.check(doc, ("admission unknown",), ("attempt 1 attempt-a",))
+        self.assertIn("reserved identity — admission unknown", text[2])
+
+    def test_05_refused_offer_is_a_fact_not_admission(self):
+        doc, stage = self.fixture(admitted=False)
+        stage["receipts"] = [self.receipt("admit", "refused")]
+        self.check(doc, ("offer refused", "admission unknown"), ("attempt 1 attempt-a", "admission not admitted"))
+
+    def test_06_claim_ending_does_not_admit(self):
+        for ending in ("declined", "expired", "abandoned-after-restart", "claim-refused", "settlement-expired"):
+            doc, stage = self.fixture(admitted=False)
+            stage["receipts"] = [self.receipt("claim", result={"state": ending})]
+            self.check(doc, ("claim not obtained: " + ending, "admission unknown"), ("attempt 1 attempt-a",))
+
+    def test_07_blocked_is_planned_with_unknown_admission(self):
+        doc, stage = self.fixture("blocked", admitted=False)
+        stage["gates"] = [{"open": False, "stage_id": "dependency", "state": "running"}]
+        output = self.check(doc, ("planned — waiting on dependency", "admission unknown", "duration unknown"),
+                            ("attempt-a", "reserved-offer", "never admitted", "not started"))
+        self.assertNotIn("reserved identity", output[0])
+        self.assertNotIn("reserved identity", output[1])
+        self.assertIn("reserved identity — admission unknown", output[2])
+
+    def test_08_queued_is_ready_not_running(self):
+        doc, stage = self.fixture("queued", admitted=False)
+        self.check(doc, ("ready; admission unknown", "duration unknown"), ("running", "attempt-a", "not started", "no attempt in progress"))
+
+    def test_09_noncanonical_does_not_change_evidence(self):
+        doc, stage = self.fixture("blocked", admitted=False)
+        doc["canonical"] = False
+        outputs = self.check(doc, ("planned — waiting on unknown; admission unknown",), ("attempt-a", "not started"))
+        for text in outputs[1:]:
+            self.assertIn("manager was NOT read", text)
+        self.assertEqual(model.job_view(doc, doc["jobs"][0]), model.job_view(dict(doc, canonical=True), doc["jobs"][0]))
+
+    def test_10_retired_target_is_positive_nonadmission(self):
+        doc, stage = self.fixture("blocked", admitted=False)
+        target = self.cancel(doc, "retired-before-admission")
+        self.check(doc, ("admission not admitted",), ("stopped", "stopping", "attempt 1 attempt-a"))
+        for key in ("attempt_id", "episode", "stage_id"):
+            changed = copy.deepcopy(doc)
+            changed["jobs"][0]["cancellation"]["targets"][0][key] = None
+            self.check(changed, ("admission unknown",), ("admission not admitted",))
+
+    def test_11_all_execution_states_require_admission(self):
+        for state in ("offered", "claimed", "starting", "waiting", "running", "reviewing", "integrating", "answering", "awaiting-answer", "answered", "changes-requested", "completed", "exceptional"):
+            doc, stage = self.fixture(state, admitted=False)
+            self.check(doc, ("unknown (reported state: " + state + ")",), ("attempt 1 attempt-a",))
+
+    def test_12_done_requires_admission(self):
+        doc, stage = self.fixture("completed")
+        self.check(doc, ("done; admission admitted",))
+        stage.pop("allocation")
+        self.check(doc, ("unknown (reported state: completed)",), ("done;",))
+
+    def test_13_live_facts_are_independent(self):
+        cases = [({"runtime": {"runtime_id": "runtime-a"}}, "runtime recorded: runtime-a"),
+                 ({"runtime": {"execution_runtime": "active"}}, "runtime recorded: active"),
+                 ({"receipts": [self.receipt("admit", canonical_state="committed")]}, "offered"),
+                 ({"receipts": [self.receipt("claim", result={"state": "claimed"})]}, "claimed"),
+                 ({"receipts": [self.receipt("admit", "refused")]}, "offer refused"),
+                 ({"receipts": [self.receipt("claim", result={"state": "expired"})]}, "claim not obtained: expired"),
+                 ({"exchange": {"receipt": {"accepted_at": NOW}}}, "command accepted (reported)"),
+                 ({"exchange": {"states": [{"operation": "work", "state": "answered"}]}}, "work answered (reported; attempt association unverified)")]
+        for members, expected in cases:
+            doc, stage = self.fixture()
+            stage.update(members)
+            others = [word for _, word in cases if word != expected and word != "offered"]
+            self.check(doc, (expected,), tuple(others) + ("execution started", "provider started"))
+
+    def test_14_runtime_is_recorded_not_started(self):
+        doc, stage = self.fixture()
+        stage["runtime"] = {"runtime_id": "runtime-a"}
+        self.check(doc, ("runtime recorded: runtime-a",), ("started", "running"))
+
+    def test_15_recorded_failed_start(self):
+        doc, stage = self.fixture()
+        stage["runtime"] = {"runtime_id": "runtime-a"}
+        self.diagnostic(stage, start_failure_recorded={"known": True, "value": True})
+        self.check(doc, ("runtime start failed", "runtime recorded: runtime-a"), ("execution started",))
+
+    def test_16_acceptance_is_not_start(self):
+        doc, stage = self.fixture()
+        stage["exchange"] = {"receipt": {"accepted_at": NOW}}
+        self.check(doc, ("command accepted (reported) at " + NOW, "duration unknown"), ("started", "running", "provider"))
+
+    def test_17_dispatch_is_reported_not_start(self):
+        doc, stage = self.fixture()
+        stage["exchange"] = {"receipt": {"accepted_at": NOW}, "states": [{"operation": "work", "state": "dispatched"}]}
+        self.check(doc, ("command accepted (reported)", "work dispatched (reported; attempt association unverified)"), ("execution started", "provider started"))
+
+    def test_18_nonprovider_integration_has_no_start_fact(self):
+        doc, stage = self.fixture("integrating")
+        stage.update(kind="integration", artifacts=[{"output_name": "integration-result", "locator": "file:///result"}],
+                     exchange={"receipt": {"accepted_at": NOW}, "states": [{"operation": "work", "state": "answered"}]})
+        self.check(doc, ("command accepted (reported)", "work answered (reported; attempt association unverified)", "result recorded: integration-result", "duration unknown"),
+                   ("execution started", "provider", "not started"))
+
+    def test_19_valid_invocation_proves_both_starts(self):
+        doc, stage = self.fixture()
+        invocation = self.invocation(stage)
+        self.check(doc, ("execution started", "provider started", "running 30s"), ("command accepted",))
+        stage["state"] = "completed"
+        self.check(doc, ("execution started", "provider started", "duration unknown"))
+        stage["state"] = "running"
+        invocation["ended_at"] = "2026-11-19T17:59:45Z"
+        self.check(doc, ("execution started", "provider started", "provider ran 15s"), ("running 15s",))
+
+    def test_20_each_invalid_binding_keeps_acceptance_independent(self):
+        for key, value in (("attempt_id", "foreign"), ("attempt_id", None), ("scope", "other"), ("operation", "describe"),
+                           ("command_digest", "foreign"), ("command_digest", None), ("sequence_id", "foreign"), ("sequence_id", None), ("started_at", "bad"),
+                           ("started_at", "2026-11-19T18:00:01Z"), ("deadline_at", "2026-11-19T17:00:00Z"),
+                           ("ended_at", "bad"), ("ended_at", "2026-11-19T17:00:00Z"), ("ended_at", "2026-11-19T18:00:01Z")):
+            doc, stage = self.fixture()
+            self.invocation(stage)[key] = value
+            stage["exchange"]["receipt"] = {"accepted_at": NOW}
+            self.check(doc, ("command accepted (reported)", "execution start unknown", "duration unknown"), ("execution started", "provider started"))
+
+    def test_21_observations_are_not_provider_evidence(self):
+        doc, stage = self.fixture()
+        stage.update(runtime={"activity": {"attempt_id": "attempt-a", "bytes_observed": 12, "observed_at": NOW}},
+                     artifacts=[{"output_name": "candidate"}])
+        self.check(doc, ("12 B", "result recorded: candidate"), ("provider", "model ran", "execution started"))
+
+    def test_22_every_stop_target_word(self):
+        for state, word in (("pending", "stopping (pending)"), ("awaiting-offer-lapse", "stopping (awaiting-offer-lapse)"),
+                            ("ordered", "stopping (ordered)"), ("order-failed", "stopping (order-failed)"),
+                            ("ending-in-progress", "stopping (ending-in-progress)"), ("held-unknown", "stopping (held-unknown)"),
+                            ("ceased", "stopped"), ("fenced-unstarted", "cancelled before start")):
+            doc, stage = self.fixture("exceptional")
+            self.cancel(doc, state)
+            self.check(doc, (word,), ("failed; admission", "failed — stopping"))
+        doc, stage = self.fixture("completed")
+        self.cancel(doc, "ended-before-request")
+        self.check(doc, ("done; admission admitted",), ("stopped", "stopping", "cancelled before start"))
+
+    def test_23_running_order_is_in_progress_stopping(self):
+        doc, stage = self.fixture()
+        self.cancel(doc, "ordered")
+        self.check(doc, ("in progress — stopping (ordered)",), ("stopped",))
+
+    def test_24_exceptional_has_unchanged_reason(self):
+        doc, stage = self.fixture("exceptional")
+        stage["exchange"] = {"terminal": {"ending": "faulted", "fault_code": "agent", "adapter_failure": {"component": "role-adapter", "code": "role-output-missing"}}}
+        self.check(doc, ("failed; admission admitted", "agent fault; role-output-missing"), ("stopped",))
+
+    def test_25_earlier_stop_never_labels_live_attempt(self):
+        doc, stage = self.fixture()
+        stage["episode"] = 2
+        stage["episodes"][0]["episode"] = 2
+        stage["allocation"]["episode"] = 2
+        stage["episodes"].insert(0, {"episode": 1, "attempt_id": "older", "ended_state": "exceptional", "ended_at": NOW})
+        stage["allocations"] = [{"episode": 1, "assignment_id": "older"}]
+        self.cancel(doc, "ceased", "older", 1)
+        outputs = self.check(doc, ("in progress; admission admitted", "attempt 1 older — stopped", "attempt 2 attempt-a"))
+        for output in outputs:
+            live = next(line for line in output.splitlines() if "attempt 2 attempt-a" in line)
+            self.assertNotIn("stopped", live)
+
+    def test_26_diagnostics_must_name_this_attempt(self):
+        for identity in ("foreign", None):
+            doc, stage = self.fixture("exceptional")
+            diagnostic = self.diagnostic(stage, start_failure_recorded={"known": True, "value": True},
+                                         cause={"outcome": {"known": True, "value": "ceased-absent"}},
+                                         worker_declaration={"disposition": {"known": True, "value": "unable"}})
+            diagnostic["attempt_id"] = identity
+            self.check(doc, ("failed; admission admitted", "cause unknown"), ("stopped", "runtime start failed", "worker declared"))
+        doc, stage = self.fixture("exceptional")
+        self.diagnostic(stage, cause={"outcome": {"known": True, "value": "ceased-quiescent"}})
+        self.check(doc, ("stopped; admission admitted",))
+
+    def test_27_no_cessation_from_elapsed_time_or_order(self):
+        for state in ("running", "exceptional", "completed"):
+            doc, stage = self.fixture(state)
+            self.cancel(doc, "ordered")
+            doc["jobs"][0]["cancellation"].update(shutdown_bound_seconds=120, elapsed_seconds=999, shutdown="unresolved")
+            self.diagnostic(stage, cause={"outcome": {"known": True, "value": "ordered"}})
+            self.check(doc, ("stopping (ordered)",), ("stopped",))
+
+    def test_28_cancelled_before_start_is_on_attempt_not_job(self):
+        doc, stage = self.fixture("exceptional")
+        self.cancel(doc, "fenced-unstarted")
+        outputs = self.check(doc, ("attempt 1 attempt-a — cancelled before start",))
+        self.assertIn("Cancellation: operator; shutdown unresolved", outputs[0])
+        self.assertNotIn("Job job-a: cancelled before start", outputs[0])
+
+    def test_29_answer_positions_and_job_outcomes_are_known(self):
+        for state, words, outcome in (("awaiting-answer", "waiting for an answer", "WAITING FOR AN ANSWER"), ("answered", "answered — held", "ANSWERED — HELD")):
+            doc, stage = self.fixture(state)
+            self.check(doc, (words + "; admission admitted", outcome), ("UNKNOWN",))
+
+    def test_30_history_shows_only_published_historical_facts(self):
+        doc, stage = self.fixture()
+        stage["episode"] = 4
+        stage["episodes"][0]["episode"] = 4
+        stage["allocation"]["episode"] = 4
+        stage["episodes"][:0] = [{"episode": 1, "attempt_id": "old-a", "ended_state": "changes-requested", "ended_at": NOW},
+                                 {"episode": 2, "attempt_id": "old-b"}, {"episode": 3, "attempt_id": "reserved-old"}]
+        stage["allocations"] = [{"episode": n, "assignment_id": identity, "worker_id": "old-worker", "participant": "old-participant", "allocation_state": "released", "release_reason": "cleanup-retained"} for n, identity in ((1, "old-a"), (2, "old-b"))]
+        outputs = self.check(doc, ("attempt 1 old-a", "attempt 2 old-b", "worker old-worker; participant old-participant", "allocation released; release reason cleanup-retained", "ending changes-requested at " + NOW, "no ending recorded", "other facts unknown"), ("reserved-old",))
+        self.assertIn("3 admitted attempt(s)", outputs[1])
+        self.assertIn("reserved identity — admission unknown", outputs[2])
+
+    def test_31_summary_counts_admitted_nonterminal_attempts(self):
+        for state, admitted, expected in (("completed", True, 0), ("blocked", False, 0), ("running", True, 1)):
+            doc, stage = self.fixture(state, admitted)
+            self.check(doc, (str(expected) + " admitted attempt(s) in nonterminal phases",))
+            answer = stack.runtime_boundary(Path("unused"), held={"state": "fresh", "canonical": True, "document": doc,
+                                            "observed_age_seconds": 0, "published_age_seconds": 0})
+            self.assertEqual(answer["open_episodes"], expected)
+
+    def test_32_four_retained_snapshots(self):
+        import hashlib
+        root = Path(__file__).parent / "fixtures" / "a1"
+        manifest = json.loads((root / "manifest.json").read_text())
+        self.assertEqual(len(manifest), 4)
+        found = 0
+        for record in manifest:
+            raw = (root / record["file"]).read_bytes()
+            self.assertEqual(hashlib.sha256(raw).hexdigest(), record["sha256"])
+            doc = json.loads(raw)
+            snapshot = job_viewer.read_snapshot(doc, received_at=0)
+            output = io.StringIO()
+            stack._print_job_outcomes({"state": "fresh", "canonical": doc["canonical"], "document": doc}, output)
+            listed = "\n".join(job_viewer.render_list(snapshot, now=0))
+            for job in doc["jobs"]:
+                detail = "\n".join(job_viewer.render_detail(snapshot, job["job_id"], now=0))
+                for stage in job["stages"]:
+                    if stage["kind"] == "review" and stage["state"] == "blocked":
+                        found += 1
+                        for text in (output.getvalue(), listed, detail):
+                            self.assertNotIn(stage["attempt_id"], text)
+                            self.assertNotIn(stage["offer_id"], text)
+                            self.assertIn("admission not admitted" if record["file"] == "retained-3.json" else "admission unknown", text)
+        self.assertEqual(found, 2, "two retained snapshots contain blocked reviews; the other two completed")
+
+    def test_33_partial_and_damaged_fields_degrade(self):
+        for key in ("runtime", "exchange", "attempt_diagnostics", "allocation", "allocations", "receipts"):
+            for value in (None, [], "broken", {"unknown": True}):
+                doc, stage = self.fixture(admitted=False)
+                stage[key] = value
+                self.check(doc, ("admission unknown", "duration unknown"), ("execution started", "provider started"))
+        doc, stage = self.fixture(admitted=False)
+        stage.update(state=[], stage_id=None, kind={}, episodes=[{"episode": [], "attempt_id": {}}])
+        self.check(doc, ("unknown",))
+
+    def test_34_option_a_freshness_and_activity_remain_independent(self):
+        doc, stage = self.fixture()
+        for count, identity, expected in ((0, "attempt-a", "0 B"), (42, "attempt-a", "42 B"), (42, "other", "unknown"), (None, "attempt-a", "unknown")):
+            stage["runtime"] = {"activity": {"attempt_id": identity, "bytes_observed": count, "observed_at": "2026-11-19T17:59:00.000Z"}}
+            for text in self.check(doc, absent=("provider started",)):
+                self.assertRegex(text, r"activity\s+" + re.escape(expected))
+        stage["runtime"]["activity"].update(attempt_id="attempt-a", bytes_observed=0)
+        self.check(doc, ("observed 1m00s ago",), ("STALE",))
+        stage["state"] = "completed"
+        self.check(doc, ("last at 2026-11-19T17:59:00.000Z",), ("observed 1m00s ago",))
+        with tempfile.TemporaryDirectory() as root:
+            path = Path(root) / "status.json"
+            path.write_text(json.dumps(doc))
+            os.utime(path, (EPOCH, EPOCH))
+            for age, stale in ((14.999, False), (15, True)):
+                answer = stack.snapshot(Path(root), EPOCH + age)
+                self.assertEqual(answer["state"] == "stale", stale)
+                output = io.StringIO()
+                stack._print_job_outcomes(answer, output)
+                self.assertEqual("Jobs (stale" in output.getvalue(), stale)
+                snapshot = job_viewer.read_snapshot(doc, received_at=0)
+                for renderer in (lambda: job_viewer.render_list(snapshot, now=0, wall_now=EPOCH + age),
+                                 lambda: job_viewer.render_detail(snapshot, "job-a", now=0, wall_now=EPOCH + age)):
+                    self.assertEqual("!! STALE" in "\n".join(renderer()), stale)
+
+    def test_35_documentation_names_rules_and_approved_words(self):
+        documentation = (Path(__file__).parents[2] / "JOB-VIEWER.md").read_text()
+        for words in ("admitted", "not admitted", "unknown", "episode", "assignment id", "attempt id", "Command accepted", "Execution started", "provider started", "planned", "ready", "in progress", "waiting for an answer", "answered — held", "changes requested", "done", "Failed", "stopping", "stopped", "cancelled before start"):
+            self.assertIn(words, documentation)
+        for state, expected in (("offered", "admitted"), ("claimed", "admitted"), ("starting", "admitted"), ("waiting", "admitted"), ("reviewing", "in progress"), ("answering", "in progress"), ("changes-requested", "changes requested")):
+            doc, stage = self.fixture(state)
+            self.check(doc, (expected + "; admission admitted",))

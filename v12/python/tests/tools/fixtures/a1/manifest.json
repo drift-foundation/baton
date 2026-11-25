@@ -1,0 +1,22 @@
+[
+  {
+    "file": "retained-1.json",
+    "source": "work/records/2026/11/finding-v12-retained-failure-analysis/evidence/native-return-20261122/status.json",
+    "sha256": "58db8b167f00317e04df5fcb08f3648e2888aaf096ea7f0fd2f9a3ca20e6f7ee"
+  },
+  {
+    "file": "retained-2.json",
+    "source": "work/records/2026/11/finding-v12-retained-recovery-admission/evidence/output-limit-recovery-20261122/status.json",
+    "sha256": "98d137209c3e32a65ba43fde0ae2eeb91b17af75f92635224e670f1065303ca9"
+  },
+  {
+    "file": "retained-3.json",
+    "source": "work/records/2026/11/finding-v12-worker-declared-failure-status/evidence/native-attempt-be4fbac0-recovery/views/status-20261121T112546Z.json",
+    "sha256": "074a31495de48dcdd83e092a88d142599df9531fca8e3127e626bf25b7f1ab67"
+  },
+  {
+    "file": "retained-4.json",
+    "source": "work/records/2026/11/finding-v12-retained-recovery-verification/evidence/correction-385775/native-status.json",
+    "sha256": "2084ff3386bbb5cc38a63d280f943b7132ce0f8e554abae9797386a12f6841f5"
+  }
+]
