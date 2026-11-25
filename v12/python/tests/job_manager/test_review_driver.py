@@ -4617,3 +4617,40 @@ for _inherited in [_name for _name in
                    if _name.startswith("test_")]:
     setattr(TheFencedEndingFinishesTheCleanupItStillOwes, _inherited, None)
 del _inherited
+
+
+class UncertaintyIsNotAVerdict(ReviewResultCase):
+    def uncertain(self, *, mixed=False, wrong=False):
+        from baton_v12.worker_manager import load_manifest
+        held=self.reviewed(record=False)
+        document=load_manifest(self.control,held['result_digest'],'resultManifest')
+        outputs=document['outputs']
+        metadata=next(x for x in outputs if x['name']=='findings')['result_metadata']
+        claim=dict(outcome='uncertain',**held['observed'])
+        if wrong:claim['head']='f'*40
+        if not mixed:metadata.pop(review_driver.REVIEW_CLAIM_NAMESPACE)
+        metadata[review_driver.REVIEW_UNCERTAINTY_CLAIM]=claim
+        self.retained(held['attempt_id'],generation=1,observed=held['observed'],outputs=outputs)
+        return held
+
+    def test_explicit_uncertainty_binds_exact_objects_but_verdict_reader_refuses(self):
+        held=self.uncertain()
+        args=dict(attachment_id=held['attachment']['attachment_id'])
+        answer=review_driver.review_verdict_from_result(self.control,**args,_allow_uncertain=True)
+        self.assertEqual(answer['outcome'],'uncertain')
+        self.assertIsNone(answer['verdict'])
+        self.assertEqual(answer['head'],held['observed']['head'])
+        self.refusal(review_driver.review_verdict_from_result,self.control,**args)
+        self.assertEqual(self.verdicts(held),0)
+
+    def test_competing_uncertainty_and_acceptance_refuse(self):
+        held=self.uncertain(mixed=True)
+        self.refusal(review_driver.review_verdict_from_result,self.control,
+            attachment_id=held['attachment']['attachment_id'],_allow_uncertain=True)
+        self.assertEqual(self.verdicts(held),0)
+
+    def test_foreign_candidate_uncertainty_refuses(self):
+        held=self.uncertain(wrong=True)
+        self.refusal(review_driver.review_verdict_from_result,self.control,
+            attachment_id=held['attachment']['attachment_id'],_allow_uncertain=True)
+        self.assertEqual(self.verdicts(held),0)

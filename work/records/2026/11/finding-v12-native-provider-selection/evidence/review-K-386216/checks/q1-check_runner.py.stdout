@@ -1,0 +1,14 @@
+{
+  "checks": [
+    "read-only manifest/source/context check with all subprocesses prohibited",
+    "child HOME and Docker configuration are isolated from user credentials",
+    "output bound exceeded; owned process group gone",
+    "command bound exceeded; owned process group gone",
+    "zero deadline refuses before process creation"
+  ],
+  "passed": 5,
+  "failed": 0,
+  "engine_operations": 0,
+  "provider_calls": 0,
+  "temporary_root_removed": true
+}

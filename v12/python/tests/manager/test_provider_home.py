@@ -693,3 +693,35 @@ class FailedInitializationRecovery(unittest.TestCase):
         for changed in (None, dict(actual, home_root=str(self.root / "other")), dict(actual, delivery=dict(actual["delivery"], home_identity=dict(actual["delivery"]["home_identity"], job_id="foreign")))):
             with mock.patch.object(model_attribution, "selection_of", return_value=changed), self.assertRaises(homes.HomeRefusal): self.recover()
         self.assertEqual(json.loads((self.state / "credential.json").read_text()), self.original)
+
+
+class FailedInitializationOwnerCommand(unittest.TestCase):
+    setUp = FailedInitializationRecovery.setUp
+    fence = FailedInitializationRecovery.fence
+    def invoke(self, **changes):
+        import io
+        from tools import credential_recovery
+        values=dict(control=self.control.database,attempt=self.kw['attempt_id'],receipt=self.args['receipt_id'],decision=self.args['decision_id'],**changes)
+        argv=['credential-recovery-withdraw']
+        for key,value in values.items():argv.extend(['--'+key,value])
+        stream=io.StringIO()
+        code=credential_recovery.main(argv,stream=stream)
+        return code,json.loads(stream.getvalue())
+
+    def test_owner_command_withdraws_once_but_never_authorizes_a_seed(self):
+        self.fence()
+        code,first=self.invoke()
+        self.assertEqual(code,0)
+        self.assertEqual(first['state'],'withdrawn')
+        self.assertFalse(first['automatic_retry'])
+        self.assertEqual(self.invoke(),(0,first))
+        initialize=mock.Mock()
+        with self.assertRaises(homes.HomeRefusal):self.mount.initialize_credential('codex/auth.json',initialize)
+        initialize.assert_not_called()
+        self.assertEqual(len(list(self.state.glob('credential-withdrawal-*.json'))),1)
+
+    def test_owner_command_refusal_is_closed_and_preserves_evidence(self):
+        code,refused=self.invoke()
+        self.assertEqual(code,1)
+        self.assertEqual(refused,dict(state='held',reason='credential-recovery-preconditions-unproved'))
+        self.assertEqual(json.loads((self.state/'credential.json').read_text()),self.original)

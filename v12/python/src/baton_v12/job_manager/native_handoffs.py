@@ -367,14 +367,14 @@ def classified_response(control, attempt_id):
     so it is refused as the ambiguity it is rather than resolved by picking a
     half to believe.
     """
-    from .review_driver import REVIEW_CLAIM_NAMESPACE
+    from .review_driver import REVIEW_CLAIM_NAMESPACE, REVIEW_UNCERTAINTY_CLAIM
 
     boundaries.identity(attempt_id, "a runtime attempt id")
     frozen, result, fixed = _frozen_result(control, attempt_id, "response")
     verdicts = sorted(
         one["name"] for one in result["outputs"]
         if type(one.get("result_metadata")) is dict
-        and REVIEW_CLAIM_NAMESPACE in one["result_metadata"])
+        and any(name in one["result_metadata"] for name in (REVIEW_CLAIM_NAMESPACE, REVIEW_UNCERTAINTY_CLAIM)))
     if verdicts:
         _refuse(f"the frozen review result declares a response and carries a "
                 f"{name_value(REVIEW_CLAIM_NAMESPACE)} verdict claim on "

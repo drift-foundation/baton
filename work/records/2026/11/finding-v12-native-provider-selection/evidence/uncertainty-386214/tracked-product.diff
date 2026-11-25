@@ -1,0 +1,488 @@
+diff --git a/v12/PROVIDER-SELECTION.md b/v12/PROVIDER-SELECTION.md
+index 5f99f7e2..58793730 100644
+--- a/v12/PROVIDER-SELECTION.md
++++ b/v12/PROVIDER-SELECTION.md
+@@ -352,13 +352,12 @@ service behavior is not established by synthetic tests. No new provider call or
+ implied by terminal parsing. Provider-selected
+ integration is a separate open issue and is not enabled by the Codex guards.
+ 
+-Reviewer uncertainty is not a fourth inferred verdict. The native handoff
+-response path supports an explicit `escalate` response to its configured operator
+-without creating a review verdict or scheduling a writer. Ordinary checkpoint
+-review currently accepts only accepted/changes-requested/rejected reports;
+-missing or uncertain reports hold without a verdict. That ordinary report path
+-does not itself emit a structured operator escalation. Until it is explicitly
+-composed with an operator decision path, the independent reviewer must report the
+-uncertainty and exact evidence to the owner through the coordination channel;
+-no automated verdict may be substituted. This limitation remains a native
+-review qualification gate, not a reason to guess acceptance.
++Reviewer uncertainty is a separate explicit report, never a fourth verdict.
++The ordinary worker instructions offer `baton.review-uncertainty/1`; the host
++binds its retained findings and exact candidate and delivers one durable owner
++item to the configured decision recipient. Missing routing or invalid evidence
++holds explicitly. No automatic retry, correction or acceptance is inferred.
++The native clarification response path remains separate. See
++[review uncertainty and owner recovery](REVIEW-UNCERTAINTY.md) for the closed
++contracts, read-only owner queue and bounded D1 withdrawal command. Deterministic
++coverage does not qualify a particular live Claude build/image or composed run.
+diff --git a/v12/python/src/baton_v12/job_manager/native_handoffs.py b/v12/python/src/baton_v12/job_manager/native_handoffs.py
+index a7fccfa3..dfb21043 100644
+--- a/v12/python/src/baton_v12/job_manager/native_handoffs.py
++++ b/v12/python/src/baton_v12/job_manager/native_handoffs.py
+@@ -367,14 +367,14 @@ def classified_response(control, attempt_id):
+     so it is refused as the ambiguity it is rather than resolved by picking a
+     half to believe.
+     """
+-    from .review_driver import REVIEW_CLAIM_NAMESPACE
++    from .review_driver import REVIEW_CLAIM_NAMESPACE, REVIEW_UNCERTAINTY_CLAIM
+ 
+     boundaries.identity(attempt_id, "a runtime attempt id")
+     frozen, result, fixed = _frozen_result(control, attempt_id, "response")
+     verdicts = sorted(
+         one["name"] for one in result["outputs"]
+         if type(one.get("result_metadata")) is dict
+-        and REVIEW_CLAIM_NAMESPACE in one["result_metadata"])
++        and any(name in one["result_metadata"] for name in (REVIEW_CLAIM_NAMESPACE, REVIEW_UNCERTAINTY_CLAIM)))
+     if verdicts:
+         _refuse(f"the frozen review result declares a response and carries a "
+                 f"{name_value(REVIEW_CLAIM_NAMESPACE)} verdict claim on "
+diff --git a/v12/python/src/baton_v12/job_manager/review_driver.py b/v12/python/src/baton_v12/job_manager/review_driver.py
+index b50925cb..29d24716 100644
+--- a/v12/python/src/baton_v12/job_manager/review_driver.py
++++ b/v12/python/src/baton_v12/job_manager/review_driver.py
+@@ -1620,7 +1620,7 @@ def end_review_from_result(control, port, adapter, *, attachment_id,
+         retention_policy_digest=retention_policy_digest, govern=govern,
+         resolve=lambda _frozen: review_verdict_from_result(
+             control, attachment_id=attachment_id, recovery_digest=recovery_digest,
+-            reviewer_verification=reviewer_verification)["verdict"])
++            reviewer_verification=reviewer_verification, _allow_uncertain=True))
+ 
+ 
+ def end_response_from_result(control, port, adapter, *, attachment_id,
+@@ -1889,7 +1889,18 @@ def _ended_review(control, port, adapter, *, attachment_id, disposition,
+         attribution_hold = model_attribution.held(model_attribution.assess(control, attempt_id, frozen))
+         if attribution_hold is not None:
+             return attribution_hold
+-        verdict = resolve(frozen)
++        resolved = resolve(frozen)
++        if type(resolved) is dict and resolved.get("outcome") == "uncertain":
++            return {"attempt_id": attempt_id, "attachment_id": attachment_id,
++                    "verdict": None, "verdict_id": None, "verdict_record": None,
++                    "line_id": attachment["line_id"], "checkpoint_id": attachment["checkpoint_id"],
++                    "result_id": frozen["result_id"], "manifest_digest": frozen["manifest_digest"],
++                    "receipt_digest": receipt["receipt_digest"],
++                    "artifacts": sorted(one["artifact_id"] for one in held),
++                    "retention": decided["disposition"], "outcome": "held",
++                    "held_reason": "reviewer uncertainty requires an owner decision; no verdict or automatic retry",
++                    "uncertainty": resolved, "cleaned_up": False}
++        verdict = resolved["verdict"] if type(resolved) is dict else resolved
+         recorded = review_cycles.record_verdict(
+             control, attachment_id=attachment_id, disposition=verdict,
+             profile=profile, port=port)
+@@ -2001,7 +2012,10 @@ def _claim_output(result, name):
+     return output
+ 
+ 
+-def _review_claim(result):
++REVIEW_UNCERTAINTY_CLAIM = "baton.checkpoint-review-uncertainty/1"
++
++
++def _review_claim(result, *, allow_uncertain=False):
+     """The reviewer's own four facts, adopted and never extended.
+ 
+     ADOPTED AS A CLOSED DOCUMENT, for `_claim_of`'s reason one layer over: the
+@@ -2027,7 +2041,7 @@ def _review_claim(result):
+         one["name"] for one in result["outputs"]
+         if one["name"] != FINDINGS_OUTPUT
+         and type(one.get("result_metadata")) is dict
+-        and REVIEW_CLAIM_NAMESPACE in one["result_metadata"])
++        and any(name in one["result_metadata"] for name in (REVIEW_CLAIM_NAMESPACE, REVIEW_UNCERTAINTY_CLAIM)))
+     if competing:
+         # WORDED WITHOUT ASSERTING WHERE THE OTHER ONE IS. A claim on the
+         # proposal and none on findings is this same refusal, and a message
+@@ -2041,11 +2055,25 @@ def _review_claim(result):
+                 code="collection")
+     output = _claim_output(result, FINDINGS_OUTPUT)
+     metadata = output["result_metadata"]
+-    if type(metadata) is not dict or REVIEW_CLAIM_NAMESPACE not in metadata:
++    if type(metadata) is not dict or not any(name in metadata for name in (REVIEW_CLAIM_NAMESPACE, REVIEW_UNCERTAINTY_CLAIM)):
+         _refuse(f"the frozen {name_value(FINDINGS_OUTPUT)} output carries no "
+                 f"{name_value(REVIEW_CLAIM_NAMESPACE)} claim; the verdict on a "
+                 f"checkpoint is the reviewer's own fact and this manager will "
+                 f"not invent one")
++    uncertain = REVIEW_UNCERTAINTY_CLAIM in metadata
++    if uncertain and REVIEW_CLAIM_NAMESPACE in metadata:
++        _refuse("one review cannot declare uncertainty and a verdict", category="ambiguous", code="collection")
++    if uncertain:
++        if not allow_uncertain:
++            _refuse("review uncertainty is not a verdict", category="refused", code="precondition")
++        claim = boundaries.document(metadata[REVIEW_UNCERTAINTY_CLAIM],
++                                    "a worker review uncertainty claim",
++                                    required=("outcome", "base", "head", "tree"))
++        if claim["outcome"] != "uncertain":
++            _refuse("unsupported review uncertainty outcome", category="integrity", code="schema")
++        for member in ("base", "head", "tree"):
++            boundaries.text(claim[member], "the reviewer's observed object")
++        return dict(claim, verdict=None)
+     claim = boundaries.document(metadata[REVIEW_CLAIM_NAMESPACE],
+                                 "a worker checkpoint-review claim",
+                                 required=REVIEW_CLAIM_MEMBERS)
+@@ -2064,7 +2092,7 @@ REVIEWER_VERIFICATION_CLAIM = "baton.reviewer-verification/1"
+ 
+ 
+ def review_verdict_from_result(control, *, attachment_id, recovery_digest=None,
+-                               reviewer_verification=None):
++                               reviewer_verification=None, _allow_uncertain=False):
+     """The verdict a completed review actually recorded in its frozen output.
+ 
+     READ-ONLY AND PUBLIC. It opens nothing, writes nothing, reads no mutable
+@@ -2132,7 +2160,7 @@ def review_verdict_from_result(control, *, attachment_id, recovery_digest=None,
+                 f"at generation {attachment['assignment_generation']} and its "
+                 f"attempt's assignment is generation {fixed['generation']}",
+                 category="stale-assignment", code="generation")
+-    claim = _review_claim(result)
++    claim = _review_claim(result, allow_uncertain=_allow_uncertain)
+     if reviewer_verification is not None and claim["verdict"] == "accepted":
+         # W385695 (review 2026-11-24T00-28-00Z C2): AN ACCEPTANCE OF THIS
+         # RECOVERY CARRIES THE REVIEWER'S OWN PASSED VERIFICATION, as the
+@@ -2183,7 +2211,7 @@ def review_verdict_from_result(control, *, attachment_id, recovery_digest=None,
+                     category="integrity", code="schema")
+     return {"attachment_id": attachment_id, "attempt_id": attempt_id,
+             "checkpoint_id": checkpoint["checkpoint_id"],
+-            "verdict": claim["verdict"], "base": claim["base"],
++            "verdict": claim["verdict"], **({"outcome": "uncertain"} if claim["verdict"] is None else {}), "base": claim["base"],
+             "head": claim["head"], "tree": claim["tree"],
+             "result_id": frozen["result_id"],
+             "result_digest": frozen["manifest_digest"]}
+diff --git a/v12/python/tests/job_manager/test_review_driver.py b/v12/python/tests/job_manager/test_review_driver.py
+index bbcbd754..6b2dd2a7 100644
+--- a/v12/python/tests/job_manager/test_review_driver.py
++++ b/v12/python/tests/job_manager/test_review_driver.py
+@@ -4617,3 +4617,40 @@ for _inherited in [_name for _name in
+                    if _name.startswith("test_")]:
+     setattr(TheFencedEndingFinishesTheCleanupItStillOwes, _inherited, None)
+ del _inherited
++
++
++class UncertaintyIsNotAVerdict(ReviewResultCase):
++    def uncertain(self, *, mixed=False, wrong=False):
++        from baton_v12.worker_manager import load_manifest
++        held=self.reviewed(record=False)
++        document=load_manifest(self.control,held['result_digest'],'resultManifest')
++        outputs=document['outputs']
++        metadata=next(x for x in outputs if x['name']=='findings')['result_metadata']
++        claim=dict(outcome='uncertain',**held['observed'])
++        if wrong:claim['head']='f'*40
++        if not mixed:metadata.pop(review_driver.REVIEW_CLAIM_NAMESPACE)
++        metadata[review_driver.REVIEW_UNCERTAINTY_CLAIM]=claim
++        self.retained(held['attempt_id'],generation=1,observed=held['observed'],outputs=outputs)
++        return held
++
++    def test_explicit_uncertainty_binds_exact_objects_but_verdict_reader_refuses(self):
++        held=self.uncertain()
++        args=dict(attachment_id=held['attachment']['attachment_id'])
++        answer=review_driver.review_verdict_from_result(self.control,**args,_allow_uncertain=True)
++        self.assertEqual(answer['outcome'],'uncertain')
++        self.assertIsNone(answer['verdict'])
++        self.assertEqual(answer['head'],held['observed']['head'])
++        self.refusal(review_driver.review_verdict_from_result,self.control,**args)
++        self.assertEqual(self.verdicts(held),0)
++
++    def test_competing_uncertainty_and_acceptance_refuse(self):
++        held=self.uncertain(mixed=True)
++        self.refusal(review_driver.review_verdict_from_result,self.control,
++            attachment_id=held['attachment']['attachment_id'],_allow_uncertain=True)
++        self.assertEqual(self.verdicts(held),0)
++
++    def test_foreign_candidate_uncertainty_refuses(self):
++        held=self.uncertain(wrong=True)
++        self.refusal(review_driver.review_verdict_from_result,self.control,
++            attachment_id=held['attachment']['attachment_id'],_allow_uncertain=True)
++        self.assertEqual(self.verdicts(held),0)
+diff --git a/v12/python/tests/manager/test_claude_agent.py b/v12/python/tests/manager/test_claude_agent.py
+index 9c21a69b..f729165a 100644
+--- a/v12/python/tests/manager/test_claude_agent.py
++++ b/v12/python/tests/manager/test_claude_agent.py
+@@ -5171,3 +5171,29 @@ while True: signal.pause()
+                     except ProcessLookupError:
+                         pass
+                     child.wait(timeout=5)
++
++
++class ExplicitReviewUncertainty(ReviewCase):
++    def test_uncertainty_preserves_findings_without_a_verdict_claim(self):
++        document = {"schema": claude_agent.REVIEW_UNCERTAINTY_SCHEMA,
++                    "findings": "Cannot decide: retained evidence lacks the required observation."}
++        answer = self.reviewed(report=json.dumps(document))
++        self.assertEqual(answer["disposition"], "completed")
++        metadata = next(x for x in answer["outputs"] if x["name"] == "findings")["result_metadata"]
++        self.assertNotIn(claude_agent.REVIEW_CLAIM_NAMESPACE, metadata)
++        self.assertEqual(metadata[claude_agent.REVIEW_UNCERTAINTY_CLAIM],
++                         dict(outcome="uncertain", base=self.base, head=self.head, tree=self.tree))
++        self.assertEqual(json.loads(self.read(self.findings(claude_agent.REVIEW_RESULT))), document)
++        self.assertIn("do not guess", self.calls[-1][0][-1])
++        self.assertIn("no automatic retry or acceptance", self.calls[-1][0][-1])
++
++    def test_mixed_uncertainty_and_verdict_is_unusable(self):
++        answer = self.reviewed(report=json.dumps({"schema": claude_agent.REVIEW_UNCERTAINTY_SCHEMA,
++            "findings": "ambiguous", "verdict": "accepted"}))
++        self.assertEqual(answer["disposition"], "unable")
++        self.assertTrue(all(not x["result_metadata"] for x in answer["outputs"]))
++
++    def test_failed_provider_cannot_supply_uncertainty(self):
++        answer = self.reviewed(status=1, report=json.dumps({"schema": claude_agent.REVIEW_UNCERTAINTY_SCHEMA,
++            "findings": "partial"}))
++        self.assertEqual(answer["disposition"], "unable")
+diff --git a/v12/python/tests/manager/test_provider_home.py b/v12/python/tests/manager/test_provider_home.py
+index 6280170e..541c0f2b 100644
+--- a/v12/python/tests/manager/test_provider_home.py
++++ b/v12/python/tests/manager/test_provider_home.py
+@@ -693,3 +693,35 @@ class FailedInitializationRecovery(unittest.TestCase):
+         for changed in (None, dict(actual, home_root=str(self.root / "other")), dict(actual, delivery=dict(actual["delivery"], home_identity=dict(actual["delivery"]["home_identity"], job_id="foreign")))):
+             with mock.patch.object(model_attribution, "selection_of", return_value=changed), self.assertRaises(homes.HomeRefusal): self.recover()
+         self.assertEqual(json.loads((self.state / "credential.json").read_text()), self.original)
++
++
++class FailedInitializationOwnerCommand(unittest.TestCase):
++    setUp = FailedInitializationRecovery.setUp
++    fence = FailedInitializationRecovery.fence
++    def invoke(self, **changes):
++        import io
++        from tools import credential_recovery
++        values=dict(control=self.control.database,attempt=self.kw['attempt_id'],receipt=self.args['receipt_id'],decision=self.args['decision_id'],**changes)
++        argv=['credential-recovery-withdraw']
++        for key,value in values.items():argv.extend(['--'+key,value])
++        stream=io.StringIO()
++        code=credential_recovery.main(argv,stream=stream)
++        return code,json.loads(stream.getvalue())
++
++    def test_owner_command_withdraws_once_but_never_authorizes_a_seed(self):
++        self.fence()
++        code,first=self.invoke()
++        self.assertEqual(code,0)
++        self.assertEqual(first['state'],'withdrawn')
++        self.assertFalse(first['automatic_retry'])
++        self.assertEqual(self.invoke(),(0,first))
++        initialize=mock.Mock()
++        with self.assertRaises(homes.HomeRefusal):self.mount.initialize_credential('codex/auth.json',initialize)
++        initialize.assert_not_called()
++        self.assertEqual(len(list(self.state.glob('credential-withdrawal-*.json'))),1)
++
++    def test_owner_command_refusal_is_closed_and_preserves_evidence(self):
++        code,refused=self.invoke()
++        self.assertEqual(code,1)
++        self.assertEqual(refused,dict(state='held',reason='credential-recovery-preconditions-unproved'))
++        self.assertEqual(json.loads((self.state/'credential.json').read_text()),self.original)
+diff --git a/v12/python/tests/tools/test_stage_execution.py b/v12/python/tests/tools/test_stage_execution.py
+index 99f28057..bb26808b 100644
+--- a/v12/python/tests/tools/test_stage_execution.py
++++ b/v12/python/tests/tools/test_stage_execution.py
+@@ -13753,3 +13753,85 @@ class APublicationWorkerIsAConfiguredRoleInItsOwnLane(StageCase):
+                     credential_profile={"api": {"provider": "fixture",
+                                                 "reference": "fixture/one"}}))])
+         self.assertIn("launches the 'implementation' role", caught.message)
++
++
++class OrdinaryReviewUncertainty(ComposedOneJobCase):
++    """Real worker/manager/custody/Job owner queue; simulated provider/engine."""
++    tick = TheComposedJobTraversesReviewAndAcceptance.tick
++
++    def uncertain(self, *, routed=True, mixed=False):
++        from baton_v12.authority import Authority
++        from baton_v12.authority.messages import ROUTING_SCHEMA
++        held = self.implemented()
++        if routed:
++            authority = Authority.open(self.authority_path, expected_authority_uuid=self.config["authority_uuid"])
++            try:
++                authority.set_policy("native_handoff_routing", {"schema": ROUTING_SCHEMA,
++                    "reviewer": "baton.reviewer", "decision_recipient": "baton.slaw"})
++            finally:
++                authority.dispose()
++        self.drive(held.job, held.composed, "review", "waiting")
++        held.review = self.only_attempt(held.composed, "review")
++        report = {"schema": "baton.review-uncertainty/1", "findings": "Unresolved acceptance evidence; ask the owner."}
++        if mixed:
++            report["verdict"] = "accepted"
++        self.assertEqual(self.turn(held.control, "review", held.review,
++            self.mounted(held.composed, "review", held.review),
++            edits={"review-report.json": json.dumps(report)}), 0)
++        return held
++
++    def test_uncertain_delivery_replays_after_restart_without_acceptance(self):
++        import io
++        from baton_v12.job_manager import JobStore, review_uncertainty
++        from baton_v12.worker_manager import ControlStore, review_cycles
++        from tests.job_manager import fixtures
++        from tools import review_uncertainty as command
++        held = self.uncertain()
++        for _ in range(3):
++            self.tick(held)
++        [item] = review_uncertainty.items_of(held.job)
++        self.assertEqual(item["destination"], "baton.slaw")
++        self.assertIsNone(item["verdict"])
++        self.assertIsNone(item["automatic_retry"])
++        self.assertEqual(item["evidence"]["attempt_id"], held.review)
++        line = held.composed.deployment.line()["line_id"]
++        self.assertIsNone(review_cycles.integration_checkpoint(held.control, line))
++        starts = len(self.engine.starts)
++        held.composed.close()
++        held.job.close()
++        held.control.close()
++        job = JobStore.open(self.job_path, authority_uuid=self.config["authority_uuid"], incarnation="uncertain-restart", clock=lambda: fixtures.NOW)
++        control = ControlStore.open(self.control_path, incarnation="uncertain-restart", clock=lambda: fixtures.NOW)
++        self.addCleanup(job.close)
++        self.addCleanup(control.close)
++        composed = stage_execution.operations_from(self.composed_document(line_declared_base=self.base), job, control,
++            engine_run=self.engine, credential_provider=lambda provider, reference: self.secret,
++            clock=lambda: fixtures.NOW, checkout=self.checkout)
++        self.addCleanup(composed.close)
++        again = SimpleNamespace(job=job, control=control, composed=composed)
++        for _ in range(3):
++            self.tick(again)
++        self.assertEqual(review_uncertainty.items_of(job), [item])
++        self.assertEqual(len(self.engine.starts), starts)
++        self.assertIsNone(review_cycles.integration_checkpoint(control, line))
++        self.assertNotEqual(self.states(job, composed)["review"], "completed")
++        stream = io.StringIO()
++        self.assertEqual(command.main(["review-uncertainty-items", "--jobs", self.job_path,
++            "--authority-uuid", self.config["authority_uuid"]], stream=stream), 0)
++        self.assertEqual(json.loads(stream.getvalue())["items"], [item])
++
++    def test_unconfigured_owner_is_held_without_fabricated_delivery(self):
++        from baton_v12.job_manager import review_uncertainty
++        held = self.uncertain(routed=False)
++        for _ in range(3):
++            self.tick(held)
++        self.assertEqual(review_uncertainty.items_of(held.job), [])
++        self.assertNotEqual(self.states(held.job, held.composed)["review"], "completed")
++
++    def test_malformed_mixed_report_neither_accepts_nor_invents_uncertainty(self):
++        from baton_v12.job_manager import review_uncertainty
++        held = self.uncertain(mixed=True)
++        for _ in range(3):
++            self.tick(held)
++        self.assertEqual(review_uncertainty.items_of(held.job), [])
++        self.assertNotEqual(self.states(held.job, held.composed)["review"], "completed")
+diff --git a/v12/python/tools/job_manager.py b/v12/python/tools/job_manager.py
+index 927a33bf..aeb94995 100644
+--- a/v12/python/tools/job_manager.py
++++ b/v12/python/tools/job_manager.py
+@@ -1294,7 +1294,11 @@ def _producers_of(configuration):
+ def main(argv, *, clock=None, stream=None):
+     import argparse
+     from tools import (job_cancellation, publication_decision,
+-                       recovery_decision, stopped_settlement)
++                       recovery_decision, stopped_settlement, review_uncertainty, credential_recovery)
++    if argv and argv[0] in credential_recovery.COMMANDS:
++        return credential_recovery.main(argv, clock=clock, stream=stream)
++    if argv and argv[0] in review_uncertainty.COMMANDS:
++        return review_uncertainty.main(argv, clock=clock, stream=stream)
+     if argv and argv[0] in stopped_settlement.COMMANDS:
+         return stopped_settlement.main(argv, clock=clock, stream=stream)
+     if argv and argv[0] in job_cancellation.COMMANDS:
+diff --git a/v12/python/tools/stage_execution.py b/v12/python/tools/stage_execution.py
+index db1137b1..7215b095 100644
+--- a/v12/python/tools/stage_execution.py
++++ b/v12/python/tools/stage_execution.py
+@@ -2048,6 +2048,16 @@ class StageComposition:
+                 # W275774: and the reviewer's own governed workspace, for the same
+                 # reason the producer's is returned above.
+                 govern=tokens.workspace_governance())
++        if answered.get("uncertainty") is not None:
++            from baton_v12.job_manager import review_uncertainty
++            routing = deployment.authority.native_routing()
++            if routing is None or routing["reviewer"] != assignment["participant"]:
++                return dict(answered, owner_item=None, held_reason="review uncertainty requires configured native decision routing for this reviewer")
++            item = review_uncertainty.deliver(deployment.jobs, deployment.control,
++                stage=stage, attachment_id=prepared["attachment_id"],
++                destination=routing["decision_recipient"],
++                recovery_digest=(None if self.recovery_document_for(stage) is None else json.loads(self.recovery_document_for(stage))["handoff_digest"]))
++            answered = dict(answered, owner_item=item)
+         from baton_v12.worker_manager import provider_context, context_delivery
+         binding = provider_context.context_invocation_of(deployment.control, attempt_id)
+         if self.role == "implementation" and (worker.given.get("provider_context") is not None or binding is not None):
+diff --git a/v12/worker/claude_agent.py b/v12/worker/claude_agent.py
+index aba8cc94..474c877c 100644
+--- a/v12/worker/claude_agent.py
++++ b/v12/worker/claude_agent.py
+@@ -585,6 +585,8 @@ REVIEW_REPORT = "review-report.json"
+ # document this workload reads, so one from another generation is refused by an
+ # equality test rather than read for the parts that look familiar.
+ REVIEW_REPORT_SCHEMA = "baton.review-report/1"
++REVIEW_UNCERTAINTY_SCHEMA = "baton.review-uncertainty/1"
++REVIEW_UNCERTAINTY_CLAIM = "baton.checkpoint-review-uncertainty/1"
+ REVIEW_REPORT_MEMBERS = ("schema", "verdict", "findings")
+ 
+ # The reviewer's closed answer. THE SAME THREE WORDS THE MANAGER RECORDS, and
+@@ -2933,7 +2935,7 @@ class ClaudeAgent:
+         else:
+             written, prose = report, report["findings"]
+         _written(os.path.join(findings, REVIEW_RESULT),
+-                 json.dumps(written, indent=1, sort_keys=True) + "\n")
++                 json.dumps({k: v for k, v in written.items() if k != "verdict" or written["schema"] != REVIEW_UNCERTAINTY_SCHEMA}, indent=1, sort_keys=True) + "\n")
+         _written(os.path.join(findings, REVIEW_FINDINGS),
+                  prose + ("" if prose.endswith("\n") else "\n"))
+         answered = []
+@@ -2956,7 +2958,7 @@ class ClaudeAgent:
+                 "recap": ((f"{response['disposition']}: replied to the "
+                            f"pending {response_context['request']['kind']}")
+                           if response is not None else
+-                          f"{report['verdict']}: reviewed "
++                          f"{report['verdict'] or 'uncertain'}: reviewed "
+                           f"{observed['base'][:12]}..{observed['head'][:12]}"
+                           )[:MAX_RECAP]}
+ 
+@@ -6885,12 +6887,17 @@ def _review_report(room):
+         # report is not a verdict, and that has to hold for every way it can
+         # be malformed.
+         return None
++    uncertain = type(document) is dict and document.get("schema") == REVIEW_UNCERTAINTY_SCHEMA
++    if uncertain:
++        if set(document) not in ({"schema", "findings"}, {"schema", "findings", "recovery_digest"}):
++            return None
++        document = dict(document, verdict=None)
+     if type(document) is not dict \
+             or set(document) not in (set(REVIEW_REPORT_MEMBERS), set(REVIEW_REPORT_MEMBERS) | {"recovery_digest"}):
+         return None
+-    if document["schema"] != REVIEW_REPORT_SCHEMA:
++    if document["schema"] != REVIEW_REPORT_SCHEMA and not uncertain:
+         return None
+-    if document["verdict"] not in REVIEW_VERDICTS:
++    if document["verdict"] not in REVIEW_VERDICTS and not uncertain:
+         return None
+     findings = document["findings"]
+     if type(findings) is not str or not findings.strip() \
+@@ -6911,7 +6918,7 @@ def _review_report(room):
+         return None
+     if "recovery_digest" in document and (type(document["recovery_digest"]) is not str or not re.fullmatch(r"sha256:[0-9a-f]{64}", document["recovery_digest"])):
+         return None
+-    return {"schema": REVIEW_REPORT_SCHEMA, "verdict": document["verdict"],
++    return {"schema": document["schema"], "verdict": document["verdict"],
+             "findings": findings, **({"recovery_digest": document["recovery_digest"]} if "recovery_digest" in document else {})}
+ 
+ 
+@@ -7070,7 +7077,7 @@ def _review_claim(verdict, observed, recovery_digest=None, checked=None,
+     against the checkpoint's own frozen evidence, so a reviewer that named
+     another line's objects is refused there rather than believed here.
+     """
+-    return {REVIEW_CLAIM_NAMESPACE: {"verdict": verdict,
++    return {(REVIEW_UNCERTAINTY_CLAIM if verdict is None else REVIEW_CLAIM_NAMESPACE): {("outcome" if verdict is None else "verdict"): ("uncertain" if verdict is None else verdict),
+                                      "base": observed["base"],
+                                      "head": observed["head"],
+                                      "tree": observed["tree"]},
+@@ -7132,7 +7139,14 @@ def _review_prompt(task, source, report, checked=None):
+             f"  {' '.join(task['verification'])}\n"
+             f"but naming it is not evidence that it passed, and you must not "
+             f"report it as passing unless you ran it yourself.\n\n"
+-            f"When you are done, write your decision to {report} as a JSON "
++            f"If you cannot substantiate a verdict, do not guess or choose a verdict merely to finish. "
++            f"Write uncertainty to {report} instead: a JSON object with schema "
++            f"{REVIEW_UNCERTAINTY_SCHEMA!r} and non-empty findings explaining the unresolved "
++            f"question and relevant artifact/evidence locations (also recovery_digest when required above). "
++            f"Do not include verdict in an uncertainty report. The manager preserves the exact "
++            f"candidate and report and holds an owner item for the configured decision recipient; "
++            f"there is no automatic retry or acceptance.\n\n"
++            f"Otherwise, when you have a substantiated verdict, write your decision to {report} as a JSON "
+             f"object with exactly these {'four members (including recovery_digest above)' if context else 'three members'}:\n"
+             f'  "schema": "{REVIEW_REPORT_SCHEMA}"\n'
+             f'  "verdict": one of {", ".join(REVIEW_VERDICTS)}\n'

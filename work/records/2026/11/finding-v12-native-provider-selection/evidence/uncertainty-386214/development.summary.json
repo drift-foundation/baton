@@ -1,0 +1,25 @@
+{
+  "collected": 6,
+  "duplicates": [],
+  "duration_seconds": 3.3166835060110316,
+  "executed": 6,
+  "exit_status": 1,
+  "nonpassing": {
+    "tests.manager.test_claude_agent.ExplicitReviewUncertainty.test_uncertainty_preserves_findings_without_a_verdict_claim": "FAIL",
+    "tests.tools.test_stage_execution.OrdinaryReviewUncertainty.test_uncertain_delivery_replays_after_restart_without_acceptance": "ERROR"
+  },
+  "outcomes": {
+    "tests.manager.test_claude_agent.ExplicitReviewUncertainty.test_failed_provider_cannot_supply_uncertainty": "ok",
+    "tests.manager.test_claude_agent.ExplicitReviewUncertainty.test_mixed_uncertainty_and_verdict_is_unusable": "ok",
+    "tests.manager.test_claude_agent.ExplicitReviewUncertainty.test_uncertainty_preserves_findings_without_a_verdict_claim": "FAIL",
+    "tests.tools.test_stage_execution.OrdinaryReviewUncertainty.test_malformed_mixed_report_neither_accepts_nor_invents_uncertainty": "ok",
+    "tests.tools.test_stage_execution.OrdinaryReviewUncertainty.test_uncertain_delivery_replays_after_restart_without_acceptance": "ERROR",
+    "tests.tools.test_stage_execution.OrdinaryReviewUncertainty.test_unconfigured_owner_is_held_without_fabricated_delivery": "ok"
+  },
+  "passed": 4,
+  "source_after_exit_status": 0,
+  "source_drift": false,
+  "timed_out": false,
+  "unaccounted": [],
+  "uncollected": []
+}

@@ -1,0 +1,49 @@
+{
+ "packet_manifest_sha256": "cd0f4488edb8e1b23a04e37a30c1902cf87726f394c734e2a4367bc06a3a5684",
+ "packet_manifest_mismatches": [],
+ "on_disk_not_in_manifest": [
+  "COMMANDS.md",
+  "README.md",
+  "packet-manifest.json"
+ ],
+ "expected_source_files": 1163,
+ "mine_files": 1163,
+ "expected_vs_mine": {
+  "only_expected": [],
+  "only_mine": [],
+  "differ": []
+ },
+ "symlinks_in_v12": [],
+ "q1_source_tar_equals_expected": true,
+ "q1_source_files_json_equals_expected": true,
+ "q2_source_tar_equals_expected": true,
+ "q2_source_files_json_equals_expected": true,
+ "candidate_manifest_keys": [
+  "base",
+  "work",
+  "claim",
+  "product_paths",
+  "files"
+ ],
+ "candidate_files": 805,
+ "candidate_manifest_mismatches": [],
+ "archive_files_not_in_manifest": [],
+ "product_paths": [
+  "v12/PROVIDER-SELECTION.md",
+  "v12/REVIEW-UNCERTAINTY.md",
+  "v12/python/src/baton_v12/job_manager/native_handoffs.py",
+  "v12/python/src/baton_v12/job_manager/review_driver.py",
+  "v12/python/src/baton_v12/job_manager/review_uncertainty.py",
+  "v12/python/tests/job_manager/test_review_driver.py",
+  "v12/python/tests/manager/test_claude_agent.py",
+  "v12/python/tests/manager/test_provider_home.py",
+  "v12/python/tests/tools/test_stage_execution.py",
+  "v12/python/tools/credential_recovery.py",
+  "v12/python/tools/job_manager.py",
+  "v12/python/tools/review_uncertainty.py",
+  "v12/python/tools/stage_execution.py",
+  "v12/worker/claude_agent.py"
+ ],
+ "archive_vs_shared_tree_differences": [],
+ "archive_vs_shared_tree_difference_count": 0
+}

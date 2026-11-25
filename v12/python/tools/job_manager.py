@@ -1294,7 +1294,11 @@ def _producers_of(configuration):
 def main(argv, *, clock=None, stream=None):
     import argparse
     from tools import (job_cancellation, publication_decision,
-                       recovery_decision, stopped_settlement)
+                       recovery_decision, stopped_settlement, review_uncertainty, credential_recovery)
+    if argv and argv[0] in credential_recovery.COMMANDS:
+        return credential_recovery.main(argv, clock=clock, stream=stream)
+    if argv and argv[0] in review_uncertainty.COMMANDS:
+        return review_uncertainty.main(argv, clock=clock, stream=stream)
     if argv and argv[0] in stopped_settlement.COMMANDS:
         return stopped_settlement.main(argv, clock=clock, stream=stream)
     if argv and argv[0] in job_cancellation.COMMANDS:

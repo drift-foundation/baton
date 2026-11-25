@@ -1,0 +1,6 @@
+[
+  "tests.manager.test_claude_agent.ExplicitReviewUncertainty",
+  "tests.tools.test_stage_execution.OrdinaryReviewUncertainty",
+  "tests.manager.test_provider_home.FailedInitializationOwnerCommand",
+  "tests.job_manager.test_review_driver.UncertaintyIsNotAVerdict"
+]

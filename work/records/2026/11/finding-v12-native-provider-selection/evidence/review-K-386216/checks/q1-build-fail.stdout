@@ -1,0 +1,16 @@
+{"passed": false, "error": "AssertionError: (['docker', 'build', '--no-cache', '--pull=false'], 1)", "cleanup": {"container_name": null, "ceased": true, "removed": true, "reason": "no qualification create/run attempted"}, "qualification_scope": "offline source/image/home/tools/F1 only", "provider_calls": 0, "build_attempts": 1, "qualification_launch_attempts": 0, "actual_contributors": "unknown", "native_job_qualified": false, "build_cache_and_image_retained": true, "build_cancellation_verified": false}
+{
+ "scenario": "build-fail",
+ "exit": 1,
+ "home_opens": [],
+ "non_docker_processes": [],
+ "dest": [
+  "RESULT.json",
+  "cleanup.json",
+  "engine-version.json",
+  "evidence-manifest.json",
+  "selection.json"
+ ],
+ "commands": 3
+}
+PASS real execute simulation build-fail

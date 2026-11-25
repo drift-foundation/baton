@@ -1620,7 +1620,7 @@ def end_review_from_result(control, port, adapter, *, attachment_id,
         retention_policy_digest=retention_policy_digest, govern=govern,
         resolve=lambda _frozen: review_verdict_from_result(
             control, attachment_id=attachment_id, recovery_digest=recovery_digest,
-            reviewer_verification=reviewer_verification)["verdict"])
+            reviewer_verification=reviewer_verification, _allow_uncertain=True))
 
 
 def end_response_from_result(control, port, adapter, *, attachment_id,
@@ -1889,7 +1889,18 @@ def _ended_review(control, port, adapter, *, attachment_id, disposition,
         attribution_hold = model_attribution.held(model_attribution.assess(control, attempt_id, frozen))
         if attribution_hold is not None:
             return attribution_hold
-        verdict = resolve(frozen)
+        resolved = resolve(frozen)
+        if type(resolved) is dict and resolved.get("outcome") == "uncertain":
+            return {"attempt_id": attempt_id, "attachment_id": attachment_id,
+                    "verdict": None, "verdict_id": None, "verdict_record": None,
+                    "line_id": attachment["line_id"], "checkpoint_id": attachment["checkpoint_id"],
+                    "result_id": frozen["result_id"], "manifest_digest": frozen["manifest_digest"],
+                    "receipt_digest": receipt["receipt_digest"],
+                    "artifacts": sorted(one["artifact_id"] for one in held),
+                    "retention": decided["disposition"], "outcome": "held",
+                    "held_reason": "reviewer uncertainty requires an owner decision; no verdict or automatic retry",
+                    "uncertainty": resolved, "cleaned_up": False}
+        verdict = resolved["verdict"] if type(resolved) is dict else resolved
         recorded = review_cycles.record_verdict(
             control, attachment_id=attachment_id, disposition=verdict,
             profile=profile, port=port)
@@ -2001,7 +2012,10 @@ def _claim_output(result, name):
     return output
 
 
-def _review_claim(result):
+REVIEW_UNCERTAINTY_CLAIM = "baton.checkpoint-review-uncertainty/1"
+
+
+def _review_claim(result, *, allow_uncertain=False):
     """The reviewer's own four facts, adopted and never extended.
 
     ADOPTED AS A CLOSED DOCUMENT, for `_claim_of`'s reason one layer over: the
@@ -2027,7 +2041,7 @@ def _review_claim(result):
         one["name"] for one in result["outputs"]
         if one["name"] != FINDINGS_OUTPUT
         and type(one.get("result_metadata")) is dict
-        and REVIEW_CLAIM_NAMESPACE in one["result_metadata"])
+        and any(name in one["result_metadata"] for name in (REVIEW_CLAIM_NAMESPACE, REVIEW_UNCERTAINTY_CLAIM)))
     if competing:
         # WORDED WITHOUT ASSERTING WHERE THE OTHER ONE IS. A claim on the
         # proposal and none on findings is this same refusal, and a message
@@ -2041,11 +2055,25 @@ def _review_claim(result):
                 code="collection")
     output = _claim_output(result, FINDINGS_OUTPUT)
     metadata = output["result_metadata"]
-    if type(metadata) is not dict or REVIEW_CLAIM_NAMESPACE not in metadata:
+    if type(metadata) is not dict or not any(name in metadata for name in (REVIEW_CLAIM_NAMESPACE, REVIEW_UNCERTAINTY_CLAIM)):
         _refuse(f"the frozen {name_value(FINDINGS_OUTPUT)} output carries no "
                 f"{name_value(REVIEW_CLAIM_NAMESPACE)} claim; the verdict on a "
                 f"checkpoint is the reviewer's own fact and this manager will "
                 f"not invent one")
+    uncertain = REVIEW_UNCERTAINTY_CLAIM in metadata
+    if uncertain and REVIEW_CLAIM_NAMESPACE in metadata:
+        _refuse("one review cannot declare uncertainty and a verdict", category="ambiguous", code="collection")
+    if uncertain:
+        if not allow_uncertain:
+            _refuse("review uncertainty is not a verdict", category="refused", code="precondition")
+        claim = boundaries.document(metadata[REVIEW_UNCERTAINTY_CLAIM],
+                                    "a worker review uncertainty claim",
+                                    required=("outcome", "base", "head", "tree"))
+        if claim["outcome"] != "uncertain":
+            _refuse("unsupported review uncertainty outcome", category="integrity", code="schema")
+        for member in ("base", "head", "tree"):
+            boundaries.text(claim[member], "the reviewer's observed object")
+        return dict(claim, verdict=None)
     claim = boundaries.document(metadata[REVIEW_CLAIM_NAMESPACE],
                                 "a worker checkpoint-review claim",
                                 required=REVIEW_CLAIM_MEMBERS)
@@ -2064,7 +2092,7 @@ REVIEWER_VERIFICATION_CLAIM = "baton.reviewer-verification/1"
 
 
 def review_verdict_from_result(control, *, attachment_id, recovery_digest=None,
-                               reviewer_verification=None):
+                               reviewer_verification=None, _allow_uncertain=False):
     """The verdict a completed review actually recorded in its frozen output.
 
     READ-ONLY AND PUBLIC. It opens nothing, writes nothing, reads no mutable
@@ -2132,7 +2160,7 @@ def review_verdict_from_result(control, *, attachment_id, recovery_digest=None,
                 f"at generation {attachment['assignment_generation']} and its "
                 f"attempt's assignment is generation {fixed['generation']}",
                 category="stale-assignment", code="generation")
-    claim = _review_claim(result)
+    claim = _review_claim(result, allow_uncertain=_allow_uncertain)
     if reviewer_verification is not None and claim["verdict"] == "accepted":
         # W385695 (review 2026-11-24T00-28-00Z C2): AN ACCEPTANCE OF THIS
         # RECOVERY CARRIES THE REVIEWER'S OWN PASSED VERIFICATION, as the
@@ -2183,7 +2211,7 @@ def review_verdict_from_result(control, *, attachment_id, recovery_digest=None,
                     category="integrity", code="schema")
     return {"attachment_id": attachment_id, "attempt_id": attempt_id,
             "checkpoint_id": checkpoint["checkpoint_id"],
-            "verdict": claim["verdict"], "base": claim["base"],
+            "verdict": claim["verdict"], **({"outcome": "uncertain"} if claim["verdict"] is None else {}), "base": claim["base"],
             "head": claim["head"], "tree": claim["tree"],
             "result_id": frozen["result_id"],
             "result_digest": frozen["manifest_digest"]}

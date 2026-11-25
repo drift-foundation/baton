@@ -352,13 +352,12 @@ service behavior is not established by synthetic tests. No new provider call or 
 implied by terminal parsing. Provider-selected
 integration is a separate open issue and is not enabled by the Codex guards.
 
-Reviewer uncertainty is not a fourth inferred verdict. The native handoff
-response path supports an explicit `escalate` response to its configured operator
-without creating a review verdict or scheduling a writer. Ordinary checkpoint
-review currently accepts only accepted/changes-requested/rejected reports;
-missing or uncertain reports hold without a verdict. That ordinary report path
-does not itself emit a structured operator escalation. Until it is explicitly
-composed with an operator decision path, the independent reviewer must report the
-uncertainty and exact evidence to the owner through the coordination channel;
-no automated verdict may be substituted. This limitation remains a native
-review qualification gate, not a reason to guess acceptance.
+Reviewer uncertainty is a separate explicit report, never a fourth verdict.
+The ordinary worker instructions offer `baton.review-uncertainty/1`; the host
+binds its retained findings and exact candidate and delivers one durable owner
+item to the configured decision recipient. Missing routing or invalid evidence
+holds explicitly. No automatic retry, correction or acceptance is inferred.
+The native clarification response path remains separate. See
+[review uncertainty and owner recovery](REVIEW-UNCERTAINTY.md) for the closed
+contracts, read-only owner queue and bounded D1 withdrawal command. Deterministic
+coverage does not qualify a particular live Claude build/image or composed run.

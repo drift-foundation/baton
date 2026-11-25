@@ -1,0 +1,15 @@
+{
+  "v12/python/src/baton_v12/provider_policy/__init__.py": "0691349a1dab559a2c9c379a19a59140a5fe7aa5d14bdb1c0654810d8863f927",
+  "v12/python/src/baton_v12/provider_policy/attribution.py": "e0439c080f9bfef1d03d9dbb1bf95f40c6b94fc8a8de78effb4c7154912093df",
+  "v12/worker/Dockerfile.claude": "f5b6415bce1ed49c5aa4847509cda9674f01b7a30af0526f3fe99321cf93b5de",
+  "v12/worker/claude_agent.py": "fc0b1dcea9f0e9f6a0d8b416a7fbc1bb48d2d8bbe723dbab0a98765cbfabce1e",
+  "work/records/2026/09/finding-v12-initial-claude-worker-pool/PROVENANCE-202663.json": "4d37da74b161956ec36804acaa934250f5716b7735689fc4cc292d8a813e7404",
+  "work/records/2026/09/finding-v12-production-context-qualification-preparation/FINDING.md": "09885caa8f21b348fe78dcee395b8ca55a5d584d6a900157f3735133b1c63b62",
+  "work/records/2026/09/finding-v12-production-context-qualification-preparation/PROGRESS.md": "514894632ce435e67a0f3848ce1c9fb486b7b7ed386de802da18e0c04f4867a8",
+  "work/records/2026/09/finding-v12-production-context-qualification-preparation/operator-result-2026-09-15T18-29-34Z/PROVENANCE.json": "b6dcdcc92a5d06398f4d69b248f0ad3d3e43e94ec39634d4566a63643803aa51",
+  "work/records/2026/09/finding-v12-production-context-qualification-preparation/operator-result-2026-09-15T18-29-34Z/qualification.json": "7cdfea126a0f80654fa569c8e7964ec5a0810712f096cca0e374c178578ea981",
+  "work/records/2026/11/finding-v12-native-provider-selection/IMPLEMENTATION-CONTRACT-CONSOLIDATED-REV2-2026-11-23.md": "dc3245c0c5594f15d22c87cd9b9a19352c633c3e4ef9a52f070f24d87960bd87",
+  "work/records/2026/11/finding-v12-native-provider-selection/IMPLEMENTATION-CONTRACT-REV8-2026-11-23.md": "adcca6f3e02ff1cba9b05dcd182bc3ced253f46e1fbea2c9cf0ac2da320db551",
+  "work/records/2026/11/finding-v12-native-provider-selection/evidence/research-385843/README.md": "20e4cda27bac2e4802db02e0785f38043654fad6a23f9b9da0212fd54012ee28",
+  "work/records/2026/11/finding-v12-native-provider-selection/evidence/research-385843/host-claude-version.txt": "035c0a13fdbcb6d2086f7f36ba7ed5d920b77702db9caf2f6c6a912be4fe91c1"
+}

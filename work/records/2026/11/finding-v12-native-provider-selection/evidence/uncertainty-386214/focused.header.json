@@ -1,0 +1,32 @@
+{
+  "command": [
+    "just",
+    "--justfile",
+    "v12/justfile",
+    "test-one",
+    "tests.manager.test_claude_agent",
+    "tests.manager.test_provider_home.FailedInitializationRecovery",
+    "tests.manager.test_provider_home.FailedInitializationOwnerCommand",
+    "tests.job_manager.test_review_driver",
+    "tests.tools.test_stage_execution.OrdinaryReviewUncertainty",
+    "tests.tools.test_stage_execution.TheComposedJobTraversesReviewAndAcceptance",
+    "tests.tools.test_native_handoffs.AGenuineAmbiguityEscalatesOnceAndStaysHeld",
+    "tests.tools.test_native_handoffs.AnEscalationSurvivesServingRestart",
+    "tests.manager.test_model_attribution"
+  ],
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "base": "2eb556227bc5997a270a073152f65b3dde013ad9",
+  "candidate_repository_head": "e7128f3f58313d178b7f15d231ed6e96d8d9b86f",
+  "groups": [
+    "manager-pure",
+    "tools-pure",
+    "job_manager"
+  ],
+  "collected": 499,
+  "bound_seconds": 180,
+  "disk_root": "/var/tmp/baton-uncertainty-386214-tests",
+  "TMPDIR": "/var/tmp/baton-uncertainty-386214-tests",
+  "accounting": "explicit ids from unittest -v; test-one has no registry accounting",
+  "pid": 2515462,
+  "pgid": 2515462
+}

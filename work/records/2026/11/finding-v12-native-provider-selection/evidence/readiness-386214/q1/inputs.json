@@ -1,0 +1,10 @@
+{
+  "source_commit": "PENDING-HUMAN-CHECKPOINT",
+  "source_tar_sha256": "b9b4eb07760e34bc5094a9d711162d55fc04eefcef04ac6d4aaa29522778a495",
+  "context_tar_sha256": "5a6394c02c45426c2e0407950c5f1dba1206b8e911e660e10e86be8ddc8b9cf3",
+  "recipe_sha256": "30d5191c68fbd2f042c7579be34980d4466ce3983876e7e1705eb70e197fa289",
+  "source_manifest_sha256": "e74e182286e19dc8486f943ffa86737f83f5c0d7e56e1577077934379acb63e1",
+  "image_identity_sha256": "aefc368a6e3c2a250023a4aacdcf4892739ee804d809316531df7ba9d510ec4a",
+  "retained_binary_evidence": "../source-provenance-386126/binary-match.json",
+  "base": "node@sha256:f0960f8dc047f358e3fb428f36ccba21732194fa5f0cac849f401e63e62fb9e6"
+}

@@ -1,0 +1,27 @@
+{
+  "collected": 11,
+  "duplicates": [],
+  "duration_seconds": 3.4669183290097862,
+  "executed": 11,
+  "exit_status": 0,
+  "nonpassing": {},
+  "outcomes": {
+    "tests.job_manager.test_review_driver.UncertaintyIsNotAVerdict.test_competing_uncertainty_and_acceptance_refuse": "ok",
+    "tests.job_manager.test_review_driver.UncertaintyIsNotAVerdict.test_explicit_uncertainty_binds_exact_objects_but_verdict_reader_refuses": "ok",
+    "tests.job_manager.test_review_driver.UncertaintyIsNotAVerdict.test_foreign_candidate_uncertainty_refuses": "ok",
+    "tests.manager.test_claude_agent.ExplicitReviewUncertainty.test_failed_provider_cannot_supply_uncertainty": "ok",
+    "tests.manager.test_claude_agent.ExplicitReviewUncertainty.test_mixed_uncertainty_and_verdict_is_unusable": "ok",
+    "tests.manager.test_claude_agent.ExplicitReviewUncertainty.test_uncertainty_preserves_findings_without_a_verdict_claim": "ok",
+    "tests.manager.test_provider_home.FailedInitializationOwnerCommand.test_owner_command_refusal_is_closed_and_preserves_evidence": "ok",
+    "tests.manager.test_provider_home.FailedInitializationOwnerCommand.test_owner_command_withdraws_once_but_never_authorizes_a_seed": "ok",
+    "tests.tools.test_stage_execution.OrdinaryReviewUncertainty.test_malformed_mixed_report_neither_accepts_nor_invents_uncertainty": "ok",
+    "tests.tools.test_stage_execution.OrdinaryReviewUncertainty.test_uncertain_delivery_replays_after_restart_without_acceptance": "ok",
+    "tests.tools.test_stage_execution.OrdinaryReviewUncertainty.test_unconfigured_owner_is_held_without_fabricated_delivery": "ok"
+  },
+  "passed": 11,
+  "source_after_exit_status": 0,
+  "source_drift": false,
+  "timed_out": false,
+  "unaccounted": [],
+  "uncollected": []
+}

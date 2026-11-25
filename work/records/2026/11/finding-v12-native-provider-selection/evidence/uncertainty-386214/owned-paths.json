@@ -1,0 +1,16 @@
+[
+  "v12/PROVIDER-SELECTION.md",
+  "v12/REVIEW-UNCERTAINTY.md",
+  "v12/python/src/baton_v12/job_manager/native_handoffs.py",
+  "v12/python/src/baton_v12/job_manager/review_driver.py",
+  "v12/python/src/baton_v12/job_manager/review_uncertainty.py",
+  "v12/python/tests/job_manager/test_review_driver.py",
+  "v12/python/tests/manager/test_claude_agent.py",
+  "v12/python/tests/manager/test_provider_home.py",
+  "v12/python/tests/tools/test_stage_execution.py",
+  "v12/python/tools/credential_recovery.py",
+  "v12/python/tools/job_manager.py",
+  "v12/python/tools/review_uncertainty.py",
+  "v12/python/tools/stage_execution.py",
+  "v12/worker/claude_agent.py"
+]

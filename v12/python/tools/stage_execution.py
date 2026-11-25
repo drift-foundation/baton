@@ -2048,6 +2048,16 @@ class StageComposition:
                 # W275774: and the reviewer's own governed workspace, for the same
                 # reason the producer's is returned above.
                 govern=tokens.workspace_governance())
+        if answered.get("uncertainty") is not None:
+            from baton_v12.job_manager import review_uncertainty
+            routing = deployment.authority.native_routing()
+            if routing is None or routing["reviewer"] != assignment["participant"]:
+                return dict(answered, owner_item=None, held_reason="review uncertainty requires configured native decision routing for this reviewer")
+            item = review_uncertainty.deliver(deployment.jobs, deployment.control,
+                stage=stage, attachment_id=prepared["attachment_id"],
+                destination=routing["decision_recipient"],
+                recovery_digest=(None if self.recovery_document_for(stage) is None else json.loads(self.recovery_document_for(stage))["handoff_digest"]))
+            answered = dict(answered, owner_item=item)
         from baton_v12.worker_manager import provider_context, context_delivery
         binding = provider_context.context_invocation_of(deployment.control, attempt_id)
         if self.role == "implementation" and (worker.given.get("provider_context") is not None or binding is not None):

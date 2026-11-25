@@ -5171,3 +5171,29 @@ while True: signal.pause()
                     except ProcessLookupError:
                         pass
                     child.wait(timeout=5)
+
+
+class ExplicitReviewUncertainty(ReviewCase):
+    def test_uncertainty_preserves_findings_without_a_verdict_claim(self):
+        document = {"schema": claude_agent.REVIEW_UNCERTAINTY_SCHEMA,
+                    "findings": "Cannot decide: retained evidence lacks the required observation."}
+        answer = self.reviewed(report=json.dumps(document))
+        self.assertEqual(answer["disposition"], "completed")
+        metadata = next(x for x in answer["outputs"] if x["name"] == "findings")["result_metadata"]
+        self.assertNotIn(claude_agent.REVIEW_CLAIM_NAMESPACE, metadata)
+        self.assertEqual(metadata[claude_agent.REVIEW_UNCERTAINTY_CLAIM],
+                         dict(outcome="uncertain", base=self.base, head=self.head, tree=self.tree))
+        self.assertEqual(json.loads(self.read(self.findings(claude_agent.REVIEW_RESULT))), document)
+        self.assertIn("do not guess", self.calls[-1][0][-1])
+        self.assertIn("no automatic retry or acceptance", self.calls[-1][0][-1])
+
+    def test_mixed_uncertainty_and_verdict_is_unusable(self):
+        answer = self.reviewed(report=json.dumps({"schema": claude_agent.REVIEW_UNCERTAINTY_SCHEMA,
+            "findings": "ambiguous", "verdict": "accepted"}))
+        self.assertEqual(answer["disposition"], "unable")
+        self.assertTrue(all(not x["result_metadata"] for x in answer["outputs"]))
+
+    def test_failed_provider_cannot_supply_uncertainty(self):
+        answer = self.reviewed(status=1, report=json.dumps({"schema": claude_agent.REVIEW_UNCERTAINTY_SCHEMA,
+            "findings": "partial"}))
+        self.assertEqual(answer["disposition"], "unable")

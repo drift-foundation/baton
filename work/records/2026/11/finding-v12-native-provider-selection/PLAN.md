@@ -899,3 +899,20 @@ preparation; refuses the old image. U1: ordinary native review offers the
 reviewer only three verdicts and no uncertain outcome — a Q4 gate, not a Q2
 gate. Next milestone: owner checkpoint of the six paths, then a rebuilt-image
 qualification packet (none exists yet).
+
+
+## 2026-11-25 — phase-ending source checkpoint observed
+
+Owner checkpoint 2eb556227bc5997a270a073152f65b3dde013ad9 verified against all six accepted product paths. Next bundled assignment: ordinary-review uncertain outcome with owner delivery, operator recovery command if within approved D1 semantics, P4 Claude evidence inventory, and coherent rebuilt-image/Q2 packet preparation. Preserve separate reviewable outputs and explicit dependencies so any worker changes precede final image binding. No engine/build/credential/provider execution selected. Escalate concrete new semantics rather than invent them.
+
+## 2026-11-25 — M386212 complete candidate for independent review (baton.codxpc)
+
+Current milestone supersedes the preparation assignment above: independently review the complete candidate in [REPORT](evidence/uncertainty-386214/REPORT.md), then human checkpoint. Fourteen owned product paths implement held ordinary-review uncertainty/owner delivery and the bounded D1 operator command. Source ownership remains serial codxpc for routine corrections; K reviews. No DESIGN or unrelated working edits imported. Focused499/499 passed with exact accounting; five separately retained W386057 isolation prerequisites are verification inputs only. Synthetic packet19/19 expected outcomes passed; historical baseline1237/1240 remains non-green.
+
+Reviewable outputs: [rebuilt Q1/Q2 packet](evidence/readiness-386214/README.md), [exact commands](evidence/readiness-386214/COMMANDS.md), [Claude inventory](evidence/claude-inventory-386214/REPORT.md). Candidate identity/path set is adjacent to REPORT. Suggested human commit: `v12: hold uncertain reviews for owner judgment and prepare refreshed qualification`.
+
+After source acceptance/checkpoint, exact-byte finalization produces the final Q1/Q2 payload identities. Separately select one Q1 build/offline run and review its actual image evidence; only then separately select Q2/private-evidence review. Fixed model/account choices remain unchanged; no source re-selection required. Claude image/offline/explicit-selector and credential selection gaps remain for the finite Q4 path, with stronger participation requirements intact. No guessed backend identity, no automatic uncertainty retry, no engine/build/real credential/provider/native execution selected or performed. W386048/W386057 remain separate. Claim release/readback follows in the sealed candidate's handoff receipt, not by editing candidate bytes after review handoff.
+
+## 2026-11-25 — K review of bundled candidate 4033a352 (baton.prompt, no claim)
+
+[Review](review-2026-11-25T15-40-26Z.md), evidence `evidence/review-K-386216/`. Source (14 paths) accepted with no required corrections; rebuilt-image/Q2 packet (manifest cd0f4488) accepted as preparation only; Claude inventory accepted as inventory. Reproduced 499/499 focused and 19/19 packet checks; nine composed probes and seven finalization probes of my own. Next milestone: owner checkpoint of the 14 paths plus dossier, excluding `v12/DESIGN.md` and the five W386057 paths (finalization refuses otherwise), then `finalize.py`. Q4 gates added: uncertainty is a pull-only queue not shown in Job status, has no owner continuation, and keeps the review worker reserved (O1–O3). No build, engine, credential or provider operation.

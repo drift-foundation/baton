@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-provider-selection/evidence/readiness-386214/bundle-image.py", line 37, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-provider-selection/evidence/readiness-386214/bundle-image.py", line 24, in main
+    assert sha(p.read_bytes())==digest
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

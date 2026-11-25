@@ -1,0 +1,38 @@
+{'name': 'draft-q1-check', 'exit_status': 0, 'seconds': 0.08670155901927501}
+{'name': 'draft-q2-check', 'exit_status': 0, 'seconds': 0.06912530900444835}
+{'name': 'finalization', 'exit_status': 0, 'seconds': 0.281764201936312}
+{'name': 'checkpoint-mismatch', 'exit_status': 1, 'seconds': 0.15965291496831924}
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-provider-selection/evidence/readiness-386214/finalize.py", line 45, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-provider-selection/evidence/readiness-386214/finalize.py", line 30, in main
+    assert seen==json.loads((P/'expected-source.json').read_text()),'checkpoint differs from reviewed candidate source; no silent rebinding'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: checkpoint differs from reviewed candidate source; no silent rebinding
+
+{'name': 'q1-check_preparation.py', 'exit_status': 0, 'seconds': 0.5343088370282203}
+{'name': 'q1-check_runner.py', 'exit_status': 0, 'seconds': 0.219575579976663}
+{'name': 'q1-pass', 'exit_status': 0, 'seconds': 0.8445979590760544}
+{'name': 'q1-build-fail', 'exit_status': 0, 'seconds': 0.24712693900801241}
+{'name': 'q1-probe-fail', 'exit_status': 0, 'seconds': 0.850516033009626}
+{'name': 'q1-remove-fail', 'exit_status': 0, 'seconds': 0.8057232029968873}
+{'name': 'image-bundle', 'exit_status': 0, 'seconds': 0.016389384982176125}
+{'name': 'image-bundle-tamper', 'exit_status': 1, 'seconds': 0.01769909798167646}
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-provider-selection/evidence/readiness-386214/bundle-image.py", line 37, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-provider-selection/evidence/readiness-386214/bundle-image.py", line 24, in main
+    assert sha(p.read_bytes())==digest
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+
+{'name': 'q2-check_preflight.py', 'exit_status': 0, 'seconds': 0.08321943099144846}
+{'name': 'q2-check_image_gate.py', 'exit_status': 0, 'seconds': 0.04075625992845744}
+{'name': 'q2-check_collection.py', 'exit_status': 0, 'seconds': 0.016148558002896607}
+{'name': 'q2-launch-fail', 'exit_status': 0, 'seconds': 0.923504467937164}
+{'name': 'q2-oversize', 'exit_status': 0, 'seconds': 0.816464978037402}
+{'name': 'q2-fault-terminal', 'exit_status': 0, 'seconds': 1.5346954230917618}
+{'name': 'q2-provider-seam', 'exit_status': 0, 'seconds': 1.5625395060051233}
+{"synthetic_only": true, "real_engine_operations": 0, "real_credential_reads": 0, "provider_calls": 0, "fixture_root": "/var/tmp/baton-k-review-386216/t3/k-readiness-sf3qjdgr", "synthetic_checkpoint": "ffcf583ee9cc155ff2ee0c35f4c0776436d10b89", "packet_manifest_sha256": "cd0f4488edb8e1b23a04e37a30c1902cf87726f394c734e2a4367bc06a3a5684", "rows": [{"name": "draft-q1-check", "exit_status": 0, "seconds": 0.08670155901927501}, {"name": "draft-q2-check", "exit_status": 0, "seconds": 0.06912530900444835}, {"name": "finalization", "exit_status": 0, "seconds": 0.281764201936312}, {"name": "checkpoint-mismatch", "exit_status": 1, "seconds": 0.15965291496831924, "expected_refusal": true}, {"name": "q1-check_preparation.py", "exit_status": 0, "seconds": 0.5343088370282203}, {"name": "q1-check_runner.py", "exit_status": 0, "seconds": 0.219575579976663}, {"name": "q1-pass", "exit_status": 0, "seconds": 0.8445979590760544}, {"name": "q1-build-fail", "exit_status": 0, "seconds": 0.24712693900801241}, {"name": "q1-probe-fail", "exit_status": 0, "seconds": 0.850516033009626}, {"name": "q1-remove-fail", "exit_status": 0, "seconds": 0.8057232029968873}, {"name": "image-bundle", "exit_status": 0, "seconds": 0.016389384982176125}, {"name": "image-bundle-tamper", "exit_status": 1, "seconds": 0.01769909798167646, "expected_refusal": true}, {"name": "q2-check_preflight.py", "exit_status": 0, "seconds": 0.08321943099144846}, {"name": "q2-check_image_gate.py", "exit_status": 0, "seconds": 0.04075625992845744}, {"name": "q2-check_collection.py", "exit_status": 0, "seconds": 0.016148558002896607}, {"name": "q2-launch-fail", "exit_status": 0, "seconds": 0.923504467937164}, {"name": "q2-oversize", "exit_status": 0, "seconds": 0.816464978037402}, {"name": "q2-fault-terminal", "exit_status": 0, "seconds": 1.5346954230917618}, {"name": "q2-provider-seam", "exit_status": 0, "seconds": 1.5625395060051233}], "selected": 19, "executed": 19, "passed": 19}

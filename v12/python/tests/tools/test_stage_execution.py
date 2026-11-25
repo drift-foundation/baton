@@ -13753,3 +13753,85 @@ class APublicationWorkerIsAConfiguredRoleInItsOwnLane(StageCase):
                     credential_profile={"api": {"provider": "fixture",
                                                 "reference": "fixture/one"}}))])
         self.assertIn("launches the 'implementation' role", caught.message)
+
+
+class OrdinaryReviewUncertainty(ComposedOneJobCase):
+    """Real worker/manager/custody/Job owner queue; simulated provider/engine."""
+    tick = TheComposedJobTraversesReviewAndAcceptance.tick
+
+    def uncertain(self, *, routed=True, mixed=False):
+        from baton_v12.authority import Authority
+        from baton_v12.authority.messages import ROUTING_SCHEMA
+        held = self.implemented()
+        if routed:
+            authority = Authority.open(self.authority_path, expected_authority_uuid=self.config["authority_uuid"])
+            try:
+                authority.set_policy("native_handoff_routing", {"schema": ROUTING_SCHEMA,
+                    "reviewer": "baton.reviewer", "decision_recipient": "baton.slaw"})
+            finally:
+                authority.dispose()
+        self.drive(held.job, held.composed, "review", "waiting")
+        held.review = self.only_attempt(held.composed, "review")
+        report = {"schema": "baton.review-uncertainty/1", "findings": "Unresolved acceptance evidence; ask the owner."}
+        if mixed:
+            report["verdict"] = "accepted"
+        self.assertEqual(self.turn(held.control, "review", held.review,
+            self.mounted(held.composed, "review", held.review),
+            edits={"review-report.json": json.dumps(report)}), 0)
+        return held
+
+    def test_uncertain_delivery_replays_after_restart_without_acceptance(self):
+        import io
+        from baton_v12.job_manager import JobStore, review_uncertainty
+        from baton_v12.worker_manager import ControlStore, review_cycles
+        from tests.job_manager import fixtures
+        from tools import review_uncertainty as command
+        held = self.uncertain()
+        for _ in range(3):
+            self.tick(held)
+        [item] = review_uncertainty.items_of(held.job)
+        self.assertEqual(item["destination"], "baton.slaw")
+        self.assertIsNone(item["verdict"])
+        self.assertIsNone(item["automatic_retry"])
+        self.assertEqual(item["evidence"]["attempt_id"], held.review)
+        line = held.composed.deployment.line()["line_id"]
+        self.assertIsNone(review_cycles.integration_checkpoint(held.control, line))
+        starts = len(self.engine.starts)
+        held.composed.close()
+        held.job.close()
+        held.control.close()
+        job = JobStore.open(self.job_path, authority_uuid=self.config["authority_uuid"], incarnation="uncertain-restart", clock=lambda: fixtures.NOW)
+        control = ControlStore.open(self.control_path, incarnation="uncertain-restart", clock=lambda: fixtures.NOW)
+        self.addCleanup(job.close)
+        self.addCleanup(control.close)
+        composed = stage_execution.operations_from(self.composed_document(line_declared_base=self.base), job, control,
+            engine_run=self.engine, credential_provider=lambda provider, reference: self.secret,
+            clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.addCleanup(composed.close)
+        again = SimpleNamespace(job=job, control=control, composed=composed)
+        for _ in range(3):
+            self.tick(again)
+        self.assertEqual(review_uncertainty.items_of(job), [item])
+        self.assertEqual(len(self.engine.starts), starts)
+        self.assertIsNone(review_cycles.integration_checkpoint(control, line))
+        self.assertNotEqual(self.states(job, composed)["review"], "completed")
+        stream = io.StringIO()
+        self.assertEqual(command.main(["review-uncertainty-items", "--jobs", self.job_path,
+            "--authority-uuid", self.config["authority_uuid"]], stream=stream), 0)
+        self.assertEqual(json.loads(stream.getvalue())["items"], [item])
+
+    def test_unconfigured_owner_is_held_without_fabricated_delivery(self):
+        from baton_v12.job_manager import review_uncertainty
+        held = self.uncertain(routed=False)
+        for _ in range(3):
+            self.tick(held)
+        self.assertEqual(review_uncertainty.items_of(held.job), [])
+        self.assertNotEqual(self.states(held.job, held.composed)["review"], "completed")
+
+    def test_malformed_mixed_report_neither_accepts_nor_invents_uncertainty(self):
+        from baton_v12.job_manager import review_uncertainty
+        held = self.uncertain(mixed=True)
+        for _ in range(3):
+            self.tick(held)
+        self.assertEqual(review_uncertainty.items_of(held.job), [])
+        self.assertNotEqual(self.states(held.job, held.composed)["review"], "completed")

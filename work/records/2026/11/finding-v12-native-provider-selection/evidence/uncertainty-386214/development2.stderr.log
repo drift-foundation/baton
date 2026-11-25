@@ -1,0 +1,16 @@
+test_failed_provider_cannot_supply_uncertainty (tests.manager.test_claude_agent.ExplicitReviewUncertainty.test_failed_provider_cannot_supply_uncertainty) ... ok
+test_mixed_uncertainty_and_verdict_is_unusable (tests.manager.test_claude_agent.ExplicitReviewUncertainty.test_mixed_uncertainty_and_verdict_is_unusable) ... ok
+test_uncertainty_preserves_findings_without_a_verdict_claim (tests.manager.test_claude_agent.ExplicitReviewUncertainty.test_uncertainty_preserves_findings_without_a_verdict_claim) ... ok
+test_malformed_mixed_report_neither_accepts_nor_invents_uncertainty (tests.tools.test_stage_execution.OrdinaryReviewUncertainty.test_malformed_mixed_report_neither_accepts_nor_invents_uncertainty) ... ok
+test_uncertain_delivery_replays_after_restart_without_acceptance (tests.tools.test_stage_execution.OrdinaryReviewUncertainty.test_uncertain_delivery_replays_after_restart_without_acceptance) ... ok
+test_unconfigured_owner_is_held_without_fabricated_delivery (tests.tools.test_stage_execution.OrdinaryReviewUncertainty.test_unconfigured_owner_is_held_without_fabricated_delivery) ... ok
+test_owner_command_refusal_is_closed_and_preserves_evidence (tests.manager.test_provider_home.FailedInitializationOwnerCommand.test_owner_command_refusal_is_closed_and_preserves_evidence) ... ok
+test_owner_command_withdraws_once_but_never_authorizes_a_seed (tests.manager.test_provider_home.FailedInitializationOwnerCommand.test_owner_command_withdraws_once_but_never_authorizes_a_seed) ... ok
+test_competing_uncertainty_and_acceptance_refuse (tests.job_manager.test_review_driver.UncertaintyIsNotAVerdict.test_competing_uncertainty_and_acceptance_refuse) ... ok
+test_explicit_uncertainty_binds_exact_objects_but_verdict_reader_refuses (tests.job_manager.test_review_driver.UncertaintyIsNotAVerdict.test_explicit_uncertainty_binds_exact_objects_but_verdict_reader_refuses) ... ok
+test_foreign_candidate_uncertainty_refuses (tests.job_manager.test_review_driver.UncertaintyIsNotAVerdict.test_foreign_candidate_uncertainty_refuses) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 2.846s
+
+OK

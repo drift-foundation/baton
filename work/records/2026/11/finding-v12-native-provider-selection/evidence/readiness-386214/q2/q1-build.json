@@ -1,0 +1,29 @@
+{
+  "cli_version": "codex-cli 0.169.0",
+  "codex_binary_bytes": 294277432,
+  "codex_binary_sha256": "b452ca20f838a8855a88a41050ee4a694033fff4ea3ecdad5633e6e0e8d13f2b",
+  "image_files": {
+    "/opt/baton/adapter_refusal.py": "97f6d9f5edee922017ead4c6d6b116382e56a398c59aa9262f959033d45a3e35",
+    "/opt/baton/attempt_log_format.py": "8f88433f93ea92d4050df78e2ce2ddc75479562b665e3ca3857146023f986587",
+    "/opt/baton/baton_worker.py": "bb16d4b14df274d06ac534c04aaceab2aebdb856ed73fc099af3c3fe5590f6c4",
+    "/opt/baton/bounded_command.py": "828b20fe3ea6910824582325dfe86036d6a1126e6aa59411d3e32f23eb4e85f7",
+    "/opt/baton/claude_agent.py": "fc0b1dcea9f0e9f6a0d8b416a7fbc1bb48d2d8bbe723dbab0a98765cbfabce1e",
+    "/opt/baton/codex_agent.py": "27c7d00a480795cbb118d1a8478416641debd7e2e43d4c3fc69a3ce0d24365a2",
+    "/opt/baton/codex_entry.py": "d08ebfb6812e5c1458f79136ce73ad0f3a110ca87643f42dfc56822c1fa3f86d",
+    "/opt/baton/dogfood_entry.py": "2b36f68faa0512db428d87ae705c03468417ba7d5d752133d81522a88ae4e807",
+    "/opt/baton/provider_policy/__init__.py": "0691349a1dab559a2c9c379a19a59140a5fe7aa5d14bdb1c0654810d8863f927",
+    "/opt/baton/provider_policy/attribution.py": "e0439c080f9bfef1d03d9dbb1bf95f40c6b94fc8a8de78effb4c7154912093df",
+    "/opt/baton/provider_policy/codex.py": "154f85c0ae3ade1c08834cd63bef02a0d5497aedeab310cfe28c99ac40051f6f",
+    "/opt/baton/provider_policy/home.py": "7b5bc1ed48f6a5b92927cf96d54428d93bc9dccd44755b9831a0b26fc621d503",
+    "/opt/baton/provider_policy/worker_instructions.md": "369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b",
+    "/opt/baton/source_profiles/__init__.py": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+    "/opt/baton/source_profiles/checkout.py": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+    "/opt/baton/verification_context.py": "692d121682363ba519752fe78e64d3c0842da3dd3b4190131ee364ba75f0a1b0",
+    "/opt/baton/verifier-layout-marker.json": "3355c11a36044111f713d37a729e51f8b781801d655be5e0df14de7fb69c9648",
+    "/opt/baton/worker-control-1.0.schema.json": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+  },
+  "packet_id": "q1-386214",
+  "schema": "baton.q1-build/1",
+  "source_commit": "PENDING-HUMAN-CHECKPOINT",
+  "source_manifest_sha256": "e74e182286e19dc8486f943ffa86737f83f5c0d7e56e1577077934379acb63e1"
+}

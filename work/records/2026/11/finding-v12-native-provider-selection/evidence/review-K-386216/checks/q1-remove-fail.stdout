@@ -1,0 +1,23 @@
+{"passed": false, "error": null, "cleanup": {"container_name": "baton-runtime.start-7c6ffaa06bb6450bd3c0b9ab69f213749f8a9050f26e1ed5368246082a0fb475", "ceased": true, "removed": null, "runtime_id": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "exit_code": 143, "state": {"Running": false, "StartedAt": "2026-11-25T07:00:00.123456789Z", "ExitCode": 143}, "error": "AssertionError: (['docker', 'rm', 'dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd'], 1)"}, "qualification_scope": "offline source/image/home/tools/F1 only", "provider_calls": 0, "build_attempts": 1, "qualification_launch_attempts": 1, "actual_contributors": "unknown", "native_job_qualified": false, "build_cache_and_image_retained": true, "build_cancellation_verified": null}
+{
+ "scenario": "remove-fail",
+ "exit": 1,
+ "home_opens": [],
+ "non_docker_processes": [],
+ "dest": [
+  "RESULT.json",
+  "cleanup.json",
+  "container-intent.json",
+  "digest-kind.json",
+  "engine-version.json",
+  "evidence-manifest.json",
+  "image-inspect.json",
+  "image.id",
+  "launched-image.json",
+  "receipt-after-removal.json",
+  "selection.json",
+  "worker-observation.json"
+ ],
+ "commands": 16
+}
+PASS real execute simulation remove-fail

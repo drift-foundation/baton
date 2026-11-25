@@ -1,0 +1,52 @@
+# N4a source-only draft. Build and native qualification are not selected.
+# Matches the Claude worker dependency/layout contract at 317351e7.
+# The exact provider pin is observed in N3; apt/base inputs remain mutable.
+# Shared policy and packaged instructions are consumed at the D-first join.
+FROM node@sha256:f0960f8dc047f358e3fb428f36ccba21732194fa5f0cac849f401e63e62fb9e6
+RUN npm install -g "@openai/codex@0.169.0" \
+    && npm cache clean --force
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y ca-certificates git python3 \
+       python3-jsonschema \
+    && rm -rf /var/lib/apt/lists/*
+COPY python/src/baton_v12/attempt_log_format.py \
+     /opt/baton/attempt_log_format.py
+COPY python/src/baton_v12/verification_context.py \
+     /opt/baton/verification_context.py
+COPY worker/baton_worker.py /opt/baton/baton_worker.py
+COPY worker/adapter_refusal.py /opt/baton/adapter_refusal.py
+COPY worker/claude_agent.py /opt/baton/claude_agent.py
+COPY worker/bounded_command.py /opt/baton/bounded_command.py
+RUN chmod 0555 /opt/baton/bounded_command.py
+COPY worker/dogfood_entry.py /opt/baton/dogfood_entry.py
+COPY worker/codex_agent.py /opt/baton/codex_agent.py
+COPY worker/codex_entry.py /opt/baton/codex_entry.py
+COPY worker/worker-control-1.0.schema.json \
+     /opt/baton/worker-control-1.0.schema.json
+COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+COPY python/src/baton_v12/provider_policy /opt/baton/provider_policy
+RUN useradd --uid 65532 --create-home nonroot \
+    && mkdir -p /run/baton/provider-home \
+    && chown -R 65532:65532 /home/nonroot
+RUN mkdir -p /run/baton-verifier/home \
+             /run/baton-verifier/tmp \
+             /run/baton-verifier/cache \
+             /run/baton-verifier/pycache \
+    && chown -R 0:0 /run/baton-verifier \
+    && chmod 0755 /run /run/baton-verifier \
+                  /run/baton-verifier/home \
+                  /run/baton-verifier/tmp \
+                  /run/baton-verifier/cache \
+                  /run/baton-verifier/pycache
+COPY worker/verifier-layout-marker.json \
+     /opt/baton/verifier-layout-marker.json
+USER 65532:65532
+ENTRYPOINT ["python3", "/opt/baton/codex_entry.py"]
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/opt/baton \
+    PYTHONHASHSEED=0 \
+    NODE_NO_WARNINGS=1
+
+COPY q1-build.json /opt/baton/q1-build.json
+LABEL org.opencontainers.image.revision="PENDING-HUMAN-CHECKPOINT" io.baton.q1.packet="q1-386214" io.baton.q1.source="e74e182286e19dc8486f943ffa86737f83f5c0d7e56e1577077934379acb63e1"

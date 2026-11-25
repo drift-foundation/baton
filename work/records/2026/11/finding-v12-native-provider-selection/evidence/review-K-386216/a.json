@@ -1,0 +1,1609 @@
+{
+ "before": 2,
+ "engine": [
+  "activations",
+  "answer",
+  "gone",
+  "image",
+  "labels",
+  "minted",
+  "mounts",
+  "running",
+  "runtime_id",
+  "starts",
+  "stopped",
+  "vectors"
+ ],
+ "facts": {
+  "integration": null,
+  "items": [
+   {
+    "automatic_retry": null,
+    "delivered_at": "2026-09-02T00:00:00.000Z",
+    "destination": "baton.slaw",
+    "episode": 1,
+    "evidence": {
+     "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+     "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+     "base": "0cd6d3b8d3d3fa2f85ffe850b2ca7bd55ef8f90c",
+     "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+     "head": "9cde2bb716951f4c4f067361eef90efc3560bf77",
+     "outcome": "uncertain",
+     "result_digest": "sha256:059af327530448eae868cfd9adfc7a5842221bfb264656a37885c8f16c3f1a98",
+     "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+     "tree": "a401a9deb1811f5b4b1ce83a1cb29564e923a220",
+     "verdict": null
+    },
+    "job_id": "job-a",
+    "schema": "baton.review-uncertainty-owner-item/1",
+    "stage_id": "job-a/review",
+    "state": "held-for-owner",
+    "verdict": null
+   }
+  ],
+  "starts": 2,
+  "states": {
+   "implementation": "completed",
+   "integration": "blocked",
+   "review": "answering"
+  },
+  "status": {
+   "cancellation": null,
+   "control": null,
+   "created_at": "2026-09-02T00:00:00.000Z",
+   "execution_limits": {
+    "boundaries": {
+     "host_verification": {
+      "default_seconds": 300,
+      "origin": "compatibility",
+      "seconds": 300,
+      "setting": "verification_command_seconds"
+     },
+     "integration_verification": {
+      "default_seconds": 1800,
+      "origin": "compatibility",
+      "seconds": 1800,
+      "setting": "verification_command_seconds"
+     },
+     "ordinary_verification": {
+      "default_seconds": 900,
+      "origin": "compatibility",
+      "seconds": 900,
+      "setting": "verification_command_seconds"
+     },
+     "provider_turn": {
+      "default_seconds": 3600,
+      "origin": "compatibility",
+      "seconds": 3600,
+      "setting": "provider_turn_seconds"
+     }
+    },
+    "compatibility_generation": 1,
+    "requested": {},
+    "scope": "per-invocation",
+    "units": "seconds"
+   },
+   "input_digest": "sha256:7d7a8456fd2ee5cb57e7f078b3f82fb900a02480aa5662c066f703c305e3e009",
+   "job_id": "job-a",
+   "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+   "stages": [
+    {
+     "allocation": {
+      "allocation_state": "released",
+      "assignment_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "canonical_principal": "principal:baton.claude",
+      "episode": 1,
+      "generation": 1,
+      "generation_digest": "sha256:c58aa5bb47ed5137700947942dd09ddfd9da576c2da8281b1e06f18ba0e9f56a",
+      "lane": "implementation",
+      "participant": "baton.claude",
+      "preferred_worker_id": null,
+      "recovery_required_at": null,
+      "release_reason": "cleanup-retained",
+      "released_at": "2026-09-02T00:00:00.000Z",
+      "reserved_at": "2026-09-02T00:00:00.000Z",
+      "selection_outcome": "initial",
+      "separation_class": "provider-diverse",
+      "stage_id": "job-a/implementation",
+      "variant": "baton.v12.stage-execution-deployment/1",
+      "worker_id": "implementation-worker",
+      "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "worker_profile_name": "reference"
+     },
+     "allocations": [
+      {
+       "allocation_state": "released",
+       "assignment_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+       "canonical_principal": "principal:baton.claude",
+       "episode": 1,
+       "generation": 1,
+       "generation_digest": "sha256:c58aa5bb47ed5137700947942dd09ddfd9da576c2da8281b1e06f18ba0e9f56a",
+       "lane": "implementation",
+       "participant": "baton.claude",
+       "preferred_worker_id": null,
+       "recovery_required_at": null,
+       "release_reason": "cleanup-retained",
+       "released_at": "2026-09-02T00:00:00.000Z",
+       "reserved_at": "2026-09-02T00:00:00.000Z",
+       "selection_outcome": "initial",
+       "separation_class": "provider-diverse",
+       "stage_id": "job-a/implementation",
+       "variant": "baton.v12.stage-execution-deployment/1",
+       "worker_id": "implementation-worker",
+       "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+       "worker_profile_name": "reference"
+      }
+     ],
+     "artifacts": [
+      {
+       "artifact_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571:proposal",
+       "bytes": 1805,
+       "content_digest": "sha256:3c0607afb57821ca97ee67fc96de3addb1f6c4d94683c1322145e7ebad82ec74",
+       "locator": "file:///var/tmp/baton-k-review-386216/t2/v12-w71917-bwlwf490/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/custody/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/proposal",
+       "media_type": "application/octet-stream",
+       "output_name": "proposal"
+      }
+     ],
+     "attempt_diagnostics": {
+      "absent_records": [
+       "attempt.cessation-*:expiry-reclaim",
+       "attempt.cessation-*:settlement",
+       "attempt.cessation-*:cancellation",
+       "resource-token.revoked:workspace:66306:24784297:1",
+       "runtime.start-failed",
+       "runtime.preparation-failed"
+      ],
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "cause": null,
+      "completion": {
+       "known": true,
+       "source": "tokens:resource-token.returned",
+       "value": true
+      },
+      "domain": {
+       "known": true,
+       "source": "tokens.domain_of",
+       "value": "workspace:66306:24784297"
+      },
+      "execution": {
+       "activity_at": {
+        "known": false,
+        "value": null,
+        "why": "no session stream has been observed"
+       },
+       "activity_bytes": {
+        "known": false,
+        "value": null,
+        "why": "no session stream has been observed"
+       },
+       "cleanup": {
+        "known": true,
+        "source": "attempts",
+        "value": "retained"
+       },
+       "execution_runtime": {
+        "known": true,
+        "source": "attempts",
+        "value": "destroyed"
+       },
+       "observed_at": {
+        "known": true,
+        "source": "attempts",
+        "value": "2026-09-02T00:00:00.000Z"
+       },
+       "runtime_id": {
+        "known": true,
+        "source": "attempts",
+        "value": "runtime-single-1"
+       },
+       "token_bound_runtime_id": {
+        "known": true,
+        "source": "tokens.token_of",
+        "value": "runtime-single-1"
+       }
+      },
+      "generation": {
+       "known": true,
+       "source": "tokens.generation_of",
+       "value": 1
+      },
+      "lifetime_seconds": {
+       "known": true,
+       "source": "tokens.LIFETIME_SECONDS",
+       "value": 900
+      },
+      "preparation_failure_category": {
+       "known": false,
+       "value": null,
+       "why": "no preparation failure category was recorded"
+      },
+      "preparation_failure_code": {
+       "known": false,
+       "value": null,
+       "why": "no preparation failure code was recorded"
+      },
+      "preparation_failure_kind": {
+       "known": false,
+       "value": null,
+       "why": "no preparation failure kind was recorded"
+      },
+      "preparation_failure_message": {
+       "known": false,
+       "value": null,
+       "why": "no preparation failure message was recorded"
+      },
+      "preparation_failure_recorded": {
+       "known": true,
+       "source": "attempts.attempt_preparation_failure_of",
+       "value": false
+      },
+      "preparation_failure_runtime_id": {
+       "known": false,
+       "value": null,
+       "why": "this manager recorded no failed preparation naming a runtime for this attempt"
+      },
+      "renewal_limit": {
+       "known": true,
+       "source": "tokens.RENEWAL_LIMIT",
+       "value": 4
+      },
+      "revocation": {
+       "known": false,
+       "value": null,
+       "why": "no revocation is journalled for this attempt's governed generation"
+      },
+      "revoked_container": {
+       "known": false,
+       "value": null,
+       "why": "no revocation naming a bound container is journalled for this generation"
+      },
+      "revoked_expired_at": {
+       "known": false,
+       "value": null,
+       "why": "no revocation is journalled for this attempt's governed generation"
+      },
+      "revoked_owner": {
+       "known": false,
+       "value": null,
+       "why": "no revocation naming an owner is journalled for this generation"
+      },
+      "schema": "baton.v12.attempt-failure-cause/1",
+      "start_failure_recorded": {
+       "known": true,
+       "source": "attempts.attempt_start_failure_of",
+       "value": false
+      },
+      "start_failure_runtime_id": {
+       "known": false,
+       "value": null,
+       "why": "this manager recorded no failed start naming a runtime for this attempt"
+      },
+      "token": {
+       "acquired_expires_at": {
+        "known": true,
+        "source": "tokens.token_of",
+        "value": "2026-09-02T00:15:00.000Z"
+       },
+       "activating": {
+        "known": true,
+        "source": "tokens.token_of",
+        "value": false
+       },
+       "container": {
+        "known": true,
+        "source": "tokens.token_of",
+        "value": "runtime-single-1"
+       },
+       "expired": {
+        "known": true,
+        "source": "tokens.token_of",
+        "value": false
+       },
+       "expires_at": {
+        "known": true,
+        "source": "tokens.token_of",
+        "value": "2026-09-02T00:15:00.000Z"
+       },
+       "expiry_judged_at": {
+        "known": false,
+        "value": null,
+        "why": "this attempt's governed generation records no expiry_judged_at"
+       },
+       "launch": {
+        "known": true,
+        "source": "tokens.token_of",
+        "value": "runtime.start:50f34424d07465b28176ecba7eb295be455a6a6763fffd0f3402ffb12aeb823b"
+       },
+       "owner": {
+        "known": true,
+        "source": "tokens.token_of",
+        "value": "7be9e7468842327ca1c8903b13a5f8e16d7a66dd27e6decae26e75aea8d119ee"
+       },
+       "renewals": {
+        "known": true,
+        "source": "tokens.token_of",
+        "value": 0
+       },
+       "renewals_remaining": {
+        "known": true,
+        "source": "tokens.token_of",
+        "value": 4
+       },
+       "renewed_at": {
+        "known": false,
+        "value": null,
+        "why": "this attempt's governed generation records no renewed_at"
+       },
+       "returned": {
+        "known": true,
+        "source": "tokens.token_of",
+        "value": true
+       }
+      },
+      "unknown": {
+       "absent": [
+        "attempt.cessation-*:expiry-reclaim",
+        "attempt.cessation-*:settlement",
+        "attempt.cessation-*:cancellation",
+        "resource-token.revoked:workspace:66306:24784297:1",
+        "runtime.start-failed",
+        "runtime.preparation-failed"
+       ],
+       "why": "no component of this manager recorded ordering a cessation for this attempt, and no start or preparation failure is recorded either; which component ended it, if any did, is unknown"
+      },
+      "worker_declaration": {
+       "declared_ending": {
+        "known": true,
+        "source": "retained result.disposition",
+        "value": "candidate"
+       },
+       "disposition": {
+        "known": true,
+        "source": "outputs.disposition",
+        "value": "completed"
+       },
+       "failure_reason": {
+        "known": false,
+        "value": null,
+        "why": "the retained result names no provider failure reason this build owns; the owned values are api-error, start-error, timeout, unclassified"
+       },
+       "frozen_at": {
+        "known": true,
+        "source": "outputs.frozen_at",
+        "value": "2026-09-02T00:00:00.000Z"
+       },
+       "result_id": {
+        "known": true,
+        "source": "outputs.result_id",
+        "value": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"
+       },
+       "seconds_bound": {
+        "known": true,
+        "source": "retained result.provider.seconds_bound",
+        "value": 3600
+       },
+       "seconds_bound_source": {
+        "known": true,
+        "source": "retained result.provider.seconds_bound_source",
+        "value": "job-default"
+       },
+       "verification_attempted": {
+        "known": true,
+        "source": "retained result.verification",
+        "value": true
+       },
+       "verification_status": {
+        "known": true,
+        "source": "retained result.verification.status",
+        "value": 0
+       }
+      },
+      "workspace_object": {
+       "device": {
+        "known": true,
+        "source": "attempts",
+        "value": 66306
+       },
+       "inode": {
+        "known": true,
+        "source": "attempts",
+        "value": 24784297
+       },
+       "is_a_locator": false,
+       "why": "a device and inode identify a workspace object; they are not a path and resolve no retained output on their own"
+      }
+     },
+     "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+     "corrections": 0,
+     "deferral": null,
+     "diagnostic_degradation": null,
+     "episode": 1,
+     "episodes": [
+      {
+       "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+       "ended_at": null,
+       "ended_revision": null,
+       "ended_state": null,
+       "episode": 1,
+       "incarnation": "stage-composed",
+       "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+       "opened_at": "2026-09-02T00:00:00.000Z",
+       "stage_id": "job-a/implementation"
+      }
+     ],
+     "exchange": null,
+     "gates": [],
+     "job_id": "job-a",
+     "kind": "implementation",
+     "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+     "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+     "profile_name": "reference",
+     "receipts": [
+      {
+       "act": "admit",
+       "detail": {
+        "canonical_state": "committed",
+        "refusal": null,
+        "result": {
+         "expires_at": "2026-09-02T00:02:00.000Z",
+         "issued_at": "2026-09-02T00:00:00.000Z",
+         "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+         "participant": "baton.claude",
+         "runtime_attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+         "verifier": "sha256:3734784d7c9ceccd7133d6550ca79d554c6286d6fc206cf67ae6a3443a69a6a9",
+         "work_id": "0000000a-W1"
+        },
+        "settled_at": "2026-09-02T00:00:00.000Z"
+       },
+       "episode": 1,
+       "operation_id": "offer.issue:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+       "recorded_at": "2026-09-02T00:00:00.000Z",
+       "stage_id": "job-a/implementation",
+       "state": "performed"
+      },
+      {
+       "act": "claim",
+       "detail": {
+        "canonical_state": "committed",
+        "refusal": null,
+        "result": {
+         "assignment": {
+          "generation": 1,
+          "participant": "baton.claude",
+          "work_ref": {
+           "authority_uuid": "0000000a000000000000000000000000",
+           "work_id": "0000000a-W1"
+          }
+         },
+         "claim_event": 1,
+         "decision": {
+          "effective_scope": "scope:deployment",
+          "endpoint": "baton.claude",
+          "grant": "direct",
+          "policy_generation": 9,
+          "principal": "principal:baton.claude",
+          "role": "baton.impl"
+         },
+         "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+         "state": "claimed"
+        },
+        "settled_at": "2026-09-02T00:00:00.000Z"
+       },
+       "episode": 1,
+       "operation_id": "offer.settle:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+       "recorded_at": "2026-09-02T00:00:00.000Z",
+       "stage_id": "job-a/implementation",
+       "state": "performed"
+      }
+     ],
+     "runtime": {
+      "activity": {
+       "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+       "bytes_observed": null,
+       "observed_at": null
+      },
+      "assignment": {
+       "generation": 1,
+       "participant": "baton.claude",
+       "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+       }
+      },
+      "execution_runtime": "destroyed",
+      "runtime_id": "runtime-single-1"
+     },
+     "stage_id": "job-a/implementation",
+     "state": "completed",
+     "work_id": "0000000a-W1"
+    },
+    {
+     "allocation": {
+      "allocation_state": "reserved",
+      "assignment_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "canonical_principal": "principal:baton.reviewer",
+      "episode": 1,
+      "generation": 1,
+      "generation_digest": "sha256:c58aa5bb47ed5137700947942dd09ddfd9da576c2da8281b1e06f18ba0e9f56a",
+      "lane": "review",
+      "participant": "baton.reviewer",
+      "preferred_worker_id": null,
+      "recovery_required_at": null,
+      "release_reason": null,
+      "released_at": null,
+      "reserved_at": "2026-09-02T00:00:00.000Z",
+      "selection_outcome": "initial",
+      "separation_class": "provider-diverse",
+      "stage_id": "job-a/review",
+      "variant": "baton.v12.stage-execution-deployment/1",
+      "worker_id": "review-worker",
+      "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "worker_profile_name": "reference"
+     },
+     "allocations": [
+      {
+       "allocation_state": "reserved",
+       "assignment_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+       "canonical_principal": "principal:baton.reviewer",
+       "episode": 1,
+       "generation": 1,
+       "generation_digest": "sha256:c58aa5bb47ed5137700947942dd09ddfd9da576c2da8281b1e06f18ba0e9f56a",
+       "lane": "review",
+       "participant": "baton.reviewer",
+       "preferred_worker_id": null,
+       "recovery_required_at": null,
+       "release_reason": null,
+       "released_at": null,
+       "reserved_at": "2026-09-02T00:00:00.000Z",
+       "selection_outcome": "initial",
+       "separation_class": "provider-diverse",
+       "stage_id": "job-a/review",
+       "variant": "baton.v12.stage-execution-deployment/1",
+       "worker_id": "review-worker",
+       "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+       "worker_profile_name": "reference"
+      }
+     ],
+     "artifacts": [
+      {
+       "artifact_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:findings",
+       "bytes": 114,
+       "content_digest": "sha256:c78ac99281df6e0f3b00db49031c1cf25a94c5ed7ecc07f8dcba20cf26e1840d",
+       "locator": "file:///var/tmp/baton-k-review-386216/t2/v12-w71917-bwlwf490/storage/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/custody/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/findings",
+       "media_type": "application/octet-stream",
+       "output_name": "findings"
+      },
+      {
+       "artifact_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:logs",
+       "bytes": 445,
+       "content_digest": "sha256:545c1cc545639b5d2199f19ae998157f02f8a12a9884ae97b20d1b254b824e1d",
+       "locator": "file:///var/tmp/baton-k-review-386216/t2/v12-w71917-bwlwf490/storage/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/custody/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/logs",
+       "media_type": "application/octet-stream",
+       "output_name": "logs"
+      }
+     ],
+     "attempt_diagnostics": {
+      "absent_records": [
+       "attempt.cessation-*:expiry-reclaim",
+       "attempt.cessation-*:settlement",
+       "attempt.cessation-*:cancellation",
+       "resource-token.revoked:workspace:66306:24784361:1",
+       "runtime.start-failed",
+       "runtime.preparation-failed"
+      ],
+      "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "cause": null,
+      "completion": {
+       "known": false,
+       "value": null,
+       "why": "this generation's resource token has not been returned"
+      },
+      "domain": {
+       "known": true,
+       "source": "tokens.domain_of",
+       "value": "workspace:66306:24784361"
+      },
+      "execution": {
+       "activity_at": {
+        "known": false,
+        "value": null,
+        "why": "no session stream has been observed"
+       },
+       "activity_bytes": {
+        "known": false,
+        "value": null,
+        "why": "no session stream has been observed"
+       },
+       "cleanup": {
+        "known": true,
+        "source": "attempts",
+        "value": "pending"
+       },
+       "execution_runtime": {
+        "known": true,
+        "source": "attempts",
+        "value": "quiescent"
+       },
+       "observed_at": {
+        "known": true,
+        "source": "attempts",
+        "value": "2026-09-02T00:00:00.000Z"
+       },
+       "runtime_id": {
+        "known": true,
+        "source": "attempts",
+        "value": "runtime-single-2"
+       },
+       "token_bound_runtime_id": {
+        "known": true,
+        "source": "tokens.token_of",
+        "value": "runtime-single-2"
+       }
+      },
+      "generation": {
+       "known": true,
+       "source": "tokens.generation_of",
+       "value": 1
+      },
+      "lifetime_seconds": {
+       "known": true,
+       "source": "tokens.LIFETIME_SECONDS",
+       "value": 900
+      },
+      "preparation_failure_category": {
+       "known": false,
+       "value": null,
+       "why": "no preparation failure category was recorded"
+      },
+      "preparation_failure_code": {
+       "known": false,
+       "value": null,
+       "why": "no preparation failure code was recorded"
+      },
+      "preparation_failure_kind": {
+       "known": false,
+       "value": null,
+       "why": "no preparation failure kind was recorded"
+      },
+      "preparation_failure_message": {
+       "known": false,
+       "value": null,
+       "why": "no preparation failure message was recorded"
+      },
+      "preparation_failure_recorded": {
+       "known": true,
+       "source": "attempts.attempt_preparation_failure_of",
+       "value": false
+      },
+      "preparation_failure_runtime_id": {
+       "known": false,
+       "value": null,
+       "why": "this manager recorded no failed preparation naming a runtime for this attempt"
+      },
+      "renewal_limit": {
+       "known": true,
+       "source": "tokens.RENEWAL_LIMIT",
+       "value": 4
+      },
+      "revocation": {
+       "known": false,
+       "value": null,
+       "why": "no revocation is journalled for this attempt's governed generation"
+      },
+      "revoked_container": {
+       "known": false,
+       "value": null,
+       "why": "no revocation naming a bound container is journalled for this generation"
+      },
+      "revoked_expired_at": {
+       "known": false,
+       "value": null,
+       "why": "no revocation is journalled for this attempt's governed generation"
+      },
+      "revoked_owner": {
+       "known": false,
+       "value": null,
+       "why": "no revocation naming an owner is journalled for this generation"
+      },
+      "schema": "baton.v12.attempt-failure-cause/1",
+      "start_failure_recorded": {
+       "known": true,
+       "source": "attempts.attempt_start_failure_of",
+       "value": false
+      },
+      "start_failure_runtime_id": {
+       "known": false,
+       "value": null,
+       "why": "this manager recorded no failed start naming a runtime for this attempt"
+      },
+      "token": {
+       "acquired_expires_at": {
+        "known": true,
+        "source": "tokens.token_of",
+        "value": "2026-09-02T00:15:00.000Z"
+       },
+       "activating": {
+        "known": true,
+        "source": "tokens.token_of",
+        "value": false
+       },
+       "container": {
+        "known": true,
+        "source": "tokens.token_of",
+        "value": "runtime-single-2"
+       },
+       "expired": {
+        "known": true,
+        "source": "tokens.token_of",
+        "value": false
+       },
+       "expires_at": {
+        "known": true,
+        "source": "tokens.token_of",
+        "value": "2026-09-02T00:15:00.000Z"
+       },
+       "expiry_judged_at": {
+        "known": false,
+        "value": null,
+        "why": "this attempt's governed generation records no expiry_judged_at"
+       },
+       "launch": {
+        "known": true,
+        "source": "tokens.token_of",
+        "value": "runtime.start:61ea11ed46abfdc6ace70e427d011b651e000e2d7ddf3f18bc9c32148e2da483"
+       },
+       "owner": {
+        "known": true,
+        "source": "tokens.token_of",
+        "value": "cf83373844eb9f4b703febf460d03dfc650d4aa74f17889456624cebad315cdb"
+       },
+       "renewals": {
+        "known": true,
+        "source": "tokens.token_of",
+        "value": 0
+       },
+       "renewals_remaining": {
+        "known": true,
+        "source": "tokens.token_of",
+        "value": 4
+       },
+       "renewed_at": {
+        "known": false,
+        "value": null,
+        "why": "this attempt's governed generation records no renewed_at"
+       },
+       "returned": {
+        "known": true,
+        "source": "tokens.token_of",
+        "value": false
+       }
+      },
+      "unknown": {
+       "absent": [
+        "attempt.cessation-*:expiry-reclaim",
+        "attempt.cessation-*:settlement",
+        "attempt.cessation-*:cancellation",
+        "resource-token.revoked:workspace:66306:24784361:1",
+        "runtime.start-failed",
+        "runtime.preparation-failed"
+       ],
+       "why": "no component of this manager recorded ordering a cessation for this attempt, and no start or preparation failure is recorded either; which component ended it, if any did, is unknown"
+      },
+      "worker_declaration": {
+       "declared_ending": {
+        "known": false,
+        "value": null,
+        "why": "this attempt's frozen result carries no single present candidate output, so there is no typed worker result bound to it"
+       },
+       "disposition": {
+        "known": true,
+        "source": "outputs.disposition",
+        "value": "completed"
+       },
+       "failure_reason": {
+        "known": false,
+        "value": null,
+        "why": "this attempt's frozen result carries no single present candidate output, so there is no typed worker result bound to it"
+       },
+       "frozen_at": {
+        "known": true,
+        "source": "outputs.frozen_at",
+        "value": "2026-09-02T00:00:00.000Z"
+       },
+       "result_id": {
+        "known": true,
+        "source": "outputs.result_id",
+        "value": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c"
+       },
+       "seconds_bound": {
+        "known": false,
+        "value": null,
+        "why": "this attempt's frozen result carries no single present candidate output, so there is no typed worker result bound to it"
+       },
+       "seconds_bound_source": {
+        "known": false,
+        "value": null,
+        "why": "this attempt's frozen result carries no single present candidate output, so there is no typed worker result bound to it"
+       },
+       "verification_attempted": {
+        "known": false,
+        "value": null,
+        "why": "this attempt's frozen result carries no single present candidate output, so there is no typed worker result bound to it"
+       },
+       "verification_status": {
+        "known": false,
+        "value": null,
+        "why": "this attempt's frozen result carries no single present candidate output, so there is no typed worker result bound to it"
+       }
+      },
+      "workspace_object": {
+       "device": {
+        "known": true,
+        "source": "attempts",
+        "value": 66306
+       },
+       "inode": {
+        "known": true,
+        "source": "attempts",
+        "value": 24784361
+       },
+       "is_a_locator": false,
+       "why": "a device and inode identify a workspace object; they are not a path and resolve no retained output on their own"
+      }
+     },
+     "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+     "corrections": 0,
+     "deferral": null,
+     "diagnostic_degradation": null,
+     "episode": 1,
+     "episodes": [
+      {
+       "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+       "ended_at": null,
+       "ended_revision": null,
+       "ended_state": null,
+       "episode": 1,
+       "incarnation": "stage-composed",
+       "offer_id": "offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+       "opened_at": "2026-09-02T00:00:00.000Z",
+       "stage_id": "job-a/review"
+      }
+     ],
+     "exchange": {
+      "command": {
+       "command_digest": "sha256:2d1cbad696ab784ba33ac4d028f157c3288b6b9e2734a4550775d558cccd0ee4",
+       "operations": [
+        "describe",
+        "work"
+       ],
+       "sequence_id": "sequence-b4f77d8b7255d33990fc75cd90baa325"
+      },
+      "foreign": [],
+      "model_attribution": "Requested: not selected (account default)",
+      "receipt": {
+       "accepted_at": "2026-11-25T15:37:20.000Z"
+      },
+      "sequence_id": "sequence-b4f77d8b7255d33990fc75cd90baa325",
+      "state": "answered",
+      "states": [
+       {
+        "operation": "describe",
+        "state": "answered"
+       },
+       {
+        "operation": "work",
+        "state": "answered"
+       }
+      ],
+      "terminal": {
+       "adapter_failure": null,
+       "answered": [
+        "describe",
+        "work"
+       ],
+       "disposition": "completed",
+       "ending": "answered",
+       "fault_code": null,
+       "manifest_digest": "sha256:fbfda0e1bf192053efb6df9023336c25070f35fe5945d3833d6192c2e879f82f",
+       "terminal_digest": "sha256:ab54afa6e856a59d09f5071d7d65476e739af229f566281e486ee90e851490e7"
+      },
+      "transport": "baton.worker-exchange/1",
+      "unreadable": null
+     },
+     "gates": [
+      {
+       "open": true,
+       "stage_id": "job-a/implementation",
+       "state": "completed"
+      }
+     ],
+     "job_id": "job-a",
+     "kind": "review",
+     "offer_id": "offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+     "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+     "profile_name": "reference",
+     "receipts": [
+      {
+       "act": "admit",
+       "detail": {
+        "canonical_state": "committed",
+        "refusal": null,
+        "result": {
+         "expires_at": "2026-09-02T00:02:00.000Z",
+         "issued_at": "2026-09-02T00:00:00.000Z",
+         "offer_id": "offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+         "participant": "baton.reviewer",
+         "runtime_attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+         "verifier": "sha256:678b6f9e86f1903d0d3496f09eed075114d2cf6cd499623598fb963b3f25bb93",
+         "work_id": "0000000a-W1"
+        },
+        "settled_at": "2026-09-02T00:00:00.000Z"
+       },
+       "episode": 1,
+       "operation_id": "offer.issue:offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+       "recorded_at": "2026-09-02T00:00:00.000Z",
+       "stage_id": "job-a/review",
+       "state": "performed"
+      },
+      {
+       "act": "claim",
+       "detail": {
+        "canonical_state": "committed",
+        "refusal": null,
+        "result": {
+         "assignment": {
+          "generation": 2,
+          "participant": "baton.reviewer",
+          "work_ref": {
+           "authority_uuid": "0000000a000000000000000000000000",
+           "work_id": "0000000a-W1"
+          }
+         },
+         "claim_event": 3,
+         "decision": {
+          "effective_scope": "scope:deployment",
+          "endpoint": "baton.reviewer",
+          "grant": "direct",
+          "policy_generation": 10,
+          "principal": "principal:baton.reviewer",
+          "role": "rview"
+         },
+         "offer_id": "offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+         "state": "claimed"
+        },
+        "settled_at": "2026-09-02T00:00:00.000Z"
+       },
+       "episode": 1,
+       "operation_id": "offer.settle:offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+       "recorded_at": "2026-09-02T00:00:00.000Z",
+       "stage_id": "job-a/review",
+       "state": "performed"
+      }
+     ],
+     "runtime": {
+      "activity": {
+       "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+       "bytes_observed": null,
+       "observed_at": null
+      },
+      "assignment": {
+       "generation": 2,
+       "participant": "baton.reviewer",
+       "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+       }
+      },
+      "execution_runtime": "quiescent",
+      "runtime_id": "runtime-single-2"
+     },
+     "stage_id": "job-a/review",
+     "state": "answering",
+     "work_id": "0000000a-W1"
+    },
+    {
+     "allocation": null,
+     "allocations": [],
+     "artifacts": null,
+     "attempt_diagnostics": null,
+     "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+     "corrections": 0,
+     "deferral": null,
+     "diagnostic_degradation": null,
+     "episode": 1,
+     "episodes": [
+      {
+       "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+       "ended_at": null,
+       "ended_revision": null,
+       "ended_state": null,
+       "episode": 1,
+       "incarnation": "stage-composed",
+       "offer_id": "offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+       "opened_at": "2026-09-02T00:00:00.000Z",
+       "stage_id": "job-a/integration"
+      }
+     ],
+     "exchange": null,
+     "gates": [
+      {
+       "open": false,
+       "stage_id": "job-a/review",
+       "state": "answering"
+      }
+     ],
+     "job_id": "job-a",
+     "kind": "integration",
+     "offer_id": "offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+     "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+     "profile_name": "reference",
+     "receipts": [],
+     "runtime": null,
+     "stage_id": "job-a/integration",
+     "state": "blocked",
+     "work_id": "0000000a-W1"
+    }
+   ],
+   "submission_id": "sub-1",
+   "terminal_policy": "report-and-hold",
+   "test_scope": [
+    "v12/python/tests/job_manager"
+   ]
+  }
+ },
+ "ticks": [
+  {
+   "acts": [],
+   "observed": 6,
+   "observed_at": "2026-09-02T00:00:00.000Z",
+   "recovered": null,
+   "refreshed": [
+    {
+     "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+     "episode": 1,
+     "stage_id": "job-a/implementation",
+     "state": "not-asked"
+    },
+    {
+     "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+     "episode": 1,
+     "stage_id": "job-a/review",
+     "state": "running"
+    },
+    {
+     "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+     "episode": 1,
+     "stage_id": "job-a/integration",
+     "state": "not-asked"
+    }
+   ],
+   "replaced": [],
+   "spoken": [
+    {
+     "act": "conclude",
+     "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+     "detail": {
+      "artifacts": [
+       "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:findings",
+       "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:logs"
+      ],
+      "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+      "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+      "cleaned_up": false,
+      "held_reason": "reviewer uncertainty requires an owner decision; no verdict or automatic retry",
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "manifest_digest": "sha256:059af327530448eae868cfd9adfc7a5842221bfb264656a37885c8f16c3f1a98",
+      "outcome": "held",
+      "owner_item": {
+       "automatic_retry": null,
+       "delivered_at": "2026-09-02T00:00:00.000Z",
+       "destination": "baton.slaw",
+       "episode": 1,
+       "evidence": {
+        "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "base": "0cd6d3b8d3d3fa2f85ffe850b2ca7bd55ef8f90c",
+        "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "head": "9cde2bb716951f4c4f067361eef90efc3560bf77",
+        "outcome": "uncertain",
+        "result_digest": "sha256:059af327530448eae868cfd9adfc7a5842221bfb264656a37885c8f16c3f1a98",
+        "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "tree": "a401a9deb1811f5b4b1ce83a1cb29564e923a220",
+        "verdict": null
+       },
+       "job_id": "job-a",
+       "schema": "baton.review-uncertainty-owner-item/1",
+       "stage_id": "job-a/review",
+       "state": "held-for-owner",
+       "verdict": null
+      },
+      "receipt_digest": "sha256:bea92e9f7da4b2d7fe616d9645d0987fe3ea7865cd5ee4122534aa0f07f4ab5f",
+      "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "retention": "retain",
+      "uncertainty": {
+       "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+       "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+       "base": "0cd6d3b8d3d3fa2f85ffe850b2ca7bd55ef8f90c",
+       "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+       "head": "9cde2bb716951f4c4f067361eef90efc3560bf77",
+       "outcome": "uncertain",
+       "result_digest": "sha256:059af327530448eae868cfd9adfc7a5842221bfb264656a37885c8f16c3f1a98",
+       "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+       "tree": "a401a9deb1811f5b4b1ce83a1cb29564e923a220",
+       "verdict": null
+      },
+      "verdict": null,
+      "verdict_id": null,
+      "verdict_record": null
+     },
+     "episode": 1,
+     "outcome": "performed",
+     "stage_id": "job-a/review"
+    }
+   ],
+   "started": []
+  },
+  {
+   "acts": [],
+   "observed": 6,
+   "observed_at": "2026-09-02T00:00:00.000Z",
+   "recovered": null,
+   "refreshed": [
+    {
+     "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+     "episode": 1,
+     "stage_id": "job-a/implementation",
+     "state": "not-asked"
+    },
+    {
+     "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+     "episode": 1,
+     "stage_id": "job-a/review",
+     "state": "quiescent"
+    },
+    {
+     "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+     "episode": 1,
+     "stage_id": "job-a/integration",
+     "state": "not-asked"
+    }
+   ],
+   "replaced": [],
+   "spoken": [
+    {
+     "act": "conclude",
+     "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+     "detail": {
+      "artifacts": [
+       "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:findings",
+       "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:logs"
+      ],
+      "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+      "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+      "cleaned_up": false,
+      "held_reason": "reviewer uncertainty requires an owner decision; no verdict or automatic retry",
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "manifest_digest": "sha256:059af327530448eae868cfd9adfc7a5842221bfb264656a37885c8f16c3f1a98",
+      "outcome": "held",
+      "owner_item": {
+       "automatic_retry": null,
+       "delivered_at": "2026-09-02T00:00:00.000Z",
+       "destination": "baton.slaw",
+       "episode": 1,
+       "evidence": {
+        "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "base": "0cd6d3b8d3d3fa2f85ffe850b2ca7bd55ef8f90c",
+        "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "head": "9cde2bb716951f4c4f067361eef90efc3560bf77",
+        "outcome": "uncertain",
+        "result_digest": "sha256:059af327530448eae868cfd9adfc7a5842221bfb264656a37885c8f16c3f1a98",
+        "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "tree": "a401a9deb1811f5b4b1ce83a1cb29564e923a220",
+        "verdict": null
+       },
+       "job_id": "job-a",
+       "schema": "baton.review-uncertainty-owner-item/1",
+       "stage_id": "job-a/review",
+       "state": "held-for-owner",
+       "verdict": null
+      },
+      "receipt_digest": "sha256:bea92e9f7da4b2d7fe616d9645d0987fe3ea7865cd5ee4122534aa0f07f4ab5f",
+      "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "retention": "retain",
+      "uncertainty": {
+       "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+       "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+       "base": "0cd6d3b8d3d3fa2f85ffe850b2ca7bd55ef8f90c",
+       "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+       "head": "9cde2bb716951f4c4f067361eef90efc3560bf77",
+       "outcome": "uncertain",
+       "result_digest": "sha256:059af327530448eae868cfd9adfc7a5842221bfb264656a37885c8f16c3f1a98",
+       "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+       "tree": "a401a9deb1811f5b4b1ce83a1cb29564e923a220",
+       "verdict": null
+      },
+      "verdict": null,
+      "verdict_id": null,
+      "verdict_record": null
+     },
+     "episode": 1,
+     "outcome": "performed",
+     "stage_id": "job-a/review"
+    }
+   ],
+   "started": []
+  },
+  {
+   "acts": [],
+   "observed": 6,
+   "observed_at": "2026-09-02T00:00:00.000Z",
+   "recovered": null,
+   "refreshed": [
+    {
+     "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+     "episode": 1,
+     "stage_id": "job-a/implementation",
+     "state": "not-asked"
+    },
+    {
+     "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+     "episode": 1,
+     "stage_id": "job-a/review",
+     "state": "quiescent"
+    },
+    {
+     "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+     "episode": 1,
+     "stage_id": "job-a/integration",
+     "state": "not-asked"
+    }
+   ],
+   "replaced": [],
+   "spoken": [
+    {
+     "act": "conclude",
+     "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+     "detail": {
+      "artifacts": [
+       "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:findings",
+       "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:logs"
+      ],
+      "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+      "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+      "cleaned_up": false,
+      "held_reason": "reviewer uncertainty requires an owner decision; no verdict or automatic retry",
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "manifest_digest": "sha256:059af327530448eae868cfd9adfc7a5842221bfb264656a37885c8f16c3f1a98",
+      "outcome": "held",
+      "owner_item": {
+       "automatic_retry": null,
+       "delivered_at": "2026-09-02T00:00:00.000Z",
+       "destination": "baton.slaw",
+       "episode": 1,
+       "evidence": {
+        "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "base": "0cd6d3b8d3d3fa2f85ffe850b2ca7bd55ef8f90c",
+        "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "head": "9cde2bb716951f4c4f067361eef90efc3560bf77",
+        "outcome": "uncertain",
+        "result_digest": "sha256:059af327530448eae868cfd9adfc7a5842221bfb264656a37885c8f16c3f1a98",
+        "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "tree": "a401a9deb1811f5b4b1ce83a1cb29564e923a220",
+        "verdict": null
+       },
+       "job_id": "job-a",
+       "schema": "baton.review-uncertainty-owner-item/1",
+       "stage_id": "job-a/review",
+       "state": "held-for-owner",
+       "verdict": null
+      },
+      "receipt_digest": "sha256:bea92e9f7da4b2d7fe616d9645d0987fe3ea7865cd5ee4122534aa0f07f4ab5f",
+      "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "retention": "retain",
+      "uncertainty": {
+       "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+       "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+       "base": "0cd6d3b8d3d3fa2f85ffe850b2ca7bd55ef8f90c",
+       "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+       "head": "9cde2bb716951f4c4f067361eef90efc3560bf77",
+       "outcome": "uncertain",
+       "result_digest": "sha256:059af327530448eae868cfd9adfc7a5842221bfb264656a37885c8f16c3f1a98",
+       "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+       "tree": "a401a9deb1811f5b4b1ce83a1cb29564e923a220",
+       "verdict": null
+      },
+      "verdict": null,
+      "verdict_id": null,
+      "verdict_record": null
+     },
+     "episode": 1,
+     "outcome": "performed",
+     "stage_id": "job-a/review"
+    }
+   ],
+   "started": []
+  },
+  {
+   "acts": [],
+   "observed": 6,
+   "observed_at": "2026-09-02T00:00:00.000Z",
+   "recovered": null,
+   "refreshed": [
+    {
+     "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+     "episode": 1,
+     "stage_id": "job-a/implementation",
+     "state": "not-asked"
+    },
+    {
+     "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+     "episode": 1,
+     "stage_id": "job-a/review",
+     "state": "quiescent"
+    },
+    {
+     "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+     "episode": 1,
+     "stage_id": "job-a/integration",
+     "state": "not-asked"
+    }
+   ],
+   "replaced": [],
+   "spoken": [
+    {
+     "act": "conclude",
+     "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+     "detail": {
+      "artifacts": [
+       "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:findings",
+       "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:logs"
+      ],
+      "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+      "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+      "cleaned_up": false,
+      "held_reason": "reviewer uncertainty requires an owner decision; no verdict or automatic retry",
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "manifest_digest": "sha256:059af327530448eae868cfd9adfc7a5842221bfb264656a37885c8f16c3f1a98",
+      "outcome": "held",
+      "owner_item": {
+       "automatic_retry": null,
+       "delivered_at": "2026-09-02T00:00:00.000Z",
+       "destination": "baton.slaw",
+       "episode": 1,
+       "evidence": {
+        "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "base": "0cd6d3b8d3d3fa2f85ffe850b2ca7bd55ef8f90c",
+        "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "head": "9cde2bb716951f4c4f067361eef90efc3560bf77",
+        "outcome": "uncertain",
+        "result_digest": "sha256:059af327530448eae868cfd9adfc7a5842221bfb264656a37885c8f16c3f1a98",
+        "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "tree": "a401a9deb1811f5b4b1ce83a1cb29564e923a220",
+        "verdict": null
+       },
+       "job_id": "job-a",
+       "schema": "baton.review-uncertainty-owner-item/1",
+       "stage_id": "job-a/review",
+       "state": "held-for-owner",
+       "verdict": null
+      },
+      "receipt_digest": "sha256:bea92e9f7da4b2d7fe616d9645d0987fe3ea7865cd5ee4122534aa0f07f4ab5f",
+      "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "retention": "retain",
+      "uncertainty": {
+       "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+       "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+       "base": "0cd6d3b8d3d3fa2f85ffe850b2ca7bd55ef8f90c",
+       "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+       "head": "9cde2bb716951f4c4f067361eef90efc3560bf77",
+       "outcome": "uncertain",
+       "result_digest": "sha256:059af327530448eae868cfd9adfc7a5842221bfb264656a37885c8f16c3f1a98",
+       "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+       "tree": "a401a9deb1811f5b4b1ce83a1cb29564e923a220",
+       "verdict": null
+      },
+      "verdict": null,
+      "verdict_id": null,
+      "verdict_record": null
+     },
+     "episode": 1,
+     "outcome": "performed",
+     "stage_id": "job-a/review"
+    }
+   ],
+   "started": []
+  },
+  {
+   "acts": [],
+   "observed": 6,
+   "observed_at": "2026-09-02T00:00:00.000Z",
+   "recovered": null,
+   "refreshed": [
+    {
+     "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+     "episode": 1,
+     "stage_id": "job-a/implementation",
+     "state": "not-asked"
+    },
+    {
+     "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+     "episode": 1,
+     "stage_id": "job-a/review",
+     "state": "quiescent"
+    },
+    {
+     "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+     "episode": 1,
+     "stage_id": "job-a/integration",
+     "state": "not-asked"
+    }
+   ],
+   "replaced": [],
+   "spoken": [
+    {
+     "act": "conclude",
+     "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+     "detail": {
+      "artifacts": [
+       "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:findings",
+       "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:logs"
+      ],
+      "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+      "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+      "cleaned_up": false,
+      "held_reason": "reviewer uncertainty requires an owner decision; no verdict or automatic retry",
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "manifest_digest": "sha256:059af327530448eae868cfd9adfc7a5842221bfb264656a37885c8f16c3f1a98",
+      "outcome": "held",
+      "owner_item": {
+       "automatic_retry": null,
+       "delivered_at": "2026-09-02T00:00:00.000Z",
+       "destination": "baton.slaw",
+       "episode": 1,
+       "evidence": {
+        "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "base": "0cd6d3b8d3d3fa2f85ffe850b2ca7bd55ef8f90c",
+        "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "head": "9cde2bb716951f4c4f067361eef90efc3560bf77",
+        "outcome": "uncertain",
+        "result_digest": "sha256:059af327530448eae868cfd9adfc7a5842221bfb264656a37885c8f16c3f1a98",
+        "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "tree": "a401a9deb1811f5b4b1ce83a1cb29564e923a220",
+        "verdict": null
+       },
+       "job_id": "job-a",
+       "schema": "baton.review-uncertainty-owner-item/1",
+       "stage_id": "job-a/review",
+       "state": "held-for-owner",
+       "verdict": null
+      },
+      "receipt_digest": "sha256:bea92e9f7da4b2d7fe616d9645d0987fe3ea7865cd5ee4122534aa0f07f4ab5f",
+      "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "retention": "retain",
+      "uncertainty": {
+       "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+       "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+       "base": "0cd6d3b8d3d3fa2f85ffe850b2ca7bd55ef8f90c",
+       "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+       "head": "9cde2bb716951f4c4f067361eef90efc3560bf77",
+       "outcome": "uncertain",
+       "result_digest": "sha256:059af327530448eae868cfd9adfc7a5842221bfb264656a37885c8f16c3f1a98",
+       "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+       "tree": "a401a9deb1811f5b4b1ce83a1cb29564e923a220",
+       "verdict": null
+      },
+      "verdict": null,
+      "verdict_id": null,
+      "verdict_record": null
+     },
+     "episode": 1,
+     "outcome": "performed",
+     "stage_id": "job-a/review"
+    }
+   ],
+   "started": []
+  },
+  {
+   "acts": [],
+   "observed": 6,
+   "observed_at": "2026-09-02T00:00:00.000Z",
+   "recovered": null,
+   "refreshed": [
+    {
+     "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+     "episode": 1,
+     "stage_id": "job-a/implementation",
+     "state": "not-asked"
+    },
+    {
+     "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+     "episode": 1,
+     "stage_id": "job-a/review",
+     "state": "quiescent"
+    },
+    {
+     "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+     "episode": 1,
+     "stage_id": "job-a/integration",
+     "state": "not-asked"
+    }
+   ],
+   "replaced": [],
+   "spoken": [
+    {
+     "act": "conclude",
+     "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+     "detail": {
+      "artifacts": [
+       "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:findings",
+       "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:logs"
+      ],
+      "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+      "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+      "cleaned_up": false,
+      "held_reason": "reviewer uncertainty requires an owner decision; no verdict or automatic retry",
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "manifest_digest": "sha256:059af327530448eae868cfd9adfc7a5842221bfb264656a37885c8f16c3f1a98",
+      "outcome": "held",
+      "owner_item": {
+       "automatic_retry": null,
+       "delivered_at": "2026-09-02T00:00:00.000Z",
+       "destination": "baton.slaw",
+       "episode": 1,
+       "evidence": {
+        "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "base": "0cd6d3b8d3d3fa2f85ffe850b2ca7bd55ef8f90c",
+        "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "head": "9cde2bb716951f4c4f067361eef90efc3560bf77",
+        "outcome": "uncertain",
+        "result_digest": "sha256:059af327530448eae868cfd9adfc7a5842221bfb264656a37885c8f16c3f1a98",
+        "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "tree": "a401a9deb1811f5b4b1ce83a1cb29564e923a220",
+        "verdict": null
+       },
+       "job_id": "job-a",
+       "schema": "baton.review-uncertainty-owner-item/1",
+       "stage_id": "job-a/review",
+       "state": "held-for-owner",
+       "verdict": null
+      },
+      "receipt_digest": "sha256:bea92e9f7da4b2d7fe616d9645d0987fe3ea7865cd5ee4122534aa0f07f4ab5f",
+      "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "retention": "retain",
+      "uncertainty": {
+       "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+       "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+       "base": "0cd6d3b8d3d3fa2f85ffe850b2ca7bd55ef8f90c",
+       "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+       "head": "9cde2bb716951f4c4f067361eef90efc3560bf77",
+       "outcome": "uncertain",
+       "result_digest": "sha256:059af327530448eae868cfd9adfc7a5842221bfb264656a37885c8f16c3f1a98",
+       "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+       "tree": "a401a9deb1811f5b4b1ce83a1cb29564e923a220",
+       "verdict": null
+      },
+      "verdict": null,
+      "verdict_id": null,
+      "verdict_record": null
+     },
+     "episode": 1,
+     "outcome": "performed",
+     "stage_id": "job-a/review"
+    }
+   ],
+   "started": []
+  }
+ ],
+ "turn": 0
+}

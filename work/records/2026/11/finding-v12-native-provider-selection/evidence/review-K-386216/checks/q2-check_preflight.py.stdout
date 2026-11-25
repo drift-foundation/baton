@@ -1,0 +1,1 @@
+{"passed": true, "preflight": {"payload_sha256": "a418aa9a9f4ad03123b8e69b30a287bb31a0eab449491731320b5e438bdd7b16", "source": "ffcf583ee9cc155ff2ee0c35f4c0776436d10b89", "read_only": true, "engine_operations": 0, "credential_access": false}, "image_qualification": "pending", "real_engine_calls": 0}

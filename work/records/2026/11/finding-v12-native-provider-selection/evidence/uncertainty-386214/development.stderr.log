@@ -1,0 +1,54 @@
+test_failed_provider_cannot_supply_uncertainty (tests.manager.test_claude_agent.ExplicitReviewUncertainty.test_failed_provider_cannot_supply_uncertainty) ... ok
+test_mixed_uncertainty_and_verdict_is_unusable (tests.manager.test_claude_agent.ExplicitReviewUncertainty.test_mixed_uncertainty_and_verdict_is_unusable) ... ok
+test_uncertainty_preserves_findings_without_a_verdict_claim (tests.manager.test_claude_agent.ExplicitReviewUncertainty.test_uncertainty_preserves_findings_without_a_verdict_claim) ... FAIL
+test_malformed_mixed_report_neither_accepts_nor_invents_uncertainty (tests.tools.test_stage_execution.OrdinaryReviewUncertainty.test_malformed_mixed_report_neither_accepts_nor_invents_uncertainty) ... ok
+test_uncertain_delivery_replays_after_restart_without_acceptance (tests.tools.test_stage_execution.OrdinaryReviewUncertainty.test_uncertain_delivery_replays_after_restart_without_acceptance) ... ERROR
+test_unconfigured_owner_is_held_without_fabricated_delivery (tests.tools.test_stage_execution.OrdinaryReviewUncertainty.test_unconfigured_owner_is_held_without_fabricated_delivery) ... ok
+
+======================================================================
+ERROR: test_uncertain_delivery_replays_after_restart_without_acceptance (tests.tools.test_stage_execution.OrdinaryReviewUncertainty.test_uncertain_delivery_replays_after_restart_without_acceptance)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-uncertainty-386214-source/v12/python/tests/tools/test_stage_execution.py", line 13819, in test_uncertain_delivery_replays_after_restart_without_acceptance
+    self.assertEqual(command.main(["review-uncertainty-items", "--jobs", self.job_path,
+                     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "--authority-uuid", self.config["authority_uuid"]], stream=stream), 0)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-uncertainty-386214-source/v12/python/tools/review_uncertainty.py", line 14, in main
+    with JobStore.open_readonly(args.jobs,authority_uuid=args.authority_uuid,incarnation='review-uncertainty-reader',clock=clock) as store:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-uncertainty-386214-source/v12/python/src/baton_v12/job_manager/store.py", line 451, in open_readonly
+    store._now()
+    ~~~~~~~~~~^^
+  File "/var/tmp/baton-uncertainty-386214-source/v12/python/src/baton_v12/job_manager/store.py", line 888, in _now
+    return boundaries.instant(self._clock(),
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+                              "the configured clock's answer")
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-uncertainty-386214-source/v12/python/src/baton_v12/worker_manager/boundaries.py", line 121, in instant
+    _calendar(value, what)
+    ~~~~~~~~~^^^^^^^^^^^^^
+  File "/var/tmp/baton-uncertainty-386214-source/v12/python/src/baton_v12/worker_manager/boundaries.py", line 133, in _calendar
+    _refuse(f"{what} is a durable instant in the frozen "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"0000-00-00T00:00:00.000Z grammar; this is {name_value(value)}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-uncertainty-386214-source/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the configured clock's answer is a durable instant in the frozen 0000-00-00T00:00:00.000Z grammar; this is '2026-11-25T08:46:58.326584Z'
+
+======================================================================
+FAIL: test_uncertainty_preserves_findings_without_a_verdict_claim (tests.manager.test_claude_agent.ExplicitReviewUncertainty.test_uncertainty_preserves_findings_without_a_verdict_claim)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-uncertainty-386214-source/v12/python/tests/manager/test_claude_agent.py", line 5186, in test_uncertainty_preserves_findings_without_a_verdict_claim
+    self.assertEqual(self.read(self.findings(claude_agent.REVIEW_RESULT)), document)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '{\n "findings": "Cannot decide: retained[85 chars]n}\n' != {'schema': 'baton.review-uncertainty/1', [74 chars]on.'}
+
+----------------------------------------------------------------------
+Ran 6 tests in 2.680s
+
+FAILED (failures=1, errors=1)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

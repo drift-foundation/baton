@@ -585,6 +585,8 @@ REVIEW_REPORT = "review-report.json"
 # document this workload reads, so one from another generation is refused by an
 # equality test rather than read for the parts that look familiar.
 REVIEW_REPORT_SCHEMA = "baton.review-report/1"
+REVIEW_UNCERTAINTY_SCHEMA = "baton.review-uncertainty/1"
+REVIEW_UNCERTAINTY_CLAIM = "baton.checkpoint-review-uncertainty/1"
 REVIEW_REPORT_MEMBERS = ("schema", "verdict", "findings")
 
 # The reviewer's closed answer. THE SAME THREE WORDS THE MANAGER RECORDS, and
@@ -2933,7 +2935,7 @@ class ClaudeAgent:
         else:
             written, prose = report, report["findings"]
         _written(os.path.join(findings, REVIEW_RESULT),
-                 json.dumps(written, indent=1, sort_keys=True) + "\n")
+                 json.dumps({k: v for k, v in written.items() if k != "verdict" or written["schema"] != REVIEW_UNCERTAINTY_SCHEMA}, indent=1, sort_keys=True) + "\n")
         _written(os.path.join(findings, REVIEW_FINDINGS),
                  prose + ("" if prose.endswith("\n") else "\n"))
         answered = []
@@ -2956,7 +2958,7 @@ class ClaudeAgent:
                 "recap": ((f"{response['disposition']}: replied to the "
                            f"pending {response_context['request']['kind']}")
                           if response is not None else
-                          f"{report['verdict']}: reviewed "
+                          f"{report['verdict'] or 'uncertain'}: reviewed "
                           f"{observed['base'][:12]}..{observed['head'][:12]}"
                           )[:MAX_RECAP]}
 
@@ -6885,12 +6887,17 @@ def _review_report(room):
         # report is not a verdict, and that has to hold for every way it can
         # be malformed.
         return None
+    uncertain = type(document) is dict and document.get("schema") == REVIEW_UNCERTAINTY_SCHEMA
+    if uncertain:
+        if set(document) not in ({"schema", "findings"}, {"schema", "findings", "recovery_digest"}):
+            return None
+        document = dict(document, verdict=None)
     if type(document) is not dict \
             or set(document) not in (set(REVIEW_REPORT_MEMBERS), set(REVIEW_REPORT_MEMBERS) | {"recovery_digest"}):
         return None
-    if document["schema"] != REVIEW_REPORT_SCHEMA:
+    if document["schema"] != REVIEW_REPORT_SCHEMA and not uncertain:
         return None
-    if document["verdict"] not in REVIEW_VERDICTS:
+    if document["verdict"] not in REVIEW_VERDICTS and not uncertain:
         return None
     findings = document["findings"]
     if type(findings) is not str or not findings.strip() \
@@ -6911,7 +6918,7 @@ def _review_report(room):
         return None
     if "recovery_digest" in document and (type(document["recovery_digest"]) is not str or not re.fullmatch(r"sha256:[0-9a-f]{64}", document["recovery_digest"])):
         return None
-    return {"schema": REVIEW_REPORT_SCHEMA, "verdict": document["verdict"],
+    return {"schema": document["schema"], "verdict": document["verdict"],
             "findings": findings, **({"recovery_digest": document["recovery_digest"]} if "recovery_digest" in document else {})}
 
 
@@ -7070,7 +7077,7 @@ def _review_claim(verdict, observed, recovery_digest=None, checked=None,
     against the checkpoint's own frozen evidence, so a reviewer that named
     another line's objects is refused there rather than believed here.
     """
-    return {REVIEW_CLAIM_NAMESPACE: {"verdict": verdict,
+    return {(REVIEW_UNCERTAINTY_CLAIM if verdict is None else REVIEW_CLAIM_NAMESPACE): {("outcome" if verdict is None else "verdict"): ("uncertain" if verdict is None else verdict),
                                      "base": observed["base"],
                                      "head": observed["head"],
                                      "tree": observed["tree"]},
@@ -7132,7 +7139,14 @@ def _review_prompt(task, source, report, checked=None):
             f"  {' '.join(task['verification'])}\n"
             f"but naming it is not evidence that it passed, and you must not "
             f"report it as passing unless you ran it yourself.\n\n"
-            f"When you are done, write your decision to {report} as a JSON "
+            f"If you cannot substantiate a verdict, do not guess or choose a verdict merely to finish. "
+            f"Write uncertainty to {report} instead: a JSON object with schema "
+            f"{REVIEW_UNCERTAINTY_SCHEMA!r} and non-empty findings explaining the unresolved "
+            f"question and relevant artifact/evidence locations (also recovery_digest when required above). "
+            f"Do not include verdict in an uncertainty report. The manager preserves the exact "
+            f"candidate and report and holds an owner item for the configured decision recipient; "
+            f"there is no automatic retry or acceptance.\n\n"
+            f"Otherwise, when you have a substantiated verdict, write your decision to {report} as a JSON "
             f"object with exactly these {'four members (including recovery_digest above)' if context else 'three members'}:\n"
             f'  "schema": "{REVIEW_REPORT_SCHEMA}"\n'
             f'  "verdict": one of {", ".join(REVIEW_VERDICTS)}\n'

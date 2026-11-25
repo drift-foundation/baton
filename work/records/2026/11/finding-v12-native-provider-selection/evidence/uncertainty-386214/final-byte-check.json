@@ -1,0 +1,79 @@
+{
+  "base": "2eb556227bc5997a270a073152f65b3dde013ad9",
+  "paths": [
+    {
+      "path": "v12/PROVIDER-SELECTION.md",
+      "sha256": "c10f1ea9b4c91d1e450b3d6a0629bb1d96278beec730a45c4749514f4f27b13b",
+      "matches_focused_source": true
+    },
+    {
+      "path": "v12/REVIEW-UNCERTAINTY.md",
+      "sha256": "b79fb0ae41d5816a15b807457721d4895b9f055352361bcc6e423593dc6f6d41",
+      "matches_focused_source": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/native_handoffs.py",
+      "sha256": "3f437bed1d033981c97e2af3393989a85fe2bd0aa82726be9951bcbd798edb2f",
+      "matches_focused_source": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/review_driver.py",
+      "sha256": "fa2d8c4819c24c9da8152e1ac1af33f08fafb84ae24780b9dad4ca0134ebecd6",
+      "matches_focused_source": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/review_uncertainty.py",
+      "sha256": "f0210c78e3f780f5cbb3bd6f86d4e868b14563aa3cadc991372a09d109db2f62",
+      "matches_focused_source": true
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_review_driver.py",
+      "sha256": "99dbc61d8e12d6186706c349bb331a28fa20003fc4dcfc9057facc814b3060c3",
+      "matches_focused_source": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_claude_agent.py",
+      "sha256": "dd11540ae04347d9c2952e4ecd0e4db369c7e07e00b7a7a1bff73bc3d41c1095",
+      "matches_focused_source": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_provider_home.py",
+      "sha256": "91d1e53e9b004bd795d32a9a102b5190714732389c26ded175b693b731d8ccd4",
+      "matches_focused_source": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "sha256": "9be9090c7493a7db91939f52ce1199a296bb7dd8721b8481917fbc03b99c01fc",
+      "matches_focused_source": true
+    },
+    {
+      "path": "v12/python/tools/credential_recovery.py",
+      "sha256": "0bf37d77d5267bd4ed56adc946ca4d2f85a98983cd42bf8bc3be57aaf7a1c5e4",
+      "matches_focused_source": true
+    },
+    {
+      "path": "v12/python/tools/job_manager.py",
+      "sha256": "7dd3d386c59bdcb799852c4171d038f3fe25bc78d1ff63b037c9e4cb89f848fe",
+      "matches_focused_source": true
+    },
+    {
+      "path": "v12/python/tools/review_uncertainty.py",
+      "sha256": "ce8228fc471e7903065a5986b55a5a2d75df004713dd8937bb21ad751794bf0e",
+      "matches_focused_source": true
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "sha256": "bcb44e0c4a2b58285b43727288fc373a54595425a60c84ab06954a880305eb44",
+      "matches_focused_source": true
+    },
+    {
+      "path": "v12/worker/claude_agent.py",
+      "sha256": "fc0b1dcea9f0e9f6a0d8b416a7fbc1bb48d2d8bbe723dbab0a98765cbfabce1e",
+      "matches_focused_source": true
+    }
+  ],
+  "q1_source_matches": true,
+  "q2_source_matches": true,
+  "packet_manifest_valid": true,
+  "diff_check_exit": 0
+}

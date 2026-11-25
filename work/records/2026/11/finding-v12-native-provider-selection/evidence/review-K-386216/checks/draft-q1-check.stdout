@@ -1,0 +1,10 @@
+{
+  "packet_manifest_sha256": "5c0e5730c76466c499a49e11ff27715443a47dde6bda6911fae4d08025ea817e",
+  "source_commit": "PENDING-HUMAN-CHECKPOINT",
+  "read_only": true,
+  "engine_calls": 0,
+  "builds": 0,
+  "credential_reads": 0,
+  "root": "/var/tmp/baton-codex-q1-386214",
+  "evidence_destination": "/home/sl/src/baton/work/records/2026/11/finding-v12-native-provider-selection/evidence/q1-execution-386214"
+}

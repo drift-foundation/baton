@@ -1,0 +1,11 @@
+{
+  "base": "2eb556227bc5997a270a073152f65b3dde013ad9",
+  "archive": "candidate.tar.gz",
+  "sha256": "4033a3529bc3eb128a513dbe26a222e74d4f13fd73ed48582bd5b88ef0ce0099",
+  "bytes": 15848068,
+  "path_count": 805,
+  "product_path_count": 14,
+  "manifest_sha256": "22f6ee24d5840a84ba542c09cfb427f6fa4c993dea7e361c9d88085ce3e83023",
+  "preparation_manifest_sha256": "cd0f4488edb8e1b23a04e37a30c1902cf87726f394c734e2a4367bc06a3a5684",
+  "note": "Exact whole-file snapshot for review; unrelated checkout edits excluded. Verification prerequisite copies are evidence only, never product import paths. Human checkpoint pending."
+}
