@@ -1,0 +1,7 @@
+{
+  "v12/python/TESTING.md": "44ab1088aa48e27c58f219503cdabea6e22d602abf5ffe6ad2cc4ebc9c8a6b19",
+  "v12/python/tests/__init__.py": "884907330489d79f940a695a7db1c9d2a411bf948f91637dca5d929d435f5b75",
+  "v12/python/tests/manager/disk_roots.py": "a31a80325cdbb08a7b1166b0d1d77c518bf97281ed4f49f8801424afedc33324",
+  "v12/python/tests/tools/test_environment.py": "edbff88f8d0a2cd32b6bf08a1ef011407169d7969443d109e8ffd18cf8c3457c",
+  "v12/python/tests/git_isolation.py": "67c4c8420660153aa957f96b79d52f84dd0c51b72a5fa0c8a73e6797a0c58904"
+}

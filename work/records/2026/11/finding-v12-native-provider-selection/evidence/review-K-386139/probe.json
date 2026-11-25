@@ -1,0 +1,282 @@
+{
+ "R1_consistent_0.172": {
+  "acceptable": false,
+  "contributors": [],
+  "outcome": "unqualified-build",
+  "participation": "unknown",
+  "reroute": "no reroute observed"
+ },
+ "accepted_claim_but_host_stream_rerouted": "refused: model-attribution-invalid",
+ "argv_prefix": [
+  "codex",
+  "exec",
+  "--dangerously-bypass-approvals-and-sandbox",
+  "--ignore-user-config",
+  "--ignore-rules",
+  "--json",
+  "--model",
+  "fixture-selector"
+ ],
+ "build_claim_0.172": "refused: model-attribution-invalid",
+ "claim_omits_invocation_but_good_outcome": "refused: model-attribution-invalid",
+ "claude": {
+  "conflicting": {
+   "attempt_id": "fixture-attempt",
+   "contributor_sources": {
+    "other": [
+     "modelUsage"
+    ]
+   },
+   "contributors": [
+    "other"
+   ],
+   "evidence": {
+    "digest": "sha256:ae4cfa5dd5cdd9e1025ab979765e41159b3f5e39c0d3e14a1afa40edcb80069a",
+    "log": {
+     "attempt_id": "fixture-attempt",
+     "stream": "provider.stdout"
+    }
+   },
+   "evidenced_cli_build": "2.1.247",
+   "job_id": "fixture-job",
+   "mapped_identity": "fixture-reported",
+   "outcome": "conflicting",
+   "phase": "review",
+   "provider": "claude",
+   "requested_model": "fixture-selector",
+   "schema": "baton.model-attribution/1",
+   "selected_cli_build": "2.1.247"
+  },
+  "matched": {
+   "attempt_id": "fixture-attempt",
+   "contributor_sources": {
+    "fixture-reported": [
+     "modelUsage"
+    ],
+    "other": [
+     "modelUsage"
+    ]
+   },
+   "contributors": [
+    "fixture-reported",
+    "other"
+   ],
+   "evidence": {
+    "digest": "sha256:c0450734f61319522a4d0c3961a45954800c1933497008107d1c7aa1086ab38a",
+    "log": {
+     "attempt_id": "fixture-attempt",
+     "stream": "provider.stdout"
+    }
+   },
+   "evidenced_cli_build": "2.1.247",
+   "job_id": "fixture-job",
+   "mapped_identity": "fixture-reported",
+   "outcome": "matched",
+   "phase": "review",
+   "provider": "claude",
+   "requested_model": "fixture-selector",
+   "schema": "baton.model-attribution/1",
+   "selected_cli_build": "2.1.247"
+  },
+  "missing": {
+   "attempt_id": "fixture-attempt",
+   "contributor_sources": {},
+   "contributors": [],
+   "evidence": {
+    "digest": "sha256:ed50100246264ff6998455b6dae6ad32631c32ca145c8c145f47761ca05a46c5",
+    "log": {
+     "attempt_id": "fixture-attempt",
+     "stream": "provider.stdout"
+    }
+   },
+   "evidenced_cli_build": "2.1.247",
+   "job_id": "fixture-job",
+   "mapped_identity": "fixture-reported",
+   "outcome": "missing",
+   "phase": "review",
+   "provider": "claude",
+   "requested_model": "fixture-selector",
+   "schema": "baton.model-attribution/1",
+   "selected_cli_build": "2.1.247"
+  }
+ },
+ "claude_claim_under_codex": "refused: model-attribution-missing",
+ "claude_diag": "Requested: fixture-selector; mapped identity: fixture-reported; Reported contributors: fixture-reported, other; Requested model reported: yes; CLI build selected: 2.1.247; CLI build evidenced: 2.1.247; attribution: matched",
+ "codex_claim_under_claude": "refused: model-attribution-missing",
+ "config_warning_error_item": {
+  "acceptable": false,
+  "contributors": [],
+  "outcome": "missing",
+  "participation": "unknown",
+  "reroute": "reroute observation incomplete"
+ },
+ "crlf": {
+  "acceptable": true,
+  "contributors": [],
+  "outcome": "configured-model-accepted",
+  "participation": "unknown",
+  "reroute": "no reroute observed"
+ },
+ "environment_policy_keys": [
+  "HOME",
+  "PATH",
+  "PYTHONPYCACHEPREFIX",
+  "TMPDIR",
+  "XDG_CACHE_HOME"
+ ],
+ "good": {
+  "acceptable": true,
+  "contributors": [],
+  "outcome": "configured-model-accepted",
+  "participation": "unknown",
+  "reroute": "no reroute observed"
+ },
+ "good_diag": "Requested: fixture-selector; basis: configured-model; Configured model accepted; actual participation unknown; no reroute observed; surface: Codex 0.169.0 exec --json stdout (complete supported stream required); invocation: adapter-recorded, host-validated; CLI build selected: 0.169.0; CLI build evidenced: 0.169.0; image: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa; attribution: configured-model-accepted",
+ "good_validated": {
+  "acceptable": true,
+  "outcome": "configured-model-accepted"
+ },
+ "image_not_digest": {
+  "acceptable": false,
+  "contributors": [],
+  "outcome": "missing",
+  "participation": "unknown",
+  "reroute": "no reroute observed"
+ },
+ "invented_contributor": "refused: model-attribution-invalid",
+ "log_not_retained": {
+  "acceptable": false,
+  "contributors": [],
+  "outcome": "missing",
+  "participation": "unknown",
+  "reroute": "reroute observation incomplete"
+ },
+ "model_member_in_terminal": {
+  "acceptable": false,
+  "contributors": [],
+  "outcome": "missing",
+  "participation": "unknown",
+  "reroute": "reroute observation incomplete"
+ },
+ "no_final_newline": {
+  "acceptable": false,
+  "contributors": [],
+  "outcome": "missing",
+  "participation": "unknown",
+  "reroute": "reroute observation incomplete"
+ },
+ "no_invocation_claim": {
+  "acceptable": false,
+  "outcome": "missing"
+ },
+ "partial": {
+  "acceptable": false,
+  "contributors": [],
+  "outcome": "missing",
+  "participation": "unknown",
+  "reroute": "reroute observation incomplete"
+ },
+ "participation_evidenced": "refused: model-attribution-invalid",
+ "phase_review": {
+  "acceptable": false,
+  "contributors": [],
+  "outcome": "conflicting",
+  "participation": "unknown",
+  "reroute": "no reroute observed"
+ },
+ "prose_mentions_reroute": {
+  "acceptable": true,
+  "contributors": [],
+  "outcome": "configured-model-accepted",
+  "participation": "unknown",
+  "reroute": "no reroute observed"
+ },
+ "receipt_appended_twice": "refused: model-attribution-invalid",
+ "receipt_duplicate_member": "refused: model-attribution-invalid",
+ "receipt_from_other_attempt": {
+  "acceptable": false,
+  "contributors": [],
+  "outcome": "conflicting",
+  "participation": "unknown",
+  "reroute": "no reroute observed"
+ },
+ "receipt_has_prompt_text": false,
+ "receipt_keys": [
+  "argv_digest",
+  "argv_prefix",
+  "context_label",
+  "environment_policy",
+  "environment_validated",
+  "evidenced_cli_build",
+  "phase",
+  "prompt_bytes",
+  "prompt_digest",
+  "selection_digest",
+  "status"
+ ],
+ "receipt_missing_on_host": "refused: model-attribution-invalid",
+ "receipt_other_bytes_same_json": {
+  "acceptable": true,
+  "outcome": "configured-model-accepted"
+ },
+ "reroute_after_last_message": {
+  "acceptable": false,
+  "contributors": [],
+  "outcome": "missing",
+  "participation": "unknown",
+  "reroute": "reroute observation incomplete"
+ },
+ "reroute_extra_member": {
+  "acceptable": false,
+  "contributors": [],
+  "outcome": "missing",
+  "participation": "unknown",
+  "reroute": "reroute observation incomplete"
+ },
+ "reroute_mid": {
+  "acceptable": false,
+  "contributors": [],
+  "outcome": "rerouted",
+  "participation": "unknown",
+  "reroute": "reroute observed"
+ },
+ "reroute_other_reason": {
+  "acceptable": false,
+  "contributors": [],
+  "outcome": "missing",
+  "participation": "unknown",
+  "reroute": "reroute observation incomplete"
+ },
+ "reroute_validated_on_host": {
+  "acceptable": false,
+  "outcome": "rerouted"
+ },
+ "status_true": {
+  "acceptable": false,
+  "contributors": [],
+  "outcome": "conflicting",
+  "participation": "unknown",
+  "reroute": "no reroute observed"
+ },
+ "tool_output_mentions_reroute": {
+  "acceptable": true,
+  "contributors": [],
+  "outcome": "configured-model-accepted",
+  "participation": "unknown",
+  "reroute": "no reroute observed"
+ },
+ "top_level_error_event": {
+  "acceptable": false,
+  "contributors": [],
+  "outcome": "missing",
+  "participation": "unknown",
+  "reroute": "reroute observation incomplete"
+ },
+ "u2028_in_text": {
+  "acceptable": true,
+  "contributors": [],
+  "outcome": "configured-model-accepted",
+  "participation": "unknown",
+  "reroute": "no reroute observed"
+ }
+}

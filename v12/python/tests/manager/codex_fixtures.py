@@ -37,3 +37,15 @@ def delivered(policy):
         adapter_digest=policy.digest(adapter), profile_digest=policy.digest(profile),
         tool_policy_digest=policy.digest(policy.POLICY), authority_uuid="fixture-authority",
         job_id="fixture-job", worker_id="fixture-worker", attempt_id="fixture-attempt")
+
+
+def configured(policy, *, attempt="fixture-attempt", job="fixture-job", authority="fixture-authority"):
+    """Synthetic immutable image and adapter-call receipt, no native qualification."""
+    from . import provider_fixtures
+    from baton_v12.provider_policy import attribution
+    with simulated(policy):
+        value = provider_fixtures.delivery(attempt=attempt, job=job, authority=authority, **SELECTED)
+        prompt = policy.labelled(value["contract"]["adapter"], "implementation", "SYNTHETIC PRIVATE PROMPT")
+        receipt = attribution.invocation_record(value, "implementation",
+            policy.argv(value["contract"]["adapter"], SELECTED, prompt), policy.ENVIRONMENT, 0, evidenced_build="0.169.0")
+    return value, receipt

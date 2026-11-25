@@ -1,0 +1,107 @@
+test_configured_implementation_and_stronger_Claude_review (tests.tools.test_provider_selection.CodexToClaude.test_configured_implementation_and_stronger_Claude_review) ... ERROR
+test_configured_implementation_cannot_rescue_missing_Claude_contributor (tests.tools.test_provider_selection.CodexToClaude.test_configured_implementation_cannot_rescue_missing_Claude_contributor) ... ERROR
+
+======================================================================
+ERROR: test_configured_implementation_and_stronger_Claude_review (tests.tools.test_provider_selection.CodexToClaude.test_configured_implementation_and_stronger_Claude_review)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/attribution-386137/source/v12/python/tests/tools/test_provider_selection.py", line 1222, in test_configured_implementation_and_stronger_Claude_review
+    held = self.implemented()
+  File "/home/sl/src/baton/work/scratch/attribution-386137/source/v12/python/tests/tools/test_stage_execution.py", line 4831, in implemented
+    job, control, composed = self.serving()
+                             ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/attribution-386137/source/v12/python/tests/tools/test_stage_execution.py", line 4552, in serving
+    composed = stage_execution.operations_from(
+        self.composed_document(line_declared_base=self.base, **members),
+        job, control, engine_run=self.engine,
+        credential_provider=lambda provider, reference: self.secret,
+        clock=lambda: fixtures.NOW, checkout=self.checkout)
+  File "/home/sl/src/baton/work/scratch/attribution-386137/source/v12/python/tools/stage_execution.py", line 7416, in operations_from
+    given = held_configuration(document, checkout=checkout)
+  File "/home/sl/src/baton/work/scratch/attribution-386137/source/v12/python/tools/stage_execution.py", line 677, in held_configuration
+    given["workers"] = _held_workers(
+                       ~~~~~~~~~~~~~^
+        given["workers"], here, given["authority_uuid"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        many=given["schema"] == MULTI_CONFIG_SCHEMA,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        empty_ok=binds_nothing)
+        ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/attribution-386137/source/v12/python/tools/stage_execution.py", line 1024, in _held_workers
+    deployment = single_worker._held(named, roles=WORKER_ROLES)
+  File "/home/sl/src/baton/work/scratch/attribution-386137/source/v12/python/tools/single_worker.py", line 309, in _held
+    given = dict(_document(
+                 ~~~~~~~~~^
+        document, "a single-worker configuration",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        + (("verifier_layout",) if layout_selecting else ())
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        + (("provider_contract", "provider_home_root") if said == PROVIDER_CONFIG_SCHEMA else ())))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/attribution-386137/source/v12/python/tools/single_worker.py", line 214, in _document
+    _refuse(f"{what} has exactly {', '.join(members)}"
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            + (f"; missing {', '.join(missing)}" if missing else "")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            + (f"; unexpected {', '.join(extra)}" if extra else ""))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/attribution-386137/source/v12/python/tools/single_worker.py", line 180, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: a single-worker configuration has exactly schema, authority_store, authority_uuid, participant, principal, profile_name, profile_digest, policy_digest, adapter_name, adapter_digest, engine, image_digest, network, workspace_storage, workspace_group, launch_home, credential_home, credential_sources, credential_slots, credential_profile, nominated_source, workspace_capacity, input_manifest, task_document, launch_contract, launch_role, review_route, retention_policy_digest, retention_disposition, provider_context, verifier_layout, provider_contract, provider_home_root; unexpected cli_build
+
+======================================================================
+ERROR: test_configured_implementation_cannot_rescue_missing_Claude_contributor (tests.tools.test_provider_selection.CodexToClaude.test_configured_implementation_cannot_rescue_missing_Claude_contributor)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/attribution-386137/source/v12/python/tests/tools/test_provider_selection.py", line 1237, in test_configured_implementation_cannot_rescue_missing_Claude_contributor
+    held = self.implemented()
+  File "/home/sl/src/baton/work/scratch/attribution-386137/source/v12/python/tests/tools/test_stage_execution.py", line 4831, in implemented
+    job, control, composed = self.serving()
+                             ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/attribution-386137/source/v12/python/tests/tools/test_stage_execution.py", line 4552, in serving
+    composed = stage_execution.operations_from(
+        self.composed_document(line_declared_base=self.base, **members),
+        job, control, engine_run=self.engine,
+        credential_provider=lambda provider, reference: self.secret,
+        clock=lambda: fixtures.NOW, checkout=self.checkout)
+  File "/home/sl/src/baton/work/scratch/attribution-386137/source/v12/python/tools/stage_execution.py", line 7416, in operations_from
+    given = held_configuration(document, checkout=checkout)
+  File "/home/sl/src/baton/work/scratch/attribution-386137/source/v12/python/tools/stage_execution.py", line 677, in held_configuration
+    given["workers"] = _held_workers(
+                       ~~~~~~~~~~~~~^
+        given["workers"], here, given["authority_uuid"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        many=given["schema"] == MULTI_CONFIG_SCHEMA,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        empty_ok=binds_nothing)
+        ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/attribution-386137/source/v12/python/tools/stage_execution.py", line 1024, in _held_workers
+    deployment = single_worker._held(named, roles=WORKER_ROLES)
+  File "/home/sl/src/baton/work/scratch/attribution-386137/source/v12/python/tools/single_worker.py", line 309, in _held
+    given = dict(_document(
+                 ~~~~~~~~~^
+        document, "a single-worker configuration",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        + (("verifier_layout",) if layout_selecting else ())
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        + (("provider_contract", "provider_home_root") if said == PROVIDER_CONFIG_SCHEMA else ())))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/attribution-386137/source/v12/python/tools/single_worker.py", line 214, in _document
+    _refuse(f"{what} has exactly {', '.join(members)}"
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            + (f"; missing {', '.join(missing)}" if missing else "")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            + (f"; unexpected {', '.join(extra)}" if extra else ""))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/attribution-386137/source/v12/python/tools/single_worker.py", line 180, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: a single-worker configuration has exactly schema, authority_store, authority_uuid, participant, principal, profile_name, profile_digest, policy_digest, adapter_name, adapter_digest, engine, image_digest, network, workspace_storage, workspace_group, launch_home, credential_home, credential_sources, credential_slots, credential_profile, nominated_source, workspace_capacity, input_manifest, task_document, launch_contract, launch_role, review_route, retention_policy_digest, retention_disposition, provider_context, verifier_layout, provider_contract, provider_home_root; unexpected cli_build
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.065s
+
+FAILED (errors=2)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

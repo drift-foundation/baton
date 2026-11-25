@@ -1,0 +1,20 @@
+/home/sl/src/baton/work/scratch/attribution-386137/source/v12/python/tests/manager/test_model_attribution.py:223: SyntaxWarning: invalid escape sequence '\u'
+  for raw in (self.raw + b"{}\n", self.raw.replace(b"\n", b"\u2028"), b"{}\n"):
+test_A1_labelled_configuration_acceptance_and_unknown_participation (tests.manager.test_model_attribution.ConfiguredCodex.test_A1_labelled_configuration_acceptance_and_unknown_participation) ... ok
+test_A2_missing_configuration_build_image_stream_and_receipt_hold (tests.manager.test_model_attribution.ConfiguredCodex.test_A2_missing_configuration_build_image_stream_and_receipt_hold) ... ok
+test_A3_changed_receipt_and_identity_refuse (tests.manager.test_model_attribution.ConfiguredCodex.test_A3_changed_receipt_and_identity_refuse) ... ok
+test_A4_R3_source_defined_reroute_refuses_even_exit_zero (tests.manager.test_model_attribution.ConfiguredCodex.test_A4_R3_source_defined_reroute_refuses_even_exit_zero) ... ok
+test_A5_C1_unicode_inside_text_and_prose_are_opaque (tests.manager.test_model_attribution.ConfiguredCodex.test_A5_C1_unicode_inside_text_and_prose_are_opaque) ... ok
+test_A6_Claude_stronger_and_A7_legacy_unchanged (tests.manager.test_model_attribution.ConfiguredCodex.test_A6_Claude_stronger_and_A7_legacy_unchanged) ... ok
+test_R1_internally_consistent_unqualified_build_refuses (tests.manager.test_model_attribution.ConfiguredCodex.test_R1_internally_consistent_unqualified_build_refuses) ... ok
+test_R2_basis_is_admitted_provider_not_claim (tests.manager.test_model_attribution.ConfiguredCodex.test_R2_basis_is_admitted_provider_not_claim) ... ok
+test_receipt_cannot_be_rebound_to_another_attempt_or_probe (tests.manager.test_model_attribution.ConfiguredCodex.test_receipt_cannot_be_rebound_to_another_attempt_or_probe) ... ok
+test_codex_does_not_reinterpret_claude_participation_or_tier (tests.tools.test_codex_selection.CodexMissingAttribution.test_codex_does_not_reinterpret_claude_participation_or_tier) ... ok
+test_host_holds_evidenced_terminal_success_and_refuses_ending (tests.tools.test_codex_selection.CodexMissingAttribution.test_host_holds_evidenced_terminal_success_and_refuses_ending) ... ok
+test_configured_implementation_and_stronger_Claude_review (tests.tools.test_provider_selection.CodexToClaude.test_configured_implementation_and_stronger_Claude_review) ... ok
+test_configured_implementation_cannot_rescue_missing_Claude_contributor (tests.tools.test_provider_selection.CodexToClaude.test_configured_implementation_cannot_rescue_missing_Claude_contributor) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 1.741s
+
+OK

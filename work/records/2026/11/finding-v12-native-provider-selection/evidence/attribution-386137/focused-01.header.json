@@ -1,0 +1,30 @@
+{
+  "command": [
+    "just",
+    "--justfile",
+    "v12/justfile",
+    "test-one",
+    "tests.manager.test_codex_draft",
+    "tests.manager.test_model_attribution",
+    "tests.tools.test_codex_selection",
+    "tests.tools.test_provider_selection",
+    "tests.manager.test_claude_agent",
+    "tests.manager.test_attempt_logs",
+    "tests.job_manager.test_provider_attribution_recovery"
+  ],
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "base": "b5ca8e12eac41c93c6a9f115a480f8ce32e04f15",
+  "candidate_repository_head": "b5ca8e12eac41c93c6a9f115a480f8ce32e04f15",
+  "groups": [
+    "manager-pure",
+    "tools-pure",
+    "job_manager"
+  ],
+  "collected": 624,
+  "bound_seconds": 180,
+  "disk_root": "/var/tmp/baton-attribution-386137",
+  "TMPDIR": "/var/tmp/baton-attribution-386137",
+  "accounting": "explicit ids from unittest -v; test-one has no registry accounting",
+  "pid": 2380109,
+  "pgid": 2380109
+}

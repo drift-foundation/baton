@@ -1,0 +1,12 @@
+{
+  "paths": 12,
+  "archive_members_verified": true,
+  "shared_candidate_targets_unchanged": true,
+  "diff_check": true,
+  "fixture_root_empty": true,
+  "builds": 0,
+  "provider_calls": 0,
+  "native_launches": 0,
+  "credential_reads": "synthetic fixtures only",
+  "protected_git_mutations": 0
+}

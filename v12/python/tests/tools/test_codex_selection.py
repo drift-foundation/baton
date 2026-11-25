@@ -218,7 +218,7 @@ class CodexMissingAttribution(unittest.TestCase):
         selected=dict(delivery=delivered,phase="implementation",logs_root="/synthetic-only")
         claim=attribution.record(delivered,phase="implementation",evidenced_build="0.169.0",raw=raw)
         label=policy.context_record(delivered["contract"]["adapter"],"implementation")
-        result=dict(outputs=[dict(status="present",result_metadata={attribution.SCHEMA:claim,policy.LABEL_SCHEMA:label})])
+        result=dict(outputs=[dict(status="present",result_metadata={claim["schema"]:claim,policy.LABEL_SCHEMA:label})])
         frozen=dict(result_id="synthetic-result",manifest_digest="sha256:"+"1"*64)
         with mock.patch.object(host,"selection_of",return_value=selected), \
                 mock.patch.object(host,"assessment_of",return_value=None), \

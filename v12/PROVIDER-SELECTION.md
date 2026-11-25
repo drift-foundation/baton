@@ -240,15 +240,36 @@ Terminal completion is separate from attribution and candidate acceptance.
 The observed stdout contains no participation source. Private session
 turn_context.model records CLI configuration only; it is neither contributor
 proof nor independently attested backend identity. No session ingestion or
-resume behavior is added. Codex attribution therefore remains missing with
-an empty contributor set, even for a recognized successful turn. Host validation
-holds the result and permits no publication/checkpoint/verdict ending while
-required attribution is missing. Requested model and service tier never supply
+resume behavior is added. The owner-selected Codex exception uses `baton.model-attribution/2`, explicitly
+labelled `configured-model`, with `actual_participation: unknown` and empty
+contributors. It does not reinterpret `/1` records. The host selects this basis
+from the admitted Codex selection; Claude continues to require `/1` participation.
+Only build 0.169.0 is qualified for this observation surface; a consistently
+renamed build such as 0.172.0 still refuses.
+
+The adapter captures the actual call vector as a safe invocation receipt in
+`provider.invocation`: argv prefix, exact prompt UTF-8 digest/length, full argv
+digest, producing selection/phase, measured CLI build, context/instruction digest,
+validated environment policy and exit status.
+It contains no prompt content or private environment paths. This is
+adapter-recorded and host-validated, not independently host-observed execution.
+The host compares the result claim to that complete retained receipt and validates
+the selection, CLI build, immutable image, adapter/profile and attempt bindings.
+A missing receipt, image/build/configuration proof, changed receipt or failed/
+incomplete supported stdout holds acceptance. Frozen result and ending owners
+bind that evidence to the retained candidate; recovery revalidates both streams.
+
+A supported complete exec --json stream with no exact-build mismatch error item
+is labelled "no reroute observed". It never proves rerouting absent: missing and
+equal server model headers are indistinguishable here. The source-defined
+`model rerouted: ... -> ... (HighRiskCyberActivity)` error item refuses acceptance,
+even with exit zero and valid configuration. Generated text is not this event.
+Another build must requalify the observation surface. JSONL splits only on LF;
+legal Unicode separators inside strings remain content. Requested model and service tier never supply
 observed participation. Claude terminal and attribution behavior is unchanged.
 
 The selected detached probe established authentication and instruction digest/
-role for its selected copy and image, not native worker qualification. A valid
-actual-participation source, production Codex realization/home integration,
+role for its selected copy and image, not native worker qualification. Production Codex realization/home integration,
 credential recovery/size gates, finished-image/native qualification and explicit
 Claude qualification remain outstanding. No new provider call or build is
 implied by terminal parsing. Provider-selected

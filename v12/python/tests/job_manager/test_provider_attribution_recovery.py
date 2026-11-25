@@ -117,3 +117,44 @@ class OriginalProducer(execution.PublicationExecutionCase):
                 ownership=ports["ownership"], host=ports["host"], source=ports["source"], ending=ports["ending"])
             self.assertEqual(again, held)
         self.assertEqual(len(self.oci.starts), 1)
+
+
+class ConfiguredProducer(OriginalProducer):
+    def select_original_provider(self, attempt):
+        from baton_v12 import provider_policy as policy
+        from tests.manager import codex_fixtures
+        import claude_agent
+        import attempt_log_format
+        self.enterContext(codex_fixtures.simulated(policy))
+        self.selected, self.invocation = codex_fixtures.configured(policy, attempt=attempt,
+            job=self.job_id, authority=admission.UUID)
+        self.logs_root = str(Path(self.root, "logs"))
+        model_attribution.select(self.control, self.selected, phase="implementation", logs_root=self.logs_root)
+        logs = attempt_logs.materialize(self.logs_root, attempt_id=attempt, workspace_group=self.group)
+        self.raw = (Path(__file__).parents[1]/"manager/fixtures/codex-0.169.0/turn-success.sanitized.jsonl").read_bytes()
+        room = attempt_log_format.open_room(logs.log_root)
+        for stream, raw in (("provider.stdout", self.raw), ("provider.invocation", json.dumps(self.invocation).encode())):
+            capture = claude_agent._Captured(room, attempt_log_format, stream)
+            capture.wrote(raw); capture.declare(claude_agent._Outcome.COMPLETED)
+        self.claim = attribution.record(self.selected, phase="implementation", evidenced_build="0.169.0",
+            raw=self.raw, invocation=self.invocation)
+
+    def test_B1_original_attribution_travels_through_admission_custody_and_handoff(self):
+        self.ready()
+        binding = publication_recovery.admission_for(self.jobs, self.recovery_job_id)["candidate"]["model_attribution"]
+        self.assertEqual(binding["attribution"]["basis"], "configured-model")
+        self.assertEqual(binding["attribution"]["actual_participation"], "unknown")
+        self.assertEqual(binding["attribution"]["contributors"], [])
+        self.published_once()
+        self.assertEqual(self.collected()["adopted"]["model_attribution"], binding)
+        self.assertEqual(self.handed_off()["candidate"]["model_attribution"], binding)
+        self.assertTrue(self.gate()["open"])
+
+    def test_invocation_receipt_tampering_holds_recovery(self):
+        self.ready()
+        self.published_once()
+        changed = dict(self.invocation, prompt_digest="sha256:"+"f"*64)
+        Path(self.logs_root, self.attempt_id, "provider.invocation.log").write_bytes(json.dumps(changed).encode())
+        with self.assertRaises(ContractRefusal): self.collected()
+        with self.assertRaises(ContractRefusal): self.handed_off()
+        self.assertFalse(self.gate()["open"])

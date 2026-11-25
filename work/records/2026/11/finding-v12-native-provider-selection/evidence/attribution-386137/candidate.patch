@@ -1,0 +1,803 @@
+--- a/v12/PROVIDER-SELECTION.md
++++ b/v12/PROVIDER-SELECTION.md
+@@ -240,15 +240,36 @@
+ The observed stdout contains no participation source. Private session
+ turn_context.model records CLI configuration only; it is neither contributor
+ proof nor independently attested backend identity. No session ingestion or
+-resume behavior is added. Codex attribution therefore remains missing with
+-an empty contributor set, even for a recognized successful turn. Host validation
+-holds the result and permits no publication/checkpoint/verdict ending while
+-required attribution is missing. Requested model and service tier never supply
++resume behavior is added. The owner-selected Codex exception uses `baton.model-attribution/2`, explicitly
++labelled `configured-model`, with `actual_participation: unknown` and empty
++contributors. It does not reinterpret `/1` records. The host selects this basis
++from the admitted Codex selection; Claude continues to require `/1` participation.
++Only build 0.169.0 is qualified for this observation surface; a consistently
++renamed build such as 0.172.0 still refuses.
++
++The adapter captures the actual call vector as a safe invocation receipt in
++`provider.invocation`: argv prefix, exact prompt UTF-8 digest/length, full argv
++digest, producing selection/phase, measured CLI build, context/instruction digest,
++validated environment policy and exit status.
++It contains no prompt content or private environment paths. This is
++adapter-recorded and host-validated, not independently host-observed execution.
++The host compares the result claim to that complete retained receipt and validates
++the selection, CLI build, immutable image, adapter/profile and attempt bindings.
++A missing receipt, image/build/configuration proof, changed receipt or failed/
++incomplete supported stdout holds acceptance. Frozen result and ending owners
++bind that evidence to the retained candidate; recovery revalidates both streams.
++
++A supported complete exec --json stream with no exact-build mismatch error item
++is labelled "no reroute observed". It never proves rerouting absent: missing and
++equal server model headers are indistinguishable here. The source-defined
++`model rerouted: ... -> ... (HighRiskCyberActivity)` error item refuses acceptance,
++even with exit zero and valid configuration. Generated text is not this event.
++Another build must requalify the observation surface. JSONL splits only on LF;
++legal Unicode separators inside strings remain content. Requested model and service tier never supply
+ observed participation. Claude terminal and attribution behavior is unchanged.
+ 
+ The selected detached probe established authentication and instruction digest/
+-role for its selected copy and image, not native worker qualification. A valid
+-actual-participation source, production Codex realization/home integration,
++role for its selected copy and image, not native worker qualification. Production Codex realization/home integration,
+ credential recovery/size gates, finished-image/native qualification and explicit
+ Claude qualification remain outstanding. No new provider call or build is
+ implied by terminal parsing. Provider-selected
+--- a/v12/python/src/baton_v12/attempt_log_format.py
++++ b/v12/python/src/baton_v12/attempt_log_format.py
+@@ -84,7 +84,7 @@
+ # retain a failure that happens before the provider starts, and the incident
+ # this Work came from was exactly such a failure.
+ STREAMS = ("worker.stdout", "worker.stderr",
+-           "provider.stdout", "provider.stderr",
++           "provider.stdout", "provider.stderr", "provider.invocation",
+            "verification.stdout", "verification.stderr")
+ 
+ # THE FOUR A WRITER MAY DECLARE. Completion is not among them by accident:
+--- a/v12/python/src/baton_v12/provider_policy/attribution.py
++++ b/v12/python/src/baton_v12/provider_policy/attribution.py
+@@ -1,9 +1,11 @@
+-"""Content-free attribution derived only from declared participation sources."""
++"""Provider-selected evidence basis; configuration never becomes participation."""
+ import hashlib
+ import json
+ from . import PolicyRefusal, _text
++from . import codex
+ 
+ SCHEMA = "baton.model-attribution/1"
++CONFIGURED_SCHEMA = "baton.model-attribution/2"
+ MAX_OUTPUT = 1 << 16
+ 
+ 
+@@ -50,13 +52,14 @@
+ 
+ 
+ def record(delivery, *, phase, evidenced_build, raw, partial=False,
+-           raw_digest=None, log_retained=True):
++           raw_digest=None, log_retained=True, invocation=None):
+     selected = delivery["contract"]["selection"]
++    if selected["provider"] == "codex":
++        return configured_record(delivery, phase=phase, evidenced_build=evidenced_build,
++            raw=raw, partial=partial, raw_digest=raw_digest, log_retained=log_retained,
++            invocation=invocation)
+     sources = delivery["contract"]["adapter"]["participation_sources"]
+-    # Codex 0.169.0 stdout has no evidenced participation field. Its private
+-    # turn_context.model is configuration, not participation. Do not apply the
+-    # Claude result family to Codex, even when a caller supplies such bytes.
+-    reported = {} if selected["provider"] == "codex" else contributors(raw, sources, partial=partial)
++    reported = contributors(raw, sources, partial=partial)
+     if not log_retained:
+         reported = {}
+     if evidenced_build is not None:
+@@ -83,11 +86,20 @@
+     return answer
+ 
+ 
+-def validate(value, delivery, *, phase, raw):
+-    if type(value) is not dict or value.get("schema") != SCHEMA:
++def validate(value, delivery, *, phase, raw, invocation_raw=None):
++    permitted = CONFIGURED_SCHEMA if delivery["contract"]["selection"]["provider"] == "codex" else SCHEMA
++    if type(value) is not dict or value.get("schema") != permitted:
+         raise PolicyRefusal("model-attribution-missing")
++    if permitted == CONFIGURED_SCHEMA and value.get("invocation") is not None:
++        try:
++            if (type(invocation_raw) is not bytes or len(invocation_raw) > MAX_OUTPUT
++                    or json.loads(invocation_raw, object_pairs_hook=_pairs) != value["invocation"]):
++                raise ValueError("invocation receipt disagrees")
++        except (ValueError, TypeError, UnicodeError, RecursionError) as failure:
++            raise PolicyRefusal("model-attribution-invalid") from failure
+     expected = record(delivery, phase=phase, evidenced_build=value.get("evidenced_cli_build"), raw=raw,
+-                      partial=raw is None, log_retained=raw is not None)
++                      partial=raw is None, log_retained=raw is not None,
++                      invocation=value.get("invocation") if permitted == CONFIGURED_SCHEMA else None)
+     if value != expected:
+         raise PolicyRefusal("model-attribution-invalid")
+     return expected
+@@ -96,6 +108,18 @@
+ def diagnostic(value):
+     if value is None:
+         return "Requested: not selected (account default)"
++    if value.get("schema") == CONFIGURED_SCHEMA:
++        return ("Requested: " + str(value["requested_model"]) + "; basis: configured-model; "
++                + ("Configured model accepted" if acceptable(value) else "Configured model not accepted")
++                + "; actual participation unknown; " + value["reroute_observation"]
++                + "; surface: Codex 0.169.0 exec --json stdout (complete supported stream required)"
++                + "; invocation: adapter-recorded, host-validated; CLI build selected: "
++                + str(value["selected_cli_build"]) + "; CLI build evidenced: "
++                + (value["evidenced_cli_build"] or "no evidence")
++                + "; image: " + (value["image_digest"] or "no evidence")
++                + "; attribution: " + value["outcome"]
++                + ("; Service tier requested: " + value["service_tier"]["requested"] + "; observed: no evidence"
++                   if value.get("service_tier") else ""))
+     reported = value.get("contributors", [])
+     present = value.get("mapped_identity") in reported
+     return ("Requested: " + value["requested_model"] + "; mapped identity: " + value["mapped_identity"]
+@@ -106,3 +130,85 @@
+             + "; attribution: " + value["outcome"]
+             + ("; Service tier requested: " + value["service_tier"]["requested"] + "; observed: "
+                + (value["service_tier"]["observed"] or "no evidence") if value.get("service_tier") else ""))
++
++
++def acceptable(value):
++    return ((value.get("schema") == SCHEMA and value.get("outcome") == "matched")
++            or (value.get("schema") == CONFIGURED_SCHEMA and value.get("basis") == "configured-model"
++                and value.get("outcome") == "configured-model-accepted"))
++
++
++def invocation_record(delivery, phase, argv, environment, status, *, expected_home=None, evidenced_build=None):
++    """Capture the actual adapter call vector, never infer it from stdout.
++
++    Prompt content is represented by its exact UTF-8 digest/length. No prompt,
++    credential, private HOME or scratch path is copied to ordinary metadata.
++    This is adapter-recorded evidence, not independent host observation.
++    """
++    from . import digest, context_record
++    if type(argv) is not list or not argv or any(type(x) is not str for x in argv):
++        return None
++    prompt = argv[-1].encode("utf-8")
++    expected_home = delivery["contract"]["adapter"]["home"] if expected_home is None else expected_home
++    return {"selection_digest": digest(delivery), "phase": phase, "evidenced_cli_build": evidenced_build,
++            "argv_prefix": argv[:-1], "prompt_digest": "sha256:" + hashlib.sha256(prompt).hexdigest(),
++            "prompt_bytes": len(prompt), "argv_digest": digest(argv),
++            "environment_policy": delivery["contract"]["adapter"]["environment_policy"],
++            "environment_validated": (set(environment) == set(delivery["contract"]["adapter"]["environment_policy"])
++                and environment.get("PATH") == delivery["contract"]["adapter"]["environment_policy"]["PATH"]
++                and environment.get("HOME") == expected_home),
++            "context_label": context_record(delivery["contract"]["adapter"], phase),
++            "status": status}
++
++
++def configured_record(delivery, *, phase, evidenced_build, raw, partial, raw_digest,
++                      log_retained, invocation):
++    from . import argv, digest, context_record
++    import re
++    selected = delivery["contract"]["selection"]
++    adapter = delivery["contract"]["adapter"]
++    profile = delivery["contract"].get("runtime_profile", {})
++    image = profile.get("image_digest")
++    sha = lambda value: type(value) is str and re.fullmatch(r"sha256:[0-9a-f]{64}", value) is not None
++    if type(evidenced_build) is not str or not evidenced_build:
++        evidenced_build = None
++    observed = codex.stream_outcome(raw, partial=partial) if log_retained else "unclassified"
++    required = {"argv_prefix", "prompt_digest", "prompt_bytes", "argv_digest", "environment_policy",
++                "environment_validated", "context_label", "status", "selection_digest", "phase", "evidenced_cli_build"}
++    valid = False
++    try:
++        valid = (type(invocation) is dict and set(invocation) == required
++                 and invocation["selection_digest"] == digest(delivery) and invocation["phase"] == phase
++                 and invocation["evidenced_cli_build"] == evidenced_build
++                 and invocation["argv_prefix"] == argv(adapter, selected, "")[:-1]
++                 and sha(invocation["prompt_digest"]) and sha(invocation["argv_digest"])
++                 and type(invocation["prompt_bytes"]) is int and invocation["prompt_bytes"] > 0
++                 and invocation["environment_policy"] == adapter["environment_policy"]
++                 and invocation["environment_validated"] is True
++                 and invocation["context_label"] == context_record(adapter, phase)
++                 and type(invocation["status"]) is int and invocation["status"] == 0
++                 and sha(image) and delivery["adapter_digest"] == digest(adapter)
++                 and delivery["profile_digest"] == digest(profile)
++                 and profile["provider"] == "codex" and profile["model"] == selected["requested_model"]
++                 and profile["cli_build"] == selected["cli_build"]
++                 and adapter["participation_sources"] == [] and phase == "implementation")
++    except (ValueError, KeyError, TypeError):
++        pass
++    outcome = ("rerouted" if observed == "rerouted" else
++               "unqualified-build" if selected["cli_build"] != codex.CLI_BUILD else
++               "missing" if invocation is None or evidenced_build is None or not sha(image) or observed != "complete" else
++               "conflicting" if not valid or evidenced_build != codex.CLI_BUILD else "configured-model-accepted")
++    answer = {"schema": CONFIGURED_SCHEMA, "basis": "configured-model", "attempt_id": delivery["attempt_id"],
++              "job_id": delivery["home_identity"]["job_id"], "phase": phase, "provider": "codex",
++              "selected_cli_build": selected["cli_build"], "evidenced_cli_build": evidenced_build,
++              "requested_model": selected["requested_model"], "image_digest": image,
++              "selection_digest": digest(delivery), "contributors": [], "contributor_sources": {},
++              "actual_participation": "unknown", "invocation": invocation, "outcome": outcome,
++              "reroute_observation": "reroute observed" if observed == "rerouted" else
++                  "no reroute observed" if observed == "complete" else "reroute observation incomplete",
++              "evidence": {"digest": raw_digest if raw_digest is not None else
++                  "sha256:" + hashlib.sha256(raw).hexdigest() if type(raw) is bytes else None,
++                  "log": {"attempt_id": delivery["attempt_id"], "stream": "provider.stdout"}}}
++    if "service_tier" in selected:
++        answer["service_tier"] = {"requested": selected["service_tier"], "observed": None, "outcome": "missing"}
++    return answer
+--- /dev/null
++++ b/v12/python/src/baton_v12/provider_policy/codex.py
+@@ -0,0 +1,97 @@
++"""Exact-build Codex stdout interpretation shared by worker and host.
++
++Only Codex 0.169.0 is qualified for this observation surface. Reroute negatives
++are source-defined error items, not a claim that a live reroute was captured.
++"""
++import json
++import re
++
++CLI_BUILD = "0.169.0"
++MAX_OUTPUT = 1 << 16
++
++def _members(pairs):
++    value = {}
++    for key, member in pairs:
++        if key in value:
++            raise ValueError("duplicate JSON member")
++        value[key] = member
++    return value
++
++
++def stream_outcome(raw, *, partial=False):
++    """Recognize only the evidenced fresh-turn family, within the shared bound.
++
++    This is a CLI terminal outcome, never candidate acceptance or attribution.
++    Unknown events and failure shapes remain unclassified. Text is opaque;
++    nested tool output cannot supply a terminal or a contributor.
++    """
++    if partial is not False or type(raw) is not bytes or not raw or len(raw) > MAX_OUTPUT:
++        return "unclassified"
++    try:
++        lines = raw.decode("utf-8").split("\n")[:-1]
++        if len(lines) < 4 or len(lines) > 1024 or not raw.endswith(b"\n"):
++            return "unclassified"
++        events = [json.loads(line, object_pairs_hook=_members,
++                            parse_constant=lambda value: (_ for _ in ()).throw(ValueError())) for line in lines]
++        if any(type(event) is not dict for event in events):
++            return "unclassified"
++        first, start, *middle, end = events
++        if (set(first) != {"type", "thread_id"} or first["type"] != "thread.started"
++                or type(first["thread_id"]) is not str or not first["thread_id"]
++                or start != {"type": "turn.started"}
++                or set(end) != {"type", "usage"} or end["type"] != "turn.completed"):
++            return "unclassified"
++        usage = end["usage"]
++        if (type(usage) is not dict or set(usage) != {"input_tokens", "cached_input_tokens",
++                "cache_write_input_tokens", "output_tokens", "reasoning_output_tokens"}
++                or any(type(n) is not int or n < 0 for n in usage.values())):
++            return "unclassified"
++        pending, finished = {}, set()
++        rerouted = False
++        last_message = False
++        for event in middle:
++            if set(event) != {"type", "item"} or event["type"] not in ("item.started", "item.completed"):
++                return "unclassified"
++            item = event["item"]
++            if type(item) is not dict or type(item.get("id")) is not str or not item["id"]:
++                return "unclassified"
++            ident = item["id"]
++            if ident in finished:
++                return "unclassified"
++            last_message = item.get("type") == "agent_message"
++            if last_message:
++                if (set(item) != {"id", "type", "text"} or type(item["text"]) is not str
++                        or event["type"] != "item.completed" or ident in pending):
++                    return "unclassified"
++                finished.add(ident)
++            elif item.get("type") == "error":
++                if (set(item) != {"id", "type", "message"} or event["type"] != "item.completed"
++                        or ident in pending or type(item["message"]) is not str
++                        or re.fullmatch(r"model rerouted: .+ -> .+ \(HighRiskCyberActivity\)", item["message"]) is None):
++                    return "unclassified"
++                rerouted = True
++                finished.add(ident)
++            elif item.get("type") == "command_execution":
++                if (set(item) != {"id", "type", "command", "aggregated_output", "exit_code", "status"}
++                        or type(item["command"]) is not str or type(item["aggregated_output"]) is not str):
++                    return "unclassified"
++                if event["type"] == "item.started":
++                    if ident in pending or item["status"] != "in_progress" or item["exit_code"] is not None:
++                        return "unclassified"
++                    pending[ident] = item["command"]
++                else:
++                    if (ident not in pending or pending[ident] != item["command"]
++                            or item["status"] != "completed" or type(item["exit_code"]) is not int
++                            or item["exit_code"] != 0):
++                        return "unclassified"
++                    del pending[ident]
++                    finished.add(ident)
++            else:
++                return "unclassified"
++        return ("rerouted" if rerouted else "complete") if finished and last_message and not pending else "unclassified"
++    except (ValueError, UnicodeError, RecursionError, KeyError, TypeError):
++        return "unclassified"
++
++
++def completed_turn(raw, *, partial):
++    return stream_outcome(raw, partial=partial) == "complete"
+--- a/v12/python/src/baton_v12/worker_manager/model_attribution.py
++++ b/v12/python/src/baton_v12/worker_manager/model_attribution.py
+@@ -57,9 +57,9 @@
+     if frozen is None:
+         raise ContractRefusal("integrity", "schema", "attribution requires a frozen producer result")
+     result = load_manifest(control, frozen["manifest_digest"], "resultManifest")
+-    claims = [one.get("result_metadata", {}).get(attribution.SCHEMA)
+-              for one in result["outputs"] if one.get("status") == "present"
+-              and attribution.SCHEMA in one.get("result_metadata", {})]
++    claims = [value if type(value) is dict and value.get("schema") == key else None for one in result["outputs"] if one.get("status") == "present"
++              for key, value in one.get("result_metadata", {}).items()
++              if key.startswith("baton.model-attribution/")]
+     raw = attempt_logs.complete_record(attempt_logs.AttemptLogs(root=selected["logs_root"], attempt_id=attempt),
+                                        "provider.stdout", limit=attribution.MAX_OUTPUT)
+     claim = claims[0] if len(claims) == 1 else None
+@@ -79,8 +79,9 @@
+     accepted = None
+     if claim is not None and raw is not None:
+         try:
+-            accepted = attribution.validate(claim, selected["delivery"], phase=selected["phase"], raw=raw)
+-            cause = None if accepted["outcome"] == "matched" else "model-attribution-" + accepted["outcome"]
++            accepted = attribution.validate(claim, selected["delivery"], phase=selected["phase"], raw=raw,
++                invocation_raw=_invocation_receipt(selected, attempt))
++            cause = None if attribution.acceptable(accepted) else "model-attribution-" + accepted["outcome"]
+         except ValueError:
+             cause = "model-attribution-invalid"
+     cause = label_cause or cause
+@@ -129,10 +130,11 @@
+     if claim is None or raw is None:
+         raise ContractRefusal("refused", "precondition", "model-attribution-missing: original producer")
+     try:
+-        checked = attribution.validate(claim, selected["delivery"], phase=selected["phase"], raw=raw)
++        checked = attribution.validate(claim, selected["delivery"], phase=selected["phase"], raw=raw,
++                invocation_raw=_invocation_receipt(selected, attempt))
+     except ValueError as failure:
+         raise ContractRefusal("integrity", "digest", "model-attribution-invalid: original producer") from failure
+-    if checked["outcome"] != "matched":
++    if not attribution.acceptable(checked):
+         raise ContractRefusal("refused", "precondition", "model-attribution-" + checked["outcome"] + ": original producer")
+     return {"attempt_id": attempt, "job_id": selected["delivery"]["home_identity"]["job_id"],
+             "candidate": candidate, "tree_digest": tree_digest, "result_digest": result_digest,
+@@ -181,3 +183,10 @@
+     if document is None:
+         return None
+     return dict(document, model_attribution=diagnostic_of(control, attempt))
++
++
++def _invocation_receipt(selected, attempt):
++    if selected["delivery"]["contract"]["selection"]["provider"] != "codex":
++        return None
++    return attempt_logs.complete_record(attempt_logs.AttemptLogs(root=selected["logs_root"], attempt_id=attempt),
++                                        "provider.invocation", limit=attribution.MAX_OUTPUT)
+--- a/v12/python/tests/job_manager/test_provider_attribution_recovery.py
++++ b/v12/python/tests/job_manager/test_provider_attribution_recovery.py
+@@ -117,3 +117,44 @@
+                 ownership=ports["ownership"], host=ports["host"], source=ports["source"], ending=ports["ending"])
+             self.assertEqual(again, held)
+         self.assertEqual(len(self.oci.starts), 1)
++
++
++class ConfiguredProducer(OriginalProducer):
++    def select_original_provider(self, attempt):
++        from baton_v12 import provider_policy as policy
++        from tests.manager import codex_fixtures
++        import claude_agent
++        import attempt_log_format
++        self.enterContext(codex_fixtures.simulated(policy))
++        self.selected, self.invocation = codex_fixtures.configured(policy, attempt=attempt,
++            job=self.job_id, authority=admission.UUID)
++        self.logs_root = str(Path(self.root, "logs"))
++        model_attribution.select(self.control, self.selected, phase="implementation", logs_root=self.logs_root)
++        logs = attempt_logs.materialize(self.logs_root, attempt_id=attempt, workspace_group=self.group)
++        self.raw = (Path(__file__).parents[1]/"manager/fixtures/codex-0.169.0/turn-success.sanitized.jsonl").read_bytes()
++        room = attempt_log_format.open_room(logs.log_root)
++        for stream, raw in (("provider.stdout", self.raw), ("provider.invocation", json.dumps(self.invocation).encode())):
++            capture = claude_agent._Captured(room, attempt_log_format, stream)
++            capture.wrote(raw); capture.declare(claude_agent._Outcome.COMPLETED)
++        self.claim = attribution.record(self.selected, phase="implementation", evidenced_build="0.169.0",
++            raw=self.raw, invocation=self.invocation)
++
++    def test_B1_original_attribution_travels_through_admission_custody_and_handoff(self):
++        self.ready()
++        binding = publication_recovery.admission_for(self.jobs, self.recovery_job_id)["candidate"]["model_attribution"]
++        self.assertEqual(binding["attribution"]["basis"], "configured-model")
++        self.assertEqual(binding["attribution"]["actual_participation"], "unknown")
++        self.assertEqual(binding["attribution"]["contributors"], [])
++        self.published_once()
++        self.assertEqual(self.collected()["adopted"]["model_attribution"], binding)
++        self.assertEqual(self.handed_off()["candidate"]["model_attribution"], binding)
++        self.assertTrue(self.gate()["open"])
++
++    def test_invocation_receipt_tampering_holds_recovery(self):
++        self.ready()
++        self.published_once()
++        changed = dict(self.invocation, prompt_digest="sha256:"+"f"*64)
++        Path(self.logs_root, self.attempt_id, "provider.invocation.log").write_bytes(json.dumps(changed).encode())
++        with self.assertRaises(ContractRefusal): self.collected()
++        with self.assertRaises(ContractRefusal): self.handed_off()
++        self.assertFalse(self.gate()["open"])
+--- a/v12/python/tests/manager/codex_fixtures.py
++++ b/v12/python/tests/manager/codex_fixtures.py
+@@ -37,3 +37,15 @@
+         adapter_digest=policy.digest(adapter), profile_digest=policy.digest(profile),
+         tool_policy_digest=policy.digest(policy.POLICY), authority_uuid="fixture-authority",
+         job_id="fixture-job", worker_id="fixture-worker", attempt_id="fixture-attempt")
++
++
++def configured(policy, *, attempt="fixture-attempt", job="fixture-job", authority="fixture-authority"):
++    """Synthetic immutable image and adapter-call receipt, no native qualification."""
++    from . import provider_fixtures
++    from baton_v12.provider_policy import attribution
++    with simulated(policy):
++        value = provider_fixtures.delivery(attempt=attempt, job=job, authority=authority, **SELECTED)
++        prompt = policy.labelled(value["contract"]["adapter"], "implementation", "SYNTHETIC PRIVATE PROMPT")
++        receipt = attribution.invocation_record(value, "implementation",
++            policy.argv(value["contract"]["adapter"], SELECTED, prompt), policy.ENVIRONMENT, 0, evidenced_build="0.169.0")
++    return value, receipt
+--- a/v12/python/tests/manager/test_model_attribution.py
++++ b/v12/python/tests/manager/test_model_attribution.py
+@@ -123,3 +123,132 @@
+                 self.assertEqual(agent.provider_version({}, "."), expected)
+                 self.assertEqual(calls, [["claude", "--version"]])
+                 self.assertIsNone(agent._invocation)
++
++
++class ConfiguredCodex(unittest.TestCase):
++    def setUp(self):
++        import json
++        from pathlib import Path
++        from tests.manager import codex_fixtures
++        self.enterContext(codex_fixtures.simulated(policy))
++        self.delivery, self.invocation = codex_fixtures.configured(policy)
++        self.raw = (Path(__file__).parent / "fixtures/codex-0.169.0/turn-success.sanitized.jsonl").read_bytes()
++        self.json = json
++
++    def record(self, **changes):
++        args = dict(phase="implementation", evidenced_build="0.169.0", raw=self.raw, invocation=self.invocation)
++        args.update(changes)
++        return subject.record(self.delivery, **args)
++
++    def validate(self, claim, **changes):
++        args = dict(phase="implementation", raw=self.raw, invocation_raw=self.json.dumps(self.invocation).encode())
++        args.update(changes)
++        return subject.validate(claim, self.delivery, **args)
++
++    def test_A1_labelled_configuration_acceptance_and_unknown_participation(self):
++        value = self.record()
++        self.assertTrue(subject.acceptable(value))
++        self.assertEqual(value["outcome"], "configured-model-accepted")
++        self.assertEqual(value["actual_participation"], "unknown")
++        self.assertEqual(value["contributors"], [])
++        self.assertEqual(self.validate(value), value)
++        text = subject.diagnostic(value)
++        for word in ("Configured model accepted", "actual participation unknown", "no reroute observed", "adapter-recorded, host-validated"):
++            self.assertIn(word, text)
++        self.assertNotIn("rerouting proved absent", text)
++        self.assertNotIn("SYNTHETIC PRIVATE PROMPT", self.json.dumps(value))
++
++    def test_A2_missing_configuration_build_image_stream_and_receipt_hold(self):
++        for changes in (dict(invocation=None), dict(evidenced_build=None), dict(raw=None), dict(partial=True), dict(log_retained=False)):
++            with self.subTest(changes=changes): self.assertFalse(subject.acceptable(self.record(**changes)))
++        for key in self.invocation:
++            broken = dict(self.invocation); del broken[key]
++            self.assertFalse(subject.acceptable(self.record(invocation=broken)))
++        del self.delivery["contract"]["runtime_profile"]["image_digest"]
++        self.assertFalse(subject.acceptable(self.record()))
++
++    def test_A3_changed_receipt_and_identity_refuse(self):
++        value = self.record()
++        for key in ("attempt_id", "job_id", "phase", "requested_model", "image_digest", "selection_digest"):
++            with self.subTest(key=key), self.assertRaises(policy.PolicyRefusal):
++                self.validate(dict(value, **{key: "wrong"}))
++        for key, changed in (("prompt_digest", "sha256:"+"f"*64), ("argv_digest", "sha256:"+"f"*64),
++                             ("context_label", {}), ("argv_prefix", ["codex", "--model", "wrong"])):
++            altered = copy.deepcopy(value); altered["invocation"][key] = changed
++            with self.subTest(key=key), self.assertRaises(policy.PolicyRefusal): self.validate(altered)
++        with self.assertRaises(policy.PolicyRefusal): self.validate(value, invocation_raw=None)
++        with self.assertRaises(policy.PolicyRefusal): self.validate(value, invocation_raw=b"{}")
++        with self.assertRaises(policy.PolicyRefusal): self.validate(value, raw=self.raw+b"{}\n")
++
++    def test_R1_internally_consistent_unqualified_build_refuses(self):
++        selected = self.delivery["contract"]["selection"]
++        profile = self.delivery["contract"]["runtime_profile"]
++        selected["cli_build"] = profile["cli_build"] = "0.172.0"
++        self.delivery["profile_digest"] = policy.digest(profile)
++        self.invocation["evidenced_cli_build"] = "0.172.0"
++        self.invocation["selection_digest"] = policy.digest(self.delivery)
++        value = self.record(evidenced_build="0.172.0")
++        self.assertEqual(value["outcome"], "unqualified-build")
++        self.assertFalse(subject.acceptable(value))
++
++    def test_R2_basis_is_admitted_provider_not_claim(self):
++        value = self.record()
++        for changes in (dict(basis="participation"), dict(contributors=["invented"]),
++                        dict(contributor_sources={"invented":["configuration"]}), dict(schema=subject.SCHEMA)):
++            with self.subTest(changes=changes), self.assertRaises(policy.PolicyRefusal):
++                self.validate(dict(value, **changes))
++        with self.assertRaises(policy.PolicyRefusal):
++            subject.validate(value, fixture.delivery(), phase="implementation", raw=self.raw)
++        for schema in ("baton.model-attribution/3", None):
++            with self.assertRaises(policy.PolicyRefusal): self.validate(dict(value, schema=schema))
++
++    def test_A4_R3_source_defined_reroute_refuses_even_exit_zero(self):
++        events = [self.json.loads(x) for x in self.raw.split(b"\n") if x]
++        # Synthetic negative, exact source-defined error-item surface, NOT live output.
++        events.insert(2, {"type":"item.completed", "item":{"id":"synthetic-reroute", "type":"error",
++            "message":"model rerouted: requested -> alternate (HighRiskCyberActivity)"}})
++        raw = ("\n".join(self.json.dumps(x) for x in events)+"\n").encode()
++        value = self.record(raw=raw)
++        self.assertEqual(value["outcome"], "rerouted")
++        self.assertFalse(subject.acceptable(value))
++        self.assertEqual(value["reroute_observation"], "reroute observed")
++        self.assertEqual(self.validate(value, raw=raw), value)
++
++    def test_A5_C1_unicode_inside_text_and_prose_are_opaque(self):
++        events = [self.json.loads(x) for x in self.raw.split(b"\n") if x]
++        events[-2]["item"]["text"] = "separators \u0085\u2028\u2029 model rerouted: a -> b (HighRiskCyberActivity)"
++        raw = ("\n".join(self.json.dumps(x, ensure_ascii=False) for x in events)+"\n").encode()
++        self.assertTrue(subject.acceptable(self.record(raw=raw)))
++        self.assertEqual(self.record(raw=raw[:-1])["reroute_observation"], "reroute observation incomplete")
++        for raw in (self.raw + b"{}\n", self.raw.replace(b"\n", b"\u2028"), b"{}\n"):
++            self.assertFalse(subject.acceptable(self.record(raw=raw)))
++
++    def test_A6_Claude_stronger_and_A7_legacy_unchanged(self):
++        given = fixture.delivery()
++        for names, outcome in ((["fixture-reported", "other"], "matched"), (["other"], "conflicting"), ([], "missing")):
++            raw = fixture.terminal(*names)
++            value = subject.record(given, phase="review", evidenced_build="2.1.247", raw=raw)
++            self.assertEqual(value["schema"], subject.SCHEMA)
++            self.assertEqual(value["outcome"], outcome)
++            self.assertEqual(value["contributors"], sorted(names))
++            self.assertEqual(subject.validate(value, given, phase="review", raw=raw), value)
++        self.assertEqual(subject.diagnostic(None), "Requested: not selected (account default)")
++
++
++    def test_receipt_cannot_be_rebound_to_another_attempt_or_probe(self):
++        original = copy.deepcopy(self.invocation)
++        self.delivery["attempt_id"] = "other-attempt"
++        self.assertFalse(subject.acceptable(self.record(invocation=original)))
++        self.delivery["attempt_id"] = "fixture-attempt"
++        self.invocation["evidenced_cli_build"] = "0.172.0"
++        self.assertFalse(subject.acceptable(self.record()))
++
++
++    def test_missing_public_configuration_members_and_failed_environment_hold(self):
++        value = self.record()
++        for key in ("requested_model", "image_digest", "selected_cli_build", "evidenced_cli_build", "evidence", "selection_digest"):
++            changed = copy.deepcopy(value); del changed[key]
++            with self.subTest(key=key), self.assertRaises(policy.PolicyRefusal): self.validate(changed)
++        for key, member in (("environment_validated", False), ("status", 1), ("status", True)):
++            changed = dict(self.invocation, **{key: member})
++            self.assertFalse(subject.acceptable(self.record(invocation=changed)))
+--- a/v12/python/tests/tools/test_codex_selection.py
++++ b/v12/python/tests/tools/test_codex_selection.py
+@@ -218,7 +218,7 @@
+         selected=dict(delivery=delivered,phase="implementation",logs_root="/synthetic-only")
+         claim=attribution.record(delivered,phase="implementation",evidenced_build="0.169.0",raw=raw)
+         label=policy.context_record(delivered["contract"]["adapter"],"implementation")
+-        result=dict(outputs=[dict(status="present",result_metadata={attribution.SCHEMA:claim,policy.LABEL_SCHEMA:label})])
++        result=dict(outputs=[dict(status="present",result_metadata={claim["schema"]:claim,policy.LABEL_SCHEMA:label})])
+         frozen=dict(result_id="synthetic-result",manifest_digest="sha256:"+"1"*64)
+         with mock.patch.object(host,"selection_of",return_value=selected), \
+                 mock.patch.object(host,"assessment_of",return_value=None), \
+--- a/v12/python/tests/tools/test_provider_selection.py
++++ b/v12/python/tests/tools/test_provider_selection.py
+@@ -1165,3 +1165,81 @@
+         self.assertFalse((self.run / "live/home/synthetic-codex/synthetic-auth").exists())
+         with self.assertRaisesRegex(provider_home.HomeRefusal, "credential recovery required"):
+             self.prepare()
++
++
++class CodexToClaude(SelectedBase):
++    """Synthetic providers at normal invocation boundary; real pipeline owners."""
++    def setUp(self):
++        super().setUp()
++        import provider_policy as worker_policy
++        from tests.manager import codex_fixtures
++        self.enterContext(codex_fixtures.simulated(policy))
++        self.enterContext(codex_fixtures.simulated(worker_policy))
++        self.codex_selected = dict(codex_fixtures.SELECTED)
++        adapter = policy.adapter(self.codex_selected, network=self.config["network"])
++        profile = dict(self.config["provider_contract"]["runtime_profile"], provider="codex", cli_build="0.169.0")
++        self.codex_contract = dict(selection=self.codex_selected, adapter=adapter, runtime_profile=profile)
++        self.codex_profile = digest(profile)
++        self.submission["jobs"][0]["stages"][0]["profile_name"] = "synthetic-codex"
++        self.submission["jobs"][0]["stages"][0]["profile_digest"] = self.codex_profile
++
++    def worker(self, role, **members):
++        value = super().worker(role, **members)
++        if role == "implementation":
++            deployment = value["deployment"]
++            deployment.update(provider_contract=copy.deepcopy(self.codex_contract),
++                profile_digest=self.codex_profile, adapter_digest=digest(self.codex_contract["adapter"]),
++                profile_name="synthetic-codex", credential_slots=["codex"], credential_profile={"codex": deployment["credential_profile"]["api"]})
++            manifest = deployment["input_manifest"]
++            manifest["runtime_profile_digest"] = self.codex_profile
++            manifest.pop("manifest_digest"); manifest["manifest_digest"] = digest(manifest)
++        return value
++
++    def provider(self, **operands):
++        original = super().provider(**operands)
++        def run(argv, **options):
++            if argv[0] != "codex": return original(argv, **options)
++            if argv == ["codex", "--version"]:
++                os.write(options["stdout"], b"codex-cli 0.169.0\n")
++            else:
++                self.invocations.append(list(argv))
++                for name, body in (operands.get("edits") or {}).items():
++                    self.write(os.path.join(options["cwd"], name), body)
++                raw = (Path(__file__).parents[1]/"manager/fixtures/codex-0.169.0/turn-success.sanitized.jsonl").read_bytes()
++                os.write(options["stdout"], raw)
++            return subprocess.CompletedProcess(argv, 0)
++        return run
++
++    def turn(self, control, role, attempt_id, roots, **operands):
++        if role != "implementation": return super().turn(control, role, attempt_id, roots, **operands)
++        import claude_agent, codex_agent
++        credentials = Path(self.root, "credential-" + attempt_id[:12]); credentials.mkdir(exist_ok=True)
++        (credentials/"codex").write_text("SYNTHETIC ONLY\n")
++        with mock.patch.object(claude_agent, "ClaudeAgent", codex_agent.CodexAgent):
++            return super().turn(control, role, attempt_id, roots, **operands)
++
++    def test_configured_implementation_and_stronger_Claude_review(self):
++        held = self.implemented()
++        producer = self.assert_recorded(held.control, held.attempt_id, "implementation")
++        self.assertEqual(producer["attribution"]["basis"], "configured-model")
++        self.assertEqual(producer["attribution"]["contributors"], [])
++        self.drive(held.job, held.composed, "review", "waiting")
++        attempt = self.only_attempt(held.composed, "review")
++        self.assertEqual(self.turn(held.control, "review", attempt, self.mounted(held.composed, "review", attempt),
++            edits={"review-report.json": json.dumps({"schema":"baton.review-report/1", "verdict":"accepted", "findings":"simulated"})}), 0)
++        self.drive(held.job, held.composed, "review", "completed")
++        reviewer = self.assert_recorded(held.control, attempt, "review")
++        self.assertEqual(reviewer["attribution"]["contributors"], sorted(self.reported))
++        self.assertEqual(model_attribution.assessment_of(held.control, held.attempt_id), producer)
++        self.assertIsNotNone(model_attribution._read(held.control, "provider.attribution-ending", attempt)["verdict_id"])
++
++    def test_configured_implementation_cannot_rescue_missing_Claude_contributor(self):
++        held = self.implemented()
++        self.drive(held.job, held.composed, "review", "waiting")
++        attempt = self.only_attempt(held.composed, "review")
++        self.reported = ["other-model"]
++        self.turn(held.control, "review", attempt, self.mounted(held.composed, "review", attempt),
++            edits={"review-report.json": json.dumps({"schema":"baton.review-report/1", "verdict":"accepted", "findings":"simulated"})})
++        for _ in range(4): sweep(held.job, held.composed, now=fixtures.NOW)
++        self.assertEqual(model_attribution.assessment_of(held.control, attempt)["cause"], "model-attribution-conflicting")
++        self.assertIsNone(model_attribution._read(held.control, "provider.attribution-ending", attempt))
+--- a/v12/worker/claude_agent.py
++++ b/v12/worker/claude_agent.py
+@@ -2312,7 +2312,7 @@
+             for output in answer.get("outputs", []):
+                 if output.get("status") == "present":
+                     output["result_metadata"] = dict(output.get("result_metadata", {}),
+-                        **{"baton.model-attribution/1": self._attribution},
++                        **{self._attribution["schema"]: self._attribution},
+                         **({"baton.native-worker-context/1": self._context_label}
+                            if self._context_label is not None else {}))
+                     break
+@@ -4715,9 +4715,20 @@
+                            f"{type(failed).__name__}"}
+         if selected is not None:
+             from provider_policy import attribution
++            invocation = None
++            if binding["selection"]["provider"] == "codex":
++                invocation = attribution.invocation_record(selected, self._seen["role"], argv, launched, status,
++                    expected_home=self._retained_home(), evidenced_build=evidenced_build)
++                log_room, log_format = _log_room()
++                captured = _Captured(log_room, log_format, "provider.invocation")
++                captured.wrote(json.dumps(invocation, sort_keys=True, separators=(",", ":")).encode("utf-8"))
++                captured.declare("finished")
++                if log_room is None or log_format is None or captured._lost:
++                    invocation = None
+             self._attribution = attribution.record(selected, phase=self._seen["role"],
+                 evidenced_build=evidenced_build, raw=record, partial=partial,
+-                raw_digest=self._provider_raw_digest, log_retained=self._provider_log_retained)
++                raw_digest=self._provider_raw_digest, log_retained=self._provider_log_retained,
++                invocation=invocation)
+         if contextual is not None:
+             self._context_receipt = self._context_result(contextual, status=status, record=record, partial=partial)
+             if self._context_receipt["complete"] is not True:
+--- a/v12/worker/codex_agent.py
++++ b/v12/worker/codex_agent.py
+@@ -3,7 +3,7 @@
+ Arguments/version are grounded in retained N3 inventory. Instruction and home
+ preparation use the shared D interface. There is no Codex policy realization
+ or credential filename until qualified integration supplies one. Terminal
+-success is grounded in a retained turn; contributor evidence remains missing.
++success is grounded in a retained turn; actual contributors remain unknown.
+ """
+ import json
+ import re
+@@ -17,80 +17,7 @@
+ SELECTED = object()
+ 
+ 
+-def _members(pairs):
+-    value = {}
+-    for key, member in pairs:
+-        if key in value:
+-            raise ValueError("duplicate JSON member")
+-        value[key] = member
+-    return value
+-
+-
+-def completed_turn(raw, *, partial):
+-    """Recognize only the evidenced fresh-turn family, within the shared bound.
+-
+-    This is a CLI terminal outcome, never candidate acceptance or attribution.
+-    Unknown events and failure shapes remain unclassified. Text is opaque;
+-    nested tool output cannot supply a terminal or a contributor.
+-    """
+-    if partial is not False or type(raw) is not bytes or not raw or len(raw) > MAX_PROVIDER_RECORD:
+-        return False
+-    try:
+-        lines = raw.decode("utf-8").splitlines()
+-        if len(lines) < 4 or len(lines) > 1024 or not raw.endswith(b"\n"):
+-            return False
+-        events = [json.loads(line, object_pairs_hook=_members,
+-                            parse_constant=lambda value: (_ for _ in ()).throw(ValueError())) for line in lines]
+-        if any(type(event) is not dict for event in events):
+-            return False
+-        first, start, *middle, end = events
+-        if (set(first) != {"type", "thread_id"} or first["type"] != "thread.started"
+-                or type(first["thread_id"]) is not str or not first["thread_id"]
+-                or start != {"type": "turn.started"}
+-                or set(end) != {"type", "usage"} or end["type"] != "turn.completed"):
+-            return False
+-        usage = end["usage"]
+-        if (type(usage) is not dict or set(usage) != {"input_tokens", "cached_input_tokens",
+-                "cache_write_input_tokens", "output_tokens", "reasoning_output_tokens"}
+-                or any(type(n) is not int or n < 0 for n in usage.values())):
+-            return False
+-        pending, finished = {}, set()
+-        last_message = False
+-        for event in middle:
+-            if set(event) != {"type", "item"} or event["type"] not in ("item.started", "item.completed"):
+-                return False
+-            item = event["item"]
+-            if type(item) is not dict or type(item.get("id")) is not str or not item["id"]:
+-                return False
+-            ident = item["id"]
+-            if ident in finished:
+-                return False
+-            last_message = item.get("type") == "agent_message"
+-            if last_message:
+-                if (set(item) != {"id", "type", "text"} or type(item["text"]) is not str
+-                        or event["type"] != "item.completed" or ident in pending):
+-                    return False
+-                finished.add(ident)
+-            elif item.get("type") == "command_execution":
+-                if (set(item) != {"id", "type", "command", "aggregated_output", "exit_code", "status"}
+-                        or type(item["command"]) is not str or type(item["aggregated_output"]) is not str):
+-                    return False
+-                if event["type"] == "item.started":
+-                    if ident in pending or item["status"] != "in_progress" or item["exit_code"] is not None:
+-                        return False
+-                    pending[ident] = item["command"]
+-                else:
+-                    if (ident not in pending or pending[ident] != item["command"]
+-                            or item["status"] != "completed" or type(item["exit_code"]) is not int
+-                            or item["exit_code"] != 0):
+-                        return False
+-                    del pending[ident]
+-                    finished.add(ident)
+-            else:
+-                return False
+-        return bool(finished) and last_message and not pending
+-    except (ValueError, UnicodeError, RecursionError, KeyError, TypeError):
+-        return False
++from provider_policy.codex import completed_turn, stream_outcome
+ 
+ 
+ def prompt_operand(prompt):
+@@ -159,7 +86,8 @@
+         if type(status) is int and status == 0 and completed_turn(record, partial=partial):
+             return {"ok": True, "status": 0, "failure_reason": None, "why": None}
+         return {"ok": False, "status": status, "failure_reason": UNCLASSIFIED,
+-                "why": "Codex did not supply a complete supported successful turn"}
++                "why": "Codex reported a model reroute" if stream_outcome(record, partial=partial) == "rerouted" else
++                    "Codex did not supply a complete supported successful turn"}
+ 
+     def decode_provider_version(self, raw):
+         try:

@@ -57,9 +57,9 @@ def assess(control, attempt, frozen=None):
     if frozen is None:
         raise ContractRefusal("integrity", "schema", "attribution requires a frozen producer result")
     result = load_manifest(control, frozen["manifest_digest"], "resultManifest")
-    claims = [one.get("result_metadata", {}).get(attribution.SCHEMA)
-              for one in result["outputs"] if one.get("status") == "present"
-              and attribution.SCHEMA in one.get("result_metadata", {})]
+    claims = [value if type(value) is dict and value.get("schema") == key else None for one in result["outputs"] if one.get("status") == "present"
+              for key, value in one.get("result_metadata", {}).items()
+              if key.startswith("baton.model-attribution/")]
     raw = attempt_logs.complete_record(attempt_logs.AttemptLogs(root=selected["logs_root"], attempt_id=attempt),
                                        "provider.stdout", limit=attribution.MAX_OUTPUT)
     claim = claims[0] if len(claims) == 1 else None
@@ -79,8 +79,9 @@ def assess(control, attempt, frozen=None):
     accepted = None
     if claim is not None and raw is not None:
         try:
-            accepted = attribution.validate(claim, selected["delivery"], phase=selected["phase"], raw=raw)
-            cause = None if accepted["outcome"] == "matched" else "model-attribution-" + accepted["outcome"]
+            accepted = attribution.validate(claim, selected["delivery"], phase=selected["phase"], raw=raw,
+                invocation_raw=_invocation_receipt(selected, attempt))
+            cause = None if attribution.acceptable(accepted) else "model-attribution-" + accepted["outcome"]
         except ValueError:
             cause = "model-attribution-invalid"
     cause = label_cause or cause
@@ -129,10 +130,11 @@ def recovery_evidence(control, attempt, *, candidate, tree_digest, result_digest
     if claim is None or raw is None:
         raise ContractRefusal("refused", "precondition", "model-attribution-missing: original producer")
     try:
-        checked = attribution.validate(claim, selected["delivery"], phase=selected["phase"], raw=raw)
+        checked = attribution.validate(claim, selected["delivery"], phase=selected["phase"], raw=raw,
+                invocation_raw=_invocation_receipt(selected, attempt))
     except ValueError as failure:
         raise ContractRefusal("integrity", "digest", "model-attribution-invalid: original producer") from failure
-    if checked["outcome"] != "matched":
+    if not attribution.acceptable(checked):
         raise ContractRefusal("refused", "precondition", "model-attribution-" + checked["outcome"] + ": original producer")
     return {"attempt_id": attempt, "job_id": selected["delivery"]["home_identity"]["job_id"],
             "candidate": candidate, "tree_digest": tree_digest, "result_digest": result_digest,
@@ -181,3 +183,10 @@ def observed_exchange(control, attempt, document):
     if document is None:
         return None
     return dict(document, model_attribution=diagnostic_of(control, attempt))
+
+
+def _invocation_receipt(selected, attempt):
+    if selected["delivery"]["contract"]["selection"]["provider"] != "codex":
+        return None
+    return attempt_logs.complete_record(attempt_logs.AttemptLogs(root=selected["logs_root"], attempt_id=attempt),
+                                        "provider.invocation", limit=attribution.MAX_OUTPUT)

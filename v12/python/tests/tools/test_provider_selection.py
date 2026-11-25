@@ -1165,3 +1165,81 @@ class QualificationCredentialPreparation(unittest.TestCase):
         self.assertFalse((self.run / "live/home/synthetic-codex/synthetic-auth").exists())
         with self.assertRaisesRegex(provider_home.HomeRefusal, "credential recovery required"):
             self.prepare()
+
+
+class CodexToClaude(SelectedBase):
+    """Synthetic providers at normal invocation boundary; real pipeline owners."""
+    def setUp(self):
+        super().setUp()
+        import provider_policy as worker_policy
+        from tests.manager import codex_fixtures
+        self.enterContext(codex_fixtures.simulated(policy))
+        self.enterContext(codex_fixtures.simulated(worker_policy))
+        self.codex_selected = dict(codex_fixtures.SELECTED)
+        adapter = policy.adapter(self.codex_selected, network=self.config["network"])
+        profile = dict(self.config["provider_contract"]["runtime_profile"], provider="codex", cli_build="0.169.0")
+        self.codex_contract = dict(selection=self.codex_selected, adapter=adapter, runtime_profile=profile)
+        self.codex_profile = digest(profile)
+        self.submission["jobs"][0]["stages"][0]["profile_name"] = "synthetic-codex"
+        self.submission["jobs"][0]["stages"][0]["profile_digest"] = self.codex_profile
+
+    def worker(self, role, **members):
+        value = super().worker(role, **members)
+        if role == "implementation":
+            deployment = value["deployment"]
+            deployment.update(provider_contract=copy.deepcopy(self.codex_contract),
+                profile_digest=self.codex_profile, adapter_digest=digest(self.codex_contract["adapter"]),
+                profile_name="synthetic-codex", credential_slots=["codex"], credential_profile={"codex": deployment["credential_profile"]["api"]})
+            manifest = deployment["input_manifest"]
+            manifest["runtime_profile_digest"] = self.codex_profile
+            manifest.pop("manifest_digest"); manifest["manifest_digest"] = digest(manifest)
+        return value
+
+    def provider(self, **operands):
+        original = super().provider(**operands)
+        def run(argv, **options):
+            if argv[0] != "codex": return original(argv, **options)
+            if argv == ["codex", "--version"]:
+                os.write(options["stdout"], b"codex-cli 0.169.0\n")
+            else:
+                self.invocations.append(list(argv))
+                for name, body in (operands.get("edits") or {}).items():
+                    self.write(os.path.join(options["cwd"], name), body)
+                raw = (Path(__file__).parents[1]/"manager/fixtures/codex-0.169.0/turn-success.sanitized.jsonl").read_bytes()
+                os.write(options["stdout"], raw)
+            return subprocess.CompletedProcess(argv, 0)
+        return run
+
+    def turn(self, control, role, attempt_id, roots, **operands):
+        if role != "implementation": return super().turn(control, role, attempt_id, roots, **operands)
+        import claude_agent, codex_agent
+        credentials = Path(self.root, "credential-" + attempt_id[:12]); credentials.mkdir(exist_ok=True)
+        (credentials/"codex").write_text("SYNTHETIC ONLY\n")
+        with mock.patch.object(claude_agent, "ClaudeAgent", codex_agent.CodexAgent):
+            return super().turn(control, role, attempt_id, roots, **operands)
+
+    def test_configured_implementation_and_stronger_Claude_review(self):
+        held = self.implemented()
+        producer = self.assert_recorded(held.control, held.attempt_id, "implementation")
+        self.assertEqual(producer["attribution"]["basis"], "configured-model")
+        self.assertEqual(producer["attribution"]["contributors"], [])
+        self.drive(held.job, held.composed, "review", "waiting")
+        attempt = self.only_attempt(held.composed, "review")
+        self.assertEqual(self.turn(held.control, "review", attempt, self.mounted(held.composed, "review", attempt),
+            edits={"review-report.json": json.dumps({"schema":"baton.review-report/1", "verdict":"accepted", "findings":"simulated"})}), 0)
+        self.drive(held.job, held.composed, "review", "completed")
+        reviewer = self.assert_recorded(held.control, attempt, "review")
+        self.assertEqual(reviewer["attribution"]["contributors"], sorted(self.reported))
+        self.assertEqual(model_attribution.assessment_of(held.control, held.attempt_id), producer)
+        self.assertIsNotNone(model_attribution._read(held.control, "provider.attribution-ending", attempt)["verdict_id"])
+
+    def test_configured_implementation_cannot_rescue_missing_Claude_contributor(self):
+        held = self.implemented()
+        self.drive(held.job, held.composed, "review", "waiting")
+        attempt = self.only_attempt(held.composed, "review")
+        self.reported = ["other-model"]
+        self.turn(held.control, "review", attempt, self.mounted(held.composed, "review", attempt),
+            edits={"review-report.json": json.dumps({"schema":"baton.review-report/1", "verdict":"accepted", "findings":"simulated"})})
+        for _ in range(4): sweep(held.job, held.composed, now=fixtures.NOW)
+        self.assertEqual(model_attribution.assessment_of(held.control, attempt)["cause"], "model-attribution-conflicting")
+        self.assertIsNone(model_attribution._read(held.control, "provider.attribution-ending", attempt))

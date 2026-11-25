@@ -123,3 +123,132 @@ class BuildProbe(unittest.TestCase):
                 self.assertEqual(agent.provider_version({}, "."), expected)
                 self.assertEqual(calls, [["claude", "--version"]])
                 self.assertIsNone(agent._invocation)
+
+
+class ConfiguredCodex(unittest.TestCase):
+    def setUp(self):
+        import json
+        from pathlib import Path
+        from tests.manager import codex_fixtures
+        self.enterContext(codex_fixtures.simulated(policy))
+        self.delivery, self.invocation = codex_fixtures.configured(policy)
+        self.raw = (Path(__file__).parent / "fixtures/codex-0.169.0/turn-success.sanitized.jsonl").read_bytes()
+        self.json = json
+
+    def record(self, **changes):
+        args = dict(phase="implementation", evidenced_build="0.169.0", raw=self.raw, invocation=self.invocation)
+        args.update(changes)
+        return subject.record(self.delivery, **args)
+
+    def validate(self, claim, **changes):
+        args = dict(phase="implementation", raw=self.raw, invocation_raw=self.json.dumps(self.invocation).encode())
+        args.update(changes)
+        return subject.validate(claim, self.delivery, **args)
+
+    def test_A1_labelled_configuration_acceptance_and_unknown_participation(self):
+        value = self.record()
+        self.assertTrue(subject.acceptable(value))
+        self.assertEqual(value["outcome"], "configured-model-accepted")
+        self.assertEqual(value["actual_participation"], "unknown")
+        self.assertEqual(value["contributors"], [])
+        self.assertEqual(self.validate(value), value)
+        text = subject.diagnostic(value)
+        for word in ("Configured model accepted", "actual participation unknown", "no reroute observed", "adapter-recorded, host-validated"):
+            self.assertIn(word, text)
+        self.assertNotIn("rerouting proved absent", text)
+        self.assertNotIn("SYNTHETIC PRIVATE PROMPT", self.json.dumps(value))
+
+    def test_A2_missing_configuration_build_image_stream_and_receipt_hold(self):
+        for changes in (dict(invocation=None), dict(evidenced_build=None), dict(raw=None), dict(partial=True), dict(log_retained=False)):
+            with self.subTest(changes=changes): self.assertFalse(subject.acceptable(self.record(**changes)))
+        for key in self.invocation:
+            broken = dict(self.invocation); del broken[key]
+            self.assertFalse(subject.acceptable(self.record(invocation=broken)))
+        del self.delivery["contract"]["runtime_profile"]["image_digest"]
+        self.assertFalse(subject.acceptable(self.record()))
+
+    def test_A3_changed_receipt_and_identity_refuse(self):
+        value = self.record()
+        for key in ("attempt_id", "job_id", "phase", "requested_model", "image_digest", "selection_digest"):
+            with self.subTest(key=key), self.assertRaises(policy.PolicyRefusal):
+                self.validate(dict(value, **{key: "wrong"}))
+        for key, changed in (("prompt_digest", "sha256:"+"f"*64), ("argv_digest", "sha256:"+"f"*64),
+                             ("context_label", {}), ("argv_prefix", ["codex", "--model", "wrong"])):
+            altered = copy.deepcopy(value); altered["invocation"][key] = changed
+            with self.subTest(key=key), self.assertRaises(policy.PolicyRefusal): self.validate(altered)
+        with self.assertRaises(policy.PolicyRefusal): self.validate(value, invocation_raw=None)
+        with self.assertRaises(policy.PolicyRefusal): self.validate(value, invocation_raw=b"{}")
+        with self.assertRaises(policy.PolicyRefusal): self.validate(value, raw=self.raw+b"{}\n")
+
+    def test_R1_internally_consistent_unqualified_build_refuses(self):
+        selected = self.delivery["contract"]["selection"]
+        profile = self.delivery["contract"]["runtime_profile"]
+        selected["cli_build"] = profile["cli_build"] = "0.172.0"
+        self.delivery["profile_digest"] = policy.digest(profile)
+        self.invocation["evidenced_cli_build"] = "0.172.0"
+        self.invocation["selection_digest"] = policy.digest(self.delivery)
+        value = self.record(evidenced_build="0.172.0")
+        self.assertEqual(value["outcome"], "unqualified-build")
+        self.assertFalse(subject.acceptable(value))
+
+    def test_R2_basis_is_admitted_provider_not_claim(self):
+        value = self.record()
+        for changes in (dict(basis="participation"), dict(contributors=["invented"]),
+                        dict(contributor_sources={"invented":["configuration"]}), dict(schema=subject.SCHEMA)):
+            with self.subTest(changes=changes), self.assertRaises(policy.PolicyRefusal):
+                self.validate(dict(value, **changes))
+        with self.assertRaises(policy.PolicyRefusal):
+            subject.validate(value, fixture.delivery(), phase="implementation", raw=self.raw)
+        for schema in ("baton.model-attribution/3", None):
+            with self.assertRaises(policy.PolicyRefusal): self.validate(dict(value, schema=schema))
+
+    def test_A4_R3_source_defined_reroute_refuses_even_exit_zero(self):
+        events = [self.json.loads(x) for x in self.raw.split(b"\n") if x]
+        # Synthetic negative, exact source-defined error-item surface, NOT live output.
+        events.insert(2, {"type":"item.completed", "item":{"id":"synthetic-reroute", "type":"error",
+            "message":"model rerouted: requested -> alternate (HighRiskCyberActivity)"}})
+        raw = ("\n".join(self.json.dumps(x) for x in events)+"\n").encode()
+        value = self.record(raw=raw)
+        self.assertEqual(value["outcome"], "rerouted")
+        self.assertFalse(subject.acceptable(value))
+        self.assertEqual(value["reroute_observation"], "reroute observed")
+        self.assertEqual(self.validate(value, raw=raw), value)
+
+    def test_A5_C1_unicode_inside_text_and_prose_are_opaque(self):
+        events = [self.json.loads(x) for x in self.raw.split(b"\n") if x]
+        events[-2]["item"]["text"] = "separators \u0085\u2028\u2029 model rerouted: a -> b (HighRiskCyberActivity)"
+        raw = ("\n".join(self.json.dumps(x, ensure_ascii=False) for x in events)+"\n").encode()
+        self.assertTrue(subject.acceptable(self.record(raw=raw)))
+        self.assertEqual(self.record(raw=raw[:-1])["reroute_observation"], "reroute observation incomplete")
+        for raw in (self.raw + b"{}\n", self.raw.replace(b"\n", b"\u2028"), b"{}\n"):
+            self.assertFalse(subject.acceptable(self.record(raw=raw)))
+
+    def test_A6_Claude_stronger_and_A7_legacy_unchanged(self):
+        given = fixture.delivery()
+        for names, outcome in ((["fixture-reported", "other"], "matched"), (["other"], "conflicting"), ([], "missing")):
+            raw = fixture.terminal(*names)
+            value = subject.record(given, phase="review", evidenced_build="2.1.247", raw=raw)
+            self.assertEqual(value["schema"], subject.SCHEMA)
+            self.assertEqual(value["outcome"], outcome)
+            self.assertEqual(value["contributors"], sorted(names))
+            self.assertEqual(subject.validate(value, given, phase="review", raw=raw), value)
+        self.assertEqual(subject.diagnostic(None), "Requested: not selected (account default)")
+
+
+    def test_receipt_cannot_be_rebound_to_another_attempt_or_probe(self):
+        original = copy.deepcopy(self.invocation)
+        self.delivery["attempt_id"] = "other-attempt"
+        self.assertFalse(subject.acceptable(self.record(invocation=original)))
+        self.delivery["attempt_id"] = "fixture-attempt"
+        self.invocation["evidenced_cli_build"] = "0.172.0"
+        self.assertFalse(subject.acceptable(self.record()))
+
+
+    def test_missing_public_configuration_members_and_failed_environment_hold(self):
+        value = self.record()
+        for key in ("requested_model", "image_digest", "selected_cli_build", "evidenced_cli_build", "evidence", "selection_digest"):
+            changed = copy.deepcopy(value); del changed[key]
+            with self.subTest(key=key), self.assertRaises(policy.PolicyRefusal): self.validate(changed)
+        for key, member in (("environment_validated", False), ("status", 1), ("status", True)):
+            changed = dict(self.invocation, **{key: member})
+            self.assertFalse(subject.acceptable(self.record(invocation=changed)))

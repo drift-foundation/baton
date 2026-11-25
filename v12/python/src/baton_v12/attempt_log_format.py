@@ -84,7 +84,7 @@ NATIVE = "native"
 # retain a failure that happens before the provider starts, and the incident
 # this Work came from was exactly such a failure.
 STREAMS = ("worker.stdout", "worker.stderr",
-           "provider.stdout", "provider.stderr",
+           "provider.stdout", "provider.stderr", "provider.invocation",
            "verification.stdout", "verification.stderr")
 
 # THE FOUR A WRITER MAY DECLARE. Completion is not among them by accident:

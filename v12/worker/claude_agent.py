@@ -2312,7 +2312,7 @@ class ClaudeAgent:
             for output in answer.get("outputs", []):
                 if output.get("status") == "present":
                     output["result_metadata"] = dict(output.get("result_metadata", {}),
-                        **{"baton.model-attribution/1": self._attribution},
+                        **{self._attribution["schema"]: self._attribution},
                         **({"baton.native-worker-context/1": self._context_label}
                            if self._context_label is not None else {}))
                     break
@@ -4715,9 +4715,20 @@ class ClaudeAgent:
                            f"{type(failed).__name__}"}
         if selected is not None:
             from provider_policy import attribution
+            invocation = None
+            if binding["selection"]["provider"] == "codex":
+                invocation = attribution.invocation_record(selected, self._seen["role"], argv, launched, status,
+                    expected_home=self._retained_home(), evidenced_build=evidenced_build)
+                log_room, log_format = _log_room()
+                captured = _Captured(log_room, log_format, "provider.invocation")
+                captured.wrote(json.dumps(invocation, sort_keys=True, separators=(",", ":")).encode("utf-8"))
+                captured.declare("finished")
+                if log_room is None or log_format is None or captured._lost:
+                    invocation = None
             self._attribution = attribution.record(selected, phase=self._seen["role"],
                 evidenced_build=evidenced_build, raw=record, partial=partial,
-                raw_digest=self._provider_raw_digest, log_retained=self._provider_log_retained)
+                raw_digest=self._provider_raw_digest, log_retained=self._provider_log_retained,
+                invocation=invocation)
         if contextual is not None:
             self._context_receipt = self._context_result(contextual, status=status, record=record, partial=partial)
             if self._context_receipt["complete"] is not True:
