@@ -1,0 +1,12 @@
+{
+  "ceased": true,
+  "container_name": "baton-runtime.start-d0b88d6c7a6649017ef81de76d6a574cc9f0ee40661706ca6e80729f4e5a7b37",
+  "exit_code": 143,
+  "removed": true,
+  "runtime_id": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "state": {
+    "ExitCode": 143,
+    "Running": false,
+    "StartedAt": "2026-11-25T07:00:00.123456789Z"
+  }
+}

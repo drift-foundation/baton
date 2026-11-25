@@ -1,0 +1,11 @@
+{
+  "message": "M386209",
+  "pass_event": "E386210",
+  "snapshot": 386210,
+  "work": "W385830",
+  "route": "baton.bug",
+  "phase": "queued",
+  "handler": null,
+  "gate": null,
+  "candidate_sha256": "1c2979d45ec4f7d39300f19f25d6c3763fd49105cfb968c7b9f3824b11900f25"
+}

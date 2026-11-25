@@ -1,0 +1,1175 @@
+{
+ "boundary": "HEAD plus the SHA-256 of every modified, added, deleted, renamed or untracked file under the scope, plus the SHA-256 of every non-ignored file of each declared consumed input whether changed or not; gitignored paths excluded; other paths outside the scope excluded; an absent declared input refuses",
+ "changed": [
+  {
+   "path": "v12/python/src/baton_v12/__pycache__/__init__.cpython-313.pyc",
+   "sha256": "30603f18a26e491cbc2601d02929c452540f6a1af2b8aee549e0c4c79523d989",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/__pycache__/attempt_log_format.cpython-313.pyc",
+   "sha256": "9ab9840a24b2ca30d3060913b14b371c712014d2532bf22c2b786515e0a42a4d",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/__pycache__/checkpoint_profiles.cpython-313.pyc",
+   "sha256": "61b048fb1678b8d687a2ed156b22d37ca1401a0822d5016b259c6df46369c4d7",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/__pycache__/eventing.cpython-313.pyc",
+   "sha256": "c99c3d24a7bba96e96cee168536185151d68a19b1dc7bf193bd69dfddb258d9c",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/__pycache__/native_handoff.cpython-313.pyc",
+   "sha256": "1de427688e17a5800fd92843106557e246d6aba8c4fe5a79694e40d6b91d9c7a",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/__pycache__/verification_context.cpython-313.pyc",
+   "sha256": "006c8fc9f04021563018ae66f70ea986bca3eff80f829922fed0e697281f802a",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/authority/__pycache__/__init__.cpython-313.pyc",
+   "sha256": "62a358459ca5b5bb4801957574179e23f7558cea628a9b8e412854add1508259",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/authority/__pycache__/api.cpython-313.pyc",
+   "sha256": "b1aa77137e5949818775ae0e805d4f59011b18d7bfdf4013a49e6fe81917eecd",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/authority/__pycache__/core.cpython-313.pyc",
+   "sha256": "f16ed71ddf888b563abee329a247b9b952079a7ca41277b5d430546916287b03",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/authority/__pycache__/dossier.cpython-313.pyc",
+   "sha256": "52d2d7bf89532c2e77758da474b2e99b6312a854ca7d95dac38f784583a57f47",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/authority/__pycache__/errors.cpython-313.pyc",
+   "sha256": "b193fdb9103e258a5478f1c285e6d235e5ff67b7bc456651261a3a329199a330",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/authority/__pycache__/identity.cpython-313.pyc",
+   "sha256": "735e3011ae3c0c2da81f3bcabee5a070715f3ab71a3a9df4cdff15ca014822d4",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/authority/__pycache__/labels.cpython-313.pyc",
+   "sha256": "77caa6668cf8d26343e889ca86c282f30c1fe1d5e6e88e2a595efb816e232bce",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/authority/__pycache__/messages.cpython-313.pyc",
+   "sha256": "57d4d477e94cd9e6a86cf72089370360ffe99e222c161cc551b2754f675d80ff",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/authority/__pycache__/principals.cpython-313.pyc",
+   "sha256": "630c9b6f44b3ed4c55f24445b4948efd176c5d40ce6158b18190bc356e39d9f5",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/authority/__pycache__/schema.cpython-313.pyc",
+   "sha256": "42e649ad767624e528433c25e9647959b2c5704ee59aeffd40949b9283a16a46",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/authority/__pycache__/session.cpython-313.pyc",
+   "sha256": "41d898affa7207daed9672b85810264f4ed071e4eeb9a87006236e326e3e5da2",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/authority/__pycache__/store.cpython-313.pyc",
+   "sha256": "562ea0dfdc8ec55bed0996c363d658ae5aee5295a5ed6736066d30017d573636",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/contracts/__pycache__/__init__.cpython-313.pyc",
+   "sha256": "a2cde55c5be097302f7fda3612c0dd6c48ab78e53120edde0c371553f2072e5c",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/contracts/__pycache__/canonical.cpython-313.pyc",
+   "sha256": "fed141324bf869ac21be9595b700f7e8c37233d2c1698312c5f0b507d293828f",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/contracts/__pycache__/errors.cpython-313.pyc",
+   "sha256": "460f6ca1d0ab91cf73da7466469c6b39634e623e3b9bf94b02ce14f37e3599a3",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/contracts/__pycache__/frozen.cpython-313.pyc",
+   "sha256": "3e95692a8586630d08dc30b3b692ded116a454f53430dc6e64b64b2af459555c",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/contracts/__pycache__/manifest.cpython-313.pyc",
+   "sha256": "bf5229b491eed40f1aa9d9613c14f61547e9672069358cffd99bf4c86c5482cd",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/contracts/__pycache__/pod.cpython-313.pyc",
+   "sha256": "793157add8b25ad60e245381995b9e734efeb3f41d8f5fd0085e92bd8e96121d",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/contracts/__pycache__/secrets.cpython-313.pyc",
+   "sha256": "d7831f7e322d7ecc3c205753a1a83ed83aaf52a1cf852718e5fd9def3db9ef2a",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/contracts/__pycache__/validate.cpython-313.pyc",
+   "sha256": "feba102d022b6524131bbe320c95bbba9f3cc94d047338667f4eff5dae5105dc",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/integration/__pycache__/__init__.cpython-313.pyc",
+   "sha256": "2100944749a429831c98b13e475dee34ea9cb111931da6b076d0d9b1b930a3c4",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/integration/__pycache__/admission.cpython-313.pyc",
+   "sha256": "65222d1feac217483db9fefe5f4c010b2afa215d71b87b71656bc473972c5024",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/integration/__pycache__/driver.cpython-313.pyc",
+   "sha256": "623de083986b7877ab290f78b9ed8e3084f1f08f6c8ec152f71eec364787a99e",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/integration/__pycache__/execution.cpython-313.pyc",
+   "sha256": "38167322410d85b996abd64c79d9d35b87d1113100d9cfc205a5795762791101",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/integration/__pycache__/git_profile.cpython-313.pyc",
+   "sha256": "4f99e9417da94d493f3390dcf6dbc8d0abd963c733ace2164715fe4154e9651a",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/integration/__pycache__/managed_execution.cpython-313.pyc",
+   "sha256": "1e9f90d3559bab22edcc89616fd2c6b118305bb78bb55f7aef7db702f00e2500",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/integration/__pycache__/oci_delivery.cpython-313.pyc",
+   "sha256": "d35cb345064f1d691bd8437741516925cd5d6bb51354ea138a4b91a57e1440bd",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/integration/__pycache__/queue.cpython-313.pyc",
+   "sha256": "54ee2dfc31cf115ca18627ec7043d0b3f8891451c6d740835fc3793f337da8c1",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/integration/__pycache__/reconciliation.cpython-313.pyc",
+   "sha256": "f9acc2517575c19bf513d6abacff2c3e4975f6195754d214073ef3ce122c8f85",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/integration/__pycache__/recovery.cpython-313.pyc",
+   "sha256": "b1e5193e40827282eb8cbb278ad99fcf60ece6994271470b5926918e3c9d87f2",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/integration/__pycache__/runtime.cpython-313.pyc",
+   "sha256": "95792d3bbb919058cb30ab54a686c7f3d7f3b955da6f19c757b509de6d098ec3",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/integration/__pycache__/schema.cpython-313.pyc",
+   "sha256": "d74ecaccd17371490f8befabbf7f3099fd4b33fadcc1e33bcb947020a5f05cb0",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/integration/__pycache__/store.cpython-313.pyc",
+   "sha256": "4406eb8f65d2ff4a53eaf18ed7b6efa8448f7d83937b6fbe3297e0e8e8f5d06a",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/__init__.cpython-313.pyc",
+   "sha256": "b1fd6000d7469f5efefe3ae57c743d142525cdd6c94298b61ed8460870fd3837",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/cancellation.cpython-313.pyc",
+   "sha256": "7b87c4705bd31614f94c0cb3185e632f199ede8ce3576b999f6649d622658067",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/creation.cpython-313.pyc",
+   "sha256": "400358a9ffd65fd0a20747261f99b0816378b1bd0ab8e6b325a888127ef89ae4",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/delegation.cpython-313.pyc",
+   "sha256": "321aa7f0fcbbeec88deea604a2b0d989b494cf729cd56ee708052b8b8facc507",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/documents.cpython-313.pyc",
+   "sha256": "55c083e086de95e4775d8628df757b9991d12e6c363ba2e79bb5612d633f4cda",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/ending.cpython-313.pyc",
+   "sha256": "86cfd2681a31e77f1675d299306ce8bace10a4c5b3a30be55515c109c022ecab",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/episodes.cpython-313.pyc",
+   "sha256": "a249cb342d09c5d0fd14a2a775601c57a9d0b622fc6db7874321feab5677adb0",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/execution_limits.cpython-313.pyc",
+   "sha256": "1ed139a59e224274b2db2c29faf98241ee2d996537d46f33dde2d9a0b73657ed",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/failure_analysis.cpython-313.pyc",
+   "sha256": "22b90d2dd489310100d52a923ed68a2d40157e064b0d3dec7aa4583857303f4e",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/fresh_attempt.cpython-313.pyc",
+   "sha256": "ad05d8506766d3c40e3f24cf6be4fe5314f698eaece42b0411af49ca0b9e6545",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/integration_capacity.cpython-313.pyc",
+   "sha256": "95b7c4ec31882f8a670fbcd1e688b4af5c4f1b549d3f47704f41b0facc9321eb",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/job_control.cpython-313.pyc",
+   "sha256": "fd2e103f2c93eefb7d9fc24ea0202283d43aeba9520cbe4843ffefad1e052f6a",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/manager.cpython-313.pyc",
+   "sha256": "cac03079be65f9357a284ab0bfd9c8e54a4e44dd8d8291e94d1e3380a6dbd3aa",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/native_handoffs.cpython-313.pyc",
+   "sha256": "ec341282f8a39f94f1f86dd97c5501851995418406ae2c283338bde636d62106",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/projection.cpython-313.pyc",
+   "sha256": "29ee0867e7697f2bbb28ceae3c93cf56e47b865632cd06a851adcf6912335f17",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/publication_execution.cpython-313.pyc",
+   "sha256": "e4236986ff9d35b8559b49a2088134b11aa789d92cf4c999695157babcc515b8",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/publication_recovery.cpython-313.pyc",
+   "sha256": "65e5b117e1a47805c3c7b263f835f9e928f6e7dd8daa6b5ed64d4a8ac4bc8f78",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/retained_recovery.cpython-313.pyc",
+   "sha256": "8639361ac1144f0eb82d3504827a3202ca324960217aa3a75da73f005acb0c90",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/retained_verification.cpython-313.pyc",
+   "sha256": "a88ba8f4e2f0f8f92f3b33c6bd24bc39712b06848a6fd471d327b8303982531c",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/review_driver.cpython-313.pyc",
+   "sha256": "71fc8078c9c5f27896e0dcf5821001f3efb965a66983078c87cf951ab9db320f",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/role_capability.cpython-313.pyc",
+   "sha256": "6b1931f4dbf5cbb6dac9dee3df0e8ff486aced1e9a496ab2daffb05a1d433876",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/role_contract.cpython-313.pyc",
+   "sha256": "2b167527ca2183cbe494fa1534ca89f4b8a20bc431464ca4c31526e6d8420e57",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/scheduler.cpython-313.pyc",
+   "sha256": "32064c354d3f67279a720e921b9278c572f2eed7982f6e0855f7394edc84dbce",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/schema.cpython-313.pyc",
+   "sha256": "858abc3b35a223d571c5cda63f7f0a220e4de6d1891237098f6ef882e2392051",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/store.cpython-313.pyc",
+   "sha256": "5c3f4ba47e705765f7f52569f16d4d118b8a81031638d89c6ef059bb57a05081",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/submission.cpython-313.pyc",
+   "sha256": "7eaf9bd33ef38c954b05a45a844869df5d8201866482662309f2b1023b8db704",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/job_manager/__pycache__/templates.cpython-313.pyc",
+   "sha256": "398a326e85b26435aff1985d4ba92de6be7b2ae290c45a3aa6b409ad2dbad9b7",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/provider_policy/__pycache__/__init__.cpython-313.pyc",
+   "sha256": "e86e1fb527633a1b0406b9c04216dbcbe94af2a893c38737758c788d140c2c6f",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/provider_policy/__pycache__/attribution.cpython-313.pyc",
+   "sha256": "38336146caa3bc23577767344219c28922b7d36fe2a38d94983f310be5185048",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/provider_policy/__pycache__/codex.cpython-313.pyc",
+   "sha256": "9efdabad9243ea85de19176456026f791bc0b760a3f38d8bdf8e1203e7872b46",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/provider_policy/__pycache__/home.cpython-313.pyc",
+   "sha256": "eca8f416442a180a501100888b8cdf3f25d7017fdc6f415c13941f3ffe7b00b3",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/source_profiles/__pycache__/__init__.cpython-313.pyc",
+   "sha256": "614944859128084902a1a39e23a30d64acedf1e88a181704214e4edaa277c64b",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/source_profiles/__pycache__/checkout.cpython-313.pyc",
+   "sha256": "9b0d9ea726bdd17b77a3dc9980ddfcdeeaa6bfbdfaafc20de317609e3056281c",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/__init__.cpython-313.pyc",
+   "sha256": "ba76cce714e7ac8a295f309673f2e812511bc37265684c736c92cc139ad271f4",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/attempt_logs.cpython-313.pyc",
+   "sha256": "a66a972fd3388c00e1ec4b344018c3b1c37e86b50767d6ef37e8cadfaa3d9600",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/attempts.cpython-313.pyc",
+   "sha256": "9a99b5f8c8614ec387b8e468edde9f9918b8fb05291cfaa1f7fe0de8aaf77cf9",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/authority_port.cpython-313.pyc",
+   "sha256": "40680156822cf46e9da866d57edcd65d4d74ce68d20804bbf11bef7a31a4a2b0",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/boundaries.cpython-313.pyc",
+   "sha256": "16be2ed593be936dd8c96aa278a33ede3c0a8553e4171ecbf1326400bfe49794",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/context_delivery.cpython-313.pyc",
+   "sha256": "e1b085b9985f98e0749f522f2bcc52d837f432ac4975213cdb0118ac352c755a",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/credentials.cpython-313.pyc",
+   "sha256": "eb863942dcaccf4e0f5f05e4fab1d64695901e801b3a2672c730aa4edb4cab6e",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/custody.cpython-313.pyc",
+   "sha256": "dfe39de54b3576a60fbc702ea3182c1f9efa0195b581e902cf458bb7c284e02c",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/deadlines.cpython-313.pyc",
+   "sha256": "0a9cd7c83c31b6466eb8c27d04b8c86e829c8b826e69d7b9d357a439bb8672d1",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/documents.cpython-313.pyc",
+   "sha256": "b0ae8a7816d253ed0ef9bf39f04b86a17b5f6bbd2db7e4b8c3fe73f435ed9826",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/events.cpython-313.pyc",
+   "sha256": "84d9a40c96a12233c4e494512fa8481ae04dad8ffb69bd45c4bc443d1e889dab",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/exchange.cpython-313.pyc",
+   "sha256": "38a5e1ff199b32f9820b4c167c319d466c046208defcc12102b93b5512a2a9e1",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/failure_cause.cpython-313.pyc",
+   "sha256": "49d3840896adabc6655d5a9478d1dc7d3873fa366c4d08a5e56dfe5c0ff83433",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/handshake.cpython-313.pyc",
+   "sha256": "987928a2dab4d2ef721e5203c2b266268fb607906787d364a2bcf4993244e5ed",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/image_receipts.cpython-313.pyc",
+   "sha256": "59c7c92927b386bef6995bc4f9f268459d02e3332d809cc78841124c3a32e823",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/intake.cpython-313.pyc",
+   "sha256": "6cb0644ae9972d4b830dade7c682ff4cd1037de28c6021b7853a1a1b76a4de2c",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/interrogation.cpython-313.pyc",
+   "sha256": "7da671b62b0bd8944685a12ca4403c93bb8664eaf06e5ae96383667d8eded099",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/lanes.cpython-313.pyc",
+   "sha256": "ee85382a4c61fd7a0c3ba8aa0888489f74dcddba15c92edded2b840084442b9a",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/launch.cpython-313.pyc",
+   "sha256": "5f433a2202b31cc64905c5caf1807607add5dddbbf709b6385817596b72165fa",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/maintenance.cpython-313.pyc",
+   "sha256": "33b480d034bc0dfab08b2eabfcbebcc982f81e0d97a253f2d16d0bed86bc7365",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/manifests.cpython-313.pyc",
+   "sha256": "7324b07955ab3163906d6066288929fe4f61504a43e032ce8e4b25ef93b1ab42",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/model_attribution.cpython-313.pyc",
+   "sha256": "767f4ee1f82301b287ec66019a7067c8ca66ec5489fb659f91b0d18de30beb33",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/oci.cpython-313.pyc",
+   "sha256": "91d6a41a2ac4ad27ec2051e710df047888199643bc1898b832c17aeedd7bd4de",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/offers.cpython-313.pyc",
+   "sha256": "d524dd0fe8496caac694a9da5ae270f0b89cd6b8cd522539d530c2c3a5f94bd4",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/output.cpython-313.pyc",
+   "sha256": "067309033aa248d6c6acda377d69f929789c2c9cb63f0bf4363bcb9c89b369c2",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/posture_slots.cpython-313.pyc",
+   "sha256": "885084795c33d097308d05949485bcf74186fee038713ef6458d16eb2a97ae84",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/provider_context.cpython-313.pyc",
+   "sha256": "4ae8abdd9c806731395e4483ff500567abae4893e1c22a5788215cfe54271d05",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/provider_home.cpython-313.pyc",
+   "sha256": "5b743c08f1898d923be6738e97d18117e9c5cd4d8932867785d6c600f24f831b",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/review_cycles.cpython-313.pyc",
+   "sha256": "8acf18b8d5868187bbe59d39dfa0a453f4a1ba853013b48dab9583098c01daa9",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/schema.cpython-313.pyc",
+   "sha256": "1bb30fee56033fec8b9e6ae1d19da1a0dfa0ab4752b4236810222ec8a6cb7c5e",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/sealing.cpython-313.pyc",
+   "sha256": "f9156bb49a43f946615b2dd54cdf5b250b737f4d99eff670d486ad0ce30974be",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/sessions.cpython-313.pyc",
+   "sha256": "ac6fb21e6e4755cdb915b6bf64fff0abfc4c6f16246b022d38097e49e9d71533",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/source_boundary.cpython-313.pyc",
+   "sha256": "8d817936b7bbb38efb421574b8eec6b04cc0f27ea4e1f1a704c0788aa56cc447",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/store.cpython-313.pyc",
+   "sha256": "22b14ec7f51c98961571331423e4f73d3de9f84414901a662c65d2fdbf1feccd",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/tokens.cpython-313.pyc",
+   "sha256": "13de478938ac8933b6eb189e64a92e8a0311c1dd79597ac4ebe87b610aca2603",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/src/baton_v12/worker_manager/__pycache__/workspaces.cpython-313.pyc",
+   "sha256": "c688ebb146756e0746637fc734cb48cdda72a609a938ca09ef45625f608e5034",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/__pycache__/__init__.cpython-313.pyc",
+   "sha256": "631dcbb712c9fce492a8b3397492469774e67eef1598c4204a4e567712b7ead3",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/__pycache__/git_isolation.cpython-313.pyc",
+   "sha256": "977253d1cb910cbf0633dee92f3089ac19429b728fbb6bcced9f73c5af46b11d",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/integration/__pycache__/__init__.cpython-313.pyc",
+   "sha256": "a5d861708a77a6405579431b3b3882045dde4cb6f7198ccd731cf393ba755483",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/integration/__pycache__/fixtures.cpython-313.pyc",
+   "sha256": "8f2f4d87f5503f89e65d3b0b72796663eb0bb21341a8c207fb490684d3c60ca7",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/integration/__pycache__/test_driver.cpython-313.pyc",
+   "sha256": "a156d0e6416076a1f5cb88c7bb2913c814047f1d38ef2a3dddb55a155e6f2003",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/integration/__pycache__/test_execution.cpython-313.pyc",
+   "sha256": "81f19b04ed38e02e1cbbbd394e01c7f40a0ac544d8ead647e8bd735a76a75b0b",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/integration/__pycache__/test_reconciliation.cpython-313.pyc",
+   "sha256": "c78cbc6a9b7ad2b376dde908d388dd71a5025f7f5cf05526df10e506c18830f2",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/job_manager/__pycache__/__init__.cpython-313.pyc",
+   "sha256": "7b4434fbcd01426b3e144955d993865ce1ec121b6e8bb401bd45626d9b7a9367",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/job_manager/__pycache__/fixtures.cpython-313.pyc",
+   "sha256": "274b6fe7e5281495f4e9a08f183f7dac6a26fabd8ca149e72e80bc5fbdbda45b",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/job_manager/__pycache__/test_creation.cpython-313.pyc",
+   "sha256": "da7486aad4acbc6271d24cfeb209da6a4bf237ff0806cdc45b50073a31bfd975",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/job_manager/__pycache__/test_provider_attribution_recovery.cpython-313.pyc",
+   "sha256": "665d960b594c9e9fcdd396df95d7e18aecd5e7af1e580f64aee7bbaf898c7da4",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/job_manager/__pycache__/test_publication_recovery_admission.cpython-313.pyc",
+   "sha256": "95070ad866561e962b7971286c0adbfe103cc421540740d59752e9006564aae6",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/job_manager/__pycache__/test_publication_recovery_execution.cpython-313.pyc",
+   "sha256": "8076228e6ad7cf6cd9f3c12b91f056588cc6e88ed82c277cb7f52ce9f3029013",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/job_manager/__pycache__/test_review_driver.cpython-313.pyc",
+   "sha256": "26f01759cb9a9e35e65a78f13861695bd0fbfcf3dec612dfa5db865b03d2e39d",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/job_manager/__pycache__/test_role_capability.cpython-313.pyc",
+   "sha256": "1b5ec0b9322176290869f93f12197e89496dc7c7fbba686b0716329086dda640",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/manager/__pycache__/__init__.cpython-313.pyc",
+   "sha256": "ec0fbfa381c0ea421711d722b724670abc09545df421a2abb97112989568ed75",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/manager/__pycache__/codex_fixtures.cpython-313.pyc",
+   "sha256": "5c2e7f9b48900c25c8b1a1855e32a688d3624c750027ea47c83e287ff4f0306c",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/manager/__pycache__/disk_roots.cpython-313.pyc",
+   "sha256": "8132c64070093ed4d214b995f28b4fa1f1de0512b7e6a9a89b7f2d2d27d02f61",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/manager/__pycache__/input_roots.cpython-313.pyc",
+   "sha256": "e9973b5178d01d6dd5955dfd29d3caf21fb3279e80f9a7b7e6af764857212781",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/manager/__pycache__/provider_fixtures.cpython-313.pyc",
+   "sha256": "76583806de88e732d0e9e754f0eb30df913ca2f5450997ad3593c33cd58f48d1",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/manager/__pycache__/test_attempts.cpython-313.pyc",
+   "sha256": "37bd5900718d27a973d69b8da7308868a65fea81a5534fd94ef110fea8626c2d",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/manager/__pycache__/test_claude_agent.cpython-313.pyc",
+   "sha256": "6c8b6647a0ed2bbfe8bbeaa0db761ef6ba43a4690d0f208f09c2c35ae70adb3d",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/manager/__pycache__/test_codex_draft.cpython-313.pyc",
+   "sha256": "04617ac5b6d4aa20ec697c28dfde3a1732abb3a55d15e885851cdb9895bc85d5",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/manager/__pycache__/test_custody.cpython-313.pyc",
+   "sha256": "ce43a8639ffee11f92fd1d41bc86c41cb00f5a7225db79f459121e829d363373",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/manager/__pycache__/test_intake.cpython-313.pyc",
+   "sha256": "3921c282679ab5de6073fec48a7bc015b52859cb1026ad46d2c982dc0d0d9609",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/manager/__pycache__/test_model_attribution.cpython-313.pyc",
+   "sha256": "b7a86644f1e920ad7a4ed6b497446e5d4d650507284d537dba5651a0400dc508",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/manager/__pycache__/test_offers.cpython-313.pyc",
+   "sha256": "a48bf6c4d988d1fb77366160aa480516d4c981fc898e7315324ab5c20e4ef6b3",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/manager/__pycache__/test_output.cpython-313.pyc",
+   "sha256": "7a26b6997ce5279c4e23d0a1bc3b8f8950371b430e3037f232f2801dc03c2110",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/tools/__pycache__/__init__.cpython-313.pyc",
+   "sha256": "07df5265a66d298ce7e94ba779c48c39cd9edacae84b0883e138092eca204fd8",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/tools/__pycache__/test_bootstrap.cpython-313.pyc",
+   "sha256": "cf3453676dea4f75a51fb94befda1e52b833a91d9c7121f139b924edbc86fd42",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/tools/__pycache__/test_native_handoffs.cpython-313.pyc",
+   "sha256": "e5b1cb31f2150a9f1d97a4f4b97816445f246924afa9f19c5959a70f9300aedd",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/tools/__pycache__/test_single_worker.cpython-313.pyc",
+   "sha256": "b58c043ff67e46bea1adc290cda93a6a485e92c25e89f06cbfc039aadfabcb88",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/tools/__pycache__/test_stack.cpython-313.pyc",
+   "sha256": "7d0e07dc5f68b0e9ea9dce6de6cb76115e615e04cfd3f45608f385f9a0e46357",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tests/tools/__pycache__/test_stage_execution.cpython-313.pyc",
+   "sha256": "fa99f8bbf9b0f5ae690ec58aa7089bebc545efa16234658440f0e44fd8fb1f9f",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tools/__pycache__/__init__.cpython-313.pyc",
+   "sha256": "ce067eb4af1be7f1080e27983bc538ad912dd7e4d8bba6bef37181d7d2777dc3",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tools/__pycache__/bootstrap.cpython-313.pyc",
+   "sha256": "921971ba39a6a60ef78a70c1dd793eed75c66741682c1632ec4ce8167702e496",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tools/__pycache__/environment.cpython-313.pyc",
+   "sha256": "d3a2f93904e907fbb3079febe70a172a78f0dbaac9a7f71e0ab61102bc58e111",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tools/__pycache__/fresh_attempt_ports.cpython-313.pyc",
+   "sha256": "2b4a2a8c2bd777b9b7e8bb9a101e9af6ed6c3002c69d01ce3e98933d32ad6ee8",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tools/__pycache__/integration_bundle.cpython-313.pyc",
+   "sha256": "bf1814ea0d86c4c34cc155df778b23e660f2c3f3498c7a563cafa6493f3d94a4",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tools/__pycache__/integration_worker.cpython-313.pyc",
+   "sha256": "39deead0c5e14c077eaf4cd5fd6b578057c61d828e5fb0399911c6302192389a",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tools/__pycache__/job_observation.cpython-313.pyc",
+   "sha256": "f6995d761b95d62e1da632c7e8bbbaae0c38647eb4b4d3aecd5f31a8f4758095",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tools/__pycache__/job_task.cpython-313.pyc",
+   "sha256": "59e485e922a97e06f2875789a42016dfc83e5dfa467af82642ed857c60b35321",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tools/__pycache__/next_run_bindings.cpython-313.pyc",
+   "sha256": "6c081793bb2f2f84baa1538b9fc84cd8b25dc1e9e281baddc71b4c6ba02d48ee",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tools/__pycache__/parallel_test.cpython-313.pyc",
+   "sha256": "871a25fd787649f0207348c138bb01a2edae73c34537e389a6db6fdbd44311ea",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tools/__pycache__/publication_ports.cpython-313.pyc",
+   "sha256": "1557053c97a7cc005e9307ad029142e4d1a15d7ca4c9d7a72c1996701d6a6186",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tools/__pycache__/publication_worker.cpython-313.pyc",
+   "sha256": "49ce4fd4143e01b92165a7a0c7455fa34b4c0ffb9e072a3c7737e49ce6919a0e",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tools/__pycache__/recovery_decision.cpython-313.pyc",
+   "sha256": "68b9825192b396dbb78aa4c9dd807c382c4a1b2b9b6fa4e2f9738a3e7b38932d",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tools/__pycache__/single_worker.cpython-313.pyc",
+   "sha256": "5eb3c016d066b374eb4f75a7480affa7b524cf9db3b69d68e6048f9762e34b9f",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tools/__pycache__/source_identity.cpython-313.pyc",
+   "sha256": "717e7caf5fc14667b34d9b62b7743ed0e3d6c20eeb841defd9d8c0d490f406b2",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tools/__pycache__/stack.cpython-313.pyc",
+   "sha256": "8a5d689be4250acbdb2449bd86557413879f501c911cdad7b956759028b7dda5",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tools/__pycache__/stage_execution.cpython-313.pyc",
+   "sha256": "b51fc195d8bdf031b8b260596c72e4437e2b063b0bfb83a5d587154e28e38226",
+   "status": "??"
+  },
+  {
+   "path": "v12/python/tools/__pycache__/user_credentials.cpython-313.pyc",
+   "sha256": "13b31490d3d40470dae45054a63dd8d800a8b98507a02a1a2a85ea2c24aca914",
+   "status": "??"
+  },
+  {
+   "path": "v12/worker/__pycache__/publication_entry.cpython-313.pyc",
+   "sha256": "f8a39af35b5f2750475a3565c6354e44e5cb05259600dc297a72c3db06495556",
+   "status": "??"
+  }
+ ],
+ "changed_count": 161,
+ "consumed": [
+  {
+   "git": "untracked",
+   "input": "AGENTS.md",
+   "path": "AGENTS.md",
+   "sha256": "e9e3416d7a6c3dca4206c2379f6031fef79a92926a05ad64781e86c6d6aa8421"
+  },
+  {
+   "git": "untracked",
+   "input": "docs/V12-WORKER-INSTRUCTIONS.md",
+   "path": "docs/V12-WORKER-INSTRUCTIONS.md",
+   "sha256": "369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-assignment-state-machine/evidence/test_assignment_state_model.py",
+   "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-assignment-state-machine/evidence/test_assignment_state_model.py",
+   "sha256": "2542b6fe1f1202204c37e1cbccda952709209e821878a6b47fa86c8f334884e8"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/stage-1-contract-385615/stage1-analysis-1.json",
+   "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/stage-1-contract-385615/stage1-analysis-1.json",
+   "sha256": "a4be8b48e098efc47f770a8b7f941b80eadd22b23c48eebf67863d3a4dc824ab"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/stage-1-contract-385615/stage1-verification-review-1.json",
+   "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/stage-1-contract-385615/stage1-verification-review-1.json",
+   "sha256": "5a6a420e416caab0942f9709939ae01f1f2d9dabbd13e09ff3b03ea08d2932fb"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-acp-agent-boundary/schema/agent-session-1.0.schema.json",
+   "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-acp-agent-boundary/schema/agent-session-1.0.schema.json",
+   "sha256": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json",
+   "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json",
+   "sha256": "fcc19dbdf021246c61d516987e5672c93053ab57a2e151af6bb66b6e6c6a9903"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/schema/worker-control-1.0.schema.json",
+   "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/schema/worker-control-1.0.schema.json",
+   "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/engine-gate.py",
+   "path": "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/engine-gate.py",
+   "sha256": "980911451d33acfae889a09c4ec519b355267e6466b0138e60575587bfb77a8e"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-160959-composed.json",
+   "path": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-160959-composed.json",
+   "sha256": "5a3ead46c46b5586cbd3a74d7454b402fd04dfbe34414e33a061ac9e90fb9303"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
+   "path": "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
+   "sha256": "8e5987f56f8d5329c33a8e73f9df56f13213e134f2dade8180afabf80723efe9"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/bootstrap_inputs.json",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/bootstrap_inputs.json",
+   "sha256": "45fb54e87ba44655212810d4e41544f7a66fcf696d526ed56dba25a9c4627a31"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context/Dockerfile.fixture",
+   "sha256": "bf5dfe7085d0c38fecfcf9e1e61de30497485fe6f5aad1b9270b33c0bd8b7348"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context/python/src/baton_v12/source_profiles/__init__.py",
+   "sha256": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context/python/src/baton_v12/source_profiles/checkout.py",
+   "sha256": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context/worker/__pycache__/proposing_agent.cpython-313.pyc",
+   "sha256": "621a0931478d51f4c69cc6a139af03985c75f86463802b2be838c4f321813809"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context/worker/attempt_log_format.py",
+   "sha256": "b138410504336969eebdb05ebcd544b9eed896c4e1c293a633f6cf4ab4e45f42"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context/worker/baton_worker.py",
+   "sha256": "198a6fe96f93c27f539cfcfeee0206643048d3045fc94f3701603c36a749192f"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context/worker/proposing_agent.py",
+   "sha256": "a532009efcbbc135c3aa707c03fd99ab280b196ce749e3c5936ae7531b9f78dd"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context/worker/proposing_entry.py",
+   "sha256": "0af0a7ad36e5d26c6c1b13b6f1537fcfc67cfd76c820c3eb81228b3fc5b19760"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context/worker/worker-control-1.0.schema.json",
+   "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/install_inputs.json",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/install_inputs.json",
+   "sha256": "9faea351b19e6940d7148bd560d04608ba8119e9ec3f755d56ecd49d0196b54d"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/task.json",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/task.json",
+   "sha256": "303eb9107d1494deb5cb42c7f8eff7fb370254a0d90f856e90c012b90c2e7134"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/CAPTURED-records.json",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/CAPTURED-records.json",
+   "sha256": "f06f382418f526bc7afaf675a449d7bcfc1f284a1be17e439c3cd97cb92b97c4"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/CAPTURED-terminal.json",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/CAPTURED-terminal.json",
+   "sha256": "7c4a3114af403e6e45b3ebf101d63d78d3e3b54600aa27acd42084adf0c81ad8"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/EXPECTED.json",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/EXPECTED.json",
+   "sha256": "fbde136dece3b907c49626a1c5bf6e103fef0e8b50b6daad51b94f627164fff1"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/fixture.iid",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/fixture.iid",
+   "sha256": "7a2efacb941b183574edeebbe7c2515d90c589bebce6f47b84b25746b932142e"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/compose_lifecycle.py",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/compose_lifecycle.py",
+   "sha256": "dfcccb586bd6b3f9fa88edd781cad65af87407cf310620d4545abba210b9353b"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/Dockerfile.fixture",
+   "sha256": "636bec58cef2e3397254de5e952797354dc2f4ac596bc05e0d39e3ba571cd0b1"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/python/src/baton_v12/source_profiles/__init__.py",
+   "sha256": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/python/src/baton_v12/source_profiles/checkout.py",
+   "sha256": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/__pycache__/attempt_log_format.cpython-313.pyc",
+   "sha256": "45f6691bfb8fd347825ce51a97a474854c861336215948d4216ce2b594c82896"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/__pycache__/baton_worker.cpython-313.pyc",
+   "sha256": "67cd135664c50d48de2bedb886f14ad5db6b82262f3b61433821a8595daaf1eb"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/__pycache__/fixture_entry.cpython-313.pyc",
+   "sha256": "833a5ffea84e63cec38ed9fe1d656af05f44f46974f5f006effb0b1e56799f97"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/__pycache__/importing_agent.cpython-313.pyc",
+   "sha256": "474ead6fe254a61f6f5727b28efb1b2d72eee2a1ce1c67edd65b77753182a4d1"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/__pycache__/importing_entry.cpython-313.pyc",
+   "sha256": "e81e07e1973b985643654457ab03428d50b6ce5c15f69addf2d3a42e9ed46312"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/__pycache__/integration_contract.cpython-313.pyc",
+   "sha256": "9654858cda89f968e2bd5f5bcddb99a8c4ccb6069868fd4de90bdc33990d3c31"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/__pycache__/integration_entry.cpython-313.pyc",
+   "sha256": "9177d31c2d97335491d63fd364f90a3da8467eef97e5cb7b92fa635d925a9c98"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/__pycache__/integration_workload.cpython-313.pyc",
+   "sha256": "501f092959e828b0903bfc746eccd9c9e48f5bbedad175e3238e014613de6d5b"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/__pycache__/proposing_agent.cpython-313.pyc",
+   "sha256": "dc7d21c85957033b4ff62eac10710cbe6cad1594395a5c25f9f96bf8e451da84"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/attempt_log_format.py",
+   "sha256": "8c701e1c2438189677dd653363c0f0616743f91818688d6cd035e7dc385fb68b"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/baton_worker.py",
+   "sha256": "56cdee824193834e9f1e8e974259575219a9223aa9b4f1946c99099b35c5cd34"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/claude_agent.py",
+   "sha256": "cb380fd9931a60a74d27efd974a716f79df39a4c8aaba54628dc99821eb0c092"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/fixture_entry.py",
+   "sha256": "b3b2e731c42deea6f2122d68a31d00691521b8297e18edf4d635ab909363de5f"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/importing_agent.py",
+   "sha256": "6e01c65b2e485a94e332af51df8e16676325d333cb5b2912638836aebf34da17"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/importing_entry.py",
+   "sha256": "c9001be6fa7dedc51f72fd8c52b5d95e119629ac6c1282155f1d2041ca93e7f1"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/integration_contract.py",
+   "sha256": "12f3beec00a1d98f8828bb9a18a6565fa2fe8c49eb056846fe4c118ba4e1fc0d"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/integration_entry.py",
+   "sha256": "edc9379e965c795d2edc8bb6a31eee82b3fef4186992d15e6c1ee86e76befd9e"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/integration_workload.py",
+   "sha256": "001896a4f3a9b20199ccbaf2e89183f0cf650d295b09e8e64263caca5cd0a64a"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/proposing_agent.py",
+   "sha256": "a532009efcbbc135c3aa707c03fd99ab280b196ce749e3c5936ae7531b9f78dd"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/proposing_entry.py",
+   "sha256": "0af0a7ad36e5d26c6c1b13b6f1537fcfc67cfd76c820c3eb81228b3fc5b19760"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context/worker/worker-control-1.0.schema.json",
+   "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/verify_lifecycle.py",
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/verify_lifecycle.py",
+   "sha256": "d73337d3bc7cb632788aef0a6a50baf932d3fb40cf1aa98ef2a6276f660ede46"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/CAPABILITY.synthetic.json",
+   "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/CAPABILITY.synthetic.json",
+   "sha256": "3ac58bc32180c4362cd005664a7de4b8ae00c18081a787de406f04e439226b1d"
+  },
+  {
+   "git": "tracked",
+   "input": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/ROLE-CONTRACT.proposed.json",
+   "path": "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/ROLE-CONTRACT.proposed.json",
+   "sha256": "1c0809092a5798bbff6e2b0425a5cbdcb363cbdc8d2c72e78ff9d18ad56a557c"
+  }
+ ],
+ "consumed_count": 55,
+ "content_digest": "e58c4ff5b9eae4e0aa8884f45e300166661ac6cb5d1116180dcac89b54d1cfed",
+ "head": "c3c6950b02321f34d04dc493ff7ff606a65c1a83",
+ "inputs": [
+  "AGENTS.md",
+  "docs/V12-WORKER-INSTRUCTIONS.md",
+  "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-assignment-state-machine/evidence/test_assignment_state_model.py",
+  "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/stage-1-contract-385615/stage1-analysis-1.json",
+  "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-team-hierarchy-shared-approvers/evidence/stage-1-contract-385615/stage1-verification-review-1.json",
+  "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-acp-agent-boundary/schema/agent-session-1.0.schema.json",
+  "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/evidence/vectors.json",
+  "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/schema/worker-control-1.0.schema.json",
+  "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/engine-gate.py",
+  "work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-160959-composed.json",
+  "work/records/2026/09/finding-v12-single-implementation-proof/baseline.py",
+  "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/bootstrap_inputs.json",
+  "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/context",
+  "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/install_inputs.json",
+  "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/task.json",
+  "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/CAPTURED-records.json",
+  "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/CAPTURED-terminal.json",
+  "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/EXPECTED.json",
+  "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/fixture.iid",
+  "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/compose_lifecycle.py",
+  "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/context",
+  "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/verify_lifecycle.py",
+  "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/CAPABILITY.synthetic.json",
+  "work/records/2026/10/finding-v12-workflow-fragility-assessment/findings/finding-template-adapter-admission-plan/ROLE-CONTRACT.proposed.json"
+ ],
+ "scope": [
+  "v12"
+ ]
+}

@@ -112,7 +112,7 @@ def diagnostic(value):
         return ("Requested: " + str(value["requested_model"]) + "; basis: configured-model; "
                 + ("Configured model accepted" if acceptable(value) else "Configured model not accepted")
                 + "; actual participation unknown; " + value["reroute_observation"]
-                + ("; surface: Codex 0.169.0 exec --json stdout (complete supported stream required)"
+                + ("; surface: Codex 0.169.0 exec --json stdout (complete framed invocation observation required; substantive judgment belongs to independent review)"
                    if value["selected_cli_build"] == "0.169.0" and value["evidenced_cli_build"] == "0.169.0"
                    else "; surface: unqualified or unknown CLI build")
                 + "; invocation: adapter-recorded, host-validated; CLI build selected: "

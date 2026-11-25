@@ -1,0 +1,8 @@
+{
+  "v12/PROVIDER-SELECTION.md": "fb1998ee0511efb652c481134efccf8483058b62ffbddc752e8da573a132eb75",
+  "v12/python/src/baton_v12/provider_policy/codex.py": "154f85c0ae3ade1c08834cd63bef02a0d5497aedeab310cfe28c99ac40051f6f",
+  "v12/python/src/baton_v12/provider_policy/attribution.py": "e0439c080f9bfef1d03d9dbb1bf95f40c6b94fc8a8de78effb4c7154912093df",
+  "v12/worker/codex_agent.py": "27c7d00a480795cbb118d1a8478416641debd7e2e43d4c3fc69a3ce0d24365a2",
+  "v12/python/tests/manager/test_codex_draft.py": "95cd8cbca146c4aa8a962dd3758df5b1db2e57c0f95a56ca90f94f406ca8bc56",
+  "v12/python/tests/manager/test_model_attribution.py": "5e0104ab30a99e50580a68b1d5d6c88b79f37cad30e53b96080d164ca4179a80"
+}

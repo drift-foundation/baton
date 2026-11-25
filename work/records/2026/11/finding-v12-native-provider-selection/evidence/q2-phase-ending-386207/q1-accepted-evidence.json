@@ -1,0 +1,244 @@
+{
+  "review": "M386195",
+  "manifest_files_verified": 92,
+  "manifest_sha256": "d1600f4e10eaeb884deffeddc026d38c474d5caf16380ecbd8568e4a2516e96a",
+  "retained": {
+    "RESULT.json": {
+      "actual_contributors": "unknown",
+      "build_attempts": 1,
+      "build_cache_and_image_retained": true,
+      "build_cancellation_verified": null,
+      "cleanup": {
+        "ceased": true,
+        "container_name": "baton-runtime.start-debddd53d9bde11e93eed9f0ca079525378f3cfacf7ad1fd627846b8647270f1",
+        "exit_code": 143,
+        "removed": true,
+        "runtime_id": "0a60f8474d57d04cdfb28e95464e828eaa8ab83ddf94dd0d329278bddd4d5650",
+        "state": {
+          "Dead": false,
+          "Error": "",
+          "ExitCode": 143,
+          "FinishedAt": "2026-11-25T07:31:59.505018894Z",
+          "OOMKilled": false,
+          "Paused": false,
+          "Pid": 0,
+          "Restarting": false,
+          "Running": false,
+          "StartedAt": "2026-11-25T07:31:59.10374591Z",
+          "Status": "exited"
+        }
+      },
+      "error": null,
+      "native_job_qualified": false,
+      "passed": true,
+      "provider_calls": 0,
+      "qualification_launch_attempts": 1,
+      "qualification_scope": "offline source/image/home/tools/F1 only"
+    },
+    "image-inspect.json": {
+      "Architecture": "amd64",
+      "Config": {
+        "Entrypoint": [
+          "python3",
+          "/opt/baton/codex_entry.py"
+        ],
+        "Env": [
+          "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+          "NODE_VERSION=22.23.5",
+          "YARN_VERSION=1.22.22",
+          "PYTHONDONTWRITEBYTECODE=1",
+          "PYTHONUNBUFFERED=1",
+          "PYTHONPATH=/opt/baton",
+          "PYTHONHASHSEED=0",
+          "NODE_NO_WARNINGS=1"
+        ],
+        "Labels": {
+          "io.baton.q1.packet": "q1-386185",
+          "io.baton.q1.source": "0505feff3dd941b91f75c034509fd4bfb8469ee83e4aec20cda75b16f077d3a7",
+          "org.opencontainers.image.revision": "54fa5319090e2f0b555c1d2cba3035ee00b861d4"
+        },
+        "User": "65532:65532"
+      },
+      "Created": "2026-11-25T07:31:58.673635001Z",
+      "GraphDriver": {
+        "Data": {
+          "LowerDir": "/var/lib/docker/overlay2/8923b644266b22f6d95914449f6d441ff07a723434585649930c5e7fe375639b/diff:/var/lib/docker/overlay2/48fd43cc4623d4c92e3c268cef64f2d2d01936c04d4635bf614c8b02915d2b86/diff:/var/lib/docker/overlay2/49c943fcf74de1c408f3b7ca2dccea78a207e340663d127e989b1fe6c2baf11f/diff:/var/lib/docker/overlay2/cae32b99a01e11a942265b9a478490783e838da944ddb26ac36b14d3543d763e/diff:/var/lib/docker/overlay2/f0c5ed8d1d916de264c4833cea84ce91bff4f2a98c03cf4b6f0db1c8441c48dd/diff:/var/lib/docker/overlay2/d5e75cf27bdcfbd69aae6bfba0c5c69e9b892b7771c36dad6b5c2121e04b6d17/diff:/var/lib/docker/overlay2/5b1e202316df3629c64910d614947715a40a5eabf710eb5c8d57c2502fd2f858/diff:/var/lib/docker/overlay2/25638f048bcc96435873fbc463c444512e5d589aa03ec2eb4bfff0e99d2b1541/diff:/var/lib/docker/overlay2/2eab842b91ab301d86eac5099ea07270f147f95f695872123d30764f9edc7aa2/diff:/var/lib/docker/overlay2/7e689878062772acffcb55ce7195cd229c01ade402a29e2adfa7a91c70e5e7c4/diff:/var/lib/docker/overlay2/926643319b9851d525e99434e94e5db8c99da8edf9c26c1ccf763cb1326263fc/diff:/var/lib/docker/overlay2/dfec811a1fb7febc0180406bb38042d11e57567b445608aa9222274e2836d439/diff:/var/lib/docker/overlay2/0bb50b16b6461d5f220e5b0dafb63b5f6116c0621baa468c522d6a7d6ac025bb/diff:/var/lib/docker/overlay2/4f4092026efe3275bb8d5c6a738ee27252dc0c4ce03c4a19adb75fb02e835d72/diff:/var/lib/docker/overlay2/48f8e98b6a40135df576af82cc093748b45f6eb3a2256dd05aac65719481de37/diff:/var/lib/docker/overlay2/14156befe9a167109f7a1d7401412fb25025188e3be8e4a2426411e51a89d5a3/diff:/var/lib/docker/overlay2/9215f3d0ac1a39bf499b8e6ce227b9761326780cc6280d10a82402e963bd0e7b/diff:/var/lib/docker/overlay2/8fd4adf982d13fe009c9c292a97405e909ebbf58037199209fe4a9deb0c6ae38/diff:/var/lib/docker/overlay2/147673a997022e0602984dfa2ed767e03917d31659a88947727782c1953f6744/diff:/var/lib/docker/overlay2/2f73d22f02fa8a00e66a7cf735cfa40ddd2f105251e5df6fb10377ac238f4890/diff:/var/lib/docker/overlay2/d3344df3bbb9e4e4afc8b58b643eb7d88ed82f730e5aade331d5d4bc58d53f64/diff:/var/lib/docker/overlay2/62ff45de4be9a0ec6fb75481a3100bfb043a7b50e75a24895e63ad95995cad27/diff:/var/lib/docker/overlay2/a56894523046796a1a39fd47ab5beb1f90af27063342f0af8a19cada160e5ee6/diff",
+          "MergedDir": "/var/lib/docker/overlay2/0755d3821503d4dcd20fa9d0d0c25f19c3c2dce2d0c9a3fe1a3b8eff4562c2cb/merged",
+          "UpperDir": "/var/lib/docker/overlay2/0755d3821503d4dcd20fa9d0d0c25f19c3c2dce2d0c9a3fe1a3b8eff4562c2cb/diff",
+          "WorkDir": "/var/lib/docker/overlay2/0755d3821503d4dcd20fa9d0d0c25f19c3c2dce2d0c9a3fe1a3b8eff4562c2cb/work"
+        },
+        "Name": "overlay2"
+      },
+      "Id": "sha256:34364fb17d18b9abd1d155c33123888313a31141cc433322e68a7ad170a98fa7",
+      "Metadata": {
+        "LastTagTime": "0001-01-01T00:00:00Z"
+      },
+      "Os": "linux",
+      "Parent": "sha256:170dac9e98b5dd562fef25d27484c7725fcf724af801f5f6a7b42b05565545cd",
+      "RepoDigests": [],
+      "RepoTags": [],
+      "RootFS": {
+        "Layers": [
+          "sha256:54ae9782e24f4abba5eebc5cc388f983b590abb011b69f20e0e592240bb7a698",
+          "sha256:0ccb9d492538fcd099b09d00502c2fc0ae7084c46fdd4130753290a3f8a173da",
+          "sha256:1fc74a529891ecc9fbfac6ef2994d32e19d8e7e1778c937965efc281f4c12315",
+          "sha256:e375e11b737d3061a27bfc024b2951f41c89e1fa34b142a8b9c8adbf29cb48ca",
+          "sha256:382bf300b53b4f585a9c7fef5019a4841615254b3b585cdefccc0429d86f0afd",
+          "sha256:2e71671fa1922054abf60063de0e6ec9e5834c80d46401bea8ec5b10fe437726",
+          "sha256:d1ed44a400f795a1e0dfb6b8b6780090eaf0229d9bac9d8253c2e5cede413ba7",
+          "sha256:24964bdd044b920e401ed22f44ce6353d5ca3f0e8d0b25c65464e339567dcfeb",
+          "sha256:f22d3a6c83fc7c5cf44f04d02ac2fa859630c2362ba02a32498cd527573e252d",
+          "sha256:c809f317aee60678c7f501a310997a82aaa3f48cb0417336fcf4455d8f391f22",
+          "sha256:865eb8ecc59eba4f9186d7df6727c50b6d5945e174a7198bc5f1f50522e1bd1c",
+          "sha256:68423e1c82f9eef5d3ba22ddd868e747be91253284f4cb5d49604f4f3173a6f1",
+          "sha256:8135c63b45f5155ce04d8383a23fec53e535433e3c96b202c63227fa457aeeaf",
+          "sha256:ab1d55e138f7a6bc4ee5d8c020cc7d6e52a73aca750c1a04059aa24f934b27a1",
+          "sha256:d130e13ad41e9c9c17192c0d4bf00d4837caaf0bef87466d4fd494a17d09c3b5",
+          "sha256:d9355639b6a6a0fe9d14b9b4b95fa46250eb82865bcd3ad190c0ac6b02913f71",
+          "sha256:37aeb0043b2afb1289b9810195538a1515d9b1dcd1682d96bd9c3396bb932409",
+          "sha256:c1a9c0ed2bc0b3b7ad50f4ccd3c856e702d4e4b28d302b05c3d8e86b93839fae",
+          "sha256:76f9bafe725c5e08c8847a97b3ad4b7b109c4d9284bad5629ac6c2fbf9a0df61",
+          "sha256:a9bfa97c36964424197ed454d08d7e197fec1f12e1e461971b8f1b8ee06cd901",
+          "sha256:f8eb949de30966224c2144d82afdbe5fb3b87fe6f614a1dfd73361244614c6d8",
+          "sha256:ca30a4a1bf6375142c817a940cdf6b717a78de11ccdcc9101cfbb57c59b07d6a",
+          "sha256:e728fccea814e33946b06c402eab92deaee1ba560841bc5f4b416641c0cc8467",
+          "sha256:7c3aa34808402db724921df46cf9ddf80d989ba76f38316c073b962bb67dffff"
+        ],
+        "Type": "layers"
+      },
+      "Size": 794290994
+    },
+    "launched-image.json": {
+      "admitted_image": "sha256:34364fb17d18b9abd1d155c33123888313a31141cc433322e68a7ad170a98fa7",
+      "attempt_id": "q1-386185-offline",
+      "observation": {
+        "engine": "docker",
+        "image_id": "sha256:34364fb17d18b9abd1d155c33123888313a31141cc433322e68a7ad170a98fa7",
+        "labels": {
+          "adapter_digest": "sha256:3826e460ea0d3093499e69014e3816fcd8dc416b0a378f506a09fa2bc2c1738a",
+          "authority_uuid": "43c55d4b1234567890abcdef12345678",
+          "effective_scope": "scope:deployment",
+          "generation": 1,
+          "participant": "qualification.offline",
+          "policy_digest": "sha256:4721c6a05b14b8da07c7d278e03abe6e8830653fecdd331a72b3e01f8c40feb0",
+          "principal": "principal:org-a",
+          "profile_digest": "sha256:f1c41ee186e147cbcb01586e59dcb3fb46fbed3212fc893d3b77d4aaedc19506",
+          "runtime_attempt_id": "q1-386185-offline",
+          "work_id": "43c55d4b-W1"
+        },
+        "resolution": null,
+        "runtime_id": "0a60f8474d57d04cdfb28e95464e828eaa8ab83ddf94dd0d329278bddd4d5650",
+        "started_at": "2026-11-25T07:31:59.10374591Z"
+      },
+      "profile_digest": "sha256:f1c41ee186e147cbcb01586e59dcb3fb46fbed3212fc893d3b77d4aaedc19506",
+      "recorded_at": "2026-11-25T07:31:59.164Z",
+      "schema": "baton.launched-image/1",
+      "selection_digest": "sha256:87e9b3303dc33e0fa516744da6a298f8c289e950c90d998e29a36b4119e7b7be"
+    },
+    "receipt-after-removal.json": {
+      "admitted_image": "sha256:34364fb17d18b9abd1d155c33123888313a31141cc433322e68a7ad170a98fa7",
+      "attempt_id": "q1-386185-offline",
+      "observation": {
+        "engine": "docker",
+        "image_id": "sha256:34364fb17d18b9abd1d155c33123888313a31141cc433322e68a7ad170a98fa7",
+        "labels": {
+          "adapter_digest": "sha256:3826e460ea0d3093499e69014e3816fcd8dc416b0a378f506a09fa2bc2c1738a",
+          "authority_uuid": "43c55d4b1234567890abcdef12345678",
+          "effective_scope": "scope:deployment",
+          "generation": 1,
+          "participant": "qualification.offline",
+          "policy_digest": "sha256:4721c6a05b14b8da07c7d278e03abe6e8830653fecdd331a72b3e01f8c40feb0",
+          "principal": "principal:org-a",
+          "profile_digest": "sha256:f1c41ee186e147cbcb01586e59dcb3fb46fbed3212fc893d3b77d4aaedc19506",
+          "runtime_attempt_id": "q1-386185-offline",
+          "work_id": "43c55d4b-W1"
+        },
+        "resolution": null,
+        "runtime_id": "0a60f8474d57d04cdfb28e95464e828eaa8ab83ddf94dd0d329278bddd4d5650",
+        "started_at": "2026-11-25T07:31:59.10374591Z"
+      },
+      "profile_digest": "sha256:f1c41ee186e147cbcb01586e59dcb3fb46fbed3212fc893d3b77d4aaedc19506",
+      "recorded_at": "2026-11-25T07:31:59.164Z",
+      "schema": "baton.launched-image/1",
+      "selection_digest": "sha256:87e9b3303dc33e0fa516744da6a298f8c289e950c90d998e29a36b4119e7b7be"
+    },
+    "worker-observation.json": {
+      "codex_binary_sha256": "b452ca20f838a8855a88a41050ee4a694033fff4ea3ecdad5633e6e0e8d13f2b",
+      "codex_home": "/run/baton/provider-home/codex",
+      "gid": 1000,
+      "home": "/run/baton/provider-home",
+      "identity": {
+        "cli_version": "codex-cli 0.169.0",
+        "codex_binary_bytes": 294277432,
+        "codex_binary_sha256": "b452ca20f838a8855a88a41050ee4a694033fff4ea3ecdad5633e6e0e8d13f2b",
+        "image_files": {
+          "/opt/baton/adapter_refusal.py": "97f6d9f5edee922017ead4c6d6b116382e56a398c59aa9262f959033d45a3e35",
+          "/opt/baton/attempt_log_format.py": "8f88433f93ea92d4050df78e2ce2ddc75479562b665e3ca3857146023f986587",
+          "/opt/baton/baton_worker.py": "bb16d4b14df274d06ac534c04aaceab2aebdb856ed73fc099af3c3fe5590f6c4",
+          "/opt/baton/bounded_command.py": "828b20fe3ea6910824582325dfe86036d6a1126e6aa59411d3e32f23eb4e85f7",
+          "/opt/baton/claude_agent.py": "4ce435af968a5181f293643c9f07f8c50b13a33d56e00b04e190f73dd33b6470",
+          "/opt/baton/codex_agent.py": "b596f301ee2145d3cd23631645556a3599c49d6dd699e38a6c702ea6aa2c4d74",
+          "/opt/baton/codex_entry.py": "d08ebfb6812e5c1458f79136ce73ad0f3a110ca87643f42dfc56822c1fa3f86d",
+          "/opt/baton/dogfood_entry.py": "2b36f68faa0512db428d87ae705c03468417ba7d5d752133d81522a88ae4e807",
+          "/opt/baton/provider_policy/__init__.py": "0691349a1dab559a2c9c379a19a59140a5fe7aa5d14bdb1c0654810d8863f927",
+          "/opt/baton/provider_policy/attribution.py": "b9d3354bed676915a503efc5a63a4cac5e4ae60e65da51c70332516946e83c06",
+          "/opt/baton/provider_policy/codex.py": "cfbfb8a14e4c5c40ff86be4c8cd14a7e84a2753d512a548bcfaff3a5772d3282",
+          "/opt/baton/provider_policy/home.py": "7b5bc1ed48f6a5b92927cf96d54428d93bc9dccd44755b9831a0b26fc621d503",
+          "/opt/baton/provider_policy/worker_instructions.md": "369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b",
+          "/opt/baton/source_profiles/__init__.py": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+          "/opt/baton/source_profiles/checkout.py": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+          "/opt/baton/verification_context.py": "692d121682363ba519752fe78e64d3c0842da3dd3b4190131ee364ba75f0a1b0",
+          "/opt/baton/verifier-layout-marker.json": "3355c11a36044111f713d37a729e51f8b781801d655be5e0df14de7fb69c9648",
+          "/opt/baton/worker-control-1.0.schema.json": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+        },
+        "packet_id": "q1-386185",
+        "schema": "baton.q1-build/1",
+        "source_commit": "54fa5319090e2f0b555c1d2cba3035ee00b861d4",
+        "source_manifest_sha256": "0505feff3dd941b91f75c034509fd4bfb8469ee83e4aec20cda75b16f077d3a7"
+      },
+      "image_identity_basis": "baked source/packet label; actual image supplied separately by host engine receipt",
+      "instruction_sha256": "369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b",
+      "provider_called": false,
+      "schema": "baton.q1-offline-observation/1",
+      "synthetic_login_mode": "0600",
+      "tools": {
+        "codex": {
+          "exit_status": 0,
+          "path": "/usr/local/bin/codex",
+          "realpath": "/usr/local/lib/node_modules/@openai/codex/bin/codex.js",
+          "stderr": "",
+          "stdout": "codex-cli 0.169.0\n"
+        },
+        "git": {
+          "exit_status": 0,
+          "path": "/usr/bin/git",
+          "realpath": "/usr/bin/git",
+          "stderr": "",
+          "stdout": "git version 2.47.3\n"
+        },
+        "python3": {
+          "exit_status": 0,
+          "path": "/usr/bin/python3",
+          "realpath": "/usr/bin/python3.13",
+          "stderr": "",
+          "stdout": "Python 3.13.5\n"
+        },
+        "sh": {
+          "exit_status": 0,
+          "path": "/usr/bin/sh",
+          "realpath": "/usr/bin/dash",
+          "stderr": "",
+          "stdout": ""
+        },
+        "sha256sum": {
+          "exit_status": 0,
+          "path": "/usr/bin/sha256sum",
+          "realpath": "/usr/bin/sha256sum",
+          "stderr": "",
+          "stdout": "sha256sum (GNU coreutils) 9.7\nPackaged by Debian (9.7-3)\nCopyright (C) 2025 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by Ulrich Drepper, Scott Miller, and David Madore.\n"
+        }
+      },
+      "uid": 1000
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "selected": 7,
+  "executed": 7,
+  "passed": 7,
+  "rows": [
+    {
+      "check": "preflight",
+      "exit_status": 0,
+      "seconds": 0.08481630007736385
+    },
+    {
+      "check": "image-gate",
+      "exit_status": 0,
+      "seconds": 0.0410185739165172
+    },
+    {
+      "check": "collection",
+      "exit_status": 0,
+      "seconds": 0.015944861923344433
+    },
+    {
+      "check": "launch-fail",
+      "exit_status": 0,
+      "seconds": 0.9395409189164639
+    },
+    {
+      "check": "oversize",
+      "exit_status": 0,
+      "seconds": 0.8263057529693469
+    },
+    {
+      "check": "fault-terminal",
+      "exit_status": 0,
+      "seconds": 1.5299921359401196
+    },
+    {
+      "check": "provider-seam",
+      "exit_status": 0,
+      "seconds": 1.56940127001144
+    }
+  ],
+  "payload_sha256": "5ce02041df3b6795a6e093157b6c073fe410687ccd65f775c76bcbee012d7567"
+}

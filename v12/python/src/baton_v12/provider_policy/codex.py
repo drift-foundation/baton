@@ -19,17 +19,18 @@ def _members(pairs):
 
 
 def stream_outcome(raw, *, partial=False):
-    """Recognize only the evidenced fresh-turn family, within the shared bound.
+    """Recognize a bounded framed invocation, never substantive task success.
 
-    This is a CLI terminal outcome, never candidate acceptance or attribution.
-    Unknown events and failure shapes remain unclassified. Text is opaque;
-    nested tool output cannot supply a terminal or a contributor.
+    Ordinary activity payloads are opaque; they need no success catalogue or
+    matching item lifecycle. Structural framing, explicit faults and the
+    supported reroute signal remain meaningful. A tool's exit/status is activity
+    evidence for review, not the invocation's or candidate's verdict.
     """
     if partial is not False or type(raw) is not bytes or not raw or len(raw) > MAX_OUTPUT:
         return "unclassified"
     try:
         lines = raw.decode("utf-8").split("\n")[:-1]
-        if len(lines) < 4 or len(lines) > 1024 or not raw.endswith(b"\n"):
+        if len(lines) < 3 or len(lines) > 1024 or not raw.endswith(b"\n"):
             return "unclassified"
         events = [json.loads(line, object_pairs_hook=_members,
                             parse_constant=lambda value: (_ for _ in ()).throw(ValueError())) for line in lines]
@@ -46,49 +47,32 @@ def stream_outcome(raw, *, partial=False):
                 "cache_write_input_tokens", "output_tokens", "reasoning_output_tokens"}
                 or any(type(n) is not int or n < 0 for n in usage.values())):
             return "unclassified"
-        pending, finished = {}, set()
         rerouted = False
-        last_message = False
+        faulted = False
         for event in middle:
-            if set(event) != {"type", "item"} or event["type"] not in ("item.started", "item.completed"):
+            kind = event.get("type")
+            if type(kind) is not str or not kind:
                 return "unclassified"
-            item = event["item"]
-            if type(item) is not dict or type(item.get("id")) is not str or not item["id"]:
+            if kind in ("error", "turn.failed"):
+                faulted = True
+            elif kind.startswith(("thread.", "turn.")):
+                # A second/misordered/unknown lifecycle boundary is not activity.
                 return "unclassified"
-            ident = item["id"]
-            if ident in finished:
-                return "unclassified"
-            last_message = item.get("type") == "agent_message"
-            if last_message:
-                if (set(item) != {"id", "type", "text"} or type(item["text"]) is not str
-                        or event["type"] != "item.completed" or ident in pending):
+            if kind.startswith("item."):
+                item = event.get("item")
+                if (type(item) is not dict or type(item.get("id")) is not str
+                        or not item["id"] or type(item.get("type")) is not str
+                        or not item["type"]):
                     return "unclassified"
-                finished.add(ident)
-            elif item.get("type") == "error":
-                if (set(item) != {"id", "type", "message"} or event["type"] != "item.completed"
-                        or ident in pending or type(item["message"]) is not str
-                        or re.fullmatch(r"model rerouted: .+ -> .+ \(HighRiskCyberActivity\)", item["message"]) is None):
-                    return "unclassified"
-                rerouted = True
-                finished.add(ident)
-            elif item.get("type") == "command_execution":
-                if (set(item) != {"id", "type", "command", "aggregated_output", "exit_code", "status"}
-                        or type(item["command"]) is not str or type(item["aggregated_output"]) is not str):
-                    return "unclassified"
-                if event["type"] == "item.started":
-                    if ident in pending or item["status"] != "in_progress" or item["exit_code"] is not None:
+                if item["type"] == "error":
+                    message = item.get("message")
+                    if type(message) is not str:
                         return "unclassified"
-                    pending[ident] = item["command"]
-                else:
-                    if (ident not in pending or pending[ident] != item["command"]
-                            or item["status"] != "completed" or type(item["exit_code"]) is not int
-                            or item["exit_code"] != 0):
-                        return "unclassified"
-                    del pending[ident]
-                    finished.add(ident)
-            else:
-                return "unclassified"
-        return ("rerouted" if rerouted else "complete") if finished and last_message and not pending else "unclassified"
+                    if re.fullmatch(r"model rerouted: .+ -> .+ \(HighRiskCyberActivity\)", message):
+                        rerouted = True
+                    else:
+                        faulted = True
+        return "rerouted" if rerouted else "faulted" if faulted else "complete"
     except (ValueError, UnicodeError, RecursionError, KeyError, TypeError):
         return "unclassified"
 

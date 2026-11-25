@@ -1,0 +1,38 @@
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-provider-selection/evidence/q2-phase-ending-386207/sim_worker.py", line 44, in traced
+    try:return original_work(*a,**k)
+               ~~~~~~~~~~~~~^^^^^^^^
+  File "/var/tmp/baton-q2-prep-provider-seam-b3ud2a1t/run/source/v12/worker/claude_agent.py", line 2310, in work
+    answer = self._work(seen, declared)
+  File "/var/tmp/baton-q2-prep-provider-seam-b3ud2a1t/run/source/v12/worker/claude_agent.py", line 2462, in _work
+    provider = self._provider(
+        task, candidate, scratch, environments["provider"],
+        prompt=(_handoff_prompt(task, handoff_context)
+                if handoff_context is not None else None))
+  File "/var/tmp/baton-q2-prep-provider-seam-b3ud2a1t/run/source/v12/worker/claude_agent.py", line 4691, in _provider
+    status, record, partial = self._ran_provider(
+                              ~~~~~~~~~~~~~~~~~~^
+        argv, cwd=candidate,
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        + COMMAND_SUPERVISOR_SLACK_SECONDS,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        scratch=scratch, env=launched, umask=PROVIDER_UMASK)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-q2-prep-provider-seam-b3ud2a1t/run/source/v12/worker/claude_agent.py", line 5246, in _ran_provider
+    return_code = self._run_provider(argv, cwd=cwd, env=env,
+                  ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                            timeout=seconds, stdout=write_fd,
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            stderr=complaint.fileno_or_devnull,
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            umask=umask
+                            ^^^^^^^^^^^
+                            ).returncode
+                            ^
+  File "/var/tmp/baton-q2-prep-provider-seam-b3ud2a1t/run/source/v12/worker/claude_agent.py", line 2058, in _run_provider
+    return self._run(argv, **options)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/11/finding-v12-native-provider-selection/evidence/q2-phase-ending-386207/sim_worker.py", line 35, in provider
+    raise RuntimeError('preparation stops at provider seam; no provider output invented')
+RuntimeError: preparation stops at provider seam; no provider output invented

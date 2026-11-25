@@ -145,6 +145,21 @@ class ConfiguredCodex(unittest.TestCase):
         args.update(changes)
         return subject.validate(claim, self.delivery, **args)
 
+    def test_activity_is_not_substantive_judgment_or_participation(self):
+        events=[self.json.loads(line) for line in self.raw.splitlines()]
+        events.insert(-1,{"type":"item.updated","item":{"id":"future-edit","type":"future_edit",
+                            "status":"failed","model":"untrusted-echo"}})
+        raw=("\n".join(self.json.dumps(event) for event in events)+"\n").encode()
+        value=self.record(raw=raw)
+        self.assertTrue(subject.acceptable(value))
+        self.assertEqual(value["contributors"],[])
+        self.assertEqual(value["actual_participation"],"unknown")
+        self.assertEqual(self.validate(value,raw=raw),value)
+        self.assertIn("substantive judgment belongs to independent review",subject.diagnostic(value))
+        events.insert(-1,{"type":"error","message":"explicit fault"})
+        failed=("\n".join(self.json.dumps(event) for event in events)+"\n").encode()
+        self.assertFalse(subject.acceptable(self.record(raw=failed)))
+
     def test_A1_labelled_configuration_acceptance_and_unknown_participation(self):
         value = self.record()
         self.assertTrue(subject.acceptable(value))

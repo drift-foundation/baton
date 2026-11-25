@@ -1,0 +1,7 @@
+[
+  "v12/python/TESTING.md",
+  "v12/python/tests/__init__.py",
+  "v12/python/tests/manager/disk_roots.py",
+  "v12/python/tests/tools/test_environment.py",
+  "v12/python/tests/git_isolation.py"
+]

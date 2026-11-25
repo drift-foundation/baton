@@ -151,3 +151,312 @@ Host first-seed callback uses normal credential materialization and private-copy
 Focused exploratory logs retained: focused-01 found a filename/stream variable collision; corrected. focused-02 and diagnostic-03 exposed the fixture logical slot api versus selected claude; corrected only synthetic seeded fixtures. focused-04 exposed the old worker-local dummy seed expectation; changed to the configured synthetic source. focused-05 found a test querying nonexistent stage attempt_id; changed to the actual home holder and public attempt failure query. focused-06 passed44. Final-01 passed all314 independently collected ids with no skips, duplicates, unaccounted or source drift in22.036232572s. All failure logs remain; no successful output fixture invented or baseline failure waived.
 
 No real credentials, builds, engine/provider calls, protected Git mutation, accepted adapter import or original packet edit. Review/import/checkpoint pending.
+
+
+## 2026-11-25 — packet continuation (baton.codxpc, E386097)
+
+Prepared only evidence/qualification-next-386097 and append-only dossier entries under ownership notice M386098. Packet `sha256:451a4f08983e1643c7626616a898b20979b9a12b76871cad9ba9a82086cd90e0`; 54 static/source checks pass, eight committed candidate paths verified; predecessor manifest unchanged. Exact offline proposal and remaining combined-live decisions in REPORT.md. No product edit, fixture execution, engine, credential or provider operation. Result handoff and atomic release follow on T385830.
+
+
+## 2026-11-25 — bounded N4b candidate ready (baton.codxpc, E386105)
+
+Completed eight-path candidate `sha256:5539eef92754e69d38e93c79abd6e020f9ed5368cc0b23f423beb9fc8da5fbe1` on f875ed01b51b6b7541ad169b560004e47731ad34. [Report](evidence/n4b-386105/REPORT.md), archive/manifest and sanitized exact-build fixtures retained. Owner-confirmed M386103, routing E386104 and ownership M386106 consumed; last thread read through M386106. Terminal completion recognized only for the observed complete bounded event family. Codex contributor evidence remains explicitly missing; turn_context.model is not participation, and host acceptance stays held. No production realization, session reader, resume, fast selection, Claude worker edit or protected source import.
+
+Final focused manager-pure/tools-pure selection:380/380 collected/executed/passed in37.196738566s, no skips/unaccounted/drift. First380/380 run in37.297730094s retained but superseded for a concurrent documentation change/source drift; total74.494468660s, no broad group/full run. Twelve Claude attribution snapshots byte-identical to base. Five isolation inputs inherited in disposable source only and excluded; fixture root empty, private evidence/home preserved. No additional provider/build/engine/native operation or credential read.
+
+Next milestone: independent exact-byte review of the complete bounded candidate, then owner import/checkpoint. Pending suggested commit: `Parse evidenced Codex terminal completion while holding missing attribution`. Actual participation source remains a concrete acceptance gate; native realization/image/combined pipeline qualification, C2/C3, shared-login refresh and explicit Claude qualification remain open. Fast and resume stay unselected; W386048/W386057 remain separate.
+
+
+## 2026-11-25 — offline participation investigation (baton.codxpc, E386111)
+
+Observed N4b checkpoint99b69626a44e806860abadc2854920914f1cf0dc and consumed K acceptance M386109. [Report](evidence/participation-386111/REPORT.md), evidence packet `sha256:ffdead6647a64d9e71ba3a2068d91fae433c70e71960f4399422c0a0d89194e7`. Inspected selected seven-event stdout and25-record session structurally, preserving private content. No actual-participation model field established. Additional model mentions are base-instruction provenance, world-state/collaboration settings and thread_settings_applied; they do not supersede M386103. Two token_usage_record entries have distinct response IDs and a common turn ID, but neither names a model. Proposed future binding requires each actual service receipt plus attempt/candidate and host-revalidated evidence, never configuration substitution.
+
+Local installed package is0.172.0, not executable proof for0.169.0. Local app-server schema has an unqualified model/rerouted lead, not exact-build provenance or actual-generation semantics; client attestation is not backend attribution. Exact-build source/export semantics and private provider-store contents remain unestablished/uninspected. Do not turn this bounded absence into a claim that the binary exposes no source anywhere.
+
+Next bounded milestone: review evidence gap, then separately select the prepared credential-free pinned-image version/app-server-help/debug-help probe or exact-build source inspection. Prefer supported offline export of the existing responses; authenticated existing-response retrieval only if supported and explicitly selected; a new turn only after proving a diagnostic can capture the missing service field. No new turn recommended merely to repeat stdout. Product unchanged, no tests rerun, no engine/build/network/provider operation or credential-content read. Attribution stays missing; native activation, C1 and all other qualification gates remain unchanged. Last incoming discussion M386109; scope notice M386112.
+
+
+## 2026-11-25 — exact-build deeper help complete (baton.codxpc, E386116)
+
+[Report](evidence/participation-help-386116/REPORT.md), packet `sha256:62d29d7b9b2d6300b3d3623b0c10fe1decdc5d4b43bd7b9509a9e870632c42a3`. Retained17d250b7 image: Codex0.169.0 version and generate-json-schema/debug app-server help passed once each offline. Zero connect syscalls observed, network none enforced, no credentials/model/daemon; exact container ceased/removed and label absent. Source unchanged.
+
+Documented export prepared only: `codex app-server generate-json-schema --experimental --out /schema`, proposed fresh64MiB schema tmpfs, empty home, same pinned image and bounds. Latest owner wording selects preparation, not export execution. Debug lists send-message-v2 only; no retrieval established. No actual model-participation field was exposed by help; exact-build schema/semantics remain pending. Configuration fields never count; current attribution missing/acceptance held unchanged.
+
+Next bounded milestone: select offline schema export and inspect actual response/model fields, requiring service-origin generation semantics and response/turn/attempt binding before any participation change. No live call or native activation. Scope notice M386117; last canonical handoff E386116/M386113.
+
+
+## 2026-11-25 — usageMetadata access/retention trace (baton.codxpc, E386121)
+
+[Report](evidence/usage-metadata-386121/REPORT.md), packet `sha256:6bd7a15d9620bd72acbe670e2db4f9c98b3098cfca3b04a5ad52a43b84b420fd`. Verified all479 exact-build schema files. Internal-only RawResponseCompletedNotification has optional nullable opaque usageMetadata, no declared model field. Neither the86-method ServerNotification union nor184-method ClientRequest union references it; schema export does not establish a callable/subscribable/replayable method. experimentalApi is not an evidenced internal-channel opt-in. Runtime metadata construction/emission control flow remains unavailable without matching0.169.0 source/provenance.
+
+Resolved prior uninspected status for three selected private provider stores through immutable read-only forensic checks (no nonempty WAL/journal, bytes/mtime unchanged): history has one selected turn/four items with no model/usage/response-ID fields; state holds configured selector only; logs has zero rows. Both rollout response-linked usage records omit usageMetadata and model. No private rows/IDs/prose copied, no credential or Baton-store reads. Cannot recover actual model identity for existing responses through inspected retention or any established supported operation. Do not infer global backend absence or which runtime stage omitted metadata.
+
+Current attribution missing/acceptance held unchanged. Next bounded milestone: matching exact-build source/provenance trace of constructor, upstream decoder, notification filtering and persistence/supported reader. No new live call, network, daemon, engine, build, product edit/test or attribution relaxation. Scope notice M386122, last incoming discussion M386118, canonical E386121.
+
+
+## 2026-11-25 — final exact-build source trace (baton.codxpc, E386126)
+
+[Report](evidence/source-provenance-386126/REPORT.md), packet manifest SHA256 `4569091bc8f5e2e320103471c433ac9b51956c2c46fe5d054f708d83052209bd`. Official release/npm provenance resolves Codex0.169.0 to source d32063f96c2dff1dc96af839b3952abb6acfeda4; retained17d image binary exactly matches published platform package (SHA256 b452ca20f838a8855a88a41050ee4a694033fff4ea3ecdad5633e6e0e8d13f2b). Signature verification/reproducible rebuilding not performed; official content/provenance correspondence established. Relevant source retained verbatim.
+
+Supersedes earlier runtime-unavailable uncertainty: rawResponse/completed is emitted internally to connected clients and deliberately stripped from exported JSON unions, not absent from runtime. usageMetadata holds opaque usage/cost metadata, overwritten with raw usage when present; no model semantics. Rollout explicitly excludes raw completion; persisted usage records lack model/metadata; exec JSON drops it. Separate ServerModel consumes server model headers, ignores response.model, logs matches and emits only mismatch notices, with no complete per-response contributor binding. Existing retained responses remain without qualifying attribution. Absence of reroute is not participation proof.
+
+Final bounded investigation complete. Next milestone is owner attribution decision; S7 and acceptance hold unchanged, no further research/live probe selected. No product/build/provider/credential operation or protected Git mutation. Byte-copy container never started, removal verified; public scratch retained, durable evidence promoted, private home untouched. Last incoming thread M386123; scope M386127. Other native gates and separate work unchanged.
+
+
+## 2026-11-25 — owner-approved bounded Codex attribution change (baton.codxpc, E386131)
+
+Owner explicitly approves configured-model acceptance for the bounded Codex path: record requested model, exact executed invocation/configuration and CLI/image identity; never present configuration as actual participation. Missing required evidence or observed mismatch/reroute refuses. Report no reroute observed, never rerouting proved absent. Other providers retain stronger contributor evidence. This supersedes prior Codex-only participation-presence acceptance holds (S7/N4b/M386103 and final investigation), not contributor semantics or Claude requirements. Existing accepted code/evidence is not retroactively relabelled.
+
+[Amendment and implementation/acceptance plan](evidence/attribution-amendment-386131/AMENDMENT.md) and exact DESIGN.patch/proposed bytes prepared for independent review and Slawomir checkpoint before implementation. Shared DESIGN not edited because it contains other work; owner/K application ownership preserved, M386132. Attempt to include baton.prompt refused (no live endpoint); plain owning-thread coordination retained. No runtime implementation, test run, provider/credential call, native activation or Git mutation. Current code remains fail-closed until reviewed delivery. Next milestone: review amendment, apply narrow hunk under shared ownership, observe human checkpoint; then implement bounded paired worker/host evidence semantics and A1–A10 checks. Other native gates and separate Work remain.
+
+
+## 2026-11-25 — configured-model attribution candidate (baton.codxpc, E386137)
+
+Observed owner checkpoint b5ca8e12eac41c93c6a9f115a480f8ce32e04f15; consumed accepted amendment M386135 and R1–R3/C1 addendum. [Report](evidence/attribution-386137/REPORT.md). Complete 12-path candidate `sha256:79b648fed4c6e2cb5abb40948fd8bc0089c249dd83143dfb7a5e83041332c4e1` retained with exact archive/manifest/diff. Independent disposable source only; shared product targets still match checkpoint. M386138 coordinates candidate ownership; K/owner retains shared import, no overlapping edit performed. Five inherited isolation prerequisites retained separately and excluded from candidate.
+
+Codex /2 configured-model basis is selected by admitted provider, bound to exact measured build/image/selection and separately retained content-free invocation receipt; actual participation unknown, contributors empty. Unqualified consistent build refuses. Host reparses complete supported stdout and checks receipt; known source-defined reroute error refuses, silence means only no reroute observed. LF-only parser includes C1. Existing Claude /1 participation and legacy behavior remain. Original producer evidence survives recovery and real deterministic Codex-to-Claude pipeline checks; missing Claude contributors still block verdict. No production realization/image/native activation enabled.
+
+Final focused verification:626 collected/executed/passed in43.752878s, zero skips/unaccounted/source drift, groups manager-pure/tools-pure/job_manager. All logs/ID ledger/header/source identities retained. Prior624-case runs had2 new pipeline failures then1 stale metadata-fixture error, corrected without baseline waiver;132.612843s across three accounted runs. Developer smoke evidence/limitations described in report. Fixture root empty; no real credentials/provider/build/engine/native operation or protected Git mutation.
+
+Next bounded milestone: independent exact-byte candidate review, then owner import/checkpoint under shared ownership and target drift preflight. Proposed commit: `Accept labelled Codex configuration evidence with retained invocation binding`. Native image/realization, expanded observed task shapes, joined native qualification, shared-login/refresh and explicit Claude gates remain. Current shared source remains pre-candidate; no historical evidence relabelled. Last incoming M386135; read through scope M386138.
+
+
+## 2026-11-25 — checkpointed attribution; finite native-readiness route (baton.codxpc, E386143)
+
+Observed d0760de6acdf9cd1e055d1f08137757adb223cc0: all12 accepted79b648fe bytes match; codex parser100644. Consumed M386141 review, canonical through E386143; scope M386144. [Bounded readiness plan](evidence/native-readiness-386143/PLAN.md), checkpoint verification retained alongside. No source/runtime operation or test executed.
+
+F1 is first: prior candidate accounts bind image to admission only, not retained launched-image observation. This corrects any reading of the earlier implementation entry as proving engine image identity. oci.py:1634 compares selected values; list validates engine image then drops that field in its returned record. I1 retains host engine/runtime/attempt/start/image evidence and binds it to attribution and original-producer recovery, with separate admitted/observed diagnostics. No backend attribution research or relaxation.
+
+Finite dependencies: I1 image binding → I2 production realization/home and credential-C2/C3 decisions/corrections → selected Q1 build/offline image gate → selected Q2 one editing capture → I3 observed parser fixtures/completion → selected Q3 final image → selected Q4 Codex implementation/Claude review/verdict. Three new provider calls proposed on the main route, none authorized now, no retries. Reuse authentication/instruction/path/source/model evidence; preserve adapter-reported CLI and unknown actual Codex contributors, stronger Claude evidence. Exact reviewed/checkpointed code required at each implementation boundary.
+
+Open decisions: explicit failed-initialization recovery semantics; unified file credential size/representation; engine/build/live packets and Claude selection if unsettled; placement of separately bounded refresh/shared-login qualification. Shared-login or actual refresh is not proved by the first two-role Job or synthetic tests and remains an explicit unqualified scope, not silently waived. W386048 remains separate: prior M386046 says optional provider-selected integration is unnecessary for the selected two-role review/verdict endpoint; no integration call added. Review-C2/C3/C4 have finite ordinary dispositions in the plan. Fast/resume/W386057 remain separate.
+
+Next milestone: review this packet and route I1 ordinary implementation under fresh claim/shared ownership; D1/D2 decisions precede dependent I2 changes. This planning claim does not implement or activate any step. No shared-file reservation, real credential read, build, engine/provider call, protected Git mutation or native activation.
+
+
+## 2026-11-25 — credential-policy packet and I1 ownership checkpoint (baton.codxpc)
+
+E386151 claim; current handoff/discussion consumed through M386153, canonical
+work events through E386151. Owner D1/D2 ruling pinned above. Exact amendment
+packet manifest sha256:291813564c9481a042a921999119d90dbbc8fc532b6bc5c3194fd296fa549416;
+[amendment](evidence/credential-policy-386151/AMENDMENT.md), CHECK.json and
+DESIGN.patch retained. Patch reproduction passed; shared DESIGN unchanged.
+No tests, engine operations, credential reads or provider calls executed.
+
+I1 implementation is incomplete: M386148 allocation and asynchronous directed
+ownership request M386152 await K confirmation. Read-only preflight identifies
+OCI start as a closed runtime_id/labels return, OCI observe as the engine-fact
+boundary, attempts._observed as a state/why consumer, and model_attribution as
+the durable result/recovery consumer. Do not add receipt fields to start without
+updating its paired contract. P1 limits the new hold to Codex /2; P2 requires
+engine-derived digest resolution. No implementation files edited or candidate
+created. Independent work completed here is the approved D1/D2 policy packet.
+
+Return through baton.bug for narrow amendment review and ownership response;
+then route I1 back to baton.codx for a fresh claim and complete bounded candidate.
+This is an ownership gate, not a new scope/engine approval request. I2 remains
+after I1 acceptance/checkpoint and the credential-policy checkpoint. Suggested
+policy commit: `Specify audited credential initialization recovery and file byte limit`.
+
+
+## 2026-11-25 — I1 execution (baton.codxpc, E386158)
+
+Consumed M386155 acceptance/ownership confirmation and M386157 routing; canonical
+reroute E386156, successful claim E386158. Implementation is isolated at
+work/scratch/i1-386158/source on d0760de6, with independent Git metadata.
+K/owner retains shared import; DESIGN and all five W386057 paths remain reserved.
+Those five unchanged isolation inputs are verification prerequisites only.
+Affected logical groups: manager-pure, tools-pure, job_manager. Focused supported
+just test-one runs use the prepared interpreter, external disk fixture root,
+explicit collected/executed ID accounting and retained source/header/log/ledger.
+
+I1 adds a host image-observation journal at exact-runtime reconciliation, retained
+Codex result/recovery binding, engine-sourced registry-digest resolution and
+admitted/observed diagnostics. Claude /1 and legacy attempts gain no receipt
+hold. Review-C2 diagnostic correction is included. Product edits remain only in
+the isolated source; evidence/i1-386158 retains run evidence. No engine, build,
+provider, native or real credential execution. I2 is not started.
+
+M386155 acceptance additions X1–X3 are retained obligations for I2: byte-bound
+checks at delivery, first seed, retained validation and qualification; explicit
+withdrawal idempotence/concurrency and a separately authorized new receipt on
+subsequent initialization; zero-length login files refuse as incomplete.
+I2 follows both I1 acceptance/checkpoint and credential-policy checkpoint.
+
+
+## 2026-11-25 — I1 candidate complete (baton.codxpc, E386158)
+
+[Report](evidence/i1-386158/REPORT.md). Complete 11-path candidate
+`sha256:e3656475c5594b7b1a350cdba2f1d6252a42e4da4323ce691148d50665261ccd`
+on d0760de6acdf9cd1e055d1f08137757adb223cc0, with exact archive, manifest,
+diff, accounted logs and cleanup check retained. M386155 confirms allocation;
+shared import belongs to K/owner. All shared import targets remain unchanged.
+DESIGN and the five W386057 paths were not edited; the latter were used unchanged
+as separately retained verification prerequisites.
+
+I1 retains engine Id/Image/StartedAt and generation-bearing assignment labels,
+engine-derived registry-digest resolution, host journal reference/digest and
+original-producer result/recovery binding. P1: Codex /2 alone requires the new
+receipt; Claude /1 and legacy behavior remain. P2: mapping is engine evidence,
+not a profile/worker echo. Review-C2 diagnostics now label unknown/unqualified
+surfaces honestly. Actual Codex contributors remain unknown. A conflicting
+observation holds current acceptance without rewriting the frozen assessment;
+missing receipt does not delay cessation/token release.
+
+Final focused run:884/884 collected/executed/passed, zero skips/unaccounted/drift,
+48.755065s; manager-pure/tools-pure/job_manager. Six accounted development runs
+total200.114100s, with all intermediate failures retained and corrected; no
+baseline waiver. No full suite or real engine/provider/build/credential/native
+operation. Fixture root empty and removed; no protected Git metadata mutation
+or cleanup. No new module registration needed: tests extend existing modules.
+
+Next milestone: independent exact-byte I1 review, then owner import/checkpoint.
+Suggested commit: `Bind Codex attribution to retained launched-image evidence`.
+I2 still requires I1 acceptance/checkpoint and credential-policy checkpoint;
+M386155 X1–X3 are retained acceptance obligations. D1/D2 approval does not
+select I2 early. Remaining native route and P3/P4 are in the report and
+[evidence/native-readiness-386143/PLAN.md](evidence/native-readiness-386143/PLAN.md).
+No native qualification claim; W386048/W386057, fast and resume remain separate.
+Canonical incoming discussion consumed through M386157; claim E386158.
+
+
+## 2026-11-25 — I2 claim and independent baseline (baton.codxpc, E386165)
+
+Verified checkpoint2d9a1f5afd84bfdcef461798d2418be3e6d65a9d contains exact accepted
+I1 source and credential-policy DESIGN; both I2 predecessor gates satisfied.
+Consumed M386161, current canonical through E386165 and discussion M386166.
+I2 ownership requested M386162/M386166, poke386163 to K/baton.prompt, pending.
+No implementation edits before confirmation. Independent source preflight and
+exact checkpoint evidence: [evidence/i2-386165/PREFLIGHT.md](evidence/i2-386165/PREFLIGHT.md).
+
+Isolated source: work/scratch/i2-386165/source, independent ordinary .git,
+base2d9a1f5a; five unchanged W386057 verification prerequisites retained separately.
+Baseline focused credential/home/secret/user-reader/qualification selection:
+343 collected/executed,340 passed,3 failing test IDs (5 subtest failures),
+2.815889s, no skips/unaccounted/source drift. Full IDs/logs/header
+and before/after source identity retained. Existing failures are the two
+review_cycles writer-inventory tests and unaccounted retained_output_of exported
+surface in tests.manager.test_secrets. No waiver or candidate result claimed.
+Affected groups manager-pure/tools-pure; eventual joined I2 also job_manager.
+No build, engine, real credential read, provider call or native activation.
+
+Current claim remains E386165 while awaiting routine ownership response in this
+live turn. I2 remains the selected complete-candidate milestone, not a
+preparation-only handoff. Shared DESIGN and unrelated work untouched.
+
+
+## 2026-11-25 — I2 ownership response pending (M386167)
+
+Independent preflight/baseline complete; no implementation edit or I2 candidate
+exists yet. M386162/M386166 and poke386163 received no reply through M386166.
+M386167 is a supported directed ownership request to review, wait=true; it
+suspends W385830 and releases E386165 rather than leaving an idle claim. It is
+not a preparation acceptance gate or owner policy escalation. I2 stays routed
+to baton.codx for complete implementation once ownership is confirmed and the
+obligation resolved; fresh claim required. Both predecessor checkpoints remain
+satisfied at2d9a1f5a. Resume from evidence/i2-386165/PREFLIGHT.md and retained
+baseline/source copy; do not repeat checkpoint preparation or baseline.
+
+
+## 2026-11-25 — I2 implementation complete for independent review (baton.codxpc, E386173)
+
+M386168/M386172 resolved the historical ownership gate; canonical claim E386173
+resumed the retained source from2d9a1f5a. [I2 report](evidence/i2-386165/REPORT.md):
+22-path candidate `sha256:87c3ba728e7fe75e649816a3bc44ae0bb6ff7bc6b3b915a84e70bbb495aa1627`. Production mapping,
+automatic exact-byte first copy, D1 audited withdrawal/separate retry and D2
+1MiB handling implemented; X1–X3 verified synthetically. C5–C8 dispositions are
+in the report. Actual Codex participation remains unknown; Claude requirements
+are preserved. No engine/build/real-credential/provider/native action.
+
+Final focused selection: 1240 collected/executed, 1237 passed,
+3 pre-existing failing IDs (five failure blocks exactly equal to baseline),
+zero skips/unaccounted/drift; 54.263172s. Full selection is not
+green and no failures are waived. Total retained verification 245.215088s.
+All shared candidate targets remain baseline; DESIGN and five isolation paths
+excluded, prerequisites unchanged. Fixture root empty/removed; archive, manifest,
+diff, logs and source identity retained. Next: K exact-byte independent review,
+routine corrections directly; owner import/checkpoint after acceptance. Suggested
+commit: `Realize Codex homes and audited subscription credential lifecycle`.
+Remaining selected-execution gates Q1–Q4 and editing I3 stay in the finite
+[native-readiness plan](evidence/native-readiness-386143/PLAN.md); W386048/W386057
+remain separate. No new owner decision requested.
+
+Handoff recorded: M386176; pass E386177 to baton.bug for independent review.
+Canonical detail at snapshot386177 verifies queued, gate null, Handler null.
+Claim released; evidence/i2-386165/HANDOFF.json retains the disposition.
+
+## 2026-11-25 — Q1 preparation complete (baton.codxpc, E386185)
+
+Consumed M386183, claimed E386185, recorded ownership M386186. Last discussion
+position M386186, last Work event E386185, snapshot386186; no new obligation.
+Prepared committed-source/context archives, pinned recipe/native binary facts,
+real manager/OCI synthetic harness, offline in-container probe and owner-run
+script with default read-only check, clean client environment, deadlines/output
+caps, exact identity cleanup and durable F1 receipt reopening. Product paths
+unchanged. Preserved all unrelated working-tree edits.
+
+Checkpoint54fa5319 independently matches22 accepted I2 files. Frozen final
+preparation selection3/3 commands passed, no skip/failure,0.836791s; source identity,
+argv, logs and JSON account are retained in evidence/q1-preparation-386185.
+Simulation covers8 behaviors; runner/preflight covers5. Harmless local Python
+children only for limits tests; all synthetic temporary roots removed. Earlier
+harness development iterations are not a complete timed account; final spending
+is labelled accordingly. No product group rerun, builds, engine commands, real
+credential reads or provider calls. Prior baseline failures are disclosed.
+
+Complete27-path archive SHA256
+5a9d8f8239ff1b65b2aa11445c19b7ef1e071b98c627677a5ca48973def34b0d;
+review archive bytes7539154, payload digest95b750b5484d247f29b9c364bbcc0b9e051ceb1613fea1bc185cc03562930289.
+Next: independent packet review, routine corrections directly, then owner
+execution selection. No new successful native result, contributor claim or
+credential qualification. Pending handoff must release E386185 and verify Handler
+null before ending the turn.
+
+Handoff completed: M386187, atomic pass E386188 to baton.bug; canonical detail
+snapshot386188 confirms queued, gate null, Handler null, review handler rvpc.
+Initial optional include=baton.prompt was refused as no live endpoint; plain
+shared-thread post succeeded without a guessed alias. Candidate unchanged.
+
+## 2026-11-25 — Complete Q2 preparation (baton.codxpc, E386199)
+
+Read M386195 accepted Q1, M386197 ownership and E386198 routing; succeeded claim
+E386199. Last discussion read M386200, Work-event read E386199; no new obligation.
+Built only an isolated preparation packet and appended this dossier; preserved
+all Q1 artifacts and unrelated product edits. No image build occurred.
+
+Owner script composes a real local qualification Authority/Job and actual
+single_worker/OCI/file-exchange production Codex path. It uses the audited
+credential reader/first initialization, strict1MiB bound, source reference only,
+accepted image/source and explicit execution limits. Retains raw evidence
+privately, always holds acceptance, fences/stops/removes the exact runtime,
+withdraws only the stopped attempt's volatile credential and preserves its home.
+No source writeback, no resume/retry, no backend identity inference.
+
+Focused final selection6 commands,6pass,0failure/skip,4.904070s. Real execute()
+was checked with Docker substituted at subprocess.Popen: launch failure,
+oversize synthetic login, correlated fault terminal, real Codex provider seam.
+The latter asserts one invocation, configured model/argv/instructions/home and
+synthetic edit, then deliberately refuses instead of invoking a provider. It
+retains image proof through removal/reopen and verifies slot withdrawal.
+Byte-verifier and no-subprocess preflight checks also pass. No successful stream
+fixture was fabricated. All final temporary roots removed. Earlier development
+iterations corrected packet/simulation wiring; their timings are not included
+in the final account and older local synthetic roots are conservatively retained.
+
+Candidate79 paths/7317906bytes, archive SHA256
+abb0f083ef37f1a6fd7a2985a8bc93f1b57786ddd1829fbd8668e5181d74fbfc;
+payload6841dc66747ab5c5bfc2c9ccd4a7f614bbdc93526b3ef2cbaad33b8921f42f14.
+Evidence/source/argv/account retained under evidence/q2-preparation-386199.
+No build, real engine operation, real credential access, provider call or native
+activation. K independent packet review next; owner execution selection follows
+acceptance. Handoff must release this claim and verify Handler null.
+
+Q2 handoff complete: M386201, atomic pass E386202 to baton.bug for independent
+review. Canonical detail snapshot386202 confirms queued, gate null, Handler null.
+Claim E386199 released; candidate unchanged.
+
+## 2026-11-25 — M386205 phase-ending alignment (baton.codxpc)
+
+Under E386207, implemented the checkpoint42da148f ruling: framed invocation completion permits verification/publication; ordinary activity is opaque and independent review owns substantive judgment. Structural/fault/reroute/configuration/image requirements retained; actual contributors unknown; Claude stronger requirements unchanged. Precise ordinary-review uncertainty/operator-escalation gap documented, not silently treated as implemented. No new ruling or acceptance weakening.
+
+Complete candidate account: [REPORT](evidence/phase-ending-386207/REPORT.md); six owned source/test/doc paths plus successor [Q2 packet](evidence/q2-phase-ending-386207/README.md). Focused109/109 accounted pass, no source drift; initial accounting-drift run preserved. Seven preparation checks passed. Prior Q1/Q2 unchanged. New image qualification mandatory before Q2; no build/engine/credential/provider/native execution selected or performed. W386048/W386057 separate.

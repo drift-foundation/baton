@@ -1,0 +1,40 @@
+{
+  "command": {
+    "command_digest": "sha256:2dd795884de2edf6438cd37dce6643b9cd1ec791955f98ff76c91a0a57bfc488",
+    "operations": [
+      "describe",
+      "work"
+    ],
+    "sequence_id": "sequence-e23999f5504b5d32075c1883019f5459"
+  },
+  "foreign": [],
+  "model_attribution": "Requested: gpt-6-astra; basis: configured-model; Configured model not accepted; actual participation unknown; reroute observation incomplete; surface: unqualified or unknown CLI build; invocation: adapter-recorded, host-validated; CLI build selected: 0.169.0; CLI build evidenced: no evidence; admitted image: sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee; attribution: missing; host acceptance: not assessed; engine-observed image: sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee; launched-image binding: matched; image receipt: provider.launched-image:a5f16a1164439123de424c14b7549938927aa5f064dbf27e0b5ef5c5473def03; Native worker role: implementation; context label: sha256:d1c8f373dcbbb04edbc802dcd9c28c02247b252e06a48307222b06c4dc3a5815; worker instructions: sha256:369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b; label reported: no evidence; Provider home: retained (fresh invocation); worker: q2-codex; holder: attempt-13f395cc121838b85af3bd58c3bed187ee7c7360d11a8439fa078e9aeb6f6436",
+  "receipt": {
+    "accepted_at": "2026-11-25T08:24:04.000Z"
+  },
+  "sequence_id": "sequence-e23999f5504b5d32075c1883019f5459",
+  "state": "faulted",
+  "states": [
+    {
+      "operation": "describe",
+      "state": "answered"
+    },
+    {
+      "operation": "work",
+      "state": "faulted"
+    }
+  ],
+  "terminal": {
+    "adapter_failure": null,
+    "answered": [
+      "describe"
+    ],
+    "disposition": null,
+    "ending": "faulted",
+    "fault_code": "input",
+    "manifest_digest": null,
+    "terminal_digest": "sha256:40111f13a4d71a235a4ff4f5493aeaa28087064485ed85defd53dca8532c25d0"
+  },
+  "transport": "baton.worker-exchange/1",
+  "unreadable": null
+}

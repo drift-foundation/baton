@@ -1,0 +1,50 @@
+{
+ "zero activity": "complete",
+ "message only": "complete",
+ "tool exit 1 then message": "complete",
+ "unpaired started item": "complete",
+ "file_change item": "complete",
+ "unknown top-level activity": "complete",
+ "prose quoting reroute text": "complete",
+ "prose claiming success, tool failed": "complete",
+ "top-level error": "faulted",
+ "turn.failed mid": "faulted",
+ "error item (non-reroute)": "faulted",
+ "reroute item": "rerouted",
+ "reroute as item.started": "rerouted",
+ "reroute plus fault": "rerouted",
+ "error item without message": "unclassified",
+ "second turn.started": "unclassified",
+ "second turn.completed": "unclassified",
+ "turn.aborted": "unclassified",
+ "no turn.completed": "unclassified",
+ "ends with turn.failed": "unclassified",
+ "item without id": "unclassified",
+ "item event without item": "unclassified",
+ "event without type": "unclassified",
+ "extra member on final": "unclassified",
+ "truncated (no final LF)": "unclassified",
+ "partial=True": "unclassified",
+ "duplicate JSON key": "unclassified",
+ "over 64 KiB": "unclassified",
+ "terminal: exit0 complete": [
+  true,
+  null
+ ],
+ "terminal: exit1 complete stream": [
+  false,
+  "Codex invocation observation is incomplete or records an execution fault"
+ ],
+ "terminal: exit0 tool failed": [
+  true,
+  null
+ ],
+ "terminal: exit0 fault": [
+  false,
+  "Codex invocation observation is incomplete or records an execution fault"
+ ],
+ "terminal: exit0 reroute": [
+  false,
+  "Codex reported a model reroute"
+ ]
+}

@@ -1,0 +1,40 @@
+{
+  "verification": "missing-or-mismatch",
+  "changed_paths": [
+    ".git/COMMIT_EDITMSG",
+    ".git/HEAD",
+    ".git/config",
+    ".git/description",
+    ".git/hooks/applypatch-msg.sample",
+    ".git/hooks/commit-msg.sample",
+    ".git/hooks/fsmonitor-watchman.sample",
+    ".git/hooks/post-update.sample",
+    ".git/hooks/pre-applypatch.sample",
+    ".git/hooks/pre-commit.sample",
+    ".git/hooks/pre-merge-commit.sample",
+    ".git/hooks/pre-push.sample",
+    ".git/hooks/pre-rebase.sample",
+    ".git/hooks/pre-receive.sample",
+    ".git/hooks/prepare-commit-msg.sample",
+    ".git/hooks/push-to-checkout.sample",
+    ".git/hooks/sendemail-validate.sample",
+    ".git/hooks/update.sample",
+    ".git/index",
+    ".git/info/exclude",
+    ".git/logs/HEAD",
+    ".git/logs/refs/heads/q2",
+    ".git/objects/90/be1f3056c4f471f977a28497b8d4b392c55a02",
+    ".git/objects/d0/7bfae2c724719c2a7a3db6a48435e2172f7ddc",
+    ".git/objects/ef/a30b4d606f2af8a882268bde11d96a6ac66c85",
+    ".git/refs/heads/q2",
+    "message.txt"
+  ],
+  "expected_changed_paths": [
+    "message.txt"
+  ],
+  "verification_method": "trusted post-cessation byte and complete tree comparison; no candidate code executed",
+  "candidate": {},
+  "workspace": {},
+  "logs": {},
+  "exchange": {}
+}

@@ -1,0 +1,23 @@
+{
+  "acceptance": "held-for-private-evidence-review",
+  "actual_contributors": "unknown",
+  "candidate_present": false,
+  "capture_terminal": false,
+  "ceased": true,
+  "configured_model": "gpt-6-astra",
+  "container_launches": 1,
+  "edit_verified": false,
+  "error_type": "AssertionError",
+  "image": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "image_receipt_retained": false,
+  "native_job_success": false,
+  "packet": "q2-386207",
+  "payload_sha256": "5ce02041df3b6795a6e093157b6c073fe410687ccd65f775c76bcbee012d7567",
+  "private_inventory": "capture-inventory.json",
+  "private_root": "/var/tmp/baton-q2-prep-launch-fail-3w03oypp/run",
+  "removed": true,
+  "retained_home_preserved": true,
+  "source": "42da148f1b845474e5fa6db870132fcf214073f6",
+  "source_writeback": false,
+  "volatile_credential_withdrawn": true
+}

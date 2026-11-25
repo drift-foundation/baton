@@ -417,33 +417,44 @@ class CodexTerminalEvidence(unittest.TestCase):
                     b"["*1500+b"0"+b"]"*1500+b"\n"):
             with self.subTest(kind=type(raw).__name__): self.refuses(raw)
 
-    def test_unknown_events_and_fields_refuse(self):
+    def test_ordinary_activity_is_opaque_not_a_success_catalogue(self):
         import copy
-        for at in range(len(self.events)):
-            events = copy.deepcopy(self.events); events[at]["unknown"] = True
-            with self.subTest(at=at): self.refuses(self.encoded(events))
-        events = copy.deepcopy(self.events); events[2]["item"]["model"] = "gpt-6-astra"
-        self.refuses(self.encoded(events))
-        events = copy.deepcopy(self.events); events[2]["item"]["type"] = "unknown"
-        self.refuses(self.encoded(events))
-        self.refuses(self.encoded(self.events[:2] + [{"type":"turn.failed"}] + self.events[2:]))
+        additions = [
+            {"type":"item.completed", "item":{"id":"edit", "type":"file_change", "changes":[{"path":"answer.py"}], "future":True}},
+            {"type":"item.updated", "item":{"id":"opaque", "type":"future_tool", "nested":{"type":"turn.failed"}}},
+            {"type":"future.activity", "payload":{"model":"not-attribution"}},
+        ]
+        for middle in ([], additions, list(reversed(self.events[2:-1])),
+                       self.events[2:4], self.events[2:-1] + self.events[2:-1]):
+            with self.subTest(middle=middle):
+                self.assertTrue(self.agent.provider_terminal(0, self.encoded(self.events[:2]+middle+self.events[-1:]), partial=False)["ok"])
+        for field,value in (("exit_code",1),("status","failed"),("command","changed"),("aggregated_output",{})):
+            events=copy.deepcopy(self.events);events[4]["item"][field]=value
+            self.assertTrue(self.agent.provider_terminal(0,self.encoded(events),partial=False)["ok"])
 
-    def test_duplicate_reordered_and_unfinished_lifecycles_refuse(self):
-        for events in (self.events*2, self.events[1:], self.events[:1]+self.events[2:],
-                self.events[:-1], self.events+[self.events[-1]],
-                self.events[:3]+self.events[4:], self.events[:4]+self.events[5:],
-                self.events[:4]+[self.events[3]]+self.events[4:],
-                self.events[:5]+[self.events[4]]+self.events[5:],
-                self.events[:2]+list(reversed(self.events[2:-1]))+self.events[-1:]):
+    def test_lifecycle_and_item_envelopes_remain_structural(self):
+        import copy
+        for at in (0,1,len(self.events)-1):
+            events=copy.deepcopy(self.events);events[at]["unknown"]=True
             self.refuses(self.encoded(events))
+        for events in (self.events*2,self.events[1:],self.events[:1]+self.events[2:],
+                       self.events[:-1],self.events+[self.events[-1]]):
+            self.refuses(self.encoded(events))
+        for activity in ({}, {"type":False}, {"type":"item.completed","item":None},
+                         {"type":"item.started","item":{"id":None,"type":"file_change"}},
+                         {"type":"turn.future"}):
+            self.refuses(self.encoded(self.events[:2]+[activity]+self.events[-1:]))
 
-    def test_mismatched_item_id_command_status_and_exit_refuse(self):
-        import copy
-        for field, value in (("id","other"),("id",None),("command","other"),
-                             ("status","in_progress"),("exit_code",True),("exit_code",1),
-                             ("exit_code",None),("aggregated_output",{})):
-            events=copy.deepcopy(self.events); events[4]["item"][field]=value
-            with self.subTest(field=field,value=value): self.refuses(self.encoded(events))
+    def test_explicit_fault_and_reroute_are_not_hidden_by_activity(self):
+        from provider_policy.codex import stream_outcome
+        for event in ({"type":"error","message":"fault"}, {"type":"turn.failed","error":{}},
+                      {"type":"item.completed","item":{"id":"error","type":"error","message":"fault"}}):
+            raw=self.encoded(self.events[:-1]+[event]+self.events[-1:])
+            self.refuses(raw);self.assertEqual(stream_outcome(raw),"faulted")
+        event={"type":"item.completed","item":{"id":"reroute","type":"error",
+               "message":"model rerouted: requested -> alternate (HighRiskCyberActivity)"}}
+        raw=self.encoded(self.events[:-1]+[event]+self.events[-1:])
+        self.refuses(raw);self.assertEqual(stream_outcome(raw),"rerouted")
 
     def test_invalid_usage_refuses(self):
         import copy

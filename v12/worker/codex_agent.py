@@ -83,11 +83,13 @@ class CodexAgent(ClaudeAgent):
         return super().invoke_provider(prompt=prompt, room=room, seen=seen)
 
     def provider_terminal(self, status, record, *, partial):
+        # ok permits verification/publication only. It is not a task verdict;
+        # the independent reviewer judges the exact candidate and evidence.
         if type(status) is int and status == 0 and completed_turn(record, partial=partial):
             return {"ok": True, "status": 0, "failure_reason": None, "why": None}
         return {"ok": False, "status": status, "failure_reason": UNCLASSIFIED,
                 "why": "Codex reported a model reroute" if stream_outcome(record, partial=partial) == "rerouted" else
-                    "Codex did not supply a complete supported successful turn"}
+                    "Codex invocation observation is incomplete or records an execution fault"}
 
     def decode_provider_version(self, raw):
         try:

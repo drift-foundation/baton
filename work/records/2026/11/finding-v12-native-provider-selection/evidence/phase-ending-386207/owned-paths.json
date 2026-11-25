@@ -1,0 +1,8 @@
+[
+  "v12/PROVIDER-SELECTION.md",
+  "v12/python/src/baton_v12/provider_policy/codex.py",
+  "v12/python/src/baton_v12/provider_policy/attribution.py",
+  "v12/worker/codex_agent.py",
+  "v12/python/tests/manager/test_codex_draft.py",
+  "v12/python/tests/manager/test_model_attribution.py"
+]

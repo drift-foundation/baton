@@ -259,15 +259,23 @@ source or launch anything. The next initializer rechecks the snapshot and writes
 a new receipt linked to the old receipt and authorization. Normal claim/runtime
 and credential-access authority still apply. Never remove receipt files by hand.
 
-Codex 0.169.0 terminal parsing recognizes the retained fresh successful turn
-family: thread.started, turn.started, completed agent messages and paired
-command_execution items, then one final turn.completed with the evidenced
-usage shape. It requires exit zero, a complete bounded UTF-8 JSONL stream,
-unique JSON members and consistent item lifecycle. Unknown fields/events,
-truncation, unfinished items, nonzero exits and unevidenced failure shapes
-remain unclassified. This conservative parser does not claim coverage of other
-Codex tools or failure families. Sanitized fixtures retain the observed event
-structure; negative mutations are robustness tests, not live failure evidence.
+Codex 0.169.0 invocation observation requires bounded complete UTF-8 JSONL,
+unique JSON members, thread.started/turn.started framing and one final
+turn.completed with the evidenced usage shape. Ordinary activity payloads are
+opaque: editing/tool families, item ordering, tool exit statuses and generated
+prose do not decide invocation completion or substantive success. Item envelopes
+still require an id/type; malformed framing, duplicate lifecycle boundaries,
+truncation and explicit error/turn.failed/error-item signals hold. A nonzero
+provider process exit remains an execution fault. The source-defined reroute
+error remains a refusal even after the final agent message. Retained fixtures
+are historical exact-build evidence; synthetic mutations do not claim new live
+coverage. No activity-family catalogue is required.
+
+A completed invocation permits the worker to verify and publish its claim under
+the existing contract. It does not make that claim true. Independent review must
+inspect the exact candidate and verification evidence against the task; neither
+provider exit zero nor the worker's disposition accepts the work. Verification
+failure and structural handoff/custody/attribution holds remain effective.
 
 Terminal completion is separate from attribution and candidate acceptance.
 The observed stdout contains no participation source. Private session
@@ -289,7 +297,7 @@ adapter-recorded and host-validated, not independently host-observed execution.
 The host compares the result claim to that complete retained receipt and validates
 the selection, CLI build, immutable image, adapter/profile and attempt bindings.
 A missing receipt, image/build/configuration proof, changed receipt or failed/
-incomplete supported stdout holds acceptance. Frozen result and ending owners
+incomplete framed stdout holds configured-model acceptance. Frozen result and ending owners
 bind that evidence to the retained candidate; recovery revalidates both streams.
 
 Codex host acceptance additionally requires a retained `baton.launched-image/1`
@@ -327,7 +335,7 @@ remains adapter-recorded and host-validated, not independently host-measured.
 An unqualified or unknown CLI build has an incomplete reroute observation and
 no claim to the qualified 0.169.0 observation surface.
 
-A supported complete exec --json stream with no exact-build mismatch error item
+A structurally complete exec --json stream with no exact-build mismatch error item
 is labelled "no reroute observed". It never proves rerouting absent: missing and
 equal server model headers are indistinguishable here. The source-defined
 `model rerouted: ... -> ... (HighRiskCyberActivity)` error item refuses acceptance,
@@ -338,9 +346,19 @@ observed participation. Claude terminal and attribution behavior is unchanged.
 
 The selected detached probe established authentication and instruction digest/
 role for its selected copy and image, not native worker qualification. Production mapping and deterministic credential recovery/size handling are
-implemented. Finished-image/offline engine qualification, editing-turn event
-coverage and native joined execution with explicitly qualified Claude remain
+implemented. Finished-image/offline engine qualification, real editing/verification/handoff evidence and native joined execution with explicitly qualified Claude remain
 outstanding. Actual Codex contributors remain unknown; shared-login/refresh
 service behavior is not established by synthetic tests. No new provider call or build is
 implied by terminal parsing. Provider-selected
 integration is a separate open issue and is not enabled by the Codex guards.
+
+Reviewer uncertainty is not a fourth inferred verdict. The native handoff
+response path supports an explicit `escalate` response to its configured operator
+without creating a review verdict or scheduling a writer. Ordinary checkpoint
+review currently accepts only accepted/changes-requested/rejected reports;
+missing or uncertain reports hold without a verdict. That ordinary report path
+does not itself emit a structured operator escalation. Until it is explicitly
+composed with an operator decision path, the independent reviewer must report the
+uncertainty and exact evidence to the owner through the coordination channel;
+no automated verdict may be substituted. This limitation remains a native
+review qualification gate, not a reason to guess acceptance.

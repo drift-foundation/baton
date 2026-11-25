@@ -1,0 +1,30 @@
+{
+  "command": [
+    "just",
+    "--justfile",
+    "v12/justfile",
+    "test-one",
+    "tests.manager.test_codex_draft",
+    "tests.manager.test_model_attribution",
+    "tests.manager.test_claude_agent.FailureIsHonest",
+    "tests.manager.test_claude_agent.NoUsableReportIsNoVerdictAtAll",
+    "tests.tools.test_native_handoffs.AGenuineAmbiguityEscalatesOnceAndStaysHeld",
+    "tests.tools.test_native_handoffs.AnEscalationSurvivesServingRestart",
+    "tests.job_manager.test_provider_attribution_recovery"
+  ],
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "base": "42da148f1b845474e5fa6db870132fcf214073f6",
+  "candidate_repository_head": "c3c6950b02321f34d04dc493ff7ff606a65c1a83",
+  "groups": [
+    "manager-pure",
+    "tools-pure",
+    "job_manager"
+  ],
+  "collected": 109,
+  "bound_seconds": 120,
+  "disk_root": "/var/tmp/baton-phase-386207-tests",
+  "TMPDIR": "/var/tmp/baton-phase-386207-tests",
+  "accounting": "explicit ids from unittest -v; test-one has no registry accounting",
+  "pid": 2507355,
+  "pgid": 2507355
+}

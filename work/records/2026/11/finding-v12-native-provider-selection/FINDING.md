@@ -627,3 +627,9 @@ hashes verified read-only; I2 remains1237/1240 with its three baseline failures.
 ## 2026-11-25 — phase ending is not substantive success
 
 Owner ruling pinned in evidence/phase-ending-owner-ruling/RULING.md: reviewer judgment of artifacts, uncertain judgment escalates to Slawomir; no inferred success from activity stream. Supersedes event-family enumeration as a phase-ending gate. Owner knowingly accepts current Docker-contained sandbox bypass/copied login/open egress posture, no egress restriction work selected. No new Q2 execution selected.
+
+## 2026-11-25 — M386205 phase-ending alignment (baton.codxpc)
+
+Under E386207, implemented the checkpoint42da148f ruling: framed invocation completion permits verification/publication; ordinary activity is opaque and independent review owns substantive judgment. Structural/fault/reroute/configuration/image requirements retained; actual contributors unknown; Claude stronger requirements unchanged. Precise ordinary-review uncertainty/operator-escalation gap documented, not silently treated as implemented. No new ruling or acceptance weakening.
+
+Complete candidate account: [REPORT](evidence/phase-ending-386207/REPORT.md); six owned source/test/doc paths plus successor [Q2 packet](evidence/q2-phase-ending-386207/README.md). Focused109/109 accounted pass, no source drift; initial accounting-drift run preserved. Seven preparation checks passed. Prior Q1/Q2 unchanged. New image qualification mandatory before Q2; no build/engine/credential/provider/native execution selected or performed. W386048/W386057 separate.
