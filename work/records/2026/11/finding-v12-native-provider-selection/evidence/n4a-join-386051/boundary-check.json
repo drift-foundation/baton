@@ -1,0 +1,14 @@
+{
+  "base": "ac034bc1c9fae525b94a1a5f21d9721c677dc39e",
+  "byte_identical_methods": {
+    "_context_home": true,
+    "invoke_provider": true,
+    "_provider": true,
+    "work": true
+  },
+  "production_codex_realization": false,
+  "production_codex_managed_path": false,
+  "protected_product_import": false,
+  "candidate_paths": 16,
+  "scratch": "/home/sl/src/baton/work/scratch/w385830-join-386051/repo"
+}

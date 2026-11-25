@@ -1,0 +1,264 @@
+diff --git a/v12/PROVIDER-SELECTION.md b/v12/PROVIDER-SELECTION.md
+index 6663645..e3398b2 100644
+--- a/v12/PROVIDER-SELECTION.md
++++ b/v12/PROVIDER-SELECTION.md
+@@ -165,3 +165,29 @@ unknown: a retained home is not an empty baseline. Home retention does not imply
+ session resumption. The CLI build is measured by the worker; the host validates
+ its binding but does not independently run the CLI. The supervised review wrapper,
+ version-probe format/bound and terminal-size bound still require qualification.
++
++
++## Codex adapter join: evidence and remaining gates
++
++The Codex adapter and entry use the shared worker lifecycle, instruction label,
++managed-entry preparation and result metadata. Its argv and version decoder
++are grounded in the retained Codex 0.169.0 offline inventory. Empty prompts,
++leading hyphens and exact exec subcommand words refuse before invocation. The
++version probe must establish 0.169.0 before a turn can start.
++
++The bound `context_label.roles` is the single role source: Codex serves fresh
++implementation only. Composition, configuration revalidation and the worker
++check it. The logical delivered credential slot is `codex`; this names the
++Baton mount, not the vendor credential file. Claude keeps its existing slot
++and legacy context path.
++
++Codex has no production realization or managed-entry path yet: its exact-build
++credential filename remains an evidence gate. Composition therefore refuses;
++no null or guessed credential path enables native use. Tests that temporarily
++install synthetic realization/path tables prove the shared mechanisms only.
++The Codex recipe is source-only and copies the same provider-policy package.
++
++Codex terminal parsing and participation sources remain unqualified. Every
++Codex terminal return is unclassified, including exit zero. No turn fixture,
++model call, build or resume behavior is implied by this join. Provider-selected
++integration is a separate open issue and is not enabled by the Codex guards.
+diff --git a/v12/python/src/baton_v12/provider_policy/__init__.py b/v12/python/src/baton_v12/provider_policy/__init__.py
+index 4f1d17b..5f08e5f 100644
+--- a/v12/python/src/baton_v12/provider_policy/__init__.py
++++ b/v12/python/src/baton_v12/provider_policy/__init__.py
+@@ -49,7 +49,12 @@ INSTRUCTIONS_BOUND = 16384
+ MANAGED = {"claude": {"path": ".claude/CLAUDE.md", "kind": INSTRUCTIONS_KIND}}
+ LABEL_SCHEMA = "baton.native-worker-context/1"
+ LABEL_BOUND = 2048
+-LABEL_ROLES = {"claude": ["implementation", "review"]}
++LABEL_ROLES = {"claude": ["implementation", "review"], "codex": ["implementation"]}
++# Entry and delivered-slot names are host/worker interface facts, not vendor
++# credential filenames. Codex still has no REALIZATIONS or MANAGED entry (J1).
++ENTRYPOINTS = {"claude": ["python3", "/opt/baton/dogfood_entry.py"],
++               "codex": ["python3", "/opt/baton/codex_entry.py"]}
++CREDENTIAL_SLOTS = {"claude": "claude", "codex": "codex"}
+ # The execution-context label. It states which instructions apply; it grants
+ # nothing. It names no Job, attempt, worker or protocol path.
+ LABEL_TEMPLATE = """\
+@@ -178,6 +183,30 @@ def selection(value):
+     return dict(value)
+ 
+ 
++def credential_slot(provider):
++    if provider not in CREDENTIAL_SLOTS:
++        raise PolicyRefusal("provider has no delivered credential slot")
++    return CREDENTIAL_SLOTS[provider]
++
++
++def validate_execution(document, role, provider_context=None):
++    """Codex is fresh and serves only its bound context-label roles.
++
++    Claude's existing integration behavior is separately owned (W386048).
++    The caller first validates the adapter; this adds no alternative role list.
++    """
++    if document.get("provider") == "codex":
++        if provider_context is not None or role not in document["context_label"]["roles"]:
++            raise PolicyRefusal("Codex requires a fresh launch in a declared label role")
++
++
++def validate_credential_slots(document, slots, profile):
++    if document.get("provider") == "codex":
++        slot = credential_slot("codex")
++        if slots != [slot] or type(profile) is not dict or set(profile) != {slot}:
++            raise PolicyRefusal("Codex requires exactly its declared credential slot")
++
++
+ def adapter(selected, *, network, tool_policy=None):
+     selected = selection(selected)
+     policy = POLICY if tool_policy is None else tool_policy
+@@ -187,13 +216,13 @@ def adapter(selected, *, network, tool_policy=None):
+     realization = REALIZATIONS[provider]
+     if set(realization) != set(POLICY) - {"schema"}:
+         raise PolicyRefusal("provider realization does not cover the shared policy")
+-    if provider not in MANAGED or provider not in LABEL_ROLES:
++    if provider not in MANAGED or provider not in LABEL_ROLES or provider not in ENTRYPOINTS:
+         raise PolicyRefusal("provider realization declares no instruction delivery")
+     command = realization["interaction"]
+     return {
+         "schema": "baton.single-implementation-adapter/2",
+         "adapter_name": "docker-single-worker", "engine": "docker",
+-        "network": network, "entrypoint": ["python3", "/opt/baton/dogfood_entry.py"],
++        "network": network, "entrypoint": list(ENTRYPOINTS[provider]),
+         "provider": provider,
+         "argv_policy": {"program": command["program"],
+                         "fixed": [*command["before_permissions"], *realization["tool_permission"], *command["after_permissions"]],
+diff --git a/v12/python/tests/manager/test_worker_packaging.py b/v12/python/tests/manager/test_worker_packaging.py
+index 08a3acd..c3d5528 100644
+--- a/v12/python/tests/manager/test_worker_packaging.py
++++ b/v12/python/tests/manager/test_worker_packaging.py
+@@ -34,6 +34,7 @@ import unittest
+ WORKER = pathlib.Path(__file__).resolve().parents[3] / "worker"
+ CONTEXT = {"Dockerfile": WORKER,
+            "Dockerfile.claude": WORKER.parent,
++           "Dockerfile.codex": WORKER.parent,
+            "Dockerfile.integration": WORKER.parent,
+            # W385695: the deterministic publication worker's recipe. Its
+            # context is the worker directory, like the reference image it
+@@ -211,6 +212,17 @@ assert claude_agent._SharedDeclarationRefusal is \\
+     adapter_refusal.AdapterDeclarationRefusal
+ ''')
+ 
++    def test_the_codex_recipe_layers_import_the_shared_entry_and_adapter(self):
++        root = self.staged("Dockerfile.codex")
++        self.proving(root, '''
++import baton_worker, claude_agent, codex_agent, codex_entry, dogfood_entry, provider_policy, adapter_refusal
++assert issubclass(codex_agent.CodexAgent, claude_agent.ClaudeAgent)
++assert baton_worker.adapter_refusal is adapter_refusal
++assert claude_agent._SharedDeclarationRefusal is adapter_refusal.AdapterDeclarationRefusal
++assert "codex" not in provider_policy.REALIZATIONS
++assert "codex" not in provider_policy.MANAGED
++''')
++
+     def test_the_producer_and_the_catcher_share_one_type_in_the_package(self):
+         """THE PROPERTY THE SHARED MODULE EXISTS FOR, proved where it matters:
+         a refusal raised by the installed adapter's own class is caught by the
+diff --git a/v12/python/tests/tools/test_provider_selection.py b/v12/python/tests/tools/test_provider_selection.py
+index 00c2533..0439524 100644
+--- a/v12/python/tests/tools/test_provider_selection.py
++++ b/v12/python/tests/tools/test_provider_selection.py
+@@ -519,24 +519,25 @@ class SelectedCase(SelectedBase):
+         original = self.worker
+         def worker(role, **members):
+             value = original(role, **members)
+-            if role == "review":
++            if role == "implementation":
+                 given = value["deployment"]
+                 selected = dict(given["provider_contract"]["selection"], provider="codex")
+                 profile = dict(given["provider_contract"]["runtime_profile"], provider="codex")
+                 adapter = policy.adapter(selected, network=given["network"])
+                 given.update(provider_contract={"selection": selected, "runtime_profile": profile, "adapter": adapter},
++                    credential_slots=["codex"], credential_profile={"codex": given["credential_profile"]["api"]},
+                     profile_digest=digest(profile), profile_name="simulated-codex-profile", adapter_digest=digest(adapter))
+-                self.submission["jobs"][0]["stages"][1]["profile_name"] = "simulated-codex-profile"
++                self.submission["jobs"][0]["stages"][0]["profile_name"] = "simulated-codex-profile"
+                 manifest = copy.deepcopy(given["input_manifest"])
+                 manifest["runtime_profile_digest"] = digest(profile)
+                 manifest.pop("manifest_digest"); manifest["manifest_digest"] = digest(manifest)
+                 given["input_manifest"] = manifest
+-                self.submission["jobs"][0]["stages"][1]["profile_digest"] = digest(profile)
++                self.submission["jobs"][0]["stages"][0]["profile_digest"] = digest(profile)
+             return value
+         # W385853: a realization is composable only with its instruction
+         # delivery tables; the simulated row declares simulated ones.
+         with mock.patch.dict(policy.REALIZATIONS, {"codex": synthetic}), mock.patch.dict(policy.MANAGED, {"codex": {"path": "fixture/instructions.md", "kind": policy.INSTRUCTIONS_KIND}}), \
+-                mock.patch.dict(policy.LABEL_ROLES, {"codex": ["implementation", "review"]}), mock.patch.object(self, "worker", side_effect=worker):
++                mock.patch.object(self, "worker", side_effect=worker):
+             job, control, composed = self.serving()
+             submit(job, self.submission)
+             producer, reviewer = (self.worker_of(composed, role).given for role in ("implementation", "review"))
+@@ -544,7 +545,7 @@ class SelectedCase(SelectedBase):
+             self.assertNotEqual(producer["adapter_digest"], reviewer["adapter_digest"])
+             self.assertEqual(self.states(job, composed)["implementation"], "queued")
+             self.assertEqual(self.states(job, composed)["review"], "blocked")
+-            self.assertEqual(reviewer["provider_contract"]["adapter"]["participation_sources"], [])
++            self.assertEqual(producer["provider_contract"]["adapter"]["participation_sources"], [])
+ 
+     def test_41_42_43_seeded_provider_refresh_survives_correction_without_export(self):
+         import provider_policy as worker_policy
+@@ -710,7 +711,9 @@ class SelectedCase(SelectedBase):
+         self.assertEqual(self.instructions_at_start, [])
+         worker = Path(claude_agent.__file__).parent
+         callers = sorted(path.name for path in worker.glob("*.py") if "invoke_provider(" in path.read_text() and path.name != "claude_agent.py")
+-        self.assertEqual(callers, ["integration_workload.py"])
++        # The Codex override delegates only after its R1 operand guard;
++        # it adds no integration-role support and has no native realization.
++        self.assertEqual(callers, ["codex_agent.py", "integration_workload.py"])
+         self.assertEqual(self.config["provider_contract"]["adapter"]["context_label"]["roles"], ["implementation", "review"])
+ 
+     def test_26_actual_argv_or_environment_drift_refuses_before_provider(self):
+diff --git a/v12/python/tools/parallel_test.py b/v12/python/tools/parallel_test.py
+index 0721e37..d7255c6 100644
+--- a/v12/python/tools/parallel_test.py
++++ b/v12/python/tools/parallel_test.py
+@@ -548,8 +548,10 @@ PARALLEL_MODULES = ("tests.job_manager.test_accepted_offer_retirement",
+     "tests.manager.test_proposing_fixture",
+     "tests.manager.test_provider_context",
+     "tests.manager.test_provider_home",
++    "tests.manager.test_codex_draft",
+     "tests.manager.test_model_attribution",
+     "tests.tools.test_provider_selection",
++    "tests.tools.test_codex_selection",
+     "tests.job_manager.test_provider_attribution_recovery",
+     "tests.manager.test_provider_context_delivery",
+     "tests.manager.test_stopped_settlement",
+diff --git a/v12/python/tools/pool.py b/v12/python/tools/pool.py
+index 9c4284b..6b02cd1 100644
+--- a/v12/python/tools/pool.py
++++ b/v12/python/tools/pool.py
+@@ -783,6 +783,10 @@ def composed(held, *, worker_id, role, participant, image_reference,
+             verification_seconds=limits["ordinary_verification"]["seconds"],
+             implementer_invocations=1, contextual=False,
+             provider_selection=provider_selection)
++        if provider_selection is not None:
++            from baton_v12 import provider_policy
++            provider_policy.validate_execution(identities["adapter"], role)
++            provider_policy.validate_credential_slots(identities["adapter"], sorted(profile), profile)
+         from datetime import datetime, timezone
+ 
+         bounds = next_run_bindings.deployment_bounds(
+diff --git a/v12/python/tools/single_worker.py b/v12/python/tools/single_worker.py
+index 45c0bce..6198f9a 100644
+--- a/v12/python/tools/single_worker.py
++++ b/v12/python/tools/single_worker.py
+@@ -392,6 +392,8 @@ def _held(document, *, roles=("implementation",)):
+             provider_policy.validate_adapter(binding["adapter"], selected,
+                 adapter_digest=given["adapter_digest"],
+                 tool_policy_digest=manifest["tool_policy_digest"])
++            provider_policy.validate_execution(binding["adapter"], given["launch_role"], given.get("provider_context"))
++            provider_policy.validate_credential_slots(binding["adapter"], given["credential_slots"], given["credential_profile"])
+             profile = binding["runtime_profile"]
+             if (digest(profile) != given["profile_digest"]
+                     or profile.get("schema") != "baton.single-implementation-runtime-profile/2"
+diff --git a/v12/worker/claude_agent.py b/v12/worker/claude_agent.py
+index e6fc601..094d412 100644
+--- a/v12/worker/claude_agent.py
++++ b/v12/worker/claude_agent.py
+@@ -2294,8 +2294,12 @@ class ClaudeAgent:
+             reader.join()
+         if status != 0 or partial[0] or len(held) > 1024:
+             return None
++        return self.decode_provider_version(bytes(held))
++
++    def decode_provider_version(self, raw):
++        """Decode the bounded version probe without interpreting a turn."""
+         try:
+-            match = re.fullmatch(r"([0-9]+\.[0-9]+\.[0-9]+)(?: \(Claude Code\))?", held.decode("utf-8").strip())
++            match = re.fullmatch(r"([0-9]+\.[0-9]+\.[0-9]+)(?: \(Claude Code\))?", raw.decode("utf-8").strip())
+             return match.group(1) if match else None
+         except UnicodeError:
+             return None
+@@ -5370,6 +5374,10 @@ class ClaudeAgent:
+                 except OSError:
+                     pass
+ 
++    def provider_credential_slot(self, selected):
++        from provider_policy import credential_slot
++        return credential_slot(selected["contract"]["selection"]["provider"])
++
+     def _prepared_home(self, scratch):
+         """A private HOME whose credential path POINTS AT the mounted slot.
+ 
+@@ -5396,7 +5404,7 @@ class ClaudeAgent:
+             except ValueError as failure:
+                 raise TaskRefusal("managed-entry delivery disagrees with this build") from failure
+             return prepare(rule["home"], credential_path=rule["credential"]["path"],
+-                           delivered=os.path.join(CREDENTIAL_ROOT, CREDENTIAL_SLOT),
++                           delivered=os.path.join(CREDENTIAL_ROOT, self.provider_credential_slot(selected)),
+                            mode=rule["credential"]["mode"], managed=managed)
+         slot = os.path.join(CREDENTIAL_ROOT, CREDENTIAL_SLOT)
+         if not os.path.exists(slot):

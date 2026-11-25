@@ -392,6 +392,8 @@ def _held(document, *, roles=("implementation",)):
             provider_policy.validate_adapter(binding["adapter"], selected,
                 adapter_digest=given["adapter_digest"],
                 tool_policy_digest=manifest["tool_policy_digest"])
+            provider_policy.validate_execution(binding["adapter"], given["launch_role"], given.get("provider_context"))
+            provider_policy.validate_credential_slots(binding["adapter"], given["credential_slots"], given["credential_profile"])
             profile = binding["runtime_profile"]
             if (digest(profile) != given["profile_digest"]
                     or profile.get("schema") != "baton.single-implementation-runtime-profile/2"

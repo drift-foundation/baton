@@ -1,0 +1,147 @@
+{
+  "kind": "static preparation provenance checks, not product tests",
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "observed_at": "2026-11-24T20:44:20.494983+00:00",
+  "duration_seconds": 0.001107898075133562,
+  "checks": [
+    {
+      "name": "inventory version",
+      "passed": true
+    },
+    {
+      "name": "inventory root-help",
+      "passed": true
+    },
+    {
+      "name": "inventory exec-help",
+      "passed": true
+    },
+    {
+      "name": "inventory home-readonly",
+      "passed": true
+    },
+    {
+      "name": "inventory home-readonly-warning",
+      "passed": true
+    },
+    {
+      "name": "inventory startup-home",
+      "passed": true
+    },
+    {
+      "name": "inventory inventory-summary",
+      "passed": true
+    },
+    {
+      "name": "inventory cleanup",
+      "passed": true
+    },
+    {
+      "name": "contract work/records/2026/11/finding-v12-native-provider-selection/IMPLEMENTATION-CONTRACT-CONSOLIDATED-REV2-2026-11-23.md",
+      "passed": true
+    },
+    {
+      "name": "contract work/records/2026/11/finding-v12-native-provider-selection/IMPLEMENTATION-CONTRACT-N1N2-ADDENDUM-2026-11-23.md",
+      "passed": true
+    },
+    {
+      "name": "contract work/records/2026/11/finding-host-worker-instruction-separation/DELIVERY-CONTRACT-FINAL-2026-11-24.md",
+      "passed": true
+    },
+    {
+      "name": "source v12/worker/claude_agent.py",
+      "passed": true
+    },
+    {
+      "name": "source v12/worker/dogfood_entry.py",
+      "passed": true
+    },
+    {
+      "name": "source v12/worker/Dockerfile.claude",
+      "passed": true
+    },
+    {
+      "name": "source v12/python/src/baton_v12/provider_policy/__init__.py",
+      "passed": true
+    },
+    {
+      "name": "source v12/python/src/baton_v12/provider_policy/home.py",
+      "passed": true
+    },
+    {
+      "name": "source v12/python/src/baton_v12/provider_policy/attribution.py",
+      "passed": true
+    },
+    {
+      "name": "source v12/python/tools/pool.py",
+      "passed": true
+    },
+    {
+      "name": "source v12/python/tools/next_run_bindings.py",
+      "passed": true
+    },
+    {
+      "name": "source v12/python/tools/single_worker.py",
+      "passed": true
+    },
+    {
+      "name": "source v12/python/tools/parallel_test.py",
+      "passed": true
+    },
+    {
+      "name": "source v12/DESIGN.md",
+      "passed": true
+    },
+    {
+      "name": "source v12/python/TESTING.md",
+      "passed": true
+    },
+    {
+      "name": "observed help option --dangerously-bypass-approvals-and-sandbox",
+      "passed": true
+    },
+    {
+      "name": "observed help option --ignore-user-config",
+      "passed": true
+    },
+    {
+      "name": "observed help option --ignore-rules",
+      "passed": true
+    },
+    {
+      "name": "observed help option --json",
+      "passed": true
+    },
+    {
+      "name": "observed help option --model",
+      "passed": true
+    },
+    {
+      "name": "observed exact version",
+      "passed": true
+    },
+    {
+      "name": "no guessed credential target",
+      "passed": true
+    },
+    {
+      "name": "no guessed instruction target",
+      "passed": true
+    },
+    {
+      "name": "no guessed session target",
+      "passed": true
+    },
+    {
+      "name": "no participation sources",
+      "passed": true
+    }
+  ],
+  "checked": 33,
+  "passed": 33,
+  "failed": 0,
+  "product_tests_run": false,
+  "affected_product_groups": [],
+  "exit_status": 0
+}

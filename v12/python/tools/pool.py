@@ -783,6 +783,10 @@ def composed(held, *, worker_id, role, participant, image_reference,
             verification_seconds=limits["ordinary_verification"]["seconds"],
             implementer_invocations=1, contextual=False,
             provider_selection=provider_selection)
+        if provider_selection is not None:
+            from baton_v12 import provider_policy
+            provider_policy.validate_execution(identities["adapter"], role)
+            provider_policy.validate_credential_slots(identities["adapter"], sorted(profile), profile)
         from datetime import datetime, timezone
 
         bounds = next_run_bindings.deployment_bounds(

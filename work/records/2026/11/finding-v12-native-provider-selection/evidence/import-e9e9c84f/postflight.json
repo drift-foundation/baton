@@ -1,0 +1,171 @@
+{
+  "candidate": "sha256:e9e9c84f39ddaf2cd7aa4f358d68682dd27eb45bf51e04eef4cb5dc3b465657f",
+  "verified": [
+    {
+      "path": "v12/PROVIDER-SELECTION.md",
+      "existing": true,
+      "base_sha256": "aee06f4c2d84cfeb1830071ed31d6bd098f093ad6d403deee615600b3cce8f9c",
+      "target_mode": "0o644",
+      "manifest_mode": "0o644",
+      "sha256": "20023627cc76192990fcd4e5bf1967f9e8910f0304be7dcc5380ca6a79c8e1d8"
+    },
+    {
+      "path": "v12/python/src/baton_v12/provider_policy/__init__.py",
+      "existing": true,
+      "base_sha256": "0521d378d59e3720190ffe0980111e2954ca3c07c4b16c6ae706db159b9d553b",
+      "target_mode": "0o644",
+      "manifest_mode": "0o644",
+      "sha256": "45927d92848cb19999bfa7af9c2539bd0dac0763590efb8f0c00e466e14cbc37"
+    },
+    {
+      "path": "v12/python/tests/manager/codex_fixtures.py",
+      "existing": false,
+      "base_sha256": null,
+      "target_mode": "0o644",
+      "manifest_mode": "0o664",
+      "sha256": "0e7204b90f4f3cc5efc0b4c35888152637dbe85bdcccbeea8974529c64acd04a"
+    },
+    {
+      "path": "v12/python/tests/manager/fixtures/codex-0.169.0/exec-help.txt",
+      "existing": false,
+      "base_sha256": null,
+      "target_mode": "0o644",
+      "manifest_mode": "0o644",
+      "sha256": "b7bbe3ad07a91a11393c9a83d97873e0bca1d1766e4d7cd9013da2c374d34f51"
+    },
+    {
+      "path": "v12/python/tests/manager/fixtures/codex-0.169.0/provenance.json",
+      "existing": false,
+      "base_sha256": null,
+      "target_mode": "0o644",
+      "manifest_mode": "0o644",
+      "sha256": "b4eb5c5a58ab5a8538807660e137b96d4660907b7934dd5d319a6dd2f6f72510"
+    },
+    {
+      "path": "v12/python/tests/manager/fixtures/codex-0.169.0/version.txt",
+      "existing": false,
+      "base_sha256": null,
+      "target_mode": "0o644",
+      "manifest_mode": "0o644",
+      "sha256": "f3807264176de3c20897352ed66cf258503bb4d52bf8428b5e8a3ac21c22cdcb"
+    },
+    {
+      "path": "v12/python/tests/manager/test_codex_draft.py",
+      "existing": false,
+      "base_sha256": null,
+      "target_mode": "0o644",
+      "manifest_mode": "0o644",
+      "sha256": "d271a8d8de51865a6138ca4be13340c5277f1fb577f8a32b0263358b46cf6066"
+    },
+    {
+      "path": "v12/python/tests/manager/test_worker_packaging.py",
+      "existing": true,
+      "base_sha256": "494a64ba1f3b1238f3c66ac28157a95bd00bb3e778c0e8602db535456e833006",
+      "target_mode": "0o664",
+      "manifest_mode": "0o644",
+      "sha256": "f05c38f501f9b97a4ff9f600dfdfcbe75f4d66838992ca82708c4220915e1811"
+    },
+    {
+      "path": "v12/python/tests/tools/test_codex_selection.py",
+      "existing": false,
+      "base_sha256": null,
+      "target_mode": "0o644",
+      "manifest_mode": "0o664",
+      "sha256": "6a2a2929ba3cea414b58d353f1cf5849a0094f204384b54b5cceb4d01ab17b0d"
+    },
+    {
+      "path": "v12/python/tests/tools/test_provider_selection.py",
+      "existing": true,
+      "base_sha256": "75ab36c8790876eda984aec42a045d577224c886eba0e5f7cc772b9c572be82e",
+      "target_mode": "0o644",
+      "manifest_mode": "0o644",
+      "sha256": "11ba573bffe0f889af4156e12c7a1081d0511dc9fab8bea7cfbecf0f0f422921"
+    },
+    {
+      "path": "v12/python/tools/parallel_test.py",
+      "existing": true,
+      "base_sha256": "4c44c7c871e8d0927de4a0d93ca59e800a8ce3add2670aa4d650deafc2ea2e47",
+      "target_mode": "0o644",
+      "manifest_mode": "0o644",
+      "sha256": "4180281ef3402d793bf30ed887ec90af4b306f75252a846a1cfe54e8f1a5f856"
+    },
+    {
+      "path": "v12/python/tools/pool.py",
+      "existing": true,
+      "base_sha256": "7ef018e273e7e7b466cf420493713f853bd1eb3c301350bb85c78888fc1cc75f",
+      "target_mode": "0o644",
+      "manifest_mode": "0o644",
+      "sha256": "3517c905e0f674c4cb611f9167c10300c228e340dee50324c2e823dfdf2a0d57"
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "existing": true,
+      "base_sha256": "b9ea2bb31271dda2d5a19ba2023cffeb3c9b2db5148deda38d7c7a1a0eaa2dff",
+      "target_mode": "0o664",
+      "manifest_mode": "0o644",
+      "sha256": "70d5d19eea1bad436d79d3d00c5247f65fc32495c450b58fdbe7fa2b686dbdda"
+    },
+    {
+      "path": "v12/worker/Dockerfile.codex",
+      "existing": false,
+      "base_sha256": null,
+      "target_mode": "0o644",
+      "manifest_mode": "0o644",
+      "sha256": "0c81e45ff858f96bbac78daadc6c0c03ffce4e241ff38e0d28bbf5e620fcdf0e"
+    },
+    {
+      "path": "v12/worker/claude_agent.py",
+      "existing": true,
+      "base_sha256": "5c14e0af5647da6669ee3a0b861535d33688a131d5115115e5b73208234e40ef",
+      "target_mode": "0o644",
+      "manifest_mode": "0o644",
+      "sha256": "ef3a641b168319fabefbd9329fc96515440ec36ab2d7b783acf7175d335184a6"
+    },
+    {
+      "path": "v12/worker/codex_agent.py",
+      "existing": false,
+      "base_sha256": null,
+      "target_mode": "0o644",
+      "manifest_mode": "0o644",
+      "sha256": "e78f6425de6dceb875cc408a7634793accf53df12f3ad4cc8ce22519b226ceea"
+    },
+    {
+      "path": "v12/worker/codex_entry.py",
+      "existing": false,
+      "base_sha256": null,
+      "target_mode": "0o644",
+      "manifest_mode": "0o644",
+      "sha256": "d08ebfb6812e5c1458f79136ce73ad0f3a110ca87643f42dfc56822c1fa3f86d"
+    }
+  ],
+  "exact_bytes": true,
+  "existing_modes_preserved": true,
+  "new_file_mode": "0o644 (Git records only the executable bit; none is executable)",
+  "isolation_paths_unchanged": true,
+  "v12_status_paths_after": [
+    "v12/DESIGN.md",
+    "v12/PROVIDER-SELECTION.md",
+    "v12/python/TESTING.md",
+    "v12/python/src/baton_v12/provider_policy/__init__.py",
+    "v12/python/tests/__init__.py",
+    "v12/python/tests/git_isolation.py",
+    "v12/python/tests/manager/codex_fixtures.py",
+    "v12/python/tests/manager/disk_roots.py",
+    "v12/python/tests/manager/fixtures/codex-0.169.0/exec-help.txt",
+    "v12/python/tests/manager/fixtures/codex-0.169.0/provenance.json",
+    "v12/python/tests/manager/fixtures/codex-0.169.0/version.txt",
+    "v12/python/tests/manager/test_codex_draft.py",
+    "v12/python/tests/manager/test_worker_packaging.py",
+    "v12/python/tests/tools/test_codex_selection.py",
+    "v12/python/tests/tools/test_environment.py",
+    "v12/python/tests/tools/test_provider_selection.py",
+    "v12/python/tools/parallel_test.py",
+    "v12/python/tools/pool.py",
+    "v12/python/tools/single_worker.py",
+    "v12/worker/Dockerfile.codex",
+    "v12/worker/claude_agent.py",
+    "v12/worker/codex_agent.py",
+    "v12/worker/codex_entry.py"
+  ],
+  "unexpected_v12_paths": []
+}

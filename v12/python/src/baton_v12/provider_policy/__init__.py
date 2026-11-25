@@ -49,7 +49,12 @@ INSTRUCTIONS_BOUND = 16384
 MANAGED = {"claude": {"path": ".claude/CLAUDE.md", "kind": INSTRUCTIONS_KIND}}
 LABEL_SCHEMA = "baton.native-worker-context/1"
 LABEL_BOUND = 2048
-LABEL_ROLES = {"claude": ["implementation", "review"]}
+LABEL_ROLES = {"claude": ["implementation", "review"], "codex": ["implementation"]}
+# Entry and delivered-slot names are host/worker interface facts, not vendor
+# credential filenames. Codex still has no REALIZATIONS or MANAGED entry (J1).
+ENTRYPOINTS = {"claude": ["python3", "/opt/baton/dogfood_entry.py"],
+               "codex": ["python3", "/opt/baton/codex_entry.py"]}
+CREDENTIAL_SLOTS = {"claude": "claude", "codex": "codex"}
 # The execution-context label. It states which instructions apply; it grants
 # nothing. It names no Job, attempt, worker or protocol path.
 LABEL_TEMPLATE = """\
@@ -178,6 +183,30 @@ def selection(value):
     return dict(value)
 
 
+def credential_slot(provider):
+    if provider not in CREDENTIAL_SLOTS:
+        raise PolicyRefusal("provider has no delivered credential slot")
+    return CREDENTIAL_SLOTS[provider]
+
+
+def validate_execution(document, role, provider_context=None):
+    """Codex is fresh and serves only its bound context-label roles.
+
+    Claude's existing integration behavior is separately owned (W386048).
+    The caller first validates the adapter; this adds no alternative role list.
+    """
+    if document.get("provider") == "codex":
+        if provider_context is not None or role not in document["context_label"]["roles"]:
+            raise PolicyRefusal("Codex requires a fresh launch in a declared label role")
+
+
+def validate_credential_slots(document, slots, profile):
+    if document.get("provider") == "codex":
+        slot = credential_slot("codex")
+        if slots != [slot] or type(profile) is not dict or set(profile) != {slot}:
+            raise PolicyRefusal("Codex requires exactly its declared credential slot")
+
+
 def adapter(selected, *, network, tool_policy=None):
     selected = selection(selected)
     policy = POLICY if tool_policy is None else tool_policy
@@ -187,13 +216,13 @@ def adapter(selected, *, network, tool_policy=None):
     realization = REALIZATIONS[provider]
     if set(realization) != set(POLICY) - {"schema"}:
         raise PolicyRefusal("provider realization does not cover the shared policy")
-    if provider not in MANAGED or provider not in LABEL_ROLES:
+    if provider not in MANAGED or provider not in LABEL_ROLES or provider not in ENTRYPOINTS:
         raise PolicyRefusal("provider realization declares no instruction delivery")
     command = realization["interaction"]
     return {
         "schema": "baton.single-implementation-adapter/2",
         "adapter_name": "docker-single-worker", "engine": "docker",
-        "network": network, "entrypoint": ["python3", "/opt/baton/dogfood_entry.py"],
+        "network": network, "entrypoint": list(ENTRYPOINTS[provider]),
         "provider": provider,
         "argv_policy": {"program": command["program"],
                         "fixed": [*command["before_permissions"], *realization["tool_permission"], *command["after_permissions"]],

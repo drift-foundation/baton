@@ -1,0 +1,4 @@
+[group] manager-pure: 63 parallel, 0 serial, 0 supervised modules
+[collect] 63 parallel modules -> 4532 tests in 554 shards
+[parallel] jobs=4 (available CPUs 32)
+[runner] interrupted by signal 15

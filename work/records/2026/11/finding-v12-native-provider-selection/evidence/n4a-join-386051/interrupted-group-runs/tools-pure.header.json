@@ -1,0 +1,15 @@
+{
+  "command": [
+    "just",
+    "test-group",
+    "tools-pure",
+    "4"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12",
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "group": "tools-pure",
+  "bound_seconds": 600,
+  "pid": 2104283,
+  "collected": 3691,
+  "base": "ac034bc1c9fae525b94a1a5f21d9721c677dc39e"
+}

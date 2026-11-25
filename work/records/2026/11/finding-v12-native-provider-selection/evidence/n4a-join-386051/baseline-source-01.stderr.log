@@ -1,0 +1,17 @@
+test_every_declared_input_is_present_and_outside_the_scope (tests.tools.test_source_identity.TheRealTreesDeclaredInputsExist.test_every_declared_input_is_present_and_outside_the_scope) ... FAIL
+
+======================================================================
+FAIL: test_every_declared_input_is_present_and_outside_the_scope (tests.tools.test_source_identity.TheRealTreesDeclaredInputsExist.test_every_declared_input_is_present_and_outside_the_scope)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_source_identity.py", line 178, in test_every_declared_input_is_present_and_outside_the_scope
+    self.assertTrue(one["path"].startswith("work/records/"), one["path"])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : AGENTS.md
+
+----------------------------------------------------------------------
+Ran 1 test in 0.031s
+
+FAILED (failures=1)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

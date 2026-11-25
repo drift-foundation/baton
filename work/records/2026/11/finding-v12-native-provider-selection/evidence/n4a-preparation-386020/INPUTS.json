@@ -1,0 +1,43 @@
+{
+  "inventory_image": "sha256:17d250b7f620cf69fce0fd96dc1ccbb5b76151a2a6f6bae4fedb2027076f6b0c",
+  "evidence": {
+    "version": {
+      "path": "work/records/2026/11/finding-v12-native-provider-selection/evidence/n3-execution-n3-386002-01/probe-version-01/probe-output/stdout.txt",
+      "sha256": "f3807264176de3c20897352ed66cf258503bb4d52bf8428b5e8a3ac21c22cdcb"
+    },
+    "root-help": {
+      "path": "work/records/2026/11/finding-v12-native-provider-selection/evidence/n3-execution-n3-386002-01/probe-help-01/probe-output/stdout.txt",
+      "sha256": "b69c5454449539e250b4d7f636e612e7a6686d60d1a9d2d50c8b82628af00dde"
+    },
+    "exec-help": {
+      "path": "work/records/2026/11/finding-v12-native-provider-selection/evidence/n3-execution-n3-386002-01/probe-exec-help-01/probe-output/stdout.txt",
+      "sha256": "b7bbe3ad07a91a11393c9a83d97873e0bca1d1766e4d7cd9013da2c374d34f51"
+    },
+    "home-readonly": {
+      "path": "work/records/2026/11/finding-v12-native-provider-selection/evidence/n3-execution-n3-386002-01/probe-home-readonly-01/probe-output/probe.json",
+      "sha256": "3bfb060c14bb97c1c11b5e6f411aa9cc8c010876b873dc39ea68dd732b546d34"
+    },
+    "home-readonly-warning": {
+      "path": "work/records/2026/11/finding-v12-native-provider-selection/evidence/n3-execution-n3-386002-01/probe-home-readonly-01/probe-output/stderr.txt",
+      "sha256": "d47a06d59aba2814c3fb7460049fc2ccbfc834196c956d6c6558e8be8b079e24"
+    },
+    "startup-home": {
+      "path": "work/records/2026/11/finding-v12-native-provider-selection/evidence/n3-execution-n3-386002-01/probe-help-01/probe-output/probe.json",
+      "sha256": "646871d17a6d147e16ad025768c7cf2ec03983a720efe2126ca30ea828cab56b"
+    },
+    "inventory-summary": {
+      "path": "work/records/2026/11/finding-v12-native-provider-selection/evidence/n3-execution-n3-386002-01/SUMMARY.json",
+      "sha256": "98e4ca927847a338cc430b7b059807177b75593ea94bbcc84c4dd858d78190fa"
+    },
+    "cleanup": {
+      "path": "work/records/2026/11/finding-v12-native-provider-selection/evidence/n3-execution-n3-386002-01/cleanup-verification.json",
+      "sha256": "018b3482f388481ee5e2f2442daef09eecc0311b59d45d55905cf1ae81ac7055"
+    }
+  },
+  "contracts": {
+    "work/records/2026/11/finding-v12-native-provider-selection/IMPLEMENTATION-CONTRACT-CONSOLIDATED-REV2-2026-11-23.md": "dc3245c0c5594f15d22c87cd9b9a19352c633c3e4ef9a52f070f24d87960bd87",
+    "work/records/2026/11/finding-v12-native-provider-selection/IMPLEMENTATION-CONTRACT-N1N2-ADDENDUM-2026-11-23.md": "c4d2c4b7ebe4c60b6e5eb9543ff4664d2fd86511c6b8a4f538c2b58e27d07117",
+    "work/records/2026/11/finding-host-worker-instruction-separation/DELIVERY-CONTRACT-FINAL-2026-11-24.md": "c66c8c5e40fb9defa721daf356a8833daa531be190944971efcb470b58315965"
+  },
+  "delivery_contract_status": "whole-contract approval/implementation pending; individual owner rulings preserved"
+}

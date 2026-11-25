@@ -1,0 +1,14 @@
+{
+  "kind": "retained N3 offline inventory, not turn output",
+  "image": "sha256:17d250b7f620cf69fce0fd96dc1ccbb5b76151a2a6f6bae4fedb2027076f6b0c",
+  "files": {
+    "version.txt": {
+      "source": "work/records/2026/11/finding-v12-native-provider-selection/evidence/n3-execution-n3-386002-01/probe-version-01/probe-output/stdout.txt",
+      "sha256": "f3807264176de3c20897352ed66cf258503bb4d52bf8428b5e8a3ac21c22cdcb"
+    },
+    "exec-help.txt": {
+      "source": "work/records/2026/11/finding-v12-native-provider-selection/evidence/n3-execution-n3-386002-01/probe-exec-help-01/probe-output/stdout.txt",
+      "sha256": "b7bbe3ad07a91a11393c9a83d97873e0bca1d1766e4d7cd9013da2c374d34f51"
+    }
+  }
+}

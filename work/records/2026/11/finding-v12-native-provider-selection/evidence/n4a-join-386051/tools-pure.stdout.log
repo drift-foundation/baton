@@ -1,0 +1,1484 @@
+[group] tools-pure: 56 parallel, 0 serial, 0 supervised modules
+[collect] 56 parallel modules -> 3691 tests in 511 shards
+[parallel] jobs=4 (available CPUs 32)
+--- parallel source ---
+[pass] tests.tools.test_accepted_base.AcceptedBaseCase (18 tests)
+[pass] tests.tools.test_attempt_diagnostics.JobFactsAndObservationTimeReachTheReport (15 tests)
+[pass] tests.tools.test_attempt_diagnostics.RealStatusReportSeam (13 tests)
+[pass] tests.tools.test_attempt_diagnostics.TheCommandTableServesAndDispatchesIt (4 tests)
+[pass] tests.tools.test_attempt_diagnostics.TheReportIsAPureProjection (12 tests)
+[pass] tests.tools.test_attempt_diagnostics.TheWorkerDeclaredEndingIsItsOwnAxis (8 tests)
+[pass] tests.tools.test_attempt_logs_command.FollowDRAINSBeforeItDecidesAnything (5 tests)
+[pass] tests.tools.test_attempt_logs_command.SmallBoundsAlwaysMakePROGRESS (4 tests)
+[pass] tests.tools.test_attempt_logs_command.TheCommandReachesNothingItShouldNot (4 tests)
+[pass] tests.tools.test_attempt_logs_command.TheOperatorCanSeeAnAttemptWithoutAStoreOrAnEngine (9 tests)
+[pass] tests.tools.test_bootstrap.ADeploymentMayInstallOnePublicationWorker (4 tests)
+[pass] tests.tools.test_bootstrap.AFreshInstallHasZeroJobs (8 tests)
+[pass] tests.tools.test_bootstrap.ARepeatProvisionsTheWorkerSourcesItNames (8 tests)
+[pass] tests.tools.test_bootstrap.AnIncompleteDeploymentIsRefusedBeforeAnythingIsMade (3 tests)
+[pass] tests.tools.test_bootstrap.AnInstanceMayNameItsSourceWithoutAJob (2 tests)
+[pass] tests.tools.test_bootstrap.AnInstanceWithNoCAPACITY_FAILS_CLOSED (2 tests)
+[pass] tests.tools.test_bootstrap.AnInstanceWithNoCapacityREFUSES_WORK_IT_CANNOT_SERVE (7 tests)
+[pass] tests.tools.test_bootstrap.AnOptionalSelectionTravelsOrIsRefused (7 tests)
+[pass] tests.tools.test_bootstrap.EveryMissingInputIsNamedAtOnce (5 tests)
+[pass] tests.tools.test_bootstrap.RepeatingIt (13 tests)
+[pass] tests.tools.test_bootstrap.TheAssetInventoryIsOneInventory (4 tests)
+[pass] tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing (17 tests)
+[pass] tests.tools.test_bootstrap.TheEstablishedRootAdmitsNewJobsAtTheCurrentTarget (5 tests)
+[pass] tests.tools.test_bootstrap.TheFIRSTCanonicalTargetIsESTABLISHED (9 tests)
+[pass] tests.tools.test_bootstrap.TheFreshInstallStillNeedsTheWORKERSToBeSeparable (2 tests)
+[pass] tests.tools.test_bootstrap.TheGUIDES_OWN_EXAMPLE_COMPOSES_AND_SERVES_FROM_SOURCE (3 tests)
+[pass] tests.tools.test_bootstrap.TheINSTALLED_INSTANCE_SERVES_THE_SAME_WAY (6 tests)
+[pass] tests.tools.test_bootstrap.TheInputContractIsClosed (5 tests)
+[pass] tests.tools.test_bootstrap.TheInstallPathRefusesBadBasesBeforeAnyEffect (1 tests)
+[pass] tests.tools.test_bootstrap.TheInstallerOperandNeverReachesTheManager (3 tests)
+[pass] tests.tools.test_bootstrap.TheInstanceGeneratesItsOwnIdentity (13 tests)
+[pass] tests.tools.test_bootstrap.TheNativeHandoffRoutingIsConfiguredHere (14 tests)
+[pass] tests.tools.test_bootstrap.WhatItComposesOnTheAuthority (5 tests)
+[pass] tests.tools.test_bootstrap.WhatItDerives (10 tests)
+[pass] tests.tools.test_bootstrap.WhatItRefusesBeforeItTouchesAnything (9 tests)
+[pass] tests.tools.test_bootstrap.WhatItTELLSYouToDoNext (2 tests)
+[pass] tests.tools.test_codex_selection.CodexComposition (4 tests)
+[pass] tests.tools.test_connected_creation.AnInterruptedPublicationIsRecoverable (2 tests)
+[pass] tests.tools.test_connected_creation.CreateTimeWorkLabelsThroughTheRealCommand (14 tests)
+[pass] tests.tools.test_connected_creation.TheConnectedCreation (3 tests)
+[pass] tests.tools.test_connected_creation.TheInstallKeepsTheDocumentItConsumed (2 tests)
+[pass] tests.tools.test_connected_creation.TheInstallerInputIsOwnedOrRefused (8 tests)
+[pass] tests.tools.test_connected_creation.TheNativeRoutingThroughTheRealInstaller (3 tests)
+[pass] tests.tools.test_connected_creation.ThePackagedResourcesResolve (2 tests)
+[pass] tests.tools.test_connected_creation.TheRefusalsAreTruthful (4 tests)
+[pass] tests.tools.test_connected_creation.TheReusableInstanceComposesHandoffCapableWorkers (7 tests)
+[pass] tests.tools.test_connected_creation.TheReusableInstanceServesDefinedJobs (1 tests)
+[pass] tests.tools.test_connected_creation.TheSameIntentConverges (2 tests)
+[pass] tests.tools.test_connected_startup.TheCorrectionStartIsMeasured (3 tests)
+[pass] tests.tools.test_connected_startup.TheInitialRoutineStartIsMeasured (3 tests)
+[pass] tests.tools.test_connected_startup.TheIntervalsAreReportedWithTheirEndpoints (1 tests)
+[pass] tests.tools.test_correction_restart.CountedReopen (2 tests)
+[pass] tests.tools.test_correction_restart.CountedReopenInvalidEvidence (6 tests)
+[pass] tests.tools.test_correction_restart.TransactionBoundaryThroughTheConnectedPath (1 tests)
+[pass] tests.tools.test_correction_restart.UsefulCorrection (4 tests)
+[pass] tests.tools.test_correction_restart.UsefulCorrectionInvalidEvidence (13 tests)
+[pass] tests.tools.test_creation_ports.TheDerivationsOwnRefusals (5 tests)
+[pass] tests.tools.test_creation_ports.TheDerivedJobIsServable (3 tests)
+[pass] tests.tools.test_creation_ports.TheFourDerivedFacts (3 tests)
+[pass] tests.tools.test_creation_ports.TheOwnerRefusesIncoherenceBeforeThePortSeesIt (3 tests)
+[pass] tests.tools.test_creation_ports.TheRequestedTaskDoesNotReachTheWorker (5 tests)
+[pass] tests.tools.test_creation_ports.TwoDistinctTasksOnOnePool (10 tests)
+[pass] tests.tools.test_disposition_command.TheClosure (16 tests)
+[pass] tests.tools.test_disposition_command.TheFailureMatrix (6 tests)
+[pass] tests.tools.test_disposition_command.TheHumanIntegration (12 tests)
+[pass] tests.tools.test_disposition_command.TheInstalledSurface (2 tests)
+[pass] tests.tools.test_disposition_command.TheOwnerDecision (11 tests)
+[pass] tests.tools.test_disposition_command.ThePublicationInventory (2 tests)
+[pass] tests.tools.test_disposition_command.WhatIsDue (9 tests)
+[pass] tests.tools.test_disposition_command.WhatJUSTIFIESSkippingValidation (10 tests)
+[pass] tests.tools.test_disposition_command.WhatOneIdentityMEANS (16 tests)
+[pass] tests.tools.test_disposition_command.WhatTheREQUESTBindingDecides (7 tests)
+[pass] tests.tools.test_dogfood_operator.ARecoveryThatBeganAlwaysLeavesAnAccount (2 tests)
+[pass] tests.tools.test_dogfood_operator.AnOwnerDefectIsNotABadGrant (3 tests)
+[pass] tests.tools.test_dogfood_operator.EveryPostStartBranchEntersTheEnding (26 tests)
+[pass] tests.tools.test_dogfood_operator.OneSession (9 tests)
+[pass] tests.tools.test_dogfood_operator.RetentionIsAnOperatorDecision (23 tests)
+[pass] tests.tools.test_dogfood_operator.TheArcIsEffectivelyOnceAndAFreshAttemptIsFresh (3 tests)
+[pass] tests.tools.test_dogfood_operator.TheArcMaterializesBetweenActivationAndRuntimeCreation (9 tests)
+[pass] tests.tools.test_dogfood_operator.TheAttachedRecoveryEndsThroughTheRuledAbandonment (7 tests)
+[pass] tests.tools.test_dogfood_operator.TheChannelDrainsAndNoLongerCountsAnything (4 tests)
+[pass] tests.tools.test_dogfood_operator.TheCredentialIsMaterializedAfterActivationAndNotBefore (10 tests)
+[pass] tests.tools.test_dogfood_operator.TheCredentialToLaunchBoundaryConverges (23 tests)
+[pass] tests.tools.test_dogfood_operator.TheDocumentedCommandIsOneGrantsFile (15 tests)
+[pass] tests.tools.test_dogfood_operator.TheDocumentedRecoveryEndsRealAttachedState (16 tests)
+[pass] tests.tools.test_dogfood_operator.TheEvidenceRecordIsHeldBeforeItIsDurable (8 tests)
+[pass] tests.tools.test_dogfood_operator.TheFrozenTaskIsReadOnTheWayIn (8 tests)
+[pass] tests.tools.test_dogfood_operator.TheGrantsAreHeldAgainstTheFixedAssignment (24 tests)
+[pass] tests.tools.test_dogfood_operator.TheHumanContractIsHeldBeforeAnySideEffect (12 tests)
+[pass] tests.tools.test_dogfood_operator.TheIdentityHoldIsAppliedTwice (2 tests)
+[pass] tests.tools.test_dogfood_operator.TheIndependentDerivationReadsReceiptLocators (1 tests)
+[pass] tests.tools.test_dogfood_operator.TheIndependentRerunNeverChangesWhatItMeasures (14 tests)
+[pass] tests.tools.test_dogfood_operator.TheLocatorGrammarHasONEOwner (6 tests)
+[pass] tests.tools.test_dogfood_operator.TheOperatorAndTheWorkerAgreeOnTheTasksCONSTANTS (9 tests)
+[pass] tests.tools.test_dogfood_operator.ThePreflightRunsBeforeAnythingIsStaged (15 tests)
+[pass] tests.tools.test_dogfood_operator.TheProtocolDocumentsAreComposedHere (10 tests)
+[pass] tests.tools.test_dogfood_operator.ThePublicRecoveryEndsAnInterruptedAttempt (8 tests)
+[pass] tests.tools.test_dogfood_operator.ThePublicRetryRunsFromRealDurableState (1 tests)
+[pass] tests.tools.test_dogfood_operator.TheRecoveryIsRetryableAndRefusesAConflictingDeclaration (10 tests)
+[pass] tests.tools.test_dogfood_operator.TheRecoveryMatrixOverDurableAttachedState (21 tests)
+[pass] tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime (48 tests)
+[pass] tests.tools.test_dogfood_operator.TheSourceIsStagedBoundedAndOnce (6 tests)
+[pass] tests.tools.test_dogfood_operator.TheStatedCeilingsAreACeiling (3 tests)
+[pass] tests.tools.test_dogfood_operator.TheTaskIsHeldEverywhereItIsBelieved (3 tests)
+[pass] tests.tools.test_dossier_command.ItBindsAndReadsThroughTheCommand (6 tests)
+[pass] tests.tools.test_dossier_command.ItCitesEvidenceByDigestingIt (3 tests)
+[pass] tests.tools.test_dossier_command.TheRecordVerbIsPartOfTheInstalledCommand (3 tests)
+[pass] tests.tools.test_dossier_command.VerifyResolvesCitationsHonestly (7 tests)
+[pass] tests.tools.test_dossier_recovery.ContainedEvidence (8 tests)
+[pass] tests.tools.test_dossier_recovery.TheClosedRecoverySet (36 tests)
+[pass] tests.tools.test_dossier_recovery.ThePARENTReplacementRaceIsClosed (5 tests)
+[pass] tests.tools.test_environment.AnInterruptedSetupResumes (5 tests)
+[pass] tests.tools.test_environment.NamingTheInterpreter (3 tests)
+[pass] tests.tools.test_environment.PreparingIt (10 tests)
+[pass] tests.tools.test_environment.TheBootstrapRecipeReachesTheHelper (9 tests)
+[pass] tests.tools.test_environment.TheBootstrapTestRootFollowsTheOperator (7 tests)
+[pass] tests.tools.test_environment.TheGateCannotSkip (4 tests)
+[pass] tests.tools.test_environment.TheInterpreterOverrideIsExecutable (15 tests)
+[pass] tests.tools.test_environment.TheRecipesRefuseAChangedRuntime (4 tests)
+[pass] tests.tools.test_environment.TheRecipesUseIt (6 tests)
+[pass] tests.tools.test_environment.WhatItSeesThere (8 tests)
+[pass] tests.tools.test_environment.WhereItLives (4 tests)
+[pass] tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout (23 tests)
+[pass] tests.tools.test_execution_limits.AFreshProcessAdoptsBothJobsConfiguredLaunches (1 tests)
+[pass] tests.tools.test_execution_limits.AReopenedServingKeepsBothJobsLaunchesUntouched (1 tests)
+[pass] tests.tools.test_execution_limits.TheAdapterHandsTheCommandWhatWasConfigured (9 tests)
+[pass] tests.tools.test_execution_limits.TheAdmittedFailureMatrix (9 tests)
+[pass] tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling (26 tests)
+[pass] tests.tools.test_execution_limits.TheComposedObservationAdoptsTwoJobsConfiguredLaunches (3 tests)
+[pass] tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion (25 tests)
+[pass] tests.tools.test_execution_limits.TheDerivedJudgmentCarriesItsOwningResultsJob (5 tests)
+[pass] tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling (15 tests)
+[pass] tests.tools.test_execution_limits.TheHostSideVerificationCarriesTheSameCeiling (5 tests)
+[pass] tests.tools.test_execution_limits.TheImportedVerificationUsesItsOwnBoundary (7 tests)
+[pass] tests.tools.test_execution_limits.TheJobOwnerAnswersOneBoundaryWithoutADelivery (6 tests)
+[pass] tests.tools.test_execution_limits.TheTwoReadersResolveOneJobIdentically (3 tests)
+[pass] tests.tools.test_execution_limits.TwoJobsCeilingsDoNotLeakIntoEachOther (4 tests)
+[pass] tests.tools.test_fresh_retry_line_recovery.ALegitimatePendingReviewStillRefuses (2 tests)
+[pass] tests.tools.test_fresh_retry_line_recovery.TheEndingReleasesTheLineItHeld (3 tests)
+[pass] tests.tools.test_fresh_retry_line_recovery.TheReleaseRefusesACandidateBeforeAnyFreeze (4 tests)
+[pass] tests.tools.test_fresh_retry_line_recovery.TheReleaseRefusesUnsettledAndForeignExecution (2 tests)
+[pass] tests.tools.test_fresh_retry_line_recovery.TheReleaseReplaysAfterALaterCheckpoint (4 tests)
+[pass] tests.tools.test_fresh_retry_line_recovery.TheReleaseSurvivesAnInterruptedWrite (3 tests)
+[pass] tests.tools.test_fresh_retry_line_recovery.TheReleasedEndingIsReEnterable (3 tests)
+[pass] tests.tools.test_fresh_retry_line_recovery.WhatTheReleaseRefuses (4 tests)
+[pass] tests.tools.test_instance.EveryPathIsDerived (9 tests)
+[pass] tests.tools.test_instance.PublicationRefusesToReplace (7 tests)
+[pass] tests.tools.test_instance.TheAdmissionDecidesBeforeAnythingHappens (7 tests)
+[pass] tests.tools.test_instance.TheAdmissionIsCarriedNotRepeated (3 tests)
+[pass] tests.tools.test_instance.TheBootstrapPreparesTheRepositories (25 tests)
+[pass] tests.tools.test_instance.TheCREATEStepFailureIsProvedConnected (5 tests)
+[pass] tests.tools.test_instance.TheDeploymentCarriesItsOwnJustfile (25 tests)
+[pass] tests.tools.test_instance.TheDestinationIsAskedAboutAgain (7 tests)
+[pass] tests.tools.test_instance.TheDestinationOwnsItsWorkspace (7 tests)
+[pass] tests.tools.test_instance.TheIdentityHasToMeanSomething (7 tests)
+[pass] tests.tools.test_instance.TheRunningCommandIsBoundToo (3 tests)
+[pass] tests.tools.test_instance.TheRuntimeIsBoundWhole (8 tests)
+[pass] tests.tools.test_instance.WhatARecipeAsksAnInstance (8 tests)
+[pass] tests.tools.test_instance.WhatAnInstanceDerives (4 tests)
+[pass] tests.tools.test_integration_bundle.TheAuthorityAccountComesFromRealOwners (12 tests)
+[pass] tests.tools.test_integration_bundle.TheBundleBoundsAreDerivedAndReconciled (3 tests)
+[pass] tests.tools.test_integration_bundle.TheCustodyRootIsHeldAndNotResolved (5 tests)
+[pass] tests.tools.test_integration_bundle.TheExtractionIsBoundToOneDirectory (3 tests)
+[pass] tests.tools.test_integration_bundle.TheManifestIsRepresentableBeforeAnythingIsPublished (4 tests)
+[pass] tests.tools.test_integration_bundle.ThePathTableRefusesWhatItCannotAccountFor (16 tests)
+[pass] tests.tools.test_integration_bundle.TheProducerComposesFromRealOwners (12 tests)
+[pass] tests.tools.test_integration_bundle.TheProducerLooksAgainAfterItHasRead (4 tests)
+[pass] tests.tools.test_integration_bundle.TheProviderReportIsBoundedAndClosed (5 tests)
+[pass] tests.tools.test_integration_bundle.TheReaderProvesEveryComponentAndNotJustTheLast (6 tests)
+[pass] tests.tools.test_integration_bundle.TheReviewedPathTableComesFromRetainedObjects (6 tests)
+[pass] tests.tools.test_integration_bundle.TheRootIsTraversedAndNotJustOpened (5 tests)
+[pass] tests.tools.test_integration_bundle.TheSharedContentIsChargedOnce (3 tests)
+[pass] tests.tools.test_integration_bundle.TheThreeSpellingsOfOneProtocolAgree (4 tests)
+[pass] tests.tools.test_integration_bundle.TheWorkerReadsOnlyWhatTheEnvelopeNames (12 tests)
+[pass] tests.tools.test_integration_bundle.TheWorkerReadsTheAuthorityAccount (13 tests)
+[pass] tests.tools.test_integration_worker.TheLiveMarkerIsBookkeepingAndNeverAuthority (4 tests)
+[pass] tests.tools.test_integration_worker.ThePreparationUsesTheManagersOwnOwners (7 tests)
+[pass] tests.tools.test_integration_worker.TheStartRefusesBeforeAnythingIsExposed (5 tests)
+[pass] tests.tools.test_integration_worker.TheWholeIntegrationRunsThroughThisPort (15 tests)
+[pass] tests.tools.test_integration_worker.TheportIsConstructedFromResolvedOperands (9 tests)
+[pass] tests.tools.test_job_cancellation_command.TheCommandBoundary (4 tests)
+[pass] tests.tools.test_job_cancellation_command.TheRequestWhileServing (10 tests)
+[pass] tests.tools.test_job_control_command.TheCorrectionAndTheCommand (3 tests)
+[pass] tests.tools.test_job_control_command.TheDeadlineWhileServing (7 tests)
+[pass] tests.tools.test_job_observation.AnEndedInvocationIsNotARunningOne (11 tests)
+[pass] tests.tools.test_job_observation.InvocationClocks (4 tests)
+[pass] tests.tools.test_job_observation.SharedObservation (8 tests)
+[pass] tests.tools.test_job_observation.TheFailureCauseAndTimingShareOneStageLine (2 tests)
+[pass] tests.tools.test_job_observation.TheWorkerDeclaredEndingReachesBothSurfaces (12 tests)
+[pass] tests.tools.test_job_observation.Timing (5 tests)
+[pass] tests.tools.test_job_task_delivery.ARestartAdoptsTheDeliveredAttempt (7 tests)
+[pass] tests.tools.test_job_task_delivery.EachJobCarriesItsOwnVerification (3 tests)
+[pass] tests.tools.test_job_task_delivery.ObservationReproducesTheDeliveredIdentity (15 tests)
+[pass] tests.tools.test_job_task_delivery.RestartProvesWhatWasPublished (5 tests)
+[FAIL] tests.tools.test_job_task_delivery.TheConnectedPreparationPath (8 tests)
+[pass] tests.tools.test_job_task_delivery.TheCreatedJobRunsThroughThePoolServingLoop (3 tests)
+[pass] tests.tools.test_job_task_delivery.TheInstalledDeliveryIsPreserved (3 tests)
+[pass] tests.tools.test_job_task_delivery.TheObservationStillRefusesALaunchItCannotReproduce (13 tests)
+[pass] tests.tools.test_job_task_delivery.TheReaderOverARealStore (1 tests)
+[FAIL] tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask (5 tests)
+[pass] tests.tools.test_job_task_delivery.TheReviewStageRunsThroughThePoolServingLoop (3 tests)
+[pass] tests.tools.test_job_task_delivery.TheRuntimePathDeliversAndRecoversOneIdentity (8 tests)
+[pass] tests.tools.test_job_task_delivery.TwoCreatedJobsRunThroughOnePoolServingLoop (5 tests)
+[pass] tests.tools.test_job_task_delivery.TwoJobsOnOneWorkerGetTheirOwnBytes (4 tests)
+[pass] tests.tools.test_job_task_delivery.TwoRequestedJobsThroughOnePool (3 tests)
+[pass] tests.tools.test_job_task_delivery.TwoRequestedJobsThroughOneServingLoop (1 tests)
+[pass] tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView (7 tests)
+[pass] tests.tools.test_job_viewer.AnInvalidCountIsUnknownAndNeverAnException (5 tests)
+[pass] tests.tools.test_job_viewer.NothingIsInvented (4 tests)
+[pass] tests.tools.test_job_viewer.StaleBytesAreNeverReportedFresh (5 tests)
+[pass] tests.tools.test_job_viewer.TheBoundsAreHonest (6 tests)
+[pass] tests.tools.test_job_viewer.TheCanonicalReaderIsExercised (5 tests)
+[pass] tests.tools.test_job_viewer.TheCommandIsOrdinary (2 tests)
+[pass] tests.tools.test_job_viewer.TheDefaultWidthKeepsEveryFactItCarries (4 tests)
+[pass] tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics (9 tests)
+[pass] tests.tools.test_job_viewer.TheDurationSaysWhetherItIsStillRunning (5 tests)
+[pass] tests.tools.test_job_viewer.TheIntervalIsFiniteAndPositive (2 tests)
+[pass] tests.tools.test_job_viewer.TheKnownIdentitiesAreShown (5 tests)
+[pass] tests.tools.test_job_viewer.TheOwnerProducedArtifactReachesTheView (3 tests)
+[pass] tests.tools.test_job_viewer.TheRealObservationReaderReachesTheView (2 tests)
+[pass] tests.tools.test_job_viewer.TheTrustedActivityCountIsShownAndNeverEmbellished (10 tests)
+[pass] tests.tools.test_job_viewer.TheViewNeverHidesItsOwnAge (4 tests)
+[pass] tests.tools.test_job_viewer.TheViewShowsTheJobsThatAreThere (3 tests)
+[pass] tests.tools.test_job_viewer.TheViewerPerformsNoAct (5 tests)
+[pass] tests.tools.test_job_viewer.TheWorkerDeclaredEndingIsRenderedFromTheRealProjection (5 tests)
+[pass] tests.tools.test_joined_workflow.TheCreatedJobIsReviewedAndCorrected (6 tests)
+[pass] tests.tools.test_joined_workflow.TheHeldResultIsAttributedTruthfully (3 tests)
+[pass] tests.tools.test_joined_workflow.TheRejectedReviewStopsWithoutAcceptingAnything (2 tests)
+[pass] tests.tools.test_live_ab.LiveProviderPreparation (4 tests)
+[FAIL] tests.tools.test_managed_apply.AnOrdinaryManagedIntegration (19 tests)
+[pass] tests.tools.test_managed_apply.ContextFreeIntegrationReceiptBoundary (3 tests)
+[pass] tests.tools.test_managed_apply.TheLocalReceiptOwnerComposesWithPlacement (2 tests)
+[pass] tests.tools.test_managed_apply.ThePreparationHandoffRetainsItsGitObjects (3 tests)
+[pass] tests.tools.test_managed_apply.TheTargetEffectAndReceiptAreOneTransaction (5 tests)
+[pass] tests.tools.test_managed_integration.APublicationKeepsItsOwnDurableAccount (11 tests)
+[pass] tests.tools.test_managed_integration.APublicationReplaysAndResumesItsOwnEffects (4 tests)
+[pass] tests.tools.test_managed_integration.ARecoveryIsNotACompletionCheck (4 tests)
+[pass] tests.tools.test_managed_integration.NothingPublishesBehindARunningExecution (3 tests)
+[pass] tests.tools.test_managed_integration.OnlyAMeasuredSuccessAuthorizesAPublication (4 tests)
+[pass] tests.tools.test_managed_integration.TheEntryThisSettlesIsThisSubmissionsOwn (3 tests)
+[pass] tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite (6 tests)
+[pass] tests.tools.test_managed_integration.TheGrantIsProvedAtTheMutationBoundary (1 tests)
+[pass] tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct (4 tests)
+[pass] tests.tools.test_managed_integration.ThePublicationRowIsNotAnAccountWithoutItsActs (5 tests)
+[pass] tests.tools.test_managed_integration.TheTrustedOwnersAreBothRequired (12 tests)
+[pass] tests.tools.test_managed_integration.TheWholeRequestIsOwnedBeforeAnyEffect (3 tests)
+[pass] tests.tools.test_managed_integration.WhateverIsCheckedLastIsWhatIsTrue (3 tests)
+[pass] tests.tools.test_managed_preparation.ASelectedDeploymentComposesTheManagedPath (3 tests)
+[FAIL] tests.tools.test_managed_preparation.OneManagedPreparationCompletes (44 tests)
+[pass] tests.tools.test_managed_preparation.OnePreparationRunsThroughTheOrdinaryWorker (14 tests)
+[pass] tests.tools.test_managed_preparation.TheCoordinatorHostNeverPrepares (3 tests)
+[pass] tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers (16 tests)
+[pass] tests.tools.test_managed_preparation.ThePublishedInputIsMeasuredTheSameWayAtBothEnds (10 tests)
+[pass] tests.tools.test_managed_preparation.TheResolverCallsItsOwnersCorrectly (10 tests)
+[pass] tests.tools.test_native_handoffs.AClarificationResumesTheSameTaskWithNoHumanAct (7 tests)
+[pass] tests.tools.test_native_handoffs.AFindingContinuesTheSameWay (1 tests)
+[pass] tests.tools.test_native_handoffs.AGenuineAmbiguityEscalatesOnceAndStaysHeld (1 tests)
+[pass] tests.tools.test_native_handoffs.AMalformedRequestIsRefusedNotPublished (1 tests)
+[pass] tests.tools.test_native_handoffs.ARestartBetweenTheCutsDuplicatesNothing (1 tests)
+[pass] tests.tools.test_native_handoffs.AZeroEditYieldContinuesTheSameWay (1 tests)
+[pass] tests.tools.test_native_handoffs.AnEscalationSurvivesServingRestart (1 tests)
+[pass] tests.tools.test_native_handoffs.AnUnconfiguredDeploymentRefusesBeforeATurnIsSpent (1 tests)
+[pass] tests.tools.test_native_handoffs.AnUnsolicitedResponseAnswersNothing (1 tests)
+[pass] tests.tools.test_next_run.NextRun (11 tests)
+[pass] tests.tools.test_next_run_flow.JoinedFlow (5 tests)
+[pass] tests.tools.test_next_run_managed.ManagedAllocation (34 tests)
+[pass] tests.tools.test_next_run_recovery.OwnerCessation (3 tests)
+[pass] tests.tools.test_next_run_recovery.ProcessEvidence (2 tests)
+[pass] tests.tools.test_operator_verification_view.BothEndsAgreeOnTheNewConstants (4 tests)
+[pass] tests.tools.test_operator_verification_view.TheNamedGatePassesInTheOperatorsOwnView (7 tests)
+[pass] tests.tools.test_operator_verification_view.TheOperatorsViewRefusesWhatThePacketSays (8 tests)
+[pass] tests.tools.test_operator_verification_view.TheSealIsOneMeasurement (9 tests)
+[pass] tests.tools.test_operator_verification_view.TheTransportsPrerequisitesAreRequiredNotAssumed (11 tests)
+[pass] tests.tools.test_parallel_runner.AClassFixtureThatNeverStartsItsTestsLeavesThemUnaccounted (2 tests)
+[pass] tests.tools.test_parallel_runner.AFailingRunAlsoLeavesNothingBehind (3 tests)
+[pass] tests.tools.test_parallel_runner.AFailingShardIsReportedAndStopsTheLaterPhases (3 tests)
+[pass] tests.tools.test_parallel_runner.AGroupSelectsExactlyItsModules (2 tests)
+[pass] tests.tools.test_parallel_runner.AShardThatDiesWithoutAReportIsAFailure (1 tests)
+[pass] tests.tools.test_parallel_runner.AccountingDerivesPassedFromWhatRan (4 tests)
+[pass] tests.tools.test_parallel_runner.AnAccountedRunProvesEveryIdRan (4 tests)
+[pass] tests.tools.test_parallel_runner.AnInterruptLeavesNothingBehind (5 tests)
+[pass] tests.tools.test_parallel_runner.CollectionRefusesAModuleItCannotLoad (1 tests)
+[pass] tests.tools.test_parallel_runner.CollectionRefusesAModuleThatBindsAnotherModulesTests (1 tests)
+[pass] tests.tools.test_parallel_runner.OutputDoesNotDependOnCompletionOrder (3 tests)
+[pass] tests.tools.test_parallel_runner.PartitioningLosesAndInventsNothing (5 tests)
+[pass] tests.tools.test_parallel_runner.SubtestOutcomesBindToTheirParent (2 tests)
+[pass] tests.tools.test_parallel_runner.SupervisedSelectionFailsClosed (12 tests)
+[pass] tests.tools.test_parallel_runner.TheDeclaredInputsCoverWhatTheTestsRead (3 tests)
+[pass] tests.tools.test_parallel_runner.TheGroupsAreAnExactPartitionOfTheRealTree (6 tests)
+[pass] tests.tools.test_parallel_runner.TheJobsBoundIsLowerOnly (5 tests)
+[pass] tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree (5 tests)
+[pass] tests.tools.test_parallel_runner.TheRegistryFailsClosed (4 tests)
+[pass] tests.tools.test_parallel_runner.TheSerialRegistryOverlapsNothing (2 tests)
+[pass] tests.tools.test_pool.AValidWorkerIsAdmitted (6 tests)
+[pass] tests.tools.test_pool.AnExistingWorkerIdIsRefused (3 tests)
+[pass] tests.tools.test_pool.AnImageDigestDisagreeingWithItsManifestIsRefused (3 tests)
+[pass] tests.tools.test_pool.ComposingAWorkerForASelectedTemplate (7 tests)
+[pass] tests.tools.test_pool.ComposingAWorkerForThisInstance (9 tests)
+[pass] tests.tools.test_pool.ComposingAWorkerThatSelectsTheVerifierLayout (9 tests)
+[pass] tests.tools.test_pool.ComposingTheDeterministicPublicationWorker (5 tests)
+[pass] tests.tools.test_pool.ExplicitProviderPolicy (5 tests)
+[pass] tests.tools.test_pool.ItPreparesNoJobAndTouchesNoWork (3 tests)
+[pass] tests.tools.test_pool.NothingElseInTheConfigurationChanges (4 tests)
+[pass] tests.tools.test_pool.TheCommandLine (4 tests)
+[pass] tests.tools.test_pool.ThePoolGenerationIsTheSchedulersOwnAnswer (4 tests)
+[pass] tests.tools.test_pool.WhatTheVerbRefusesBeforeItReadsAWorker (6 tests)
+[FAIL] tests.tools.test_provider_selection.SelectedCase (41 tests)
+[pass] tests.tools.test_provider_selection.SelectedHandoffCase (1 tests)
+[pass] tests.tools.test_quiescent_assignment_finalization.AReplayedDecisionIsProvedBeforeTheAuthorityIsAsked (7 tests)
+[pass] tests.tools.test_quiescent_assignment_finalization.EveryRecordedTerminalDispositionReachesIt (3 tests)
+[pass] tests.tools.test_quiescent_assignment_finalization.ItIsEffectivelyOnceAcrossRetriesAndRestarts (6 tests)
+[pass] tests.tools.test_quiescent_assignment_finalization.OnlyAPositivelyQuiescentRuntimeReachesIt (5 tests)
+[pass] tests.tools.test_quiescent_assignment_finalization.TheDeploymentExposesOneExplicitModeForIt (13 tests)
+[pass] tests.tools.test_quiescent_assignment_finalization.TheQuiescentAssignmentIsEndedAndNothingElseIs (8 tests)
+[pass] tests.tools.test_quiescent_assignment_finalization.TheRunningCancellationIsUnchanged (2 tests)
+[pass] tests.tools.test_quiescent_assignment_finalization.TheWrongIdentityNeverReachesTheAuthority (5 tests)
+[pass] tests.tools.test_retry_task_lineage.TheAdmissionCarriesTheTask (5 tests)
+[pass] tests.tools.test_retry_task_lineage.TheConnectedAdmissionCarriesTheTask (5 tests)
+[pass] tests.tools.test_retry_task_lineage.TheDispatchRefusesProvenanceItCannotTrust (5 tests)
+[pass] tests.tools.test_retry_task_lineage.TheLineageRefusesWhatItCannotRead (2 tests)
+[pass] tests.tools.test_retry_task_lineage.TheRetriedJobIsServedItsOwnTask (3 tests)
+[pass] tests.tools.test_retry_task_lineage.TheRetriedJobReachesItsOwnRuntimes (11 tests)
+[pass] tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions (41 tests)
+[pass] tests.tools.test_scheduler_trace.TheEligibilityAndAliasBoundaries (3 tests)
+[pass] tests.tools.test_scheduler_trace.TheExtractorPreservesRefusedOwnerActs (4 tests)
+[pass] tests.tools.test_scheduler_trace.TheRetainedContractMismatchesAreRecordedAsGaps (4 tests)
+[pass] tests.tools.test_scheduler_trace.TheScriptedScenarioRunsOverRealOwners (6 tests)
+[pass] tests.tools.test_scheduler_trace.TheThirdScheduleReopensAtADurableBoundary (2 tests)
+[pass] tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces (84 tests)
+[pass] tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt (11 tests)
+[pass] tests.tools.test_single_worker.ALiveTaskTOKENOwnsTheRootsUntilItIsReturned (6 tests)
+[pass] tests.tools.test_single_worker.APreparationFailureEndsInTheOwnersJournal (3 tests)
+[pass] tests.tools.test_single_worker.ARealStartRefusalKeepsItsOwnAccount (1 tests)
+[pass] tests.tools.test_single_worker.AnABRUPTDeathLeavesTheWindowStandingAndLaunchesNothing (2 tests)
+[pass] tests.tools.test_single_worker.AnEndingIsReachedEvenWhenTheAccountCannotBeCarried (1 tests)
+[pass] tests.tools.test_single_worker.AnUntrustedBearerIsNeverAllowedToWedgeTheManager (1 tests)
+[pass] tests.tools.test_single_worker.CredentialRestartProvesTheLiveRuntimeFirst (3 tests)
+[pass] tests.tools.test_single_worker.EveryHOSTPREPARATIONPHASEIsRecoveredOrHeld (18 tests)
+[pass] tests.tools.test_single_worker.IdentificationIsOwedUntilItIsDone (5 tests)
+[pass] tests.tools.test_single_worker.LostTaskRepliesKeepTheExternalExecution (4 tests)
+[pass] tests.tools.test_single_worker.OnlyTheHOLDEROfAPreparationMayContinueIt (5 tests)
+[pass] tests.tools.test_single_worker.OptionalIntegrationContextDeclaration (2 tests)
+[pass] tests.tools.test_single_worker.TheActivityAdmissionExcludesASecondHelperPerStore (10 tests)
+[pass] tests.tools.test_single_worker.TheActivityHelperIngestsOffTheServingLoop (11 tests)
+[pass] tests.tools.test_single_worker.TheAnsweredEndingRunsThroughTheRealOwners (4 tests)
+[pass] tests.tools.test_single_worker.TheAuthorityBindingIsProvedBeforeAnythingIsConfigured (3 tests)
+[pass] tests.tools.test_single_worker.TheBootstrapCompositionOwnsOneIngestionHelper (7 tests)
+[pass] tests.tools.test_single_worker.TheCertifiedWorkerReachesTheDeliveredTask (1 tests)
+[pass] tests.tools.test_single_worker.TheConfigurationBoundaryIsClosed (17 tests)
+[pass] tests.tools.test_single_worker.TheConnectedHANDOFFIsProvedEndToEnd (15 tests)
+[pass] tests.tools.test_single_worker.TheContextConfigurationIsRequiredAndClosed (2 tests)
+[pass] tests.tools.test_single_worker.TheDeploymentCanStopWhatItStarted (4 tests)
+[pass] tests.tools.test_single_worker.TheEndingAndTheNamingAreOneAct (4 tests)
+[pass] tests.tools.test_single_worker.TheFailedStartEndingCommitsWithItsNaming (4 tests)
+[pass] tests.tools.test_single_worker.TheHistoricalEntryTakesNoLiveEvidence (4 tests)
+[pass] tests.tools.test_single_worker.TheHostPreparationIsAccountedForBeforeAnyTaskStart (5 tests)
+[pass] tests.tools.test_single_worker.TheLayoutSelectionIsIndependentOfTheContextMode (10 tests)
+[pass] tests.tools.test_single_worker.TheLayoutSelectionReachesTheRuntimeVector (2 tests)
+[pass] tests.tools.test_single_worker.TheManagerClaimSessionMapsOneRefusalAndNothingElse (16 tests)
+[pass] tests.tools.test_single_worker.ThePostStartLaunchDeliveryIsAdoptedAndNeverReauthored (5 tests)
+[pass] tests.tools.test_single_worker.ThePreparationMatrixIsClosedInBothDirections (10 tests)
+[pass] tests.tools.test_single_worker.ThePreparationOWNSTheRootsForItsWholeWriterLifetime (7 tests)
+[pass] tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe (19 tests)
+[pass] tests.tools.test_single_worker.TheREENTRYBesideALiveTaskIsAREVALIDATION (4 tests)
+[pass] tests.tools.test_single_worker.TheRecordedRuntimeAdapterPerformsNothing (4 tests)
+[pass] tests.tools.test_single_worker.TheTaskTOKENIsAcquiredUnderThePreparationCondition (3 tests)
+[pass] tests.tools.test_single_worker.TheWorkerSessionForwardsGateDischarge (3 tests)
+[pass] tests.tools.test_single_worker.TheWorkloadDocumentIsDeliveredWithTheProtocolPair (13 tests)
+[pass] tests.tools.test_single_worker.ThreeWorkersOneJobThreeImages (5 tests)
+[pass] tests.tools.test_single_worker.WhatNoRuntimeReceivedIsThisCompositionsToEnd (1 tests)
+[pass] tests.tools.test_source_identity.DisposableRepository (13 tests)
+[FAIL] tests.tools.test_source_identity.TheRealTreesDeclaredInputsExist (3 tests)
+[pass] tests.tools.test_stack.Admission (4 tests)
+[pass] tests.tools.test_stack.AnExistingManagerNeedsEvidenceToo (5 tests)
+[pass] tests.tools.test_stack.Boundary (3 tests)
+[pass] tests.tools.test_stack.Configuration (5 tests)
+[pass] tests.tools.test_stack.EveryFailedAdmissionUnwinds (3 tests)
+[pass] tests.tools.test_stack.EveryRecordWriteIsInsideTheRollback (5 tests)
+[pass] tests.tools.test_stack.Identity (4 tests)
+[pass] tests.tools.test_stack.JobOutcomesFirst (11 tests)
+[pass] tests.tools.test_stack.Lifecycle (9 tests)
+[pass] tests.tools.test_stack.MalformedSnapshots (6 tests)
+[pass] tests.tools.test_stack.Publication (4 tests)
+[pass] tests.tools.test_stack.Readiness (9 tests)
+[pass] tests.tools.test_stack.RuntimeBoundary (7 tests)
+[pass] tests.tools.test_stack.ServingAcknowledgement (8 tests)
+[pass] tests.tools.test_stack.SpawnedArgv (2 tests)
+[pass] tests.tools.test_stack.Status (9 tests)
+[pass] tests.tools.test_stack.TheChildrenAreTheOneCommand (4 tests)
+[pass] tests.tools.test_stack.TheChosenDiskRootIsNeverSilentlyReplaced (3 tests)
+[pass] tests.tools.test_stack.TheInstalledMonitor (7 tests)
+[pass] tests.tools.test_stack.UnknownOwnership (9 tests)
+[pass] tests.tools.test_stack.ValidIdleComposition (2 tests)
+[pass] tests.tools.test_stack.VisibilityLostDuringCleanup (3 tests)
+[pass] tests.tools.test_stack.WhatTheRepositoryIS (12 tests)
+[pass] tests.tools.test_stage_execution.AAcceptedPRSeedsTheSuccessorOnTheSameStores (67 tests)
+[pass] tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery (5 tests)
+[pass] tests.tools.test_stage_execution.AGenerationOutsideTheInteroperableRangeIsRefused (5 tests)
+[pass] tests.tools.test_stage_execution.ANewJobCreatedAfterAFollowsTheAdvancedTarget (67 tests)
+[pass] tests.tools.test_stage_execution.APRJobSettlesAtItsReviewAndSurvivesRestart (1 tests)
+[pass] tests.tools.test_stage_execution.APublicationWorkerIsAConfiguredRoleInItsOwnLane (9 tests)
+[pass] tests.tools.test_stage_execution.ARefusedPoolGenerationLeavesThePoolAlone (2 tests)
+[pass] tests.tools.test_stage_execution.CheckpointIdentityAtHostAdmission (4 tests)
+[pass] tests.tools.test_stage_execution.ConstructionFailureReleasesWhatItOpened (4 tests)
+[pass] tests.tools.test_stage_execution.EachJobBindsItsOwnDeploymentAndLine (12 tests)
+[pass] tests.tools.test_stage_execution.EveryJobRoleIsValidatedBeforeAllocation (21 tests)
+[pass] tests.tools.test_stage_execution.EveryStageHasExactlyOneWorker (5 tests)
+[pass] tests.tools.test_stage_execution.IndependenceIsRefusedBeforeAnythingIsOpened (3 tests)
+[pass] tests.tools.test_stage_execution.MutableStateStaysOutsideTheCheckout (4 tests)
+[pass] tests.tools.test_stage_execution.NothingIsOpenedBeforeTheConfigurationIsProved (5 tests)
+[pass] tests.tools.test_stage_execution.OneJobsReviewIsOverItsOwnImplementation (2 tests)
+[pass] tests.tools.test_stage_execution.OneRefusedClaimLeavesEveryOtherJobAlone (6 tests)
+[pass] tests.tools.test_stage_execution.OrdinaryTerminalLifecycle (11 tests)
+[pass] tests.tools.test_stage_execution.TheAcceptedIntegrationSessionsAreProvedBeforePublication (5 tests)
+[pass] tests.tools.test_stage_execution.TheComposedEndingIsOrderedAndSettledFromItsOwnRecord (7 tests)
+[pass] tests.tools.test_stage_execution.TheComposedHandoffCarriesItsOwnQuiescenceEvidence (3 tests)
+[pass] tests.tools.test_stage_execution.TheComposedImplementationHalfRunsOnOrdinaryTicks (4 tests)
+[pass] tests.tools.test_stage_execution.TheComposedJobTraversesReviewAndAcceptance (10 tests)
+[pass] tests.tools.test_stage_execution.TheComposedLifecycleRunsOverRealStores (3 tests)
+[pass] tests.tools.test_stage_execution.TheConfigurationCarriesNoCredentialBytes (2 tests)
+[pass] tests.tools.test_stage_execution.TheContextServingBoundaryIsIsolated (4 tests)
+[pass] tests.tools.test_stage_execution.TheDeploymentAnswersTheAcceptedReplayHalves (2 tests)
+[pass] tests.tools.test_stage_execution.TheDeploymentDocumentIsClosed (4 tests)
+[pass] tests.tools.test_stage_execution.TheDeploymentRoutesACancellationToItsOwner (3 tests)
+[pass] tests.tools.test_stage_execution.TheDischargeReceiptIsCommittedWithItsOwnKind (2 tests)
+[pass] tests.tools.test_stage_execution.TheDriverFacingMembersComeFromTheConfiguration (2 tests)
+[pass] tests.tools.test_stage_execution.TheFAILEDReviewEndingReadsRetainedFactsOverRealStores (14 tests)
+[pass] tests.tools.test_stage_execution.TheFAILEDReviewSettlesDurablyOverTheRuntimeWorld (22 tests)
+[pass] tests.tools.test_stage_execution.TheFactoryReadsOnlyItsNamedConfiguration (3 tests)
+[pass] tests.tools.test_stage_execution.TheFactorysOwnOperandsReachTheIntegrationStage (5 tests)
+[pass] tests.tools.test_stage_execution.TheFocusedChecksItemFourNames (5 tests)
+[pass] tests.tools.test_stage_execution.TheHeterogeneousPoolTraversesTheSameLifecycle (16 tests)
+[pass] tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort (9 tests)
+[pass] tests.tools.test_stage_execution.TheLastStageReturnsItsCapacityWhenItCompletes (10 tests)
+[pass] tests.tools.test_stage_execution.TheMultiWorkerPoolComposesWithoutASecondAllocator (14 tests)
+[pass] tests.tools.test_stage_execution.TheObservationSurfaceIsSeparateAndReadOnly (3 tests)
+[pass] tests.tools.test_stage_execution.ThePublicFactoryComposesThroughItsOwnEntryPoint (2 tests)
+[pass] tests.tools.test_stage_execution.ThePublicFactoryResolvesEveryRequiredSession (4 tests)
+[pass] tests.tools.test_stage_execution.ThePublicationSeamIsTwoAcceptedOperations (3 tests)
+[pass] tests.tools.test_stage_execution.TheRECOVEREDReviewLineCarriesItsOwnCapability (3 tests)
+[pass] tests.tools.test_stage_execution.TheReceiptActorsAreAuthorizedAndNotMerelyShaped (5 tests)
+[pass] tests.tools.test_stage_execution.TheRestartOverAnAdvancedPoolPreservesSettledHistory (2 tests)
+[pass] tests.tools.test_stage_execution.TheRetainedResultReopensAfterOrdinaryCleanup (5 tests)
+[pass] tests.tools.test_stage_execution.TheReviewersVerdictHasNoChannelAndIsNotInvented (1 tests)
+[pass] tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers (6 tests)
+[pass] tests.tools.test_stage_execution.TheStagedDeploymentOwnsOneIngestionHelper (5 tests)
+[pass] tests.tools.test_stage_execution.TheTargetDescriptorIsNotCapacity (7 tests)
+[pass] tests.tools.test_stage_execution.TheTargetSurvivesACapacityChangeOverRetainedHistory (2 tests)
+[pass] tests.tools.test_stage_execution.TheTraversedTargetPostureIsExplicit (4 tests)
+[pass] tests.tools.test_stage_execution.TheWrongRouteClaimDefersInsteadOfStoppingTheSweep (2 tests)
+[pass] tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection (66 tests)
+[pass] tests.tools.test_stage_execution.TwoIndependentlyBoundWorkersShareOneSweep (6 tests)
+[pass] tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt (9 tests)
+[pass] tests.tools.test_stage_execution_hardening.ConstructionUnwindsConcreteHandles (3 tests)
+[pass] tests.tools.test_stage_execution_status_hardening.HeldIntegrationStatus (2 tests)
+[pass] tests.tools.test_standalone_ab.FinalCommittedView (3 tests)
+[pass] tests.tools.test_standalone_ab.ScenarioEarlyFailures (2 tests)
+[pass] tests.tools.test_standalone_ab.SyntheticProvider (7 tests)
+[pass] tests.tools.test_startup_prerequisites.TheControlStoreIsInitializedThroughItsOwnOpener (4 tests)
+[pass] tests.tools.test_startup_prerequisites.TheCreationHasProvenance (13 tests)
+[pass] tests.tools.test_startup_prerequisites.TheOwnershipRacesTheReviewReproduced (5 tests)
+[pass] tests.tools.test_startup_prerequisites.ThePrepareOwnsOnlyWhatItMade (18 tests)
+[pass] tests.tools.test_startup_prerequisites.TheReportIsApplicationReadOnly (7 tests)
+[pass] tests.tools.test_startup_prerequisites.TheRuntimeCopyOwnsEveryObjectItMakes (10 tests)
+[pass] tests.tools.test_startup_prerequisites.TheTripleIsTheOneStageExecutionNames (4 tests)
+[pass] tests.tools.test_stopped_settlement_command.InstalledSettlement (11 tests)
+[pass] tests.tools.test_stopped_settlement_joined.JoinedSettlement (19 tests)
+[pass] tests.tools.test_user_credentials.AFailedResolutionUnwindsExactlyItsOwnRoot (3 tests)
+[pass] tests.tools.test_user_credentials.ALargeOpaqueSelectionIsExactAndIsNeverQuotedBack (12 tests)
+[pass] tests.tools.test_user_credentials.AmbiguityRefusesRatherThanChoosing (3 tests)
+[pass] tests.tools.test_user_credentials.BothEndingModesRefuseTheOperandBeforeAnyBuilderActs (5 tests)
+[pass] tests.tools.test_user_credentials.EveryReadIsProvedAtTheDescriptor (18 tests)
+[pass] tests.tools.test_user_credentials.NeitherContentNorSourcePathIsEverPublished (5 tests)
+[pass] tests.tools.test_user_credentials.NothingIsReadBeforeTheDeliveryIsMaterialized (3 tests)
+[pass] tests.tools.test_user_credentials.SelectionIsExactAndHasNoFallback (10 tests)
+[pass] tests.tools.test_user_credentials.TheOperandIsDeclaredOnceAndReadThroughThatDeclaration (8 tests)
+[pass] tests.tools.test_user_credentials.TheOrdinaryCommandInjectsThisReader (4 tests)
+[pass] tests.tools.test_user_credentials.TheReaderAgreesWithTheProfileTheManagerResolves (4 tests)
+[pass] tests.tools.test_user_credentials.TheRegistryIsClosedAndBounded (17 tests)
+[pass] tests.tools.test_user_credentials.TwoInvocationContextsConsumeDistinctEverything (5 tests)
+[pass] tests.tools.test_version.TheBannerSaysWhatIsKnown (5 tests)
+[pass] tests.tools.test_version.TheCommandAnswersWithoutAnythingElse (5 tests)
+[pass] tests.tools.test_version.TheStampIsCapturedFromTheCheckout (15 tests)
+[pass] tests.tools.test_version.TheVersionIsWrittenOnce (2 tests)
+[pass] tests.tools.test_work_command.MutationsAreAuthorizedOrTheyDoNotHappen (6 tests)
+[pass] tests.tools.test_work_command.ReplayConvergenceAndCollision (11 tests)
+[pass] tests.tools.test_work_command.TerminalWorkStaysLabellable (2 tests)
+[pass] tests.tools.test_work_command.TheCommandIsBundledAndItsVocabularyIsItsOwn (6 tests)
+[pass] tests.tools.test_work_command.TheGrammarAndCardinalityAreTheAuthoritys (9 tests)
+[pass] tests.tools.test_work_command.TheReadVerbs (12 tests)
+[pass] tests.tools.test_work_command.TheStoreSelectionIsCompared (3 tests)
+[pass] tests.tools.test_worker_image_build.InsideTheRewrittenLayerOnlyTheClockMoves (6 tests)
+[pass] tests.tools.test_worker_image_build.OnlyTheRecipesOwnWorkIsRewritten (6 tests)
+[pass] tests.tools.test_worker_image_build.TheBuildVectorIsClosed (11 tests)
+[pass] tests.tools.test_worker_image_build.TheReceiptsAreRemovedAndTheContentIsNot (3 tests)
+[pass] tests.tools.test_worker_image_build.TwoBuildsReachOneIdentity (3 tests)
+[pass] tests.tools.test_worker_visibility.AnAssignedStageShowsItsWorker (5 tests)
+[pass] tests.tools.test_worker_visibility.EveryCurrentStageGetsARow (5 tests)
+[pass] tests.tools.test_worker_visibility.FreshnessIsNotDecidedHere (4 tests)
+[pass] tests.tools.test_worker_visibility.NoObservationIsAttachedToAnAttemptThatDidNotEarnIt (7 tests)
+[pass] tests.tools.test_worker_visibility.TheActivityCountIsBytesAndNothingElse (8 tests)
+[pass] tests.tools.test_worker_visibility.TheCommandReadsAFileAndAnswersJSON (6 tests)
+[pass] tests.tools.test_worker_visibility.TheDocumentIsValidatedBeforeAnythingIsReported (11 tests)
+[pass] tests.tools.test_worker_visibility.TheExchangeIsReportedAsItWasAnswered (4 tests)
+[pass] tests.tools.test_worker_visibility.TheProducerShapeIsWhatThisViewWasBuiltAgainst (3 tests)
+[pass] tests.tools.test_worker_visibility.TheRuntimeIsReportedAndNeverDiagnosed (6 tests)
+[pass] tests.tools.test_worker_visibility.TheSafeAllowlistIsTheWholeSurface (5 tests)
+[pass] tests.tools.test_worker_visibility.TheSnapshotsOwnInstantIsOnlyEverTheQueryTime (4 tests)
+[pass] tests.tools.test_worker_visibility.TheSweptPipelineIsReportedToo (1 tests)
+[pass] tests.tools.test_worker_visibility.TheUnreadManagerIsNotAQuietDeployment (3 tests)
+[pass] tests.tools.test_worker_visibility.TheViewOpensNothingAndActsNotAtAll (6 tests)
+--- parallel source: failures ---
+=== ERROR: tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_job_with_no_own_task_prepares_the_installed_one ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-n4a-386051-tools-pure/v12-w71917-ppvyw1yx/inputs-legacy/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1781, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 697, in test_a_job_with_no_own_task_prepares_the_installed_one
+    worker._input({"inputs": root}, assignment,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  SimpleNamespace(mountpoint=mount), stage)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1808, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1872, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+=== ERROR: tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_missing_task_refuses_on_the_reopened_preparation ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-n4a-386051-tools-pure/v12-w71917-whn9c7gh/inputs-implementation-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1781, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 672, in test_a_missing_task_refuses_on_the_reopened_preparation
+    held = self.prepared("implementation", FIRST, "The requested task.")
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 521, in prepared
+    read = worker._input({"inputs": root}, assignment,
+                         SimpleNamespace(mountpoint=mount), stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1808, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1872, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+=== ERROR: tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_reopened_preparation_proves_the_same_root ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-n4a-386051-tools-pure/v12-w71917-ufdb0xg9/inputs-implementation-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1781, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 613, in test_a_reopened_preparation_proves_the_same_root
+    held = self.prepared("implementation", FIRST, "The requested task.")
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 521, in prepared
+    read = worker._input({"inputs": root}, assignment,
+                         SimpleNamespace(mountpoint=mount), stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1808, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1872, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+=== ERROR: tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_tampered_root_refuses_on_the_reopened_preparation ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-n4a-386051-tools-pure/v12-w71917-5v21bjhm/inputs-implementation-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1781, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 658, in test_a_tampered_root_refuses_on_the_reopened_preparation
+    held = self.prepared("implementation", FIRST, "The requested task.")
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 521, in prepared
+    read = worker._input({"inputs": root}, assignment,
+                         SimpleNamespace(mountpoint=mount), stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1808, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1872, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+=== ERROR: tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_an_assignment_from_the_installed_manifest_refuses ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-n4a-386051-tools-pure/v12-w71917-kr164n85/inputs-mismatched/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1781, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 650, in test_an_assignment_from_the_installed_manifest_refuses
+    worker._input({"inputs": root}, assignment,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  SimpleNamespace(mountpoint=mount), stage)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1808, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1872, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+=== ERROR: tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_both_ordinary_roles_prepare_the_requested_task (role='implementation') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-n4a-386051-tools-pure/v12-w71917-xp9fsqrj/inputs-implementation-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1781, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 536, in test_both_ordinary_roles_prepare_the_requested_task
+    held = self.prepared(role, FIRST, "The requested task.")
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 521, in prepared
+    read = worker._input({"inputs": root}, assignment,
+                         SimpleNamespace(mountpoint=mount), stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1808, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1872, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+=== ERROR: tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_both_ordinary_roles_prepare_the_requested_task (role='review') ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-n4a-386051-tools-pure/v12-w71917-xp9fsqrj/inputs-review-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1781, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 536, in test_both_ordinary_roles_prepare_the_requested_task
+    held = self.prepared(role, FIRST, "The requested task.")
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 521, in prepared
+    read = worker._input({"inputs": root}, assignment,
+                         SimpleNamespace(mountpoint=mount), stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1808, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1872, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+=== ERROR: tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_the_recorded_and_launch_identities_are_the_delivered_one ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-n4a-386051-tools-pure/v12-w71917-3oc8oal1/inputs-implementation-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1781, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 561, in test_the_recorded_and_launch_identities_are_the_delivered_one
+    held = self.prepared("implementation", FIRST, "The requested task.")
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 521, in prepared
+    read = worker._input({"inputs": root}, assignment,
+                         SimpleNamespace(mountpoint=mount), stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1808, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1872, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+=== ERROR: tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_two_jobs_prepare_independently_on_one_worker ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-n4a-386051-tools-pure/v12-w71917-o3jbp8nr/inputs-two-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1781, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 595, in test_two_jobs_prepare_independently_on_one_worker
+    worker._input({"inputs": root}, assignment,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  SimpleNamespace(mountpoint=mount), stage)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1808, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/single_worker.py", line 1872, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+=== ERROR: tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_a_review_job_with_no_own_task_is_delivered_the_installed_one ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 1867, in test_a_review_job_with_no_own_task_is_delivered_the_installed_one
+    held = self.reviewed(task=False)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 1770, in reviewed
+    held = self.delivered_through(worker, composition, stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 936, in delivered_through
+    roots, boundary = self.mounted(worker, composition, stage)
+                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 920, in mounted
+    composed = composition.mount(worker, stage, roots)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/stage_execution.py", line 1488, in mount
+    or self._prepare(stage, preparing=preparing))
+       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/stage_execution.py", line 1662, in _prepare
+    line = self._published_checkpoint_line(stage) if self.role == "review" else None
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/stage_execution.py", line 1726, in _published_checkpoint_line
+    handoff = publication_execution.handoff_of(deployment.jobs, stage["job_id"])
+                                               ^^^^^^^^^^^^^^^
+AttributeError: 'Deployment' object has no attribute 'jobs'
+=== ERROR: tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_one_job_gives_both_roles_one_job_scoped_identity ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 1796, in test_one_job_gives_both_roles_one_job_scoped_identity
+    held = self.reviewed()
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 1770, in reviewed
+    held = self.delivered_through(worker, composition, stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 936, in delivered_through
+    roots, boundary = self.mounted(worker, composition, stage)
+                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 920, in mounted
+    composed = composition.mount(worker, stage, roots)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/stage_execution.py", line 1488, in mount
+    or self._prepare(stage, preparing=preparing))
+       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/stage_execution.py", line 1662, in _prepare
+    line = self._published_checkpoint_line(stage) if self.role == "review" else None
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/stage_execution.py", line 1726, in _published_checkpoint_line
+    handoff = publication_execution.handoff_of(deployment.jobs, stage["job_id"])
+                                               ^^^^^^^^^^^^^^^
+AttributeError: 'Deployment' object has no attribute 'jobs'
+=== ERROR: tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_review_attempt_is_delivered_the_jobs_requested_task ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 1777, in test_the_review_attempt_is_delivered_the_jobs_requested_task
+    held = self.reviewed()
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 1770, in reviewed
+    held = self.delivered_through(worker, composition, stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 936, in delivered_through
+    roots, boundary = self.mounted(worker, composition, stage)
+                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 920, in mounted
+    composed = composition.mount(worker, stage, roots)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/stage_execution.py", line 1488, in mount
+    or self._prepare(stage, preparing=preparing))
+       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/stage_execution.py", line 1662, in _prepare
+    line = self._published_checkpoint_line(stage) if self.role == "review" else None
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/stage_execution.py", line 1726, in _published_checkpoint_line
+    handoff = publication_execution.handoff_of(deployment.jobs, stage["job_id"])
+                                               ^^^^^^^^^^^^^^^
+AttributeError: 'Deployment' object has no attribute 'jobs'
+=== ERROR: tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_review_mount_is_the_frozen_checkpoint_read_only ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 1818, in test_the_review_mount_is_the_frozen_checkpoint_read_only
+    held = self.reviewed()
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 1770, in reviewed
+    held = self.delivered_through(worker, composition, stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 936, in delivered_through
+    roots, boundary = self.mounted(worker, composition, stage)
+                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 920, in mounted
+    composed = composition.mount(worker, stage, roots)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/stage_execution.py", line 1488, in mount
+    or self._prepare(stage, preparing=preparing))
+       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/stage_execution.py", line 1662, in _prepare
+    line = self._published_checkpoint_line(stage) if self.role == "review" else None
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/stage_execution.py", line 1726, in _published_checkpoint_line
+    handoff = publication_execution.handoff_of(deployment.jobs, stage["job_id"])
+                                               ^^^^^^^^^^^^^^^
+AttributeError: 'Deployment' object has no attribute 'jobs'
+=== ERROR: tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_stageless_adapter_over_a_review_attempt_is_the_delivered_one ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 1855, in test_the_stageless_adapter_over_a_review_attempt_is_the_delivered_one
+    held = self.reviewed()
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 1770, in reviewed
+    held = self.delivered_through(worker, composition, stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 936, in delivered_through
+    roots, boundary = self.mounted(worker, composition, stage)
+                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_job_task_delivery.py", line 920, in mounted
+    composed = composition.mount(worker, stage, roots)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/stage_execution.py", line 1488, in mount
+    or self._prepare(stage, preparing=preparing))
+       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/stage_execution.py", line 1662, in _prepare
+    line = self._published_checkpoint_line(stage) if self.role == "review" else None
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tools/stage_execution.py", line 1726, in _published_checkpoint_line
+    handoff = publication_execution.handoff_of(deployment.jobs, stage["job_id"])
+                                               ^^^^^^^^^^^^^^^
+AttributeError: 'Deployment' object has no attribute 'jobs'
+=== ERROR: tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_change_hidden_from_git_status_is_a_settled_failure ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 52, in test_a_change_hidden_from_git_status_is_a_settled_failure
+    self.complete(failed=True, changed="hidden")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== ERROR: tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_clean_checkout_of_another_revision_is_a_settled_failure ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 46, in test_a_clean_checkout_of_another_revision_is_a_settled_failure
+    self.complete(failed=True, changed="head")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== ERROR: tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_failed_apply_is_collected_and_settles_without_a_target_effect ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 43, in test_a_failed_apply_is_collected_and_settles_without_a_target_effect
+    self.complete(failed=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== ERROR: tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_grant_withdrawn_after_admission_prevents_start ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 85, in test_a_grant_withdrawn_after_admission_prevents_start
+    self.complete(denied="grant")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== ERROR: tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_zero_exit_worktree_change_is_a_settled_failure ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 49, in test_a_zero_exit_worktree_change_is_a_settled_failure
+    self.complete(failed=True, changed="untracked")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== ERROR: tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_changed_collection_mapping_cannot_admit_apply ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 76, in test_changed_collection_mapping_cannot_admit_apply
+    self.complete(denied="mapping")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== ERROR: tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_failed_preparation_resumes_after_admission_is_closed ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 33, in test_failed_preparation_resumes_after_admission_is_closed
+    case.complete(uncertain=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2604, in complete
+    return self.ended_after_failed_start(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, preparation, processes, uncertainty, orchestrating[0],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_before, target_revision, target_tree, case)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 1680, in ended_after_failed_start
+    gate = gates_of({"depends_on": json.dumps([{"job_id": "job-a", "kind": "integration"}])}, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== ERROR: tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_missing_independent_judgment_cannot_admit_apply ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 70, in test_missing_independent_judgment_cannot_admit_apply
+    self.complete(denied="missing")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== ERROR: tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_nonaccepting_independent_judgment_cannot_admit_apply ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 73, in test_nonaccepting_independent_judgment_cannot_admit_apply
+    self.complete(denied="rejected")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== ERROR: tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_original_job_limit_times_out_the_managed_apply ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 67, in test_original_job_limit_times_out_the_managed_apply
+    self.complete(failed=True, timed_out=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== ERROR: tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_preparation_judgments_apply_and_target_settle ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 37, in test_preparation_judgments_apply_and_target_settle
+    self.complete()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== ERROR: tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_authority_receipt_before_final_handoff ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 79, in test_reopen_after_authority_receipt_before_final_handoff
+    self.complete(cut="authority-receipt")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== ERROR: tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_derived_publication ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 61, in test_reopen_after_derived_publication
+    self.complete(cut="publication")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== ERROR: tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_failed_outcome_before_root_release ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 82, in test_reopen_after_failed_outcome_before_root_release
+    self.complete(cut="failed-outcome", failed=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== ERROR: tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_retained_adoption ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 58, in test_reopen_after_retained_adoption
+    self.complete(cut="adoption")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== ERROR: tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_target_effect_before_coordinator_settlement ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 40, in test_reopen_after_target_effect_before_coordinator_settlement
+    self.complete(cut="target-effect")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== ERROR: tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_zero_exit_failure_before_root_release ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 55, in test_reopen_after_zero_exit_failure_before_root_release
+    self.complete(cut="failed-outcome", failed=True, changed="untracked")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== ERROR: tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_target_drift_after_admission_prevents_start ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 88, in test_target_drift_after_admission_prevents_start
+    self.complete(denied="target")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== ERROR: tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_unknown_target_effect_remains_a_visible_hold_after_reopen ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 64, in test_unknown_target_effect_remains_a_visible_hold_after_reopen
+    self.complete(cut="unknown-effect")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== ERROR: tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_a_restart_across_a_failed_start_still_ends_it_once ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 1708, in test_a_restart_across_a_failed_start_still_ends_it_once
+    self.complete(uncertain=True, restart=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2604, in complete
+    return self.ended_after_failed_start(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, preparation, processes, uncertainty, orchestrating[0],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_before, target_revision, target_tree, case)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 1680, in ended_after_failed_start
+    gate = gates_of({"depends_on": json.dumps([{"job_id": "job-a", "kind": "integration"}])}, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== ERROR: tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_a_start_that_failed_after_creating_a_runtime_is_ended ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 1716, in test_a_start_that_failed_after_creating_a_runtime_is_ended
+    self.complete(uncertain=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2604, in complete
+    return self.ended_after_failed_start(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, preparation, processes, uncertainty, orchestrating[0],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_before, target_revision, target_tree, case)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 1680, in ended_after_failed_start
+    gate = gates_of({"depends_on": json.dumps([{"job_id": "job-a", "kind": "integration"}])}, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== ERROR: tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_failed_start_retries_an_unfinished_credential_teardown ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 1725, in test_failed_start_retries_an_unfinished_credential_teardown
+    self.unfinished_delivery("_torn_down")
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 1760, in unfinished_delivery
+    self.complete(uncertain=True, restart=restart)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2604, in complete
+    return self.ended_after_failed_start(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, preparation, processes, uncertainty, orchestrating[0],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_before, target_revision, target_tree, case)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 1680, in ended_after_failed_start
+    gate = gates_of({"depends_on": json.dumps([{"job_id": "job-a", "kind": "integration"}])}, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== ERROR: tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_failed_start_retries_an_unfinished_launch_teardown ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 1728, in test_failed_start_retries_an_unfinished_launch_teardown
+    self.unfinished_delivery("_launch_ended")
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 1760, in unfinished_delivery
+    self.complete(uncertain=True, restart=restart)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2604, in complete
+    return self.ended_after_failed_start(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, preparation, processes, uncertainty, orchestrating[0],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_before, target_revision, target_tree, case)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 1680, in ended_after_failed_start
+    gate = gates_of({"depends_on": json.dumps([{"job_id": "job-a", "kind": "integration"}])}, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== ERROR: tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_reopened_failed_start_retries_unfinished_credential_teardown ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 1731, in test_reopened_failed_start_retries_unfinished_credential_teardown
+    self.unfinished_delivery("_torn_down", restart=True)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 1760, in unfinished_delivery
+    self.complete(uncertain=True, restart=restart)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2604, in complete
+    return self.ended_after_failed_start(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, preparation, processes, uncertainty, orchestrating[0],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_before, target_revision, target_tree, case)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 1680, in ended_after_failed_start
+    gate = gates_of({"depends_on": json.dumps([{"job_id": "job-a", "kind": "integration"}])}, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== ERROR: tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_reopened_failed_start_retries_unfinished_launch_teardown ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 1734, in test_reopened_failed_start_retries_unfinished_launch_teardown
+    self.unfinished_delivery("_launch_ended", restart=True)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 1760, in unfinished_delivery
+    self.complete(uncertain=True, restart=restart)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 2604, in complete
+    return self.ended_after_failed_start(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, preparation, processes, uncertainty, orchestrating[0],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_before, target_revision, target_tree, case)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_managed_preparation.py", line 1680, in ended_after_failed_start
+    gate = gates_of({"depends_on": json.dumps([{"job_id": "job-a", "kind": "integration"}])}, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+=== FAILURE: tests.tools.test_provider_selection.SelectedCase.test_d3_caller_prompt_turn_refuses_the_integration_role_before_any_provider ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_provider_selection.py", line 714, in test_d3_caller_prompt_turn_refuses_the_integration_role_before_any_provider
+    self.assertEqual(callers, ["integration_workload.py"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['codex_agent.py', 'integration_workload.py'] != ['integration_workload.py']
+
+First differing element 0:
+'codex_agent.py'
+'integration_workload.py'
+
+First list contains 1 additional elements.
+First extra element 1:
+'integration_workload.py'
+
+- ['codex_agent.py', 'integration_workload.py']
+?  ------------------
+
++ ['integration_workload.py']
+=== FAILURE: tests.tools.test_source_identity.TheRealTreesDeclaredInputsExist.test_every_declared_input_is_present_and_outside_the_scope ===
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/repo/v12/python/tests/tools/test_source_identity.py", line 178, in test_every_declared_input_is_present_and_outside_the_scope
+    self.assertTrue(one["path"].startswith("work/records/"), one["path"])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : AGENTS.md
+[parallel source] 511 shards, 3691 tests, 2 failures, 39 errors, 0 skipped -> FAILED
+[serial] 0 source modules, one at a time
+--- serial source ---
+[serial source] 0 shards, 0 tests, 0 failures, 0 errors, 0 skipped -> OK
+[summary] parallel source: 3691 tests, 41 failed, 0 skipped | serial source: 0 tests, 0 failed, 0 skipped -> FAILED
+[groups] authority=0, job_manager=0, manager-pure=0, manager-engine=0, integration=0, tools-pure=3691, tools-packaged=0, supervised=0, scans=0
+--- accounting ---
+collected 3691, executed 3691, passed 3651, optional skipped 0, required skipped 0, failed 2, errors 38, fixture skips 0, fixture errors 0, duplicates 0, unaccounted 0
+[accounting] 3691 collected: 3651 passed, 0 optional skips, 2 failures, 38 errors, 0 unaccounted -> FAILED

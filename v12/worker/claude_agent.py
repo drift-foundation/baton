@@ -2294,8 +2294,12 @@ class ClaudeAgent:
             reader.join()
         if status != 0 or partial[0] or len(held) > 1024:
             return None
+        return self.decode_provider_version(bytes(held))
+
+    def decode_provider_version(self, raw):
+        """Decode the bounded version probe without interpreting a turn."""
         try:
-            match = re.fullmatch(r"([0-9]+\.[0-9]+\.[0-9]+)(?: \(Claude Code\))?", held.decode("utf-8").strip())
+            match = re.fullmatch(r"([0-9]+\.[0-9]+\.[0-9]+)(?: \(Claude Code\))?", raw.decode("utf-8").strip())
             return match.group(1) if match else None
         except UnicodeError:
             return None
@@ -5370,6 +5374,10 @@ class ClaudeAgent:
                 except OSError:
                     pass
 
+    def provider_credential_slot(self, selected):
+        from provider_policy import credential_slot
+        return credential_slot(selected["contract"]["selection"]["provider"])
+
     def _prepared_home(self, scratch):
         """A private HOME whose credential path POINTS AT the mounted slot.
 
@@ -5396,7 +5404,7 @@ class ClaudeAgent:
             except ValueError as failure:
                 raise TaskRefusal("managed-entry delivery disagrees with this build") from failure
             return prepare(rule["home"], credential_path=rule["credential"]["path"],
-                           delivered=os.path.join(CREDENTIAL_ROOT, CREDENTIAL_SLOT),
+                           delivered=os.path.join(CREDENTIAL_ROOT, self.provider_credential_slot(selected)),
                            mode=rule["credential"]["mode"], managed=managed)
         slot = os.path.join(CREDENTIAL_ROOT, CREDENTIAL_SLOT)
         if not os.path.exists(slot):

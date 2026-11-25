@@ -1,0 +1,426 @@
+test_a_change_hidden_from_git_status_is_a_settled_failure (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_change_hidden_from_git_status_is_a_settled_failure) ... ERROR
+test_a_clean_checkout_of_another_revision_is_a_settled_failure (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_clean_checkout_of_another_revision_is_a_settled_failure) ... ERROR
+test_a_failed_apply_is_collected_and_settles_without_a_target_effect (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_failed_apply_is_collected_and_settles_without_a_target_effect) ... ERROR
+test_a_grant_withdrawn_after_admission_prevents_start (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_grant_withdrawn_after_admission_prevents_start) ... ERROR
+test_a_zero_exit_worktree_change_is_a_settled_failure (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_zero_exit_worktree_change_is_a_settled_failure) ... ERROR
+test_changed_collection_mapping_cannot_admit_apply (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_changed_collection_mapping_cannot_admit_apply) ... ERROR
+test_failed_preparation_resumes_after_admission_is_closed (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_failed_preparation_resumes_after_admission_is_closed) ... ERROR
+test_missing_independent_judgment_cannot_admit_apply (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_missing_independent_judgment_cannot_admit_apply) ... ERROR
+test_nonaccepting_independent_judgment_cannot_admit_apply (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_nonaccepting_independent_judgment_cannot_admit_apply) ... ERROR
+test_original_job_limit_times_out_the_managed_apply (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_original_job_limit_times_out_the_managed_apply) ... ERROR
+test_preparation_judgments_apply_and_target_settle (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_preparation_judgments_apply_and_target_settle) ... ERROR
+test_reopen_after_authority_receipt_before_final_handoff (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_authority_receipt_before_final_handoff) ... ERROR
+test_reopen_after_derived_publication (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_derived_publication) ... ERROR
+test_reopen_after_failed_outcome_before_root_release (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_failed_outcome_before_root_release) ... ERROR
+test_reopen_after_retained_adoption (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_retained_adoption) ... ERROR
+test_reopen_after_target_effect_before_coordinator_settlement (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_target_effect_before_coordinator_settlement) ... ERROR
+test_reopen_after_zero_exit_failure_before_root_release (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_zero_exit_failure_before_root_release) ... ERROR
+test_target_drift_after_admission_prevents_start (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_target_drift_after_admission_prevents_start) ... ERROR
+test_unknown_target_effect_remains_a_visible_hold_after_reopen (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_unknown_target_effect_remains_a_visible_hold_after_reopen) ... ERROR
+
+======================================================================
+ERROR: test_a_change_hidden_from_git_status_is_a_settled_failure (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_change_hidden_from_git_status_is_a_settled_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 52, in test_a_change_hidden_from_git_status_is_a_settled_failure
+    self.complete(failed=True, changed="hidden")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_a_clean_checkout_of_another_revision_is_a_settled_failure (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_clean_checkout_of_another_revision_is_a_settled_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 46, in test_a_clean_checkout_of_another_revision_is_a_settled_failure
+    self.complete(failed=True, changed="head")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_a_failed_apply_is_collected_and_settles_without_a_target_effect (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_failed_apply_is_collected_and_settles_without_a_target_effect)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 43, in test_a_failed_apply_is_collected_and_settles_without_a_target_effect
+    self.complete(failed=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_a_grant_withdrawn_after_admission_prevents_start (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_grant_withdrawn_after_admission_prevents_start)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 85, in test_a_grant_withdrawn_after_admission_prevents_start
+    self.complete(denied="grant")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_a_zero_exit_worktree_change_is_a_settled_failure (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_zero_exit_worktree_change_is_a_settled_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 49, in test_a_zero_exit_worktree_change_is_a_settled_failure
+    self.complete(failed=True, changed="untracked")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_changed_collection_mapping_cannot_admit_apply (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_changed_collection_mapping_cannot_admit_apply)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 76, in test_changed_collection_mapping_cannot_admit_apply
+    self.complete(denied="mapping")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_failed_preparation_resumes_after_admission_is_closed (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_failed_preparation_resumes_after_admission_is_closed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 33, in test_failed_preparation_resumes_after_admission_is_closed
+    case.complete(uncertain=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2604, in complete
+    return self.ended_after_failed_start(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, preparation, processes, uncertainty, orchestrating[0],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_before, target_revision, target_tree, case)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 1680, in ended_after_failed_start
+    gate = gates_of({"depends_on": json.dumps([{"job_id": "job-a", "kind": "integration"}])}, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_missing_independent_judgment_cannot_admit_apply (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_missing_independent_judgment_cannot_admit_apply)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 70, in test_missing_independent_judgment_cannot_admit_apply
+    self.complete(denied="missing")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_nonaccepting_independent_judgment_cannot_admit_apply (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_nonaccepting_independent_judgment_cannot_admit_apply)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 73, in test_nonaccepting_independent_judgment_cannot_admit_apply
+    self.complete(denied="rejected")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_original_job_limit_times_out_the_managed_apply (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_original_job_limit_times_out_the_managed_apply)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 67, in test_original_job_limit_times_out_the_managed_apply
+    self.complete(failed=True, timed_out=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_preparation_judgments_apply_and_target_settle (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_preparation_judgments_apply_and_target_settle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 37, in test_preparation_judgments_apply_and_target_settle
+    self.complete()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_reopen_after_authority_receipt_before_final_handoff (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_authority_receipt_before_final_handoff)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 79, in test_reopen_after_authority_receipt_before_final_handoff
+    self.complete(cut="authority-receipt")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_reopen_after_derived_publication (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_derived_publication)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 61, in test_reopen_after_derived_publication
+    self.complete(cut="publication")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_reopen_after_failed_outcome_before_root_release (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_failed_outcome_before_root_release)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 82, in test_reopen_after_failed_outcome_before_root_release
+    self.complete(cut="failed-outcome", failed=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_reopen_after_retained_adoption (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_retained_adoption)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 58, in test_reopen_after_retained_adoption
+    self.complete(cut="adoption")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_reopen_after_target_effect_before_coordinator_settlement (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_target_effect_before_coordinator_settlement)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 40, in test_reopen_after_target_effect_before_coordinator_settlement
+    self.complete(cut="target-effect")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_reopen_after_zero_exit_failure_before_root_release (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_zero_exit_failure_before_root_release)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 55, in test_reopen_after_zero_exit_failure_before_root_release
+    self.complete(cut="failed-outcome", failed=True, changed="untracked")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_target_drift_after_admission_prevents_start (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_target_drift_after_admission_prevents_start)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 88, in test_target_drift_after_admission_prevents_start
+    self.complete(denied="target")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_unknown_target_effect_remains_a_visible_hold_after_reopen (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_unknown_target_effect_remains_a_visible_hold_after_reopen)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 64, in test_unknown_target_effect_remains_a_visible_hold_after_reopen
+    self.complete(cut="unknown-effect")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+----------------------------------------------------------------------
+Ran 19 tests in 72.459s
+
+FAILED (errors=19)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

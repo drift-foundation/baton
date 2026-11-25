@@ -1,0 +1,23 @@
+{
+  "candidate_hashes_valid": true,
+  "group_processes": {
+    "baseline-01.header.json": "absent",
+    "new-02.header.json": "absent",
+    "baseline-tools-02.header.json": "absent",
+    "baseline-tools-01.header.json": "absent",
+    "baseline-preparation-01.header.json": "absent",
+    "baseline-source-01.header.json": "absent",
+    "manager-pure.header.json": "absent",
+    "tools-pure.header.json": "absent",
+    "new-01.header.json": "absent",
+    "final-01.header.json": "absent",
+    "baseline-02.header.json": "absent",
+    "interrupted-group-runs/manager-pure.header.json": "absent",
+    "interrupted-group-runs/tools-pure.header.json": "absent"
+  },
+  "matching_fixture_process_ids": [],
+  "protected_head": "ac034bc1c9fae525b94a1a5f21d9721c677dc39e",
+  "staged_diff": "",
+  "protected_product_diff": "v12/DESIGN.md\n",
+  "cleanup": "No adapter/container launched. Test-root leftovers and disposable source copies retained for diagnosis; no optional recursive cleanup."
+}

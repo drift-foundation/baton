@@ -1,0 +1,88 @@
+{
+  "participant": "baton.codxpc",
+  "role": "impl",
+  "claim": 386020,
+  "selection": 386019,
+  "work": "W385830",
+  "observed_at": "2026-11-24T20:43:04.378624+00:00",
+  "base": "317351e73c92749e201f536ba115c9fdf213077d",
+  "last_parent_message": 386018,
+  "last_K_message": 386017,
+  "ownership_request": 386016,
+  "ownership_poke": 386021,
+  "scope": "N4a preparation only; no product edits or engine/provider execution",
+  "source": [
+    {
+      "path": "v12/worker/claude_agent.py",
+      "sha256": "6cf404dfa60093b1d2f5a4d7073c3d0bddb7128897b5ff88ebd622aa08524eee",
+      "bytes": 411612,
+      "equals_checkpoint": true
+    },
+    {
+      "path": "v12/worker/dogfood_entry.py",
+      "sha256": "2b36f68faa0512db428d87ae705c03468417ba7d5d752133d81522a88ae4e807",
+      "bytes": 8745,
+      "equals_checkpoint": true
+    },
+    {
+      "path": "v12/worker/Dockerfile.claude",
+      "sha256": "f5b6415bce1ed49c5aa4847509cda9674f01b7a30af0526f3fe99321cf93b5de",
+      "bytes": 18534,
+      "equals_checkpoint": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/provider_policy/__init__.py",
+      "sha256": "52b4b188018c37ead059b2e6597320830b409f4ee480ae6983310103891b1e74",
+      "bytes": 8176,
+      "equals_checkpoint": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/provider_policy/home.py",
+      "sha256": "56b2d7db42be55fb112db2f9333992b19eb2d41cf40f4eacb7b702802bbdbc4e",
+      "bytes": 6441,
+      "equals_checkpoint": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/provider_policy/attribution.py",
+      "sha256": "5d32b3d239bd0223eb890ad564c70a7e70ca1d0ee84e5a4bab9da4a43918b052",
+      "bytes": 4486,
+      "equals_checkpoint": true
+    },
+    {
+      "path": "v12/python/tools/pool.py",
+      "sha256": "7ef018e273e7e7b466cf420493713f853bd1eb3c301350bb85c78888fc1cc75f",
+      "bytes": 73364,
+      "equals_checkpoint": true
+    },
+    {
+      "path": "v12/python/tools/next_run_bindings.py",
+      "sha256": "b9d4df0dd6d51031f6f2e3f53c3ccb4bbdea175d39824a1a4da69dcc02258aed",
+      "bytes": 51646,
+      "equals_checkpoint": true
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "sha256": "b9ea2bb31271dda2d5a19ba2023cffeb3c9b2db5148deda38d7c7a1a0eaa2dff",
+      "bytes": 264722,
+      "equals_checkpoint": true
+    },
+    {
+      "path": "v12/python/tools/parallel_test.py",
+      "sha256": "4619a597021d3c5fc3300ff2f150bc4baa248672b3739c5132ada30c28d0a66f",
+      "bytes": 111560,
+      "equals_checkpoint": true
+    },
+    {
+      "path": "v12/DESIGN.md",
+      "sha256": "0c70ebed77d104aa2cdd3608ca1d2d0aa7650fc9bd6b134f5a44ac4e6f6fb414",
+      "bytes": 102610,
+      "equals_checkpoint": false
+    },
+    {
+      "path": "v12/python/TESTING.md",
+      "sha256": "82f024e1c361559e8161416b57aba46b9991c834d207b0d625edf3b6a3f63c8f",
+      "bytes": 15784,
+      "equals_checkpoint": true
+    }
+  ]
+}

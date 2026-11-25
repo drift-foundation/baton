@@ -165,3 +165,29 @@ unknown: a retained home is not an empty baseline. Home retention does not imply
 session resumption. The CLI build is measured by the worker; the host validates
 its binding but does not independently run the CLI. The supervised review wrapper,
 version-probe format/bound and terminal-size bound still require qualification.
+
+
+## Codex adapter join: evidence and remaining gates
+
+The Codex adapter and entry use the shared worker lifecycle, instruction label,
+managed-entry preparation and result metadata. Its argv and version decoder
+are grounded in the retained Codex 0.169.0 offline inventory. Empty prompts,
+leading hyphens and exact exec subcommand words refuse before invocation. The
+version probe must establish 0.169.0 before a turn can start.
+
+The bound `context_label.roles` is the single role source: Codex serves fresh
+implementation only. Composition, configuration revalidation and the worker
+check it. The logical delivered credential slot is `codex`; this names the
+Baton mount, not the vendor credential file. Claude keeps its existing slot
+and legacy context path.
+
+Codex has no production realization or managed-entry path yet: its exact-build
+credential filename remains an evidence gate. Composition therefore refuses;
+no null or guessed credential path enables native use. Tests that temporarily
+install synthetic realization/path tables prove the shared mechanisms only.
+The Codex recipe is source-only and copies the same provider-policy package.
+
+Codex terminal parsing and participation sources remain unqualified. Every
+Codex terminal return is unclassified, including exit zero. No turn fixture,
+model call, build or resume behavior is implied by this join. Provider-selected
+integration is a separate open issue and is not enabled by the Codex guards.

@@ -1,0 +1,19 @@
+{
+  "claim": 386029,
+  "selection": 386028,
+  "review": 386027,
+  "base": "317351e73c92749e201f536ba115c9fdf213077d",
+  "scratch": "/home/sl/src/baton/work/scratch/w385830-n4a-386029/repo",
+  "base_archive_sha256": "0b079ee4364dac89af9bc906cb26dbf1f908fb455fefb4427f1df5ef00d97385",
+  "candidate_kind": "disjoint draft; no shared-file edits; unregistered draft tests permitted by M386027 and owner",
+  "planned_group": "manager-pure",
+  "forbidden": [
+    "builds",
+    "engine",
+    "credentials",
+    "provider calls",
+    "N4b",
+    "resume",
+    "shared D-first edits"
+  ]
+}

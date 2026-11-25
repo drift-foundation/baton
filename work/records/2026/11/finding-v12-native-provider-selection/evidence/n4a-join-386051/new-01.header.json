@@ -1,0 +1,26 @@
+{
+  "command": [
+    "just",
+    "--justfile",
+    "v12/justfile",
+    "test-one",
+    "tests.manager.test_codex_draft",
+    "tests.tools.test_codex_selection",
+    "tests.tools.test_provider_selection.SelectedCase.test_25_simulated_codex_and_claude_share_policy_and_admit_distinct_lanes"
+  ],
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "base": "ac034bc1c9fae525b94a1a5f21d9721c677dc39e",
+  "candidate_repository_head": "29963a78dceb55c5d80be107d707326588065f3f",
+  "groups": [
+    "manager-pure",
+    "tools-pure",
+    "job_manager"
+  ],
+  "collected": 23,
+  "bound_seconds": 60,
+  "disk_root": "/home/sl/src/baton/work/scratch/w385830-join-386051/test-roots",
+  "TMPDIR": "/home/sl/src/baton/work/scratch/w385830-join-386051/test-roots",
+  "accounting": "explicit ids from unittest -v; test-one has no registry accounting",
+  "pid": 2103670,
+  "pgid": 2103670
+}

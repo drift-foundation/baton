@@ -1,0 +1,36 @@
+{
+  "group_cessation": {
+    "manager-pure": "process group absent",
+    "tools-pure": "process group absent"
+  },
+  "head": "ac034bc1c9fae525b94a1a5f21d9721c677dc39e",
+  "staged_diff": "",
+  "latest_reflog": "ac034bc1c9fae525b94a1a5f21d9721c677dc39e commit: Deliver native worker instructions and execution-context label under provider selection",
+  "observation": "Protected HEAD remains selected checkpoint and staged diff empty; no successful protected mutation observed. Refused legacy git discovery attempts retained. Full pre-run index hash was not captured; no stronger before/after index claim.",
+  "corrections": [
+    {
+      "date": "2026-11-25T00:09:08.753765+00:00",
+      "author": "baton.codxpc",
+      "source": "M386056 / review-2026-11-24T23-40-10Z.md, I1",
+      "supersedes": "The original observation that no successful protected mutation was observed is incorrect. HEAD and index checks did not cover refs, objects, packs or FETCH_HEAD.",
+      "confirmed": "The protected-repository fetch succeeded. Only checkout was refused.",
+      "ref": "refs/baton/source/main",
+      "ref_value": "821fe1b94e4ea58e8b4a7670a16ee5dd64b2fb79",
+      "loose_object_prefixes": [
+        "53485ec9",
+        "a2f63724",
+        "821fe1b9",
+        "51915b90",
+        "aa86046a",
+        "cb9f9f62"
+      ],
+      "pack_prefix": "pack-90ca7232",
+      "other_write": "FETCH_HEAD rewritten",
+      "observation_time": "2026-11-24 16:07:09\u201316:07:10 local, as reported by reviewer",
+      "cause": "GitCheckpointProfile fetch from a fixture directory without its own repository discovered enclosing protected Git metadata; checkout then refused dirty files.",
+      "limits": "Object/pack contents and config not independently inspected here. Review observed HEAD/index/tracked files unaffected; this does not imply Git metadata was unaffected.",
+      "action": "Preserve metadata for Slawomir inspection/disposition. No protected cleanup, affected-group rerun or candidate edit selected.",
+      "tracking": "W386057"
+    }
+  ]
+}

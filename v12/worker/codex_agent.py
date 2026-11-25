@@ -1,0 +1,85 @@
+"""N4a Codex 0.169.0 adapter; native composition remains gated on J1.
+
+Arguments/version are grounded in retained N3 inventory. Instruction and home
+preparation use the shared D interface. There is no Codex policy realization
+or credential filename until selected evidence supplies one. Turn parsing and
+participation remain N4b; no process exit can establish semantic success here.
+"""
+import re
+
+from claude_agent import ClaudeAgent, TaskRefusal, UNCLASSIFIED
+
+CLI_BUILD = "0.169.0"
+EXEC_COMMANDS = frozenset(("resume", "fork", "review", "help"))
+ARGUMENTS = ("exec", "--dangerously-bypass-approvals-and-sandbox",
+             "--ignore-user-config", "--ignore-rules", "--json")
+
+
+def prompt_operand(prompt):
+    """Refuse an operand the evidenced exec CLI could treat as a command."""
+    if (type(prompt) is not str or not prompt.strip() or prompt.startswith("-")
+            or prompt in EXEC_COMMANDS or "\0" in prompt):
+        raise TaskRefusal("Codex requires a nonempty prompt operand, not an option or subcommand")
+    return prompt
+
+
+class CodexAgent(ClaudeAgent):
+    provider_program = "codex"
+    provider_arguments = ARGUMENTS
+    # No filename is inferred from another build or from the host account.
+    provider_home_state = None
+    provider_credential = None
+
+    def _provider_selection(self):
+        seen = getattr(self, "_seen", None) or {}
+        if (seen.get("schema") != "baton.worker-launch/6"
+                or seen.get("provider_context") is not None):
+            raise TaskRefusal("Codex requires a fresh provider-selected launch")
+        selected = super()._provider_selection()
+        # Host and worker consume the same bound context-label role list.
+        import provider_policy
+        try:
+            provider_policy.validate_execution(selected["contract"]["adapter"], seen.get("role"), seen.get("provider_context"))
+        except (ValueError, KeyError, TypeError) as failure:
+            raise TaskRefusal("Codex requires its declared fresh execution role") from failure
+        if selected["contract"]["selection"]["cli_build"] != CLI_BUILD:
+            raise TaskRefusal("Codex requires its selected exact CLI build")
+        return selected
+
+    def provider_argv(self, prompt, *, model=None):
+        prompt = prompt_operand(prompt)
+        if model is None:
+            # The shared runner first asks for argv without its model
+            # argument. Resolve the same validated selection, never a default.
+            model = self._provider_selection()["contract"]["selection"]["requested_model"]
+        if (type(model) is not str or not model or len(model) > 256
+                or model.startswith("-") or any(ord(char) < 32 for char in model)):
+            raise TaskRefusal("Codex requires an explicit bounded model selector")
+        return [self.provider_program, *self.provider_arguments, "--model", model, prompt]
+
+    def invoke_provider(self, *, prompt, room, seen=None):
+        # R1 applies before even preparing a home, not just at argv creation.
+        prompt_operand(prompt)
+        return super().invoke_provider(prompt=prompt, room=room, seen=seen)
+
+    def provider_terminal(self, status, record, *, partial):
+        # No raw bytes, exit-zero convention or Claude-shaped fixture can
+        # establish Codex success before exact-build turn evidence exists.
+        return {"ok": False, "status": status, "failure_reason": UNCLASSIFIED,
+                "why": "Codex terminal interpretation awaits exact-build turn evidence"}
+
+    def decode_provider_version(self, raw):
+        try:
+            match = re.fullmatch(r"codex-cli ([0-9]+\.[0-9]+\.[0-9]+)\n?", raw.decode("utf-8"))
+            return match.group(1) if match else None
+        except UnicodeError:
+            return None
+
+    def provider_version(self, environment, candidate):
+        build = super().provider_version(environment, candidate)
+        if build != CLI_BUILD:
+            raise TaskRefusal("Codex version probe did not establish the selected exact build")
+        return build
+
+    def provider_session_root(self, home):
+        raise TaskRefusal("Codex session layout is not evidenced")

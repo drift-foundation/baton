@@ -1,0 +1,1 @@
+{"ids": ["tests.test_one.One.test_a", "tests.test_one.One.test_b"], "loaded": ["tests.test_one.One.test_a", "tests.test_one.One.test_b"], "executed": ["tests.test_one.One.test_a", "tests.test_one.One.test_b"], "ran": 2, "ok": true, "failures": [], "errors": [], "skipped": [], "expected_failures": [], "unexpected_successes": []}

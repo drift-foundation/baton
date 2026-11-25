@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "just",
+    "test-one",
+    "tests.manager.test_codex_draft"
+  ],
+  "cwd": "/home/sl/src/baton/work/scratch/w385830-n4a-386029/repo/v12",
+  "exit_code": 0,
+  "elapsed_seconds": 0.4459474579198286,
+  "accounted": false,
+  "kind": "unregistered disjoint draft per M386027",
+  "source_before": {
+    "worker/codex_agent.py": "746be46471a8eebde7f89f788f5dff5b41044826bd6a48ea28483041e8f5ff70",
+    "worker/codex_entry.py": "9127342abfb7632a08faaa3d502db4cecadf61ed50f82db2589b879daa0836c1",
+    "worker/Dockerfile.codex": "0c81e45ff858f96bbac78daadc6c0c03ffce4e241ff38e0d28bbf5e620fcdf0e",
+    "python/tests/manager/test_codex_draft.py": "9ca86659329685dabd8d24a1e7aeda338c40076acf554523418174780ac28bc6"
+  },
+  "source_after": {
+    "worker/codex_agent.py": "746be46471a8eebde7f89f788f5dff5b41044826bd6a48ea28483041e8f5ff70",
+    "worker/codex_entry.py": "9127342abfb7632a08faaa3d502db4cecadf61ed50f82db2589b879daa0836c1",
+    "worker/Dockerfile.codex": "0c81e45ff858f96bbac78daadc6c0c03ffce4e241ff38e0d28bbf5e620fcdf0e",
+    "python/tests/manager/test_codex_draft.py": "9ca86659329685dabd8d24a1e7aeda338c40076acf554523418174780ac28bc6"
+  }
+}

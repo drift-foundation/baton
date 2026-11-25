@@ -1,0 +1,34 @@
+PASS inventory version
+PASS inventory root-help
+PASS inventory exec-help
+PASS inventory home-readonly
+PASS inventory home-readonly-warning
+PASS inventory startup-home
+PASS inventory inventory-summary
+PASS inventory cleanup
+PASS contract work/records/2026/11/finding-v12-native-provider-selection/IMPLEMENTATION-CONTRACT-CONSOLIDATED-REV2-2026-11-23.md
+PASS contract work/records/2026/11/finding-v12-native-provider-selection/IMPLEMENTATION-CONTRACT-N1N2-ADDENDUM-2026-11-23.md
+PASS contract work/records/2026/11/finding-host-worker-instruction-separation/DELIVERY-CONTRACT-FINAL-2026-11-24.md
+PASS source v12/worker/claude_agent.py
+PASS source v12/worker/dogfood_entry.py
+PASS source v12/worker/Dockerfile.claude
+PASS source v12/python/src/baton_v12/provider_policy/__init__.py
+PASS source v12/python/src/baton_v12/provider_policy/home.py
+PASS source v12/python/src/baton_v12/provider_policy/attribution.py
+PASS source v12/python/tools/pool.py
+PASS source v12/python/tools/next_run_bindings.py
+PASS source v12/python/tools/single_worker.py
+PASS source v12/python/tools/parallel_test.py
+PASS source v12/DESIGN.md
+PASS source v12/python/TESTING.md
+PASS observed help option --dangerously-bypass-approvals-and-sandbox
+PASS observed help option --ignore-user-config
+PASS observed help option --ignore-rules
+PASS observed help option --json
+PASS observed help option --model
+PASS observed exact version
+PASS no guessed credential target
+PASS no guessed instruction target
+PASS no guessed session target
+PASS no participation sources
+33 preparation checks passed; zero product tests run.

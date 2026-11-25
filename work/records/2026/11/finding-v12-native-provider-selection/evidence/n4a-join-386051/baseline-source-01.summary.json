@@ -1,0 +1,19 @@
+{
+  "collected": 1,
+  "duplicates": [],
+  "duration_seconds": 0.2638752149650827,
+  "executed": 1,
+  "exit_status": 1,
+  "nonpassing": {
+    "tests.tools.test_source_identity.TheRealTreesDeclaredInputsExist.test_every_declared_input_is_present_and_outside_the_scope": "FAIL"
+  },
+  "outcomes": {
+    "tests.tools.test_source_identity.TheRealTreesDeclaredInputsExist.test_every_declared_input_is_present_and_outside_the_scope": "FAIL"
+  },
+  "passed": 0,
+  "source_after_exit_status": 0,
+  "source_drift": false,
+  "timed_out": false,
+  "unaccounted": [],
+  "uncollected": []
+}

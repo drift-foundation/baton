@@ -1,0 +1,18 @@
+{
+  "base_files_verified_unchanged": 1144,
+  "added_candidate_paths": [
+    "v12/worker/codex_agent.py",
+    "v12/worker/codex_entry.py",
+    "v12/worker/Dockerfile.codex",
+    "v12/python/tests/manager/test_codex_draft.py",
+    "v12/python/tests/manager/fixtures/codex-0.169.0/exec-help.txt",
+    "v12/python/tests/manager/fixtures/codex-0.169.0/provenance.json",
+    "v12/python/tests/manager/fixtures/codex-0.169.0/version.txt"
+  ],
+  "shared_product_edits": [],
+  "protected_product_import": false,
+  "scratch_retained": "/home/sl/src/baton/work/scratch/w385830-n4a-386029",
+  "engine_operations": 0,
+  "provider_calls": 0,
+  "credential_reads": 0
+}

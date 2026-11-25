@@ -1,0 +1,55 @@
+{
+  "base": "317351e73c92749e201f536ba115c9fdf213077d",
+  "files": {
+    "ARGV-PROPOSAL.json": {
+      "sha256": "6e317478d510fa989a06a6d24aeb5db8adf4ef8c8e222a9c3139191acd3ff83e",
+      "bytes": 1333,
+      "mode": "0o664"
+    },
+    "HANDOFF.json": {
+      "sha256": "14705eee754e89ab1e6326507947fe5d14056c242a44c9e16e0b7181098eaf61",
+      "bytes": 1262,
+      "mode": "0o664"
+    },
+    "INPUTS.json": {
+      "sha256": "7b90a1ad6fb6846789ada309f46c0316af525f35a8b5fd91f38f5cde86b84082",
+      "bytes": 2885,
+      "mode": "0o664"
+    },
+    "README.md": {
+      "sha256": "bbb075639f5bd8cd4e5536377203b8f9e244c705aa8942bbd645e9745f217052",
+      "bytes": 15841,
+      "mode": "0o664"
+    },
+    "START.json": {
+      "sha256": "d3a9bb25884d0fc6b87519db2a90ed3a4a965c16e40a19aff81bb283013dd43b",
+      "bytes": 2870,
+      "mode": "0o664"
+    },
+    "context/DELIVERY-CONTRACT-FINAL-2026-11-24.md": {
+      "sha256": "c66c8c5e40fb9defa721daf356a8833daa531be190944971efcb470b58315965",
+      "bytes": 17579,
+      "mode": "0o664"
+    },
+    "context/DESIGN.md": {
+      "sha256": "0c70ebed77d104aa2cdd3608ca1d2d0aa7650fc9bd6b134f5a44ac4e6f6fb414",
+      "bytes": 102610,
+      "mode": "0o664"
+    },
+    "context/OWNERSHIP-N4A-DELIVERY-2026-11-24.md": {
+      "sha256": "f0f41390b152f40b45090606e8954a683b651002440523e0d61ba363a512d16c",
+      "bytes": 7403,
+      "mode": "0o664"
+    },
+    "verification.json": {
+      "sha256": "c926b1ea970c7b8f986ab12a87d575b6e94a13162a31053215c43428dd5eec1b",
+      "bytes": 3497,
+      "mode": "0o664"
+    },
+    "verification.log": {
+      "sha256": "b4590991ce28c765fbe2f39b45276cd85675e873b4a83c0dc934cdd46ba78b9e",
+      "bytes": 1582,
+      "mode": "0o664"
+    }
+  }
+}

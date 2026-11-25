@@ -1,0 +1,29 @@
+{
+  "accounted": false,
+  "reason": "Explicit M386027 disjoint draft exception; registry/accounted acceptance at D-first join",
+  "prepared_interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "collection": "unittest.defaultTestLoader.loadTestsFromName on prepared interpreter; collection.stdout retained",
+  "collected": 14,
+  "executed": 14,
+  "passed": 14,
+  "failed": 0,
+  "errors": 0,
+  "skipped": 0,
+  "tests": {
+    "tests.manager.test_codex_draft.CodexDraft.test_home_and_session_layout_stay_gated": "ok",
+    "tests.manager.test_codex_draft.CodexDraft.test_invalid_explicit_models_refuse": "ok",
+    "tests.manager.test_codex_draft.CodexDraft.test_legacy_and_reuse_refuse_before_shared_selection": "ok",
+    "tests.manager.test_codex_draft.CodexDraft.test_model_has_no_implicit_default": "ok",
+    "tests.manager.test_codex_draft.CodexDraft.test_no_terminal_shape_or_exit_code_is_success": "ok",
+    "tests.manager.test_codex_draft.CodexDraft.test_prompt_is_one_literal_operand": "ok",
+    "tests.manager.test_codex_draft.CodexDraft.test_r1_refuses_before_home_or_runner": "ok",
+    "tests.manager.test_codex_draft.CodexDraft.test_role_and_build_guards_on_simulated_validated_delivery": "ok",
+    "tests.manager.test_codex_draft.CodexDraft.test_selected_implementation_guard_preserves_contract": "ok",
+    "tests.manager.test_codex_draft.EntryDraft.test_existing_supervisor_owns_process_lifecycle": "ok",
+    "tests.manager.test_codex_draft.EntryDraft.test_real_invalid_delivery_never_constructs_adapter": "ok",
+    "tests.manager.test_codex_draft.EntryDraft.test_simulated_valid_delivery_constructs_only_after_validation": "ok",
+    "tests.manager.test_codex_draft.InventoryAndRecipe.test_recipe_is_exact_pinned_source_and_reuses_worker_boundary": "ok",
+    "tests.manager.test_codex_draft.InventoryAndRecipe.test_retained_inventory_bytes_and_options": "ok"
+  },
+  "evidence_processing_note": "Initial log reconciliation duplicated the method suffix and asserted; corrected log parser without source change or test rerun."
+}

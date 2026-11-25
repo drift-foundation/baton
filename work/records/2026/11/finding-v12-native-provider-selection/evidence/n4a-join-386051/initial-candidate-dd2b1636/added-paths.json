@@ -1,0 +1,11 @@
+[
+  "v12/python/tests/manager/codex_fixtures.py",
+  "v12/python/tests/manager/fixtures/codex-0.169.0/exec-help.txt",
+  "v12/python/tests/manager/fixtures/codex-0.169.0/provenance.json",
+  "v12/python/tests/manager/fixtures/codex-0.169.0/version.txt",
+  "v12/python/tests/manager/test_codex_draft.py",
+  "v12/python/tests/tools/test_codex_selection.py",
+  "v12/worker/Dockerfile.codex",
+  "v12/worker/codex_agent.py",
+  "v12/worker/codex_entry.py"
+]

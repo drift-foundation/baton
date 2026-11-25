@@ -1,0 +1,23 @@
+{
+  "command": [
+    "just",
+    "--justfile",
+    "v12/justfile",
+    "test-one",
+    "tests.tools.test_source_identity.TheRealTreesDeclaredInputsExist.test_every_declared_input_is_present_and_outside_the_scope"
+  ],
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "base": "ac034bc1c9fae525b94a1a5f21d9721c677dc39e",
+  "candidate_repository_head": "7e799f62ef4cf4863c65bc4085bb6f92193cab2f",
+  "groups": [
+    "manager-pure",
+    "tools-pure"
+  ],
+  "collected": 1,
+  "bound_seconds": 30,
+  "disk_root": "/var/tmp/baton-n4a-386051-baseline",
+  "TMPDIR": "/var/tmp/baton-n4a-386051-baseline",
+  "accounting": "explicit ids from unittest -v; test-one has no registry accounting",
+  "pid": 2199096,
+  "pgid": 2199096
+}

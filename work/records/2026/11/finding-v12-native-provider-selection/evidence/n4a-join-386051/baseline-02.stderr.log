@@ -1,0 +1,129 @@
+test_every_durable_writer_is_covered (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_every_durable_writer_is_covered) ... FAIL
+test_no_declared_coverage_is_stale (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_no_declared_coverage_is_stale)
+A list of exceptions nobody compares to the code is a list of ... 
+  test_no_declared_coverage_is_stale (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_no_declared_coverage_is_stale) (entry=('review_cycles.py', 'freeze_checkpoint', 'line_checkpoints'))
+A list of exceptions nobody compares to the code is a list of ... FAIL
+  test_no_declared_coverage_is_stale (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_no_declared_coverage_is_stale) (entry=('review_cycles.py', 'freeze_checkpoint', 'line_writers'))
+A list of exceptions nobody compares to the code is a list of ... FAIL
+  test_no_declared_coverage_is_stale (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_no_declared_coverage_is_stale) (entry=('review_cycles.py', 'freeze_checkpoint', 'review_lines'))
+A list of exceptions nobody compares to the code is a list of ... FAIL
+test_every_exported_callable_is_in_exactly_one_class (tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor.test_every_exported_callable_is_in_exactly_one_class) ... FAIL
+test_a_failed_read_NAMES_THE_STORE_and_reports_sqlites_own_words (tests.manager.test_store.ReadonlyAcquisition.test_a_failed_read_NAMES_THE_STORE_and_reports_sqlites_own_words)
+W316915. This refusal used to name no store at all. ... FAIL
+test_the_classification_reads_the_BUILD_S_OWN_record (tests.manager.test_w197661_verifier.TheSEALIsCLASSIFIEDRatherThanRewritten.test_the_classification_reads_the_BUILD_S_OWN_record)
+Not the seal read back to itself -- that is the current-to-current ... FAIL
+test_retained_owner_responses_replay_exact_cleanup_without_docker (tests.manager.test_runtime_deadline_engine_budget.EngineBudget.test_retained_owner_responses_replay_exact_cleanup_without_docker) ... ERROR
+
+======================================================================
+ERROR: test_retained_owner_responses_replay_exact_cleanup_without_docker (tests.manager.test_runtime_deadline_engine_budget.EngineBudget.test_retained_owner_responses_replay_exact_cleanup_without_docker)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/manager/test_runtime_deadline_engine_budget.py", line 206, in test_retained_owner_responses_replay_exact_cleanup_without_docker
+    raw = (source / f"parent-call-{index}.json").read_bytes()
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 625, in read_bytes
+    with self.open(mode='rb') as f:
+         ~~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-164414/run/parent-call-1.json'
+
+======================================================================
+FAIL: test_every_durable_writer_is_covered (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_every_durable_writer_is_covered)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/manager/test_secrets.py", line 2409, in test_every_durable_writer_is_covered
+    self.assertEqual(uncovered, [],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+                     "durable writers with no §13 coverage")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('review_cycles.py', '_freeze_checkpoint'[381 chars]es')] != []
+
+First list contains 6 additional elements.
+First extra element 0:
+('review_cycles.py', '_freeze_checkpoint', 'line_checkpoints')
+
++ []
+- [('review_cycles.py', '_freeze_checkpoint', 'line_checkpoints'),
+-  ('review_cycles.py', '_freeze_checkpoint', 'line_writers'),
+-  ('review_cycles.py', '_freeze_checkpoint', 'review_lines'),
+-  ('review_cycles.py',
+-   'freeze_unreleased_recovered_checkpoint',
+-   'line_checkpoints'),
+-  ('review_cycles.py', 'freeze_unreleased_recovered_checkpoint', 'line_writers'),
+-  ('review_cycles.py', 'freeze_unreleased_recovered_checkpoint', 'review_lines')] : durable writers with no §13 coverage
+
+======================================================================
+FAIL: test_no_declared_coverage_is_stale (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_no_declared_coverage_is_stale) (entry=('review_cycles.py', 'freeze_checkpoint', 'line_checkpoints'))
+A list of exceptions nobody compares to the code is a list of
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/manager/test_secrets.py", line 2418, in test_no_declared_coverage_is_stale
+    self.assertIn(entry, writers)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: ('review_cycles.py', 'freeze_checkpoint', 'line_checkpoints') not found in {('interrogation.py', 'publish_inquiry_answer', 'interrogations'), ('review_cycles.py', '_freeze_checkpoint', 'review_lines'), ('review_cycles.py', 'record_verdict', 'integration_eligibility'), ('offers.py', 'certify_profile', 'meta'), ('attempts.py', '_attach', 'attempts'), ('offers.py', 'issue_offer', 'offers'), ('review_cycles.py', 'release_writer', 'line_writers'), ('review_cycles.py', 'restore_abandoned_correction', 'line_writers'), ('review_cycles.py', 'attach_review', 'review_attachments'), ('review_cycles.py', '_withdraw_publication', 'review_lines'), ('review_cycles.py', 'attach_review', 'review_lines'), ('intake.py', '_no_start_declared', 'attempts'), ('review_cycles.py', 'grant_writer', 'line_writers'), ('sessions.py', 'adopt_provider_session', 'agent_sessions'), ('handshake.py', 'certify_agent_session_profile', 'profiles'), ('store.py', 'ControlStore._record', 'operations'), ('review_cycles.py', 'record_verdict', 'review_attachments'), ('intake.py', '_seal', 'intakes'), ('intake.py', '_seal', 'intake_artifacts'), ('review_cycles.py', 'record_verdict', 'review_lines'), ('lanes.py', '_occupy_lane', 'runtime_lanes'), ('manifests.py', '_retain_canonical', 'manifests'), ('posture_slots.py', '_require_slot_recovery_in', 'posture_slots'), ('review_cycles.py', 'freeze_unreleased_recovered_checkpoint', 'line_checkpoints'), ('attempts.py', 'activate_assignment', 'attempts'), ('attempts.py', 'observe_activity', 'attempts'), ('attempts.py', '_decide', 'observations'), ('output.py', '_record', 'output_artifacts'), ('review_cycles.py', '_published_recorded_line', 'review_lines'), ('review_cycles.py', 'freeze_unreleased_recovered_checkpoint', 'line_writers'), ('intake.py', '_retain', 'retentions'), ('review_cycles.py', '_freeze_checkpoint', 'line_checkpoints'), ('posture_slots.py', '_occupy_slot', 'posture_slots'), ('review_cycles.py', '_freeze_checkpoint', 'line_writers'), ('review_cycles.py', 'record_verdict', 'checkpoint_verdicts'), ('review_cycles.py', 'record_progress', 'line_progress'), ('store.py', 'ControlStore._initialize', 'meta'), ('workspaces.py', 'configure_workspace_storage', 'meta'), ('review_cycles.py', '_reserved_line', 'review_lines'), ('review_cycles.py', 'record_response', 'review_attachments'), ('sessions.py', '_open', 'agent_sessions'), ('review_cycles.py', 'record_response', 'review_lines'), ('output.py', '_record', 'outputs'), ('review_cycles.py', '_completed_line', 'review_lines'), ('sessions.py', '_observe_session_state_in', 'agent_sessions'), ('interrogation.py', '_settle', 'interrogations'), ('offers.py', '_settle_terminal', 'offers'), ('review_cycles.py', 'release_writer', 'review_lines'), ('review_cycles.py', 'restore_abandoned_correction', 'review_lines'), ('offers.py', '_record_claim', 'offers'), ('attempts.py', 'pin_boundary_identity', 'attempts'), ('review_cycles.py', 'grant_writer', 'review_lines'), ('workspaces.py', 'configure_workspace_group', 'meta'), ('attempts.py', 'record_attempt', 'attempts'), ('interrogation.py', '_ask', 'interrogations'), ('interrogation.py', 'record_inquiry_answer', 'interrogations'), ('review_cycles.py', 'freeze_unreleased_recovered_checkpoint', 'review_lines'), ('offers.py', 'accept_offer', 'offers'), ('attempts.py', '_decide', 'attempts'), ('posture_slots.py', '_release_slot_in', 'posture_slots')}
+
+======================================================================
+FAIL: test_no_declared_coverage_is_stale (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_no_declared_coverage_is_stale) (entry=('review_cycles.py', 'freeze_checkpoint', 'line_writers'))
+A list of exceptions nobody compares to the code is a list of
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/manager/test_secrets.py", line 2418, in test_no_declared_coverage_is_stale
+    self.assertIn(entry, writers)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: ('review_cycles.py', 'freeze_checkpoint', 'line_writers') not found in {('interrogation.py', 'publish_inquiry_answer', 'interrogations'), ('review_cycles.py', '_freeze_checkpoint', 'review_lines'), ('review_cycles.py', 'record_verdict', 'integration_eligibility'), ('offers.py', 'certify_profile', 'meta'), ('attempts.py', '_attach', 'attempts'), ('offers.py', 'issue_offer', 'offers'), ('review_cycles.py', 'release_writer', 'line_writers'), ('review_cycles.py', 'restore_abandoned_correction', 'line_writers'), ('review_cycles.py', 'attach_review', 'review_attachments'), ('review_cycles.py', '_withdraw_publication', 'review_lines'), ('review_cycles.py', 'attach_review', 'review_lines'), ('intake.py', '_no_start_declared', 'attempts'), ('review_cycles.py', 'grant_writer', 'line_writers'), ('sessions.py', 'adopt_provider_session', 'agent_sessions'), ('handshake.py', 'certify_agent_session_profile', 'profiles'), ('store.py', 'ControlStore._record', 'operations'), ('review_cycles.py', 'record_verdict', 'review_attachments'), ('intake.py', '_seal', 'intakes'), ('intake.py', '_seal', 'intake_artifacts'), ('review_cycles.py', 'record_verdict', 'review_lines'), ('lanes.py', '_occupy_lane', 'runtime_lanes'), ('manifests.py', '_retain_canonical', 'manifests'), ('posture_slots.py', '_require_slot_recovery_in', 'posture_slots'), ('review_cycles.py', 'freeze_unreleased_recovered_checkpoint', 'line_checkpoints'), ('attempts.py', 'activate_assignment', 'attempts'), ('attempts.py', 'observe_activity', 'attempts'), ('attempts.py', '_decide', 'observations'), ('output.py', '_record', 'output_artifacts'), ('review_cycles.py', '_published_recorded_line', 'review_lines'), ('review_cycles.py', 'freeze_unreleased_recovered_checkpoint', 'line_writers'), ('intake.py', '_retain', 'retentions'), ('review_cycles.py', '_freeze_checkpoint', 'line_checkpoints'), ('posture_slots.py', '_occupy_slot', 'posture_slots'), ('review_cycles.py', '_freeze_checkpoint', 'line_writers'), ('review_cycles.py', 'record_verdict', 'checkpoint_verdicts'), ('review_cycles.py', 'record_progress', 'line_progress'), ('store.py', 'ControlStore._initialize', 'meta'), ('workspaces.py', 'configure_workspace_storage', 'meta'), ('review_cycles.py', '_reserved_line', 'review_lines'), ('review_cycles.py', 'record_response', 'review_attachments'), ('sessions.py', '_open', 'agent_sessions'), ('review_cycles.py', 'record_response', 'review_lines'), ('output.py', '_record', 'outputs'), ('review_cycles.py', '_completed_line', 'review_lines'), ('sessions.py', '_observe_session_state_in', 'agent_sessions'), ('interrogation.py', '_settle', 'interrogations'), ('offers.py', '_settle_terminal', 'offers'), ('review_cycles.py', 'release_writer', 'review_lines'), ('review_cycles.py', 'restore_abandoned_correction', 'review_lines'), ('offers.py', '_record_claim', 'offers'), ('attempts.py', 'pin_boundary_identity', 'attempts'), ('review_cycles.py', 'grant_writer', 'review_lines'), ('workspaces.py', 'configure_workspace_group', 'meta'), ('attempts.py', 'record_attempt', 'attempts'), ('interrogation.py', '_ask', 'interrogations'), ('interrogation.py', 'record_inquiry_answer', 'interrogations'), ('review_cycles.py', 'freeze_unreleased_recovered_checkpoint', 'review_lines'), ('offers.py', 'accept_offer', 'offers'), ('attempts.py', '_decide', 'attempts'), ('posture_slots.py', '_release_slot_in', 'posture_slots')}
+
+======================================================================
+FAIL: test_no_declared_coverage_is_stale (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_no_declared_coverage_is_stale) (entry=('review_cycles.py', 'freeze_checkpoint', 'review_lines'))
+A list of exceptions nobody compares to the code is a list of
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/manager/test_secrets.py", line 2418, in test_no_declared_coverage_is_stale
+    self.assertIn(entry, writers)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: ('review_cycles.py', 'freeze_checkpoint', 'review_lines') not found in {('interrogation.py', 'publish_inquiry_answer', 'interrogations'), ('review_cycles.py', '_freeze_checkpoint', 'review_lines'), ('review_cycles.py', 'record_verdict', 'integration_eligibility'), ('offers.py', 'certify_profile', 'meta'), ('attempts.py', '_attach', 'attempts'), ('offers.py', 'issue_offer', 'offers'), ('review_cycles.py', 'release_writer', 'line_writers'), ('review_cycles.py', 'restore_abandoned_correction', 'line_writers'), ('review_cycles.py', 'attach_review', 'review_attachments'), ('review_cycles.py', '_withdraw_publication', 'review_lines'), ('review_cycles.py', 'attach_review', 'review_lines'), ('intake.py', '_no_start_declared', 'attempts'), ('review_cycles.py', 'grant_writer', 'line_writers'), ('sessions.py', 'adopt_provider_session', 'agent_sessions'), ('handshake.py', 'certify_agent_session_profile', 'profiles'), ('store.py', 'ControlStore._record', 'operations'), ('review_cycles.py', 'record_verdict', 'review_attachments'), ('intake.py', '_seal', 'intakes'), ('intake.py', '_seal', 'intake_artifacts'), ('review_cycles.py', 'record_verdict', 'review_lines'), ('lanes.py', '_occupy_lane', 'runtime_lanes'), ('manifests.py', '_retain_canonical', 'manifests'), ('posture_slots.py', '_require_slot_recovery_in', 'posture_slots'), ('review_cycles.py', 'freeze_unreleased_recovered_checkpoint', 'line_checkpoints'), ('attempts.py', 'activate_assignment', 'attempts'), ('attempts.py', 'observe_activity', 'attempts'), ('attempts.py', '_decide', 'observations'), ('output.py', '_record', 'output_artifacts'), ('review_cycles.py', '_published_recorded_line', 'review_lines'), ('review_cycles.py', 'freeze_unreleased_recovered_checkpoint', 'line_writers'), ('intake.py', '_retain', 'retentions'), ('review_cycles.py', '_freeze_checkpoint', 'line_checkpoints'), ('posture_slots.py', '_occupy_slot', 'posture_slots'), ('review_cycles.py', '_freeze_checkpoint', 'line_writers'), ('review_cycles.py', 'record_verdict', 'checkpoint_verdicts'), ('review_cycles.py', 'record_progress', 'line_progress'), ('store.py', 'ControlStore._initialize', 'meta'), ('workspaces.py', 'configure_workspace_storage', 'meta'), ('review_cycles.py', '_reserved_line', 'review_lines'), ('review_cycles.py', 'record_response', 'review_attachments'), ('sessions.py', '_open', 'agent_sessions'), ('review_cycles.py', 'record_response', 'review_lines'), ('output.py', '_record', 'outputs'), ('review_cycles.py', '_completed_line', 'review_lines'), ('sessions.py', '_observe_session_state_in', 'agent_sessions'), ('interrogation.py', '_settle', 'interrogations'), ('offers.py', '_settle_terminal', 'offers'), ('review_cycles.py', 'release_writer', 'review_lines'), ('review_cycles.py', 'restore_abandoned_correction', 'review_lines'), ('offers.py', '_record_claim', 'offers'), ('attempts.py', 'pin_boundary_identity', 'attempts'), ('review_cycles.py', 'grant_writer', 'review_lines'), ('workspaces.py', 'configure_workspace_group', 'meta'), ('attempts.py', 'record_attempt', 'attempts'), ('interrogation.py', '_ask', 'interrogations'), ('interrogation.py', 'record_inquiry_answer', 'interrogations'), ('review_cycles.py', 'freeze_unreleased_recovered_checkpoint', 'review_lines'), ('offers.py', 'accept_offer', 'offers'), ('attempts.py', '_decide', 'attempts'), ('posture_slots.py', '_release_slot_in', 'posture_slots')}
+
+======================================================================
+FAIL: test_every_exported_callable_is_in_exactly_one_class (tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor.test_every_exported_callable_is_in_exactly_one_class)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/manager/test_secrets.py", line 1565, in test_every_exported_callable_is_in_exactly_one_class
+    self.assertEqual(sorted(exported - classed), [],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "exported surfaces with no §13 accounting")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['retained_output_of'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'retained_output_of'
+
+- ['retained_output_of']
++ [] : exported surfaces with no §13 accounting
+
+======================================================================
+FAIL: test_a_failed_read_NAMES_THE_STORE_and_reports_sqlites_own_words (tests.manager.test_store.ReadonlyAcquisition.test_a_failed_read_NAMES_THE_STORE_and_reports_sqlites_own_words)
+W316915. This refusal used to name no store at all.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/manager/test_store.py", line 1348, in test_a_failed_read_NAMES_THE_STORE_and_reports_sqlites_own_words
+    self.assertIn('garbage.sqlite3', said)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'garbage.sqlite3' not found in "the existing manager store at '/var/tmp/baton-n4a-386051-baseline/v12-worker-manager-x1_n1… could not be read through its non-writing opener (DatabaseError/SQLITE_NOTADB: 'file is not a database'); no write-capable fallback was attempted and nothing was changed. This process may read and may write the store, and may write its directory '/var/tmp/baton-n4a-386051-baseline/v12-worker-manager-x1_n1…; the SQLite sidecars beside it are none."
+
+======================================================================
+FAIL: test_the_classification_reads_the_BUILD_S_OWN_record (tests.manager.test_w197661_verifier.TheSEALIsCLASSIFIEDRatherThanRewritten.test_the_classification_reads_the_BUILD_S_OWN_record)
+Not the seal read back to itself -- that is the current-to-current
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/manager/test_w197661_verifier.py", line 1630, in test_the_classification_reads_the_BUILD_S_OWN_record
+    self.assertTrue(found["image_identity"]["record_predates_the_seal"])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.303s
+
+FAILED (failures=7, errors=1)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

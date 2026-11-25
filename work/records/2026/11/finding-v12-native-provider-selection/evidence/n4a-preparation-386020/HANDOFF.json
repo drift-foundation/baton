@@ -1,0 +1,30 @@
+{
+  "participant": "baton.codxpc",
+  "claim": 386020,
+  "selection": 386019,
+  "state": "bounded independent preparation complete; product implementation not performed",
+  "last_parent_message": 386023,
+  "last_K_message": 386022,
+  "acknowledgment": 386024,
+  "ownership": "confirmed; D-first shared-file join",
+  "ownership_record": "work/records/2026/11/finding-host-worker-instruction-separation/OWNERSHIP-N4A-DELIVERY-2026-11-24.md",
+  "ownership_sha256": "f0f41390b152f40b45090606e8954a683b651002440523e0d61ba363a512d16c",
+  "prepared": [
+    "evidence-backed argv/version proposal",
+    "source integration seams",
+    "confirmed ownership and serialization",
+    "home/credential/turn evidence limitations",
+    "focused implementation acceptance plan"
+  ],
+  "pending": [
+    "D whole-contract approval/implementation/import checkpoint",
+    "allocation of named pool.py/single_worker.py role guards",
+    "evidenced credential and managed instruction targets before complete realization",
+    "N4b real-turn evidence"
+  ],
+  "product_paths_changed": [],
+  "tests_run": false,
+  "execution_performed": false,
+  "next_milestone": "disjoint N4a implementation candidate, then serialized shared join",
+  "observed_at": "2026-11-24T20:45:42.548550+00:00"
+}

@@ -1,0 +1,161 @@
+test_a_restart_across_a_failed_start_still_ends_it_once (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_a_restart_across_a_failed_start_still_ends_it_once)
+THE FAILED START SURVIVES LOSING THE COORDINATOR. The composition ... ERROR
+test_a_start_that_failed_after_creating_a_runtime_is_ended (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_a_start_that_failed_after_creating_a_runtime_is_ended)
+THE COMMITTED START whose adapter call fails after the runtime ... ERROR
+test_failed_start_retries_an_unfinished_credential_teardown (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_failed_start_retries_an_unfinished_credential_teardown) ... ERROR
+test_failed_start_retries_an_unfinished_launch_teardown (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_failed_start_retries_an_unfinished_launch_teardown) ... ERROR
+test_reopened_failed_start_retries_unfinished_credential_teardown (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_reopened_failed_start_retries_unfinished_credential_teardown) ... ERROR
+test_reopened_failed_start_retries_unfinished_launch_teardown (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_reopened_failed_start_retries_unfinished_launch_teardown) ... ERROR
+
+======================================================================
+ERROR: test_a_restart_across_a_failed_start_still_ends_it_once (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_a_restart_across_a_failed_start_still_ends_it_once)
+THE FAILED START SURVIVES LOSING THE COORDINATOR. The composition
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 1708, in test_a_restart_across_a_failed_start_still_ends_it_once
+    self.complete(uncertain=True, restart=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2604, in complete
+    return self.ended_after_failed_start(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, preparation, processes, uncertainty, orchestrating[0],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_before, target_revision, target_tree, case)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 1680, in ended_after_failed_start
+    gate = gates_of({"depends_on": json.dumps([{"job_id": "job-a", "kind": "integration"}])}, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_a_start_that_failed_after_creating_a_runtime_is_ended (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_a_start_that_failed_after_creating_a_runtime_is_ended)
+THE COMMITTED START whose adapter call fails after the runtime
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 1716, in test_a_start_that_failed_after_creating_a_runtime_is_ended
+    self.complete(uncertain=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2604, in complete
+    return self.ended_after_failed_start(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, preparation, processes, uncertainty, orchestrating[0],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_before, target_revision, target_tree, case)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 1680, in ended_after_failed_start
+    gate = gates_of({"depends_on": json.dumps([{"job_id": "job-a", "kind": "integration"}])}, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_failed_start_retries_an_unfinished_credential_teardown (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_failed_start_retries_an_unfinished_credential_teardown)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 1725, in test_failed_start_retries_an_unfinished_credential_teardown
+    self.unfinished_delivery("_torn_down")
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 1760, in unfinished_delivery
+    self.complete(uncertain=True, restart=restart)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2604, in complete
+    return self.ended_after_failed_start(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, preparation, processes, uncertainty, orchestrating[0],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_before, target_revision, target_tree, case)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 1680, in ended_after_failed_start
+    gate = gates_of({"depends_on": json.dumps([{"job_id": "job-a", "kind": "integration"}])}, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_failed_start_retries_an_unfinished_launch_teardown (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_failed_start_retries_an_unfinished_launch_teardown)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 1728, in test_failed_start_retries_an_unfinished_launch_teardown
+    self.unfinished_delivery("_launch_ended")
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 1760, in unfinished_delivery
+    self.complete(uncertain=True, restart=restart)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2604, in complete
+    return self.ended_after_failed_start(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, preparation, processes, uncertainty, orchestrating[0],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_before, target_revision, target_tree, case)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 1680, in ended_after_failed_start
+    gate = gates_of({"depends_on": json.dumps([{"job_id": "job-a", "kind": "integration"}])}, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_reopened_failed_start_retries_unfinished_credential_teardown (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_reopened_failed_start_retries_unfinished_credential_teardown)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 1731, in test_reopened_failed_start_retries_unfinished_credential_teardown
+    self.unfinished_delivery("_torn_down", restart=True)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 1760, in unfinished_delivery
+    self.complete(uncertain=True, restart=restart)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2604, in complete
+    return self.ended_after_failed_start(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, preparation, processes, uncertainty, orchestrating[0],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_before, target_revision, target_tree, case)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 1680, in ended_after_failed_start
+    gate = gates_of({"depends_on": json.dumps([{"job_id": "job-a", "kind": "integration"}])}, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_reopened_failed_start_retries_unfinished_launch_teardown (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_reopened_failed_start_retries_unfinished_launch_teardown)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 1734, in test_reopened_failed_start_retries_unfinished_launch_teardown
+    self.unfinished_delivery("_launch_ended", restart=True)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 1760, in unfinished_delivery
+    self.complete(uncertain=True, restart=restart)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 2604, in complete
+    return self.ended_after_failed_start(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, preparation, processes, uncertainty, orchestrating[0],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_before, target_revision, target_tree, case)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_managed_preparation.py", line 1680, in ended_after_failed_start
+    gate = gates_of({"depends_on": json.dumps([{"job_id": "job-a", "kind": "integration"}])}, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+----------------------------------------------------------------------
+Ran 6 tests in 96.958s
+
+FAILED (errors=6)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

@@ -1,0 +1,21 @@
+{
+  "DESIGN-context.md": "0c70ebed77d104aa2cdd3608ca1d2d0aa7650fc9bd6b134f5a44ac4e6f6fb414",
+  "REPORT.md": "a26ba116acee7a44d21b098f319dd3ffea18d686b894e5b2882f432813bcb385",
+  "START.json": "a2c2f5aa11f4ae2b02d025d24f6b256cd0252b8028247714eff07278835cc26a",
+  "boundary-check.json": "b95b98436fedd27cf766de0ec1bfed23ab50bec490321f0ac0b924bf4da70550",
+  "candidate/v12/python/tests/manager/fixtures/codex-0.169.0/exec-help.txt": "b7bbe3ad07a91a11393c9a83d97873e0bca1d1766e4d7cd9013da2c374d34f51",
+  "candidate/v12/python/tests/manager/fixtures/codex-0.169.0/provenance.json": "b4eb5c5a58ab5a8538807660e137b96d4660907b7934dd5d319a6dd2f6f72510",
+  "candidate/v12/python/tests/manager/fixtures/codex-0.169.0/version.txt": "f3807264176de3c20897352ed66cf258503bb4d52bf8428b5e8a3ac21c22cdcb",
+  "candidate/v12/python/tests/manager/test_codex_draft.py": "9ca86659329685dabd8d24a1e7aeda338c40076acf554523418174780ac28bc6",
+  "candidate/v12/worker/Dockerfile.codex": "0c81e45ff858f96bbac78daadc6c0c03ffce4e241ff38e0d28bbf5e620fcdf0e",
+  "candidate/v12/worker/codex_agent.py": "746be46471a8eebde7f89f788f5dff5b41044826bd6a48ea28483041e8f5ff70",
+  "candidate/v12/worker/codex_entry.py": "9127342abfb7632a08faaa3d502db4cecadf61ed50f82db2589b879daa0836c1",
+  "candidate-manifest.json": "dac8d6bd2b5541a3779c255725fe74101ad323bbdfd084c464293684635fd00c",
+  "candidate.tar.gz": "74b13338aa06c6831e8d1a7a4b1763fdf554f32204776685cd0cc0b8251f8451",
+  "collection.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "collection.stdout": "fd874d14a66aff6603d8a76a4de23c16d151ccfa97c99ebda3bfbe1e520d8171",
+  "draft-summary.json": "f382cfdd1c733bfff4785dd0d3446e091efe296827f90c42d0a1b83f2106ea74",
+  "focused-01.header.json": "fd64dab9170e5dee1b449b186a03364e0909fb763e026c7af103fa1f24e7f9a9",
+  "focused-01.stderr": "6c42f1ebe8473ca6aee35cf22bd5d436a39736356f171202f94e3c0de3c0ffd1",
+  "focused-01.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

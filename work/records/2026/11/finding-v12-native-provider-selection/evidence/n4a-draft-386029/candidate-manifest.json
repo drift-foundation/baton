@@ -1,0 +1,48 @@
+{
+  "base": "317351e73c92749e201f536ba115c9fdf213077d",
+  "kind": "disjoint draft, not an import selection",
+  "files": {
+    "v12/worker/codex_agent.py": {
+      "sha256": "746be46471a8eebde7f89f788f5dff5b41044826bd6a48ea28483041e8f5ff70",
+      "size": 3914,
+      "mode": "0644",
+      "base": "absent"
+    },
+    "v12/worker/codex_entry.py": {
+      "sha256": "9127342abfb7632a08faaa3d502db4cecadf61ed50f82db2589b879daa0836c1",
+      "size": 679,
+      "mode": "0644",
+      "base": "absent"
+    },
+    "v12/worker/Dockerfile.codex": {
+      "sha256": "0c81e45ff858f96bbac78daadc6c0c03ffce4e241ff38e0d28bbf5e620fcdf0e",
+      "size": 2259,
+      "mode": "0644",
+      "base": "absent"
+    },
+    "v12/python/tests/manager/test_codex_draft.py": {
+      "sha256": "9ca86659329685dabd8d24a1e7aeda338c40076acf554523418174780ac28bc6",
+      "size": 10358,
+      "mode": "0644",
+      "base": "absent"
+    },
+    "v12/python/tests/manager/fixtures/codex-0.169.0/exec-help.txt": {
+      "sha256": "b7bbe3ad07a91a11393c9a83d97873e0bca1d1766e4d7cd9013da2c374d34f51",
+      "size": 4538,
+      "mode": "0644",
+      "base": "absent"
+    },
+    "v12/python/tests/manager/fixtures/codex-0.169.0/provenance.json": {
+      "sha256": "b4eb5c5a58ab5a8538807660e137b96d4660907b7934dd5d319a6dd2f6f72510",
+      "size": 700,
+      "mode": "0644",
+      "base": "absent"
+    },
+    "v12/python/tests/manager/fixtures/codex-0.169.0/version.txt": {
+      "sha256": "f3807264176de3c20897352ed66cf258503bb4d52bf8428b5e8a3ac21c22cdcb",
+      "size": 18,
+      "mode": "0644",
+      "base": "absent"
+    }
+  }
+}

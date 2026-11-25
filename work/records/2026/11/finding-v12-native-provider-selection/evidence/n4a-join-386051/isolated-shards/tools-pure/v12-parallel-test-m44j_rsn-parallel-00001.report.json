@@ -1,0 +1,1 @@
+{"ids": ["tests.test_pure_b.PureB.test_a"], "loaded": ["tests.test_pure_b.PureB.test_a"], "executed": ["tests.test_pure_b.PureB.test_a"], "ran": 1, "ok": true, "failures": [], "errors": [], "skipped": [], "expected_failures": [], "unexpected_successes": []}

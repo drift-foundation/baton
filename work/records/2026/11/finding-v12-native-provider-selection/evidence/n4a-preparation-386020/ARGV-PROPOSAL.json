@@ -1,0 +1,39 @@
+{
+  "status": "preparation proposal; not an enabled production realization",
+  "program": "codex",
+  "fixed": [
+    "exec",
+    "--dangerously-bypass-approvals-and-sandbox",
+    "--ignore-user-config",
+    "--ignore-rules",
+    "--json"
+  ],
+  "model_argument": "--model",
+  "model_value": "required owner selection, not chosen here",
+  "prompt": "one final operand containing accepted context label plus task prompt",
+  "cwd": "candidate path supplied by existing subprocess owner",
+  "stdin": "DEVNULL supplied by existing subprocess owner",
+  "selected_cli_build": "0.169.0",
+  "observed_version_stdout": "codex-cli 0.169.0\n",
+  "home": "/run/baton/provider-home",
+  "credential_mode": "seeded-retained per approved S10",
+  "credential_path": null,
+  "managed_instruction_path": null,
+  "session_path": null,
+  "participation_sources": [],
+  "turn_parser": "N4b unselected; no successful turn interpretation",
+  "flags_source": {
+    "path": "work/records/2026/11/finding-v12-native-provider-selection/evidence/n3-execution-n3-386002-01/probe-exec-help-01/probe-output/stdout.txt",
+    "sha256": "b7bbe3ad07a91a11393c9a83d97873e0bca1d1766e4d7cd9013da2c374d34f51"
+  },
+  "excluded_operands": [
+    "resume",
+    "fork",
+    "--ephemeral",
+    "--oss",
+    "--local-provider",
+    "--trust",
+    "--worktree",
+    "--search"
+  ]
+}

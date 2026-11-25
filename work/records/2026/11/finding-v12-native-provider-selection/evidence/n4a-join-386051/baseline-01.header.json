@@ -1,0 +1,25 @@
+{
+  "command": [
+    "just",
+    "--justfile",
+    "v12/justfile",
+    "test-one",
+    "tests.manager.test_frozen.TheSchemaTravelsWithTheDistribution.test_the_tracked_build_copy_is_not_a_fourth_contract",
+    "tests.manager.test_exchange.TheFileExchangeLaunchIsWrapped.test_a_payload_that_is_not_a_document_or_is_from_elsewhere_refuses",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_copies_the_worker_modules_and_no_manager_package"
+  ],
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "base": "ac034bc1c9fae525b94a1a5f21d9721c677dc39e",
+  "candidate_repository_head": "7e799f62ef4cf4863c65bc4085bb6f92193cab2f",
+  "groups": [
+    "manager-pure",
+    "tools-pure"
+  ],
+  "collected": 3,
+  "bound_seconds": 60,
+  "disk_root": "/var/tmp/baton-n4a-386051-baseline",
+  "TMPDIR": "/var/tmp/baton-n4a-386051-baseline",
+  "accounting": "explicit ids from unittest -v; test-one has no registry accounting",
+  "pid": 2161393,
+  "pgid": 2161393
+}

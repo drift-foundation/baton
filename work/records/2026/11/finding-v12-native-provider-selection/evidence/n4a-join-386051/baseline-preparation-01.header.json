@@ -1,0 +1,28 @@
+{
+  "command": [
+    "just",
+    "--justfile",
+    "v12/justfile",
+    "test-one",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_a_restart_across_a_failed_start_still_ends_it_once",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_a_start_that_failed_after_creating_a_runtime_is_ended",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_failed_start_retries_an_unfinished_credential_teardown",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_failed_start_retries_an_unfinished_launch_teardown",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_reopened_failed_start_retries_unfinished_credential_teardown",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_reopened_failed_start_retries_unfinished_launch_teardown"
+  ],
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "base": "ac034bc1c9fae525b94a1a5f21d9721c677dc39e",
+  "candidate_repository_head": "7e799f62ef4cf4863c65bc4085bb6f92193cab2f",
+  "groups": [
+    "manager-pure",
+    "tools-pure"
+  ],
+  "collected": 6,
+  "bound_seconds": 240,
+  "disk_root": "/var/tmp/baton-n4a-386051-baseline",
+  "TMPDIR": "/var/tmp/baton-n4a-386051-baseline",
+  "accounting": "explicit ids from unittest -v; test-one has no registry accounting",
+  "pid": 2212433,
+  "pgid": 2212433
+}

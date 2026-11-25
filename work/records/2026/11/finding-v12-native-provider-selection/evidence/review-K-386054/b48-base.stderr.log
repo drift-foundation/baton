@@ -1,0 +1,1308 @@
+test_a_payload_that_is_not_a_document_or_is_from_elsewhere_refuses (tests.manager.test_exchange.TheFileExchangeLaunchIsWrapped.test_a_payload_that_is_not_a_document_or_is_from_elsewhere_refuses) ... FAIL
+test_the_tracked_build_copy_is_not_a_fourth_contract (tests.manager.test_frozen.TheSchemaTravelsWithTheDistribution.test_the_tracked_build_copy_is_not_a_fourth_contract)
+W14251 review: the repository tracks `build/lib` too. ... FAIL
+test_it_copies_the_worker_modules_and_no_manager_package (tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_copies_the_worker_modules_and_no_manager_package) ... FAIL
+test_retained_owner_responses_replay_exact_cleanup_without_docker (tests.manager.test_runtime_deadline_engine_budget.EngineBudget.test_retained_owner_responses_replay_exact_cleanup_without_docker) ... ok
+test_every_durable_writer_is_covered (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_every_durable_writer_is_covered) ... FAIL
+test_no_declared_coverage_is_stale (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_no_declared_coverage_is_stale)
+A list of exceptions nobody compares to the code is a list of ... 
+  test_no_declared_coverage_is_stale (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_no_declared_coverage_is_stale) (entry=('review_cycles.py', 'freeze_checkpoint', 'line_checkpoints'))
+A list of exceptions nobody compares to the code is a list of ... FAIL
+  test_no_declared_coverage_is_stale (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_no_declared_coverage_is_stale) (entry=('review_cycles.py', 'freeze_checkpoint', 'line_writers'))
+A list of exceptions nobody compares to the code is a list of ... FAIL
+  test_no_declared_coverage_is_stale (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_no_declared_coverage_is_stale) (entry=('review_cycles.py', 'freeze_checkpoint', 'review_lines'))
+A list of exceptions nobody compares to the code is a list of ... FAIL
+test_every_exported_callable_is_in_exactly_one_class (tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor.test_every_exported_callable_is_in_exactly_one_class) ... FAIL
+test_a_failed_read_NAMES_THE_STORE_and_reports_sqlites_own_words (tests.manager.test_store.ReadonlyAcquisition.test_a_failed_read_NAMES_THE_STORE_and_reports_sqlites_own_words)
+W316915. This refusal used to name no store at all. ... FAIL
+test_the_classification_reads_the_BUILD_S_OWN_record (tests.manager.test_w197661_verifier.TheSEALIsCLASSIFIEDRatherThanRewritten.test_the_classification_reads_the_BUILD_S_OWN_record)
+Not the seal read back to itself -- that is the current-to-current ... FAIL
+test_a_job_with_no_own_task_prepares_the_installed_one (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_job_with_no_own_task_prepares_the_installed_one)
+THE PRESERVED PATH, through the same owning sequence. ... ERROR
+test_a_missing_task_refuses_on_the_reopened_preparation (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_missing_task_refuses_on_the_reopened_preparation) ... ERROR
+test_a_reopened_preparation_proves_the_same_root (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_reopened_preparation_proves_the_same_root)
+RESTART THROUGH THE OWNING PATH, not a second rendering. ... ERROR
+test_a_tampered_root_refuses_on_the_reopened_preparation (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_tampered_root_refuses_on_the_reopened_preparation) ... ERROR
+test_an_assignment_from_the_installed_manifest_refuses (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_an_assignment_from_the_installed_manifest_refuses)
+THE REVIEWER'S R2, AS A CASE. ... ERROR
+test_both_ordinary_roles_prepare_the_requested_task (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_both_ordinary_roles_prepare_the_requested_task)
+THE WHOLE SEQUENCE, for implementation AND review. ... 
+  test_both_ordinary_roles_prepare_the_requested_task (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_both_ordinary_roles_prepare_the_requested_task) (role='implementation')
+THE WHOLE SEQUENCE, for implementation AND review. ... ERROR
+  test_both_ordinary_roles_prepare_the_requested_task (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_both_ordinary_roles_prepare_the_requested_task) (role='review')
+THE WHOLE SEQUENCE, for implementation AND review. ... ERROR
+test_the_recorded_and_launch_identities_are_the_delivered_one (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_the_recorded_and_launch_identities_are_the_delivered_one)
+EVERY OWNER DESCRIBES ONE RUNTIME INPUT. ... ERROR
+test_two_jobs_prepare_independently_on_one_worker (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_two_jobs_prepare_independently_on_one_worker) ... ERROR
+test_a_review_job_with_no_own_task_is_delivered_the_installed_one (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_a_review_job_with_no_own_task_is_delivered_the_installed_one)
+THE PRESERVED PATH for the review role, through the same mount. ... ERROR
+test_one_job_gives_both_roles_one_job_scoped_identity (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_one_job_gives_both_roles_one_job_scoped_identity)
+ONE JOB, TWO ROLES, TWO RUNTIME MANIFESTS, ONE IDENTITY. ... ERROR
+test_the_review_attempt_is_delivered_the_jobs_requested_task (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_review_attempt_is_delivered_the_jobs_requested_task)
+THE BYTES IN THE REVIEW ATTEMPT'S OWN INPUT ROOT. ... ERROR
+test_the_review_mount_is_the_frozen_checkpoint_read_only (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_review_mount_is_the_frozen_checkpoint_read_only)
+REVIEW SEMANTICS, from the boundary the manager composed. ... ERROR
+test_the_stageless_adapter_over_a_review_attempt_is_the_delivered_one (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_stageless_adapter_over_a_review_attempt_is_the_delivered_one)
+AND THE RECOVERY PATH, for the role that was never covered. ... ERROR
+test_a_change_hidden_from_git_status_is_a_settled_failure (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_change_hidden_from_git_status_is_a_settled_failure) ... ERROR
+test_a_clean_checkout_of_another_revision_is_a_settled_failure (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_clean_checkout_of_another_revision_is_a_settled_failure) ... ERROR
+test_a_failed_apply_is_collected_and_settles_without_a_target_effect (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_failed_apply_is_collected_and_settles_without_a_target_effect) ... ERROR
+test_a_grant_withdrawn_after_admission_prevents_start (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_grant_withdrawn_after_admission_prevents_start) ... ERROR
+test_a_zero_exit_worktree_change_is_a_settled_failure (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_zero_exit_worktree_change_is_a_settled_failure) ... ERROR
+test_changed_collection_mapping_cannot_admit_apply (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_changed_collection_mapping_cannot_admit_apply) ... ERROR
+test_failed_preparation_resumes_after_admission_is_closed (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_failed_preparation_resumes_after_admission_is_closed) ... ERROR
+test_missing_independent_judgment_cannot_admit_apply (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_missing_independent_judgment_cannot_admit_apply) ... ERROR
+test_nonaccepting_independent_judgment_cannot_admit_apply (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_nonaccepting_independent_judgment_cannot_admit_apply) ... ERROR
+test_original_job_limit_times_out_the_managed_apply (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_original_job_limit_times_out_the_managed_apply) ... ERROR
+test_preparation_judgments_apply_and_target_settle (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_preparation_judgments_apply_and_target_settle) ... ERROR
+test_reopen_after_authority_receipt_before_final_handoff (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_authority_receipt_before_final_handoff) ... ERROR
+test_reopen_after_derived_publication (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_derived_publication) ... ERROR
+test_reopen_after_failed_outcome_before_root_release (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_failed_outcome_before_root_release) ... ERROR
+test_reopen_after_retained_adoption (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_retained_adoption) ... ERROR
+test_reopen_after_target_effect_before_coordinator_settlement (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_target_effect_before_coordinator_settlement) ... ERROR
+test_reopen_after_zero_exit_failure_before_root_release (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_zero_exit_failure_before_root_release) ... ERROR
+test_target_drift_after_admission_prevents_start (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_target_drift_after_admission_prevents_start) ... ERROR
+test_unknown_target_effect_remains_a_visible_hold_after_reopen (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_unknown_target_effect_remains_a_visible_hold_after_reopen) ... ERROR
+test_a_restart_across_a_failed_start_still_ends_it_once (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_a_restart_across_a_failed_start_still_ends_it_once)
+THE FAILED START SURVIVES LOSING THE COORDINATOR. The composition ... ERROR
+test_a_start_that_failed_after_creating_a_runtime_is_ended (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_a_start_that_failed_after_creating_a_runtime_is_ended)
+THE COMMITTED START whose adapter call fails after the runtime ... ERROR
+test_failed_start_retries_an_unfinished_credential_teardown (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_failed_start_retries_an_unfinished_credential_teardown) ... ERROR
+test_failed_start_retries_an_unfinished_launch_teardown (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_failed_start_retries_an_unfinished_launch_teardown) ... ERROR
+test_reopened_failed_start_retries_unfinished_credential_teardown (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_reopened_failed_start_retries_unfinished_credential_teardown) ... ERROR
+test_reopened_failed_start_retries_unfinished_launch_teardown (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_reopened_failed_start_retries_unfinished_launch_teardown) ... ERROR
+test_every_declared_input_is_present_and_outside_the_scope (tests.tools.test_source_identity.TheRealTreesDeclaredInputsExist.test_every_declared_input_is_present_and_outside_the_scope) ... ERROR
+
+======================================================================
+ERROR: test_a_job_with_no_own_task_prepares_the_installed_one (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_job_with_no_own_task_prepares_the_installed_one)
+THE PRESERVED PATH, through the same owning sequence.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-k-review-386054/roots/v12-w71917-44d6b1u4/inputs-legacy/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1779, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 697, in test_a_job_with_no_own_task_prepares_the_installed_one
+    worker._input({"inputs": root}, assignment,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  SimpleNamespace(mountpoint=mount), stage)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1806, in _input
+    recovery = self._recovery_document(stage)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1870, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_a_missing_task_refuses_on_the_reopened_preparation (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_missing_task_refuses_on_the_reopened_preparation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-k-review-386054/roots/v12-w71917-yy3fqgse/inputs-implementation-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1779, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 672, in test_a_missing_task_refuses_on_the_reopened_preparation
+    held = self.prepared("implementation", FIRST, "The requested task.")
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 521, in prepared
+    read = worker._input({"inputs": root}, assignment,
+                         SimpleNamespace(mountpoint=mount), stage)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1806, in _input
+    recovery = self._recovery_document(stage)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1870, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_a_reopened_preparation_proves_the_same_root (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_reopened_preparation_proves_the_same_root)
+RESTART THROUGH THE OWNING PATH, not a second rendering.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-k-review-386054/roots/v12-w71917-dnxucrvm/inputs-implementation-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1779, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 613, in test_a_reopened_preparation_proves_the_same_root
+    held = self.prepared("implementation", FIRST, "The requested task.")
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 521, in prepared
+    read = worker._input({"inputs": root}, assignment,
+                         SimpleNamespace(mountpoint=mount), stage)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1806, in _input
+    recovery = self._recovery_document(stage)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1870, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_a_tampered_root_refuses_on_the_reopened_preparation (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_tampered_root_refuses_on_the_reopened_preparation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-k-review-386054/roots/v12-w71917-4g5yq9bz/inputs-implementation-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1779, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 658, in test_a_tampered_root_refuses_on_the_reopened_preparation
+    held = self.prepared("implementation", FIRST, "The requested task.")
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 521, in prepared
+    read = worker._input({"inputs": root}, assignment,
+                         SimpleNamespace(mountpoint=mount), stage)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1806, in _input
+    recovery = self._recovery_document(stage)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1870, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_an_assignment_from_the_installed_manifest_refuses (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_an_assignment_from_the_installed_manifest_refuses)
+THE REVIEWER'S R2, AS A CASE.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-k-review-386054/roots/v12-w71917-fbtnzn4s/inputs-mismatched/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1779, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 650, in test_an_assignment_from_the_installed_manifest_refuses
+    worker._input({"inputs": root}, assignment,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  SimpleNamespace(mountpoint=mount), stage)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1806, in _input
+    recovery = self._recovery_document(stage)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1870, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_both_ordinary_roles_prepare_the_requested_task (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_both_ordinary_roles_prepare_the_requested_task) (role='implementation')
+THE WHOLE SEQUENCE, for implementation AND review.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-k-review-386054/roots/v12-w71917-rcj8yw4h/inputs-implementation-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1779, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 536, in test_both_ordinary_roles_prepare_the_requested_task
+    held = self.prepared(role, FIRST, "The requested task.")
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 521, in prepared
+    read = worker._input({"inputs": root}, assignment,
+                         SimpleNamespace(mountpoint=mount), stage)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1806, in _input
+    recovery = self._recovery_document(stage)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1870, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_both_ordinary_roles_prepare_the_requested_task (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_both_ordinary_roles_prepare_the_requested_task) (role='review')
+THE WHOLE SEQUENCE, for implementation AND review.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-k-review-386054/roots/v12-w71917-rcj8yw4h/inputs-review-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1779, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 536, in test_both_ordinary_roles_prepare_the_requested_task
+    held = self.prepared(role, FIRST, "The requested task.")
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 521, in prepared
+    read = worker._input({"inputs": root}, assignment,
+                         SimpleNamespace(mountpoint=mount), stage)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1806, in _input
+    recovery = self._recovery_document(stage)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1870, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_the_recorded_and_launch_identities_are_the_delivered_one (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_the_recorded_and_launch_identities_are_the_delivered_one)
+EVERY OWNER DESCRIBES ONE RUNTIME INPUT.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-k-review-386054/roots/v12-w71917-6ys0i3pf/inputs-implementation-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1779, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 561, in test_the_recorded_and_launch_identities_are_the_delivered_one
+    held = self.prepared("implementation", FIRST, "The requested task.")
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 521, in prepared
+    read = worker._input({"inputs": root}, assignment,
+                         SimpleNamespace(mountpoint=mount), stage)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1806, in _input
+    recovery = self._recovery_document(stage)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1870, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_two_jobs_prepare_independently_on_one_worker (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_two_jobs_prepare_independently_on_one_worker)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-k-review-386054/roots/v12-w71917-2akrb9wp/inputs-two-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1779, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 595, in test_two_jobs_prepare_independently_on_one_worker
+    worker._input({"inputs": root}, assignment,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  SimpleNamespace(mountpoint=mount), stage)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1806, in _input
+    recovery = self._recovery_document(stage)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/single_worker.py", line 1870, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_a_review_job_with_no_own_task_is_delivered_the_installed_one (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_a_review_job_with_no_own_task_is_delivered_the_installed_one)
+THE PRESERVED PATH for the review role, through the same mount.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 1867, in test_a_review_job_with_no_own_task_is_delivered_the_installed_one
+    held = self.reviewed(task=False)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 1770, in reviewed
+    held = self.delivered_through(worker, composition, stage)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 936, in delivered_through
+    roots, boundary = self.mounted(worker, composition, stage)
+                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 920, in mounted
+    composed = composition.mount(worker, stage, roots)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/stage_execution.py", line 1488, in mount
+    or self._prepare(stage, preparing=preparing))
+       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/stage_execution.py", line 1662, in _prepare
+    line = self._published_checkpoint_line(stage) if self.role == "review" else None
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/stage_execution.py", line 1726, in _published_checkpoint_line
+    handoff = publication_execution.handoff_of(deployment.jobs, stage["job_id"])
+                                               ^^^^^^^^^^^^^^^
+AttributeError: 'Deployment' object has no attribute 'jobs'
+
+======================================================================
+ERROR: test_one_job_gives_both_roles_one_job_scoped_identity (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_one_job_gives_both_roles_one_job_scoped_identity)
+ONE JOB, TWO ROLES, TWO RUNTIME MANIFESTS, ONE IDENTITY.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 1796, in test_one_job_gives_both_roles_one_job_scoped_identity
+    held = self.reviewed()
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 1770, in reviewed
+    held = self.delivered_through(worker, composition, stage)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 936, in delivered_through
+    roots, boundary = self.mounted(worker, composition, stage)
+                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 920, in mounted
+    composed = composition.mount(worker, stage, roots)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/stage_execution.py", line 1488, in mount
+    or self._prepare(stage, preparing=preparing))
+       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/stage_execution.py", line 1662, in _prepare
+    line = self._published_checkpoint_line(stage) if self.role == "review" else None
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/stage_execution.py", line 1726, in _published_checkpoint_line
+    handoff = publication_execution.handoff_of(deployment.jobs, stage["job_id"])
+                                               ^^^^^^^^^^^^^^^
+AttributeError: 'Deployment' object has no attribute 'jobs'
+
+======================================================================
+ERROR: test_the_review_attempt_is_delivered_the_jobs_requested_task (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_review_attempt_is_delivered_the_jobs_requested_task)
+THE BYTES IN THE REVIEW ATTEMPT'S OWN INPUT ROOT.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 1777, in test_the_review_attempt_is_delivered_the_jobs_requested_task
+    held = self.reviewed()
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 1770, in reviewed
+    held = self.delivered_through(worker, composition, stage)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 936, in delivered_through
+    roots, boundary = self.mounted(worker, composition, stage)
+                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 920, in mounted
+    composed = composition.mount(worker, stage, roots)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/stage_execution.py", line 1488, in mount
+    or self._prepare(stage, preparing=preparing))
+       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/stage_execution.py", line 1662, in _prepare
+    line = self._published_checkpoint_line(stage) if self.role == "review" else None
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/stage_execution.py", line 1726, in _published_checkpoint_line
+    handoff = publication_execution.handoff_of(deployment.jobs, stage["job_id"])
+                                               ^^^^^^^^^^^^^^^
+AttributeError: 'Deployment' object has no attribute 'jobs'
+
+======================================================================
+ERROR: test_the_review_mount_is_the_frozen_checkpoint_read_only (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_review_mount_is_the_frozen_checkpoint_read_only)
+REVIEW SEMANTICS, from the boundary the manager composed.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 1818, in test_the_review_mount_is_the_frozen_checkpoint_read_only
+    held = self.reviewed()
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 1770, in reviewed
+    held = self.delivered_through(worker, composition, stage)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 936, in delivered_through
+    roots, boundary = self.mounted(worker, composition, stage)
+                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 920, in mounted
+    composed = composition.mount(worker, stage, roots)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/stage_execution.py", line 1488, in mount
+    or self._prepare(stage, preparing=preparing))
+       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/stage_execution.py", line 1662, in _prepare
+    line = self._published_checkpoint_line(stage) if self.role == "review" else None
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/stage_execution.py", line 1726, in _published_checkpoint_line
+    handoff = publication_execution.handoff_of(deployment.jobs, stage["job_id"])
+                                               ^^^^^^^^^^^^^^^
+AttributeError: 'Deployment' object has no attribute 'jobs'
+
+======================================================================
+ERROR: test_the_stageless_adapter_over_a_review_attempt_is_the_delivered_one (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_stageless_adapter_over_a_review_attempt_is_the_delivered_one)
+AND THE RECOVERY PATH, for the role that was never covered.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 1855, in test_the_stageless_adapter_over_a_review_attempt_is_the_delivered_one
+    held = self.reviewed()
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 1770, in reviewed
+    held = self.delivered_through(worker, composition, stage)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 936, in delivered_through
+    roots, boundary = self.mounted(worker, composition, stage)
+                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_job_task_delivery.py", line 920, in mounted
+    composed = composition.mount(worker, stage, roots)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/stage_execution.py", line 1488, in mount
+    or self._prepare(stage, preparing=preparing))
+       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/stage_execution.py", line 1662, in _prepare
+    line = self._published_checkpoint_line(stage) if self.role == "review" else None
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/stage_execution.py", line 1726, in _published_checkpoint_line
+    handoff = publication_execution.handoff_of(deployment.jobs, stage["job_id"])
+                                               ^^^^^^^^^^^^^^^
+AttributeError: 'Deployment' object has no attribute 'jobs'
+
+======================================================================
+ERROR: test_a_change_hidden_from_git_status_is_a_settled_failure (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_change_hidden_from_git_status_is_a_settled_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 52, in test_a_change_hidden_from_git_status_is_a_settled_failure
+    self.complete(failed=True, changed="hidden")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_a_clean_checkout_of_another_revision_is_a_settled_failure (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_clean_checkout_of_another_revision_is_a_settled_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 46, in test_a_clean_checkout_of_another_revision_is_a_settled_failure
+    self.complete(failed=True, changed="head")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_a_failed_apply_is_collected_and_settles_without_a_target_effect (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_failed_apply_is_collected_and_settles_without_a_target_effect)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 43, in test_a_failed_apply_is_collected_and_settles_without_a_target_effect
+    self.complete(failed=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_a_grant_withdrawn_after_admission_prevents_start (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_grant_withdrawn_after_admission_prevents_start)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 85, in test_a_grant_withdrawn_after_admission_prevents_start
+    self.complete(denied="grant")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_a_zero_exit_worktree_change_is_a_settled_failure (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_zero_exit_worktree_change_is_a_settled_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 49, in test_a_zero_exit_worktree_change_is_a_settled_failure
+    self.complete(failed=True, changed="untracked")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_changed_collection_mapping_cannot_admit_apply (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_changed_collection_mapping_cannot_admit_apply)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 76, in test_changed_collection_mapping_cannot_admit_apply
+    self.complete(denied="mapping")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_failed_preparation_resumes_after_admission_is_closed (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_failed_preparation_resumes_after_admission_is_closed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 33, in test_failed_preparation_resumes_after_admission_is_closed
+    case.complete(uncertain=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2604, in complete
+    return self.ended_after_failed_start(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, preparation, processes, uncertainty, orchestrating[0],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_before, target_revision, target_tree, case)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 1680, in ended_after_failed_start
+    gate = gates_of({"depends_on": json.dumps([{"job_id": "job-a", "kind": "integration"}])}, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_missing_independent_judgment_cannot_admit_apply (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_missing_independent_judgment_cannot_admit_apply)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 70, in test_missing_independent_judgment_cannot_admit_apply
+    self.complete(denied="missing")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_nonaccepting_independent_judgment_cannot_admit_apply (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_nonaccepting_independent_judgment_cannot_admit_apply)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 73, in test_nonaccepting_independent_judgment_cannot_admit_apply
+    self.complete(denied="rejected")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_original_job_limit_times_out_the_managed_apply (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_original_job_limit_times_out_the_managed_apply)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 67, in test_original_job_limit_times_out_the_managed_apply
+    self.complete(failed=True, timed_out=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_preparation_judgments_apply_and_target_settle (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_preparation_judgments_apply_and_target_settle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 37, in test_preparation_judgments_apply_and_target_settle
+    self.complete()
+    ~~~~~~~~~~~~~^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_reopen_after_authority_receipt_before_final_handoff (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_authority_receipt_before_final_handoff)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 79, in test_reopen_after_authority_receipt_before_final_handoff
+    self.complete(cut="authority-receipt")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_reopen_after_derived_publication (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_derived_publication)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 61, in test_reopen_after_derived_publication
+    self.complete(cut="publication")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_reopen_after_failed_outcome_before_root_release (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_failed_outcome_before_root_release)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 82, in test_reopen_after_failed_outcome_before_root_release
+    self.complete(cut="failed-outcome", failed=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_reopen_after_retained_adoption (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_retained_adoption)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 58, in test_reopen_after_retained_adoption
+    self.complete(cut="adoption")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_reopen_after_target_effect_before_coordinator_settlement (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_target_effect_before_coordinator_settlement)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 40, in test_reopen_after_target_effect_before_coordinator_settlement
+    self.complete(cut="target-effect")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_reopen_after_zero_exit_failure_before_root_release (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_zero_exit_failure_before_root_release)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 55, in test_reopen_after_zero_exit_failure_before_root_release
+    self.complete(cut="failed-outcome", failed=True, changed="untracked")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_target_drift_after_admission_prevents_start (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_target_drift_after_admission_prevents_start)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 88, in test_target_drift_after_admission_prevents_start
+    self.complete(denied="target")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_unknown_target_effect_remains_a_visible_hold_after_reopen (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_unknown_target_effect_remains_a_visible_hold_after_reopen)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 64, in test_unknown_target_effect_remains_a_visible_hold_after_reopen
+    self.complete(cut="unknown-effect")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 530, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2664, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_apply.py", line 385, in adopted
+    gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_a_restart_across_a_failed_start_still_ends_it_once (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_a_restart_across_a_failed_start_still_ends_it_once)
+THE FAILED START SURVIVES LOSING THE COORDINATOR. The composition
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 1708, in test_a_restart_across_a_failed_start_still_ends_it_once
+    self.complete(uncertain=True, restart=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2604, in complete
+    return self.ended_after_failed_start(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, preparation, processes, uncertainty, orchestrating[0],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_before, target_revision, target_tree, case)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 1680, in ended_after_failed_start
+    gate = gates_of({"depends_on": json.dumps([{"job_id": "job-a", "kind": "integration"}])}, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_a_start_that_failed_after_creating_a_runtime_is_ended (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_a_start_that_failed_after_creating_a_runtime_is_ended)
+THE COMMITTED START whose adapter call fails after the runtime
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 1716, in test_a_start_that_failed_after_creating_a_runtime_is_ended
+    self.complete(uncertain=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2604, in complete
+    return self.ended_after_failed_start(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, preparation, processes, uncertainty, orchestrating[0],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_before, target_revision, target_tree, case)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 1680, in ended_after_failed_start
+    gate = gates_of({"depends_on": json.dumps([{"job_id": "job-a", "kind": "integration"}])}, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_failed_start_retries_an_unfinished_credential_teardown (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_failed_start_retries_an_unfinished_credential_teardown)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 1725, in test_failed_start_retries_an_unfinished_credential_teardown
+    self.unfinished_delivery("_torn_down")
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 1760, in unfinished_delivery
+    self.complete(uncertain=True, restart=restart)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2604, in complete
+    return self.ended_after_failed_start(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, preparation, processes, uncertainty, orchestrating[0],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_before, target_revision, target_tree, case)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 1680, in ended_after_failed_start
+    gate = gates_of({"depends_on": json.dumps([{"job_id": "job-a", "kind": "integration"}])}, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_failed_start_retries_an_unfinished_launch_teardown (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_failed_start_retries_an_unfinished_launch_teardown)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 1728, in test_failed_start_retries_an_unfinished_launch_teardown
+    self.unfinished_delivery("_launch_ended")
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 1760, in unfinished_delivery
+    self.complete(uncertain=True, restart=restart)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2604, in complete
+    return self.ended_after_failed_start(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, preparation, processes, uncertainty, orchestrating[0],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_before, target_revision, target_tree, case)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 1680, in ended_after_failed_start
+    gate = gates_of({"depends_on": json.dumps([{"job_id": "job-a", "kind": "integration"}])}, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_reopened_failed_start_retries_unfinished_credential_teardown (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_reopened_failed_start_retries_unfinished_credential_teardown)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 1731, in test_reopened_failed_start_retries_unfinished_credential_teardown
+    self.unfinished_delivery("_torn_down", restart=True)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 1760, in unfinished_delivery
+    self.complete(uncertain=True, restart=restart)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2604, in complete
+    return self.ended_after_failed_start(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, preparation, processes, uncertainty, orchestrating[0],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_before, target_revision, target_tree, case)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 1680, in ended_after_failed_start
+    gate = gates_of({"depends_on": json.dumps([{"job_id": "job-a", "kind": "integration"}])}, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_reopened_failed_start_retries_unfinished_launch_teardown (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_reopened_failed_start_retries_unfinished_launch_teardown)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 1734, in test_reopened_failed_start_retries_unfinished_launch_teardown
+    self.unfinished_delivery("_launch_ended", restart=True)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 1760, in unfinished_delivery
+    self.complete(uncertain=True, restart=restart)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 2604, in complete
+    return self.ended_after_failed_start(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, preparation, processes, uncertainty, orchestrating[0],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_before, target_revision, target_tree, case)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_managed_preparation.py", line 1680, in ended_after_failed_start
+    gate = gates_of({"depends_on": json.dumps([{"job_id": "job-a", "kind": "integration"}])}, stage_states(held.job, held.composed))[0]
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/src/baton_v12/job_manager/projection.py", line 788, in gates_of
+    entry = held.get(stage["stage_id"], {})
+                     ~~~~~^^^^^^^^^^^^
+KeyError: 'stage_id'
+
+======================================================================
+ERROR: test_every_declared_input_is_present_and_outside_the_scope (tests.tools.test_source_identity.TheRealTreesDeclaredInputsExist.test_every_declared_input_is_present_and_outside_the_scope)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/tools/test_source_identity.py", line 174, in test_every_declared_input_is_present_and_outside_the_scope
+    found = source_identity.identity(str(REPOSITORY), ["v12"], declared)
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/source_identity.py", line 114, in identity
+    head = _git(repo, "rev-parse", "HEAD").decode().strip()
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tools/source_identity.py", line 45, in _git
+    return subprocess.run(["git", "-C", repo, *argv], check=True, capture_output=True).stdout
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['git', '-C', '/var/tmp/baton-k-review-386054/base', 'rev-parse', 'HEAD']' returned non-zero exit status 128.
+
+======================================================================
+FAIL: test_a_payload_that_is_not_a_document_or_is_from_elsewhere_refuses (tests.manager.test_exchange.TheFileExchangeLaunchIsWrapped.test_a_payload_that_is_not_a_document_or_is_from_elsewhere_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/manager/test_exchange.py", line 3079, in test_a_payload_that_is_not_a_document_or_is_from_elsewhere_refuses
+    self.assertIn("baton.worker-launch/6", said)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'baton.worker-launch/6' not found in '/run/baton/launch.json is exactly schema, session, contract, role, transport, job_execution, provider_selection; missing job_execution, provider_selection'
+
+======================================================================
+FAIL: test_the_tracked_build_copy_is_not_a_fourth_contract (tests.manager.test_frozen.TheSchemaTravelsWithTheDistribution.test_the_tracked_build_copy_is_not_a_fourth_contract)
+W14251 review: the repository tracks `build/lib` too.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/manager/test_frozen.py", line 117, in test_the_tracked_build_copy_is_not_a_fourth_contract
+    self.assertTrue(built.is_file(), f"tracked build copy missing: {built}")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : tracked build copy missing: /var/tmp/baton-k-review-386054/base/v12/python/build/lib/baton_v12/contracts/schema/worker-control-1.0.schema.json
+
+======================================================================
+FAIL: test_it_copies_the_worker_modules_and_no_manager_package (tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_copies_the_worker_modules_and_no_manager_package)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/manager/test_integration_image.py", line 120, in test_it_copies_the_worker_modules_and_no_manager_package
+    self.assertEqual(sorted(sources), [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+        # W198667's shared capture format. THIS CASE WAS ALREADY RED for
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<19 lines>...
+        "worker/integration_workload.py",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "worker/worker-control-1.0.schema.json"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['pyt[59 chars]_v12/provider_policy', 'python/src/baton_v12/s[280 chars]son'] != ['pyt[59 chars]_v12/source_profiles', 'python/src/baton_v12/v[240 chars]son']
+
+First differing element 1:
+'python/src/baton_v12/provider_policy'
+'python/src/baton_v12/source_profiles'
+
+First list contains 1 additional elements.
+First extra element 10:
+'worker/worker-control-1.0.schema.json'
+
+  ['python/src/baton_v12/attempt_log_format.py',
+-  'python/src/baton_v12/provider_policy',
+   'python/src/baton_v12/source_profiles',
+   'python/src/baton_v12/verification_context.py',
+   'worker/adapter_refusal.py',
+   'worker/baton_worker.py',
+   'worker/claude_agent.py',
+   'worker/integration_contract.py',
+   'worker/integration_entry.py',
+   'worker/integration_workload.py',
+   'worker/worker-control-1.0.schema.json']
+
+======================================================================
+FAIL: test_every_durable_writer_is_covered (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_every_durable_writer_is_covered)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/manager/test_secrets.py", line 2409, in test_every_durable_writer_is_covered
+    self.assertEqual(uncovered, [],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+                     "durable writers with no §13 coverage")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('review_cycles.py', '_freeze_checkpoint'[381 chars]es')] != []
+
+First list contains 6 additional elements.
+First extra element 0:
+('review_cycles.py', '_freeze_checkpoint', 'line_checkpoints')
+
++ []
+- [('review_cycles.py', '_freeze_checkpoint', 'line_checkpoints'),
+-  ('review_cycles.py', '_freeze_checkpoint', 'line_writers'),
+-  ('review_cycles.py', '_freeze_checkpoint', 'review_lines'),
+-  ('review_cycles.py',
+-   'freeze_unreleased_recovered_checkpoint',
+-   'line_checkpoints'),
+-  ('review_cycles.py', 'freeze_unreleased_recovered_checkpoint', 'line_writers'),
+-  ('review_cycles.py', 'freeze_unreleased_recovered_checkpoint', 'review_lines')] : durable writers with no §13 coverage
+
+======================================================================
+FAIL: test_no_declared_coverage_is_stale (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_no_declared_coverage_is_stale) (entry=('review_cycles.py', 'freeze_checkpoint', 'line_checkpoints'))
+A list of exceptions nobody compares to the code is a list of
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/manager/test_secrets.py", line 2418, in test_no_declared_coverage_is_stale
+    self.assertIn(entry, writers)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: ('review_cycles.py', 'freeze_checkpoint', 'line_checkpoints') not found in {('interrogation.py', 'publish_inquiry_answer', 'interrogations'), ('review_cycles.py', 'freeze_unreleased_recovered_checkpoint', 'line_checkpoints'), ('review_cycles.py', '_freeze_checkpoint', 'line_writers'), ('posture_slots.py', '_require_slot_recovery_in', 'posture_slots'), ('attempts.py', 'activate_assignment', 'attempts'), ('review_cycles.py', 'grant_writer', 'review_lines'), ('output.py', '_record', 'outputs'), ('lanes.py', '_occupy_lane', 'runtime_lanes'), ('review_cycles.py', '_freeze_checkpoint', 'review_lines'), ('review_cycles.py', 'record_verdict', 'integration_eligibility'), ('posture_slots.py', '_occupy_slot', 'posture_slots'), ('review_cycles.py', 'grant_writer', 'line_writers'), ('review_cycles.py', 'attach_review', 'review_attachments'), ('store.py', 'ControlStore._initialize', 'meta'), ('sessions.py', '_open', 'agent_sessions'), ('intake.py', '_no_start_declared', 'attempts'), ('offers.py', 'certify_profile', 'meta'), ('sessions.py', 'adopt_provider_session', 'agent_sessions'), ('output.py', '_record', 'output_artifacts'), ('intake.py', '_seal', 'intake_artifacts'), ('manifests.py', '_retain_canonical', 'manifests'), ('offers.py', '_settle_terminal', 'offers'), ('review_cycles.py', '_freeze_checkpoint', 'line_checkpoints'), ('intake.py', '_seal', 'intakes'), ('offers.py', '_record_claim', 'offers'), ('store.py', 'ControlStore._record', 'operations'), ('review_cycles.py', '_withdraw_publication', 'review_lines'), ('review_cycles.py', 'record_response', 'review_lines'), ('offers.py', 'accept_offer', 'offers'), ('sessions.py', '_observe_session_state_in', 'agent_sessions'), ('review_cycles.py', 'record_verdict', 'review_lines'), ('attempts.py', 'record_attempt', 'attempts'), ('handshake.py', 'certify_agent_session_profile', 'profiles'), ('posture_slots.py', '_release_slot_in', 'posture_slots'), ('review_cycles.py', 'record_progress', 'line_progress'), ('workspaces.py', 'configure_workspace_group', 'meta'), ('review_cycles.py', 'record_response', 'review_attachments'), ('attempts.py', '_attach', 'attempts'), ('interrogation.py', '_ask', 'interrogations'), ('review_cycles.py', 'restore_abandoned_correction', 'review_lines'), ('review_cycles.py', 'freeze_unreleased_recovered_checkpoint', 'review_lines'), ('review_cycles.py', 'record_verdict', 'review_attachments'), ('intake.py', '_retain', 'retentions'), ('review_cycles.py', 'freeze_unreleased_recovered_checkpoint', 'line_writers'), ('review_cycles.py', 'restore_abandoned_correction', 'line_writers'), ('review_cycles.py', 'record_verdict', 'checkpoint_verdicts'), ('attempts.py', 'pin_boundary_identity', 'attempts'), ('interrogation.py', '_settle', 'interrogations'), ('attempts.py', 'observe_activity', 'attempts'), ('interrogation.py', 'record_inquiry_answer', 'interrogations'), ('workspaces.py', 'configure_workspace_storage', 'meta'), ('review_cycles.py', '_completed_line', 'review_lines'), ('attempts.py', '_decide', 'attempts'), ('offers.py', 'issue_offer', 'offers'), ('review_cycles.py', 'release_writer', 'review_lines'), ('attempts.py', '_decide', 'observations'), ('review_cycles.py', '_published_recorded_line', 'review_lines'), ('review_cycles.py', '_reserved_line', 'review_lines'), ('review_cycles.py', 'attach_review', 'review_lines'), ('review_cycles.py', 'release_writer', 'line_writers')}
+
+======================================================================
+FAIL: test_no_declared_coverage_is_stale (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_no_declared_coverage_is_stale) (entry=('review_cycles.py', 'freeze_checkpoint', 'line_writers'))
+A list of exceptions nobody compares to the code is a list of
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/manager/test_secrets.py", line 2418, in test_no_declared_coverage_is_stale
+    self.assertIn(entry, writers)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: ('review_cycles.py', 'freeze_checkpoint', 'line_writers') not found in {('interrogation.py', 'publish_inquiry_answer', 'interrogations'), ('review_cycles.py', 'freeze_unreleased_recovered_checkpoint', 'line_checkpoints'), ('review_cycles.py', '_freeze_checkpoint', 'line_writers'), ('posture_slots.py', '_require_slot_recovery_in', 'posture_slots'), ('attempts.py', 'activate_assignment', 'attempts'), ('review_cycles.py', 'grant_writer', 'review_lines'), ('output.py', '_record', 'outputs'), ('lanes.py', '_occupy_lane', 'runtime_lanes'), ('review_cycles.py', '_freeze_checkpoint', 'review_lines'), ('review_cycles.py', 'record_verdict', 'integration_eligibility'), ('posture_slots.py', '_occupy_slot', 'posture_slots'), ('review_cycles.py', 'grant_writer', 'line_writers'), ('review_cycles.py', 'attach_review', 'review_attachments'), ('store.py', 'ControlStore._initialize', 'meta'), ('sessions.py', '_open', 'agent_sessions'), ('intake.py', '_no_start_declared', 'attempts'), ('offers.py', 'certify_profile', 'meta'), ('sessions.py', 'adopt_provider_session', 'agent_sessions'), ('output.py', '_record', 'output_artifacts'), ('intake.py', '_seal', 'intake_artifacts'), ('manifests.py', '_retain_canonical', 'manifests'), ('offers.py', '_settle_terminal', 'offers'), ('review_cycles.py', '_freeze_checkpoint', 'line_checkpoints'), ('intake.py', '_seal', 'intakes'), ('offers.py', '_record_claim', 'offers'), ('store.py', 'ControlStore._record', 'operations'), ('review_cycles.py', '_withdraw_publication', 'review_lines'), ('review_cycles.py', 'record_response', 'review_lines'), ('offers.py', 'accept_offer', 'offers'), ('sessions.py', '_observe_session_state_in', 'agent_sessions'), ('review_cycles.py', 'record_verdict', 'review_lines'), ('attempts.py', 'record_attempt', 'attempts'), ('handshake.py', 'certify_agent_session_profile', 'profiles'), ('posture_slots.py', '_release_slot_in', 'posture_slots'), ('review_cycles.py', 'record_progress', 'line_progress'), ('workspaces.py', 'configure_workspace_group', 'meta'), ('review_cycles.py', 'record_response', 'review_attachments'), ('attempts.py', '_attach', 'attempts'), ('interrogation.py', '_ask', 'interrogations'), ('review_cycles.py', 'restore_abandoned_correction', 'review_lines'), ('review_cycles.py', 'freeze_unreleased_recovered_checkpoint', 'review_lines'), ('review_cycles.py', 'record_verdict', 'review_attachments'), ('intake.py', '_retain', 'retentions'), ('review_cycles.py', 'freeze_unreleased_recovered_checkpoint', 'line_writers'), ('review_cycles.py', 'restore_abandoned_correction', 'line_writers'), ('review_cycles.py', 'record_verdict', 'checkpoint_verdicts'), ('attempts.py', 'pin_boundary_identity', 'attempts'), ('interrogation.py', '_settle', 'interrogations'), ('attempts.py', 'observe_activity', 'attempts'), ('interrogation.py', 'record_inquiry_answer', 'interrogations'), ('workspaces.py', 'configure_workspace_storage', 'meta'), ('review_cycles.py', '_completed_line', 'review_lines'), ('attempts.py', '_decide', 'attempts'), ('offers.py', 'issue_offer', 'offers'), ('review_cycles.py', 'release_writer', 'review_lines'), ('attempts.py', '_decide', 'observations'), ('review_cycles.py', '_published_recorded_line', 'review_lines'), ('review_cycles.py', '_reserved_line', 'review_lines'), ('review_cycles.py', 'attach_review', 'review_lines'), ('review_cycles.py', 'release_writer', 'line_writers')}
+
+======================================================================
+FAIL: test_no_declared_coverage_is_stale (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_no_declared_coverage_is_stale) (entry=('review_cycles.py', 'freeze_checkpoint', 'review_lines'))
+A list of exceptions nobody compares to the code is a list of
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/manager/test_secrets.py", line 2418, in test_no_declared_coverage_is_stale
+    self.assertIn(entry, writers)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+AssertionError: ('review_cycles.py', 'freeze_checkpoint', 'review_lines') not found in {('interrogation.py', 'publish_inquiry_answer', 'interrogations'), ('review_cycles.py', 'freeze_unreleased_recovered_checkpoint', 'line_checkpoints'), ('review_cycles.py', '_freeze_checkpoint', 'line_writers'), ('posture_slots.py', '_require_slot_recovery_in', 'posture_slots'), ('attempts.py', 'activate_assignment', 'attempts'), ('review_cycles.py', 'grant_writer', 'review_lines'), ('output.py', '_record', 'outputs'), ('lanes.py', '_occupy_lane', 'runtime_lanes'), ('review_cycles.py', '_freeze_checkpoint', 'review_lines'), ('review_cycles.py', 'record_verdict', 'integration_eligibility'), ('posture_slots.py', '_occupy_slot', 'posture_slots'), ('review_cycles.py', 'grant_writer', 'line_writers'), ('review_cycles.py', 'attach_review', 'review_attachments'), ('store.py', 'ControlStore._initialize', 'meta'), ('sessions.py', '_open', 'agent_sessions'), ('intake.py', '_no_start_declared', 'attempts'), ('offers.py', 'certify_profile', 'meta'), ('sessions.py', 'adopt_provider_session', 'agent_sessions'), ('output.py', '_record', 'output_artifacts'), ('intake.py', '_seal', 'intake_artifacts'), ('manifests.py', '_retain_canonical', 'manifests'), ('offers.py', '_settle_terminal', 'offers'), ('review_cycles.py', '_freeze_checkpoint', 'line_checkpoints'), ('intake.py', '_seal', 'intakes'), ('offers.py', '_record_claim', 'offers'), ('store.py', 'ControlStore._record', 'operations'), ('review_cycles.py', '_withdraw_publication', 'review_lines'), ('review_cycles.py', 'record_response', 'review_lines'), ('offers.py', 'accept_offer', 'offers'), ('sessions.py', '_observe_session_state_in', 'agent_sessions'), ('review_cycles.py', 'record_verdict', 'review_lines'), ('attempts.py', 'record_attempt', 'attempts'), ('handshake.py', 'certify_agent_session_profile', 'profiles'), ('posture_slots.py', '_release_slot_in', 'posture_slots'), ('review_cycles.py', 'record_progress', 'line_progress'), ('workspaces.py', 'configure_workspace_group', 'meta'), ('review_cycles.py', 'record_response', 'review_attachments'), ('attempts.py', '_attach', 'attempts'), ('interrogation.py', '_ask', 'interrogations'), ('review_cycles.py', 'restore_abandoned_correction', 'review_lines'), ('review_cycles.py', 'freeze_unreleased_recovered_checkpoint', 'review_lines'), ('review_cycles.py', 'record_verdict', 'review_attachments'), ('intake.py', '_retain', 'retentions'), ('review_cycles.py', 'freeze_unreleased_recovered_checkpoint', 'line_writers'), ('review_cycles.py', 'restore_abandoned_correction', 'line_writers'), ('review_cycles.py', 'record_verdict', 'checkpoint_verdicts'), ('attempts.py', 'pin_boundary_identity', 'attempts'), ('interrogation.py', '_settle', 'interrogations'), ('attempts.py', 'observe_activity', 'attempts'), ('interrogation.py', 'record_inquiry_answer', 'interrogations'), ('workspaces.py', 'configure_workspace_storage', 'meta'), ('review_cycles.py', '_completed_line', 'review_lines'), ('attempts.py', '_decide', 'attempts'), ('offers.py', 'issue_offer', 'offers'), ('review_cycles.py', 'release_writer', 'review_lines'), ('attempts.py', '_decide', 'observations'), ('review_cycles.py', '_published_recorded_line', 'review_lines'), ('review_cycles.py', '_reserved_line', 'review_lines'), ('review_cycles.py', 'attach_review', 'review_lines'), ('review_cycles.py', 'release_writer', 'line_writers')}
+
+======================================================================
+FAIL: test_every_exported_callable_is_in_exactly_one_class (tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor.test_every_exported_callable_is_in_exactly_one_class)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/manager/test_secrets.py", line 1565, in test_every_exported_callable_is_in_exactly_one_class
+    self.assertEqual(sorted(exported - classed), [],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "exported surfaces with no §13 accounting")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['retained_output_of'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'retained_output_of'
+
+- ['retained_output_of']
++ [] : exported surfaces with no §13 accounting
+
+======================================================================
+FAIL: test_a_failed_read_NAMES_THE_STORE_and_reports_sqlites_own_words (tests.manager.test_store.ReadonlyAcquisition.test_a_failed_read_NAMES_THE_STORE_and_reports_sqlites_own_words)
+W316915. This refusal used to name no store at all.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/manager/test_store.py", line 1348, in test_a_failed_read_NAMES_THE_STORE_and_reports_sqlites_own_words
+    self.assertIn('garbage.sqlite3', said)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'garbage.sqlite3' not found in "the existing manager store at '/var/tmp/baton-k-review-386054/roots/v12-worker-manager-z8_… could not be read through its non-writing opener (DatabaseError/SQLITE_NOTADB: 'file is not a database'); no write-capable fallback was attempted and nothing was changed. This process may read and may write the store, and may write its directory '/var/tmp/baton-k-review-386054/roots/v12-worker-manager-z8_…; the SQLite sidecars beside it are none."
+
+======================================================================
+FAIL: test_the_classification_reads_the_BUILD_S_OWN_record (tests.manager.test_w197661_verifier.TheSEALIsCLASSIFIEDRatherThanRewritten.test_the_classification_reads_the_BUILD_S_OWN_record)
+Not the seal read back to itself -- that is the current-to-current
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/tmp/baton-k-review-386054/base/v12/python/tests/manager/test_w197661_verifier.py", line 1630, in test_the_classification_reads_the_BUILD_S_OWN_record
+    self.assertTrue(found["image_identity"]["record_predates_the_seal"])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 48 tests in 165.326s
+
+FAILED (failures=10, errors=40)

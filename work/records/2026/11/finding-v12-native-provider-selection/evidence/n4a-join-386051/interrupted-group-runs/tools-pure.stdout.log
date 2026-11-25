@@ -1,0 +1,4 @@
+[group] tools-pure: 56 parallel, 0 serial, 0 supervised modules
+[collect] 56 parallel modules -> 3691 tests in 511 shards
+[parallel] jobs=4 (available CPUs 32)
+[runner] interrupted by signal 15

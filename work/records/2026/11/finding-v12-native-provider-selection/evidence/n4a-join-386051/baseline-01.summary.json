@@ -1,0 +1,23 @@
+{
+  "collected": 3,
+  "duplicates": [],
+  "duration_seconds": 0.2639964990084991,
+  "executed": 3,
+  "exit_status": 1,
+  "nonpassing": {
+    "tests.manager.test_exchange.TheFileExchangeLaunchIsWrapped.test_a_payload_that_is_not_a_document_or_is_from_elsewhere_refuses": "FAIL",
+    "tests.manager.test_frozen.TheSchemaTravelsWithTheDistribution.test_the_tracked_build_copy_is_not_a_fourth_contract": "FAIL",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_copies_the_worker_modules_and_no_manager_package": "FAIL"
+  },
+  "outcomes": {
+    "tests.manager.test_exchange.TheFileExchangeLaunchIsWrapped.test_a_payload_that_is_not_a_document_or_is_from_elsewhere_refuses": "FAIL",
+    "tests.manager.test_frozen.TheSchemaTravelsWithTheDistribution.test_the_tracked_build_copy_is_not_a_fourth_contract": "FAIL",
+    "tests.manager.test_integration_image.TheRecipeSaysWhatItWasReviewedToSay.test_it_copies_the_worker_modules_and_no_manager_package": "FAIL"
+  },
+  "passed": 0,
+  "source_after_exit_status": 0,
+  "source_drift": false,
+  "timed_out": false,
+  "unaccounted": [],
+  "uncollected": []
+}

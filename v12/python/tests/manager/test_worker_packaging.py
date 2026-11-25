@@ -34,6 +34,7 @@ import unittest
 WORKER = pathlib.Path(__file__).resolve().parents[3] / "worker"
 CONTEXT = {"Dockerfile": WORKER,
            "Dockerfile.claude": WORKER.parent,
+           "Dockerfile.codex": WORKER.parent,
            "Dockerfile.integration": WORKER.parent,
            # W385695: the deterministic publication worker's recipe. Its
            # context is the worker directory, like the reference image it
@@ -209,6 +210,17 @@ import baton_worker, claude_agent, adapter_refusal
 assert baton_worker.adapter_refusal is adapter_refusal
 assert claude_agent._SharedDeclarationRefusal is \\
     adapter_refusal.AdapterDeclarationRefusal
+''')
+
+    def test_the_codex_recipe_layers_import_the_shared_entry_and_adapter(self):
+        root = self.staged("Dockerfile.codex")
+        self.proving(root, '''
+import baton_worker, claude_agent, codex_agent, codex_entry, dogfood_entry, provider_policy, adapter_refusal
+assert issubclass(codex_agent.CodexAgent, claude_agent.ClaudeAgent)
+assert baton_worker.adapter_refusal is adapter_refusal
+assert claude_agent._SharedDeclarationRefusal is adapter_refusal.AdapterDeclarationRefusal
+assert "codex" not in provider_policy.REALIZATIONS
+assert "codex" not in provider_policy.MANAGED
 ''')
 
     def test_the_producer_and_the_catcher_share_one_type_in_the_package(self):

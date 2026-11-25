@@ -519,24 +519,25 @@ class SelectedCase(SelectedBase):
         original = self.worker
         def worker(role, **members):
             value = original(role, **members)
-            if role == "review":
+            if role == "implementation":
                 given = value["deployment"]
                 selected = dict(given["provider_contract"]["selection"], provider="codex")
                 profile = dict(given["provider_contract"]["runtime_profile"], provider="codex")
                 adapter = policy.adapter(selected, network=given["network"])
                 given.update(provider_contract={"selection": selected, "runtime_profile": profile, "adapter": adapter},
+                    credential_slots=["codex"], credential_profile={"codex": given["credential_profile"]["api"]},
                     profile_digest=digest(profile), profile_name="simulated-codex-profile", adapter_digest=digest(adapter))
-                self.submission["jobs"][0]["stages"][1]["profile_name"] = "simulated-codex-profile"
+                self.submission["jobs"][0]["stages"][0]["profile_name"] = "simulated-codex-profile"
                 manifest = copy.deepcopy(given["input_manifest"])
                 manifest["runtime_profile_digest"] = digest(profile)
                 manifest.pop("manifest_digest"); manifest["manifest_digest"] = digest(manifest)
                 given["input_manifest"] = manifest
-                self.submission["jobs"][0]["stages"][1]["profile_digest"] = digest(profile)
+                self.submission["jobs"][0]["stages"][0]["profile_digest"] = digest(profile)
             return value
         # W385853: a realization is composable only with its instruction
         # delivery tables; the simulated row declares simulated ones.
         with mock.patch.dict(policy.REALIZATIONS, {"codex": synthetic}), mock.patch.dict(policy.MANAGED, {"codex": {"path": "fixture/instructions.md", "kind": policy.INSTRUCTIONS_KIND}}), \
-                mock.patch.dict(policy.LABEL_ROLES, {"codex": ["implementation", "review"]}), mock.patch.object(self, "worker", side_effect=worker):
+                mock.patch.object(self, "worker", side_effect=worker):
             job, control, composed = self.serving()
             submit(job, self.submission)
             producer, reviewer = (self.worker_of(composed, role).given for role in ("implementation", "review"))
@@ -544,7 +545,7 @@ class SelectedCase(SelectedBase):
             self.assertNotEqual(producer["adapter_digest"], reviewer["adapter_digest"])
             self.assertEqual(self.states(job, composed)["implementation"], "queued")
             self.assertEqual(self.states(job, composed)["review"], "blocked")
-            self.assertEqual(reviewer["provider_contract"]["adapter"]["participation_sources"], [])
+            self.assertEqual(producer["provider_contract"]["adapter"]["participation_sources"], [])
 
     def test_41_42_43_seeded_provider_refresh_survives_correction_without_export(self):
         import provider_policy as worker_policy
@@ -710,7 +711,9 @@ class SelectedCase(SelectedBase):
         self.assertEqual(self.instructions_at_start, [])
         worker = Path(claude_agent.__file__).parent
         callers = sorted(path.name for path in worker.glob("*.py") if "invoke_provider(" in path.read_text() and path.name != "claude_agent.py")
-        self.assertEqual(callers, ["integration_workload.py"])
+        # The Codex override delegates only after its R1 operand guard;
+        # it adds no integration-role support and has no native realization.
+        self.assertEqual(callers, ["codex_agent.py", "integration_workload.py"])
         self.assertEqual(self.config["provider_contract"]["adapter"]["context_label"]["roles"], ["implementation", "review"])
 
     def test_26_actual_argv_or_environment_drift_refuses_before_provider(self):

@@ -1,0 +1,552 @@
+test_a_job_with_no_own_task_prepares_the_installed_one (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_job_with_no_own_task_prepares_the_installed_one)
+THE PRESERVED PATH, through the same owning sequence. ... ERROR
+test_a_missing_task_refuses_on_the_reopened_preparation (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_missing_task_refuses_on_the_reopened_preparation) ... ERROR
+test_a_reopened_preparation_proves_the_same_root (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_reopened_preparation_proves_the_same_root)
+RESTART THROUGH THE OWNING PATH, not a second rendering. ... ERROR
+test_a_tampered_root_refuses_on_the_reopened_preparation (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_tampered_root_refuses_on_the_reopened_preparation) ... ERROR
+test_an_assignment_from_the_installed_manifest_refuses (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_an_assignment_from_the_installed_manifest_refuses)
+THE REVIEWER'S R2, AS A CASE. ... ERROR
+test_both_ordinary_roles_prepare_the_requested_task (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_both_ordinary_roles_prepare_the_requested_task)
+THE WHOLE SEQUENCE, for implementation AND review. ... 
+  test_both_ordinary_roles_prepare_the_requested_task (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_both_ordinary_roles_prepare_the_requested_task) (role='implementation')
+THE WHOLE SEQUENCE, for implementation AND review. ... ERROR
+  test_both_ordinary_roles_prepare_the_requested_task (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_both_ordinary_roles_prepare_the_requested_task) (role='review')
+THE WHOLE SEQUENCE, for implementation AND review. ... ERROR
+test_the_recorded_and_launch_identities_are_the_delivered_one (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_the_recorded_and_launch_identities_are_the_delivered_one)
+EVERY OWNER DESCRIBES ONE RUNTIME INPUT. ... ERROR
+test_two_jobs_prepare_independently_on_one_worker (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_two_jobs_prepare_independently_on_one_worker) ... ERROR
+test_a_review_job_with_no_own_task_is_delivered_the_installed_one (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_a_review_job_with_no_own_task_is_delivered_the_installed_one)
+THE PRESERVED PATH for the review role, through the same mount. ... ERROR
+test_one_job_gives_both_roles_one_job_scoped_identity (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_one_job_gives_both_roles_one_job_scoped_identity)
+ONE JOB, TWO ROLES, TWO RUNTIME MANIFESTS, ONE IDENTITY. ... ERROR
+test_the_review_attempt_is_delivered_the_jobs_requested_task (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_review_attempt_is_delivered_the_jobs_requested_task)
+THE BYTES IN THE REVIEW ATTEMPT'S OWN INPUT ROOT. ... ERROR
+test_the_review_mount_is_the_frozen_checkpoint_read_only (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_review_mount_is_the_frozen_checkpoint_read_only)
+REVIEW SEMANTICS, from the boundary the manager composed. ... ERROR
+test_the_stageless_adapter_over_a_review_attempt_is_the_delivered_one (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_stageless_adapter_over_a_review_attempt_is_the_delivered_one)
+AND THE RECOVERY PATH, for the role that was never covered. ... ERROR
+
+======================================================================
+ERROR: test_a_job_with_no_own_task_prepares_the_installed_one (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_job_with_no_own_task_prepares_the_installed_one)
+THE PRESERVED PATH, through the same owning sequence.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-n4a-386051-baseline/v12-w71917-bsw8kob1/inputs-legacy/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1779, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 697, in test_a_job_with_no_own_task_prepares_the_installed_one
+    worker._input({"inputs": root}, assignment,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  SimpleNamespace(mountpoint=mount), stage)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1806, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1870, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_a_missing_task_refuses_on_the_reopened_preparation (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_missing_task_refuses_on_the_reopened_preparation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-n4a-386051-baseline/v12-w71917-5v_gwpir/inputs-implementation-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1779, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 672, in test_a_missing_task_refuses_on_the_reopened_preparation
+    held = self.prepared("implementation", FIRST, "The requested task.")
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 521, in prepared
+    read = worker._input({"inputs": root}, assignment,
+                         SimpleNamespace(mountpoint=mount), stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1806, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1870, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_a_reopened_preparation_proves_the_same_root (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_reopened_preparation_proves_the_same_root)
+RESTART THROUGH THE OWNING PATH, not a second rendering.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-n4a-386051-baseline/v12-w71917-0yjvpcf_/inputs-implementation-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1779, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 613, in test_a_reopened_preparation_proves_the_same_root
+    held = self.prepared("implementation", FIRST, "The requested task.")
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 521, in prepared
+    read = worker._input({"inputs": root}, assignment,
+                         SimpleNamespace(mountpoint=mount), stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1806, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1870, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_a_tampered_root_refuses_on_the_reopened_preparation (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_a_tampered_root_refuses_on_the_reopened_preparation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-n4a-386051-baseline/v12-w71917-mxo9unf2/inputs-implementation-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1779, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 658, in test_a_tampered_root_refuses_on_the_reopened_preparation
+    held = self.prepared("implementation", FIRST, "The requested task.")
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 521, in prepared
+    read = worker._input({"inputs": root}, assignment,
+                         SimpleNamespace(mountpoint=mount), stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1806, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1870, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_an_assignment_from_the_installed_manifest_refuses (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_an_assignment_from_the_installed_manifest_refuses)
+THE REVIEWER'S R2, AS A CASE.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-n4a-386051-baseline/v12-w71917-dc1bezpb/inputs-mismatched/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1779, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 650, in test_an_assignment_from_the_installed_manifest_refuses
+    worker._input({"inputs": root}, assignment,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  SimpleNamespace(mountpoint=mount), stage)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1806, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1870, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_both_ordinary_roles_prepare_the_requested_task (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_both_ordinary_roles_prepare_the_requested_task) (role='implementation')
+THE WHOLE SEQUENCE, for implementation AND review.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-n4a-386051-baseline/v12-w71917-hwonhvfj/inputs-implementation-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1779, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 536, in test_both_ordinary_roles_prepare_the_requested_task
+    held = self.prepared(role, FIRST, "The requested task.")
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 521, in prepared
+    read = worker._input({"inputs": root}, assignment,
+                         SimpleNamespace(mountpoint=mount), stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1806, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1870, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_both_ordinary_roles_prepare_the_requested_task (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_both_ordinary_roles_prepare_the_requested_task) (role='review')
+THE WHOLE SEQUENCE, for implementation AND review.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-n4a-386051-baseline/v12-w71917-hwonhvfj/inputs-review-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1779, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 536, in test_both_ordinary_roles_prepare_the_requested_task
+    held = self.prepared(role, FIRST, "The requested task.")
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 521, in prepared
+    read = worker._input({"inputs": root}, assignment,
+                         SimpleNamespace(mountpoint=mount), stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1806, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1870, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_the_recorded_and_launch_identities_are_the_delivered_one (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_the_recorded_and_launch_identities_are_the_delivered_one)
+EVERY OWNER DESCRIBES ONE RUNTIME INPUT.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-n4a-386051-baseline/v12-w71917-c2wkdsss/inputs-implementation-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1779, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 561, in test_the_recorded_and_launch_identities_are_the_delivered_one
+    held = self.prepared("implementation", FIRST, "The requested task.")
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 521, in prepared
+    read = worker._input({"inputs": root}, assignment,
+                         SimpleNamespace(mountpoint=mount), stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1806, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1870, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_two_jobs_prepare_independently_on_one_worker (tests.tools.test_job_task_delivery.TheConnectedPreparationPath.test_two_jobs_prepare_independently_on_one_worker)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6567, in read_input_root
+    with open(place, "rb") as reading:
+         ~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-n4a-386051-baseline/v12-w71917-pnz16sdz/inputs-two-job-first/inputs/input.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1779, in _input
+    held_input, held_assignment = workspaces.read_input_root(
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        roots["inputs"])
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 6570, in read_input_root
+    _refuse(f"the input root carries no readable {name_value(name)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a root missing a protocol document is one no runtime "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"may mount", code="path")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/src/baton_v12/worker_manager/workspaces.py", line 5119, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the input root carries no readable 'input.json'; a root missing a protocol document is one no runtime may mount
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 595, in test_two_jobs_prepare_independently_on_one_worker
+    worker._input({"inputs": root}, assignment,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  SimpleNamespace(mountpoint=mount), stage)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1806, in _input
+    recovery = self._recovery_document(stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/single_worker.py", line 1870, in _recovery_document
+    compose = getattr(self.stage, "recovery_document_for", None)
+                      ^^^^^^^^^^
+AttributeError: '_SingleWorker' object has no attribute 'stage'. Did you mean: 'start'?
+
+======================================================================
+ERROR: test_a_review_job_with_no_own_task_is_delivered_the_installed_one (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_a_review_job_with_no_own_task_is_delivered_the_installed_one)
+THE PRESERVED PATH for the review role, through the same mount.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 1867, in test_a_review_job_with_no_own_task_is_delivered_the_installed_one
+    held = self.reviewed(task=False)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 1770, in reviewed
+    held = self.delivered_through(worker, composition, stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 936, in delivered_through
+    roots, boundary = self.mounted(worker, composition, stage)
+                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 920, in mounted
+    composed = composition.mount(worker, stage, roots)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/stage_execution.py", line 1488, in mount
+    or self._prepare(stage, preparing=preparing))
+       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/stage_execution.py", line 1662, in _prepare
+    line = self._published_checkpoint_line(stage) if self.role == "review" else None
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/stage_execution.py", line 1726, in _published_checkpoint_line
+    handoff = publication_execution.handoff_of(deployment.jobs, stage["job_id"])
+                                               ^^^^^^^^^^^^^^^
+AttributeError: 'Deployment' object has no attribute 'jobs'
+
+======================================================================
+ERROR: test_one_job_gives_both_roles_one_job_scoped_identity (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_one_job_gives_both_roles_one_job_scoped_identity)
+ONE JOB, TWO ROLES, TWO RUNTIME MANIFESTS, ONE IDENTITY.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 1796, in test_one_job_gives_both_roles_one_job_scoped_identity
+    held = self.reviewed()
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 1770, in reviewed
+    held = self.delivered_through(worker, composition, stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 936, in delivered_through
+    roots, boundary = self.mounted(worker, composition, stage)
+                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 920, in mounted
+    composed = composition.mount(worker, stage, roots)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/stage_execution.py", line 1488, in mount
+    or self._prepare(stage, preparing=preparing))
+       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/stage_execution.py", line 1662, in _prepare
+    line = self._published_checkpoint_line(stage) if self.role == "review" else None
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/stage_execution.py", line 1726, in _published_checkpoint_line
+    handoff = publication_execution.handoff_of(deployment.jobs, stage["job_id"])
+                                               ^^^^^^^^^^^^^^^
+AttributeError: 'Deployment' object has no attribute 'jobs'
+
+======================================================================
+ERROR: test_the_review_attempt_is_delivered_the_jobs_requested_task (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_review_attempt_is_delivered_the_jobs_requested_task)
+THE BYTES IN THE REVIEW ATTEMPT'S OWN INPUT ROOT.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 1777, in test_the_review_attempt_is_delivered_the_jobs_requested_task
+    held = self.reviewed()
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 1770, in reviewed
+    held = self.delivered_through(worker, composition, stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 936, in delivered_through
+    roots, boundary = self.mounted(worker, composition, stage)
+                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 920, in mounted
+    composed = composition.mount(worker, stage, roots)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/stage_execution.py", line 1488, in mount
+    or self._prepare(stage, preparing=preparing))
+       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/stage_execution.py", line 1662, in _prepare
+    line = self._published_checkpoint_line(stage) if self.role == "review" else None
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/stage_execution.py", line 1726, in _published_checkpoint_line
+    handoff = publication_execution.handoff_of(deployment.jobs, stage["job_id"])
+                                               ^^^^^^^^^^^^^^^
+AttributeError: 'Deployment' object has no attribute 'jobs'
+
+======================================================================
+ERROR: test_the_review_mount_is_the_frozen_checkpoint_read_only (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_review_mount_is_the_frozen_checkpoint_read_only)
+REVIEW SEMANTICS, from the boundary the manager composed.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 1818, in test_the_review_mount_is_the_frozen_checkpoint_read_only
+    held = self.reviewed()
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 1770, in reviewed
+    held = self.delivered_through(worker, composition, stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 936, in delivered_through
+    roots, boundary = self.mounted(worker, composition, stage)
+                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 920, in mounted
+    composed = composition.mount(worker, stage, roots)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/stage_execution.py", line 1488, in mount
+    or self._prepare(stage, preparing=preparing))
+       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/stage_execution.py", line 1662, in _prepare
+    line = self._published_checkpoint_line(stage) if self.role == "review" else None
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/stage_execution.py", line 1726, in _published_checkpoint_line
+    handoff = publication_execution.handoff_of(deployment.jobs, stage["job_id"])
+                                               ^^^^^^^^^^^^^^^
+AttributeError: 'Deployment' object has no attribute 'jobs'
+
+======================================================================
+ERROR: test_the_stageless_adapter_over_a_review_attempt_is_the_delivered_one (tests.tools.test_job_task_delivery.TheReviewRoleRuntimeIsDeliveredTheSameTask.test_the_stageless_adapter_over_a_review_attempt_is_the_delivered_one)
+AND THE RECOVERY PATH, for the role that was never covered.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 1855, in test_the_stageless_adapter_over_a_review_attempt_is_the_delivered_one
+    held = self.reviewed()
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 1770, in reviewed
+    held = self.delivered_through(worker, composition, stage)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 936, in delivered_through
+    roots, boundary = self.mounted(worker, composition, stage)
+                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tests/tools/test_job_task_delivery.py", line 920, in mounted
+    composed = composition.mount(worker, stage, roots)
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/stage_execution.py", line 1488, in mount
+    or self._prepare(stage, preparing=preparing))
+       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/stage_execution.py", line 1662, in _prepare
+    line = self._published_checkpoint_line(stage) if self.role == "review" else None
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/work/scratch/w385830-join-386051/baseline/v12/python/tools/stage_execution.py", line 1726, in _published_checkpoint_line
+    handoff = publication_execution.handoff_of(deployment.jobs, stage["job_id"])
+                                               ^^^^^^^^^^^^^^^
+AttributeError: 'Deployment' object has no attribute 'jobs'
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.452s
+
+FAILED (errors=14)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1
