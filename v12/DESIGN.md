@@ -991,6 +991,19 @@ launchers MUST automate the selected copy under the same rule. No copy is
 written back to the source; credential access and live execution still require
 explicit selection. See the [credential lifecycle ruling](../work/records/2026/11/finding-v12-native-provider-selection/FINDING.md).
 
+Explicit audited recovery MAY withdraw a failed first-initialization receipt
+only when retained evidence establishes that initialization never succeeded,
+the home is verified unchanged, and no runtime can write to it. Otherwise the
+hold and evidence MUST be retained. Withdrawal MUST preserve the original
+receipt and the recovery decision as audit history; it is not automatic reset,
+reseeding, or authorization to access credentials or launch a runtime.
+
+Subscription-login credential files MUST use a consistent maximum of 1,048,576
+bytes across selected copy paths, including qualification launchers. Accepted
+files MUST preserve exact bytes, without text decoding, normalization or
+re-encoding. The bound counts bytes, including multibyte content; over-limit
+refusals MUST be secret-free. Existing legacy token limits remain unchanged.
+
 **SEC-3.** Secret bytes, bearer tokens and private transcripts do not belong in
 argv, labels, public events, persisted protocol operands, ordinary artifacts or
 logs. Closed context deliveries exclude credentials from snapshots. A read-only

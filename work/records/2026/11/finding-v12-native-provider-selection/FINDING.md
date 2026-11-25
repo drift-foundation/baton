@@ -447,3 +447,92 @@ Final bounded investigation complete. Next milestone is owner attribution decisi
 Owner explicitly approves configured-model acceptance for the bounded Codex path: record requested model, exact executed invocation/configuration and CLI/image identity; never present configuration as actual participation. Missing required evidence or observed mismatch/reroute refuses. Report no reroute observed, never rerouting proved absent. Other providers retain stronger contributor evidence. This supersedes prior Codex-only participation-presence acceptance holds (S7/N4b/M386103 and final investigation), not contributor semantics or Claude requirements. Existing accepted code/evidence is not retroactively relabelled.
 
 [Amendment and implementation/acceptance plan](evidence/attribution-amendment-386131/AMENDMENT.md) and exact DESIGN.patch/proposed bytes prepared for independent review and Slawomir checkpoint before implementation. Shared DESIGN not edited because it contains other work; owner/K application ownership preserved, M386132. Attempt to include baton.prompt refused (no live endpoint); plain owning-thread coordination retained. No runtime implementation, test run, provider/credential call, native activation or Git mutation. Current code remains fail-closed until reviewed delivery. Next milestone: review amendment, apply narrow hunk under shared ownership, observe human checkpoint; then implement bounded paired worker/host evidence semantics and A1–A10 checks. Other native gates and separate Work remain.
+
+
+## 2026-11-25 — configured-model attribution candidate (baton.codxpc, E386137)
+
+Observed owner checkpoint b5ca8e12eac41c93c6a9f115a480f8ce32e04f15; consumed accepted amendment M386135 and R1–R3/C1 addendum. [Report](evidence/attribution-386137/REPORT.md). Complete 12-path candidate `sha256:79b648fed4c6e2cb5abb40948fd8bc0089c249dd83143dfb7a5e83041332c4e1` retained with exact archive/manifest/diff. Independent disposable source only; shared product targets still match checkpoint. M386138 coordinates candidate ownership; K/owner retains shared import, no overlapping edit performed. Five inherited isolation prerequisites retained separately and excluded from candidate.
+
+Codex /2 configured-model basis is selected by admitted provider, bound to exact measured build/image/selection and separately retained content-free invocation receipt; actual participation unknown, contributors empty. Unqualified consistent build refuses. Host reparses complete supported stdout and checks receipt; known source-defined reroute error refuses, silence means only no reroute observed. LF-only parser includes C1. Existing Claude /1 participation and legacy behavior remain. Original producer evidence survives recovery and real deterministic Codex-to-Claude pipeline checks; missing Claude contributors still block verdict. No production realization/image/native activation enabled.
+
+Final focused verification:626 collected/executed/passed in43.752878s, zero skips/unaccounted/source drift, groups manager-pure/tools-pure/job_manager. All logs/ID ledger/header/source identities retained. Prior624-case runs had2 new pipeline failures then1 stale metadata-fixture error, corrected without baseline waiver;132.612843s across three accounted runs. Developer smoke evidence/limitations described in report. Fixture root empty; no real credentials/provider/build/engine/native operation or protected Git mutation.
+
+Next bounded milestone: independent exact-byte candidate review, then owner import/checkpoint under shared ownership and target drift preflight. Proposed commit: `Accept labelled Codex configuration evidence with retained invocation binding`. Native image/realization, expanded observed task shapes, joined native qualification, shared-login/refresh and explicit Claude gates remain. Current shared source remains pre-candidate; no historical evidence relabelled. Last incoming M386135; read through scope M386138.
+
+
+## 2026-11-25 — checkpointed attribution; finite native-readiness route (baton.codxpc, E386143)
+
+Observed d0760de6acdf9cd1e055d1f08137757adb223cc0: all12 accepted79b648fe bytes match; codex parser100644. Consumed M386141 review, canonical through E386143; scope M386144. [Bounded readiness plan](evidence/native-readiness-386143/PLAN.md), checkpoint verification retained alongside. No source/runtime operation or test executed.
+
+F1 is first: prior candidate accounts bind image to admission only, not retained launched-image observation. This corrects any reading of the earlier implementation entry as proving engine image identity. oci.py:1634 compares selected values; list validates engine image then drops that field in its returned record. I1 retains host engine/runtime/attempt/start/image evidence and binds it to attribution and original-producer recovery, with separate admitted/observed diagnostics. No backend attribution research or relaxation.
+
+Finite dependencies: I1 image binding → I2 production realization/home and credential-C2/C3 decisions/corrections → selected Q1 build/offline image gate → selected Q2 one editing capture → I3 observed parser fixtures/completion → selected Q3 final image → selected Q4 Codex implementation/Claude review/verdict. Three new provider calls proposed on the main route, none authorized now, no retries. Reuse authentication/instruction/path/source/model evidence; preserve adapter-reported CLI and unknown actual Codex contributors, stronger Claude evidence. Exact reviewed/checkpointed code required at each implementation boundary.
+
+Open decisions: explicit failed-initialization recovery semantics; unified file credential size/representation; engine/build/live packets and Claude selection if unsettled; placement of separately bounded refresh/shared-login qualification. Shared-login or actual refresh is not proved by the first two-role Job or synthetic tests and remains an explicit unqualified scope, not silently waived. W386048 remains separate: prior M386046 says optional provider-selected integration is unnecessary for the selected two-role review/verdict endpoint; no integration call added. Review-C2/C3/C4 have finite ordinary dispositions in the plan. Fast/resume/W386057 remain separate.
+
+Next milestone: review this packet and route I1 ordinary implementation under fresh claim/shared ownership; D1/D2 decisions precede dependent I2 changes. This planning claim does not implement or activate any step. No shared-file reservation, real credential read, build, engine/provider call, protected Git mutation or native activation.
+
+
+## 2026-11-25 — owner approves D1 and D2 (baton.codxpc, E386151)
+
+The owner explicitly approves both credential-policy decisions. This supersedes
+prior entries describing D1/D2 as unresolved, including the native-readiness
+plan; it does not authorize I2 implementation before its checkpoints.
+
+D1: explicit audited recovery may withdraw a failed first-initialization receipt
+only if initialization never succeeded, the retained home is verified unchanged,
+and no runtime can write. Otherwise retain the hold and evidence. Preserve the
+original receipt and the recovery decision as audit history. No automatic reset
+or reseeding is selected; withdrawal itself grants neither credential access nor
+runtime launch. Successfully initialized homes retain refreshed credentials and
+must not depend on the original source on restart. Missing credentials after
+successful initialization remain an explicit recovery condition.
+
+D2: subscription-login files have one consistent 1,048,576-byte maximum, including
+qualification copy paths. Preserve exact bytes; do not decode, normalize or
+re-encode them. Legacy token limits remain unchanged. Required synthetic checks:
+1,048,575 / 1,048,576 / 1,048,577 bytes, multibyte content counted in bytes,
+byte-identical accepted copies and secret-free refusals.
+
+[Narrow DESIGN amendment](evidence/credential-policy-386151/AMENDMENT.md) is
+prepared separately from pre-existing shared DESIGN edits for review and owner
+checkpoint. I1 continues independently under accepted P1/P2 and confirmed file
+ownership. I2 requires I1 acceptance/checkpoint and the credential-policy
+checkpoint. No engine, provider call, native activation or real credential read
+is selected by these rulings. Ownership request M386152 remains outstanding.
+
+
+## 2026-11-25 — I1 candidate complete (baton.codxpc, E386158)
+
+[Report](evidence/i1-386158/REPORT.md). Complete 11-path candidate
+`sha256:e3656475c5594b7b1a350cdba2f1d6252a42e4da4323ce691148d50665261ccd`
+on d0760de6acdf9cd1e055d1f08137757adb223cc0, with exact archive, manifest,
+diff, accounted logs and cleanup check retained. M386155 confirms allocation;
+shared import belongs to K/owner. All shared import targets remain unchanged.
+DESIGN and the five W386057 paths were not edited; the latter were used unchanged
+as separately retained verification prerequisites.
+
+I1 retains engine Id/Image/StartedAt and generation-bearing assignment labels,
+engine-derived registry-digest resolution, host journal reference/digest and
+original-producer result/recovery binding. P1: Codex /2 alone requires the new
+receipt; Claude /1 and legacy behavior remain. P2: mapping is engine evidence,
+not a profile/worker echo. Review-C2 diagnostics now label unknown/unqualified
+surfaces honestly. Actual Codex contributors remain unknown. A conflicting
+observation holds current acceptance without rewriting the frozen assessment;
+missing receipt does not delay cessation/token release.
+
+Final focused run:884/884 collected/executed/passed, zero skips/unaccounted/drift,
+48.755065s; manager-pure/tools-pure/job_manager. Six accounted development runs
+total200.114100s, with all intermediate failures retained and corrected; no
+baseline waiver. No full suite or real engine/provider/build/credential/native
+operation. Fixture root empty and removed; no protected Git metadata mutation
+or cleanup. No new module registration needed: tests extend existing modules.
+
+Next milestone: independent exact-byte I1 review, then owner import/checkpoint.
+Suggested commit: `Bind Codex attribution to retained launched-image evidence`.
+I2 still requires I1 acceptance/checkpoint and credential-policy checkpoint;
+M386155 X1–X3 are retained acceptance obligations. D1/D2 approval does not
+select I2 early. Remaining native route and P3/P4 are in the report and
+[evidence/native-readiness-386143/PLAN.md](evidence/native-readiness-386143/PLAN.md).
+No native qualification claim; W386048/W386057, fast and resume remain separate.
+Canonical incoming discussion consumed through M386157; claim E386158.

@@ -1183,6 +1183,30 @@ class CodexToClaude(SelectedBase):
         self.submission["jobs"][0]["stages"][0]["profile_name"] = "synthetic-codex"
         self.submission["jobs"][0]["stages"][0]["profile_digest"] = self.codex_profile
 
+    def serving(self, **members):
+        answer = super().serving(**members)
+        self.image_test_control = answer[1]
+        return answer
+
+    def quiescing(self):
+        engine = super().quiescing()
+        original = type(engine).__call__
+        def observed(engine, argv, **options):
+            if hasattr(self, "image_test_control"):
+                self.assertFalse(self.image_test_control._connection.in_transaction)
+            answer = original(engine, argv, **options)
+            if argv[1:4] == ["inspect", "--type", "container"] and answer["status"] == 0:
+                document = json.loads(answer["stdout"])
+                document["Image"] = engine.image
+                document["Config"] = {"Labels": engine.labels}
+                document["State"]["StartedAt"] = "2026-11-25T00:00:00Z"
+                if getattr(self, "omit_image_evidence", False):
+                    document.pop("Image")
+                answer = dict(answer, stdout=json.dumps(document))
+            return answer
+        self.enterContext(mock.patch.object(type(engine), "__call__", observed))
+        return engine
+
     def worker(self, role, **members):
         value = super().worker(role, **members)
         if role == "implementation":
@@ -1243,3 +1267,35 @@ class CodexToClaude(SelectedBase):
         for _ in range(4): sweep(held.job, held.composed, now=fixtures.NOW)
         self.assertEqual(model_attribution.assessment_of(held.control, attempt)["cause"], "model-attribution-conflicting")
         self.assertIsNone(model_attribution._read(held.control, "provider.attribution-ending", attempt))
+
+
+    def test_missing_image_holds_frozen_codex_without_holding_cessation(self):
+        from baton_v12.worker_manager import attempts
+        self.omit_image_evidence = True
+        job, control, composed, attempt = self.started()
+        self.assertEqual(self.turn(control, "implementation", attempt,
+            self.mounted(composed, "implementation", attempt), edits={"harness.py": "print('changed')\n"}), 0)
+        for _ in range(4): sweep(job, composed, now=fixtures.NOW)
+        account = model_attribution.assessment_of(control, attempt)
+        self.assertEqual(account["cause"], "launched-image-missing")
+        self.assertIsNone(account["launched_image"])
+        self.assertEqual(account["outcome"], "held")
+        self.assertEqual(account["attribution"]["actual_participation"], "unknown")
+        self.assertIn(attempts.attempt_runtime_of(control, attempt)["execution_runtime"], ("quiescent", "destroyed"))
+        self.assertIsNone(model_attribution._read(control, "provider.attribution-ending", attempt))
+        self.assertNotEqual(self.states(job, composed)["review"], "waiting")
+        self.assertIn("host acceptance: held", model_attribution.diagnostic_of(control, attempt))
+
+    def test_frozen_receipt_and_ending_refuse_later_conflicting_engine_evidence(self):
+        from baton_v12.worker_manager import image_receipts
+        from baton_v12.contracts import ContractRefusal
+        held = self.implemented()
+        account = model_attribution.assessment_of(held.control, held.attempt_id)
+        receipt = account["launched_image"]
+        self.assertEqual(receipt["observation"]["image_id"], self.config["image_digest"])
+        changed = dict(receipt["observation"], image_id="sha256:" + "f" * 64)
+        image_receipts.retain(held.control, held.attempt_id, changed["runtime_id"], changed)
+        self.assertEqual(model_attribution.assessment_of(held.control, held.attempt_id), account)
+        self.assertIn("host acceptance: held", model_attribution.diagnostic_of(held.control, held.attempt_id))
+        with self.assertRaises(ContractRefusal): model_attribution.assess(held.control, held.attempt_id)
+        with self.assertRaises(ContractRefusal): model_attribution.bind_ending(held.control, held.attempt_id, {})

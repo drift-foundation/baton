@@ -2655,12 +2655,15 @@ def reconcile_runtime(store, adapter, *, attempt_id, minted=None,
 
 
 def _identify(store, adapter, attempt_id, minted=None, minted_labels=None):
-    """WHAT THE ENGINE SAYS EXISTS, answered as a PLAN and nothing more.
+    """WHAT THE ENGINE SAYS EXISTS, answered as a runtime lifecycle plan.
+
+    Codex image observations also enter their separate immutable evidence
+    journal after engine I/O; they do not alter this lifecycle plan or its gates.
 
     W76207 re-review 2026-09-03T21:24:16Z [P1] SPLIT THIS OUT, and the split is
     between ASKING and RECORDING rather than between two decisions. Every rule
     about what the answers mean is still here and is still asked exactly once;
-    what is not here is any durable effect. A caller that must commit this
+    what is not here is a durable runtime-axis effect. A caller that must commit this
     answer TOGETHER WITH something else of its own can therefore ask first and
     commit once -- which is what the failed-preparation ending does, because a
     stage whose runtime is attached is no longer the control plane's to drive.
@@ -2718,7 +2721,7 @@ def _identify(store, adapter, attempt_id, minted=None, minted_labels=None):
         # W26294: THE EXACT RUNTIME IS OBSERVED BEFORE ANYTHING IS RECORDED.
         # Membership in `ps --all` proves this container carries this
         # assignment's labels and says nothing about whether it is alive.
-        state, value, why = _observed(adapter, runtime["runtime_id"])
+        state, value, why = _observed(adapter, runtime["runtime_id"], store=store, attempt_id=attempt_id)
         return _attaching(runtime["runtime_id"], value, why)
     # W26294 review [P0]: AN EXACT IDENTITY IS STILL A QUESTION THIS SEAM CAN
     # ASK, and until now it did not.
@@ -2737,7 +2740,7 @@ def _identify(store, adapter, attempt_id, minted=None, minted_labels=None):
     known = attempt["runtime_id"] if attempt["runtime_id"] is not None \
         else minted
     if known is not None:
-        state, value, why = _observed(adapter, known)
+        state, value, why = _observed(adapter, known, store=store, attempt_id=attempt_id)
         if state == "uncertain":
             # ASKED AND STILL UNKNOWN. The identity is not erased -- an
             # attachment already made stands, and a lost `minted` stays the
@@ -3013,7 +3016,7 @@ OBSERVED_RUNTIME = {"running": "running", "quiescent": "quiescent",
                     "absent": "destroyed", "uncertain": "uncertain"}
 
 
-def _observed(adapter, runtime_id):
+def _observed(adapter, runtime_id, *, store=None, attempt_id=None):
     """The exact runtime's state, asked of the ADAPTER rather than inferred.
 
     W6636's composition found reconciliation reading `running` off membership
@@ -3074,6 +3077,9 @@ def _observed(adapter, runtime_id):
         return "uncertain", "uncertain", _inconclusive(
             f"{name_value(state)} is not a runtime observation; the four this "
             f"build reads are {', '.join(sorted(OBSERVED_RUNTIME))}")
+    if store is not None and state in ("running", "quiescent"):
+        from . import image_receipts
+        image_receipts.retain(store, attempt_id, runtime_id, answer.get("image_observation"))
     return state, OBSERVED_RUNTIME[state], why
 
 

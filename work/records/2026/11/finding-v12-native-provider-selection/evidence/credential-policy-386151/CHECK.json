@@ -1,0 +1,11 @@
+{
+  "kind": "documentation-patch-check",
+  "patch_applies": true,
+  "exact_proposed_bytes": true,
+  "shared_design_unchanged": true,
+  "policy_lines_added": 13,
+  "tests_executed": 0,
+  "engine_calls": 0,
+  "provider_calls": 0,
+  "credential_reads": 0
+}

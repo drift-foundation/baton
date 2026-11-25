@@ -112,11 +112,13 @@ def diagnostic(value):
         return ("Requested: " + str(value["requested_model"]) + "; basis: configured-model; "
                 + ("Configured model accepted" if acceptable(value) else "Configured model not accepted")
                 + "; actual participation unknown; " + value["reroute_observation"]
-                + "; surface: Codex 0.169.0 exec --json stdout (complete supported stream required)"
+                + ("; surface: Codex 0.169.0 exec --json stdout (complete supported stream required)"
+                   if value["selected_cli_build"] == "0.169.0" and value["evidenced_cli_build"] == "0.169.0"
+                   else "; surface: unqualified or unknown CLI build")
                 + "; invocation: adapter-recorded, host-validated; CLI build selected: "
                 + str(value["selected_cli_build"]) + "; CLI build evidenced: "
                 + (value["evidenced_cli_build"] or "no evidence")
-                + "; image: " + (value["image_digest"] or "no evidence")
+                + "; admitted image: " + (value["image_digest"] or "no evidence")
                 + "; attribution: " + value["outcome"]
                 + ("; Service tier requested: " + value["service_tier"]["requested"] + "; observed: no evidence"
                    if value.get("service_tier") else ""))
@@ -194,8 +196,11 @@ def configured_record(delivery, *, phase, evidenced_build, raw, partial, raw_dig
                  and adapter["participation_sources"] == [] and phase == "implementation")
     except (ValueError, KeyError, TypeError):
         pass
+    if selected["cli_build"] != codex.CLI_BUILD or evidenced_build != codex.CLI_BUILD:
+        observed = "unknown"
     outcome = ("rerouted" if observed == "rerouted" else
                "unqualified-build" if selected["cli_build"] != codex.CLI_BUILD else
+               "conflicting" if evidenced_build not in (None, codex.CLI_BUILD) else
                "missing" if invocation is None or evidenced_build is None or not sha(image) or observed != "complete" else
                "conflicting" if not valid or evidenced_build != codex.CLI_BUILD else "configured-model-accepted")
     answer = {"schema": CONFIGURED_SCHEMA, "basis": "configured-model", "attempt_id": delivery["attempt_id"],

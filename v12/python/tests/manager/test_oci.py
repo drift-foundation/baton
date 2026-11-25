@@ -2457,3 +2457,81 @@ class TheScratchDeliveryIsOneWritableDiskBind(Configured):
                           "adapter_digest": "sha256:" + "d" * 64},
                 assignment_roots=ROOTS, posture="consent",
                 scratch_delivery=self.place)
+
+
+class LaunchedImageEvidence(Adapting):
+    """Synthetic engine facts; no daemon and no claim of image qualification."""
+    def adapter(self, *answers, **kwargs):
+        from baton_v12.worker_manager.oci import EnginePort
+        adapter = super().adapter(*answers, **kwargs)
+        engine = self.engine
+        adapter.run = EnginePort(lambda argv, seconds=None: engine(argv))
+        return adapter
+
+    def document(self, *, image=IMAGE, started="2026-11-25T00:00:00Z", running=False):
+        return {"Id": "runtime-1", "Image": image,
+                "State": {"Running": running, "StartedAt": started},
+                "Config": {"Labels": {LABEL_PREFIX + key: str(value) for key, value in LABELS.items()}}}
+
+    def observed(self, document, *extra):
+        adapter = self.adapter(answer(stdout=json.dumps(document)), *extra)
+        adapter.codex_image_receipt = True
+        return adapter.observe("runtime-1"), adapter
+
+    def test_exact_image_and_fast_exited_start_evidence(self):
+        for running in (True, False):
+            observed, _ = self.observed(self.document(running=running))
+            image = observed["image_observation"]
+            self.assertEqual(image["image_id"], IMAGE)
+            self.assertEqual(image["runtime_id"], "runtime-1")
+            self.assertEqual(image["labels"], LABELS)
+            self.assertEqual(image["started_at"], "2026-11-25T00:00:00Z")
+            self.assertIsNone(image["resolution"])
+
+    def test_created_only_or_malformed_start_has_no_receipt(self):
+        for stamp in (None, "", "0001-01-01T00:00:00Z", "2026-11-25T00:00:00", "untrusted text"):
+            observed, _ = self.observed(self.document(started=stamp))
+            self.assertEqual(observed["state"], "quiescent")
+            self.assertIsNone(observed["image_observation"])
+
+    def test_missing_image_or_labels_does_not_change_cessation(self):
+        for key in ("Image", "Config"):
+            document = self.document(); del document[key]
+            observed, _ = self.observed(document)
+            self.assertEqual(observed["state"], "quiescent")
+            self.assertIsNone(observed["image_observation"])
+
+    def test_registry_digest_resolution_comes_from_engine(self):
+        image_id = "sha256:" + "f" * 64
+        observed, _ = self.observed(self.document(image=image_id),
+            answer(stdout=json.dumps({"Id": image_id, "RepoDigests": ["example.invalid/fixture@" + IMAGE]})))
+        self.assertEqual(observed["image_observation"]["resolution"], {"image_id": image_id, "registry_digest": IMAGE})
+        self.assertEqual(self.engine.vectors[-1], ["docker", "inspect", "--type", "image", "--format", "{{json .}}", IMAGE])
+
+    def test_wrong_image_cannot_be_resolved_by_labels_or_requested_echo(self):
+        image_id = "sha256:" + "f" * 64
+        for document in ({"Id": IMAGE, "RepoDigests": ["fixture@" + IMAGE]},
+                         {"Id": image_id, "RepoDigests": ["fixture@sha256:" + "e" * 64]},
+                         {"Id": image_id, "requested": IMAGE}, {}):
+            observed, _ = self.observed(self.document(image=image_id), answer(stdout=json.dumps(document)))
+            self.assertEqual(observed["image_observation"]["image_id"], image_id)
+            self.assertIsNone(observed["image_observation"]["resolution"])
+
+    def test_registry_digest_can_reconcile_listing_with_image_id(self):
+        image_id = "sha256:" + "f" * 64
+        adapter = self.adapter(answer(stdout=listing(image=image_id)),
+            answer(stdout=json.dumps({"Id": image_id, "RepoDigests": ["fixture@" + IMAGE]})))
+        adapter.codex_image_receipt = True
+        self.assertEqual(adapter.list({"labels": LABELS})[0]["runtime_id"], "runtime-1")
+
+    def test_foreign_inspection_and_missing_container_cannot_supply_image(self):
+        document = self.document(); document["Id"] = "another-runtime"
+        observed, _ = self.observed(document)
+        self.assertEqual(observed["state"], "uncertain")
+        self.assertNotIn("image_observation", observed)
+
+    def test_legacy_observation_has_no_new_receipt_or_image_query(self):
+        adapter = self.adapter(answer(stdout=json.dumps(self.document())))
+        observed = adapter.observe("runtime-1")
+        self.assertNotIn("image_observation", observed)
+        self.assertEqual(len(self.engine.vectors), 1)

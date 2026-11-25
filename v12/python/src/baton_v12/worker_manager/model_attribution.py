@@ -7,7 +7,7 @@ from ..contracts import ContractRefusal, digest
 from .. import provider_policy
 from ..provider_policy import attribution
 from .store import manager_signature
-from . import attempts, attempt_logs
+from . import attempts, attempt_logs, image_receipts
 
 
 def _id(kind, attempt):
@@ -84,12 +84,16 @@ def assess(control, attempt, frozen=None):
             cause = None if attribution.acceptable(accepted) else "model-attribution-" + accepted["outcome"]
         except ValueError:
             cause = "model-attribution-invalid"
-    cause = label_cause or cause
+    image_receipt, image_cause = image_receipts.evidence(control, attempt, selected)
+    cause = label_cause or cause or image_cause
     account = {"attempt_id": attempt, "job_id": selected["delivery"]["home_identity"]["job_id"],
                "result_id": frozen["result_id"], "manifest_digest": frozen["manifest_digest"],
                "selection_digest": digest(selected["delivery"]), "attribution": accepted,
                "context_label": expected_label if label_cause is None else None,
                "outcome": "matched" if cause is None else "held", "cause": cause}
+    if image_receipts.required(selected):
+        account["launched_image"] = image_receipt
+        account["launched_image_receipt"] = image_receipts.reference(attempt, image_receipt)
     previous = assessment_of(control, attempt)
     if previous is not None and previous != account:
         # The frozen decision is not silently upgraded after a log is replaced.
@@ -113,6 +117,11 @@ def bind_ending(control, attempt, answer):
         return answer
     if account is None or account["outcome"] != "matched":
         raise ContractRefusal("integrity", "schema", "ending lacks matched attribution")
+    selected = selection_of(control, attempt)
+    if image_receipts.required(selected):
+        receipt, cause = image_receipts.evidence(control, attempt, selected)
+        if cause is not None or receipt != account.get("launched_image"):
+            raise ContractRefusal("integrity", "digest", "launched-image binding changed before ending")
     binding = {"attempt_id": attempt, "result_id": account["result_id"],
                "manifest_digest": account["manifest_digest"], "assessment_digest": digest(account),
                "checkpoint_id": answer.get("checkpoint_id"), "verdict_id": answer.get("verdict_id")}
@@ -136,7 +145,11 @@ def recovery_evidence(control, attempt, *, candidate, tree_digest, result_digest
         raise ContractRefusal("integrity", "digest", "model-attribution-invalid: original producer") from failure
     if not attribution.acceptable(checked):
         raise ContractRefusal("refused", "precondition", "model-attribution-" + checked["outcome"] + ": original producer")
-    return {"attempt_id": attempt, "job_id": selected["delivery"]["home_identity"]["job_id"],
+    image_receipt, image_cause = image_receipts.evidence(control, attempt, selected)
+    if image_cause is not None:
+        raise ContractRefusal("refused", "precondition", image_cause + ": original producer")
+    return {**({"launched_image": image_receipt, "launched_image_receipt": image_receipts.reference(attempt, image_receipt)} if image_receipts.required(selected) else {}),
+            "attempt_id": attempt, "job_id": selected["delivery"]["home_identity"]["job_id"],
             "candidate": candidate, "tree_digest": tree_digest, "result_digest": result_digest,
             "selection_digest": digest(selected["delivery"]), "attribution": checked}
 
@@ -155,6 +168,11 @@ def require_recovery(control, binding):
     previous = _read(control, "provider.recovery-attribution", binding["attempt_id"])
     if previous != binding:
         raise ContractRefusal("integrity", "digest", "original producer recovery binding disagrees")
+    selected = selection_of(control, binding["attempt_id"])
+    if image_receipts.required(selected):
+        receipt, cause = image_receipts.evidence(control, binding["attempt_id"], selected)
+        if cause is not None or receipt != binding.get("launched_image"):
+            raise ContractRefusal("integrity", "digest", "original producer launched-image binding changed")
     return binding
 
 
@@ -176,7 +194,14 @@ def diagnostic_of(control, attempt):
                                              "yes" if account.get("context_label") == label else "no"))
     except (ValueError, KeyError, TypeError, IndexError):
         context = "; Native worker role: unlabelled"
-    return attribution.diagnostic(value) + context + "; Provider home: " + state["state"] + "; worker: " + state["worker_id"] + "; holder: " + (state["holder"] or "unknown")
+    image_text = ""
+    if image_receipts.required(selected):
+        receipt, cause = image_receipts.evidence(control, attempt, selected)
+        observed = receipt.get("observation", {}).get("image_id") if receipt else None
+        image_text = "; host acceptance: " + ("held" if cause is not None else account["outcome"] if account else "not assessed") + "; engine-observed image: " + (observed or "unknown") + "; launched-image binding: " + (cause or "matched")
+        if receipt is not None:
+            image_text += "; image receipt: " + image_receipts.reference(attempt, receipt)["operation_id"]
+    return attribution.diagnostic(value) + image_text + context + "; Provider home: " + state["state"] + "; worker: " + state["worker_id"] + "; holder: " + (state["holder"] or "unknown")
 
 
 def observed_exchange(control, attempt, document):

@@ -224,6 +224,7 @@ class CodexMissingAttribution(unittest.TestCase):
                 mock.patch.object(host,"assessment_of",return_value=None), \
                 mock.patch.object(manager,"load_manifest",return_value=result), \
                 mock.patch.object(host.attempt_logs,"complete_record",return_value=raw), \
+                mock.patch.object(host,"_read",return_value=None), \
                 mock.patch.object(host,"_write",side_effect=lambda c,k,a,v:v):
             account=host.assess(object(),attempt,frozen)
         self.assertEqual(account["outcome"],"held")

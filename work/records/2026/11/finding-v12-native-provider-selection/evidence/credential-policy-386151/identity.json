@@ -1,0 +1,9 @@
+{
+  "base_checkpoint": "d0760de6acdf9cd1e055d1f08137757adb223cc0",
+  "scope": "SEC-2 credential policy only; shared working DESIGN contains unrelated edits; import narrow hunk only",
+  "files": {
+    "DESIGN.patch": "0d1f3eb587ba8c192da8477c123a7dda2a1cf36a3fefbff80c27eb8e52890c02",
+    "DESIGN.before.md": "c9f1611e58aea2a687cb01204d11a0760694ead3328c589c91ea0b9b05b6f74a",
+    "DESIGN.proposed.md": "91bd29af458961fce687255db43e8c877426c5ae36e5c60199186f128c6986b8"
+  }
+}

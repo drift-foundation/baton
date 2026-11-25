@@ -259,6 +259,32 @@ A missing receipt, image/build/configuration proof, changed receipt or failed/
 incomplete supported stdout holds acceptance. Frozen result and ending owners
 bind that evidence to the retained candidate; recovery revalidates both streams.
 
+Codex host acceptance additionally requires a retained `baton.launched-image/1`
+receipt from exact-container engine inspection at reconciliation. It records
+container `Id`, immutable `Image`, positive `State.StartedAt`, assignment labels
+(including attempt and generation), admitted image/profile/selection identity
+and host recording time. Create argv, labels alone, and a successful start
+request do not supply this proof. A fast-exited container can supply positive
+start history. A removed container without a retained receipt remains unknown.
+
+When a selected registry digest differs from the engine image/config ID, the
+adapter inspects the selected image and requires the same observed `Id` plus a
+matching `RepoDigests` digest. This resolution comes from the engine, never the
+profile or worker metadata. Unavailable resolution or a different image holds
+Codex acceptance. Later absence cannot erase retained proof; contradictory
+observations retain the original receipt and record a separate conflict hold.
+
+The host journal operation locator and receipt digest bind the evidence to the
+frozen assessment, ending and original-producer recovery candidate. Recovery
+never substitutes the publisher's image. Replay preserves the first receipt;
+changed evidence cannot silently upgrade a frozen assessment. These holds do
+not change cessation or token-release rules. Claude `/1` and legacy unselected
+attempts have no new image-receipt requirement. Diagnostics distinguish admitted
+image, engine-observed image, receipt locator and host acceptance. CLI measurement
+remains adapter-recorded and host-validated, not independently host-measured.
+An unqualified or unknown CLI build has an incomplete reroute observation and
+no claim to the qualified 0.169.0 observation surface.
+
 A supported complete exec --json stream with no exact-build mismatch error item
 is labelled "no reroute observed". It never proves rerouting absent: missing and
 equal server model headers are indistinguishable here. The source-defined

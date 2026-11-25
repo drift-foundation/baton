@@ -1,0 +1,1 @@
+["tests.manager.test_model_attribution", "tests.manager.test_oci", "tests.tools.test_provider_selection.CodexToClaude", "tests.job_manager.test_provider_attribution_recovery.ConfiguredProducer"]

@@ -2410,6 +2410,7 @@ class OciAdapter:
         self.layout_delivery = layout_delivery
         self.provider_home_delivery = provider_home_delivery
         selected = launch.payload_of(launch_delivery.document).get("provider_selection") if launch_delivery else None
+        self.codex_image_receipt = selected is not None and selected["contract"]["selection"]["provider"] == "codex"
         if (provider_home_delivery is None) != (selected is None):
             _denied("provider selection and home mount must both be present")
         if selected is not None:
@@ -3488,7 +3489,7 @@ class OciAdapter:
                 "a listed runtime's image")
             resolved = _image_identity(self.identity["image_digest"],
                                        "the resolved image")
-            if image != resolved:
+            if image != resolved and not (self.codex_image_receipt and self._image_resolution("sha256:" + image) is not None):
                 _denied(f"runtime {name_value(runtime_id)} carries this "
                         f"assignment's labels and the engine reports it "
                         f"running a different image than the one this "
@@ -4396,9 +4397,46 @@ class OciAdapter:
                     raise ValueError("provider home mount mismatch")
             except (ValueError, OSError):
                 return {"state": "uncertain", "why": "provider home mount is not proved", "mounts": mounts, "candidates": ({"runtime_id": runtime_id, **found},)}
-        return {"state": found["state"], "why": found["why"],
-                "mounts": mounts,
-                "candidates": ({"runtime_id": runtime_id, **found},)}
+        answer = {"state": found["state"], "why": found["why"],
+                  "mounts": mounts,
+                  "candidates": ({"runtime_id": runtime_id, **found},)}
+        if self.codex_image_receipt:
+            answer["image_observation"] = self._image_observation(document, runtime_id)
+        return answer
+
+    def _image_resolution(self, image):
+        """Resolve a selected registry digest through engine evidence only."""
+        from . import image_receipts
+        if not image_receipts.sha(image):
+            return None
+        try:
+            result = self.run([self.engine, "inspect", "--type", "image", "--format", "{{json .}}", self.image_digest],
+                              seconds=OBSERVE_SECONDS)
+            if result["status"] != 0:
+                return None
+            document = json.loads(result["stdout"])
+            if type(document) is list and len(document) == 1:
+                document = document[0]
+            if type(document) is not dict or document.get("Id") != image:
+                return None
+            digests = document.get("RepoDigests")
+            if type(digests) is not list or not any(type(one) is str and one.rsplit("@", 1)[-1] == self.image_digest for one in digests):
+                return None
+            return {"image_id": image, "registry_digest": self.image_digest}
+        except (ContractRefusal, ValueError, TypeError, OSError):
+            return None
+
+    def _image_observation(self, document, runtime_id):
+        from . import image_receipts
+        try:
+            image = document.get("Image")
+            answer = {"engine": self.engine, "runtime_id": document.get("Id"), "image_id": image,
+                      "started_at": document["State"].get("StartedAt"),
+                      "labels": self._labels_of({"Labels": document["Config"]["Labels"]}),
+                      "resolution": None if image == self.image_digest else self._image_resolution(image)}
+            return answer if answer["runtime_id"] == runtime_id and image_receipts.valid(answer) else None
+        except (ContractRefusal, KeyError, ValueError, TypeError):
+            return None
 
     def _labels_of(self, entry):
         """The labels the engine reports, back in the manager's vocabulary.

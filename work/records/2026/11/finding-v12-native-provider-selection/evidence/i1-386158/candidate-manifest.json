@@ -1,0 +1,43 @@
+{
+  "base": "d0760de6acdf9cd1e055d1f08137757adb223cc0",
+  "files": {
+    "v12/PROVIDER-SELECTION.md": "0aef1912db06254ef68248ed09207b045ec470ff185fe50f221e8bbef76bf9db",
+    "v12/python/src/baton_v12/provider_policy/attribution.py": "11f1c898549bd40542dcb08859e6d538de0e1cabd1dfbed685ee32e6859341da",
+    "v12/python/src/baton_v12/worker_manager/attempts.py": "c8b236762ea3278c16afb940209ffa3e3bb65b3f4535c5cb5c5ebb9e5a815c09",
+    "v12/python/src/baton_v12/worker_manager/image_receipts.py": "1dd406084f985539d98f9158c37d1cfa35fefc9f40038b37fe2a4586dcd69667",
+    "v12/python/src/baton_v12/worker_manager/model_attribution.py": "6446c15ff5980d862343ee0d609677511bb4470abf1abcb3f3156242ac86b503",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "fb7158a816a1956747d4e87775f873bf3e9912beaa66db1d4d75a1ac5464ffa3",
+    "v12/python/tests/job_manager/test_provider_attribution_recovery.py": "6d27fc1250bc725c41f665777b78e53927c95ae7021703552f3deabb1a6c75e1",
+    "v12/python/tests/manager/test_model_attribution.py": "a0818a77652c77a8712a3d4e275a7c7541809d729838e11926ac6b7a288aae68",
+    "v12/python/tests/manager/test_oci.py": "5d5c4b4aa697a12df92c4307059c57af2d5c5b36fd7544dffa41bd19fa6a4c87",
+    "v12/python/tests/tools/test_codex_selection.py": "c165e735182a1126d2179110b8fa4336f44bd7df3d2485c27b8950896ad00688",
+    "v12/python/tests/tools/test_provider_selection.py": "20c965d6901668161deb790df6f390f9916fb56cd31b3c9f5063aab8086f9028"
+  },
+  "baseline": {
+    "v12/PROVIDER-SELECTION.md": "c482db1da30919463f7319f30a6e70cd37c1907c1d5c84d8800c6800042a254a",
+    "v12/python/src/baton_v12/provider_policy/attribution.py": "45722c2129771d1396bb24fcc46863255801a1bffb39f9a8325acfc6589f4195",
+    "v12/python/src/baton_v12/worker_manager/attempts.py": "17524cd748334c196c8578e3d15cd07220e51d21f98be195eb3ce82f815e0a7e",
+    "v12/python/src/baton_v12/worker_manager/image_receipts.py": null,
+    "v12/python/src/baton_v12/worker_manager/model_attribution.py": "ede4723485def6dc1942a42a6adb67e86bb300a67598efccd647de2218383933",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "f019a296f0f491027ec4b3b43553085114a35cd5be6e9c5f2a3482d35b4af435",
+    "v12/python/tests/job_manager/test_provider_attribution_recovery.py": "6bca8567b25e37182447a5d0db0c6bf8bcd00cd3b548e4c2a7eb81f6e128bef2",
+    "v12/python/tests/manager/test_model_attribution.py": "3d8353ac3bd676f788e01258ebb122160c0f27c7ae3029905b0b7926ec2eeca0",
+    "v12/python/tests/manager/test_oci.py": "3187a2936b07b20096766624209cc9c91321e8774e25c681c665b2fd4d367bdb",
+    "v12/python/tests/tools/test_codex_selection.py": "052211cf1ec751c00d692e9c0dc81b369b3876f455cba19b4231e1cc734ebf9e",
+    "v12/python/tests/tools/test_provider_selection.py": "fc36c50ea9990c3f81c283114d85360f3a3f12aa37389d4d65620ce91a4fcf2d"
+  },
+  "shared_target_matches_baseline": {
+    "v12/PROVIDER-SELECTION.md": true,
+    "v12/python/src/baton_v12/provider_policy/attribution.py": true,
+    "v12/python/src/baton_v12/worker_manager/attempts.py": true,
+    "v12/python/src/baton_v12/worker_manager/image_receipts.py": true,
+    "v12/python/src/baton_v12/worker_manager/model_attribution.py": true,
+    "v12/python/src/baton_v12/worker_manager/oci.py": true,
+    "v12/python/tests/job_manager/test_provider_attribution_recovery.py": true,
+    "v12/python/tests/manager/test_model_attribution.py": true,
+    "v12/python/tests/manager/test_oci.py": true,
+    "v12/python/tests/tools/test_codex_selection.py": true,
+    "v12/python/tests/tools/test_provider_selection.py": true
+  },
+  "archive_sha256": "e3656475c5594b7b1a350cdba2f1d6252a42e4da4323ce691148d50665261ccd"
+}

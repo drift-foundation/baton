@@ -6,6 +6,7 @@ publication worker, result intake and handoff. No model, image or engine runs.
 """
 import copy
 import json
+import unittest
 from pathlib import Path
 from unittest import mock
 
@@ -120,6 +121,27 @@ class OriginalProducer(execution.PublicationExecutionCase):
 
 
 class ConfiguredProducer(OriginalProducer):
+    def setUp(self):
+        super().setUp()
+        from baton_v12.worker_manager import attempts
+        # Existing original-producer fixture seeds an ended attempt. Supply its
+        # synthetic image facts at the normal adapter observation boundary;
+        # the host, not this fixture, writes the receipt.
+        self.control._connection.execute("UPDATE attempts SET policy_digest = ? WHERE runtime_attempt_id = ?",
+            ("sha256:" + "d" * 64, self.attempt_id))
+        row = attempts._require_attempt(self.control, self.attempt_id)
+        self.image_observation = {"engine": "docker", "runtime_id": row["runtime_id"],
+            "image_id": self.selected["contract"]["runtime_profile"]["image_digest"],
+            "started_at": "2026-11-25T00:00:00Z", "labels": attempts._runtime_labels(row), "resolution": None}
+        if getattr(self, "capture_initial_image", True):
+            self.observe_image(self.image_observation)
+
+    def observe_image(self, observation):
+        from baton_v12.worker_manager import attempts
+        adapter = mock.Mock()
+        adapter.observe.return_value = {"state": "quiescent", "why": "simulated ended producer", "image_observation": observation}
+        return attempts._observed(adapter, "runtime-" + self.attempt_id, store=self.control, attempt_id=self.attempt_id)
+
     def select_original_provider(self, attempt):
         from baton_v12 import provider_policy as policy
         from tests.manager import codex_fixtures
@@ -158,3 +180,110 @@ class ConfiguredProducer(OriginalProducer):
         with self.assertRaises(ContractRefusal): self.collected()
         with self.assertRaises(ContractRefusal): self.handed_off()
         self.assertFalse(self.gate()["open"])
+
+
+class ImageReceiptRecovery(unittest.TestCase):
+    def setUp(self):
+        self.case = ConfiguredProducer("runTest")
+        self.case.capture_initial_image = False
+        self.addCleanup(self.case.doCleanups)
+        self.case.setUp()
+        from baton_v12.worker_manager import image_receipts
+        self.receipts = image_receipts
+
+    def evidence(self):
+        return self.receipts.evidence(self.case.control, self.case.attempt_id,
+                                     model_attribution.selection_of(self.case.control, self.case.attempt_id))
+
+    def test_missing_and_historical_codex_receipt_holds_recovery(self):
+        self.assertEqual(self.evidence(), (None, "launched-image-missing"))
+        inspected = self.case.inspected()
+        self.assertFalse(inspected["eligible"])
+        self.assertTrue(any("launched-image-missing" in one["message"] for one in inspected["holds"]))
+
+    def test_wrong_runtime_generation_attempt_and_create_only_are_not_retained(self):
+        base = self.case.image_observation
+        for changes in ({"runtime_id": "foreign"}, {"started_at": "0001-01-01T00:00:00Z"},
+                        {"labels": dict(base["labels"], generation=999)},
+                        {"labels": dict(base["labels"], runtime_attempt_id="foreign")}):
+            state, _, _ = self.case.observe_image(dict(base, **changes))
+            self.assertEqual(state, "quiescent")
+            self.assertEqual(self.evidence(), (None, "launched-image-missing"))
+
+    def test_matching_labels_do_not_rescue_wrong_engine_image(self):
+        self.case.observe_image(dict(self.case.image_observation, image_id="sha256:" + "f" * 64))
+        self.assertEqual(self.evidence()[1], "launched-image-mismatch")
+        self.assertFalse(self.case.inspected()["eligible"])
+
+    def test_receipt_is_idempotent_and_conflict_holds_without_cessation_change(self):
+        self.case.observe_image(self.case.image_observation)
+        receipt, cause = self.evidence(); self.assertIsNone(cause)
+        self.case.observe_image(copy.deepcopy(self.case.image_observation))
+        self.assertEqual(self.evidence(), (receipt, None))
+        state, _, _ = self.case.observe_image(dict(self.case.image_observation, image_id="sha256:" + "f" * 64))
+        self.assertEqual(state, "quiescent")
+        self.assertEqual(self.evidence(), (receipt, "launched-image-invalid"))
+        self.assertFalse(self.case.inspected()["eligible"])
+
+    def test_removed_original_runtime_receipt_survives_reopen_and_binds_recovery(self):
+        self.case.observe_image(self.case.image_observation)
+        receipt, cause = self.evidence(); self.assertIsNone(cause)
+        self.case.ready()
+        binding = publication_recovery.admission_for(self.case.jobs, self.case.recovery_job_id)["candidate"]["model_attribution"]
+        self.assertEqual(binding["launched_image"], receipt)
+        with ControlStore.open(self.case.control.database, incarnation="image-receipt-reopen", clock=self.case.clock) as reopened:
+            selected = model_attribution.selection_of(reopened, self.case.attempt_id)
+            self.assertEqual(self.receipts.evidence(reopened, self.case.attempt_id, selected), (receipt, None))
+            self.assertEqual(model_attribution.require_recovery(reopened, binding), binding)
+        self.case.published_once()
+        self.assertEqual(self.case.collected()["adopted"]["model_attribution"]["launched_image"], receipt)
+
+    def test_conflict_after_admission_cannot_use_publishers_image(self):
+        self.case.observe_image(self.case.image_observation)
+        self.case.ready(); self.case.published_once()
+        self.case.observe_image(dict(self.case.image_observation, image_id="sha256:" + "f" * 64))
+        with self.assertRaises(ContractRefusal): self.case.collected()
+        with self.assertRaises(ContractRefusal): self.case.handed_off()
+
+    def test_claude_and_legacy_do_not_require_receipts(self):
+        selected = model_attribution.selection_of(self.case.control, self.case.attempt_id)
+        changed = copy.deepcopy(selected)
+        changed["delivery"]["contract"]["selection"]["provider"] = "claude"
+        self.assertEqual(self.receipts.evidence(self.case.control, self.case.attempt_id, changed), (None, None))
+        self.assertEqual(self.receipts.evidence(self.case.control, self.case.attempt_id, None), (None, None))
+
+
+    def test_unavailable_resolution_does_not_erase_retained_engine_binding(self):
+        image = "sha256:" + "f" * 64
+        observation = dict(self.case.image_observation, image_id=image,
+            resolution={"image_id": image, "registry_digest": self.case.image_observation["image_id"]})
+        self.case.observe_image(observation)
+        receipt, cause = self.evidence(); self.assertIsNone(cause)
+        self.case.observe_image(dict(observation, resolution=None))
+        self.assertEqual(self.evidence(), (receipt, None))
+
+
+    def test_lost_receipt_reply_replays_without_rewriting_observation(self):
+        actual = model_attribution._write
+        def lost(control, kind, attempt, value):
+            answer = actual(control, kind, attempt, value)
+            if kind == self.receipts.KIND:
+                raise OSError("synthetic lost reply after durable image receipt")
+            return answer
+        with mock.patch.object(model_attribution, "_write", side_effect=lost):
+            with self.assertRaises(OSError): self.case.observe_image(self.case.image_observation)
+        receipt, cause = self.evidence(); self.assertIsNone(cause)
+        self.case.observe_image(self.case.image_observation)
+        self.assertEqual(self.evidence(), (receipt, None))
+
+    def test_altered_retained_receipt_refuses_binding(self):
+        self.case.observe_image(self.case.image_observation)
+        receipt, _ = self.evidence()
+        actual = model_attribution._read
+        for field, value in (("attempt_id", "another"), ("selection_digest", "sha256:" + "f" * 64),
+                             ("profile_digest", "sha256:" + "f" * 64), ("schema", "unsupported")):
+            changed = dict(receipt, **{field: value})
+            def altered(control, kind, attempt):
+                return changed if kind == self.receipts.KIND else actual(control, kind, attempt)
+            with self.subTest(field=field), mock.patch.object(model_attribution, "_read", side_effect=altered):
+                self.assertEqual(self.evidence()[1], "launched-image-invalid")

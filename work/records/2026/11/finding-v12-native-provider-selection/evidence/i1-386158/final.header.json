@@ -1,0 +1,34 @@
+{
+  "command": [
+    "just",
+    "--justfile",
+    "v12/justfile",
+    "test-one",
+    "tests.manager.test_oci",
+    "tests.manager.test_model_attribution",
+    "tests.manager.test_codex_draft",
+    "tests.tools.test_codex_selection",
+    "tests.tools.test_provider_selection",
+    "tests.manager.test_claude_agent",
+    "tests.manager.test_attempt_logs",
+    "tests.job_manager.test_provider_attribution_recovery",
+    "tests.manager.test_attempts.TheRuntimeIsStartedOnceAndReconciled",
+    "tests.manager.test_attempts.TheRuntimeStateIsObservedAndNeverInferred",
+    "tests.manager.test_attempts.ARefusedStartIsSettledRatherThanStranded"
+  ],
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "base": "d0760de6acdf9cd1e055d1f08137757adb223cc0",
+  "candidate_repository_head": "d0760de6acdf9cd1e055d1f08137757adb223cc0",
+  "groups": [
+    "manager-pure",
+    "tools-pure",
+    "job_manager"
+  ],
+  "collected": 884,
+  "bound_seconds": 180,
+  "disk_root": "/var/tmp/baton-i1-386158",
+  "TMPDIR": "/var/tmp/baton-i1-386158",
+  "accounting": "explicit ids from unittest -v; test-one has no registry accounting",
+  "pid": 2424471,
+  "pgid": 2424471
+}

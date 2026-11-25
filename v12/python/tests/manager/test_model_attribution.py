@@ -189,6 +189,8 @@ class ConfiguredCodex(unittest.TestCase):
         self.invocation["selection_digest"] = policy.digest(self.delivery)
         value = self.record(evidenced_build="0.172.0")
         self.assertEqual(value["outcome"], "unqualified-build")
+        self.assertEqual(value["reroute_observation"], "reroute observation incomplete")
+        self.assertIn("surface: unqualified or unknown CLI build", subject.diagnostic(value))
         self.assertFalse(subject.acceptable(value))
 
     def test_R2_basis_is_admitted_provider_not_claim(self):

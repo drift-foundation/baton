@@ -1,0 +1,17 @@
+{
+ "docker_nanosecond_utc": true,
+ "podman_offset_stamp": true,
+ "podman_bare_hex_image": false,
+ "never_started": false,
+ "naive_stamp": false,
+ "tag_image": false,
+ "other_engine": false,
+ "resolution_ok": true,
+ "resolution_other_image": false,
+ "resolution_extra_member": false,
+ "extra_member": false,
+ "runtime_id_with_slash": false,
+ "required_none": false,
+ "required_claude": false,
+ "required_codex": true
+}

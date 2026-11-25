@@ -1,0 +1,699 @@
+--- a/v12/PROVIDER-SELECTION.md
++++ b/v12/PROVIDER-SELECTION.md
+@@ -259,6 +259,32 @@
+ incomplete supported stdout holds acceptance. Frozen result and ending owners
+ bind that evidence to the retained candidate; recovery revalidates both streams.
+ 
++Codex host acceptance additionally requires a retained `baton.launched-image/1`
++receipt from exact-container engine inspection at reconciliation. It records
++container `Id`, immutable `Image`, positive `State.StartedAt`, assignment labels
++(including attempt and generation), admitted image/profile/selection identity
++and host recording time. Create argv, labels alone, and a successful start
++request do not supply this proof. A fast-exited container can supply positive
++start history. A removed container without a retained receipt remains unknown.
++
++When a selected registry digest differs from the engine image/config ID, the
++adapter inspects the selected image and requires the same observed `Id` plus a
++matching `RepoDigests` digest. This resolution comes from the engine, never the
++profile or worker metadata. Unavailable resolution or a different image holds
++Codex acceptance. Later absence cannot erase retained proof; contradictory
++observations retain the original receipt and record a separate conflict hold.
++
++The host journal operation locator and receipt digest bind the evidence to the
++frozen assessment, ending and original-producer recovery candidate. Recovery
++never substitutes the publisher's image. Replay preserves the first receipt;
++changed evidence cannot silently upgrade a frozen assessment. These holds do
++not change cessation or token-release rules. Claude `/1` and legacy unselected
++attempts have no new image-receipt requirement. Diagnostics distinguish admitted
++image, engine-observed image, receipt locator and host acceptance. CLI measurement
++remains adapter-recorded and host-validated, not independently host-measured.
++An unqualified or unknown CLI build has an incomplete reroute observation and
++no claim to the qualified 0.169.0 observation surface.
++
+ A supported complete exec --json stream with no exact-build mismatch error item
+ is labelled "no reroute observed". It never proves rerouting absent: missing and
+ equal server model headers are indistinguishable here. The source-defined
+--- a/v12/python/src/baton_v12/provider_policy/attribution.py
++++ b/v12/python/src/baton_v12/provider_policy/attribution.py
+@@ -112,11 +112,13 @@
+         return ("Requested: " + str(value["requested_model"]) + "; basis: configured-model; "
+                 + ("Configured model accepted" if acceptable(value) else "Configured model not accepted")
+                 + "; actual participation unknown; " + value["reroute_observation"]
+-                + "; surface: Codex 0.169.0 exec --json stdout (complete supported stream required)"
++                + ("; surface: Codex 0.169.0 exec --json stdout (complete supported stream required)"
++                   if value["selected_cli_build"] == "0.169.0" and value["evidenced_cli_build"] == "0.169.0"
++                   else "; surface: unqualified or unknown CLI build")
+                 + "; invocation: adapter-recorded, host-validated; CLI build selected: "
+                 + str(value["selected_cli_build"]) + "; CLI build evidenced: "
+                 + (value["evidenced_cli_build"] or "no evidence")
+-                + "; image: " + (value["image_digest"] or "no evidence")
++                + "; admitted image: " + (value["image_digest"] or "no evidence")
+                 + "; attribution: " + value["outcome"]
+                 + ("; Service tier requested: " + value["service_tier"]["requested"] + "; observed: no evidence"
+                    if value.get("service_tier") else ""))
+@@ -194,8 +196,11 @@
+                  and adapter["participation_sources"] == [] and phase == "implementation")
+     except (ValueError, KeyError, TypeError):
+         pass
++    if selected["cli_build"] != codex.CLI_BUILD or evidenced_build != codex.CLI_BUILD:
++        observed = "unknown"
+     outcome = ("rerouted" if observed == "rerouted" else
+                "unqualified-build" if selected["cli_build"] != codex.CLI_BUILD else
++               "conflicting" if evidenced_build not in (None, codex.CLI_BUILD) else
+                "missing" if invocation is None or evidenced_build is None or not sha(image) or observed != "complete" else
+                "conflicting" if not valid or evidenced_build != codex.CLI_BUILD else "configured-model-accepted")
+     answer = {"schema": CONFIGURED_SCHEMA, "basis": "configured-model", "attempt_id": delivery["attempt_id"],
+--- a/v12/python/src/baton_v12/worker_manager/attempts.py
++++ b/v12/python/src/baton_v12/worker_manager/attempts.py
+@@ -2655,12 +2655,15 @@
+ 
+ 
+ def _identify(store, adapter, attempt_id, minted=None, minted_labels=None):
+-    """WHAT THE ENGINE SAYS EXISTS, answered as a PLAN and nothing more.
++    """WHAT THE ENGINE SAYS EXISTS, answered as a runtime lifecycle plan.
++
++    Codex image observations also enter their separate immutable evidence
++    journal after engine I/O; they do not alter this lifecycle plan or its gates.
+ 
+     W76207 re-review 2026-09-03T21:24:16Z [P1] SPLIT THIS OUT, and the split is
+     between ASKING and RECORDING rather than between two decisions. Every rule
+     about what the answers mean is still here and is still asked exactly once;
+-    what is not here is any durable effect. A caller that must commit this
++    what is not here is a durable runtime-axis effect. A caller that must commit this
+     answer TOGETHER WITH something else of its own can therefore ask first and
+     commit once -- which is what the failed-preparation ending does, because a
+     stage whose runtime is attached is no longer the control plane's to drive.
+@@ -2718,7 +2721,7 @@
+         # W26294: THE EXACT RUNTIME IS OBSERVED BEFORE ANYTHING IS RECORDED.
+         # Membership in `ps --all` proves this container carries this
+         # assignment's labels and says nothing about whether it is alive.
+-        state, value, why = _observed(adapter, runtime["runtime_id"])
++        state, value, why = _observed(adapter, runtime["runtime_id"], store=store, attempt_id=attempt_id)
+         return _attaching(runtime["runtime_id"], value, why)
+     # W26294 review [P0]: AN EXACT IDENTITY IS STILL A QUESTION THIS SEAM CAN
+     # ASK, and until now it did not.
+@@ -2737,7 +2740,7 @@
+     known = attempt["runtime_id"] if attempt["runtime_id"] is not None \
+         else minted
+     if known is not None:
+-        state, value, why = _observed(adapter, known)
++        state, value, why = _observed(adapter, known, store=store, attempt_id=attempt_id)
+         if state == "uncertain":
+             # ASKED AND STILL UNKNOWN. The identity is not erased -- an
+             # attachment already made stands, and a lost `minted` stays the
+@@ -3013,7 +3016,7 @@
+                     "absent": "destroyed", "uncertain": "uncertain"}
+ 
+ 
+-def _observed(adapter, runtime_id):
++def _observed(adapter, runtime_id, *, store=None, attempt_id=None):
+     """The exact runtime's state, asked of the ADAPTER rather than inferred.
+ 
+     W6636's composition found reconciliation reading `running` off membership
+@@ -3074,6 +3077,9 @@
+         return "uncertain", "uncertain", _inconclusive(
+             f"{name_value(state)} is not a runtime observation; the four this "
+             f"build reads are {', '.join(sorted(OBSERVED_RUNTIME))}")
++    if store is not None and state in ("running", "quiescent"):
++        from . import image_receipts
++        image_receipts.retain(store, attempt_id, runtime_id, answer.get("image_observation"))
+     return state, OBSERVED_RUNTIME[state], why
+ 
+ 
+--- /dev/null
++++ b/v12/python/src/baton_v12/worker_manager/image_receipts.py
+@@ -0,0 +1,100 @@
++"""Host-retained launched-image evidence, separate from cessation and worker claims."""
++import re
++from datetime import datetime
++from ..contracts import digest
++from . import attempts
++
++SCHEMA = "baton.launched-image/1"
++KIND = "provider.launched-image"
++
++
++def required(selected):
++    return selected is not None and selected["delivery"]["contract"]["selection"]["provider"] == "codex"
++
++
++def sha(value):
++    return type(value) is str and re.fullmatch(r"sha256:[0-9a-f]{64}", value) is not None
++
++
++def valid(observation):
++    if type(observation) is not dict or set(observation) != {"engine", "runtime_id", "image_id", "started_at", "labels", "resolution"}:
++        return False
++    if observation["engine"] not in ("docker", "podman") or not sha(observation["image_id"]):
++        return False
++    if type(observation["runtime_id"]) is not str or not re.fullmatch(r"[A-Za-z0-9_.-]{1,128}", observation["runtime_id"]):
++        return False
++    if type(observation["started_at"]) is not str or len(observation["started_at"]) > 40:
++        return False
++    try:
++        started = datetime.fromisoformat(observation["started_at"].replace("Z", "+00:00"))
++        if started.year <= 1 or started.utcoffset() is None:
++            return False
++    except (ValueError, TypeError, AttributeError):
++        return False
++    resolution = observation["resolution"]
++    return resolution is None or (type(resolution) is dict and set(resolution) == {"image_id", "registry_digest"}
++        and resolution["image_id"] == observation["image_id"] and sha(resolution["registry_digest"]))
++
++
++def retain(control, attempt, runtime_id, observation):
++    # Called after engine I/O, never in the transaction that asks the engine.
++    from . import model_attribution as owner
++    selected = owner.selection_of(control, attempt)
++    if not required(selected) or not valid(observation):
++        return None
++    row = attempts._require_attempt(control, attempt)
++    if row is None or row["runtime_id"] not in (None, runtime_id) or observation["runtime_id"] != runtime_id:
++        return None
++    if observation["labels"] != attempts._runtime_labels(row):
++        return None
++    previous = owner._read(control, KIND, attempt)
++    receipt = {"schema": SCHEMA, "attempt_id": attempt, "selection_digest": digest(selected["delivery"]),
++               "admitted_image": selected["delivery"]["contract"]["runtime_profile"].get("image_digest"),
++               "profile_digest": selected["delivery"]["profile_digest"],
++               "recorded_at": previous["recorded_at"] if previous is not None else control._now(),
++               "observation": observation}
++    if previous is not None and observation["resolution"] is None:
++        # A later unavailable image-resolution query is not contradictory
++        # evidence and cannot erase an already retained engine binding.
++        without_resolution = dict(previous["observation"], resolution=None)
++        if observation == without_resolution:
++            return previous
++    if previous is not None and previous != receipt:
++        # Conflicting observations hold acceptance, not cessation or token release.
++        owner._write(control, KIND + "-conflict", attempt, {"conflict": True})
++        return previous
++    return previous or owner._write(control, KIND, attempt, receipt)
++
++
++def evidence(control, attempt, selected):
++    from . import model_attribution as owner
++    if not required(selected):
++        return None, None
++    receipt = owner._read(control, KIND, attempt)
++    if receipt is None:
++        return None, "launched-image-missing"
++    row = attempts._require_attempt(control, attempt)
++    if type(receipt) is not dict:
++        return receipt, "launched-image-invalid"
++    observation = receipt.get("observation")
++    if (set(receipt) != {"schema", "attempt_id", "selection_digest", "admitted_image", "profile_digest", "recorded_at", "observation"}
++            or receipt["schema"] != SCHEMA or receipt["attempt_id"] != attempt
++            or receipt["selection_digest"] != digest(selected["delivery"])
++            or receipt["admitted_image"] != selected["delivery"]["contract"]["runtime_profile"].get("image_digest")
++            or receipt["profile_digest"] != selected["delivery"]["profile_digest"] or not valid(observation)
++            or row is None or row["runtime_id"] != observation["runtime_id"]
++            or observation["labels"] != attempts._runtime_labels(row)
++            or owner._read(control, KIND + "-conflict", attempt) is not None):
++        return receipt, "launched-image-invalid"
++    admitted = selected["delivery"]["contract"]["runtime_profile"].get("image_digest")
++    resolution = observation["resolution"]
++    if admitted != observation["image_id"] and (resolution is None or admitted != resolution["registry_digest"]):
++        return receipt, "launched-image-mismatch"
++    return receipt, None
++
++
++def reference(attempt, receipt):
++    if receipt is None:
++        return None
++    from . import model_attribution as owner
++    return {"operation_id": owner._id(KIND, attempt), "digest": digest(receipt)}
+--- a/v12/python/src/baton_v12/worker_manager/model_attribution.py
++++ b/v12/python/src/baton_v12/worker_manager/model_attribution.py
+@@ -7,7 +7,7 @@
+ from .. import provider_policy
+ from ..provider_policy import attribution
+ from .store import manager_signature
+-from . import attempts, attempt_logs
++from . import attempts, attempt_logs, image_receipts
+ 
+ 
+ def _id(kind, attempt):
+@@ -84,12 +84,16 @@
+             cause = None if attribution.acceptable(accepted) else "model-attribution-" + accepted["outcome"]
+         except ValueError:
+             cause = "model-attribution-invalid"
+-    cause = label_cause or cause
++    image_receipt, image_cause = image_receipts.evidence(control, attempt, selected)
++    cause = label_cause or cause or image_cause
+     account = {"attempt_id": attempt, "job_id": selected["delivery"]["home_identity"]["job_id"],
+                "result_id": frozen["result_id"], "manifest_digest": frozen["manifest_digest"],
+                "selection_digest": digest(selected["delivery"]), "attribution": accepted,
+                "context_label": expected_label if label_cause is None else None,
+                "outcome": "matched" if cause is None else "held", "cause": cause}
++    if image_receipts.required(selected):
++        account["launched_image"] = image_receipt
++        account["launched_image_receipt"] = image_receipts.reference(attempt, image_receipt)
+     previous = assessment_of(control, attempt)
+     if previous is not None and previous != account:
+         # The frozen decision is not silently upgraded after a log is replaced.
+@@ -113,6 +117,11 @@
+         return answer
+     if account is None or account["outcome"] != "matched":
+         raise ContractRefusal("integrity", "schema", "ending lacks matched attribution")
++    selected = selection_of(control, attempt)
++    if image_receipts.required(selected):
++        receipt, cause = image_receipts.evidence(control, attempt, selected)
++        if cause is not None or receipt != account.get("launched_image"):
++            raise ContractRefusal("integrity", "digest", "launched-image binding changed before ending")
+     binding = {"attempt_id": attempt, "result_id": account["result_id"],
+                "manifest_digest": account["manifest_digest"], "assessment_digest": digest(account),
+                "checkpoint_id": answer.get("checkpoint_id"), "verdict_id": answer.get("verdict_id")}
+@@ -136,7 +145,11 @@
+         raise ContractRefusal("integrity", "digest", "model-attribution-invalid: original producer") from failure
+     if not attribution.acceptable(checked):
+         raise ContractRefusal("refused", "precondition", "model-attribution-" + checked["outcome"] + ": original producer")
+-    return {"attempt_id": attempt, "job_id": selected["delivery"]["home_identity"]["job_id"],
++    image_receipt, image_cause = image_receipts.evidence(control, attempt, selected)
++    if image_cause is not None:
++        raise ContractRefusal("refused", "precondition", image_cause + ": original producer")
++    return {**({"launched_image": image_receipt, "launched_image_receipt": image_receipts.reference(attempt, image_receipt)} if image_receipts.required(selected) else {}),
++            "attempt_id": attempt, "job_id": selected["delivery"]["home_identity"]["job_id"],
+             "candidate": candidate, "tree_digest": tree_digest, "result_digest": result_digest,
+             "selection_digest": digest(selected["delivery"]), "attribution": checked}
+ 
+@@ -155,6 +168,11 @@
+     previous = _read(control, "provider.recovery-attribution", binding["attempt_id"])
+     if previous != binding:
+         raise ContractRefusal("integrity", "digest", "original producer recovery binding disagrees")
++    selected = selection_of(control, binding["attempt_id"])
++    if image_receipts.required(selected):
++        receipt, cause = image_receipts.evidence(control, binding["attempt_id"], selected)
++        if cause is not None or receipt != binding.get("launched_image"):
++            raise ContractRefusal("integrity", "digest", "original producer launched-image binding changed")
+     return binding
+ 
+ 
+@@ -176,7 +194,14 @@
+                                              "yes" if account.get("context_label") == label else "no"))
+     except (ValueError, KeyError, TypeError, IndexError):
+         context = "; Native worker role: unlabelled"
+-    return attribution.diagnostic(value) + context + "; Provider home: " + state["state"] + "; worker: " + state["worker_id"] + "; holder: " + (state["holder"] or "unknown")
++    image_text = ""
++    if image_receipts.required(selected):
++        receipt, cause = image_receipts.evidence(control, attempt, selected)
++        observed = receipt.get("observation", {}).get("image_id") if receipt else None
++        image_text = "; host acceptance: " + ("held" if cause is not None else account["outcome"] if account else "not assessed") + "; engine-observed image: " + (observed or "unknown") + "; launched-image binding: " + (cause or "matched")
++        if receipt is not None:
++            image_text += "; image receipt: " + image_receipts.reference(attempt, receipt)["operation_id"]
++    return attribution.diagnostic(value) + image_text + context + "; Provider home: " + state["state"] + "; worker: " + state["worker_id"] + "; holder: " + (state["holder"] or "unknown")
+ 
+ 
+ def observed_exchange(control, attempt, document):
+--- a/v12/python/src/baton_v12/worker_manager/oci.py
++++ b/v12/python/src/baton_v12/worker_manager/oci.py
+@@ -2410,6 +2410,7 @@
+         self.layout_delivery = layout_delivery
+         self.provider_home_delivery = provider_home_delivery
+         selected = launch.payload_of(launch_delivery.document).get("provider_selection") if launch_delivery else None
++        self.codex_image_receipt = selected is not None and selected["contract"]["selection"]["provider"] == "codex"
+         if (provider_home_delivery is None) != (selected is None):
+             _denied("provider selection and home mount must both be present")
+         if selected is not None:
+@@ -3488,7 +3489,7 @@
+                 "a listed runtime's image")
+             resolved = _image_identity(self.identity["image_digest"],
+                                        "the resolved image")
+-            if image != resolved:
++            if image != resolved and not (self.codex_image_receipt and self._image_resolution("sha256:" + image) is not None):
+                 _denied(f"runtime {name_value(runtime_id)} carries this "
+                         f"assignment's labels and the engine reports it "
+                         f"running a different image than the one this "
+@@ -4396,9 +4397,46 @@
+                     raise ValueError("provider home mount mismatch")
+             except (ValueError, OSError):
+                 return {"state": "uncertain", "why": "provider home mount is not proved", "mounts": mounts, "candidates": ({"runtime_id": runtime_id, **found},)}
+-        return {"state": found["state"], "why": found["why"],
+-                "mounts": mounts,
+-                "candidates": ({"runtime_id": runtime_id, **found},)}
++        answer = {"state": found["state"], "why": found["why"],
++                  "mounts": mounts,
++                  "candidates": ({"runtime_id": runtime_id, **found},)}
++        if self.codex_image_receipt:
++            answer["image_observation"] = self._image_observation(document, runtime_id)
++        return answer
++
++    def _image_resolution(self, image):
++        """Resolve a selected registry digest through engine evidence only."""
++        from . import image_receipts
++        if not image_receipts.sha(image):
++            return None
++        try:
++            result = self.run([self.engine, "inspect", "--type", "image", "--format", "{{json .}}", self.image_digest],
++                              seconds=OBSERVE_SECONDS)
++            if result["status"] != 0:
++                return None
++            document = json.loads(result["stdout"])
++            if type(document) is list and len(document) == 1:
++                document = document[0]
++            if type(document) is not dict or document.get("Id") != image:
++                return None
++            digests = document.get("RepoDigests")
++            if type(digests) is not list or not any(type(one) is str and one.rsplit("@", 1)[-1] == self.image_digest for one in digests):
++                return None
++            return {"image_id": image, "registry_digest": self.image_digest}
++        except (ContractRefusal, ValueError, TypeError, OSError):
++            return None
++
++    def _image_observation(self, document, runtime_id):
++        from . import image_receipts
++        try:
++            image = document.get("Image")
++            answer = {"engine": self.engine, "runtime_id": document.get("Id"), "image_id": image,
++                      "started_at": document["State"].get("StartedAt"),
++                      "labels": self._labels_of({"Labels": document["Config"]["Labels"]}),
++                      "resolution": None if image == self.image_digest else self._image_resolution(image)}
++            return answer if answer["runtime_id"] == runtime_id and image_receipts.valid(answer) else None
++        except (ContractRefusal, KeyError, ValueError, TypeError):
++            return None
+ 
+     def _labels_of(self, entry):
+         """The labels the engine reports, back in the manager's vocabulary.
+--- a/v12/python/tests/job_manager/test_provider_attribution_recovery.py
++++ b/v12/python/tests/job_manager/test_provider_attribution_recovery.py
+@@ -6,6 +6,7 @@
+ """
+ import copy
+ import json
++import unittest
+ from pathlib import Path
+ from unittest import mock
+ 
+@@ -120,6 +121,27 @@
+ 
+ 
+ class ConfiguredProducer(OriginalProducer):
++    def setUp(self):
++        super().setUp()
++        from baton_v12.worker_manager import attempts
++        # Existing original-producer fixture seeds an ended attempt. Supply its
++        # synthetic image facts at the normal adapter observation boundary;
++        # the host, not this fixture, writes the receipt.
++        self.control._connection.execute("UPDATE attempts SET policy_digest = ? WHERE runtime_attempt_id = ?",
++            ("sha256:" + "d" * 64, self.attempt_id))
++        row = attempts._require_attempt(self.control, self.attempt_id)
++        self.image_observation = {"engine": "docker", "runtime_id": row["runtime_id"],
++            "image_id": self.selected["contract"]["runtime_profile"]["image_digest"],
++            "started_at": "2026-11-25T00:00:00Z", "labels": attempts._runtime_labels(row), "resolution": None}
++        if getattr(self, "capture_initial_image", True):
++            self.observe_image(self.image_observation)
++
++    def observe_image(self, observation):
++        from baton_v12.worker_manager import attempts
++        adapter = mock.Mock()
++        adapter.observe.return_value = {"state": "quiescent", "why": "simulated ended producer", "image_observation": observation}
++        return attempts._observed(adapter, "runtime-" + self.attempt_id, store=self.control, attempt_id=self.attempt_id)
++
+     def select_original_provider(self, attempt):
+         from baton_v12 import provider_policy as policy
+         from tests.manager import codex_fixtures
+@@ -158,3 +180,110 @@
+         with self.assertRaises(ContractRefusal): self.collected()
+         with self.assertRaises(ContractRefusal): self.handed_off()
+         self.assertFalse(self.gate()["open"])
++
++
++class ImageReceiptRecovery(unittest.TestCase):
++    def setUp(self):
++        self.case = ConfiguredProducer("runTest")
++        self.case.capture_initial_image = False
++        self.addCleanup(self.case.doCleanups)
++        self.case.setUp()
++        from baton_v12.worker_manager import image_receipts
++        self.receipts = image_receipts
++
++    def evidence(self):
++        return self.receipts.evidence(self.case.control, self.case.attempt_id,
++                                     model_attribution.selection_of(self.case.control, self.case.attempt_id))
++
++    def test_missing_and_historical_codex_receipt_holds_recovery(self):
++        self.assertEqual(self.evidence(), (None, "launched-image-missing"))
++        inspected = self.case.inspected()
++        self.assertFalse(inspected["eligible"])
++        self.assertTrue(any("launched-image-missing" in one["message"] for one in inspected["holds"]))
++
++    def test_wrong_runtime_generation_attempt_and_create_only_are_not_retained(self):
++        base = self.case.image_observation
++        for changes in ({"runtime_id": "foreign"}, {"started_at": "0001-01-01T00:00:00Z"},
++                        {"labels": dict(base["labels"], generation=999)},
++                        {"labels": dict(base["labels"], runtime_attempt_id="foreign")}):
++            state, _, _ = self.case.observe_image(dict(base, **changes))
++            self.assertEqual(state, "quiescent")
++            self.assertEqual(self.evidence(), (None, "launched-image-missing"))
++
++    def test_matching_labels_do_not_rescue_wrong_engine_image(self):
++        self.case.observe_image(dict(self.case.image_observation, image_id="sha256:" + "f" * 64))
++        self.assertEqual(self.evidence()[1], "launched-image-mismatch")
++        self.assertFalse(self.case.inspected()["eligible"])
++
++    def test_receipt_is_idempotent_and_conflict_holds_without_cessation_change(self):
++        self.case.observe_image(self.case.image_observation)
++        receipt, cause = self.evidence(); self.assertIsNone(cause)
++        self.case.observe_image(copy.deepcopy(self.case.image_observation))
++        self.assertEqual(self.evidence(), (receipt, None))
++        state, _, _ = self.case.observe_image(dict(self.case.image_observation, image_id="sha256:" + "f" * 64))
++        self.assertEqual(state, "quiescent")
++        self.assertEqual(self.evidence(), (receipt, "launched-image-invalid"))
++        self.assertFalse(self.case.inspected()["eligible"])
++
++    def test_removed_original_runtime_receipt_survives_reopen_and_binds_recovery(self):
++        self.case.observe_image(self.case.image_observation)
++        receipt, cause = self.evidence(); self.assertIsNone(cause)
++        self.case.ready()
++        binding = publication_recovery.admission_for(self.case.jobs, self.case.recovery_job_id)["candidate"]["model_attribution"]
++        self.assertEqual(binding["launched_image"], receipt)
++        with ControlStore.open(self.case.control.database, incarnation="image-receipt-reopen", clock=self.case.clock) as reopened:
++            selected = model_attribution.selection_of(reopened, self.case.attempt_id)
++            self.assertEqual(self.receipts.evidence(reopened, self.case.attempt_id, selected), (receipt, None))
++            self.assertEqual(model_attribution.require_recovery(reopened, binding), binding)
++        self.case.published_once()
++        self.assertEqual(self.case.collected()["adopted"]["model_attribution"]["launched_image"], receipt)
++
++    def test_conflict_after_admission_cannot_use_publishers_image(self):
++        self.case.observe_image(self.case.image_observation)
++        self.case.ready(); self.case.published_once()
++        self.case.observe_image(dict(self.case.image_observation, image_id="sha256:" + "f" * 64))
++        with self.assertRaises(ContractRefusal): self.case.collected()
++        with self.assertRaises(ContractRefusal): self.case.handed_off()
++
++    def test_claude_and_legacy_do_not_require_receipts(self):
++        selected = model_attribution.selection_of(self.case.control, self.case.attempt_id)
++        changed = copy.deepcopy(selected)
++        changed["delivery"]["contract"]["selection"]["provider"] = "claude"
++        self.assertEqual(self.receipts.evidence(self.case.control, self.case.attempt_id, changed), (None, None))
++        self.assertEqual(self.receipts.evidence(self.case.control, self.case.attempt_id, None), (None, None))
++
++
++    def test_unavailable_resolution_does_not_erase_retained_engine_binding(self):
++        image = "sha256:" + "f" * 64
++        observation = dict(self.case.image_observation, image_id=image,
++            resolution={"image_id": image, "registry_digest": self.case.image_observation["image_id"]})
++        self.case.observe_image(observation)
++        receipt, cause = self.evidence(); self.assertIsNone(cause)
++        self.case.observe_image(dict(observation, resolution=None))
++        self.assertEqual(self.evidence(), (receipt, None))
++
++
++    def test_lost_receipt_reply_replays_without_rewriting_observation(self):
++        actual = model_attribution._write
++        def lost(control, kind, attempt, value):
++            answer = actual(control, kind, attempt, value)
++            if kind == self.receipts.KIND:
++                raise OSError("synthetic lost reply after durable image receipt")
++            return answer
++        with mock.patch.object(model_attribution, "_write", side_effect=lost):
++            with self.assertRaises(OSError): self.case.observe_image(self.case.image_observation)
++        receipt, cause = self.evidence(); self.assertIsNone(cause)
++        self.case.observe_image(self.case.image_observation)
++        self.assertEqual(self.evidence(), (receipt, None))
++
++    def test_altered_retained_receipt_refuses_binding(self):
++        self.case.observe_image(self.case.image_observation)
++        receipt, _ = self.evidence()
++        actual = model_attribution._read
++        for field, value in (("attempt_id", "another"), ("selection_digest", "sha256:" + "f" * 64),
++                             ("profile_digest", "sha256:" + "f" * 64), ("schema", "unsupported")):
++            changed = dict(receipt, **{field: value})
++            def altered(control, kind, attempt):
++                return changed if kind == self.receipts.KIND else actual(control, kind, attempt)
++            with self.subTest(field=field), mock.patch.object(model_attribution, "_read", side_effect=altered):
++                self.assertEqual(self.evidence()[1], "launched-image-invalid")
+--- a/v12/python/tests/manager/test_model_attribution.py
++++ b/v12/python/tests/manager/test_model_attribution.py
+@@ -189,6 +189,8 @@
+         self.invocation["selection_digest"] = policy.digest(self.delivery)
+         value = self.record(evidenced_build="0.172.0")
+         self.assertEqual(value["outcome"], "unqualified-build")
++        self.assertEqual(value["reroute_observation"], "reroute observation incomplete")
++        self.assertIn("surface: unqualified or unknown CLI build", subject.diagnostic(value))
+         self.assertFalse(subject.acceptable(value))
+ 
+     def test_R2_basis_is_admitted_provider_not_claim(self):
+--- a/v12/python/tests/manager/test_oci.py
++++ b/v12/python/tests/manager/test_oci.py
+@@ -2457,3 +2457,81 @@
+                           "adapter_digest": "sha256:" + "d" * 64},
+                 assignment_roots=ROOTS, posture="consent",
+                 scratch_delivery=self.place)
++
++
++class LaunchedImageEvidence(Adapting):
++    """Synthetic engine facts; no daemon and no claim of image qualification."""
++    def adapter(self, *answers, **kwargs):
++        from baton_v12.worker_manager.oci import EnginePort
++        adapter = super().adapter(*answers, **kwargs)
++        engine = self.engine
++        adapter.run = EnginePort(lambda argv, seconds=None: engine(argv))
++        return adapter
++
++    def document(self, *, image=IMAGE, started="2026-11-25T00:00:00Z", running=False):
++        return {"Id": "runtime-1", "Image": image,
++                "State": {"Running": running, "StartedAt": started},
++                "Config": {"Labels": {LABEL_PREFIX + key: str(value) for key, value in LABELS.items()}}}
++
++    def observed(self, document, *extra):
++        adapter = self.adapter(answer(stdout=json.dumps(document)), *extra)
++        adapter.codex_image_receipt = True
++        return adapter.observe("runtime-1"), adapter
++
++    def test_exact_image_and_fast_exited_start_evidence(self):
++        for running in (True, False):
++            observed, _ = self.observed(self.document(running=running))
++            image = observed["image_observation"]
++            self.assertEqual(image["image_id"], IMAGE)
++            self.assertEqual(image["runtime_id"], "runtime-1")
++            self.assertEqual(image["labels"], LABELS)
++            self.assertEqual(image["started_at"], "2026-11-25T00:00:00Z")
++            self.assertIsNone(image["resolution"])
++
++    def test_created_only_or_malformed_start_has_no_receipt(self):
++        for stamp in (None, "", "0001-01-01T00:00:00Z", "2026-11-25T00:00:00", "untrusted text"):
++            observed, _ = self.observed(self.document(started=stamp))
++            self.assertEqual(observed["state"], "quiescent")
++            self.assertIsNone(observed["image_observation"])
++
++    def test_missing_image_or_labels_does_not_change_cessation(self):
++        for key in ("Image", "Config"):
++            document = self.document(); del document[key]
++            observed, _ = self.observed(document)
++            self.assertEqual(observed["state"], "quiescent")
++            self.assertIsNone(observed["image_observation"])
++
++    def test_registry_digest_resolution_comes_from_engine(self):
++        image_id = "sha256:" + "f" * 64
++        observed, _ = self.observed(self.document(image=image_id),
++            answer(stdout=json.dumps({"Id": image_id, "RepoDigests": ["example.invalid/fixture@" + IMAGE]})))
++        self.assertEqual(observed["image_observation"]["resolution"], {"image_id": image_id, "registry_digest": IMAGE})
++        self.assertEqual(self.engine.vectors[-1], ["docker", "inspect", "--type", "image", "--format", "{{json .}}", IMAGE])
++
++    def test_wrong_image_cannot_be_resolved_by_labels_or_requested_echo(self):
++        image_id = "sha256:" + "f" * 64
++        for document in ({"Id": IMAGE, "RepoDigests": ["fixture@" + IMAGE]},
++                         {"Id": image_id, "RepoDigests": ["fixture@sha256:" + "e" * 64]},
++                         {"Id": image_id, "requested": IMAGE}, {}):
++            observed, _ = self.observed(self.document(image=image_id), answer(stdout=json.dumps(document)))
++            self.assertEqual(observed["image_observation"]["image_id"], image_id)
++            self.assertIsNone(observed["image_observation"]["resolution"])
++
++    def test_registry_digest_can_reconcile_listing_with_image_id(self):
++        image_id = "sha256:" + "f" * 64
++        adapter = self.adapter(answer(stdout=listing(image=image_id)),
++            answer(stdout=json.dumps({"Id": image_id, "RepoDigests": ["fixture@" + IMAGE]})))
++        adapter.codex_image_receipt = True
++        self.assertEqual(adapter.list({"labels": LABELS})[0]["runtime_id"], "runtime-1")
++
++    def test_foreign_inspection_and_missing_container_cannot_supply_image(self):
++        document = self.document(); document["Id"] = "another-runtime"
++        observed, _ = self.observed(document)
++        self.assertEqual(observed["state"], "uncertain")
++        self.assertNotIn("image_observation", observed)
++
++    def test_legacy_observation_has_no_new_receipt_or_image_query(self):
++        adapter = self.adapter(answer(stdout=json.dumps(self.document())))
++        observed = adapter.observe("runtime-1")
++        self.assertNotIn("image_observation", observed)
++        self.assertEqual(len(self.engine.vectors), 1)
+--- a/v12/python/tests/tools/test_codex_selection.py
++++ b/v12/python/tests/tools/test_codex_selection.py
+@@ -224,6 +224,7 @@
+                 mock.patch.object(host,"assessment_of",return_value=None), \
+                 mock.patch.object(manager,"load_manifest",return_value=result), \
+                 mock.patch.object(host.attempt_logs,"complete_record",return_value=raw), \
++                mock.patch.object(host,"_read",return_value=None), \
+                 mock.patch.object(host,"_write",side_effect=lambda c,k,a,v:v):
+             account=host.assess(object(),attempt,frozen)
+         self.assertEqual(account["outcome"],"held")
+--- a/v12/python/tests/tools/test_provider_selection.py
++++ b/v12/python/tests/tools/test_provider_selection.py
+@@ -1183,6 +1183,30 @@
+         self.submission["jobs"][0]["stages"][0]["profile_name"] = "synthetic-codex"
+         self.submission["jobs"][0]["stages"][0]["profile_digest"] = self.codex_profile
+ 
++    def serving(self, **members):
++        answer = super().serving(**members)
++        self.image_test_control = answer[1]
++        return answer
++
++    def quiescing(self):
++        engine = super().quiescing()
++        original = type(engine).__call__
++        def observed(engine, argv, **options):
++            if hasattr(self, "image_test_control"):
++                self.assertFalse(self.image_test_control._connection.in_transaction)
++            answer = original(engine, argv, **options)
++            if argv[1:4] == ["inspect", "--type", "container"] and answer["status"] == 0:
++                document = json.loads(answer["stdout"])
++                document["Image"] = engine.image
++                document["Config"] = {"Labels": engine.labels}
++                document["State"]["StartedAt"] = "2026-11-25T00:00:00Z"
++                if getattr(self, "omit_image_evidence", False):
++                    document.pop("Image")
++                answer = dict(answer, stdout=json.dumps(document))
++            return answer
++        self.enterContext(mock.patch.object(type(engine), "__call__", observed))
++        return engine
++
+     def worker(self, role, **members):
+         value = super().worker(role, **members)
+         if role == "implementation":
+@@ -1243,3 +1267,35 @@
+         for _ in range(4): sweep(held.job, held.composed, now=fixtures.NOW)
+         self.assertEqual(model_attribution.assessment_of(held.control, attempt)["cause"], "model-attribution-conflicting")
+         self.assertIsNone(model_attribution._read(held.control, "provider.attribution-ending", attempt))
++
++
++    def test_missing_image_holds_frozen_codex_without_holding_cessation(self):
++        from baton_v12.worker_manager import attempts
++        self.omit_image_evidence = True
++        job, control, composed, attempt = self.started()
++        self.assertEqual(self.turn(control, "implementation", attempt,
++            self.mounted(composed, "implementation", attempt), edits={"harness.py": "print('changed')\n"}), 0)
++        for _ in range(4): sweep(job, composed, now=fixtures.NOW)
++        account = model_attribution.assessment_of(control, attempt)
++        self.assertEqual(account["cause"], "launched-image-missing")
++        self.assertIsNone(account["launched_image"])
++        self.assertEqual(account["outcome"], "held")
++        self.assertEqual(account["attribution"]["actual_participation"], "unknown")
++        self.assertIn(attempts.attempt_runtime_of(control, attempt)["execution_runtime"], ("quiescent", "destroyed"))
++        self.assertIsNone(model_attribution._read(control, "provider.attribution-ending", attempt))
++        self.assertNotEqual(self.states(job, composed)["review"], "waiting")
++        self.assertIn("host acceptance: held", model_attribution.diagnostic_of(control, attempt))
++
++    def test_frozen_receipt_and_ending_refuse_later_conflicting_engine_evidence(self):
++        from baton_v12.worker_manager import image_receipts
++        from baton_v12.contracts import ContractRefusal
++        held = self.implemented()
++        account = model_attribution.assessment_of(held.control, held.attempt_id)
++        receipt = account["launched_image"]
++        self.assertEqual(receipt["observation"]["image_id"], self.config["image_digest"])
++        changed = dict(receipt["observation"], image_id="sha256:" + "f" * 64)
++        image_receipts.retain(held.control, held.attempt_id, changed["runtime_id"], changed)
++        self.assertEqual(model_attribution.assessment_of(held.control, held.attempt_id), account)
++        self.assertIn("host acceptance: held", model_attribution.diagnostic_of(held.control, held.attempt_id))
++        with self.assertRaises(ContractRefusal): model_attribution.assess(held.control, held.attempt_id)
++        with self.assertRaises(ContractRefusal): model_attribution.bind_ending(held.control, held.attempt_id, {})
