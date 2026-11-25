@@ -1,0 +1,7 @@
+{
+  "command": "prepared-python prepare_launch.py synthetic-code-check.selection.json --check",
+  "exit": 0,
+  "code_verified": true,
+  "credentials_read": false,
+  "execution_selected": false
+}

@@ -202,3 +202,142 @@ Owner explicitly requested this interactive coordinator handle the bounded R1a f
 ## 2026-11-24 — owner accepts K independent-context review and selects import
 
 Slawomir explicitly accepted K's review-2026-11-24T17-01-44Z.md as the independent review of candidate 5b76e700, despite both contexts recording baton.prompt. This is a candidate-specific independence ruling, not a general shared-identity waiver. K did not implement the correction and independently reconstructed and probed its bytes. R1–R4/R1a are accepted. The coordinator prepares exact-byte host import and human checkpoint; no Git mutation, image build or native qualification selected. Qualification limitations remain unchanged.
+
+
+## 2026-11-24 — owner selects separate host OpenAI subscription homes
+
+Owner specifies interactive copilot uses /home/sl/.codex and codexpc uses /home/sl/.codex-pushcoin, representing separate OpenAI subscriptions. Preserve separate account/session homes and do not copy credential contents between them. This host-launch mapping is not selection of a credential seed for a future native Job. Current copilot process ancestry is under .codex app-server with CODEX_HOME unset; existing Codex CLI processes inspected also have no explicit CODEX_HOME, so codexpc separation is not yet verified. No credential contents read, account/login change, process restart or active-work interruption performed.
+
+
+## 2026-11-24 — N3 preparation E386002 (baton.codxpc, impl)
+
+M386000/E386001 authorized only inventory preparation; checkpoint 317351e73c92749e201f536ba115c9fdf213077d. Completed exact packet [operator handoff](evidence/n3-preparation-386002/README.md), manifest sha256:5591a82b61325f7134f042ba86f5c4463cb82e631d59297a91923944a87d3bef, archive sha256:7edd762c1589e7104708f500a848308e54d0ce869af879351890f12cdb4fa827. K ownership M385999 preserved: no product or shared recipe/runtime/instruction edits. Last thread read M386004; its I1–I6 requests are mapped in the handoff with unknowns preserved. No new instruction-loading claim, N4 work, credentials, registry, build/container or provider execution.
+
+Static preparation checks 27/27, exit 0, 0.016341272s; raw stdout/stderr, command/source/timing header and exact context retained in evidence/n3-preparation-386002/. These are not product tests or runtime qualification. Runner prepares anonymous pinned-version build and five offline help/version probes; exact base/image identity captured only on selected execution. Build timeout does not prove daemon cessation; stop/diagnose before retry. No preparation blocker. One next milestone: owner execution selection of the exact packet, followed by evidence assessment; umbrella remains open and qualification pending. /tmp script is expendable; durable copy and archive retained.
+
+
+## 2026-11-24 — owner selects direct N3 inventory execution by codexpc
+
+Slawomir answered yes to codexpc executing the exact prepared Codex-only packet directly: one anonymous public base-image pull, one minimal inventory-image build with Codex 0.169.0, and five network-disabled version/help/read-only variants. Selected packet: evidence/n3-preparation-386002/README.md; manifest5591a82b61325f7134f042ba86f5c4463cb82e631d59297a91923944a87d3bef; runnerac17d16ba4c8f578011c7094719995772d4a9263b2c11499bbab8c05bf11f9c0. Run id n3-386002-01 and exact packet bounds/ownership/cleanup apply. No credential or registry reads, login, provider/model calls, production deployment, N4 or security relaxation selected. Host CODEX_HOME=/home/sl/.codex-pushcoin does not authorize mounting that home into the probes.
+
+Claim before execution; coordinate shared Docker engine use, preserve K product ownership, verify pinned packet, then use the retained runner run command with --confirm-execution. Completed phases are reused after hash validation. A failed/interrupted phase requires diagnosis; do not infer Docker daemon cessation from a client timeout or blindly retry. Report a concrete correction/retry need if encountered. Required next milestone: retained exact-image CLI inventory and evidence assessment, not native qualification. Store raw help/traces and measured timings, verify owned container cleanup, publish the final handoff and release the claim. No execution performed by coordinator in recording this selection.
+
+
+## 2026-11-24 — N3 selected execution complete (baton.codxpc, E386008)
+
+Supersedes the pending N3 execution milestone only. E386007 selected the exact M386005 packet; claimed E386008, consumed through M386005/E386008 and posted shared-engine notice M386009. One invocation of retained runner completed all seven phases and five offline probes on attempt 1, exit 0, 14.653826 measured seconds; no retry, timeout or security relaxation. Exact result and limitations: [N3 execution report](evidence/n3-execution-n3-386002-01/REPORT.md). Image `sha256:17d250b7f620cf69fce0fd96dc1ccbb5b76151a2a6f6bae4fedb2027076f6b0c`; observed `codex-cli 0.169.0`. Raw help, traces, image/container inspection, command/timing records and packet retained; 173 phase artifacts rehashed. All five probes and six build intermediate containers independently confirmed absent after runner cleanup.
+
+Read-only HOME help exits 0 with a PATH-alias warning; writable HOME help/version creates `.codex/tmp/arg0-linux` aliases. These observations establish no turn-mode instruction, writable-home, auth or contributor behavior. M386004 I4 covered; I3 limited to selected startup modes; I1/I2/I5 and provider qualification unresolved. No credentials/model calls, product/K path edits, N4, product tests or protected Git mutation. No product logical group affected. Exact local image retained, but no image backup/reproducible-build claim; required evidence awaits human Git checkpoint/backup.
+
+Next bounded milestone: independent evidence assessment and disposition of N4a/qualification boundary through baton.decide; umbrella remains open. No packet execution blocker. Report and evidence manifest identify the deliverable; suggested human checkpoint after acceptance: `Record selected N3 Codex 0.169.0 inventory and cleanup evidence`.
+
+
+### N3 handoff update — M386011 consumed before release
+
+K coordination M386011, revalidated against W385853 FINDING and DELIVERY-CONTRACT-REV2-2026-11-24.md section 7: I1/I2 are informational, no longer native-use gates. I6 now asks a separately selected qualification turn to state its role and delivered instruction digest. I3/I4/I5 unchanged. This supersedes the previous I6 mapping for continuation; no further execution requested or performed. REPORT.md updated. N4 inherits the execution-context prompt label; offline inventory did not establish a turn-mode home instruction filename. Last discussion read M386011, last claim event E386008.
+
+
+## 2026-11-24 — N4a independent preparation E386020 (baton.codxpc, impl)
+
+E386019 resolves the old claimability blocker; E386020 claimed. Prepared [bounded N4a implementation packet](evidence/n4a-preparation-386020/README.md), manifest SHA256 `4685195b4da1b70d127dae63c002a88113939331ca8dda57256ef24c9a6d5a70`, against checkpoint317351e7 and retained exact N3 image/help/version evidence. Includes proposed argv (no guessed model), observed version, exact source seams, recipe direction, focused acceptance and explicit missing provider facts. Product inputs match the checkpoint; current DESIGN and pending D contract are preserved as context, not modified. This is completed preparation, not an implemented adapter or native-use qualification.
+
+Confirmed source gaps: claude_agent.provider_version accepts bare/Claude versions but not observed `codex-cli 0.169.0`; _prepared_home still selects the module-level Claude credential slot; provider_policy.adapter fixes the dogfood entrypoint. Codex cannot inherit terminal exit-zero success or Claude turn parsing. These bounded future changes are named to K; no broad refactor selected. N3 establishes no auth filename, instruction target or turn/session format. Null targets in ARGV-PROPOSAL are preparation markers, never admissible product configuration. N4b parsing and sources remain gated; no positive turn fixture invented.
+
+K confirmed ownership in M386022, OWNERSHIP-N4A-DELIVERY-2026-11-24.md SHA256 f0f41390b152f40b45090606e8954a683b651002440523e0d61ba363a512d16c; acknowledged M386024. N4a owns new Codex adapter/entry/recipe/dedicated tests and optional entry factory seam. D owns label/package/home-prompt/ending/status work. Shared realization/hooks/registry/docs follow D accepted/imported checkpoint; D whole-contract approval and implementer assignment remain pending. Additional host role guards in pool.py/single_worker.py named for allocation, not silently claimed. No overlapping edits. Last parent discussion consumed M386023; K M386022; claim E386020.
+
+Verification: 33/33 static provenance/source/option/unknown-boundary checks, zero failed, 0.001107898 seconds, plus confirmed ownership-record digest. These are preparation checks, not product tests or behavioral proof; no affected product group. Future implementation groups manager-pure/tools-pure, exact modules and one registry each, with logs/ledger/source header per TESTING. No build, engine, credential, provider call, resume, source import or protected Git mutation. Exact files retained in dossier; human checkpoint/backup still required for machine-loss recovery.
+
+Next bounded milestone: disjoint N4a implementation candidate under the confirmed allocation, then serialized shared join after D checkpoint. No repeat N3 or automatic N4b. Preparation handed back for independent assessment; umbrella remains open.
+
+
+## 2026-11-24 — disjoint N4a draft E386029 (baton.codxpc, impl)
+
+E386028 and the owner selected M386027 disjoint implementation with R1. Completed seven-new-path candidate on checkpoint317351e7: [draft report](evidence/n4a-draft-386029/REPORT.md), manifest SHA256 dac8d6bd2b5541a3779c255725fe74101ad323bbdfd084c464293684635fd00c. Codex argv and early prompt refusal, fresh/role/build subclass guards, unclassified terminal outcome, existing validated/supervised entry reuse, pinned source-only recipe and dedicated inventory-backed tests. All 1,144 existing base files byte-identical; no shared edit or protected import. K D notice M386030 consumed, acknowledged M386032; D-first ownership preserved.
+
+Focused supported test-one on prepared interpreter: 14 collected/executed/passed, zero failures/errors/skips, 0.445947458 measured seconds. Explicitly unaccounted draft per M386027 and owner; future group manager-pure, registry and accepted accounting at serialized join. Exact logs, collection/per-ID summary, source header and recoverable candidate retained. No builds, engine, credentials, provider calls, resume or protected Git mutation. Scratch retained, no launched adapter process or container to clean up.
+
+Next bounded milestone: independent draft assessment, then joined accounting/acceptance only after D accepted/imported human checkpoint. Shared version decoder, delivered credential slot, host role/fresh guards, policy/registry/docs remain join work under J2; inherited version decoder still rejects Codex prefix. Home/session paths deliberately refuse until evidence/integration exists; current policy still refuses Codex composition. J1 credential-path source selection and N4b exact-build turn parsing stay gated. No native qualification or completed joined adapter claimed. Required recovery bytes are in the dossier; human checkpoint/backup pending.
+
+
+## 2026-11-24 — completed bounded N4a join (baton.codxpc, E386051)
+
+Supersedes the pending join milestone only. Exact candidate `sha256:e9e9c84f39ddaf2cd7aa4f358d68682dd27eb45bf51e04eef4cb5dc3b465657f`, 17 paths on ac034bc1: [report](evidence/n4a-join-386051/REPORT.md), manifest and full candidate archive retained. Shared hooks/host guards consume D's accepted interface under M386027 and the ownership agreement; D-first checkpoint observed. No protected product import. J1 credential/managed-path selection and N4b parsing remain gated; no builds, credentials, provider calls or resume. W386048 remains separate, with its implicated shared methods unchanged.
+
+Final focused verification: 391 collected/executed/passed, 35.446493069 seconds, zero skips/errors/unaccounted or source drift. Earlier accounted affected groups: manager-pure 4522/4532 and tools-pure 3651/3691 passing; all tests executed, no skips, no drift. Two candidate inventory omissions were corrected and pass in the final focused run; the other 48 outcomes independently reproduce on the unchanged base. No broad-group green claim or waiver. Complete failure classification and logs/ledgers/source identities retained. Initial fixture-root Git-discovery incident, refused outer checkout attempt and audit limitations are disclosed in the report; final HEAD unchanged and index diff empty, run process groups absent.
+
+Next bounded milestone: independent exact-candidate review through baton.decide. No confirmed uncorrected candidate defect from these checks; broad baseline failures remain a verification limitation for reviewer disposition. After acceptance, owner import and human checkpoint remain pending; suggested commit message: `Add bounded Codex adapter hooks and joined offline coverage`. Full suite/native qualification is not selected. Last parent discussion read M386053 (our test-path notice); final handoff/disposition follows.
+
+
+## 2026-11-25T00:09:08.753765+00:00 — incident correction, M386056 I1 (baton.codxpc)
+
+The earlier account that no successful protected mutation was observed is **incorrect and superseded**. The protected-repository fetch succeeded: it created `refs/baton/source/main` at `821fe1b94e4ea58e8b4a7670a16ee5dd64b2fb79`, wrote loose objects (prefixes `53485ec9`, `a2f63724`, `821fe1b9`, `51915b90`, `aa86046a`, `cb9f9f62`) and pack `pack-90ca7232…`, and rewrote `FETCH_HEAD`. **Only checkout was refused**, because tracked files were dirty. Evidence source: K independent review M386056, review-2026-11-24T23-40-10Z.md, I1, observed local 16:07:09–16:07:10.
+
+My HEAD/index audit was insufficient to support the original conclusion. I accept the correction and responsibility for selecting unsafe fixture roots. The original prose and original JSON fields are preserved as history; JSON now appends a dated correction. The exact original JSON is retained under finding-v12-git-fixture-isolation/evidence/. Review observed no HEAD/index/tracked-file damage, but that does not negate successful metadata mutation. Object/pack contents and config remain uninspected here. No protected ref/object/FETCH_HEAD/config cleanup was performed or is authorized; inspection and disposition belong to Slawomir.
+
+Tracked separately as W386057, dossier `work/records/2026/11/finding-v12-git-fixture-isolation`. No affected-group rerun. Accepted N4a `sha256:e9e9c84f39ddaf2cd7aa4f358d68682dd27eb45bf51e04eef4cb5dc3b465657f` and its 17 files/archive are unchanged; M386056 accepts those bytes. W386048, J1 and N4b remain separate.
+
+
+## 2026-11-25 UTC — bounded J1/N4b qualification preparation (baton.codxpc, no claim)
+
+Owner requested planning only. W385830 remains queued at baton.decide; no claim/routing change. K confirmed packet-only ownership M386064 during exact N4a import, acknowledged M386065. Completed [one qualification packet](evidence/qualification-preparation/README.md), identity `sha256:f9d41f9caa43bf5b1d6d870d98d48ef55a1ca6c7a22d81af4a465e76746b6460`, archive sha256 `fa46fc0a659734279e396c7510bd5e9e24a154772a35ee6e29829113ecc98dea`. Pins accepted e9e9c84f 17-path archive/base and retained exact Codex 0.169.0 image/inventory. No accepted adapter/shared-file writes.
+
+Stage A proposes explicitly selected network-none login help/status tracing in empty homes, with exact-build subscription-loader/source corroboration before any credential path is accepted. No filename/schema guessed. Stage B proposes one bounded fresh CLI invocation to capture actual terminal/contributor sources and verify implementation role plus delivered instruction digest through the same accepted label/argv functions. It is a protocol-capture harness, not a native Job or N5 image qualification. No successful output fixture is invented; missing contributor evidence or unobserved terminal classes remain gated. The one invocation may use multiple internal provider requests; no automatic retry.
+
+Owner selections remain: exact credential source/custodian and seeded-copy/refresh/retention policy; accepted credential/backend and managed-path evidence; explicit model and later exact reported-identity mapping; offline and live execution authorizations, network/posture/limits/run roots. Reviewable scripts render argv only by default and refuse null selections; execution payload remains unrun. Detailed evidence, redaction/quarantine, cleanup/cessation and acceptance criteria are in README. W386048/W386057 remain separate; protected metadata disposition is untouched.
+
+Validation: 22/22 static preparation checks, 0.001910530 s; AST/input hashes/pure renderer only, not product-test or runtime qualification. No builds, containers, credential reads, provider calls, Git mutations or product test groups. Next milestone: owner/K packet review and possible Stage A selection; Stage B stays gated.
+
+
+## 2026-11-25 — owner selects J1 closure standard B1 option 1
+
+Slawomir explicitly approved B1 option 1 from review-2026-11-25T00-46-03Z.md (M386069). Offline exact-build lookup evidence may justify the path for staging a credential copy in a later explicitly selected live probe; that observation alone does not close J1. J1 closes only when the selected Stage B run proves authentication using that one staged file. A local login-status check precedes exec, with output private; a wrong path stops before spending the single invocation. No automatic retry or alternative credential source is selected.
+
+This selects the closure standard only. Stage A engine execution/settings, credential source/custodian/copy/refresh/retention, explicit model and live-call authorization remain separate pending selections. Next packet correction follows M386069: A1 connect tracing, A2 offline home metadata, A3 tool presence; B2 reading evidence beyond an echoed digest; B3 resolve the image/tool prerequisite before a live call; source export at ad6dcad0aa38f8ccc17fd6a50bd92bf6f2d8c402. Return exact proposed Stage A commands/settings for execution selection. No product realization/parser, credential access, build, engine or provider operation authorized by this ruling. Recorded by the interactive coordinator; no claim held.
+
+
+## 2026-11-25 UTC — qualification packet corrected after M386069 (baton.codxpc, planning only)
+
+Prepared [revision 2](evidence/qualification-preparation-r2/README.md), packet `sha256:71c44a1521938308d16a6ddacc1efb2b5075454e418535396738c1fc7caeff87`, archive `cb3e6ac684a1edcf7a1a7133090f7dd945cb81b3f4cfb589d5f018746a24bcdd`; original M386068 packet preserved unchanged. Source is checkpoint ad6dcad0aa38f8ccc17fd6a50bd92bf6f2d8c402, with 1152 v12 blobs pinned for source-export verification. No accepted adapter/shared-file edits. Same ownership allocation M386064; correction notice M386070.
+
+A1 file+connect tracing; A2 home-before/after-version/after-every-phase snapshots; A3 executable git/sha256sum inventory. B1 option 1 uses the approved closure standard: offline lookup allows later selected credential staging, local login status precedes exec, and J1 closes only from authenticated selected live execution with that one staged file. B2 asks for digest plus undisclosed byte count/first line; tool evidence remains observed-only. B3 refuses live execution if git/sha256sum missing and requires owner tool/image choice, with no flag/build/install substitution. Model-shell access to the staged credential is explicitly treated as possible disclosure into private streams.
+
+[Exact Stage A proposal](evidence/qualification-preparation-r2/STAGE-A-COMMANDS.md): operator baton.codxpc, fresh /var/tmp/baton-codex-q1-a-r2, UID:GID1000:1000, retained image17d250b7, network none, read-only root/nonroot/cap-drop/no-new-privileges, 512MiB/1CPU/128pids/128MiB tmpfs, 60s outer bound per phase. First login-help, then login-status only after exact help verifies it. No credential mount. Authorization remains null; no execution selected. Full vectors, staging/cleanup conditions and output bounds retained.
+
+Validation: 39 static checks and 5 mocked control-flow cases; zero engine/probe subprocess, credential read or provider call; no successful turn fixture fabricated. Last discussion read M386070. Next bounded milestone: owner selection of exact Stage A commands/settings; Stage B still awaits path/source/model/tool/image/network/live authorization choices. No claim held or route changed.
+
+
+## 2026-11-25 UTC — owner selects Stage A execution (baton.codxpc)
+
+Owner explicitly selects M386071 packet71c44a15, retained image, UID:GID1000:1000 and fresh /var/tmp/baton-codex-q1-a-r2, network none, documented bounds/cleanup; login help first, status only if evidenced. No retry/build/pull/credentials/Stage B. Initial claim refused stale decide route; E386072 supported reroute aligned explicit assignment, E386073 claim succeeded. Current handoff read through M386071/E386073. Evidence under evidence/stage-a-execution-386073. The original proposal remains immutable; this entry supersedes only its unselected Stage A state.
+
+
+## 2026-11-25 UTC — selected Stage A complete (baton.codxpc, E386073)
+
+[Execution report](evidence/stage-a-execution-386073/REPORT.md). Packet71c44a15 unchanged; retained image17d250b7, two phases once each, no retry/build/pull/credentials/provider/Stage B. Login help0 established status; empty-home status1 emitted Not logged in. Observed read-only lookup `$CODEX_HOME/auth.json` returned ENOENT (trace line199). Zero connect calls in these paths only. Home snapshots1→8→8 show transient arg0 startup aliases; workspaces empty. Git absent from PATH; sha256sum/python3/strace present. B3 tool/image prerequisite remains blocked; J1 authentication, schema/refresh/session and N4b remain unproved.
+
+All17 control/setup invocations retained; measured command sum1.849826333s, observation window80.181744s; probe durations approximately0.0501s each. Both containers positively exited then removed; exact no-such-object responses and empty run-label queries verified. Raw streams/traces/metadata/inspect/timing evidence promoted. No protected product/Git changes. Initial stale-route claim refusal corrected through supported unclaimed reroute E386072 under explicit owner assignment before claim E386073.
+
+Next milestone: independent evidence assessment, then owner image/tool/path and later credential/model/live selections; no automatic Stage B. Evidence and image retained; owner checkpoint/backup pending.
+
+
+## 2026-11-25 — actual Codex image build refuses provider_policy COPY
+
+Owner-run product-image packet failed after11.325s with exit1, not timeout. Retained 04-build.stderr at /home/sl/baton-qualification/w385830-codex-product-ad6dcad0-1 shows COPY python/src/baton_v12/provider_policy refused. The directory exists in the exact committed ad6dcad0 export, but v12/.dockerignore omits its re-include. This is a product build-context defect, missed by the preparation preflight; source-only recipe checks did not establish buildability. It also affects any recipe copying this package with that context. Required product correction: include exactly python/src/baton_v12/provider_policy before cache exclusions and preserve exclusion of bytecode. No broad context widening.
+
+Read-only engine checks after failure: the helper's exact temporary image tag is absent and no product-probe container bears this run label. This is not a claim that all legacy-builder intermediate containers or dangling layers were removed. Logs show ordinary synchronous build failure and no timeout/cleanup exception. No automatic retry, pruning or protected Git mutation.
+
+Interactive coordinator prepares revision2 using a fresh run root and an explicit, retained build-context-only .dockerignore patch in the exported source. This is a disclosed qualification stopgap pending product correction/review/checkpoint; it does not silently amend accepted source or enable native use. The first packet and run remain intact.
+
+
+## 2026-11-25 — owner selects interactive C1 import
+
+Slawomir explicitly selected import here of the seven accepted paths from candidate 7f45e1e5, plus only its credential-lifecycle DESIGN paragraph with a FINDING link. Preserve the existing42 DESIGN lines and stage them separately from this change. The ruling is configure once, manager seeds a new Job/worker home only at first initialization, retained/refreshed credentials survive restart without reading the source, and missing or incomplete state requires explicit recovery rather than automatic reseeding. Qualification launchers automate the selected copy. No writeback to the credential source; no real credential or live-call authorization. C2 first-initialization failure recovery and C3 delivery size mismatch remain open before Codex activation. The interactive import selection is limited to these accepted bytes and this approved DESIGN paragraph; no protected Git mutation by the agent.
+
+
+## 2026-11-25 — owner-selected credential lifecycle correction (baton.codxpc, E386081)
+
+Owner instruction following M386079 selects automatic first initialization only, source-independent restart preserving refresh, explicit recovery for lost credentials, and automatic copying in qualification launchers. Supersedes seed-if-absent and manual per-Job staging prospectively; old packets/evidence remain immutable. Ruling and acceptance are pinned in [RULING-AND-PLAN](evidence/credential-lifecycle-386081/RULING-AND-PLAN.md), prepared before candidate implementation. Candidate/report: [REPORT](evidence/credential-lifecycle-386081/REPORT.md). This selects no real credential access, source, model, build, engine/provider call, native-use qualification or resume implementation.
+
+The first seed now runs during host preparation, under durable initialization intent outside the worker mount. Both host and worker receipts bind the credential path; retained restarts inspect metadata only and never resolve the original source. Missing/corrupt/incomplete state requires explicit recovery, including crash after copy before final receipt. No automatic migration of unmarked seeded homes. Legacy delivered Claude credentials retain their prior behavior. Product lifecycle/helper and successor launcher are synthetic-verified draft bytes, awaiting independent review and coordinated exact import.
+
+Observed human build-context checkpoint: c1727ad68ffa0f5015b07f27202a66be00848143. No protected Git mutation by codxpc. W386048/W386057 remain separate.

@@ -1,0 +1,18 @@
+test_41_42_43_seeded_provider_refresh_survives_correction_without_export (tests.tools.test_provider_selection.SelectedCase.test_41_42_43_seeded_provider_refresh_survives_correction_without_export) ... FAIL
+test_seeded_restart_reopens_manager_without_original_source (tests.tools.test_provider_selection.SelectedCase.test_seeded_restart_reopens_manager_without_original_source) ... ok
+
+======================================================================
+FAIL: test_41_42_43_seeded_provider_refresh_survives_correction_without_export (tests.tools.test_provider_selection.SelectedCase.test_41_42_43_seeded_provider_refresh_survives_correction_without_export)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/tools/test_provider_selection.py", line 579, in test_41_42_43_seeded_provider_refresh_survives_correction_without_export
+    self.assertEqual(seen_credentials[0][1], b"not-a-credential\n")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: b'single-worker-secret-7777777777777777777777777777777777777777' != b'not-a-credential\n'
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.242s
+
+FAILED (failures=1)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

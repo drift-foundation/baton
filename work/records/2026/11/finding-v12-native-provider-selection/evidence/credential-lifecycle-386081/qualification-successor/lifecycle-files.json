@@ -1,0 +1,485 @@
+{
+  "base": "c1727ad68ffa0f5015b07f27202a66be00848143",
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/__init__.py",
+      "sha256": "88c0a90eac444628f76a377f850e79a77c097bdc9ce5bd610b8dcddc55baedd0"
+    },
+    {
+      "path": "v12/python/src/baton_v12/attempt_log_format.py",
+      "sha256": "304152a5760e0ecf1c4e5947df3a402f3f141e3ccf3ebc9306fd7fc8f749de1f"
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/__init__.py",
+      "sha256": "f1dd5aae94f3375d3d071f93287b9c3c68e8edf80b6aa3b0d46aff63e7f30066"
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/api.py",
+      "sha256": "b558f89679f54ac9facc411d17877ea2248878693667b55189e3fece1d9fed49"
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/core.py",
+      "sha256": "b537fb94e97628af3f7509ad28046e1cdd6ccac089f9d9c4a412fa2860518d2c"
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/dossier.py",
+      "sha256": "4508ff3577f0258018ce68503a92c68ce438550881ffb3b9ca7ef9b17738e66c"
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/errors.py",
+      "sha256": "09b36cf37945f88bdcc2bb90263076d6b07207f2029148f100cf30fd39f5ffce"
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/identity.py",
+      "sha256": "fe3ba096d112f503379ec39fc22888794adca38adf863a7701b7ee98212ea189"
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/labels.py",
+      "sha256": "b3a5c82001644d7e59c460f158f2b4c25d67227141bdbc4798636054f1d2e4ec"
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/messages.py",
+      "sha256": "61f7be5f7fedafc097b2afa3ba115e7d6f9a6fe8d5e572c1fc949992130e8f4e"
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/principals.py",
+      "sha256": "16ee0a55752a5abf262bef09373957a814121d6f7e8b342cd1670e835ceb7f30"
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/schema.py",
+      "sha256": "51932ce57b0c25e9f2f52211b47e66988d489a509e728ceb3f4f6713b53152e1"
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/session.py",
+      "sha256": "98a36309afc7590dfc15f981edd04edc91784450709eae4056e24a00913e8346"
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/store.py",
+      "sha256": "d67f1052ce06030f59ccb63411a6ae2257c6d6465721b88a15a5e495fbf4ea75"
+    },
+    {
+      "path": "v12/python/src/baton_v12/checkpoint_profiles.py",
+      "sha256": "53e16443f2ad2e3e0e4df97cab0550849b196580b688427561a03f7ca9dd3c51"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/__init__.py",
+      "sha256": "e9656898d35869eebe3f906de5ee1722339e3e22c2088f8f48cbda26452ffeb7"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/canonical.py",
+      "sha256": "747b1981dbd875e3d7f0ab5dd4785ba437a62d9579c7f9cda81ea104484ef8c8"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/errors.py",
+      "sha256": "def3854f5fc852a7a695169fb2493aa6d5c94eeab77368fe12db199646c60660"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/frozen.py",
+      "sha256": "dee9a8c0e06ad7e09fc354f635a6d27b51facbebbd10260ff9c294f7d833d65c"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/manifest.py",
+      "sha256": "77cc26266af73d490db8b3bd2514ab62a3d5a563858339d02783e661217fff8b"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/pod.py",
+      "sha256": "aa677b9a7eb708d584736725d99fd11b907356052877d4db09c4fd259cd9fd99"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/schema/agent-session-1.0.schema.json",
+      "sha256": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/schema/input-manifest-template.json",
+      "sha256": "c599b5a078f7081bf20e7409acd2c7f0026aaadfe27bf2ab48c7ddbf0b81b64d"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/schema/worker-control-1.0.schema.json",
+      "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/secrets.py",
+      "sha256": "94537c592dcbb158c9525965d125b596a7d9dc72b0ff3136217bfa04ec3fa46b"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/validate.py",
+      "sha256": "f3fbd5722baca3efe7a6269e6a3a1ed36991032ae9ee045f13013a88da2ffba0"
+    },
+    {
+      "path": "v12/python/src/baton_v12/eventing.py",
+      "sha256": "f4853e2bc9cbdd97b55e7607e5a418f6ec0f62c4c76ab4aa37bfe82b42898486"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/__init__.py",
+      "sha256": "ba149ff8763da631e395925fdc0f0140a494c3d295cb5d9a847254261c18d3f4"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/admission.py",
+      "sha256": "9bf4cab3831255e341c01c2d06dc3f5ac07a817e5bb3ece197b4e365c97ea131"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/driver.py",
+      "sha256": "6b3e0ab90b0c840151df72462dbf593b03a327ffe62d5ee6935a41246b97fb19"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/execution.py",
+      "sha256": "d928395f8f6620dcc41692274dd3fe92eb336b7a249925b41e5695427a14c77e"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/git_profile.py",
+      "sha256": "6e1dc6935bcabbb9b5062193f45d38ef0efb3bb96dc96e554a89f65e721ff322"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/managed_execution.py",
+      "sha256": "1da12e8a62f22f133223904128689c4ccb321add18b39c78ba19517b7a34f936"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/oci_delivery.py",
+      "sha256": "5c48fcfe48c0ff845a8c11413837c0efc1c2fb29c419f18ab7d3c23cc2e3adca"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/queue.py",
+      "sha256": "9f2baadd0b5a030d245d02de474ac452c54db484a4ec5ba43a5610bb7c6b2bea"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/reconciliation.py",
+      "sha256": "5b6feb23b5991d31c564a81c6a476a2c62452708f17c5ac36650586402f2e58e"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/recovery.py",
+      "sha256": "c04db7f2bf45ac665b4cc66b0a394ffb1f02ea794d009c25a0312e6acdc2f732"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/runtime.py",
+      "sha256": "ff027505380edd64b428c571fbd488ee950f3409efc0fd9af20acec94683d813"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/schema.py",
+      "sha256": "2ff94a4d7509545c326e94b20020f23670482d6438e064653891072fd0a41e7a"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/store.py",
+      "sha256": "06936f989e13f55509b97559c7086b1019b349ab637af35de3b5979ba3bb4eec"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/__init__.py",
+      "sha256": "0c063dcde74bff48642a93a454fb201ebed3ecb1b15d1f6180841c8f185498f0"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/cancellation.py",
+      "sha256": "cfdd99f653c100a1bf5ee69ddf0e6db9658e19bf611f0d30b5f5526ef9f2fbb0"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/creation.py",
+      "sha256": "7281a5096edc44eef658f3c161288403bbb5aade028793a9d89182733dc6051e"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/delegation.py",
+      "sha256": "7da38ee1c32c91a692de2a2039ee11c0ec37a4b67b80102bbbaeac993668c993"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/documents.py",
+      "sha256": "169b9d563044aaaeaf02c15dde2c88797f037037ac2c6086b540ec58fa162a24"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/ending.py",
+      "sha256": "3d9c4f1914806e2b38543642c483d74628da9e1cbd36a24fa4cc04bf75ea2b99"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/episodes.py",
+      "sha256": "610c37c06680b1e5da53d0e202f967089708510d05ce3a3567567390ffff2b52"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/execution_limits.py",
+      "sha256": "24f27d7769e7f1ddbc7ee5b3477245cd51833c5dda53ecf78cf8ebe309a3f1c6"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/failure_analysis.py",
+      "sha256": "93ea0d63b26b93ba91d7b4da2bcb20dcf80a61d0d310be9082636711219b692b"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/fresh_attempt.py",
+      "sha256": "c6c218f454b92f0195d8272c116c6d151e5a8a0351f4e96f8e52f48430ff3019"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/integration_capacity.py",
+      "sha256": "a3cd94bb9dfb23b0c364c3cef29a8588e3d406adee9f4fcdd8b3dfad73610708"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/job_control.py",
+      "sha256": "d25da6d1e391025e27b53ad7636d827d1137f8248960e226613ef63a7739ab41"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/manager.py",
+      "sha256": "001953c62e89b539096dcf0bc6153bafa425d75e975625f0f08ff5b5178afa4c"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/native_handoffs.py",
+      "sha256": "d45ea69b5fddf8c353abdc318b4f6cccfb1f26462c79e846ddaf8a1adcbd9708"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/projection.py",
+      "sha256": "08b815e7dd367c1b0c11f36105f7f850169f846072e757d102395a7c6d5313f3"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/publication_execution.py",
+      "sha256": "2b8de490841b74b766c79988c3fa0aff63d3dc764f900b9dabf842a8c1da04ea"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/publication_recovery.py",
+      "sha256": "35d44282186d70407422f0dbf2c08dd08a45eda4f67dee65aca6e461c7b640b3"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/retained_recovery.py",
+      "sha256": "289a1c506f2f87f10c817d0a4b1b09d23ae70cb92bb2c21c0bcabdc07fcffa06"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/retained_verification.py",
+      "sha256": "d8dbffbc02882ffb5c604bb51fa740823ba47df8942543013d08e413f8a06392"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/review_driver.py",
+      "sha256": "55213c8a32c977edf13a925a6ceaddc0f63d40f05151e007e08750a1131c2213"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/role_capability.py",
+      "sha256": "199b1696fdb501da757cb33ba3e6893b2981a840e15316cf0073caf0b425401b"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/role_contract.py",
+      "sha256": "b5f1ef034c6bd9a46915cea03dbdfa9ec5b089634da34d95bf100b1a21808914"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/scheduler.py",
+      "sha256": "7b2c0a82ea850706f681331f0f458a585dc615383764a5f619b250c96c1a6c55"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/schema.py",
+      "sha256": "a90b7d84331334ffc33896f67d39ee5db870276e155b5b54a867666b7d0c4732"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/store.py",
+      "sha256": "0cf344ad13132325f945df877073ed9e8dc379c25f1c7b43a8afd6eb6a12d98b"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/submission.py",
+      "sha256": "c4a283406e7a01e1f47bd5d9f9779742ad85d85686c9bfd4991d95d7c0a1d93f"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/templates.py",
+      "sha256": "44f42383152d0116c2c49b0da6ab565571fb8fda62eac86364304f460766a9a0"
+    },
+    {
+      "path": "v12/python/src/baton_v12/native_handoff.py",
+      "sha256": "5d264c1f240a6e8342cf79a9a89784c2f8c846547cc352f9324907fd009764df"
+    },
+    {
+      "path": "v12/python/src/baton_v12/provider_policy/__init__.py",
+      "sha256": "45927d92848cb19999bfa7af9c2539bd0dac0763590efb8f0c00e466e14cbc37"
+    },
+    {
+      "path": "v12/python/src/baton_v12/provider_policy/attribution.py",
+      "sha256": "5d32b3d239bd0223eb890ad564c70a7e70ca1d0ee84e5a4bab9da4a43918b052"
+    },
+    {
+      "path": "v12/python/src/baton_v12/provider_policy/home.py",
+      "sha256": "9f546f234019e12cbf2baaf5c95eef3dc412fa4231ee575e8279b9754ac0113d"
+    },
+    {
+      "path": "v12/python/src/baton_v12/provider_policy/worker_instructions.md",
+      "sha256": "369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b"
+    },
+    {
+      "path": "v12/python/src/baton_v12/source_profiles/__init__.py",
+      "sha256": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad"
+    },
+    {
+      "path": "v12/python/src/baton_v12/source_profiles/checkout.py",
+      "sha256": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7"
+    },
+    {
+      "path": "v12/python/src/baton_v12/verification_context.py",
+      "sha256": "692d121682363ba519752fe78e64d3c0842da3dd3b4190131ee364ba75f0a1b0"
+    },
+    {
+      "path": "v12/python/src/baton_v12/version.py",
+      "sha256": "8f854cd7b3e8ee5ae7216f226ce484f1a3e112c453e27e1e116fe3fb8e4ffd69"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/__init__.py",
+      "sha256": "819f91949ebd169db8eb8bce60585e68ccf910fcb0006f48be0409f0b8da9457"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/attempt_logs.py",
+      "sha256": "8e614604cb7170601982a00954d9ce95a76f1a49b82f8641330a051cd1b3e336"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "sha256": "17524cd748334c196c8578e3d15cd07220e51d21f98be195eb3ce82f815e0a7e"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/authority_port.py",
+      "sha256": "174d621edfb1d8b694c9b1cbfe511d8b56c8a89e97ed89bc08534e1a029f64c6"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/boundaries.py",
+      "sha256": "f7cd00594d836a3841531ed5b41ad7326698e937f2f18bc2ffcc9f8247325d1a"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/context_delivery.py",
+      "sha256": "63fbdce36e3876172257917f13db24dbd12393d55395c05c4102618db5d19225"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/credentials.py",
+      "sha256": "09eef2cc97a6f62b43dac0352a71017fced3b6c5556f6ad691f38c4267f4a8df"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/custody.py",
+      "sha256": "63653150245b102baad88f48e76bb68332f7b7aad89ec6d505e0b706dfd2e7d2"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/deadlines.py",
+      "sha256": "acf03f24df07a1b7a6315ee0e49cd87e12f4a7c326baa798974a0f55dbe6299e"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/documents.py",
+      "sha256": "376e62ab5bab0bcec8c4b662cd8b94935a1732f9ec2692a10bb9cb4af5a962c8"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/events.py",
+      "sha256": "20ea986b6d88d4c4584c3eeccb95f33fc502b9440460f622c8028cb8f2a6fed5"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/exchange.py",
+      "sha256": "88ebdd5add29dc17438d60ef864c7a2efd239db610bcd4e8370377eabaac217e"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/failure_cause.py",
+      "sha256": "e1edf82163c3c9f3e92d6dee8d89e9c77b1dd5b68db6902c9b502b9ef80cd5b1"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/handshake.py",
+      "sha256": "2ec488f72c739fce74216c44c3c0824866593bc329c7dc49cb0d73fb04c8416e"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+      "sha256": "67e8db30e3ba712fd208b06758c6b38a2b3f5ca2568344bbb58692cef91771ee"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/interrogation.py",
+      "sha256": "c50e20bdc3c62e87deca6ffa50a1b4473dc3bd0a8069e9695fb43d7c86dc29f0"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/lanes.py",
+      "sha256": "f2a086de468c84d0cd7eb3cbcedec55c2cd12415a051b93bdcc8342341e2f21c"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/launch.py",
+      "sha256": "722db11641953cf0c55a071349c9a7441ae11a4e10c47abdd702494fd34a2449"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/maintenance.py",
+      "sha256": "f5f848bba1cbf2b9608df5080c689560a35f9766445c986fc9fba2ae5765875d"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/manifests.py",
+      "sha256": "4ff94931448667660bfea1b36691eecaa1cbe5ed179ce51c241e70707b796866"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/model_attribution.py",
+      "sha256": "358caf82f422968babc0dd1db700d50eb8dd3e9112adbdaf04928d37ad8971cd"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "sha256": "f019a296f0f491027ec4b3b43553085114a35cd5be6e9c5f2a3482d35b4af435"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/offers.py",
+      "sha256": "2a984417efc373c03a24cd710835eb441b771d99eb9afa085ac5fd4d7481a7d1"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/output.py",
+      "sha256": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/posture_slots.py",
+      "sha256": "ec271f6f47ff0cbe33f6602905e45cd3c59ed5f29e1019309002c89cd6928f81"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/provider_context.py",
+      "sha256": "15bf3ae0da359c3f0c3310090b1176d21f3a09a5cca02979e48ae0ff8cbf9765"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/provider_home.py",
+      "sha256": "b8f080c83b14049881a02abd203c68bae46be7c9629d1a4740b06aa535e2d67a"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+      "sha256": "b89a644aa384d047d060f0abd0d613bc3fdd82da788fa3fd44672f02e256672d"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/schema.py",
+      "sha256": "74c3983213b0c0f5f68f13e4b461697901701824e407942355db1b06f17d86c5"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/sealing.py",
+      "sha256": "fa127f926785eb0e3b56cda2359141f066b4de4851b3de1e7cd7d6d3f87fdada"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/sessions.py",
+      "sha256": "bbbae52e65a99268c54b891578f4e9e9a731c337f0845c7b6c988aef5b0300dd"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/source_boundary.py",
+      "sha256": "26f4b80c67703ae49ae6216a1461fecc10843c861cee7d59cfa5b6a896d30f3e"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/stopped_settlement.py",
+      "sha256": "b621253ecf80dce5425add0e6fc463b4b67944ccb72bc63851ceaaf57132fadb"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/store.py",
+      "sha256": "2889218113a5657e36f3a0b2a959d29dbe1c17260f923f5c0094cfa93acbcca4"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/tokens.py",
+      "sha256": "d2cd3ecd1c8c81782352363edac37ed2a646fe82ef1fa39cfc2ddb29fbff79a9"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/worker_entry.py",
+      "sha256": "b83b8bb7bc7b41d6f9b98b49ddba3c2a7a5d5e70be802318bbce82193c685fba"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/workspaces.py",
+      "sha256": "cda02795a97e86eedecb96b98b454f55010f6bda4fc2569ad48ed90b936c7d36"
+    },
+    {
+      "path": "v12/python/src/baton_v12.egg-info/PKG-INFO",
+      "sha256": "1d9a1bbdaad2fc7d9b605a8fd21c4cd9d8469017a4d91a220df4644685b6cedd"
+    },
+    {
+      "path": "v12/python/src/baton_v12.egg-info/SOURCES.txt",
+      "sha256": "4e4ba85df66e9ccd2097d3f7098876227ce050c7a5f4fc2cd45cef1d204cd136"
+    },
+    {
+      "path": "v12/python/src/baton_v12.egg-info/dependency_links.txt",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "path": "v12/python/src/baton_v12.egg-info/requires.txt",
+      "sha256": "5ffe4aff596e6d5ec7c0de9a2dcb5ea4ea1b240f05bb47d9a6c9be380b74fa4c"
+    },
+    {
+      "path": "v12/python/src/baton_v12.egg-info/top_level.txt",
+      "sha256": "cd0acee1a5c96a7970a9a60f2e1d5874c3b4daba70b1009559c87cf904817f1f"
+    },
+    {
+      "path": "v12/python/tools/__init__.py",
+      "sha256": "26c21454b5f7cfde863e5f615ee1cb5a33564a7026147c4ae6c8cf5446c60bf7"
+    },
+    {
+      "path": "v12/python/tools/qualification_credentials.py",
+      "sha256": "c517ee729ceeef36aee84624f3d2f288f02c0937c6cb4e2d9d16db2a27e600f6"
+    }
+  ]
+}

@@ -255,6 +255,96 @@ class WorkerHomePreparation(unittest.TestCase):
         self.assertEqual((first / "state/credential").read_bytes(), b"simulated-first-job-refresh")
 
 
+    def test_missing_initialized_credential_never_reseeds(self):
+        from baton_v12.provider_policy import PolicyRefusal
+        self.prepare()
+        (self.home / "state/credential").unlink()
+        before = self.seed.read_bytes()
+        with mock.patch.object(os, "read", side_effect=AssertionError("must not read seed")):
+            with self.assertRaisesRegex(PolicyRefusal, "credential recovery required"):
+                self.prepare()
+        self.assertFalse((self.home / "state/credential").exists())
+        self.assertEqual(self.seed.read_bytes(), before)
+
+    def test_interrupted_seed_requires_recovery_without_retry(self):
+        from baton_v12.provider_policy import PolicyRefusal
+        with mock.patch.object(os, "link", side_effect=OSError("simulated interrupted copy")):
+            with self.assertRaises(OSError):
+                self.prepare()
+        self.assertFalse((self.home / "state/credential").exists())
+        with self.assertRaisesRegex(PolicyRefusal, "credential recovery required"):
+            self.prepare()
+
+    def test_marker_loss_corruption_wrong_path_and_permissions_refuse(self):
+        from baton_v12.provider_policy import PolicyRefusal
+        from baton_v12.provider_policy.home import CREDENTIAL_STATE
+        self.prepare()
+        marker = self.home / CREDENTIAL_STATE
+        original = marker.read_bytes()
+        for raw in (b"{}", b"not-json", original.replace(b"state/credential", b"other")):
+            marker.write_bytes(raw)
+            with self.assertRaisesRegex(PolicyRefusal, "credential recovery required"):
+                self.prepare()
+        marker.write_bytes(original); marker.chmod(0o644)
+        with self.assertRaisesRegex(PolicyRefusal, "credential recovery required"):
+            self.prepare()
+        marker.unlink()
+        with self.assertRaisesRegex(PolicyRefusal, "credential recovery required"):
+            self.prepare()
+        self.assertEqual((self.home / "state/credential").read_bytes(), b"simulated-seed-only")
+
+    def test_lifecycle_metadata_cannot_be_managed_or_credential(self):
+        import hashlib
+        from baton_v12.provider_policy import PolicyRefusal
+        from baton_v12.provider_policy.home import CREDENTIAL_STATE
+        raw = b"synthetic instructions"
+        with self.assertRaises(PolicyRefusal):
+            self.prepare(managed=[(CREDENTIAL_STATE, raw, "sha256:" + hashlib.sha256(raw).hexdigest())])
+        with self.assertRaises(PolicyRefusal):
+            self.prepare(credential_path=CREDENTIAL_STATE)
+        self.assertEqual(list(self.home.iterdir()), [])
+
+    def test_external_receipt_preserves_refresh_without_source_callback(self):
+        initialize = mock.Mock(side_effect=lambda: (self.prepare(), "first delivery")[1])
+        self.assertEqual(homes.initialize_credential(str(self.home), str(self.root), "state/credential", initialize), "first delivery")
+        target = self.home / "state/credential"
+        target.write_bytes(b"simulated refresh")
+        self.seed.unlink()
+        self.assertIsNone(homes.initialize_credential(str(self.home), str(self.root), "state/credential", initialize))
+        initialize.assert_called_once()
+        self.assertEqual(target.read_bytes(), b"simulated refresh")
+        receipt = (self.root / "credential.json").read_bytes()
+        self.assertNotIn(b"simulated", receipt)
+        self.assertNotIn(str(self.seed).encode(), receipt)
+
+    def test_external_receipt_catches_loss_of_both_worker_marker_and_credential(self):
+        from baton_v12.provider_policy.home import CREDENTIAL_STATE
+        homes.initialize_credential(str(self.home), str(self.root), "state/credential", self.prepare)
+        (self.home / CREDENTIAL_STATE).unlink()
+        (self.home / "state/credential").unlink()
+        initialize = mock.Mock(side_effect=AssertionError("must not reseed"))
+        with self.assertRaisesRegex(homes.HomeRefusal, "credential recovery required"):
+            homes.initialize_credential(str(self.home), str(self.root), "state/credential", initialize)
+        initialize.assert_not_called()
+
+    def test_external_pending_receipt_requires_recovery_after_crash(self):
+        def interrupted():
+            self.prepare()
+            raise OSError("simulated crash after copy")
+        with self.assertRaises(OSError):
+            homes.initialize_credential(str(self.home), str(self.root), "state/credential", interrupted)
+        with self.assertRaisesRegex(homes.HomeRefusal, "credential recovery required"):
+            homes.initialize_credential(str(self.home), str(self.root), "state/credential", self.prepare)
+        self.assertEqual((self.home / "state/credential").read_bytes(), b"simulated-seed-only")
+
+    def test_external_missing_receipt_does_not_adopt_unattributed_copy(self):
+        homes.initialize_credential(str(self.home), str(self.root), "state/credential", self.prepare)
+        (self.root / "credential.json").unlink()
+        with self.assertRaisesRegex(homes.HomeRefusal, "credential recovery required"):
+            homes.initialize_credential(str(self.home), str(self.root), "state/credential", self.prepare)
+
+
+
 class WorkerInstructionDelivery(unittest.TestCase):
     """W385853. Pure policy proofs; no provider, image or vendor loader."""
     SELECTED = dict(provider="claude", requested_model="simulated-selector",

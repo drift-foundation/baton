@@ -952,6 +952,16 @@ provider credential file read-only for one container. Never mount the containing
 host state directory or bake credentials into an image. Teardown removes exposure,
 not the provider-owned host cache.
 
+For a selected seeded-retained provider credential, configure the source once.
+The host manager MUST automatically initialize each Job/worker home once, retain
+provider-refreshed credentials across restart without reading the original
+source, and preserve that home for separately supported resume. Missing
+credentials after initialization or incomplete lifecycle evidence MUST produce
+an explicit recovery condition, never automatic reseeding. Qualification
+launchers MUST automate the selected copy under the same rule. No copy is
+written back to the source; credential access and live execution still require
+explicit selection. See the [credential lifecycle ruling](../work/records/2026/11/finding-v12-native-provider-selection/FINDING.md).
+
 **SEC-3.** Secret bytes, bearer tokens and private transcripts do not belong in
 argv, labels, public events, persisted protocol operands, ordinary artifacts or
 logs. Closed context deliveries exclude credentials from snapshots. A read-only

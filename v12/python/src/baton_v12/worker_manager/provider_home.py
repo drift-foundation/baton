@@ -82,9 +82,9 @@ def _private(fd):
         raise HomeRefusal("provider home directory is not owned and private")
 
 
-def _read(fd):
+def _read(fd, name="record.json"):
     try:
-        entry = os.open("record.json", os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
+        entry = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
                         dir_fd=fd)
     except FileNotFoundError:
         return None
@@ -99,7 +99,7 @@ def _read(fd):
             raise HomeRefusal("provider home record is unreadable") from None
 
 
-def _write(fd, record):
+def _write(fd, record, filename="record.json"):
     name = ".record-" + uuid.uuid4().hex
     entry = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
                     0o600, dir_fd=fd)
@@ -109,7 +109,7 @@ def _write(fd, record):
                                      separators=(",", ":")) + "\n").encode())
             target.flush()
             os.fsync(target.fileno())
-        os.rename(name, "record.json", src_dir_fd=fd, dst_dir_fd=fd)
+        os.rename(name, filename, src_dir_fd=fd, dst_dir_fd=fd)
         os.fsync(fd)
     finally:
         try:
@@ -238,6 +238,42 @@ class HomeMount:
             finally:
                 os.close(home)
         return str(place / "home"), TARGET, True
+
+
+    def initialize_credential(self, credential_path, initialize):
+        """Only the current holder may initialize; the receipt is not mounted."""
+        home, unused, writable = self.boundary()
+        return initialize_credential(home, str(location(self.root, self.identity)),
+                                     credential_path, initialize, validate=self.boundary)
+
+
+def initialize_credential(home, state_directory, credential_path, initialize, *, validate=lambda: None):
+    """Run a seed callback once, under durable intent; return None on restart.
+
+    The caller owns the private state directory outside the mounted home and
+    exclusion from live writers. No credential content is inspected here.
+    Interrupted initialization requires recovery, including after a completed
+    copy but before its external receipt. Never infer permission from absence.
+    """
+    from ..provider_policy.home import credential_state
+    with _directory(state_directory) as fd:
+        _private(fd)
+        fcntl.flock(fd, fcntl.LOCK_EX)
+        validate()
+        record = _read(fd, "credential.json")
+        expected = {"schema": "baton.home-credential/1", "path": credential_path, "state": "ready"}
+        if record is not None:
+            if record != expected or credential_state(home, credential_path) != "ready":
+                raise HomeRefusal("credential recovery required: retained initialization evidence disagrees")
+            return None
+        if credential_state(home, credential_path) != "empty":
+            raise HomeRefusal("credential recovery required: external initialization receipt is absent")
+        _write(fd, dict(expected, state="initializing"), "credential.json")
+        result = initialize()
+        if credential_state(home, credential_path) != "ready":
+            raise HomeRefusal("credential recovery required: initialization did not complete")
+        _write(fd, expected, "credential.json")
+        return result
 
 
 def status_of(root, bound):

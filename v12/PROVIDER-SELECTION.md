@@ -79,8 +79,18 @@ the start transaction. A requested start without confirmed cessation stays held.
 
 Claude uses a reference to the existing read-only credential delivery. The
 shared preparation helper also supports a first-use seed for a future selected
-adapter: once present, its private credential is never opened, compared,
-replaced or copied outward by later starts. The production managed-entry list
+adapter. The host manager resolves the configured source and copies it once,
+before launch. It keeps an initialization receipt outside the mounted home;
+the helper also keeps path-bound lifecycle metadata inside the home. Later
+starts validate those receipts and credential metadata without opening the
+credential, source, or source registry. Provider-refreshed contents are preserved.
+Missing credentials, damaged/missing receipts, and interrupted initialization
+produce an explicit recovery condition; there is no automatic reseeding or
+migration of old unmarked seeded homes. A separate Job/worker gets its own seed.
+Qualification setup uses `tools.qualification_credentials.prepare_selected`
+with a separately selected source configuration, never a manual per-Job copy.
+The private selected source configuration is needed only on first initialization;
+no source writeback or credential hash is produced. The production managed-entry list
 holds exactly the worker-instruction entry described below; the helper replaces
 it by exact digest at every start and rejects credential/provider-state
 collisions.

@@ -1,0 +1,46 @@
+{
+ "P1_first_start_source_absent": "FileNotFoundError: [Errno 2] No such file or directory: '/var/tmp/baton-k-review-386086/roots/p1-t05av_gj/absent-source'",
+ "P1_home_after_failure": "ok: 'empty'",
+ "P1_home_entries": [
+  "store"
+ ],
+ "P1_receipt": {
+  "path": "store/credential",
+  "schema": "baton.home-credential/1",
+  "state": "initializing"
+ },
+ "P1_retry_with_good_source": "HomeRefusal: credential recovery required: retained initialization evidence disagrees",
+ "P2_first": "ok: 'seeded'",
+ "P2_restart_source_deleted": "ok: None",
+ "P2_restart_after_rename_refresh": "ok: None",
+ "P2_bytes_kept": "SYNTHETIC-REFRESHED",
+ "P2_worker_side_prepare_no_delivery": "ok: '/var/tmp/baton-k-review-386086/roots/p2-edgk5e_x/home'",
+ "P2_restart_refresh_left_0644": "PolicyRefusal: credential recovery required: initialization evidence or retained credential is missing or invalid",
+ "P2_restart_credential_lost": "PolicyRefusal: credential recovery required: initialization evidence or retained credential is missing or invalid",
+ "P2_worker_side_after_loss": "PolicyRefusal: credential recovery required: initialization evidence or retained credential is missing or invalid",
+ "P2_source_reads_total": 1,
+ "P3_receipts": [
+  {
+   "path": "store/credential",
+   "schema": "baton.home-credential/1",
+   "state": "ready"
+  },
+  {
+   "schema": "baton.credential-seed/1",
+   "path": "store/credential",
+   "state": "ready"
+  }
+ ],
+ "P3_modes": {
+  "home/store/credential": "0o600",
+  "home/.baton-credential.json": "0o600",
+  "state/credential.json": "0o600"
+ },
+ "P3_distinct_inode": true,
+ "P4_unauthorized": "ValueError: credential copy selection is incomplete",
+ "P4_nothing_created": true,
+ "P4_first": "ok: {'credential_lifecycle': 'ready', 'home': '/var/tmp/baton-k-review-386086/roots/p4-3gpq0mbx/root/live/home', 'source_written': False, 'provider_called': False, 'engine_called': False}",
+ "P4_repeat_without_source_or_config": "ok: {'credential_lifecycle': 'ready', 'home': '/var/tmp/baton-k-review-386086/roots/p4-3gpq0mbx/root/live/home', 'source_written': False, 'provider_called': False, 'engine_called': False}",
+ "P4_bytes_kept": "SYNTHETIC-REFRESHED",
+ "P4_repeat_after_loss": "PolicyRefusal: credential recovery required: initialization evidence or retained credential is missing or invalid"
+}

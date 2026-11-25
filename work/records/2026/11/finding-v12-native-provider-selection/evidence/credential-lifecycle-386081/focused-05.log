@@ -1,0 +1,22 @@
+test_41_42_43_seeded_provider_refresh_survives_correction_without_export (tests.tools.test_provider_selection.SelectedCase.test_41_42_43_seeded_provider_refresh_survives_correction_without_export) ... ok
+test_seeded_restart_reopens_manager_without_original_source (tests.tools.test_provider_selection.SelectedCase.test_seeded_restart_reopens_manager_without_original_source) ... ok
+test_seeded_missing_credential_refuses_before_source_or_new_runtime (tests.tools.test_provider_selection.SelectedCase.test_seeded_missing_credential_refuses_before_source_or_new_runtime) ... ERROR
+
+======================================================================
+ERROR: test_seeded_missing_credential_refuses_before_source_or_new_runtime (tests.tools.test_provider_selection.SelectedCase.test_seeded_missing_credential_refuses_before_source_or_new_runtime)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/tools/test_provider_selection.py", line 595, in test_seeded_missing_credential_refuses_before_source_or_new_runtime
+    self.seeded_restart(missing=True)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/tools/test_provider_selection.py", line 635, in seeded_restart
+    failure = attempt_preparation_failure_of(control, row["attempt_id"])
+                                                      ~~~^^^^^^^^^^^^^^
+KeyError: 'attempt_id'
+
+----------------------------------------------------------------------
+Ran 3 tests in 3.104s
+
+FAILED (errors=1)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

@@ -1,0 +1,27 @@
+test_seeded_restart_reopens_manager_without_original_source (tests.tools.test_provider_selection.SelectedCase.test_seeded_restart_reopens_manager_without_original_source) ... FAIL
+
+======================================================================
+FAIL: test_seeded_restart_reopens_manager_without_original_source (tests.tools.test_provider_selection.SelectedCase.test_seeded_restart_reopens_manager_without_original_source)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/tools/test_provider_selection.py", line 605, in test_seeded_restart_reopens_manager_without_original_source
+    held = self.reviewed("changes-requested")
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/tools/test_provider_selection.py", line 195, in reviewed
+    held = self.implemented()
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/tools/test_stage_execution.py", line 4833, in implemented
+    self.drive(job, composed, "implementation", "waiting")
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/tools/test_stage_execution.py", line 4588, in drive
+    self.fail(f"the {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states(job, composed)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the implementation stage never reached 'waiting': {'implementation': 'exceptional', 'review': 'blocked', 'integration': 'blocked'}
+
+----------------------------------------------------------------------
+Ran 1 test in 0.357s
+
+FAILED (failures=1)
+SYNTHETIC PREPARATION REFUSAL seeded provider credential resolution disagrees
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

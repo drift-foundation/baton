@@ -1,0 +1,82 @@
+test_inode_replacement_invalidates_mount (tests.manager.test_provider_home.ProviderHomeMount.test_inode_replacement_invalidates_mount) ... ok
+test_31_same_job_worker_restart_and_distinct_worker (tests.manager.test_provider_home.RetainedProviderHome.test_31_same_job_worker_restart_and_distinct_worker) ... ok
+test_31a_hostile_ids_only_enter_bounded_digest_components (tests.manager.test_provider_home.RetainedProviderHome.test_31a_hostile_ids_only_enter_bounded_digest_components) ... ok
+test_31b_structured_identity_has_no_join_collisions (tests.manager.test_provider_home.RetainedProviderHome.test_31b_structured_identity_has_no_join_collisions) ... ok
+test_31c_wrong_missing_record_and_symlink_refuse_without_repair (tests.manager.test_provider_home.RetainedProviderHome.test_31c_wrong_missing_record_and_symlink_refuse_without_repair) ... ok
+test_31d_plain_identity_and_holder_live_outside_mounted_home (tests.manager.test_provider_home.RetainedProviderHome.test_31d_plain_identity_and_holder_live_outside_mounted_home) ... ok
+test_32_failed_holder_release_and_return_from_another_job_preserve_bytes (tests.manager.test_provider_home.RetainedProviderHome.test_32_failed_holder_release_and_return_from_another_job_preserve_bytes) ... ok
+test_32_retention_and_32a_new_job_starts_empty (tests.manager.test_provider_home.RetainedProviderHome.test_32_retention_and_32a_new_job_starts_empty) ... ok
+test_34_protected_storage_overlap_in_both_directions (tests.manager.test_provider_home.RetainedProviderHome.test_34_protected_storage_overlap_in_both_directions) ... ok
+test_38_unknown_stale_uncertain_and_wrong_attempt_hold_then_retry (tests.manager.test_provider_home.RetainedProviderHome.test_38_unknown_stale_uncertain_and_wrong_attempt_hold_then_retry) ... ok
+test_39_crash_after_record_before_home_creation_replays_same_holder (tests.manager.test_provider_home.RetainedProviderHome.test_39_crash_after_record_before_home_creation_replays_same_holder) ... ok
+test_ready_home_loss_refuses_instead_of_silently_starting_fresh (tests.manager.test_provider_home.RetainedProviderHome.test_ready_home_loss_refuses_instead_of_silently_starting_fresh) ... ok
+test_package_has_only_standard_library_and_package_local_imports (tests.manager.test_provider_home.SharedProviderPackageBoundary.test_package_has_only_standard_library_and_package_local_imports) ... ok
+test_provider_launch_round_trip_and_cross_attempt_refusal (tests.manager.test_provider_home.SharedProviderPackageBoundary.test_provider_launch_round_trip_and_cross_attempt_refusal) ... ok
+test_40_delivered_reference_never_reads_credential_bytes (tests.manager.test_provider_home.WorkerHomePreparation.test_40_delivered_reference_never_reads_credential_bytes) ... ok
+test_41_second_job_uses_delivery_not_first_jobs_refreshed_seed (tests.manager.test_provider_home.WorkerHomePreparation.test_41_second_job_uses_delivery_not_first_jobs_refreshed_seed) ... ok
+test_41_seed_once_and_42_keep_provider_refresh_despite_changed_or_missing_delivery (tests.manager.test_provider_home.WorkerHomePreparation.test_41_seed_once_and_42_keep_provider_refresh_despite_changed_or_missing_delivery) ... ok
+test_45_same_seed_may_initialize_distinct_empty_homes (tests.manager.test_provider_home.WorkerHomePreparation.test_45_same_seed_may_initialize_distinct_empty_homes) ... ok
+test_46_credential_session_and_digest_collisions_refuse_before_writes (tests.manager.test_provider_home.WorkerHomePreparation.test_46_credential_session_and_digest_collisions_refuse_before_writes) ... ok
+test_46_exact_managed_entries_replace_without_touching_provider_state (tests.manager.test_provider_home.WorkerHomePreparation.test_46_exact_managed_entries_replace_without_touching_provider_state) ... ok
+test_external_missing_receipt_does_not_adopt_unattributed_copy (tests.manager.test_provider_home.WorkerHomePreparation.test_external_missing_receipt_does_not_adopt_unattributed_copy) ... ok
+test_external_pending_receipt_requires_recovery_after_crash (tests.manager.test_provider_home.WorkerHomePreparation.test_external_pending_receipt_requires_recovery_after_crash) ... ok
+test_external_receipt_catches_loss_of_both_worker_marker_and_credential (tests.manager.test_provider_home.WorkerHomePreparation.test_external_receipt_catches_loss_of_both_worker_marker_and_credential) ... ok
+test_external_receipt_preserves_refresh_without_source_callback (tests.manager.test_provider_home.WorkerHomePreparation.test_external_receipt_preserves_refresh_without_source_callback) ... ok
+test_interrupted_seed_requires_recovery_without_retry (tests.manager.test_provider_home.WorkerHomePreparation.test_interrupted_seed_requires_recovery_without_retry) ... ok
+test_lifecycle_metadata_cannot_be_managed_or_credential (tests.manager.test_provider_home.WorkerHomePreparation.test_lifecycle_metadata_cannot_be_managed_or_credential) ... ok
+test_marker_loss_corruption_wrong_path_and_permissions_refuse (tests.manager.test_provider_home.WorkerHomePreparation.test_marker_loss_corruption_wrong_path_and_permissions_refuse) ... ok
+test_missing_initialized_credential_never_reseeds (tests.manager.test_provider_home.WorkerHomePreparation.test_missing_initialized_credential_never_reseeds) ... ok
+test_retained_credential_symlink_is_not_read_or_replaced (tests.manager.test_provider_home.WorkerHomePreparation.test_retained_credential_symlink_is_not_read_or_replaced) ... ok
+test_changed_absent_empty_or_oversized_instructions_refuse (tests.manager.test_provider_home.WorkerInstructionDelivery.test_changed_absent_empty_or_oversized_instructions_refuse) ... ok
+test_earlier_adapter_shape_and_undeclared_realization_refuse (tests.manager.test_provider_home.WorkerInstructionDelivery.test_earlier_adapter_shape_and_undeclared_realization_refuse) ... ok
+test_label_names_role_instructions_and_what_does_not_apply (tests.manager.test_provider_home.WorkerInstructionDelivery.test_label_names_role_instructions_and_what_does_not_apply) ... ok
+test_label_refuses_unknown_role_changed_template_and_oversize (tests.manager.test_provider_home.WorkerInstructionDelivery.test_label_refuses_unknown_role_changed_template_and_oversize) ... ok
+test_managed_payloads_are_placed_replaced_and_leave_provider_state (tests.manager.test_provider_home.WorkerInstructionDelivery.test_managed_payloads_are_placed_replaced_and_leave_provider_state) ... ok
+test_only_one_instruction_selector_name_exists_in_the_tracked_tree (tests.manager.test_provider_home.WorkerInstructionDelivery.test_only_one_instruction_selector_name_exists_in_the_tracked_tree) ... ok
+test_packaged_copy_is_byte_identical_to_the_canonical_document (tests.manager.test_provider_home.WorkerInstructionDelivery.test_packaged_copy_is_byte_identical_to_the_canonical_document) ... ok
+test_packaged_copy_travels_as_package_data (tests.manager.test_provider_home.WorkerInstructionDelivery.test_packaged_copy_travels_as_package_data) ... ok
+test_41_42_43_seeded_provider_refresh_survives_correction_without_export (tests.tools.test_provider_selection.SelectedCase.test_41_42_43_seeded_provider_refresh_survives_correction_without_export) ... FAIL
+test_seeded_restart_reopens_manager_without_original_source (tests.tools.test_provider_selection.SelectedCase.test_seeded_restart_reopens_manager_without_original_source) ... FAIL
+
+======================================================================
+FAIL: test_41_42_43_seeded_provider_refresh_survives_correction_without_export (tests.tools.test_provider_selection.SelectedCase.test_41_42_43_seeded_provider_refresh_survives_correction_without_export)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/tools/test_provider_selection.py", line 572, in test_41_42_43_seeded_provider_refresh_survives_correction_without_export
+    held = self.reviewed("changes-requested")
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/tools/test_provider_selection.py", line 195, in reviewed
+    held = self.implemented()
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/tools/test_stage_execution.py", line 4833, in implemented
+    self.drive(job, composed, "implementation", "waiting")
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/tools/test_stage_execution.py", line 4588, in drive
+    self.fail(f"the {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states(job, composed)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the implementation stage never reached 'waiting': {'implementation': 'exceptional', 'review': 'blocked', 'integration': 'blocked'}
+
+======================================================================
+FAIL: test_seeded_restart_reopens_manager_without_original_source (tests.tools.test_provider_selection.SelectedCase.test_seeded_restart_reopens_manager_without_original_source)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/tools/test_provider_selection.py", line 600, in test_seeded_restart_reopens_manager_without_original_source
+    held = self.reviewed("changes-requested")
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/tools/test_provider_selection.py", line 195, in reviewed
+    held = self.implemented()
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/tools/test_stage_execution.py", line 4833, in implemented
+    self.drive(job, composed, "implementation", "waiting")
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/tools/test_stage_execution.py", line 4588, in drive
+    self.fail(f"the {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states(job, composed)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the implementation stage never reached 'waiting': {'implementation': 'exceptional', 'review': 'blocked', 'integration': 'blocked'}
+
+----------------------------------------------------------------------
+Ran 39 tests in 0.849s
+
+FAILED (failures=2)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1

@@ -1,0 +1,15 @@
+{
+  "files": {
+    "v12/PROVIDER-SELECTION.md": "55adeccbdd02cb117049825547e96921839fa32c6ab420dc4b3ed0411e987b8f",
+    "v12/python/src/baton_v12/provider_policy/home.py": "9f546f234019e12cbf2baaf5c95eef3dc412fa4231ee575e8279b9754ac0113d",
+    "v12/python/src/baton_v12/worker_manager/provider_home.py": "b8f080c83b14049881a02abd203c68bae46be7c9629d1a4740b06aa535e2d67a",
+    "v12/python/tools/single_worker.py": "bc110057f792eba3a5eb356ab46b7f32c5c0250b2e47b8f18d960ee17e7f6d88",
+    "v12/python/tools/qualification_credentials.py": "c517ee729ceeef36aee84624f3d2f288f02c0937c6cb4e2d9d16db2a27e600f6",
+    "v12/python/tests/manager/test_provider_home.py": "1f5085e95f842455dd96961302849830760d82f7bb390e2bce4302eec0fe86f4",
+    "v12/python/tests/tools/test_provider_selection.py": "689959d73de91a54ff295a20e34e6470244cf96ec2db3af98a7f24af49ab6944"
+  },
+  "design_worktree_sha256": "8a7b4a5d5ea90809d1dee4c6b81db4156910ec0e6601a8acc4effbae19bca057",
+  "design_index_sha256": "56ef451371b72ed6f07b59ef7ac0ddec50dbdaf2a944f9a64a54a3cdbbb47da2",
+  "unrelated_design_preserved": true,
+  "tests_rerun": false
+}

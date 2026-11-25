@@ -1,0 +1,24 @@
+{
+  "candidate": "sha256:7f45e1e53d5f4608123cb8f6dba9ec9a701f6b5f89ac4c7e65ad0660eb6066b8",
+  "base": "c1727ad68ffa0f5015b07f27202a66be00848143",
+  "paths": [
+    "v12/PROVIDER-SELECTION.md",
+    "v12/python/src/baton_v12/provider_policy/home.py",
+    "v12/python/src/baton_v12/worker_manager/provider_home.py",
+    "v12/python/tools/single_worker.py",
+    "v12/python/tools/qualification_credentials.py",
+    "v12/python/tests/manager/test_provider_home.py",
+    "v12/python/tests/tools/test_provider_selection.py"
+  ],
+  "design_before": "0c70ebed77d104aa2cdd3608ca1d2d0aa7650fc9bd6b134f5a44ac4e6f6fb414",
+  "modes": {
+    "v12/PROVIDER-SELECTION.md": 420,
+    "v12/python/src/baton_v12/provider_policy/home.py": 420,
+    "v12/python/src/baton_v12/worker_manager/provider_home.py": 420,
+    "v12/python/tools/single_worker.py": 436,
+    "v12/python/tools/qualification_credentials.py": 420,
+    "v12/python/tests/manager/test_provider_home.py": 420,
+    "v12/python/tests/tools/test_provider_selection.py": 420
+  },
+  "refusals": 0
+}

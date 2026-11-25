@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import unittest
 from unittest import mock
 
 from baton_v12 import provider_policy as policy
@@ -552,6 +553,8 @@ class SelectedCase(SelectedBase):
         sentinel = b"SIMULATED-PRIVATE-CREDENTIAL-NOT-A-SECRET"
         realization = copy.deepcopy(policy.REALIZATIONS["claude"])
         realization["credentials"]["mode"] = "seeded-retained"
+        self.config["credential_slots"] = ["claude"]
+        self.config["credential_profile"] = {"claude": self.config["credential_profile"]["api"]}
         seen_credentials = []
         original_provider = self.provider
         def factory(**operands):
@@ -574,7 +577,7 @@ class SelectedCase(SelectedBase):
             second = next(one for one in self.worker_of(held.composed, "implementation").stage._prepared if one != held.attempt_id)
             self.turn(held.control, "implementation", second, self.mounted(held.composed, "implementation", second), edits={"harness.py": "print('second')\n"})
             self.drive(held.job, held.composed, "implementation", "completed")
-            self.assertEqual(seen_credentials[0][1], b"not-a-credential\n")
+            self.assertEqual(seen_credentials[0][1], self.secret.encode())
             self.assertEqual(seen_credentials[-1][0], seen_credentials[0][0])
             self.assertEqual(seen_credentials[-1][1], sentinel)
             self.assertEqual(seen_credentials[0][0].stat().st_mode & 0o777, 0o600)
@@ -585,6 +588,62 @@ class SelectedCase(SelectedBase):
                     continue
                 self.assertNotIn(sentinel, path.read_bytes(), str(path))
             self.assertEqual(len([one for one in self.invocations if "--version" not in one]), 3)
+
+    def test_seeded_restart_reopens_manager_without_original_source(self):
+        self.seeded_restart()
+
+    def test_seeded_missing_credential_refuses_before_source_or_new_runtime(self):
+        self.seeded_restart(missing=True)
+
+    def seeded_restart(self, *, missing=False):
+        from baton_v12.job_manager import JobStore
+        from baton_v12.worker_manager import ControlStore
+        from tools import stage_execution
+        import provider_policy as worker_policy
+        realization = copy.deepcopy(policy.REALIZATIONS["claude"])
+        realization["credentials"]["mode"] = "seeded-retained"
+        self.config["credential_slots"] = ["claude"]
+        self.config["credential_profile"] = {"claude": self.config["credential_profile"]["api"]}
+        with mock.patch.dict(policy.REALIZATIONS, {"claude": realization}), mock.patch.dict(worker_policy.REALIZATIONS, {"claude": realization}):
+            adapter = policy.adapter(self.config["provider_contract"]["selection"], network=self.config["network"])
+            self.config["provider_contract"]["adapter"] = adapter
+            self.config["adapter_digest"] = digest(adapter)
+            held = self.reviewed("changes-requested")
+            sweep(held.job, held.composed, now=fixtures.NOW)
+            selected = model_attribution.selection_of(held.control, held.attempt_id)["delivery"]
+            home = provider_home.location(self.config["provider_home_root"], selected["home_identity"]) / "home"
+            credential = home / ".claude/.credentials.json"
+            credential.write_bytes(b"simulated refreshed credential")
+            held.composed.close(); held.job.close(); held.control.close()
+            job = JobStore.open(self.job_path, authority_uuid=self.config["authority_uuid"], incarnation="seed-restart", clock=lambda: fixtures.NOW)
+            control = ControlStore.open(self.control_path, incarnation="seed-restart", clock=lambda: fixtures.NOW)
+            self.addCleanup(job.close); self.addCleanup(control.close)
+            from tools.user_credentials import UserCredentialSources
+            from baton_v12.worker_manager.credentials import MAX_BEARER
+            source = mock.Mock(wraps=UserCredentialSources(str(Path(self.root) / "absent-synthetic-registry.json"), max_bearer=MAX_BEARER))
+            composed = stage_execution.operations_from(self.composed_document(line_declared_base=self.base), job, control,
+                engine_run=self.engine, credential_provider=source, clock=lambda: fixtures.NOW, checkout=self.checkout)
+            self.addCleanup(composed.close); self._composed = composed
+            if missing:
+                credential.unlink()
+                before = len(self.invocations)
+                self.drive(job, composed, "implementation", "exceptional", ticks=12)
+                source.assert_not_called()
+                self.assertEqual(len(self.invocations), before)
+                self.assertFalse(credential.exists())
+                from baton_v12.worker_manager.attempts import attempt_preparation_failure_of
+                # The failure is retained by the actual attempt owner.
+                holder = json.loads((home.parent / "record.json").read_text())["holder"]
+                failure = attempt_preparation_failure_of(control, holder)
+                self.assertIn("credential recovery required", str(failure))
+                return
+            self.drive(job, composed, "implementation", "waiting", ticks=12)
+            second = next(one for one in self.worker_of(composed, "implementation").stage._prepared if one != held.attempt_id)
+            self.assertEqual(credential.read_bytes(), b"simulated refreshed credential")
+            self.assertEqual(self.turn(control, "implementation", second, self.mounted(composed, "implementation", second), edits={"harness.py": "print('after restart')\n"}), 0)
+            self.drive(job, composed, "implementation", "completed")
+            source.assert_not_called()
+            self.assertEqual(credential.read_bytes(), b"simulated refreshed credential")
 
     def test_32_restart_after_review_reuses_retained_home(self):
         from baton_v12.job_manager import JobStore
@@ -851,6 +910,8 @@ class SelectedCase(SelectedBase):
     def test_45_same_seed_reference_allows_two_workers_and_two_jobs(self):
         realization = copy.deepcopy(policy.REALIZATIONS["claude"])
         realization["credentials"]["mode"] = "seeded-retained"
+        self.config["credential_slots"] = ["claude"]
+        self.config["credential_profile"] = {"claude": self.config["credential_profile"]["api"]}
         with mock.patch.dict(policy.REALIZATIONS, {"claude": realization}):
             adapter = policy.adapter(self.config["provider_contract"]["selection"], network=self.config["network"])
             self.config["provider_contract"]["adapter"] = adapter
@@ -1039,3 +1100,68 @@ class SelectedHandoffCase(SelectedBase, handoffs.HandoffJobCase):
         for argv in self.invocations:
             self.assertNotIn("--resume", argv)
             self.assertNotIn("--session-id", argv)
+
+
+class QualificationCredentialPreparation(unittest.TestCase):
+    """Synthetic credentials only; no engine, model, or real user registry."""
+    def setUp(self):
+        import tempfile
+        from tests.manager.disk_roots import disk_backed_root
+        self.temp = tempfile.TemporaryDirectory(dir=disk_backed_root())
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.run = self.root / "run"
+        self.run.mkdir(mode=0o700)
+        self.source = self.root / "synthetic-source"
+        self.source.write_bytes(b"synthetic qualification seed")
+        self.source.chmod(0o600)
+        self.config = self.root / "synthetic-source.json"
+        self.config.write_text(json.dumps({"reference": "synthetic", "path": str(self.source)}))
+        self.config.chmod(0o600)
+        self.selection = dict(execution_root=str(self.run), uid=os.getuid(), gid=os.getgid(),
+            authorization_credential_copy="synthetic-only", credential_source_reference="synthetic",
+            credential_path_evidence="synthetic", credential_storage_mode_evidence="synthetic",
+            private_retention_and_cleanup_owner="synthetic", refresh_copy_disposition="retain synthetic",
+            codex_home_relative_to_home="synthetic-codex", credential_relative_path="synthetic-auth",
+            instruction_relative_to_home="synthetic-codex/instructions.md")
+
+    def prepare(self, **changes):
+        from tools.qualification_credentials import prepare_selected
+        return prepare_selected(dict(self.selection, **changes), str(self.config))
+
+    def test_automated_copy_and_restart_without_config_or_source(self):
+        self.assertEqual(self.prepare()["credential_lifecycle"], "ready")
+        credential = self.run / "live/home/synthetic-codex/synthetic-auth"
+        self.assertEqual(credential.read_bytes(), b"synthetic qualification seed")
+        self.assertEqual(credential.stat().st_mode & 0o777, 0o600)
+        self.assertNotEqual(credential.stat().st_ino, self.source.stat().st_ino)
+        credential.write_bytes(b"synthetic refreshed qualification seed")
+        self.source.unlink(); self.config.unlink()
+        self.assertEqual(self.prepare()["credential_lifecycle"], "ready")
+        self.assertEqual(credential.read_bytes(), b"synthetic refreshed qualification seed")
+
+    def test_missing_credential_or_lifecycle_never_reseeds(self):
+        from baton_v12.provider_policy import PolicyRefusal
+        self.prepare()
+        credential = self.run / "live/home/synthetic-codex/synthetic-auth"
+        credential.unlink()
+        with self.assertRaisesRegex(PolicyRefusal, "credential recovery required"):
+            self.prepare()
+        self.assertFalse(credential.exists())
+        (self.run / "live/credential-state/credential.json").unlink()
+        with self.assertRaisesRegex(provider_home.HomeRefusal, "credential recovery required"):
+            self.prepare()
+        self.assertFalse(credential.exists())
+
+    def test_unselected_copy_refuses_before_source_access_or_writes(self):
+        self.config.unlink(); self.source.unlink()
+        with self.assertRaisesRegex(ValueError, "selection is incomplete"):
+            self.prepare(authorization_credential_copy=None)
+        self.assertEqual(list(self.run.iterdir()), [])
+
+    def test_source_reference_mismatch_is_recovery_without_copy(self):
+        with self.assertRaisesRegex(ValueError, "source reference disagrees"):
+            self.prepare(credential_source_reference="other")
+        self.assertFalse((self.run / "live/home/synthetic-codex/synthetic-auth").exists())
+        with self.assertRaisesRegex(provider_home.HomeRefusal, "credential recovery required"):
+            self.prepare()

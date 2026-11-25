@@ -1,0 +1,5 @@
+# Credential lifecycle exact import
+
+Owner-selected interactive import of seven accepted paths from7f45e1e5, review M386088. DESIGN candidate whole-file import excluded; only approved credential paragraph applied with FINDING link. Existing42 lines preserved. Before any product write: full candidate/archive hashes, base, seven before-images, empty index, regular owner-writable files and parent paths verified. Existing modes preserved; new helper0644. Final seven hashes/modes verified. No protected Git mutation, credential read, build or provider call. No host rerun with unrelated isolation edits; independent314/314 remains retained evidence, not a full-suite claim.
+
+Checkpoint stages seven product paths, DESIGN generated from HEAD plus only the approved paragraph, current owning dossier FINDING/PLAN/PROGRESS, source candidate evidence, accepting review/evidence and this import record. Other DESIGN lines and W386057 remain unstaged. Script checks pinned byte hashes and empty index before any mutation. --check is read-only; only the human runs actual checkpoint. C2/C3 remain unresolved before selecting seeded-retained for Codex.

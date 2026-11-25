@@ -1,0 +1,62 @@
+{
+  "base": "c1727ad68ffa0f5015b07f27202a66be00848143",
+  "files": [
+    {
+      "path": "v12/DESIGN.md",
+      "before_sha256": "0c70ebed77d104aa2cdd3608ca1d2d0aa7650fc9bd6b134f5a44ac4e6f6fb414",
+      "sha256": "6ddb637df9c7397fa481391afa30d5876cb735fd92f2d035eec4e6deb37dbe36",
+      "bytes": 103401,
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/PROVIDER-SELECTION.md",
+      "before_sha256": "20023627cc76192990fcd4e5bf1967f9e8910f0304be7dcc5380ca6a79c8e1d8",
+      "sha256": "55adeccbdd02cb117049825547e96921839fa32c6ab420dc4b3ed0411e987b8f",
+      "bytes": 12374,
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/src/baton_v12/provider_policy/home.py",
+      "before_sha256": "56b2d7db42be55fb112db2f9333992b19eb2d41cf40f4eacb7b702802bbdbc4e",
+      "sha256": "9f546f234019e12cbf2baaf5c95eef3dc412fa4231ee575e8279b9754ac0113d",
+      "bytes": 9627,
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/provider_home.py",
+      "before_sha256": "949739e4661f87d585fdcce70f8269d6d18ab4b901d6bec808a645d34744dcba",
+      "sha256": "b8f080c83b14049881a02abd203c68bae46be7c9629d1a4740b06aa535e2d67a",
+      "bytes": 12702,
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "before_sha256": "70d5d19eea1bad436d79d3d00c5247f65fc32495c450b58fdbe7fa2b686dbdda",
+      "sha256": "bc110057f792eba3a5eb356ab46b7f32c5c0250b2e47b8f18d960ee17e7f6d88",
+      "bytes": 266845,
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tools/qualification_credentials.py",
+      "before_sha256": null,
+      "sha256": "c517ee729ceeef36aee84624f3d2f288f02c0937c6cb4e2d9d16db2a27e600f6",
+      "bytes": 5055,
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/manager/test_provider_home.py",
+      "before_sha256": "947e08f0cfbf448c8edb8c97fbe44e852d8a12abc69e65de668634e08aca5043",
+      "sha256": "1f5085e95f842455dd96961302849830760d82f7bb390e2bce4302eec0fe86f4",
+      "bytes": 34602,
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/tools/test_provider_selection.py",
+      "before_sha256": "11ba573bffe0f889af4156e12c7a1081d0511dc9fab8bea7cfbecf0f0f422921",
+      "sha256": "689959d73de91a54ff295a20e34e6470244cf96ec2db3af98a7f24af49ab6944",
+      "bytes": 76255,
+      "mode": "0o664"
+    }
+  ],
+  "candidate": "sha256:7f45e1e53d5f4608123cb8f6dba9ec9a701f6b5f89ac4c7e65ad0660eb6066b8"
+}

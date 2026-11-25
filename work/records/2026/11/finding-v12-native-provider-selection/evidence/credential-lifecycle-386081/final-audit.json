@@ -1,0 +1,52 @@
+{
+  "checks": [
+    {
+      "path": "v12/DESIGN.md",
+      "shared_main_unchanged": true,
+      "candidate_matches": true
+    },
+    {
+      "path": "v12/PROVIDER-SELECTION.md",
+      "shared_main_unchanged": true,
+      "candidate_matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/provider_policy/home.py",
+      "shared_main_unchanged": true,
+      "candidate_matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/provider_home.py",
+      "shared_main_unchanged": true,
+      "candidate_matches": true
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "shared_main_unchanged": true,
+      "candidate_matches": true
+    },
+    {
+      "path": "v12/python/tools/qualification_credentials.py",
+      "shared_main_unchanged": true,
+      "candidate_matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_provider_home.py",
+      "shared_main_unchanged": true,
+      "candidate_matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_provider_selection.py",
+      "shared_main_unchanged": true,
+      "candidate_matches": true
+    }
+  ],
+  "archive_verified": true,
+  "original_packet_files_verified": 19,
+  "fixture_root_remaining_entries": 0,
+  "protected_index_diff": "empty (read-only git diff --cached --stat)",
+  "protected_head": "c1727ad68ffa0f5015b07f27202a66be00848143",
+  "main_import": false,
+  "last_thread_read": 386085,
+  "engine_provider_real_credential_operations": 0
+}

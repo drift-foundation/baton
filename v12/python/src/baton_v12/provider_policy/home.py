@@ -1,5 +1,7 @@
 """Worker-side home preparation. Never copies provider state outward."""
+import fcntl
 import hashlib
+import json
 import os
 from pathlib import PurePosixPath
 import stat
@@ -41,15 +43,16 @@ def checked_home(path):
     return path
 
 
-def _parent(fd, parts):
+def _parent(fd, parts, *, create=True):
     here = os.dup(fd)
     try:
         for part in parts[:-1]:
-            try:
-                os.mkdir(part, 0o700, dir_fd=here)
-                os.fsync(here)
-            except FileExistsError:
-                pass
+            if create:
+                try:
+                    os.mkdir(part, 0o700, dir_fd=here)
+                    os.fsync(here)
+                except FileExistsError:
+                    pass
             below = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=here)
             os.close(here)
             here = below
@@ -66,25 +69,102 @@ def _overlap(left, right):
     return left == right or left.startswith(right + "/") or right.startswith(left + "/")
 
 
+# Owned lifecycle metadata, never provider output or credential contents.
+CREDENTIAL_STATE = ".baton-credential.json"
+
+
+def _recovery():
+    raise PolicyRefusal("credential recovery required: initialization evidence or retained credential is missing or invalid")
+
+
+def _state(fd, parts):
+    try:
+        marker = os.open(CREDENTIAL_STATE, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=fd)
+    except FileNotFoundError:
+        record = None
+    else:
+        with os.fdopen(marker, "rb") as stream:
+            info = os.fstat(stream.fileno())
+            if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or stat.S_IMODE(info.st_mode) != 0o600 or info.st_size > 4096:
+                _recovery()
+            try:
+                record = json.loads(stream.read(4097))
+            except (ValueError, UnicodeError):
+                _recovery()
+        if record != {"schema": "baton.credential-seed/1", "path": "/".join(parts), "state": "ready"}:
+            _recovery()
+    try:
+        parent = _parent(fd, parts, create=False)
+    except FileNotFoundError:
+        credential = None
+    else:
+        try:
+            try:
+                credential = os.stat(parts[-1], dir_fd=parent, follow_symlinks=False)
+            except FileNotFoundError:
+                credential = None
+        finally:
+            os.close(parent)
+    if record is None and credential is None:
+        return "empty"
+    if record is None or credential is None:
+        _recovery()
+    if not stat.S_ISREG(credential.st_mode) or credential.st_uid != os.getuid() or stat.S_IMODE(credential.st_mode) & 0o077:
+        _recovery()
+    return "ready"
+
+
+def credential_state(path, credential_path):
+    """Read lifecycle metadata and stat the credential; never open its contents."""
+    parts = _parts(credential_path)
+    if _overlap(credential_path, CREDENTIAL_STATE):
+        raise PolicyRefusal("credential collides with lifecycle metadata")
+    fd = _open_home(path)
+    try:
+        return _state(fd, parts)
+    finally:
+        os.close(fd)
+
+
+def _record_seed(fd, parts, state):
+    temporary = ".seed-record-" + uuid.uuid4().hex
+    entry = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=fd)
+    try:
+        with os.fdopen(entry, "wb") as stream:
+            stream.write(json.dumps({"schema": "baton.credential-seed/1", "path": "/".join(parts), "state": state}).encode())
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.rename(temporary, CREDENTIAL_STATE, src_dir_fd=fd, dst_dir_fd=fd)
+        os.fsync(fd)
+    finally:
+        try:
+            os.unlink(temporary, dir_fd=fd)
+        except FileNotFoundError:
+            pass
+
+
 def prepare(path, *, credential_path, delivered, mode, managed=(), provider_paths=()):
     """Prepare one already held home using exact adapter-owned paths.
 
-    Managed tuples are (relative path, bytes, sha256). Production selects none
-    until instruction delivery is approved. Existing seeded credentials are
+    Managed tuples are (relative path, bytes, sha256). Existing seeded credentials are
     never opened, compared or replaced, including when the delivery changes.
     """
     parts = _parts(credential_path)
     if mode not in ("delivered", "seeded-retained"):
         raise PolicyRefusal("unsupported provider credential mode")
+    if any(_overlap(name, CREDENTIAL_STATE) for name in (credential_path, *provider_paths)):
+        raise PolicyRefusal("provider path collides with lifecycle metadata")
     names = []
     for name, payload, expected in managed:
         _parts(name)
         if (type(payload) is not bytes or "sha256:" + hashlib.sha256(payload).hexdigest() != expected
-                or any(_overlap(name, other) for other in [credential_path, *provider_paths, *names])):
+                or any(_overlap(name, other) for other in [credential_path, CREDENTIAL_STATE, *provider_paths, *names])):
             raise PolicyRefusal("managed entry digest or ownership conflicts")
         names.append(name)
     fd = _open_home(path)
     try:
+        fcntl.flock(fd, fcntl.LOCK_EX)
+        seeded = _state(fd, parts) if mode == "seeded-retained" else None
         parent = _parent(fd, parts)
         try:
             leaf = parts[-1]
@@ -100,18 +180,22 @@ def prepare(path, *, credential_path, delivered, mode, managed=(), provider_path
                     os.fsync(parent)
                 elif not stat.S_ISLNK(state.st_mode) or os.readlink(leaf, dir_fd=parent) != delivered:
                     raise PolicyRefusal("delivered credential reference disagrees")
-            elif state is not None:
-                if not stat.S_ISREG(state.st_mode) or state.st_uid != os.getuid() or stat.S_IMODE(state.st_mode) & 0o077:
-                    raise PolicyRefusal("retained credential is not an owned private regular file")
+            elif seeded == "ready":
+                pass
             else:
                 seed = os.open(delivered, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
                 temporary = ".seed-" + uuid.uuid4().hex
                 target = None
                 try:
-                    if not stat.S_ISREG(os.fstat(seed).st_mode):
-                        raise PolicyRefusal("credential seed is not a regular file")
+                    if not stat.S_ISREG(os.fstat(seed).st_mode) or os.fstat(seed).st_size > 1048576:
+                        raise PolicyRefusal("credential seed is not a bounded regular file")
+                    _record_seed(fd, parts, "initializing")
                     target = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=parent)
+                    copied = 0
                     while chunk := os.read(seed, 65536):
+                        copied += len(chunk)
+                        if copied > 1048576:
+                            raise PolicyRefusal("credential seed exceeds copy bound")
                         view = memoryview(chunk)
                         while view:
                             count = os.write(target, view)
@@ -122,6 +206,7 @@ def prepare(path, *, credential_path, delivered, mode, managed=(), provider_path
                     # No replacing even if a competing entry appeared.
                     os.link(temporary, leaf, src_dir_fd=parent, dst_dir_fd=parent, follow_symlinks=False)
                     os.fsync(parent)
+                    _record_seed(fd, parts, "ready")
                 finally:
                     os.close(seed)
                     if target is not None:

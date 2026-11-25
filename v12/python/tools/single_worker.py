@@ -2153,6 +2153,35 @@ class _SingleWorker:
             if self.credential_home.read_state(attempt_id) is not None \
                     or os.path.lexists(root):
                 self.credential_home.discard_orphan(attempt_id)
+            contract = given.get("provider_contract")
+            if contract is not None and contract["adapter"]["credential"]["mode"] == "seeded-retained":
+                from baton_v12 import provider_policy
+                from baton_v12.provider_policy.home import prepare
+                mount = self._provider_mount(launched)
+                if mount is None:
+                    _refuse("seeded credential has no held provider home")
+                rule = contract["adapter"]["credential"]
+                slot = provider_policy.credential_slot(contract["selection"]["provider"])
+                if [one["slot"] for one in given["credential_resolution"]] != [slot]:
+                    _refuse("seeded provider credential resolution disagrees")
+                delivery = None
+                def initialize():
+                    nonlocal delivery
+                    delivery = self.credential_home.materialize(
+                        given["credential_resolution"], attempt_id=attempt_id,
+                        workspace_group=self.group, credential_provider=self.credential_provider)
+                    home, unused, writable = mount.boundary()
+                    source, target = delivery.mounts()[0]
+                    prepare(home, credential_path=rule["path"], delivered=source, mode="seeded-retained")
+                    return delivery
+                try:
+                    return mount.initialize_credential(rule["path"], initialize), None
+                except BaseException as failure:
+                    if delivery is not None:
+                        self.credential_home.tear_down(delivery)
+                    if isinstance(failure, (ValueError, OSError)) and not isinstance(failure, SourceRefusal):
+                        _refuse("credential recovery required: retained credential initialization failed")
+                    raise
             return (self.credential_home.materialize(
                 given["credential_resolution"], attempt_id=attempt_id,
                 workspace_group=self.group,

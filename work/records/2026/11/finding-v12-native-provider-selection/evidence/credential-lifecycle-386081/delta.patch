@@ -1,0 +1,691 @@
+--- a/v12/DESIGN.md
++++ b/v12/DESIGN.md
+@@ -961,6 +961,16 @@
+ host state directory or bake credentials into an image. Teardown removes exposure,
+ not the provider-owned host cache.
+ 
++For a selected seeded-retained provider credential, configure the source once.
++The host manager MUST automatically initialize each Job/worker home once, retain
++provider-refreshed credentials across restart without reading the original
++source, and preserve that home for separately supported resume. Missing
++credentials after initialization or incomplete lifecycle evidence MUST produce
++an explicit recovery condition, never automatic reseeding. Qualification
++launchers MUST automate the selected copy under the same rule. No copy is
++written back to the source; credential access and live execution still require
++explicit selection. See the [credential lifecycle ruling](../work/records/2026/11/finding-v12-native-provider-selection/evidence/credential-lifecycle-386081/RULING-AND-PLAN.md).
++
+ **SEC-3.** Secret bytes, bearer tokens and private transcripts do not belong in
+ argv, labels, public events, persisted protocol operands, ordinary artifacts or
+ logs. Closed context deliveries exclude credentials from snapshots. A read-only
+--- a/v12/PROVIDER-SELECTION.md
++++ b/v12/PROVIDER-SELECTION.md
+@@ -79,8 +79,18 @@
+ 
+ Claude uses a reference to the existing read-only credential delivery. The
+ shared preparation helper also supports a first-use seed for a future selected
+-adapter: once present, its private credential is never opened, compared,
+-replaced or copied outward by later starts. The production managed-entry list
++adapter. The host manager resolves the configured source and copies it once,
++before launch. It keeps an initialization receipt outside the mounted home;
++the helper also keeps path-bound lifecycle metadata inside the home. Later
++starts validate those receipts and credential metadata without opening the
++credential, source, or source registry. Provider-refreshed contents are preserved.
++Missing credentials, damaged/missing receipts, and interrupted initialization
++produce an explicit recovery condition; there is no automatic reseeding or
++migration of old unmarked seeded homes. A separate Job/worker gets its own seed.
++Qualification setup uses `tools.qualification_credentials.prepare_selected`
++with a separately selected source configuration, never a manual per-Job copy.
++The private selected source configuration is needed only on first initialization;
++no source writeback or credential hash is produced. The production managed-entry list
+ holds exactly the worker-instruction entry described below; the helper replaces
+ it by exact digest at every start and rejects credential/provider-state
+ collisions.
+--- a/v12/python/src/baton_v12/provider_policy/home.py
++++ b/v12/python/src/baton_v12/provider_policy/home.py
+@@ -1,5 +1,7 @@
+ """Worker-side home preparation. Never copies provider state outward."""
++import fcntl
+ import hashlib
++import json
+ import os
+ from pathlib import PurePosixPath
+ import stat
+@@ -41,15 +43,16 @@
+     return path
+ 
+ 
+-def _parent(fd, parts):
++def _parent(fd, parts, *, create=True):
+     here = os.dup(fd)
+     try:
+         for part in parts[:-1]:
+-            try:
+-                os.mkdir(part, 0o700, dir_fd=here)
+-                os.fsync(here)
+-            except FileExistsError:
+-                pass
++            if create:
++                try:
++                    os.mkdir(part, 0o700, dir_fd=here)
++                    os.fsync(here)
++                except FileExistsError:
++                    pass
+             below = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=here)
+             os.close(here)
+             here = below
+@@ -66,25 +69,102 @@
+     return left == right or left.startswith(right + "/") or right.startswith(left + "/")
+ 
+ 
++# Owned lifecycle metadata, never provider output or credential contents.
++CREDENTIAL_STATE = ".baton-credential.json"
++
++
++def _recovery():
++    raise PolicyRefusal("credential recovery required: initialization evidence or retained credential is missing or invalid")
++
++
++def _state(fd, parts):
++    try:
++        marker = os.open(CREDENTIAL_STATE, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=fd)
++    except FileNotFoundError:
++        record = None
++    else:
++        with os.fdopen(marker, "rb") as stream:
++            info = os.fstat(stream.fileno())
++            if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or stat.S_IMODE(info.st_mode) != 0o600 or info.st_size > 4096:
++                _recovery()
++            try:
++                record = json.loads(stream.read(4097))
++            except (ValueError, UnicodeError):
++                _recovery()
++        if record != {"schema": "baton.credential-seed/1", "path": "/".join(parts), "state": "ready"}:
++            _recovery()
++    try:
++        parent = _parent(fd, parts, create=False)
++    except FileNotFoundError:
++        credential = None
++    else:
++        try:
++            try:
++                credential = os.stat(parts[-1], dir_fd=parent, follow_symlinks=False)
++            except FileNotFoundError:
++                credential = None
++        finally:
++            os.close(parent)
++    if record is None and credential is None:
++        return "empty"
++    if record is None or credential is None:
++        _recovery()
++    if not stat.S_ISREG(credential.st_mode) or credential.st_uid != os.getuid() or stat.S_IMODE(credential.st_mode) & 0o077:
++        _recovery()
++    return "ready"
++
++
++def credential_state(path, credential_path):
++    """Read lifecycle metadata and stat the credential; never open its contents."""
++    parts = _parts(credential_path)
++    if _overlap(credential_path, CREDENTIAL_STATE):
++        raise PolicyRefusal("credential collides with lifecycle metadata")
++    fd = _open_home(path)
++    try:
++        return _state(fd, parts)
++    finally:
++        os.close(fd)
++
++
++def _record_seed(fd, parts, state):
++    temporary = ".seed-record-" + uuid.uuid4().hex
++    entry = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=fd)
++    try:
++        with os.fdopen(entry, "wb") as stream:
++            stream.write(json.dumps({"schema": "baton.credential-seed/1", "path": "/".join(parts), "state": state}).encode())
++            stream.flush()
++            os.fsync(stream.fileno())
++        os.rename(temporary, CREDENTIAL_STATE, src_dir_fd=fd, dst_dir_fd=fd)
++        os.fsync(fd)
++    finally:
++        try:
++            os.unlink(temporary, dir_fd=fd)
++        except FileNotFoundError:
++            pass
++
++
+ def prepare(path, *, credential_path, delivered, mode, managed=(), provider_paths=()):
+     """Prepare one already held home using exact adapter-owned paths.
+ 
+-    Managed tuples are (relative path, bytes, sha256). Production selects none
+-    until instruction delivery is approved. Existing seeded credentials are
++    Managed tuples are (relative path, bytes, sha256). Existing seeded credentials are
+     never opened, compared or replaced, including when the delivery changes.
+     """
+     parts = _parts(credential_path)
+     if mode not in ("delivered", "seeded-retained"):
+         raise PolicyRefusal("unsupported provider credential mode")
++    if any(_overlap(name, CREDENTIAL_STATE) for name in (credential_path, *provider_paths)):
++        raise PolicyRefusal("provider path collides with lifecycle metadata")
+     names = []
+     for name, payload, expected in managed:
+         _parts(name)
+         if (type(payload) is not bytes or "sha256:" + hashlib.sha256(payload).hexdigest() != expected
+-                or any(_overlap(name, other) for other in [credential_path, *provider_paths, *names])):
++                or any(_overlap(name, other) for other in [credential_path, CREDENTIAL_STATE, *provider_paths, *names])):
+             raise PolicyRefusal("managed entry digest or ownership conflicts")
+         names.append(name)
+     fd = _open_home(path)
+     try:
++        fcntl.flock(fd, fcntl.LOCK_EX)
++        seeded = _state(fd, parts) if mode == "seeded-retained" else None
+         parent = _parent(fd, parts)
+         try:
+             leaf = parts[-1]
+@@ -100,18 +180,22 @@
+                     os.fsync(parent)
+                 elif not stat.S_ISLNK(state.st_mode) or os.readlink(leaf, dir_fd=parent) != delivered:
+                     raise PolicyRefusal("delivered credential reference disagrees")
+-            elif state is not None:
+-                if not stat.S_ISREG(state.st_mode) or state.st_uid != os.getuid() or stat.S_IMODE(state.st_mode) & 0o077:
+-                    raise PolicyRefusal("retained credential is not an owned private regular file")
++            elif seeded == "ready":
++                pass
+             else:
+                 seed = os.open(delivered, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+                 temporary = ".seed-" + uuid.uuid4().hex
+                 target = None
+                 try:
+-                    if not stat.S_ISREG(os.fstat(seed).st_mode):
+-                        raise PolicyRefusal("credential seed is not a regular file")
++                    if not stat.S_ISREG(os.fstat(seed).st_mode) or os.fstat(seed).st_size > 1048576:
++                        raise PolicyRefusal("credential seed is not a bounded regular file")
++                    _record_seed(fd, parts, "initializing")
+                     target = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=parent)
++                    copied = 0
+                     while chunk := os.read(seed, 65536):
++                        copied += len(chunk)
++                        if copied > 1048576:
++                            raise PolicyRefusal("credential seed exceeds copy bound")
+                         view = memoryview(chunk)
+                         while view:
+                             count = os.write(target, view)
+@@ -122,6 +206,7 @@
+                     # No replacing even if a competing entry appeared.
+                     os.link(temporary, leaf, src_dir_fd=parent, dst_dir_fd=parent, follow_symlinks=False)
+                     os.fsync(parent)
++                    _record_seed(fd, parts, "ready")
+                 finally:
+                     os.close(seed)
+                     if target is not None:
+--- a/v12/python/src/baton_v12/worker_manager/provider_home.py
++++ b/v12/python/src/baton_v12/worker_manager/provider_home.py
+@@ -82,9 +82,9 @@
+         raise HomeRefusal("provider home directory is not owned and private")
+ 
+ 
+-def _read(fd):
+-    try:
+-        entry = os.open("record.json", os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
++def _read(fd, name="record.json"):
++    try:
++        entry = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
+                         dir_fd=fd)
+     except FileNotFoundError:
+         return None
+@@ -99,7 +99,7 @@
+             raise HomeRefusal("provider home record is unreadable") from None
+ 
+ 
+-def _write(fd, record):
++def _write(fd, record, filename="record.json"):
+     name = ".record-" + uuid.uuid4().hex
+     entry = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                     0o600, dir_fd=fd)
+@@ -109,7 +109,7 @@
+                                      separators=(",", ":")) + "\n").encode())
+             target.flush()
+             os.fsync(target.fileno())
+-        os.rename(name, "record.json", src_dir_fd=fd, dst_dir_fd=fd)
++        os.rename(name, filename, src_dir_fd=fd, dst_dir_fd=fd)
+         os.fsync(fd)
+     finally:
+         try:
+@@ -240,6 +240,42 @@
+         return str(place / "home"), TARGET, True
+ 
+ 
++    def initialize_credential(self, credential_path, initialize):
++        """Only the current holder may initialize; the receipt is not mounted."""
++        home, unused, writable = self.boundary()
++        return initialize_credential(home, str(location(self.root, self.identity)),
++                                     credential_path, initialize, validate=self.boundary)
++
++
++def initialize_credential(home, state_directory, credential_path, initialize, *, validate=lambda: None):
++    """Run a seed callback once, under durable intent; return None on restart.
++
++    The caller owns the private state directory outside the mounted home and
++    exclusion from live writers. No credential content is inspected here.
++    Interrupted initialization requires recovery, including after a completed
++    copy but before its external receipt. Never infer permission from absence.
++    """
++    from ..provider_policy.home import credential_state
++    with _directory(state_directory) as fd:
++        _private(fd)
++        fcntl.flock(fd, fcntl.LOCK_EX)
++        validate()
++        record = _read(fd, "credential.json")
++        expected = {"schema": "baton.home-credential/1", "path": credential_path, "state": "ready"}
++        if record is not None:
++            if record != expected or credential_state(home, credential_path) != "ready":
++                raise HomeRefusal("credential recovery required: retained initialization evidence disagrees")
++            return None
++        if credential_state(home, credential_path) != "empty":
++            raise HomeRefusal("credential recovery required: external initialization receipt is absent")
++        _write(fd, dict(expected, state="initializing"), "credential.json")
++        result = initialize()
++        if credential_state(home, credential_path) != "ready":
++            raise HomeRefusal("credential recovery required: initialization did not complete")
++        _write(fd, expected, "credential.json")
++        return result
++
++
+ def status_of(root, bound):
+     """Content-free read; missing or damaged custody is unknown, never repaired."""
+     answer = {"worker_id": bound["worker_id"], "holder": None, "state": "unknown"}
+--- a/v12/python/tools/single_worker.py
++++ b/v12/python/tools/single_worker.py
+@@ -2153,6 +2153,35 @@
+             if self.credential_home.read_state(attempt_id) is not None \
+                     or os.path.lexists(root):
+                 self.credential_home.discard_orphan(attempt_id)
++            contract = given.get("provider_contract")
++            if contract is not None and contract["adapter"]["credential"]["mode"] == "seeded-retained":
++                from baton_v12 import provider_policy
++                from baton_v12.provider_policy.home import prepare
++                mount = self._provider_mount(launched)
++                if mount is None:
++                    _refuse("seeded credential has no held provider home")
++                rule = contract["adapter"]["credential"]
++                slot = provider_policy.credential_slot(contract["selection"]["provider"])
++                if [one["slot"] for one in given["credential_resolution"]] != [slot]:
++                    _refuse("seeded provider credential resolution disagrees")
++                delivery = None
++                def initialize():
++                    nonlocal delivery
++                    delivery = self.credential_home.materialize(
++                        given["credential_resolution"], attempt_id=attempt_id,
++                        workspace_group=self.group, credential_provider=self.credential_provider)
++                    home, unused, writable = mount.boundary()
++                    source, target = delivery.mounts()[0]
++                    prepare(home, credential_path=rule["path"], delivered=source, mode="seeded-retained")
++                    return delivery
++                try:
++                    return mount.initialize_credential(rule["path"], initialize), None
++                except BaseException as failure:
++                    if delivery is not None:
++                        self.credential_home.tear_down(delivery)
++                    if isinstance(failure, (ValueError, OSError)) and not isinstance(failure, SourceRefusal):
++                        _refuse("credential recovery required: retained credential initialization failed")
++                    raise
+             return (self.credential_home.materialize(
+                 given["credential_resolution"], attempt_id=attempt_id,
+                 workspace_group=self.group,
+--- /dev/null
++++ b/v12/python/tools/qualification_credentials.py
+@@ -0,0 +1,89 @@
++"""Explicitly selected qualification seeding; no engine or provider execution.
++
++The configured source is resolved only by the first-initialization callback.
++Existing private homes and refreshed credentials are never replaced.
++"""
++import json
++import os
++from pathlib import Path
++import stat
++
++from baton_v12.provider_policy.home import prepare, checked_home, _parts
++from baton_v12.worker_manager.provider_home import initialize_credential, HomeRefusal
++
++
++def _directory(path):
++    if not path.is_absolute() or path != Path(os.path.realpath(path)):
++        raise ValueError("qualification directory must be absolute without symlink aliases")
++    for parent in (path, *path.parents):
++        if os.path.lexists(parent / ".git") or ((parent / "HEAD").exists() and (parent / "objects").is_dir()):
++            raise ValueError("qualification directory must be outside every repository")
++
++
++def prepare_selected(selection, source_configuration):
++    """Selection is not authorization by itself; the caller verifies the ruling.
++
++    Read only explicitly selected paths, with no ambient login discovery. The
++    source configuration is a private file containing reference and path, set
++    once by the selected custodian; it is not needed on a retained restart.
++    """
++    required = ("authorization_credential_copy", "credential_source_reference",
++                "credential_path_evidence", "credential_storage_mode_evidence",
++                "private_retention_and_cleanup_owner", "refresh_copy_disposition")
++    if any(not isinstance(selection.get(key), str) or not selection[key] for key in required):
++        raise ValueError("credential copy selection is incomplete")
++    if selection.get("uid") != os.getuid() or selection.get("gid") != os.getgid() or os.getuid() == 0:
++        raise ValueError("qualification setup must run as the selected non-root UID:GID")
++    root = Path(selection["execution_root"])
++    _directory(root)
++    checked_home(str(root))
++    relative = selection["codex_home_relative_to_home"] + "/" + selection["credential_relative_path"]
++    _parts(relative)
++    instruction = selection["instruction_relative_to_home"]
++    _parts(instruction)
++    if relative == instruction or relative.startswith(instruction + "/") or instruction.startswith(relative + "/"):
++        raise ValueError("credential/instruction paths overlap")
++    live = root / "live"
++    try:
++        live.mkdir(mode=0o700)
++    except FileExistsError:
++        checked_home(str(live))
++        # A partial directory is a recovery condition, not a fresh setup.
++        for name in ("home", "credential-state", "workspace", "private-output"):
++            checked_home(str(live / name))
++        if not (live / "credential-state" / "credential.json").exists():
++            raise HomeRefusal("credential recovery required: qualification initialization receipt is absent")
++    else:
++        for name in ("home", "credential-state", "workspace", "private-output"):
++            (live / name).mkdir(mode=0o700)
++        for path in (live, root):
++            fd = os.open(path, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
++            try:
++                os.fsync(fd)
++            finally:
++                os.close(fd)
++    home = str(live / "home")
++    def initialize():
++        # This callback is never entered on a retained restart. In particular,
++        # an absent source configuration or source file does not break restart.
++        config = Path(source_configuration)
++        if not config.is_absolute() or config != Path(os.path.realpath(config)):
++            raise ValueError("source configuration must be an explicit canonical path")
++        fd = os.open(config, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
++        with os.fdopen(fd, "rb") as stream:
++            info = os.fstat(stream.fileno())
++            if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or stat.S_IMODE(info.st_mode) != 0o600 or info.st_size > 16384:
++                raise ValueError("source configuration must be private and bounded")
++            source = json.loads(stream.read(16385))
++        if set(source) != {"reference", "path"} or source["reference"] != selection["credential_source_reference"]:
++            raise ValueError("source reference disagrees with selection")
++        path = Path(source["path"])
++        if not path.is_absolute() or path != Path(os.path.realpath(path)) or path.is_relative_to(root):
++            raise ValueError("source must be an explicit external file without symlink aliases")
++        info = path.lstat()
++        if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or stat.S_IMODE(info.st_mode) != 0o600 or info.st_size > 1048576:
++            raise ValueError("selected source must be a private bounded regular file")
++        prepare(home, credential_path=relative, delivered=str(path), mode="seeded-retained")
++    initialize_credential(home, str(live / "credential-state"), relative, initialize)
++    return {"credential_lifecycle": "ready", "home": home, "source_written": False,
++            "provider_called": False, "engine_called": False}
+--- a/v12/python/tests/manager/test_provider_home.py
++++ b/v12/python/tests/manager/test_provider_home.py
+@@ -253,6 +253,96 @@
+         self.prepare()
+         self.assertEqual((self.home / "state/credential").read_bytes(), b"simulated-new-delivery")
+         self.assertEqual((first / "state/credential").read_bytes(), b"simulated-first-job-refresh")
++
++
++    def test_missing_initialized_credential_never_reseeds(self):
++        from baton_v12.provider_policy import PolicyRefusal
++        self.prepare()
++        (self.home / "state/credential").unlink()
++        before = self.seed.read_bytes()
++        with mock.patch.object(os, "read", side_effect=AssertionError("must not read seed")):
++            with self.assertRaisesRegex(PolicyRefusal, "credential recovery required"):
++                self.prepare()
++        self.assertFalse((self.home / "state/credential").exists())
++        self.assertEqual(self.seed.read_bytes(), before)
++
++    def test_interrupted_seed_requires_recovery_without_retry(self):
++        from baton_v12.provider_policy import PolicyRefusal
++        with mock.patch.object(os, "link", side_effect=OSError("simulated interrupted copy")):
++            with self.assertRaises(OSError):
++                self.prepare()
++        self.assertFalse((self.home / "state/credential").exists())
++        with self.assertRaisesRegex(PolicyRefusal, "credential recovery required"):
++            self.prepare()
++
++    def test_marker_loss_corruption_wrong_path_and_permissions_refuse(self):
++        from baton_v12.provider_policy import PolicyRefusal
++        from baton_v12.provider_policy.home import CREDENTIAL_STATE
++        self.prepare()
++        marker = self.home / CREDENTIAL_STATE
++        original = marker.read_bytes()
++        for raw in (b"{}", b"not-json", original.replace(b"state/credential", b"other")):
++            marker.write_bytes(raw)
++            with self.assertRaisesRegex(PolicyRefusal, "credential recovery required"):
++                self.prepare()
++        marker.write_bytes(original); marker.chmod(0o644)
++        with self.assertRaisesRegex(PolicyRefusal, "credential recovery required"):
++            self.prepare()
++        marker.unlink()
++        with self.assertRaisesRegex(PolicyRefusal, "credential recovery required"):
++            self.prepare()
++        self.assertEqual((self.home / "state/credential").read_bytes(), b"simulated-seed-only")
++
++    def test_lifecycle_metadata_cannot_be_managed_or_credential(self):
++        import hashlib
++        from baton_v12.provider_policy import PolicyRefusal
++        from baton_v12.provider_policy.home import CREDENTIAL_STATE
++        raw = b"synthetic instructions"
++        with self.assertRaises(PolicyRefusal):
++            self.prepare(managed=[(CREDENTIAL_STATE, raw, "sha256:" + hashlib.sha256(raw).hexdigest())])
++        with self.assertRaises(PolicyRefusal):
++            self.prepare(credential_path=CREDENTIAL_STATE)
++        self.assertEqual(list(self.home.iterdir()), [])
++
++    def test_external_receipt_preserves_refresh_without_source_callback(self):
++        initialize = mock.Mock(side_effect=lambda: (self.prepare(), "first delivery")[1])
++        self.assertEqual(homes.initialize_credential(str(self.home), str(self.root), "state/credential", initialize), "first delivery")
++        target = self.home / "state/credential"
++        target.write_bytes(b"simulated refresh")
++        self.seed.unlink()
++        self.assertIsNone(homes.initialize_credential(str(self.home), str(self.root), "state/credential", initialize))
++        initialize.assert_called_once()
++        self.assertEqual(target.read_bytes(), b"simulated refresh")
++        receipt = (self.root / "credential.json").read_bytes()
++        self.assertNotIn(b"simulated", receipt)
++        self.assertNotIn(str(self.seed).encode(), receipt)
++
++    def test_external_receipt_catches_loss_of_both_worker_marker_and_credential(self):
++        from baton_v12.provider_policy.home import CREDENTIAL_STATE
++        homes.initialize_credential(str(self.home), str(self.root), "state/credential", self.prepare)
++        (self.home / CREDENTIAL_STATE).unlink()
++        (self.home / "state/credential").unlink()
++        initialize = mock.Mock(side_effect=AssertionError("must not reseed"))
++        with self.assertRaisesRegex(homes.HomeRefusal, "credential recovery required"):
++            homes.initialize_credential(str(self.home), str(self.root), "state/credential", initialize)
++        initialize.assert_not_called()
++
++    def test_external_pending_receipt_requires_recovery_after_crash(self):
++        def interrupted():
++            self.prepare()
++            raise OSError("simulated crash after copy")
++        with self.assertRaises(OSError):
++            homes.initialize_credential(str(self.home), str(self.root), "state/credential", interrupted)
++        with self.assertRaisesRegex(homes.HomeRefusal, "credential recovery required"):
++            homes.initialize_credential(str(self.home), str(self.root), "state/credential", self.prepare)
++        self.assertEqual((self.home / "state/credential").read_bytes(), b"simulated-seed-only")
++
++    def test_external_missing_receipt_does_not_adopt_unattributed_copy(self):
++        homes.initialize_credential(str(self.home), str(self.root), "state/credential", self.prepare)
++        (self.root / "credential.json").unlink()
++        with self.assertRaisesRegex(homes.HomeRefusal, "credential recovery required"):
++            homes.initialize_credential(str(self.home), str(self.root), "state/credential", self.prepare)
++
+ 
+ 
+ class WorkerInstructionDelivery(unittest.TestCase):
+--- a/v12/python/tests/tools/test_provider_selection.py
++++ b/v12/python/tests/tools/test_provider_selection.py
+@@ -4,6 +4,7 @@
+ import os
+ from pathlib import Path
+ import subprocess
++import unittest
+ from unittest import mock
+ 
+ from baton_v12 import provider_policy as policy
+@@ -552,6 +553,8 @@
+         sentinel = b"SIMULATED-PRIVATE-CREDENTIAL-NOT-A-SECRET"
+         realization = copy.deepcopy(policy.REALIZATIONS["claude"])
+         realization["credentials"]["mode"] = "seeded-retained"
++        self.config["credential_slots"] = ["claude"]
++        self.config["credential_profile"] = {"claude": self.config["credential_profile"]["api"]}
+         seen_credentials = []
+         original_provider = self.provider
+         def factory(**operands):
+@@ -574,7 +577,7 @@
+             second = next(one for one in self.worker_of(held.composed, "implementation").stage._prepared if one != held.attempt_id)
+             self.turn(held.control, "implementation", second, self.mounted(held.composed, "implementation", second), edits={"harness.py": "print('second')\n"})
+             self.drive(held.job, held.composed, "implementation", "completed")
+-            self.assertEqual(seen_credentials[0][1], b"not-a-credential\n")
++            self.assertEqual(seen_credentials[0][1], self.secret.encode())
+             self.assertEqual(seen_credentials[-1][0], seen_credentials[0][0])
+             self.assertEqual(seen_credentials[-1][1], sentinel)
+             self.assertEqual(seen_credentials[0][0].stat().st_mode & 0o777, 0o600)
+@@ -585,6 +588,62 @@
+                     continue
+                 self.assertNotIn(sentinel, path.read_bytes(), str(path))
+             self.assertEqual(len([one for one in self.invocations if "--version" not in one]), 3)
++
++    def test_seeded_restart_reopens_manager_without_original_source(self):
++        self.seeded_restart()
++
++    def test_seeded_missing_credential_refuses_before_source_or_new_runtime(self):
++        self.seeded_restart(missing=True)
++
++    def seeded_restart(self, *, missing=False):
++        from baton_v12.job_manager import JobStore
++        from baton_v12.worker_manager import ControlStore
++        from tools import stage_execution
++        import provider_policy as worker_policy
++        realization = copy.deepcopy(policy.REALIZATIONS["claude"])
++        realization["credentials"]["mode"] = "seeded-retained"
++        self.config["credential_slots"] = ["claude"]
++        self.config["credential_profile"] = {"claude": self.config["credential_profile"]["api"]}
++        with mock.patch.dict(policy.REALIZATIONS, {"claude": realization}), mock.patch.dict(worker_policy.REALIZATIONS, {"claude": realization}):
++            adapter = policy.adapter(self.config["provider_contract"]["selection"], network=self.config["network"])
++            self.config["provider_contract"]["adapter"] = adapter
++            self.config["adapter_digest"] = digest(adapter)
++            held = self.reviewed("changes-requested")
++            sweep(held.job, held.composed, now=fixtures.NOW)
++            selected = model_attribution.selection_of(held.control, held.attempt_id)["delivery"]
++            home = provider_home.location(self.config["provider_home_root"], selected["home_identity"]) / "home"
++            credential = home / ".claude/.credentials.json"
++            credential.write_bytes(b"simulated refreshed credential")
++            held.composed.close(); held.job.close(); held.control.close()
++            job = JobStore.open(self.job_path, authority_uuid=self.config["authority_uuid"], incarnation="seed-restart", clock=lambda: fixtures.NOW)
++            control = ControlStore.open(self.control_path, incarnation="seed-restart", clock=lambda: fixtures.NOW)
++            self.addCleanup(job.close); self.addCleanup(control.close)
++            from tools.user_credentials import UserCredentialSources
++            from baton_v12.worker_manager.credentials import MAX_BEARER
++            source = mock.Mock(wraps=UserCredentialSources(str(Path(self.root) / "absent-synthetic-registry.json"), max_bearer=MAX_BEARER))
++            composed = stage_execution.operations_from(self.composed_document(line_declared_base=self.base), job, control,
++                engine_run=self.engine, credential_provider=source, clock=lambda: fixtures.NOW, checkout=self.checkout)
++            self.addCleanup(composed.close); self._composed = composed
++            if missing:
++                credential.unlink()
++                before = len(self.invocations)
++                self.drive(job, composed, "implementation", "exceptional", ticks=12)
++                source.assert_not_called()
++                self.assertEqual(len(self.invocations), before)
++                self.assertFalse(credential.exists())
++                from baton_v12.worker_manager.attempts import attempt_preparation_failure_of
++                # The failure is retained by the actual attempt owner.
++                holder = json.loads((home.parent / "record.json").read_text())["holder"]
++                failure = attempt_preparation_failure_of(control, holder)
++                self.assertIn("credential recovery required", str(failure))
++                return
++            self.drive(job, composed, "implementation", "waiting", ticks=12)
++            second = next(one for one in self.worker_of(composed, "implementation").stage._prepared if one != held.attempt_id)
++            self.assertEqual(credential.read_bytes(), b"simulated refreshed credential")
++            self.assertEqual(self.turn(control, "implementation", second, self.mounted(composed, "implementation", second), edits={"harness.py": "print('after restart')\n"}), 0)
++            self.drive(job, composed, "implementation", "completed")
++            source.assert_not_called()
++            self.assertEqual(credential.read_bytes(), b"simulated refreshed credential")
+ 
+     def test_32_restart_after_review_reuses_retained_home(self):
+         from baton_v12.job_manager import JobStore
+@@ -851,6 +910,8 @@
+     def test_45_same_seed_reference_allows_two_workers_and_two_jobs(self):
+         realization = copy.deepcopy(policy.REALIZATIONS["claude"])
+         realization["credentials"]["mode"] = "seeded-retained"
++        self.config["credential_slots"] = ["claude"]
++        self.config["credential_profile"] = {"claude": self.config["credential_profile"]["api"]}
+         with mock.patch.dict(policy.REALIZATIONS, {"claude": realization}):
+             adapter = policy.adapter(self.config["provider_contract"]["selection"], network=self.config["network"])
+             self.config["provider_contract"]["adapter"] = adapter
+@@ -1039,3 +1100,68 @@
+         for argv in self.invocations:
+             self.assertNotIn("--resume", argv)
+             self.assertNotIn("--session-id", argv)
++
++
++class QualificationCredentialPreparation(unittest.TestCase):
++    """Synthetic credentials only; no engine, model, or real user registry."""
++    def setUp(self):
++        import tempfile
++        from tests.manager.disk_roots import disk_backed_root
++        self.temp = tempfile.TemporaryDirectory(dir=disk_backed_root())
++        self.addCleanup(self.temp.cleanup)
++        self.root = Path(self.temp.name)
++        self.run = self.root / "run"
++        self.run.mkdir(mode=0o700)
++        self.source = self.root / "synthetic-source"
++        self.source.write_bytes(b"synthetic qualification seed")
++        self.source.chmod(0o600)
++        self.config = self.root / "synthetic-source.json"
++        self.config.write_text(json.dumps({"reference": "synthetic", "path": str(self.source)}))
++        self.config.chmod(0o600)
++        self.selection = dict(execution_root=str(self.run), uid=os.getuid(), gid=os.getgid(),
++            authorization_credential_copy="synthetic-only", credential_source_reference="synthetic",
++            credential_path_evidence="synthetic", credential_storage_mode_evidence="synthetic",
++            private_retention_and_cleanup_owner="synthetic", refresh_copy_disposition="retain synthetic",
++            codex_home_relative_to_home="synthetic-codex", credential_relative_path="synthetic-auth",
++            instruction_relative_to_home="synthetic-codex/instructions.md")
++
++    def prepare(self, **changes):
++        from tools.qualification_credentials import prepare_selected
++        return prepare_selected(dict(self.selection, **changes), str(self.config))
++
++    def test_automated_copy_and_restart_without_config_or_source(self):
++        self.assertEqual(self.prepare()["credential_lifecycle"], "ready")
++        credential = self.run / "live/home/synthetic-codex/synthetic-auth"
++        self.assertEqual(credential.read_bytes(), b"synthetic qualification seed")
++        self.assertEqual(credential.stat().st_mode & 0o777, 0o600)
++        self.assertNotEqual(credential.stat().st_ino, self.source.stat().st_ino)
++        credential.write_bytes(b"synthetic refreshed qualification seed")
++        self.source.unlink(); self.config.unlink()
++        self.assertEqual(self.prepare()["credential_lifecycle"], "ready")
++        self.assertEqual(credential.read_bytes(), b"synthetic refreshed qualification seed")
++
++    def test_missing_credential_or_lifecycle_never_reseeds(self):
++        from baton_v12.provider_policy import PolicyRefusal
++        self.prepare()
++        credential = self.run / "live/home/synthetic-codex/synthetic-auth"
++        credential.unlink()
++        with self.assertRaisesRegex(PolicyRefusal, "credential recovery required"):
++            self.prepare()
++        self.assertFalse(credential.exists())
++        (self.run / "live/credential-state/credential.json").unlink()
++        with self.assertRaisesRegex(provider_home.HomeRefusal, "credential recovery required"):
++            self.prepare()
++        self.assertFalse(credential.exists())
++
++    def test_unselected_copy_refuses_before_source_access_or_writes(self):
++        self.config.unlink(); self.source.unlink()
++        with self.assertRaisesRegex(ValueError, "selection is incomplete"):
++            self.prepare(authorization_credential_copy=None)
++        self.assertEqual(list(self.run.iterdir()), [])
++
++    def test_source_reference_mismatch_is_recovery_without_copy(self):
++        with self.assertRaisesRegex(ValueError, "source reference disagrees"):
++            self.prepare(credential_source_reference="other")
++        self.assertFalse((self.run / "live/home/synthetic-codex/synthetic-auth").exists())
++        with self.assertRaisesRegex(provider_home.HomeRefusal, "credential recovery required"):
++            self.prepare()

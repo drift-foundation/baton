@@ -1,0 +1,529 @@
+test_inode_replacement_invalidates_mount (tests.manager.test_provider_home.ProviderHomeMount.test_inode_replacement_invalidates_mount) ... ERROR
+test_31_same_job_worker_restart_and_distinct_worker (tests.manager.test_provider_home.RetainedProviderHome.test_31_same_job_worker_restart_and_distinct_worker) ... ERROR
+test_31a_hostile_ids_only_enter_bounded_digest_components (tests.manager.test_provider_home.RetainedProviderHome.test_31a_hostile_ids_only_enter_bounded_digest_components) ... 
+  test_31a_hostile_ids_only_enter_bounded_digest_components (tests.manager.test_provider_home.RetainedProviderHome.test_31a_hostile_ids_only_enter_bounded_digest_components) (value='a/b') ... ERROR
+  test_31a_hostile_ids_only_enter_bounded_digest_components (tests.manager.test_provider_home.RetainedProviderHome.test_31a_hostile_ids_only_enter_bounded_digest_components) (value='.') ... ERROR
+  test_31a_hostile_ids_only_enter_bounded_digest_components (tests.manager.test_provider_home.RetainedProviderHome.test_31a_hostile_ids_only_enter_bounded_digest_components) (value='..') ... ERROR
+  test_31a_hostile_ids_only_enter_bounded_digest_components (tests.manager.test_provider_home.RetainedProviderHome.test_31a_hostile_ids_only_enter_bounded_digest_components) (value='-option') ... ERROR
+  test_31a_hostile_ids_only_enter_bounded_digest_components (tests.manager.test_provider_home.RetainedProviderHome.test_31a_hostile_ids_only_enter_bounded_digest_components) (value='white space') ... ERROR
+  test_31a_hostile_ids_only_enter_bounded_digest_components (tests.manager.test_provider_home.RetainedProviderHome.test_31a_hostile_ids_only_enter_bounded_digest_components) (value='\n\x00') ... ERROR
+  test_31a_hostile_ids_only_enter_bounded_digest_components (tests.manager.test_provider_home.RetainedProviderHome.test_31a_hostile_ids_only_enter_bounded_digest_components) (value='é') ... ERROR
+  test_31a_hostile_ids_only_enter_bounded_digest_components (tests.manager.test_provider_home.RetainedProviderHome.test_31a_hostile_ids_only_enter_bounded_digest_components) (value='xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx') ... ERROR
+test_31b_structured_identity_has_no_join_collisions (tests.manager.test_provider_home.RetainedProviderHome.test_31b_structured_identity_has_no_join_collisions) ... ERROR
+test_31c_wrong_missing_record_and_symlink_refuse_without_repair (tests.manager.test_provider_home.RetainedProviderHome.test_31c_wrong_missing_record_and_symlink_refuse_without_repair) ... ERROR
+test_31d_plain_identity_and_holder_live_outside_mounted_home (tests.manager.test_provider_home.RetainedProviderHome.test_31d_plain_identity_and_holder_live_outside_mounted_home) ... ERROR
+test_32_failed_holder_release_and_return_from_another_job_preserve_bytes (tests.manager.test_provider_home.RetainedProviderHome.test_32_failed_holder_release_and_return_from_another_job_preserve_bytes) ... ERROR
+test_32_retention_and_32a_new_job_starts_empty (tests.manager.test_provider_home.RetainedProviderHome.test_32_retention_and_32a_new_job_starts_empty) ... ERROR
+test_34_protected_storage_overlap_in_both_directions (tests.manager.test_provider_home.RetainedProviderHome.test_34_protected_storage_overlap_in_both_directions) ... ok
+test_38_unknown_stale_uncertain_and_wrong_attempt_hold_then_retry (tests.manager.test_provider_home.RetainedProviderHome.test_38_unknown_stale_uncertain_and_wrong_attempt_hold_then_retry) ... ERROR
+test_39_crash_after_record_before_home_creation_replays_same_holder (tests.manager.test_provider_home.RetainedProviderHome.test_39_crash_after_record_before_home_creation_replays_same_holder) ... ERROR
+test_ready_home_loss_refuses_instead_of_silently_starting_fresh (tests.manager.test_provider_home.RetainedProviderHome.test_ready_home_loss_refuses_instead_of_silently_starting_fresh) ... ERROR
+test_package_has_only_standard_library_and_package_local_imports (tests.manager.test_provider_home.SharedProviderPackageBoundary.test_package_has_only_standard_library_and_package_local_imports) ... ok
+test_provider_launch_round_trip_and_cross_attempt_refusal (tests.manager.test_provider_home.SharedProviderPackageBoundary.test_provider_launch_round_trip_and_cross_attempt_refusal) ... ok
+test_40_delivered_reference_never_reads_credential_bytes (tests.manager.test_provider_home.WorkerHomePreparation.test_40_delivered_reference_never_reads_credential_bytes) ... ok
+test_41_second_job_uses_delivery_not_first_jobs_refreshed_seed (tests.manager.test_provider_home.WorkerHomePreparation.test_41_second_job_uses_delivery_not_first_jobs_refreshed_seed) ... ok
+test_41_seed_once_and_42_keep_provider_refresh_despite_changed_or_missing_delivery (tests.manager.test_provider_home.WorkerHomePreparation.test_41_seed_once_and_42_keep_provider_refresh_despite_changed_or_missing_delivery) ... ok
+test_45_same_seed_may_initialize_distinct_empty_homes (tests.manager.test_provider_home.WorkerHomePreparation.test_45_same_seed_may_initialize_distinct_empty_homes) ... ok
+test_46_credential_session_and_digest_collisions_refuse_before_writes (tests.manager.test_provider_home.WorkerHomePreparation.test_46_credential_session_and_digest_collisions_refuse_before_writes) ... ok
+test_46_exact_managed_entries_replace_without_touching_provider_state (tests.manager.test_provider_home.WorkerHomePreparation.test_46_exact_managed_entries_replace_without_touching_provider_state) ... ok
+test_external_missing_receipt_does_not_adopt_unattributed_copy (tests.manager.test_provider_home.WorkerHomePreparation.test_external_missing_receipt_does_not_adopt_unattributed_copy) ... ERROR
+test_external_pending_receipt_requires_recovery_after_crash (tests.manager.test_provider_home.WorkerHomePreparation.test_external_pending_receipt_requires_recovery_after_crash) ... ERROR
+test_external_receipt_catches_loss_of_both_worker_marker_and_credential (tests.manager.test_provider_home.WorkerHomePreparation.test_external_receipt_catches_loss_of_both_worker_marker_and_credential) ... ERROR
+test_external_receipt_preserves_refresh_without_source_callback (tests.manager.test_provider_home.WorkerHomePreparation.test_external_receipt_preserves_refresh_without_source_callback) ... ERROR
+test_interrupted_seed_requires_recovery_without_retry (tests.manager.test_provider_home.WorkerHomePreparation.test_interrupted_seed_requires_recovery_without_retry) ... ok
+test_lifecycle_metadata_cannot_be_managed_or_credential (tests.manager.test_provider_home.WorkerHomePreparation.test_lifecycle_metadata_cannot_be_managed_or_credential) ... ok
+test_marker_loss_corruption_wrong_path_and_permissions_refuse (tests.manager.test_provider_home.WorkerHomePreparation.test_marker_loss_corruption_wrong_path_and_permissions_refuse) ... ok
+test_missing_initialized_credential_never_reseeds (tests.manager.test_provider_home.WorkerHomePreparation.test_missing_initialized_credential_never_reseeds) ... ok
+test_retained_credential_symlink_is_not_read_or_replaced (tests.manager.test_provider_home.WorkerHomePreparation.test_retained_credential_symlink_is_not_read_or_replaced) ... ok
+test_changed_absent_empty_or_oversized_instructions_refuse (tests.manager.test_provider_home.WorkerInstructionDelivery.test_changed_absent_empty_or_oversized_instructions_refuse) ... ok
+test_earlier_adapter_shape_and_undeclared_realization_refuse (tests.manager.test_provider_home.WorkerInstructionDelivery.test_earlier_adapter_shape_and_undeclared_realization_refuse) ... ok
+test_label_names_role_instructions_and_what_does_not_apply (tests.manager.test_provider_home.WorkerInstructionDelivery.test_label_names_role_instructions_and_what_does_not_apply) ... ok
+test_label_refuses_unknown_role_changed_template_and_oversize (tests.manager.test_provider_home.WorkerInstructionDelivery.test_label_refuses_unknown_role_changed_template_and_oversize) ... ok
+test_managed_payloads_are_placed_replaced_and_leave_provider_state (tests.manager.test_provider_home.WorkerInstructionDelivery.test_managed_payloads_are_placed_replaced_and_leave_provider_state) ... ok
+test_only_one_instruction_selector_name_exists_in_the_tracked_tree (tests.manager.test_provider_home.WorkerInstructionDelivery.test_only_one_instruction_selector_name_exists_in_the_tracked_tree) ... ok
+test_packaged_copy_is_byte_identical_to_the_canonical_document (tests.manager.test_provider_home.WorkerInstructionDelivery.test_packaged_copy_is_byte_identical_to_the_canonical_document) ... ok
+test_packaged_copy_travels_as_package_data (tests.manager.test_provider_home.WorkerInstructionDelivery.test_packaged_copy_travels_as_package_data) ... ok
+test_41_42_43_seeded_provider_refresh_survives_correction_without_export (tests.tools.test_provider_selection.SelectedCase.test_41_42_43_seeded_provider_refresh_survives_correction_without_export) ... ERROR
+test_seeded_restart_reopens_manager_without_original_source (tests.tools.test_provider_selection.SelectedCase.test_seeded_restart_reopens_manager_without_original_source) ... ERROR
+
+======================================================================
+ERROR: test_inode_replacement_invalidates_mount (tests.manager.test_provider_home.ProviderHomeMount.test_inode_replacement_invalidates_mount)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 513, in test_inode_replacement_invalidates_mount
+    one = homes.acquire(home_root, **bound)
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 181, in acquire
+    _write(fd, record)
+    ~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 112, in _write
+    os.rename(name, target, src_dir_fd=fd, dst_dir_fd=fd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: rename: dst should be string, bytes or os.PathLike, not BufferedWriter
+
+======================================================================
+ERROR: test_31_same_job_worker_restart_and_distinct_worker (tests.manager.test_provider_home.RetainedProviderHome.test_31_same_job_worker_restart_and_distinct_worker)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 25, in test_31_same_job_worker_restart_and_distinct_worker
+    one = self.acquire()
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 22, in acquire
+    return homes.acquire(str(self.root), **dict(self.selection, **changes))
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 181, in acquire
+    _write(fd, record)
+    ~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 112, in _write
+    os.rename(name, target, src_dir_fd=fd, dst_dir_fd=fd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: rename: dst should be string, bytes or os.PathLike, not BufferedWriter
+
+======================================================================
+ERROR: test_31a_hostile_ids_only_enter_bounded_digest_components (tests.manager.test_provider_home.RetainedProviderHome.test_31a_hostile_ids_only_enter_bounded_digest_components) (value='a/b')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 34, in test_31a_hostile_ids_only_enter_bounded_digest_components
+    one = self.acquire(job_id=value, worker_id=value)
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 22, in acquire
+    return homes.acquire(str(self.root), **dict(self.selection, **changes))
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 181, in acquire
+    _write(fd, record)
+    ~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 112, in _write
+    os.rename(name, target, src_dir_fd=fd, dst_dir_fd=fd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: rename: dst should be string, bytes or os.PathLike, not BufferedWriter
+
+======================================================================
+ERROR: test_31a_hostile_ids_only_enter_bounded_digest_components (tests.manager.test_provider_home.RetainedProviderHome.test_31a_hostile_ids_only_enter_bounded_digest_components) (value='.')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 34, in test_31a_hostile_ids_only_enter_bounded_digest_components
+    one = self.acquire(job_id=value, worker_id=value)
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 22, in acquire
+    return homes.acquire(str(self.root), **dict(self.selection, **changes))
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 181, in acquire
+    _write(fd, record)
+    ~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 112, in _write
+    os.rename(name, target, src_dir_fd=fd, dst_dir_fd=fd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: rename: dst should be string, bytes or os.PathLike, not BufferedWriter
+
+======================================================================
+ERROR: test_31a_hostile_ids_only_enter_bounded_digest_components (tests.manager.test_provider_home.RetainedProviderHome.test_31a_hostile_ids_only_enter_bounded_digest_components) (value='..')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 34, in test_31a_hostile_ids_only_enter_bounded_digest_components
+    one = self.acquire(job_id=value, worker_id=value)
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 22, in acquire
+    return homes.acquire(str(self.root), **dict(self.selection, **changes))
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 181, in acquire
+    _write(fd, record)
+    ~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 112, in _write
+    os.rename(name, target, src_dir_fd=fd, dst_dir_fd=fd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: rename: dst should be string, bytes or os.PathLike, not BufferedWriter
+
+======================================================================
+ERROR: test_31a_hostile_ids_only_enter_bounded_digest_components (tests.manager.test_provider_home.RetainedProviderHome.test_31a_hostile_ids_only_enter_bounded_digest_components) (value='-option')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 34, in test_31a_hostile_ids_only_enter_bounded_digest_components
+    one = self.acquire(job_id=value, worker_id=value)
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 22, in acquire
+    return homes.acquire(str(self.root), **dict(self.selection, **changes))
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 181, in acquire
+    _write(fd, record)
+    ~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 112, in _write
+    os.rename(name, target, src_dir_fd=fd, dst_dir_fd=fd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: rename: dst should be string, bytes or os.PathLike, not BufferedWriter
+
+======================================================================
+ERROR: test_31a_hostile_ids_only_enter_bounded_digest_components (tests.manager.test_provider_home.RetainedProviderHome.test_31a_hostile_ids_only_enter_bounded_digest_components) (value='white space')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 34, in test_31a_hostile_ids_only_enter_bounded_digest_components
+    one = self.acquire(job_id=value, worker_id=value)
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 22, in acquire
+    return homes.acquire(str(self.root), **dict(self.selection, **changes))
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 181, in acquire
+    _write(fd, record)
+    ~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 112, in _write
+    os.rename(name, target, src_dir_fd=fd, dst_dir_fd=fd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: rename: dst should be string, bytes or os.PathLike, not BufferedWriter
+
+======================================================================
+ERROR: test_31a_hostile_ids_only_enter_bounded_digest_components (tests.manager.test_provider_home.RetainedProviderHome.test_31a_hostile_ids_only_enter_bounded_digest_components) (value='\n\x00')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 34, in test_31a_hostile_ids_only_enter_bounded_digest_components
+    one = self.acquire(job_id=value, worker_id=value)
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 22, in acquire
+    return homes.acquire(str(self.root), **dict(self.selection, **changes))
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 181, in acquire
+    _write(fd, record)
+    ~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 112, in _write
+    os.rename(name, target, src_dir_fd=fd, dst_dir_fd=fd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: rename: dst should be string, bytes or os.PathLike, not BufferedWriter
+
+======================================================================
+ERROR: test_31a_hostile_ids_only_enter_bounded_digest_components (tests.manager.test_provider_home.RetainedProviderHome.test_31a_hostile_ids_only_enter_bounded_digest_components) (value='é')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 34, in test_31a_hostile_ids_only_enter_bounded_digest_components
+    one = self.acquire(job_id=value, worker_id=value)
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 22, in acquire
+    return homes.acquire(str(self.root), **dict(self.selection, **changes))
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 181, in acquire
+    _write(fd, record)
+    ~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 112, in _write
+    os.rename(name, target, src_dir_fd=fd, dst_dir_fd=fd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: rename: dst should be string, bytes or os.PathLike, not BufferedWriter
+
+======================================================================
+ERROR: test_31a_hostile_ids_only_enter_bounded_digest_components (tests.manager.test_provider_home.RetainedProviderHome.test_31a_hostile_ids_only_enter_bounded_digest_components) (value='xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 34, in test_31a_hostile_ids_only_enter_bounded_digest_components
+    one = self.acquire(job_id=value, worker_id=value)
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 22, in acquire
+    return homes.acquire(str(self.root), **dict(self.selection, **changes))
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 181, in acquire
+    _write(fd, record)
+    ~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 112, in _write
+    os.rename(name, target, src_dir_fd=fd, dst_dir_fd=fd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: rename: dst should be string, bytes or os.PathLike, not BufferedWriter
+
+======================================================================
+ERROR: test_31b_structured_identity_has_no_join_collisions (tests.manager.test_provider_home.RetainedProviderHome.test_31b_structured_identity_has_no_join_collisions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 42, in test_31b_structured_identity_has_no_join_collisions
+    paths = {self.acquire(job_id=job, worker_id=worker)["home"] for job, worker in pairs}
+             ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 22, in acquire
+    return homes.acquire(str(self.root), **dict(self.selection, **changes))
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 181, in acquire
+    _write(fd, record)
+    ~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 112, in _write
+    os.rename(name, target, src_dir_fd=fd, dst_dir_fd=fd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: rename: dst should be string, bytes or os.PathLike, not BufferedWriter
+
+======================================================================
+ERROR: test_31c_wrong_missing_record_and_symlink_refuse_without_repair (tests.manager.test_provider_home.RetainedProviderHome.test_31c_wrong_missing_record_and_symlink_refuse_without_repair)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 46, in test_31c_wrong_missing_record_and_symlink_refuse_without_repair
+    one = self.acquire()
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 22, in acquire
+    return homes.acquire(str(self.root), **dict(self.selection, **changes))
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 181, in acquire
+    _write(fd, record)
+    ~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 112, in _write
+    os.rename(name, target, src_dir_fd=fd, dst_dir_fd=fd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: rename: dst should be string, bytes or os.PathLike, not BufferedWriter
+
+======================================================================
+ERROR: test_31d_plain_identity_and_holder_live_outside_mounted_home (tests.manager.test_provider_home.RetainedProviderHome.test_31d_plain_identity_and_holder_live_outside_mounted_home)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 70, in test_31d_plain_identity_and_holder_live_outside_mounted_home
+    one = self.acquire()
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 22, in acquire
+    return homes.acquire(str(self.root), **dict(self.selection, **changes))
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 181, in acquire
+    _write(fd, record)
+    ~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 112, in _write
+    os.rename(name, target, src_dir_fd=fd, dst_dir_fd=fd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: rename: dst should be string, bytes or os.PathLike, not BufferedWriter
+
+======================================================================
+ERROR: test_32_failed_holder_release_and_return_from_another_job_preserve_bytes (tests.manager.test_provider_home.RetainedProviderHome.test_32_failed_holder_release_and_return_from_another_job_preserve_bytes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 141, in test_32_failed_holder_release_and_return_from_another_job_preserve_bytes
+    one = self.acquire()
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 22, in acquire
+    return homes.acquire(str(self.root), **dict(self.selection, **changes))
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 181, in acquire
+    _write(fd, record)
+    ~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 112, in _write
+    os.rename(name, target, src_dir_fd=fd, dst_dir_fd=fd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: rename: dst should be string, bytes or os.PathLike, not BufferedWriter
+
+======================================================================
+ERROR: test_32_retention_and_32a_new_job_starts_empty (tests.manager.test_provider_home.RetainedProviderHome.test_32_retention_and_32a_new_job_starts_empty)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 77, in test_32_retention_and_32a_new_job_starts_empty
+    one = self.acquire()
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 22, in acquire
+    return homes.acquire(str(self.root), **dict(self.selection, **changes))
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 181, in acquire
+    _write(fd, record)
+    ~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 112, in _write
+    os.rename(name, target, src_dir_fd=fd, dst_dir_fd=fd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: rename: dst should be string, bytes or os.PathLike, not BufferedWriter
+
+======================================================================
+ERROR: test_38_unknown_stale_uncertain_and_wrong_attempt_hold_then_retry (tests.manager.test_provider_home.RetainedProviderHome.test_38_unknown_stale_uncertain_and_wrong_attempt_hold_then_retry)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 96, in test_38_unknown_stale_uncertain_and_wrong_attempt_hold_then_retry
+    one = self.acquire()
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 22, in acquire
+    return homes.acquire(str(self.root), **dict(self.selection, **changes))
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 181, in acquire
+    _write(fd, record)
+    ~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 112, in _write
+    os.rename(name, target, src_dir_fd=fd, dst_dir_fd=fd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: rename: dst should be string, bytes or os.PathLike, not BufferedWriter
+
+======================================================================
+ERROR: test_39_crash_after_record_before_home_creation_replays_same_holder (tests.manager.test_provider_home.RetainedProviderHome.test_39_crash_after_record_before_home_creation_replays_same_holder)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 119, in test_39_crash_after_record_before_home_creation_replays_same_holder
+    self.acquire()
+    ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 22, in acquire
+    return homes.acquire(str(self.root), **dict(self.selection, **changes))
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 181, in acquire
+    _write(fd, record)
+    ~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 112, in _write
+    os.rename(name, target, src_dir_fd=fd, dst_dir_fd=fd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: rename: dst should be string, bytes or os.PathLike, not BufferedWriter
+
+======================================================================
+ERROR: test_ready_home_loss_refuses_instead_of_silently_starting_fresh (tests.manager.test_provider_home.RetainedProviderHome.test_ready_home_loss_refuses_instead_of_silently_starting_fresh)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 135, in test_ready_home_loss_refuses_instead_of_silently_starting_fresh
+    one = self.acquire()
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 22, in acquire
+    return homes.acquire(str(self.root), **dict(self.selection, **changes))
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 181, in acquire
+    _write(fd, record)
+    ~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 112, in _write
+    os.rename(name, target, src_dir_fd=fd, dst_dir_fd=fd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: rename: dst should be string, bytes or os.PathLike, not BufferedWriter
+
+======================================================================
+ERROR: test_external_missing_receipt_does_not_adopt_unattributed_copy (tests.manager.test_provider_home.WorkerHomePreparation.test_external_missing_receipt_does_not_adopt_unattributed_copy)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 341, in test_external_missing_receipt_does_not_adopt_unattributed_copy
+    homes.initialize_credential(str(self.home), str(self.root), "state/credential", self.prepare)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 271, in initialize_credential
+    _write(fd, dict(expected, state="initializing"), "credential.json")
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 112, in _write
+    os.rename(name, target, src_dir_fd=fd, dst_dir_fd=fd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: rename: dst should be string, bytes or os.PathLike, not BufferedWriter
+
+======================================================================
+ERROR: test_external_pending_receipt_requires_recovery_after_crash (tests.manager.test_provider_home.WorkerHomePreparation.test_external_pending_receipt_requires_recovery_after_crash)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 335, in test_external_pending_receipt_requires_recovery_after_crash
+    homes.initialize_credential(str(self.home), str(self.root), "state/credential", interrupted)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 271, in initialize_credential
+    _write(fd, dict(expected, state="initializing"), "credential.json")
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 112, in _write
+    os.rename(name, target, src_dir_fd=fd, dst_dir_fd=fd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: rename: dst should be string, bytes or os.PathLike, not BufferedWriter
+
+======================================================================
+ERROR: test_external_receipt_catches_loss_of_both_worker_marker_and_credential (tests.manager.test_provider_home.WorkerHomePreparation.test_external_receipt_catches_loss_of_both_worker_marker_and_credential)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 322, in test_external_receipt_catches_loss_of_both_worker_marker_and_credential
+    homes.initialize_credential(str(self.home), str(self.root), "state/credential", self.prepare)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 271, in initialize_credential
+    _write(fd, dict(expected, state="initializing"), "credential.json")
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 112, in _write
+    os.rename(name, target, src_dir_fd=fd, dst_dir_fd=fd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: rename: dst should be string, bytes or os.PathLike, not BufferedWriter
+
+======================================================================
+ERROR: test_external_receipt_preserves_refresh_without_source_callback (tests.manager.test_provider_home.WorkerHomePreparation.test_external_receipt_preserves_refresh_without_source_callback)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/manager/test_provider_home.py", line 309, in test_external_receipt_preserves_refresh_without_source_callback
+    self.assertEqual(homes.initialize_credential(str(self.home), str(self.root), "state/credential", initialize), "first delivery")
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 271, in initialize_credential
+    _write(fd, dict(expected, state="initializing"), "credential.json")
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 112, in _write
+    os.rename(name, target, src_dir_fd=fd, dst_dir_fd=fd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: rename: dst should be string, bytes or os.PathLike, not BufferedWriter
+
+======================================================================
+ERROR: test_41_42_43_seeded_provider_refresh_survives_correction_without_export (tests.tools.test_provider_selection.SelectedCase.test_41_42_43_seeded_provider_refresh_survives_correction_without_export)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/tools/test_provider_selection.py", line 572, in test_41_42_43_seeded_provider_refresh_survives_correction_without_export
+    held = self.reviewed("changes-requested")
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/tools/test_provider_selection.py", line 195, in reviewed
+    held = self.implemented()
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/tools/test_stage_execution.py", line 4833, in implemented
+    self.drive(job, composed, "implementation", "waiting")
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/tools/test_stage_execution.py", line 4584, in drive
+    tick(job, composed, now=fixtures.NOW)
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/job_manager/manager.py", line 197, in sweep
+    started = _launch(store, operations, projection.stage_states(store,
+                                                                 operations))
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/job_manager/manager.py", line 715, in _launch
+    answer = operations.launch(attempt, job)
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tools/stage_execution.py", line 5646, in launch
+    return self.pooled.launch(stage, job)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/job_manager/scheduler.py", line 1087, in launch
+    return self._worker(stage).launch(stage, job)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/job_manager/delegation.py", line 1016, in launch
+    return self._diagnostic_call(stage, self._start_runtime, stage, job)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/job_manager/delegation.py", line 1107, in _diagnostic_call
+    answer = call(*operands)
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tools/single_worker.py", line 2301, in start
+    return self._prepared(stage, row, attempt_id)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tools/single_worker.py", line 2580, in _prepared
+    launched = self._launch_document(stage, state)
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tools/single_worker.py", line 3759, in _launch_document
+    self._hold_provider_home(stage)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tools/single_worker.py", line 3647, in _hold_provider_home
+    provider_home.acquire(self.given["provider_home_root"],
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **selected["home_identity"], attempt_id=selected["attempt_id"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        excluded=self._home_exclusions(),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        previous_runtime=lambda holder: attempts.provider_home_cessation_of(self.control, holder))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 181, in acquire
+    _write(fd, record)
+    ~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 112, in _write
+    os.rename(name, target, src_dir_fd=fd, dst_dir_fd=fd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: rename: dst should be string, bytes or os.PathLike, not BufferedWriter
+
+======================================================================
+ERROR: test_seeded_restart_reopens_manager_without_original_source (tests.tools.test_provider_selection.SelectedCase.test_seeded_restart_reopens_manager_without_original_source)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/tools/test_provider_selection.py", line 600, in test_seeded_restart_reopens_manager_without_original_source
+    held = self.reviewed("changes-requested")
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/tools/test_provider_selection.py", line 195, in reviewed
+    held = self.implemented()
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/tools/test_stage_execution.py", line 4833, in implemented
+    self.drive(job, composed, "implementation", "waiting")
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tests/tools/test_stage_execution.py", line 4584, in drive
+    tick(job, composed, now=fixtures.NOW)
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/job_manager/manager.py", line 197, in sweep
+    started = _launch(store, operations, projection.stage_states(store,
+                                                                 operations))
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/job_manager/manager.py", line 715, in _launch
+    answer = operations.launch(attempt, job)
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tools/stage_execution.py", line 5646, in launch
+    return self.pooled.launch(stage, job)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/job_manager/scheduler.py", line 1087, in launch
+    return self._worker(stage).launch(stage, job)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/job_manager/delegation.py", line 1016, in launch
+    return self._diagnostic_call(stage, self._start_runtime, stage, job)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/job_manager/delegation.py", line 1107, in _diagnostic_call
+    answer = call(*operands)
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tools/single_worker.py", line 2301, in start
+    return self._prepared(stage, row, attempt_id)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tools/single_worker.py", line 2580, in _prepared
+    launched = self._launch_document(stage, state)
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tools/single_worker.py", line 3759, in _launch_document
+    self._hold_provider_home(stage)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/tools/single_worker.py", line 3647, in _hold_provider_home
+    provider_home.acquire(self.given["provider_home_root"],
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **selected["home_identity"], attempt_id=selected["attempt_id"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        excluded=self._home_exclusions(),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        previous_runtime=lambda holder: attempts.provider_home_cessation_of(self.control, holder))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 181, in acquire
+    _write(fd, record)
+    ~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/scratch/credential-lifecycle-386081/v12/python/src/baton_v12/worker_manager/provider_home.py", line 112, in _write
+    os.rename(name, target, src_dir_fd=fd, dst_dir_fd=fd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: rename: dst should be string, bytes or os.PathLike, not BufferedWriter
+
+----------------------------------------------------------------------
+Ran 39 tests in 0.347s
+
+FAILED (errors=24)
+error: Recipe `test-one` failed with exit code 1
+error: Recipe `test-one` failed on line 22 with exit code 1
