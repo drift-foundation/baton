@@ -1,0 +1,40 @@
+{
+  "acceptance": "held-for-private-evidence-review",
+  "actual_codex_contributors": "unknown",
+  "ceased": true,
+  "changed_paths": [
+    "message.txt"
+  ],
+  "claude_attribution_matched": false,
+  "claude_image": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "claude_requested_model_reported": false,
+  "codex_configured_model_accepted": true,
+  "codex_image": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "containers_inspected": [
+    "implementation",
+    "review"
+  ],
+  "edit_verified": true,
+  "elapsed_seconds": 7.7,
+  "error_type": null,
+  "implementation_completion": "custody",
+  "implementation_state": "completed",
+  "native_job_success": false,
+  "outcome": "review-held",
+  "overall_bound_seconds": 1200,
+  "owner_item_destinations": [],
+  "owner_items": 0,
+  "packet": "q4-386227",
+  "payload_sha256": "1eb7ff182c623dfecfe1fed97b9176da441f80e13da2b7b007b1b85c6d3097dd",
+  "phase": "live",
+  "private_root": "/var/tmp/baton-q4-prep-wrong-contributor-yu3y1q3e/run",
+  "removed": true,
+  "retained_homes_preserved": true,
+  "review_completion": null,
+  "review_state": "answering",
+  "review_verdict_recorded": null,
+  "source": "b5abf7983fb07eb3a8268f2d4559a04de9c0f1bd",
+  "source_writeback": false,
+  "volatile_credentials_withdrawn": true,
+  "worker_containers": 2
+}

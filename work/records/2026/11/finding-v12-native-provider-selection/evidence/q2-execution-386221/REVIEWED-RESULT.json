@@ -1,0 +1,31 @@
+{
+  "qualification": "Q2 native Codex editing",
+  "outcome": "passed by retained evidence review",
+  "launcher_outcome": "failed: completion observation missed",
+  "selection": "M386224",
+  "attempt": "attempt-6173f38d2fc00d5bd9ec9d266d6595b1d16d9cf98ddfdb64031fee62281d9d94",
+  "stage_state": "completed",
+  "changed_paths": [
+    "message.txt"
+  ],
+  "edit_verified": true,
+  "independent_fixed_verification_exit": 0,
+  "configured_model": "gpt-6-astra",
+  "actual_contributors": "unknown",
+  "container_launches": 1,
+  "ceased": true,
+  "removed": true,
+  "image_receipt_retained": true,
+  "source_writeback": false,
+  "volatile_credential_withdrawn": true,
+  "retained_home_preserved": true,
+  "source": "b5abf7983fb07eb3a8268f2d4559a04de9c0f1bd",
+  "image": "sha256:2c982530412d6811cfa6aa2e28181f859cc2a9fb2e4372f29d88784763dbe693",
+  "evidence_hashes": {
+    "status.json": "0209ad178ca3bc41c3f461ef1929645e54bf3fe96c31bc0f2437aa357fcb72b8",
+    "RESULT.json": "fee25c75269a416f5fe1c673860646a743c5764c1ddd97b860ddc8ebe0bb5e52",
+    "capture-inventory.json": "885f6a8970e00d7a5f7b63b0bb9a227b1cf564154b097a5e505f6c4786fd51e2",
+    "cleanup.json": "284ace66e00001129e29e6b7894062fc8f464183a073f768a13dcd3e7e53264f",
+    "receipt-after-removal.json": "1f62528fd3e88441bc9fafee4766747712fff46fbbcb92539868719183f1302a"
+  }
+}

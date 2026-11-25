@@ -1,0 +1,174 @@
+[
+  {
+    "act": "conclude",
+    "attempt_id": "attempt-bf949437df95e588debb13041b20ce0685194286934902896739cd97d851e0e8",
+    "detail": {
+      "artifacts": [
+        "attempt-bf949437df95e588debb13041b20ce0685194286934902896739cd97d851e0e8:handoff",
+        "attempt-bf949437df95e588debb13041b20ce0685194286934902896739cd97d851e0e8:proposal"
+      ],
+      "attempt_id": "attempt-bf949437df95e588debb13041b20ce0685194286934902896739cd97d851e0e8",
+      "checkpoint": null,
+      "checkpoint_id": null,
+      "disposition": "unable",
+      "handoff": null,
+      "manifest_digest": "sha256:78acfda987430d27de0d8f9073b3afd84caa23484e4bcc0c9bf8ca8fd48754bb",
+      "model_attribution": {
+        "assessment_digest": "sha256:069661b3f74c14a62caee21a0404b7d1f8ac9ebeea713b596f8ae2e3bfd12b07",
+        "attempt_id": "attempt-bf949437df95e588debb13041b20ce0685194286934902896739cd97d851e0e8",
+        "attribution": {
+          "actual_participation": "unknown",
+          "attempt_id": "attempt-bf949437df95e588debb13041b20ce0685194286934902896739cd97d851e0e8",
+          "basis": "configured-model",
+          "contributor_sources": {},
+          "contributors": [],
+          "evidence": {
+            "digest": "sha256:3340a323fea91fb073bdec910c92bd3e79fff3ed39bf3aad9769af633699c288",
+            "log": {
+              "attempt_id": "attempt-bf949437df95e588debb13041b20ce0685194286934902896739cd97d851e0e8",
+              "stream": "provider.stdout"
+            }
+          },
+          "evidenced_cli_build": "0.169.0",
+          "image_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "invocation": {
+            "argv_digest": "sha256:142211e09afe50ab4851df44c4023591384d1a46c1574dbfd788244605390001",
+            "argv_prefix": [
+              "codex",
+              "exec",
+              "--dangerously-bypass-approvals-and-sandbox",
+              "--ignore-user-config",
+              "--ignore-rules",
+              "--json",
+              "--model",
+              "gpt-6-astra"
+            ],
+            "context_label": {
+              "context_label_digest": "sha256:d1c8f373dcbbb04edbc802dcd9c28c02247b252e06a48307222b06c4dc3a5815",
+              "role": "implementation",
+              "schema": "baton.native-worker-context/1",
+              "worker_instructions_digest": "sha256:369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b"
+            },
+            "environment_policy": {
+              "CODEX_HOME": "/run/baton/provider-home/codex",
+              "HOME": "/run/baton/provider-home",
+              "PATH": "/usr/local/bin:/usr/bin:/bin",
+              "PYTHONPYCACHEPREFIX": "fresh",
+              "TMPDIR": "fresh",
+              "XDG_CACHE_HOME": "fresh"
+            },
+            "environment_validated": true,
+            "evidenced_cli_build": "0.169.0",
+            "phase": "implementation",
+            "prompt_bytes": 2717,
+            "prompt_digest": "sha256:625014d604b41d30f478a4275e15e1254da829e6974dc6eb522e14f77528e686",
+            "selection_digest": "sha256:f2ebbe8963699c3d672b781370b4504d437b7ca9b38a05db1a55a01500e5c9ab",
+            "status": 0
+          },
+          "job_id": "job-q4-codex-claude",
+          "outcome": "configured-model-accepted",
+          "phase": "implementation",
+          "provider": "codex",
+          "requested_model": "gpt-6-astra",
+          "reroute_observation": "no reroute observed",
+          "schema": "baton.model-attribution/2",
+          "selected_cli_build": "0.169.0",
+          "selection_digest": "sha256:f2ebbe8963699c3d672b781370b4504d437b7ca9b38a05db1a55a01500e5c9ab"
+        },
+        "cause": null,
+        "checkpoint_id": null,
+        "context_label": {
+          "context_label_digest": "sha256:d1c8f373dcbbb04edbc802dcd9c28c02247b252e06a48307222b06c4dc3a5815",
+          "role": "implementation",
+          "schema": "baton.native-worker-context/1",
+          "worker_instructions_digest": "sha256:369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b"
+        },
+        "job_id": "job-q4-codex-claude",
+        "launched_image": {
+          "admitted_image": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "attempt_id": "attempt-bf949437df95e588debb13041b20ce0685194286934902896739cd97d851e0e8",
+          "observation": {
+            "engine": "docker",
+            "image_id": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "labels": {
+              "adapter_digest": "sha256:5209ad8d712f81c9c24dfbaf4ed406f1465649b626197c46ab7ed20e8c13a38f",
+              "authority_uuid": "fcf80e04495a4f258d2b6e42ef582837",
+              "effective_scope": "scope:deployment",
+              "generation": 1,
+              "participant": "qualification.codex",
+              "policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917",
+              "principal": "principal:qualification.codex",
+              "profile_digest": "sha256:e0b3d46e2d38dee21c9ccbefe139c086a818f4806e04ec1b6ba510034573edcf",
+              "runtime_attempt_id": "attempt-bf949437df95e588debb13041b20ce0685194286934902896739cd97d851e0e8",
+              "work_id": "fcf80e04-W1"
+            },
+            "resolution": null,
+            "runtime_id": "b45371cda7a7766a1e46c5b9eca2cf98ea028688f6abd298edebfb269479c0a7",
+            "started_at": "2026-11-25T07:00:00.123456789Z"
+          },
+          "profile_digest": "sha256:e0b3d46e2d38dee21c9ccbefe139c086a818f4806e04ec1b6ba510034573edcf",
+          "recorded_at": "2026-11-25T17:13:19.385Z",
+          "schema": "baton.launched-image/1",
+          "selection_digest": "sha256:f2ebbe8963699c3d672b781370b4504d437b7ca9b38a05db1a55a01500e5c9ab"
+        },
+        "launched_image_receipt": {
+          "digest": "sha256:a2587e79657557123a1e250bf81da956e514ca7d13e0c724800ee6a138603c00",
+          "operation_id": "provider.launched-image:c517d6175a9fbef24013876279cfa1c1ea5ec69157fe44eed3fa94fd06a020b3"
+        },
+        "manifest_digest": "sha256:78acfda987430d27de0d8f9073b3afd84caa23484e4bcc0c9bf8ca8fd48754bb",
+        "outcome": "matched",
+        "result_id": "result-attempt-bf949437df95e588debb13041b20ce0685194286934902896739cd97d851e0e8",
+        "selection_digest": "sha256:f2ebbe8963699c3d672b781370b4504d437b7ca9b38a05db1a55a01500e5c9ab",
+        "verdict_id": null
+      },
+      "published": null,
+      "receipt_digest": "sha256:d2bb91b2ede42d4302011a338c67cf26d423207931a8b175b246039f3ecec2b6",
+      "released": {
+        "current_checkpoint_id": null,
+        "fence": {
+          "fenced": {
+            "assignment": {
+              "generation": 1,
+              "participant": "qualification.codex",
+              "work_ref": {
+                "authority_uuid": "fcf80e04495a4f258d2b6e42ef582837",
+                "work_id": "fcf80e04-W1"
+              }
+            },
+            "cause": "cancelled",
+            "fenced": true,
+            "gate": "runtime-quiescence:1",
+            "phase": "block"
+          },
+          "intent": {
+            "assignment": {
+              "generation": 1,
+              "participant": "qualification.codex",
+              "work_ref": {
+                "authority_uuid": "fcf80e04495a4f258d2b6e42ef582837",
+                "work_id": "fcf80e04-W1"
+              }
+            },
+            "attempt_id": "attempt-bf949437df95e588debb13041b20ce0685194286934902896739cd97d851e0e8",
+            "authority_operation_id": "authority.finalize-quiescent:9151fd386e19bf48e48da565bc2b829df50e006a8de3a33335266f4a6c9192b0",
+            "decision": "finalized",
+            "reason": "implementation produced no candidate to review",
+            "runtime_id": "b45371cda7a7766a1e46c5b9eca2cf98ea028688f6abd298edebfb269479c0a7",
+            "worker_disposition": "unable"
+          }
+        },
+        "line_id": "line-3ffb2d074abd009b065cd5e12f107468dc029ae0bc3cb7c1236aaf9156e19bed",
+        "reason": "implementation produced no candidate to review",
+        "released_at": "2026-11-25T17:13:21.052Z",
+        "state": "idle",
+        "writer_id": "writer-bbfac7539f4c3c5a119cb34412daa5037fa5a2e6cf19d9ac5d3415d0190850ab"
+      },
+      "requested": null,
+      "result_id": "result-attempt-bf949437df95e588debb13041b20ce0685194286934902896739cd97d851e0e8",
+      "retention": "retain"
+    },
+    "episode": 1,
+    "outcome": "performed",
+    "stage_id": "job-q4-codex-claude/implementation"
+  }
+]

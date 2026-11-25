@@ -1,0 +1,29 @@
+{
+ "passed": true,
+ "marker_sha256": "3355c11a36044111f713d37a729e51f8b781801d655be5e0df14de7fb69c9648",
+ "layout_digest": "1423c3aa9e41d7a8719297435798252133af88a55a6031491238ce0e412bc472",
+ "guard_refusals": {
+  "missing_selection": "this image declares the verifier topology 1423c3aa9e41d7a8719297435798252133af88a55a6031491238ce0e412bc472 and no trusted layout selection was delivered at /var",
+  "foreign_topology": "the trusted verifier-layout selection names topology '0000000000000000000000000000000000000000000000000000000000000000' and this image was built with '1423c3aa9",
+  "compose_without_marker": "ContractRefusal"
+ },
+ "selection_accepted": true,
+ "verification": {
+  "argv": [
+   "python3",
+   "-I",
+   "-c",
+   "from pathlib import Path; assert Path('message.txt').read_bytes()==b'after'+bytes([10])"
+  ],
+  "exit_status": {
+   "after-newline": 0,
+   "before-newline": 1,
+   "after-no-newline": 1,
+   "after-backslash-n": 1
+  }
+ },
+ "verification_386214": null,
+ "engine_calls": 0,
+ "provider_calls": 0,
+ "credential_reads": 0
+}

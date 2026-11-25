@@ -1,0 +1,65 @@
+{
+  "verification": "missing-or-mismatch",
+  "changed_paths": [
+    ".git/COMMIT_EDITMSG",
+    ".git/HEAD",
+    ".git/config",
+    ".git/description",
+    ".git/hooks/applypatch-msg.sample",
+    ".git/hooks/commit-msg.sample",
+    ".git/hooks/fsmonitor-watchman.sample",
+    ".git/hooks/post-update.sample",
+    ".git/hooks/pre-applypatch.sample",
+    ".git/hooks/pre-commit.sample",
+    ".git/hooks/pre-merge-commit.sample",
+    ".git/hooks/pre-push.sample",
+    ".git/hooks/pre-rebase.sample",
+    ".git/hooks/pre-receive.sample",
+    ".git/hooks/prepare-commit-msg.sample",
+    ".git/hooks/push-to-checkout.sample",
+    ".git/hooks/sendemail-validate.sample",
+    ".git/hooks/update.sample",
+    ".git/index",
+    ".git/info/exclude",
+    ".git/logs/HEAD",
+    ".git/logs/refs/heads/q2",
+    ".git/objects/90/be1f3056c4f471f977a28497b8d4b392c55a02",
+    ".git/objects/d0/7bfae2c724719c2a7a3db6a48435e2172f7ddc",
+    ".git/objects/ec/a0dbf7b1e0c78ce5415612426a437d1693512e",
+    ".git/refs/heads/q2",
+    "message.txt"
+  ],
+  "expected_changed_paths": [
+    "message.txt"
+  ],
+  "verification_method": "trusted post-cessation byte and complete tree comparison; no candidate code executed",
+  "candidate": {},
+  "workspace": {},
+  "logs": {},
+  "exchange": {
+    "launch.json": {
+      "bytes": 4702,
+      "sha256": "b8dd694c525cbba3e22da53daef45bed57686990471607310562c93713ee8c99"
+    },
+    "events/state-work.json": {
+      "bytes": 456,
+      "sha256": "ef328c5ed757038fdfb934248832521e03028ad87996548dd141c64cc8f89102"
+    },
+    "events/state-describe.json": {
+      "bytes": 465,
+      "sha256": "46f471f365530333a111f57ea61782f5bdaaa9f20be3e9ec23435abbd3a4e4bf"
+    },
+    "events/receipt.json": {
+      "bytes": 367,
+      "sha256": "b21bb901287a6de06219e2fbae8f459bbda2890ea88f1f700058643adecfd0c3"
+    },
+    "events/terminal.json": {
+      "bytes": 456,
+      "sha256": "8540298bbd593a12b3edd1bb468ef03abadfa7f99387a92d9157b9bdd1ec7f1c"
+    },
+    "command/sequence-0a026a687ecac91e4a1f0e829fd7dbf5.json": {
+      "bytes": 490,
+      "sha256": "3e27f5d82b16de48d388af352a754bb38e63f4fe53b18f04e986fac7f06fb146"
+    }
+  }
+}

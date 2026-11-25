@@ -1,0 +1,380 @@
+[
+  {
+    "act": "conclude",
+    "attempt_id": "attempt-0c310f03a119f1ded5e43e56616eb10cb7e281b2a211f8ef6b4d5afbc023540a",
+    "detail": {
+      "artifacts": [
+        "attempt-0c310f03a119f1ded5e43e56616eb10cb7e281b2a211f8ef6b4d5afbc023540a:handoff",
+        "attempt-0c310f03a119f1ded5e43e56616eb10cb7e281b2a211f8ef6b4d5afbc023540a:proposal"
+      ],
+      "attempt_id": "attempt-0c310f03a119f1ded5e43e56616eb10cb7e281b2a211f8ef6b4d5afbc023540a",
+      "checkpoint": {
+        "checkpoint_digest": "sha256:2b26a12e35fbd7a09b73176b189ecbe64981bd3105e6f449c90ff3f3dafb3f8b",
+        "checkpoint_id": "checkpoint-bb7a24be5a794e18d8384b6abdfe0e3f81faa49f52a4901f0f4fa3a79a531105",
+        "evidence": {
+          "base": "3c2375a06a12a3389c1a703a2c70a4e8660a5b57",
+          "head": "80570b36e691ebbf104d60bf772ef46839c9e514",
+          "path_set_digest": "sha256:78be6defc6b26373558c4a408735b98689a4b96c2c538d0d801a02ddebdd54aa",
+          "paths": [
+            "message.txt"
+          ],
+          "profile": "git",
+          "reference": "refs/baton/checkpoints/line-7bcbd6834b7ea97092fa9e5e46ee90775f66efa71edf3d247d0f48a293354a47/1",
+          "tree": "c29fcf7235929c4c335ebd6ff69b277d9ac6fb82"
+        },
+        "fence": {
+          "fenced": {
+            "assignment": {
+              "generation": 1,
+              "participant": "qualification.codex",
+              "work_ref": {
+                "authority_uuid": "4969f95fdfd14377b9d9ce70f645ba59",
+                "work_id": "4969f95f-W1"
+              }
+            },
+            "cause": "cancelled",
+            "fenced": true,
+            "gate": "runtime-quiescence:1",
+            "phase": "block"
+          },
+          "intent": {
+            "assignment": {
+              "generation": 1,
+              "participant": "qualification.codex",
+              "work_ref": {
+                "authority_uuid": "4969f95fdfd14377b9d9ce70f645ba59",
+                "work_id": "4969f95f-W1"
+              }
+            },
+            "attempt_id": "attempt-0c310f03a119f1ded5e43e56616eb10cb7e281b2a211f8ef6b4d5afbc023540a",
+            "authority_operation_id": "authority.finalize-quiescent:0f74acd973231ed0e5dd052a65efc04f41037b3526d4eb33de84cd734b0f22d6",
+            "decision": "finalized",
+            "reason": "review checkpoint writer completed",
+            "runtime_id": "baade261620cc27e8dd605079946bf5412b04101c3949ac1cbb659978ed873ee",
+            "worker_disposition": "completed"
+          }
+        },
+        "line_id": "line-7bcbd6834b7ea97092fa9e5e46ee90775f66efa71edf3d247d0f48a293354a47",
+        "revision": 1
+      },
+      "checkpoint_id": "checkpoint-bb7a24be5a794e18d8384b6abdfe0e3f81faa49f52a4901f0f4fa3a79a531105",
+      "disposition": "completed",
+      "handoff": {
+        "assignment": {
+          "authority_uuid": "4969f95fdfd14377b9d9ce70f645ba59",
+          "effective_scope": "scope:deployment",
+          "generation": 1,
+          "participant": "qualification.codex",
+          "principal": "principal:qualification.codex",
+          "runtime_attempt_id": "attempt-0c310f03a119f1ded5e43e56616eb10cb7e281b2a211f8ef6b4d5afbc023540a",
+          "work_id": "4969f95f-W1"
+        },
+        "handoff": {
+          "kind": "final-submission",
+          "schema": "baton.native-handoff/1"
+        },
+        "handoff_digest": "sha256:a19e2ed16afe747b3692af39aecdc0035e9e8f5d2c0a1b23d6dc61a0f997bb6a",
+        "kind": "final-submission",
+        "manifest_digest": "sha256:bc5dced7d9f1e91dba3a51e65dd36dc548da0ac0404998542543a17e3ed3f73f",
+        "result_id": "result-attempt-0c310f03a119f1ded5e43e56616eb10cb7e281b2a211f8ef6b4d5afbc023540a"
+      },
+      "manifest_digest": "sha256:bc5dced7d9f1e91dba3a51e65dd36dc548da0ac0404998542543a17e3ed3f73f",
+      "model_attribution": {
+        "assessment_digest": "sha256:8e6a559bba2438e5190ce65ae6f322bdb1e2dd2e00d4115f6958c87a344424b5",
+        "attempt_id": "attempt-0c310f03a119f1ded5e43e56616eb10cb7e281b2a211f8ef6b4d5afbc023540a",
+        "attribution": {
+          "actual_participation": "unknown",
+          "attempt_id": "attempt-0c310f03a119f1ded5e43e56616eb10cb7e281b2a211f8ef6b4d5afbc023540a",
+          "basis": "configured-model",
+          "contributor_sources": {},
+          "contributors": [],
+          "evidence": {
+            "digest": "sha256:3340a323fea91fb073bdec910c92bd3e79fff3ed39bf3aad9769af633699c288",
+            "log": {
+              "attempt_id": "attempt-0c310f03a119f1ded5e43e56616eb10cb7e281b2a211f8ef6b4d5afbc023540a",
+              "stream": "provider.stdout"
+            }
+          },
+          "evidenced_cli_build": "0.169.0",
+          "image_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "invocation": {
+            "argv_digest": "sha256:3553afdd21642b502bf08e2af23aef70649cfee11d201f532575d625cf7c2797",
+            "argv_prefix": [
+              "codex",
+              "exec",
+              "--dangerously-bypass-approvals-and-sandbox",
+              "--ignore-user-config",
+              "--ignore-rules",
+              "--json",
+              "--model",
+              "gpt-6-astra"
+            ],
+            "context_label": {
+              "context_label_digest": "sha256:d1c8f373dcbbb04edbc802dcd9c28c02247b252e06a48307222b06c4dc3a5815",
+              "role": "implementation",
+              "schema": "baton.native-worker-context/1",
+              "worker_instructions_digest": "sha256:369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b"
+            },
+            "environment_policy": {
+              "CODEX_HOME": "/run/baton/provider-home/codex",
+              "HOME": "/run/baton/provider-home",
+              "PATH": "/usr/local/bin:/usr/bin:/bin",
+              "PYTHONPYCACHEPREFIX": "fresh",
+              "TMPDIR": "fresh",
+              "XDG_CACHE_HOME": "fresh"
+            },
+            "environment_validated": true,
+            "evidenced_cli_build": "0.169.0",
+            "phase": "implementation",
+            "prompt_bytes": 2717,
+            "prompt_digest": "sha256:a63dbde92fc455e172be80340b7090aa8efc6004d4ffea236680585b11c5e3d5",
+            "selection_digest": "sha256:a3e7f78452332432318322323ca5ede7833a2e4e70fad09a0e8d605ce521d652",
+            "status": 0
+          },
+          "job_id": "job-q4-codex-claude",
+          "outcome": "configured-model-accepted",
+          "phase": "implementation",
+          "provider": "codex",
+          "requested_model": "gpt-6-astra",
+          "reroute_observation": "no reroute observed",
+          "schema": "baton.model-attribution/2",
+          "selected_cli_build": "0.169.0",
+          "selection_digest": "sha256:a3e7f78452332432318322323ca5ede7833a2e4e70fad09a0e8d605ce521d652"
+        },
+        "cause": null,
+        "checkpoint_id": "checkpoint-bb7a24be5a794e18d8384b6abdfe0e3f81faa49f52a4901f0f4fa3a79a531105",
+        "context_label": {
+          "context_label_digest": "sha256:d1c8f373dcbbb04edbc802dcd9c28c02247b252e06a48307222b06c4dc3a5815",
+          "role": "implementation",
+          "schema": "baton.native-worker-context/1",
+          "worker_instructions_digest": "sha256:369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b"
+        },
+        "job_id": "job-q4-codex-claude",
+        "launched_image": {
+          "admitted_image": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "attempt_id": "attempt-0c310f03a119f1ded5e43e56616eb10cb7e281b2a211f8ef6b4d5afbc023540a",
+          "observation": {
+            "engine": "docker",
+            "image_id": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "labels": {
+              "adapter_digest": "sha256:5209ad8d712f81c9c24dfbaf4ed406f1465649b626197c46ab7ed20e8c13a38f",
+              "authority_uuid": "4969f95fdfd14377b9d9ce70f645ba59",
+              "effective_scope": "scope:deployment",
+              "generation": 1,
+              "participant": "qualification.codex",
+              "policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917",
+              "principal": "principal:qualification.codex",
+              "profile_digest": "sha256:e0b3d46e2d38dee21c9ccbefe139c086a818f4806e04ec1b6ba510034573edcf",
+              "runtime_attempt_id": "attempt-0c310f03a119f1ded5e43e56616eb10cb7e281b2a211f8ef6b4d5afbc023540a",
+              "work_id": "4969f95f-W1"
+            },
+            "resolution": null,
+            "runtime_id": "baade261620cc27e8dd605079946bf5412b04101c3949ac1cbb659978ed873ee",
+            "started_at": "2026-11-25T07:00:00.123456789Z"
+          },
+          "profile_digest": "sha256:e0b3d46e2d38dee21c9ccbefe139c086a818f4806e04ec1b6ba510034573edcf",
+          "recorded_at": "2026-11-25T17:12:44.041Z",
+          "schema": "baton.launched-image/1",
+          "selection_digest": "sha256:a3e7f78452332432318322323ca5ede7833a2e4e70fad09a0e8d605ce521d652"
+        },
+        "launched_image_receipt": {
+          "digest": "sha256:3ab1b759bb4650a7a02b24e27861d5be8daee4522f95c93c815365a30fb22da3",
+          "operation_id": "provider.launched-image:169535cc52b98647558f95d6f490a5bf3fb5bd38cfe1e35d2b173423b78cf6d7"
+        },
+        "manifest_digest": "sha256:bc5dced7d9f1e91dba3a51e65dd36dc548da0ac0404998542543a17e3ed3f73f",
+        "outcome": "matched",
+        "result_id": "result-attempt-0c310f03a119f1ded5e43e56616eb10cb7e281b2a211f8ef6b4d5afbc023540a",
+        "selection_digest": "sha256:a3e7f78452332432318322323ca5ede7833a2e4e70fad09a0e8d605ce521d652",
+        "verdict_id": null
+      },
+      "published": {
+        "assignment_ref": {
+          "generation": 1,
+          "participant": "qualification.codex",
+          "work_ref": {
+            "authority_uuid": "4969f95fdfd14377b9d9ce70f645ba59",
+            "work_id": "4969f95f-W1"
+          }
+        },
+        "candidate_digest": "80570b36e691ebbf104d60bf772ef46839c9e514",
+        "decision": {
+          "effective_scope": "scope:deployment",
+          "endpoint": "qualification.codex",
+          "grant": "direct",
+          "policy_generation": 13,
+          "principal": "principal:qualification.codex",
+          "role": "impl"
+        },
+        "input_digest": "sha256:487249e82855d2f1b05e6ef7859f7fd5e0c3c6c7669ba1ea3e9bef394ccff026",
+        "policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917",
+        "proposal_id": "integration-driver.proposal:f43f7e7e2d039092cb532c5f3f683ced718e2d36a6380e1759fd6baff6f9cd6a",
+        "published_at": "2026-11-25T17:12:45.747Z",
+        "result_digest": "sha256:bc5dced7d9f1e91dba3a51e65dd36dc548da0ac0404998542543a17e3ed3f73f",
+        "result_id": "result-attempt-0c310f03a119f1ded5e43e56616eb10cb7e281b2a211f8ef6b4d5afbc023540a",
+        "target": "3c2375a06a12a3389c1a703a2c70a4e8660a5b57"
+      },
+      "receipt_digest": "sha256:c72dd2c0da61a74c6f865cf9e8b5582ddd8315e1aae315415859e2284a6c1183",
+      "released": null,
+      "requested": null,
+      "result_id": "result-attempt-0c310f03a119f1ded5e43e56616eb10cb7e281b2a211f8ef6b4d5afbc023540a",
+      "retention": "retain"
+    },
+    "episode": 1,
+    "outcome": "performed",
+    "stage_id": "job-q4-codex-claude/implementation"
+  },
+  {
+    "act": "conclude",
+    "attempt_id": "attempt-042ede72892b91bf02b89a0ec9b222236f6f56ee7e8dc2171bfd2503ac60edb1",
+    "detail": {
+      "artifacts": [
+        "attempt-042ede72892b91bf02b89a0ec9b222236f6f56ee7e8dc2171bfd2503ac60edb1:findings",
+        "attempt-042ede72892b91bf02b89a0ec9b222236f6f56ee7e8dc2171bfd2503ac60edb1:logs"
+      ],
+      "attachment_id": "review-21ee2dfbcba0bf2ddd3627c3c846b681bb6a5bc88f866fbb7c23feb7e55a67d3",
+      "attempt_id": "attempt-042ede72892b91bf02b89a0ec9b222236f6f56ee7e8dc2171bfd2503ac60edb1",
+      "checkpoint_id": "checkpoint-bb7a24be5a794e18d8384b6abdfe0e3f81faa49f52a4901f0f4fa3a79a531105",
+      "cleaned_up": true,
+      "held_reason": null,
+      "line_id": "line-7bcbd6834b7ea97092fa9e5e46ee90775f66efa71edf3d247d0f48a293354a47",
+      "manifest_digest": "sha256:cb44239dc41702822e9329f3d569e356ea3d6da1f3ca44d707997c6afe2e8703",
+      "model_attribution": {
+        "assessment_digest": "sha256:83424ec9d74f703c0f56259978f3d1756db79b576b802045f2b2ae2aee386163",
+        "attempt_id": "attempt-042ede72892b91bf02b89a0ec9b222236f6f56ee7e8dc2171bfd2503ac60edb1",
+        "attribution": {
+          "attempt_id": "attempt-042ede72892b91bf02b89a0ec9b222236f6f56ee7e8dc2171bfd2503ac60edb1",
+          "contributor_sources": {
+            "claude-fable-5": [
+              "modelUsage"
+            ],
+            "synthetic-additional-contributor": [
+              "modelUsage"
+            ]
+          },
+          "contributors": [
+            "claude-fable-5",
+            "synthetic-additional-contributor"
+          ],
+          "evidence": {
+            "digest": "sha256:3af8c9f6c484a82d4e56315a6bec3597f0ccaeb1aae4dbc22d0d18304f4803d2",
+            "log": {
+              "attempt_id": "attempt-042ede72892b91bf02b89a0ec9b222236f6f56ee7e8dc2171bfd2503ac60edb1",
+              "stream": "provider.stdout"
+            }
+          },
+          "evidenced_cli_build": "2.1.247",
+          "job_id": "job-q4-codex-claude",
+          "mapped_identity": "claude-fable-5",
+          "outcome": "matched",
+          "phase": "review",
+          "provider": "claude",
+          "requested_model": "claude-fable-5[1m]",
+          "schema": "baton.model-attribution/1",
+          "selected_cli_build": "2.1.247"
+        },
+        "cause": null,
+        "checkpoint_id": "checkpoint-bb7a24be5a794e18d8384b6abdfe0e3f81faa49f52a4901f0f4fa3a79a531105",
+        "context_label": {
+          "context_label_digest": "sha256:aa801225ffa5f928d5c10c611133b998760b0a5ce797dcd4806037011e831691",
+          "role": "review",
+          "schema": "baton.native-worker-context/1",
+          "worker_instructions_digest": "sha256:369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b"
+        },
+        "job_id": "job-q4-codex-claude",
+        "manifest_digest": "sha256:cb44239dc41702822e9329f3d569e356ea3d6da1f3ca44d707997c6afe2e8703",
+        "outcome": "matched",
+        "result_id": "result-attempt-042ede72892b91bf02b89a0ec9b222236f6f56ee7e8dc2171bfd2503ac60edb1",
+        "selection_digest": "sha256:4582ee15a2d86007e2882c873b62d625961f123604f1302eb1562f1eb48e0843",
+        "verdict_id": "verdict-d177c0c47a0a082793fd85e58423dab51286ec6dd5d54c9eb2e60b5d3e3f84d9"
+      },
+      "outcome": "accepted",
+      "receipt_digest": "sha256:791f4697bb9cd0821db21a429fc1ba78e775e43a508b88827b0461290e4938db",
+      "result_id": "result-attempt-042ede72892b91bf02b89a0ec9b222236f6f56ee7e8dc2171bfd2503ac60edb1",
+      "retention": "retain",
+      "verdict": "accepted",
+      "verdict_id": "verdict-d177c0c47a0a082793fd85e58423dab51286ec6dd5d54c9eb2e60b5d3e3f84d9",
+      "verdict_record": {
+        "attachment_id": "review-21ee2dfbcba0bf2ddd3627c3c846b681bb6a5bc88f866fbb7c23feb7e55a67d3",
+        "authority_uuid": "4969f95fdfd14377b9d9ce70f645ba59",
+        "base": "3c2375a06a12a3389c1a703a2c70a4e8660a5b57",
+        "checkpoint_digest": "sha256:2b26a12e35fbd7a09b73176b189ecbe64981bd3105e6f449c90ff3f3dafb3f8b",
+        "checkpoint_id": "checkpoint-bb7a24be5a794e18d8384b6abdfe0e3f81faa49f52a4901f0f4fa3a79a531105",
+        "disposition": "accepted",
+        "head": "80570b36e691ebbf104d60bf772ef46839c9e514",
+        "line_id": "line-7bcbd6834b7ea97092fa9e5e46ee90775f66efa71edf3d247d0f48a293354a47",
+        "path_set_digest": "sha256:78be6defc6b26373558c4a408735b98689a4b96c2c538d0d801a02ddebdd54aa",
+        "review_fence": {
+          "fenced": {
+            "assignment": {
+              "generation": 2,
+              "participant": "qualification.claude",
+              "work_ref": {
+                "authority_uuid": "4969f95fdfd14377b9d9ce70f645ba59",
+                "work_id": "4969f95f-W1"
+              }
+            },
+            "cause": "cancelled",
+            "fenced": true,
+            "gate": "runtime-quiescence:2",
+            "phase": "block"
+          },
+          "intent": {
+            "assignment": {
+              "generation": 2,
+              "participant": "qualification.claude",
+              "work_ref": {
+                "authority_uuid": "4969f95fdfd14377b9d9ce70f645ba59",
+                "work_id": "4969f95f-W1"
+              }
+            },
+            "attempt_id": "attempt-042ede72892b91bf02b89a0ec9b222236f6f56ee7e8dc2171bfd2503ac60edb1",
+            "authority_operation_id": "authority.finalize-quiescent:6bf5837e857f4a016703b3a1ebfed7d0ff9b44d0367517d0c101e8b05fddfbac",
+            "decision": "finalized",
+            "reason": "independent checkpoint review completed",
+            "runtime_id": "139bf4887c3ac4b2c2b67a08c75dc3551f75fb058307442e32f42bbee383c6f7",
+            "worker_disposition": "completed"
+          }
+        },
+        "review_fence_digest": "sha256:706e2943c82680fe010b27f6be7f62ae48acbc31dcbf8ad6d5daa5716c3667e6",
+        "review_generation": 2,
+        "review_result": {
+          "artifacts": [
+            {
+              "artifact_id": "attempt-042ede72892b91bf02b89a0ec9b222236f6f56ee7e8dc2171bfd2503ac60edb1:findings",
+              "bytes": 171,
+              "content_digest": "sha256:50149f2c22fcb19c03501098fe90bb38c633cfa7c54d4fea6e395238487c322c",
+              "locator": "file:///var/tmp/baton-q4-prep-accepted-wylri7p9/run/instance/state/workspaces/attempt-042ede72892b91bf02b89a0ec9b222236f6f56ee7e8dc2171bfd2503ac60edb1/custody/attempt-042ede72892b91bf02b89a0ec9b222236f6f56ee7e8dc2171bfd2503ac60edb1/findings",
+              "media_type": "application/octet-stream",
+              "output_name": "findings"
+            },
+            {
+              "artifact_id": "attempt-042ede72892b91bf02b89a0ec9b222236f6f56ee7e8dc2171bfd2503ac60edb1:logs",
+              "bytes": 1363,
+              "content_digest": "sha256:8dd115d84166d66289d06b279815972c1bb24e32a987de990ff232d77efc0a3d",
+              "locator": "file:///var/tmp/baton-q4-prep-accepted-wylri7p9/run/instance/state/workspaces/attempt-042ede72892b91bf02b89a0ec9b222236f6f56ee7e8dc2171bfd2503ac60edb1/custody/attempt-042ede72892b91bf02b89a0ec9b222236f6f56ee7e8dc2171bfd2503ac60edb1/logs",
+              "media_type": "application/octet-stream",
+              "output_name": "logs"
+            }
+          ],
+          "attempt_id": "attempt-042ede72892b91bf02b89a0ec9b222236f6f56ee7e8dc2171bfd2503ac60edb1",
+          "disposition": "completed",
+          "freeze_operation_id": "output.freeze:6bf5837e857f4a016703b3a1ebfed7d0ff9b44d0367517d0c101e8b05fddfbac",
+          "frozen_at": "2026-11-25T17:12:50.169Z",
+          "manifest_digest": "sha256:cb44239dc41702822e9329f3d569e356ea3d6da1f3ca44d707997c6afe2e8703",
+          "result_id": "result-attempt-042ede72892b91bf02b89a0ec9b222236f6f56ee7e8dc2171bfd2503ac60edb1"
+        },
+        "review_result_digest": "sha256:878638953af1108555475a857d1a2312dd6833119d8f1440107db4b3730d1fe5",
+        "reviewer_participant": "qualification.claude",
+        "reviewer_principal": "principal:qualification.claude",
+        "reviewer_worker_id": "review-claude",
+        "revision": 1,
+        "tree": "c29fcf7235929c4c335ebd6ff69b277d9ac6fb82",
+        "verdict_id": "verdict-d177c0c47a0a082793fd85e58423dab51286ec6dd5d54c9eb2e60b5d3e3f84d9",
+        "work_id": "4969f95f-W1"
+      }
+    },
+    "episode": 1,
+    "outcome": "performed",
+    "stage_id": "job-q4-codex-claude/review"
+  }
+]

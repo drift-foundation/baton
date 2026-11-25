@@ -1,0 +1,1 @@
+{"argv": ["python3", "-I", "-c", "from pathlib import Path; assert Path('message.txt').read_bytes()==b'after'+bytes([10])"], "exit_status": {"after-newline": 0, "before-newline": 1, "after-no-newline": 1, "after-backslash-n": 1}}

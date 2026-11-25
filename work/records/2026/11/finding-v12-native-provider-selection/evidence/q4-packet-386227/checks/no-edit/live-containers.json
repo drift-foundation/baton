@@ -1,0 +1,19 @@
+[
+  {
+    "image": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "kind": "worker",
+    "labels": {
+      "baton.v12.adapter_digest": "sha256:5209ad8d712f81c9c24dfbaf4ed406f1465649b626197c46ab7ed20e8c13a38f",
+      "baton.v12.authority_uuid": "fcf80e04495a4f258d2b6e42ef582837",
+      "baton.v12.effective_scope": "scope:deployment",
+      "baton.v12.generation": "1",
+      "baton.v12.participant": "qualification.codex",
+      "baton.v12.policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917",
+      "baton.v12.principal": "principal:qualification.codex",
+      "baton.v12.profile_digest": "sha256:e0b3d46e2d38dee21c9ccbefe139c086a818f4806e04ec1b6ba510034573edcf",
+      "baton.v12.runtime_attempt_id": "attempt-bf949437df95e588debb13041b20ce0685194286934902896739cd97d851e0e8",
+      "baton.v12.work_id": "fcf80e04-W1"
+    },
+    "name": "baton-runtime.start-119c2d98def64ebfa07a602c9f6c3cb6b599b7e8acaa8fe85264bb1386d48cf0"
+  }
+]

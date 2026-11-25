@@ -1,0 +1,24 @@
+{
+  "ceased": true,
+  "containers": [
+    {
+      "ceased": true,
+      "container_name": "q4-386227-inventory-1",
+      "kind": "inventory",
+      "removed": true
+    },
+    {
+      "ceased": true,
+      "container_name": "q4-386227-inventory-2",
+      "kind": "inventory",
+      "removed": true
+    },
+    {
+      "ceased": true,
+      "container_name": "q4-386227-inventory-3",
+      "kind": "inventory",
+      "removed": true
+    }
+  ],
+  "removed": true
+}

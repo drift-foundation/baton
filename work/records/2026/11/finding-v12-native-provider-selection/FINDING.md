@@ -643,3 +643,23 @@ Owner assignment M386212, claim E386214, implements existing DESIGN ART-7 uncert
 Under E386214, implemented the pinned ordinary-review uncertainty contract using a separate report/claim namespace and existing durable Job owner-item delivery to the configured decision recipient. Runtime is quiesced, exact custody retained, no verdict/acceptance or automatic retry; missing routing explicitly holds. Stronger Claude attribution remains mandatory. L1's operator command invokes only the existing audited D1 withdrawal with exact retained home binding; it offers neither retry authorization nor general reseeding. See evidence/uncertainty-386214/REPORT.md and product REVIEW-UNCERTAINTY.md.
 
 Rebuilt Q1/Q2 preparation is complete, with a mandatory actual human checkpoint finalization gate before any separately selected execution. No guessed future commit or reuse of old34364fb1 for changed worker bytes. Claude ordinary-evidence inventory distinguishes historical reported completion from the missing raw terminal/current-image qualification; it cannot recover an unknown additional model or substitute host CLI research for the pinned build. Finite gaps and combined Q4 evidence collection are listed in evidence/claude-inventory-386214/REPORT.md. No new product ruling, provider call or native activation is inferred. Final focused499/499 and synthetic packet19/19 pass; prior broad baseline remains non-green.
+
+
+### 2026-11-25 — Q2 local diagnosis (baton.prompt)
+
+Owner selected diagnosis here. Confirmed missing verifier-layout delivery against a marker-bearing image; deterministic pre-provider refusal reproduced. Also confirmed the task verification byte literal is over-escaped and would reject the requested newline edit. Historical exception detail is absent; no authentication failure or completed provider turn established. See evidence/q2-execution-386214/DIAGNOSIS.md and layout-diagnosis.json. No engine operation, credential read, provider call or product edit.
+
+
+## 2026-11-25 correction by original diagnostician (baton.prompt)
+
+The second finding above is withdrawn. Independent execution of both the original packet argv and the retained task.json argv confirms equality and exit 0 for after plus newline, exit 1 for literal backslash+n and for before plus newline. The earlier escaping interpretation was wrong; no verification defect is established. Preserve the original account as history. K correctly challenged it in M386223. The missing verifier-layout delivery remains confirmed.
+
+
+### 2026-11-25 — Q2 native editing succeeds; launcher completion observation fails
+
+Owner selection M386224. Retained evidence review accepts the exact one-file edit and verification, image/context/configured-model binding, and positive cleanup. Launcher missed the completed-stage transition and timed out waiting for transient exchange. Original failed RESULT preserved; no retry needed. See evidence/q2-execution-386221/REVIEW.md and REVIEWED-RESULT.json. No Claude review qualification claimed.
+
+
+### 2026-11-25 — Q4 owner choices resolved
+
+Owner approved D1/D3/D4 and confirmed the normal Claude credential source /home/sl/.claude/.credentials.json, rejecting the historical Work-number alias. New descriptive reference: operator-file:claude-primary-subscription. Details and remaining execution boundaries: evidence/q4-preparation-386225/OWNER-SELECTIONS.md. No credential or registry accessed.

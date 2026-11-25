@@ -1,0 +1,26 @@
+[
+  {
+    "image": null,
+    "kind": "inventory",
+    "labels": {
+      "io.baton.q4.inventory": "q4-386227"
+    },
+    "name": "q4-386227-inventory-1"
+  },
+  {
+    "image": null,
+    "kind": "inventory",
+    "labels": {
+      "io.baton.q4.inventory": "q4-386227"
+    },
+    "name": "q4-386227-inventory-2"
+  },
+  {
+    "image": null,
+    "kind": "inventory",
+    "labels": {
+      "io.baton.q4.inventory": "q4-386227"
+    },
+    "name": "q4-386227-inventory-3"
+  }
+]

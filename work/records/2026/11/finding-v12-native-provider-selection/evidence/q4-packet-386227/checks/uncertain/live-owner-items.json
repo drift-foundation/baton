@@ -1,0 +1,25 @@
+[
+  {
+    "automatic_retry": null,
+    "delivered_at": "2026-11-25T17:12:59.123Z",
+    "destination": "baton.slaw",
+    "episode": 1,
+    "evidence": {
+      "attachment_id": "review-57942d3b592b686ae6df1d6309646fbb79192896e6a05724c9faf8f23d97926e",
+      "attempt_id": "attempt-90e4f1cab610992415143940b4ab741a55b4a7e154316c8c587d34f1d6a3cc51",
+      "base": "839856b52e9e03e652ee30943bc8195e439e0f77",
+      "checkpoint_id": "checkpoint-15f5d04d17dfffcfd62ca80a8957e22efd8d4ec671b423d85cb4a060ed536b34",
+      "head": "5b6c6870f99c6f6a8a7fa642b6e49d8ab1b45a1b",
+      "outcome": "uncertain",
+      "result_digest": "sha256:e62640a6ac02b64f1e799825f539d3038a21698400ec743346a32f5fb1f62130",
+      "result_id": "result-attempt-90e4f1cab610992415143940b4ab741a55b4a7e154316c8c587d34f1d6a3cc51",
+      "tree": "c29fcf7235929c4c335ebd6ff69b277d9ac6fb82",
+      "verdict": null
+    },
+    "job_id": "job-q4-codex-claude",
+    "schema": "baton.review-uncertainty-owner-item/1",
+    "stage_id": "job-q4-codex-claude/review",
+    "state": "held-for-owner",
+    "verdict": null
+  }
+]

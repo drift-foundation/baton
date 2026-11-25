@@ -1,0 +1,12 @@
+{
+  "ceased": true,
+  "containers": [
+    {
+      "ceased": true,
+      "container_name": "baton-runtime.start-119c2d98def64ebfa07a602c9f6c3cb6b599b7e8acaa8fe85264bb1386d48cf0",
+      "kind": "worker",
+      "removed": true
+    }
+  ],
+  "removed": true
+}

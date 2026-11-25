@@ -1,0 +1,18 @@
+{
+ "passed": true,
+ "cases": 11,
+ "rows": {
+  "create": "added",
+  "same mapping again": "already-present, unchanged",
+  "add beside existing": "existing kept, new added",
+  "different path for an existing pair": "refused: a requested pair is already mapped to a different path; nothing was ch",
+  "pair requested twice": "refused: one pair is requested twice",
+  "relative source path": "refused: a mapping names a provider, a reference and an absolute source path",
+  "relative registry path": "refused: the registry is named by an absolute path",
+  "registry readable by others": "refused: the registry is not a private ordinary file owned by this user",
+  "registry is a symlink": "refused: the registry cannot be opened as an ordinary file (OSError)",
+  "unsupported schema": "refused: the registry is not a baton.user-credential-sources/1 document",
+  "registry already ambiguous": "refused: the registry already maps one pair twice"
+ },
+ "real_registry_touched": false
+}

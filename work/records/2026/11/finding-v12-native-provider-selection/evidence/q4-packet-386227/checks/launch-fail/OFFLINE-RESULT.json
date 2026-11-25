@@ -1,0 +1,70 @@
+{
+  "authority_uuid": "a692d540e0fd45a3a43baee08396dfe0",
+  "builds": 1,
+  "ceased": true,
+  "claude_image": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "cli_version": "2.1.247 (Claude Code)",
+  "codex_image": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "credential_reads": 0,
+  "deployment_sha256": "1361b078b4c0dabe9b0573e172c4d219365a19220241721408a42d794244a6fd",
+  "error_type": null,
+  "fixture_base": "560c3a254f97a54cee8bdb6f93d05c7009081317",
+  "help_flags": {
+    "--dangerously-skip-permissions": true,
+    "--model": true,
+    "--output-format": true,
+    "--print": true
+  },
+  "idle_jobs": 0,
+  "image_and_build_cache_retained": true,
+  "image_file_differences": [],
+  "image_files": 16,
+  "image_files_equal_source": true,
+  "implementation_selection": {
+    "cli_build": "0.169.0",
+    "provider": "codex",
+    "reported_identity": "gpt-6-astra",
+    "requested_model": "gpt-6-astra"
+  },
+  "inventory_runs": 3,
+  "packet": "q4-386227",
+  "passed": true,
+  "payload_sha256": "1eb7ff182c623dfecfe1fed97b9176da441f80e13da2b7b007b1b85c6d3097dd",
+  "phase": "offline",
+  "private_root": "/var/tmp/baton-q4-prep-launch-fail-y065ku0u/run",
+  "provider_calls": 0,
+  "registry": {
+    "entries": 2,
+    "mappings": [
+      {
+        "outcome": "added",
+        "provider": "operator-file",
+        "reference": "codex-pushcoin-subscription"
+      },
+      {
+        "outcome": "added",
+        "provider": "operator-file",
+        "reference": "claude-primary-subscription"
+      }
+    ],
+    "registry_created": true
+  },
+  "removed": true,
+  "review_selection": {
+    "cli_build": "2.1.247",
+    "provider": "claude",
+    "reported_identity": "claude-fable-5",
+    "requested_model": "claude-fable-5[1m]"
+  },
+  "routing": {
+    "decision_recipient": "baton.slaw",
+    "reviewer": "qualification.claude"
+  },
+  "separate_launch_homes": true,
+  "source": "b5abf7983fb07eb3a8268f2d4559a04de9c0f1bd",
+  "worker_containers": 0,
+  "workers": [
+    "impl-codex",
+    "review-claude"
+  ]
+}

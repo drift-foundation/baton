@@ -1,0 +1,24 @@
+{
+  "implementation": {
+    "artifacts": {
+      "handoff": {
+        "artifact_id": "attempt-dc579d223b390c5d491954d729239a87c57d9f7ad11909e5a71864de5a7ffa6d:handoff",
+        "bytes": 69,
+        "content_digest": "sha256:69ac20eba94f14c9c774c2194ec16194345ebf4fecaa177653a6de7a8fdfb1d7",
+        "form": "sealed-tree"
+      },
+      "proposal": {
+        "artifact_id": "attempt-dc579d223b390c5d491954d729239a87c57d9f7ad11909e5a71864de5a7ffa6d:proposal",
+        "bytes": 4555,
+        "content_digest": "sha256:4dcd832512824520b0994229a977f4c0955cf9aeff32beab447fc5fa2a9f7ff9",
+        "form": "sealed-tree"
+      }
+    },
+    "attempt_id": "attempt-dc579d223b390c5d491954d729239a87c57d9f7ad11909e5a71864de5a7ffa6d",
+    "execution_runtime": "destroyed",
+    "kind": "custody",
+    "manifest_digest": "sha256:8cd0a4501e865bbdd80ebea7fea880c0f73f3cc82bef092feff8fc7057b306f8",
+    "result_id": "result-attempt-dc579d223b390c5d491954d729239a87c57d9f7ad11909e5a71864de5a7ffa6d",
+    "state": "completed"
+  }
+}

@@ -1,0 +1,4 @@
+{
+  "diagnostic": "a login source is not a private ordinary file within its delivery bound",
+  "type": "AssertionError"
+}

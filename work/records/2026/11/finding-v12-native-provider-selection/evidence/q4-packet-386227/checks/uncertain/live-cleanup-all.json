@@ -1,0 +1,25 @@
+{
+  "ceased": true,
+  "containers": [
+    {
+      "ceased": true,
+      "container_name": "baton-runtime.start-cf36f5bc949e20a682552ddc77ec3e6458256daeb214c26397eccad61bfe2334",
+      "kind": "worker",
+      "removed": true
+    },
+    {
+      "ceased": true,
+      "container_name": "baton-runtime.start-155ba6441065e706cad92cc857a0d0b229fe55544bf9c9d3d09a5cf773a6529c",
+      "exit_code": 143,
+      "kind": "worker",
+      "removed": true,
+      "runtime_id": "823a971e6eb69cbe72040b28786dee1939582b9bf9436fd3c3c9665af3c3a154",
+      "state": {
+        "ExitCode": 143,
+        "Running": false,
+        "StartedAt": "2026-11-25T07:00:00.123456789Z"
+      }
+    }
+  ],
+  "removed": true
+}

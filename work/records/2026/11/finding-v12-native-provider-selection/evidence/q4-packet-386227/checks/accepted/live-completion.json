@@ -1,0 +1,46 @@
+{
+  "implementation": {
+    "artifacts": {
+      "handoff": {
+        "artifact_id": "attempt-0c310f03a119f1ded5e43e56616eb10cb7e281b2a211f8ef6b4d5afbc023540a:handoff",
+        "bytes": 69,
+        "content_digest": "sha256:69ac20eba94f14c9c774c2194ec16194345ebf4fecaa177653a6de7a8fdfb1d7",
+        "form": "sealed-tree"
+      },
+      "proposal": {
+        "artifact_id": "attempt-0c310f03a119f1ded5e43e56616eb10cb7e281b2a211f8ef6b4d5afbc023540a:proposal",
+        "bytes": 4555,
+        "content_digest": "sha256:f6498394f0e72adf6471cbb91bb8ef3ac79d12ff2352cde8b09ecbaeb6aaf326",
+        "form": "sealed-tree"
+      }
+    },
+    "attempt_id": "attempt-0c310f03a119f1ded5e43e56616eb10cb7e281b2a211f8ef6b4d5afbc023540a",
+    "execution_runtime": "destroyed",
+    "kind": "custody",
+    "manifest_digest": "sha256:bc5dced7d9f1e91dba3a51e65dd36dc548da0ac0404998542543a17e3ed3f73f",
+    "result_id": "result-attempt-0c310f03a119f1ded5e43e56616eb10cb7e281b2a211f8ef6b4d5afbc023540a",
+    "state": "completed"
+  },
+  "review": {
+    "artifacts": {
+      "findings": {
+        "artifact_id": "attempt-042ede72892b91bf02b89a0ec9b222236f6f56ee7e8dc2171bfd2503ac60edb1:findings",
+        "bytes": 171,
+        "content_digest": "sha256:50149f2c22fcb19c03501098fe90bb38c633cfa7c54d4fea6e395238487c322c",
+        "form": "sealed-tree"
+      },
+      "logs": {
+        "artifact_id": "attempt-042ede72892b91bf02b89a0ec9b222236f6f56ee7e8dc2171bfd2503ac60edb1:logs",
+        "bytes": 1363,
+        "content_digest": "sha256:8dd115d84166d66289d06b279815972c1bb24e32a987de990ff232d77efc0a3d",
+        "form": "sealed-tree"
+      }
+    },
+    "attempt_id": "attempt-042ede72892b91bf02b89a0ec9b222236f6f56ee7e8dc2171bfd2503ac60edb1",
+    "execution_runtime": "destroyed",
+    "kind": "custody",
+    "manifest_digest": "sha256:cb44239dc41702822e9329f3d569e356ea3d6da1f3ca44d707997c6afe2e8703",
+    "result_id": "result-attempt-042ede72892b91bf02b89a0ec9b222236f6f56ee7e8dc2171bfd2503ac60edb1",
+    "state": "completed"
+  }
+}

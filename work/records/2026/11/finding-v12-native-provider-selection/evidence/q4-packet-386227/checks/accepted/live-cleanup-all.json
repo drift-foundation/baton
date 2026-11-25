@@ -1,0 +1,18 @@
+{
+  "ceased": true,
+  "containers": [
+    {
+      "ceased": true,
+      "container_name": "baton-runtime.start-f641c0bf24e844d4a1f893e6e4657e8ef2bbda2f0eacef8a59db689a2573f520",
+      "kind": "worker",
+      "removed": true
+    },
+    {
+      "ceased": true,
+      "container_name": "baton-runtime.start-8620fbc7e2a4f699f05234cc3baacf9f66265107c4b3020eb72d00ada25d0194",
+      "kind": "worker",
+      "removed": true
+    }
+  ],
+  "removed": true
+}

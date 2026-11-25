@@ -1,0 +1,129 @@
+{
+ "passed": true,
+ "cases": 30,
+ "rows": {
+  "waiting-with-custody-directory-present": [
+   null,
+   true
+  ],
+  "offered-no-attempt": [
+   null,
+   true
+  ],
+  "exchange-answered-terminal": [
+   "exchange",
+   false
+  ],
+  "exchange-faulted-terminal": [
+   "exchange",
+   false
+  ],
+  "exchange-answered-without-terminal": [
+   null,
+   true
+  ],
+  "completed-custody": [
+   "custody",
+   false
+  ],
+  "completed-and-exchange-terminal": [
+   "exchange",
+   false
+  ],
+  "completed-other-attempt": [
+   "REFUSED",
+   "completed stage names another attempt"
+  ],
+  "completed-watching-other-attempt": [
+   "REFUSED",
+   "completed stage names another attempt"
+  ],
+  "completed-no-attempt-bound": [
+   "REFUSED",
+   "a completed stage was observed before any attempt was bound"
+  ],
+  "completed-other-episode-attempt": [
+   "REFUSED",
+   "current episode names another attempt"
+  ],
+  "completed-other-work": [
+   "REFUSED",
+   "completed runtime is assigned to another Work"
+  ],
+  "completed-other-stage": [
+   "REFUSED",
+   "completed stage names another attempt"
+  ],
+  "completed-runtime-still-running": [
+   "REFUSED",
+   "completed stage whose runtime is not settled"
+  ],
+  "completed-no-frozen-result": [
+   "REFUSED",
+   "no completed frozen result for this attempt"
+  ],
+  "completed-frozen-other-attempt": [
+   "REFUSED",
+   "no completed frozen result for this attempt"
+  ],
+  "completed-frozen-not-completed": [
+   "REFUSED",
+   "no completed frozen result for this attempt"
+  ],
+  "completed-no-artifacts": [
+   "REFUSED",
+   "status and control store disagree about custody outputs"
+  ],
+  "completed-frozen-digest-differs": [
+   "REFUSED",
+   ""
+  ],
+  "completed-artifact-outside-custody": [
+   "REFUSED",
+   "custody artifact missing or outside this attempt custody"
+  ],
+  "completed-manifest-lacks-proposal": [
+   "REFUSED",
+   "the sealed result manifest does not record a present proposal"
+  ],
+  "completed-manifest-unreadable": [
+   "REFUSED",
+   "the sealed result manifest does not record a present proposal"
+  ],
+  "completed-custody-path-missing": [
+   "REFUSED",
+   "custody artifact missing or outside this attempt custody"
+  ],
+  "completed-with-file-artifact": [
+   "custody",
+   false
+  ],
+  "completed-artifact-symlink": [
+   "REFUSED",
+   "custody artifact missing or outside this attempt custody"
+  ],
+  "completed-file-artifact-bytes-differ": [
+   "REFUSED",
+   "custody artifact bytes differ from the frozen record"
+  ],
+  "ended-exceptional": [
+   null,
+   false
+  ],
+  "ended-failed": [
+   null,
+   false
+  ],
+  "ended-blocked": [
+   null,
+   false
+  ],
+  "ended-cancelled": [
+   null,
+   false
+  ]
+ },
+ "engine_calls": 0,
+ "provider_calls": 0,
+ "credential_reads": 0
+}

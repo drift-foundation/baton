@@ -1,0 +1,86 @@
+{
+ "note": "386221 launcher loop (q2-correction-386221/owner-run.py, unchanged) driven by the completing simulation; polling stopped by the exploration harness after 13 polls instead of waiting 240 s. It never observed a terminal: capture_terminal false while edit_verified true, the retained 386221 RESULT shape.",
+ "polls": [
+  {
+   "poll": 0,
+   "state": "offered",
+   "exchange": null,
+   "artifacts": false
+  },
+  {
+   "poll": 1,
+   "state": "waiting",
+   "exchange": "waiting",
+   "artifacts": false
+  },
+  {
+   "poll": 2,
+   "state": "completed",
+   "exchange": null,
+   "artifacts": true
+  },
+  {
+   "poll": 3,
+   "state": "completed",
+   "exchange": null,
+   "artifacts": true
+  },
+  {
+   "poll": 4,
+   "state": "completed",
+   "exchange": null,
+   "artifacts": true
+  },
+  {
+   "poll": 5,
+   "state": "completed",
+   "exchange": null,
+   "artifacts": true
+  },
+  {
+   "poll": 6,
+   "state": "completed",
+   "exchange": null,
+   "artifacts": true
+  },
+  {
+   "poll": 7,
+   "state": "completed",
+   "exchange": null,
+   "artifacts": true
+  },
+  {
+   "poll": 8,
+   "state": "completed",
+   "exchange": null,
+   "artifacts": true
+  },
+  {
+   "poll": 9,
+   "state": "completed",
+   "exchange": null,
+   "artifacts": true
+  },
+  {
+   "poll": 10,
+   "state": "completed",
+   "exchange": null,
+   "artifacts": true
+  },
+  {
+   "poll": 11,
+   "state": "completed",
+   "exchange": null,
+   "artifacts": true
+  },
+  {
+   "poll": 12,
+   "state": "completed",
+   "exchange": null,
+   "artifacts": true
+  }
+ ],
+ "simulation": true,
+ "engine_calls": 0,
+ "provider_calls": 0
+}

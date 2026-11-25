@@ -1,0 +1,40 @@
+{
+  "acceptance": "held-for-private-evidence-review",
+  "actual_codex_contributors": "unknown",
+  "ceased": true,
+  "changed_paths": [
+    "message.txt"
+  ],
+  "claude_attribution_matched": true,
+  "claude_image": "sha256:68f76471717146d62808b95aff5c75dbe6bfec6bc0950b322fe9a7000c32afdf",
+  "claude_requested_model_reported": true,
+  "codex_configured_model_accepted": true,
+  "codex_image": "sha256:2c982530412d6811cfa6aa2e28181f859cc2a9fb2e4372f29d88784763dbe693",
+  "containers_inspected": [
+    "implementation",
+    "review"
+  ],
+  "edit_verified": true,
+  "elapsed_seconds": 69.7,
+  "error_type": null,
+  "implementation_completion": "custody",
+  "implementation_state": "completed",
+  "native_job_success": false,
+  "outcome": "review-verdict-recorded",
+  "overall_bound_seconds": 1200,
+  "owner_item_destinations": [],
+  "owner_items": 0,
+  "packet": "q4-386227-modes",
+  "payload_sha256": "3913a54ef02b6a3ddc6122dc4e842aab6c4db8cd0c62ddad2a5637720dbd63d8",
+  "phase": "live",
+  "private_root": "/var/tmp/baton-q4-386227-modes",
+  "removed": true,
+  "retained_homes_preserved": true,
+  "review_completion": "custody",
+  "review_state": "completed",
+  "review_verdict_recorded": "accepted",
+  "source": "b5abf7983fb07eb3a8268f2d4559a04de9c0f1bd",
+  "source_writeback": false,
+  "volatile_credentials_withdrawn": true,
+  "worker_containers": 2
+}

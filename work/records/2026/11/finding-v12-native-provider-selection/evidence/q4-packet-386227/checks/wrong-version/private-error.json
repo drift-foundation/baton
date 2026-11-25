@@ -1,0 +1,4 @@
+{
+  "diagnostic": "Claude CLI is not exactly 2.1.247",
+  "type": "AssertionError"
+}

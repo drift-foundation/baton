@@ -1,0 +1,288 @@
+[
+  {
+    "act": "conclude",
+    "attempt_id": "attempt-dc579d223b390c5d491954d729239a87c57d9f7ad11909e5a71864de5a7ffa6d",
+    "detail": {
+      "artifacts": [
+        "attempt-dc579d223b390c5d491954d729239a87c57d9f7ad11909e5a71864de5a7ffa6d:handoff",
+        "attempt-dc579d223b390c5d491954d729239a87c57d9f7ad11909e5a71864de5a7ffa6d:proposal"
+      ],
+      "attempt_id": "attempt-dc579d223b390c5d491954d729239a87c57d9f7ad11909e5a71864de5a7ffa6d",
+      "checkpoint": {
+        "checkpoint_digest": "sha256:17c5bfd1be0469a97e1458076528c64c7394e9c8862f7288e964e91f7a9f7c14",
+        "checkpoint_id": "checkpoint-15f5d04d17dfffcfd62ca80a8957e22efd8d4ec671b423d85cb4a060ed536b34",
+        "evidence": {
+          "base": "839856b52e9e03e652ee30943bc8195e439e0f77",
+          "head": "5b6c6870f99c6f6a8a7fa642b6e49d8ab1b45a1b",
+          "path_set_digest": "sha256:78be6defc6b26373558c4a408735b98689a4b96c2c538d0d801a02ddebdd54aa",
+          "paths": [
+            "message.txt"
+          ],
+          "profile": "git",
+          "reference": "refs/baton/checkpoints/line-728235adb83023a038761542f3d6c4c069270084af91b6b3ea9c1ed23c32248e/1",
+          "tree": "c29fcf7235929c4c335ebd6ff69b277d9ac6fb82"
+        },
+        "fence": {
+          "fenced": {
+            "assignment": {
+              "generation": 1,
+              "participant": "qualification.codex",
+              "work_ref": {
+                "authority_uuid": "cce53c5cfec246e995bd296ea8930dec",
+                "work_id": "cce53c5c-W1"
+              }
+            },
+            "cause": "cancelled",
+            "fenced": true,
+            "gate": "runtime-quiescence:1",
+            "phase": "block"
+          },
+          "intent": {
+            "assignment": {
+              "generation": 1,
+              "participant": "qualification.codex",
+              "work_ref": {
+                "authority_uuid": "cce53c5cfec246e995bd296ea8930dec",
+                "work_id": "cce53c5c-W1"
+              }
+            },
+            "attempt_id": "attempt-dc579d223b390c5d491954d729239a87c57d9f7ad11909e5a71864de5a7ffa6d",
+            "authority_operation_id": "authority.finalize-quiescent:7052375764f207a3cd91e67c45d26e76ab75d51b051c32b7f094cea4ae4d7b25",
+            "decision": "finalized",
+            "reason": "review checkpoint writer completed",
+            "runtime_id": "39d612c8cf16f1524cc47d912af3b0fbc0f00c1e36fdefa3233ae213df12b9ae",
+            "worker_disposition": "completed"
+          }
+        },
+        "line_id": "line-728235adb83023a038761542f3d6c4c069270084af91b6b3ea9c1ed23c32248e",
+        "revision": 1
+      },
+      "checkpoint_id": "checkpoint-15f5d04d17dfffcfd62ca80a8957e22efd8d4ec671b423d85cb4a060ed536b34",
+      "disposition": "completed",
+      "handoff": {
+        "assignment": {
+          "authority_uuid": "cce53c5cfec246e995bd296ea8930dec",
+          "effective_scope": "scope:deployment",
+          "generation": 1,
+          "participant": "qualification.codex",
+          "principal": "principal:qualification.codex",
+          "runtime_attempt_id": "attempt-dc579d223b390c5d491954d729239a87c57d9f7ad11909e5a71864de5a7ffa6d",
+          "work_id": "cce53c5c-W1"
+        },
+        "handoff": {
+          "kind": "final-submission",
+          "schema": "baton.native-handoff/1"
+        },
+        "handoff_digest": "sha256:a19e2ed16afe747b3692af39aecdc0035e9e8f5d2c0a1b23d6dc61a0f997bb6a",
+        "kind": "final-submission",
+        "manifest_digest": "sha256:8cd0a4501e865bbdd80ebea7fea880c0f73f3cc82bef092feff8fc7057b306f8",
+        "result_id": "result-attempt-dc579d223b390c5d491954d729239a87c57d9f7ad11909e5a71864de5a7ffa6d"
+      },
+      "manifest_digest": "sha256:8cd0a4501e865bbdd80ebea7fea880c0f73f3cc82bef092feff8fc7057b306f8",
+      "model_attribution": {
+        "assessment_digest": "sha256:c3d0f0e74efd04e3d28f7810e79cc9741f11498a56bd74d1053579e2ff8a72bf",
+        "attempt_id": "attempt-dc579d223b390c5d491954d729239a87c57d9f7ad11909e5a71864de5a7ffa6d",
+        "attribution": {
+          "actual_participation": "unknown",
+          "attempt_id": "attempt-dc579d223b390c5d491954d729239a87c57d9f7ad11909e5a71864de5a7ffa6d",
+          "basis": "configured-model",
+          "contributor_sources": {},
+          "contributors": [],
+          "evidence": {
+            "digest": "sha256:3340a323fea91fb073bdec910c92bd3e79fff3ed39bf3aad9769af633699c288",
+            "log": {
+              "attempt_id": "attempt-dc579d223b390c5d491954d729239a87c57d9f7ad11909e5a71864de5a7ffa6d",
+              "stream": "provider.stdout"
+            }
+          },
+          "evidenced_cli_build": "0.169.0",
+          "image_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "invocation": {
+            "argv_digest": "sha256:91d7e5046d74bbcb89124914e41cc11e07aff62472b39aa9aca373f6611a7a32",
+            "argv_prefix": [
+              "codex",
+              "exec",
+              "--dangerously-bypass-approvals-and-sandbox",
+              "--ignore-user-config",
+              "--ignore-rules",
+              "--json",
+              "--model",
+              "gpt-6-astra"
+            ],
+            "context_label": {
+              "context_label_digest": "sha256:d1c8f373dcbbb04edbc802dcd9c28c02247b252e06a48307222b06c4dc3a5815",
+              "role": "implementation",
+              "schema": "baton.native-worker-context/1",
+              "worker_instructions_digest": "sha256:369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b"
+            },
+            "environment_policy": {
+              "CODEX_HOME": "/run/baton/provider-home/codex",
+              "HOME": "/run/baton/provider-home",
+              "PATH": "/usr/local/bin:/usr/bin:/bin",
+              "PYTHONPYCACHEPREFIX": "fresh",
+              "TMPDIR": "fresh",
+              "XDG_CACHE_HOME": "fresh"
+            },
+            "environment_validated": true,
+            "evidenced_cli_build": "0.169.0",
+            "phase": "implementation",
+            "prompt_bytes": 2717,
+            "prompt_digest": "sha256:676b4b74bad2a890b960b4f837afac053b91a6ee216de40940af11ddecc8bf9d",
+            "selection_digest": "sha256:8ae83a66094bf10bbecbb87c9ba6824a00e1232000b9e2ca21c9a900062759fd",
+            "status": 0
+          },
+          "job_id": "job-q4-codex-claude",
+          "outcome": "configured-model-accepted",
+          "phase": "implementation",
+          "provider": "codex",
+          "requested_model": "gpt-6-astra",
+          "reroute_observation": "no reroute observed",
+          "schema": "baton.model-attribution/2",
+          "selected_cli_build": "0.169.0",
+          "selection_digest": "sha256:8ae83a66094bf10bbecbb87c9ba6824a00e1232000b9e2ca21c9a900062759fd"
+        },
+        "cause": null,
+        "checkpoint_id": "checkpoint-15f5d04d17dfffcfd62ca80a8957e22efd8d4ec671b423d85cb4a060ed536b34",
+        "context_label": {
+          "context_label_digest": "sha256:d1c8f373dcbbb04edbc802dcd9c28c02247b252e06a48307222b06c4dc3a5815",
+          "role": "implementation",
+          "schema": "baton.native-worker-context/1",
+          "worker_instructions_digest": "sha256:369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b"
+        },
+        "job_id": "job-q4-codex-claude",
+        "launched_image": {
+          "admitted_image": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "attempt_id": "attempt-dc579d223b390c5d491954d729239a87c57d9f7ad11909e5a71864de5a7ffa6d",
+          "observation": {
+            "engine": "docker",
+            "image_id": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "labels": {
+              "adapter_digest": "sha256:5209ad8d712f81c9c24dfbaf4ed406f1465649b626197c46ab7ed20e8c13a38f",
+              "authority_uuid": "cce53c5cfec246e995bd296ea8930dec",
+              "effective_scope": "scope:deployment",
+              "generation": 1,
+              "participant": "qualification.codex",
+              "policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917",
+              "principal": "principal:qualification.codex",
+              "profile_digest": "sha256:e0b3d46e2d38dee21c9ccbefe139c086a818f4806e04ec1b6ba510034573edcf",
+              "runtime_attempt_id": "attempt-dc579d223b390c5d491954d729239a87c57d9f7ad11909e5a71864de5a7ffa6d",
+              "work_id": "cce53c5c-W1"
+            },
+            "resolution": null,
+            "runtime_id": "39d612c8cf16f1524cc47d912af3b0fbc0f00c1e36fdefa3233ae213df12b9ae",
+            "started_at": "2026-11-25T07:00:00.123456789Z"
+          },
+          "profile_digest": "sha256:e0b3d46e2d38dee21c9ccbefe139c086a818f4806e04ec1b6ba510034573edcf",
+          "recorded_at": "2026-11-25T17:12:52.980Z",
+          "schema": "baton.launched-image/1",
+          "selection_digest": "sha256:8ae83a66094bf10bbecbb87c9ba6824a00e1232000b9e2ca21c9a900062759fd"
+        },
+        "launched_image_receipt": {
+          "digest": "sha256:181974d5dc99f37632b48547a97b5c29d2f8d4a79be7dacc0de6577594d617ac",
+          "operation_id": "provider.launched-image:3746295366128112999b0cfe62f3b8bc6dbb94f0f2bd33f2ac00c7c5260c7073"
+        },
+        "manifest_digest": "sha256:8cd0a4501e865bbdd80ebea7fea880c0f73f3cc82bef092feff8fc7057b306f8",
+        "outcome": "matched",
+        "result_id": "result-attempt-dc579d223b390c5d491954d729239a87c57d9f7ad11909e5a71864de5a7ffa6d",
+        "selection_digest": "sha256:8ae83a66094bf10bbecbb87c9ba6824a00e1232000b9e2ca21c9a900062759fd",
+        "verdict_id": null
+      },
+      "published": {
+        "assignment_ref": {
+          "generation": 1,
+          "participant": "qualification.codex",
+          "work_ref": {
+            "authority_uuid": "cce53c5cfec246e995bd296ea8930dec",
+            "work_id": "cce53c5c-W1"
+          }
+        },
+        "candidate_digest": "5b6c6870f99c6f6a8a7fa642b6e49d8ab1b45a1b",
+        "decision": {
+          "effective_scope": "scope:deployment",
+          "endpoint": "qualification.codex",
+          "grant": "direct",
+          "policy_generation": 13,
+          "principal": "principal:qualification.codex",
+          "role": "impl"
+        },
+        "input_digest": "sha256:8d42cd1bab8202aec9d932fba1bc0656c79949c357f01757c5b5e6d75c143f93",
+        "policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917",
+        "proposal_id": "integration-driver.proposal:f487f46333270f4fd8e8f66a8577b3619aa3e36120c592cf25df47146954d041",
+        "published_at": "2026-11-25T17:12:54.686Z",
+        "result_digest": "sha256:8cd0a4501e865bbdd80ebea7fea880c0f73f3cc82bef092feff8fc7057b306f8",
+        "result_id": "result-attempt-dc579d223b390c5d491954d729239a87c57d9f7ad11909e5a71864de5a7ffa6d",
+        "target": "839856b52e9e03e652ee30943bc8195e439e0f77"
+      },
+      "receipt_digest": "sha256:6d86eaff60a3864cec045f3c69c2ddf19298a8c9b911d225b31525aebb27c91e",
+      "released": null,
+      "requested": null,
+      "result_id": "result-attempt-dc579d223b390c5d491954d729239a87c57d9f7ad11909e5a71864de5a7ffa6d",
+      "retention": "retain"
+    },
+    "episode": 1,
+    "outcome": "performed",
+    "stage_id": "job-q4-codex-claude/implementation"
+  },
+  {
+    "act": "conclude",
+    "attempt_id": "attempt-90e4f1cab610992415143940b4ab741a55b4a7e154316c8c587d34f1d6a3cc51",
+    "detail": {
+      "artifacts": [
+        "attempt-90e4f1cab610992415143940b4ab741a55b4a7e154316c8c587d34f1d6a3cc51:findings",
+        "attempt-90e4f1cab610992415143940b4ab741a55b4a7e154316c8c587d34f1d6a3cc51:logs"
+      ],
+      "attachment_id": "review-57942d3b592b686ae6df1d6309646fbb79192896e6a05724c9faf8f23d97926e",
+      "attempt_id": "attempt-90e4f1cab610992415143940b4ab741a55b4a7e154316c8c587d34f1d6a3cc51",
+      "checkpoint_id": "checkpoint-15f5d04d17dfffcfd62ca80a8957e22efd8d4ec671b423d85cb4a060ed536b34",
+      "cleaned_up": false,
+      "held_reason": "reviewer uncertainty requires an owner decision; no verdict or automatic retry",
+      "line_id": "line-728235adb83023a038761542f3d6c4c069270084af91b6b3ea9c1ed23c32248e",
+      "manifest_digest": "sha256:e62640a6ac02b64f1e799825f539d3038a21698400ec743346a32f5fb1f62130",
+      "outcome": "held",
+      "owner_item": {
+        "automatic_retry": null,
+        "delivered_at": "2026-11-25T17:12:59.123Z",
+        "destination": "baton.slaw",
+        "episode": 1,
+        "evidence": {
+          "attachment_id": "review-57942d3b592b686ae6df1d6309646fbb79192896e6a05724c9faf8f23d97926e",
+          "attempt_id": "attempt-90e4f1cab610992415143940b4ab741a55b4a7e154316c8c587d34f1d6a3cc51",
+          "base": "839856b52e9e03e652ee30943bc8195e439e0f77",
+          "checkpoint_id": "checkpoint-15f5d04d17dfffcfd62ca80a8957e22efd8d4ec671b423d85cb4a060ed536b34",
+          "head": "5b6c6870f99c6f6a8a7fa642b6e49d8ab1b45a1b",
+          "outcome": "uncertain",
+          "result_digest": "sha256:e62640a6ac02b64f1e799825f539d3038a21698400ec743346a32f5fb1f62130",
+          "result_id": "result-attempt-90e4f1cab610992415143940b4ab741a55b4a7e154316c8c587d34f1d6a3cc51",
+          "tree": "c29fcf7235929c4c335ebd6ff69b277d9ac6fb82",
+          "verdict": null
+        },
+        "job_id": "job-q4-codex-claude",
+        "schema": "baton.review-uncertainty-owner-item/1",
+        "stage_id": "job-q4-codex-claude/review",
+        "state": "held-for-owner",
+        "verdict": null
+      },
+      "receipt_digest": "sha256:76da96278fb3e56be416d16ce717eed6683e8b5ce48b79538e5e61f939660daa",
+      "result_id": "result-attempt-90e4f1cab610992415143940b4ab741a55b4a7e154316c8c587d34f1d6a3cc51",
+      "retention": "retain",
+      "uncertainty": {
+        "attachment_id": "review-57942d3b592b686ae6df1d6309646fbb79192896e6a05724c9faf8f23d97926e",
+        "attempt_id": "attempt-90e4f1cab610992415143940b4ab741a55b4a7e154316c8c587d34f1d6a3cc51",
+        "base": "839856b52e9e03e652ee30943bc8195e439e0f77",
+        "checkpoint_id": "checkpoint-15f5d04d17dfffcfd62ca80a8957e22efd8d4ec671b423d85cb4a060ed536b34",
+        "head": "5b6c6870f99c6f6a8a7fa642b6e49d8ab1b45a1b",
+        "outcome": "uncertain",
+        "result_digest": "sha256:e62640a6ac02b64f1e799825f539d3038a21698400ec743346a32f5fb1f62130",
+        "result_id": "result-attempt-90e4f1cab610992415143940b4ab741a55b4a7e154316c8c587d34f1d6a3cc51",
+        "tree": "c29fcf7235929c4c335ebd6ff69b277d9ac6fb82",
+        "verdict": null
+      },
+      "verdict": null,
+      "verdict_id": null,
+      "verdict_record": null
+    },
+    "episode": 1,
+    "outcome": "performed",
+    "stage_id": "job-q4-codex-claude/review"
+  }
+]

@@ -1,0 +1,287 @@
+[
+  {
+    "act": "conclude",
+    "attempt_id": "attempt-3ee2fecd012c4f73197ff7e3a08902a7c38ac2104b297e2096d4364cb294ac37",
+    "detail": {
+      "artifacts": [
+        "attempt-3ee2fecd012c4f73197ff7e3a08902a7c38ac2104b297e2096d4364cb294ac37:handoff",
+        "attempt-3ee2fecd012c4f73197ff7e3a08902a7c38ac2104b297e2096d4364cb294ac37:proposal"
+      ],
+      "attempt_id": "attempt-3ee2fecd012c4f73197ff7e3a08902a7c38ac2104b297e2096d4364cb294ac37",
+      "checkpoint": {
+        "checkpoint_digest": "sha256:579f19902b5d592ab417603f28dea763c7acee7c37ed4aeb18e2b15e3806865f",
+        "checkpoint_id": "checkpoint-56c2fb39db984f6906be9d0e18ee8c8c4cc3949c3ea9bbcba3aa7179812aa1d3",
+        "evidence": {
+          "base": "3409f51946b53fea3838dbbb6218b59088584bb2",
+          "head": "40456973f6ac675786bc6073598fe507f96ce6cb",
+          "path_set_digest": "sha256:78be6defc6b26373558c4a408735b98689a4b96c2c538d0d801a02ddebdd54aa",
+          "paths": [
+            "message.txt"
+          ],
+          "profile": "git",
+          "reference": "refs/baton/checkpoints/line-e2002a2f0f7b57f29f654b02d2d94ac210ba80d9455dfdaaa78680488d09452f/1",
+          "tree": "c29fcf7235929c4c335ebd6ff69b277d9ac6fb82"
+        },
+        "fence": {
+          "fenced": {
+            "assignment": {
+              "generation": 1,
+              "participant": "qualification.codex",
+              "work_ref": {
+                "authority_uuid": "f9ba48343516431e8942e61fde79c694",
+                "work_id": "f9ba4834-W1"
+              }
+            },
+            "cause": "cancelled",
+            "fenced": true,
+            "gate": "runtime-quiescence:1",
+            "phase": "block"
+          },
+          "intent": {
+            "assignment": {
+              "generation": 1,
+              "participant": "qualification.codex",
+              "work_ref": {
+                "authority_uuid": "f9ba48343516431e8942e61fde79c694",
+                "work_id": "f9ba4834-W1"
+              }
+            },
+            "attempt_id": "attempt-3ee2fecd012c4f73197ff7e3a08902a7c38ac2104b297e2096d4364cb294ac37",
+            "authority_operation_id": "authority.finalize-quiescent:18a955fed1d1ac649e4b28b8cdaf363aec7eac8a31a9321c5d21e48cba0b8f86",
+            "decision": "finalized",
+            "reason": "review checkpoint writer completed",
+            "runtime_id": "bd6b6556c475e77e080f3a84c08badd63cd4f19953e3741f709e1a4030671b34",
+            "worker_disposition": "completed"
+          }
+        },
+        "line_id": "line-e2002a2f0f7b57f29f654b02d2d94ac210ba80d9455dfdaaa78680488d09452f",
+        "revision": 1
+      },
+      "checkpoint_id": "checkpoint-56c2fb39db984f6906be9d0e18ee8c8c4cc3949c3ea9bbcba3aa7179812aa1d3",
+      "disposition": "completed",
+      "handoff": {
+        "assignment": {
+          "authority_uuid": "f9ba48343516431e8942e61fde79c694",
+          "effective_scope": "scope:deployment",
+          "generation": 1,
+          "participant": "qualification.codex",
+          "principal": "principal:qualification.codex",
+          "runtime_attempt_id": "attempt-3ee2fecd012c4f73197ff7e3a08902a7c38ac2104b297e2096d4364cb294ac37",
+          "work_id": "f9ba4834-W1"
+        },
+        "handoff": {
+          "kind": "final-submission",
+          "schema": "baton.native-handoff/1"
+        },
+        "handoff_digest": "sha256:a19e2ed16afe747b3692af39aecdc0035e9e8f5d2c0a1b23d6dc61a0f997bb6a",
+        "kind": "final-submission",
+        "manifest_digest": "sha256:b5a4c9ebadb2cbf3a2fadd0297594f7ad8c20e952065b1557fd1be2316dac915",
+        "result_id": "result-attempt-3ee2fecd012c4f73197ff7e3a08902a7c38ac2104b297e2096d4364cb294ac37"
+      },
+      "manifest_digest": "sha256:b5a4c9ebadb2cbf3a2fadd0297594f7ad8c20e952065b1557fd1be2316dac915",
+      "model_attribution": {
+        "assessment_digest": "sha256:6596a53c2d5c7ec86f765a6f19ff4e27b6ad1887534463a287ad667e1bd0accd",
+        "attempt_id": "attempt-3ee2fecd012c4f73197ff7e3a08902a7c38ac2104b297e2096d4364cb294ac37",
+        "attribution": {
+          "actual_participation": "unknown",
+          "attempt_id": "attempt-3ee2fecd012c4f73197ff7e3a08902a7c38ac2104b297e2096d4364cb294ac37",
+          "basis": "configured-model",
+          "contributor_sources": {},
+          "contributors": [],
+          "evidence": {
+            "digest": "sha256:3340a323fea91fb073bdec910c92bd3e79fff3ed39bf3aad9769af633699c288",
+            "log": {
+              "attempt_id": "attempt-3ee2fecd012c4f73197ff7e3a08902a7c38ac2104b297e2096d4364cb294ac37",
+              "stream": "provider.stdout"
+            }
+          },
+          "evidenced_cli_build": "0.169.0",
+          "image_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "invocation": {
+            "argv_digest": "sha256:9940637c45e9cb4e55b8217dca8f5520e762b1fa8dc3bd7238bdf37d36b36027",
+            "argv_prefix": [
+              "codex",
+              "exec",
+              "--dangerously-bypass-approvals-and-sandbox",
+              "--ignore-user-config",
+              "--ignore-rules",
+              "--json",
+              "--model",
+              "gpt-6-astra"
+            ],
+            "context_label": {
+              "context_label_digest": "sha256:d1c8f373dcbbb04edbc802dcd9c28c02247b252e06a48307222b06c4dc3a5815",
+              "role": "implementation",
+              "schema": "baton.native-worker-context/1",
+              "worker_instructions_digest": "sha256:369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b"
+            },
+            "environment_policy": {
+              "CODEX_HOME": "/run/baton/provider-home/codex",
+              "HOME": "/run/baton/provider-home",
+              "PATH": "/usr/local/bin:/usr/bin:/bin",
+              "PYTHONPYCACHEPREFIX": "fresh",
+              "TMPDIR": "fresh",
+              "XDG_CACHE_HOME": "fresh"
+            },
+            "environment_validated": true,
+            "evidenced_cli_build": "0.169.0",
+            "phase": "implementation",
+            "prompt_bytes": 2717,
+            "prompt_digest": "sha256:c0495cc0a4787af2340eb75965cb66ad315dde3178903fa1f8e52337f54e6919",
+            "selection_digest": "sha256:6a9833a9292082a7fa3b88a8e16ab8cea18b72fd4998eee7fa5cea1f6cc7aaf7",
+            "status": 0
+          },
+          "job_id": "job-q4-codex-claude",
+          "outcome": "configured-model-accepted",
+          "phase": "implementation",
+          "provider": "codex",
+          "requested_model": "gpt-6-astra",
+          "reroute_observation": "no reroute observed",
+          "schema": "baton.model-attribution/2",
+          "selected_cli_build": "0.169.0",
+          "selection_digest": "sha256:6a9833a9292082a7fa3b88a8e16ab8cea18b72fd4998eee7fa5cea1f6cc7aaf7"
+        },
+        "cause": null,
+        "checkpoint_id": "checkpoint-56c2fb39db984f6906be9d0e18ee8c8c4cc3949c3ea9bbcba3aa7179812aa1d3",
+        "context_label": {
+          "context_label_digest": "sha256:d1c8f373dcbbb04edbc802dcd9c28c02247b252e06a48307222b06c4dc3a5815",
+          "role": "implementation",
+          "schema": "baton.native-worker-context/1",
+          "worker_instructions_digest": "sha256:369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b"
+        },
+        "job_id": "job-q4-codex-claude",
+        "launched_image": {
+          "admitted_image": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "attempt_id": "attempt-3ee2fecd012c4f73197ff7e3a08902a7c38ac2104b297e2096d4364cb294ac37",
+          "observation": {
+            "engine": "docker",
+            "image_id": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "labels": {
+              "adapter_digest": "sha256:5209ad8d712f81c9c24dfbaf4ed406f1465649b626197c46ab7ed20e8c13a38f",
+              "authority_uuid": "f9ba48343516431e8942e61fde79c694",
+              "effective_scope": "scope:deployment",
+              "generation": 1,
+              "participant": "qualification.codex",
+              "policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917",
+              "principal": "principal:qualification.codex",
+              "profile_digest": "sha256:e0b3d46e2d38dee21c9ccbefe139c086a818f4806e04ec1b6ba510034573edcf",
+              "runtime_attempt_id": "attempt-3ee2fecd012c4f73197ff7e3a08902a7c38ac2104b297e2096d4364cb294ac37",
+              "work_id": "f9ba4834-W1"
+            },
+            "resolution": null,
+            "runtime_id": "bd6b6556c475e77e080f3a84c08badd63cd4f19953e3741f709e1a4030671b34",
+            "started_at": "2026-11-25T07:00:00.123456789Z"
+          },
+          "profile_digest": "sha256:e0b3d46e2d38dee21c9ccbefe139c086a818f4806e04ec1b6ba510034573edcf",
+          "recorded_at": "2026-11-25T17:13:01.776Z",
+          "schema": "baton.launched-image/1",
+          "selection_digest": "sha256:6a9833a9292082a7fa3b88a8e16ab8cea18b72fd4998eee7fa5cea1f6cc7aaf7"
+        },
+        "launched_image_receipt": {
+          "digest": "sha256:027916a17074c62ad1a0e6c0896116707812a9b41423eec9f690412b5980ba20",
+          "operation_id": "provider.launched-image:1c33b231d9c314ad2c83e87878e16e0cb8528b7321ade22de3f5769c11477cbc"
+        },
+        "manifest_digest": "sha256:b5a4c9ebadb2cbf3a2fadd0297594f7ad8c20e952065b1557fd1be2316dac915",
+        "outcome": "matched",
+        "result_id": "result-attempt-3ee2fecd012c4f73197ff7e3a08902a7c38ac2104b297e2096d4364cb294ac37",
+        "selection_digest": "sha256:6a9833a9292082a7fa3b88a8e16ab8cea18b72fd4998eee7fa5cea1f6cc7aaf7",
+        "verdict_id": null
+      },
+      "published": {
+        "assignment_ref": {
+          "generation": 1,
+          "participant": "qualification.codex",
+          "work_ref": {
+            "authority_uuid": "f9ba48343516431e8942e61fde79c694",
+            "work_id": "f9ba4834-W1"
+          }
+        },
+        "candidate_digest": "40456973f6ac675786bc6073598fe507f96ce6cb",
+        "decision": {
+          "effective_scope": "scope:deployment",
+          "endpoint": "qualification.codex",
+          "grant": "direct",
+          "policy_generation": 13,
+          "principal": "principal:qualification.codex",
+          "role": "impl"
+        },
+        "input_digest": "sha256:329a6257d371dc0b3047997f3f8217172b4452dc3d9176bad0732c4ed9bb02a9",
+        "policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917",
+        "proposal_id": "integration-driver.proposal:b5c1a0cdf1f162185aec1d3610d83aef2467936693f941b7cc94f25fb4747659",
+        "published_at": "2026-11-25T17:13:03.483Z",
+        "result_digest": "sha256:b5a4c9ebadb2cbf3a2fadd0297594f7ad8c20e952065b1557fd1be2316dac915",
+        "result_id": "result-attempt-3ee2fecd012c4f73197ff7e3a08902a7c38ac2104b297e2096d4364cb294ac37",
+        "target": "3409f51946b53fea3838dbbb6218b59088584bb2"
+      },
+      "receipt_digest": "sha256:e9d99d15e6544aa429950ff327b0f34d5271cafd227850028d0b18b864c3a86e",
+      "released": null,
+      "requested": null,
+      "result_id": "result-attempt-3ee2fecd012c4f73197ff7e3a08902a7c38ac2104b297e2096d4364cb294ac37",
+      "retention": "retain"
+    },
+    "episode": 1,
+    "outcome": "performed",
+    "stage_id": "job-q4-codex-claude/implementation"
+  },
+  {
+    "act": "conclude",
+    "attempt_id": "attempt-625ab06cdb7880b6df350408bd0624dc033fb859c57a545f4e92d2fafdfe02ee",
+    "detail": {
+      "attempt_id": "attempt-625ab06cdb7880b6df350408bd0624dc033fb859c57a545f4e92d2fafdfe02ee",
+      "checkpoint_id": null,
+      "cleaned_up": false,
+      "held_reason": "model-attribution-conflicting",
+      "manifest_digest": "sha256:4727154cf7a084b76b747866243a517036223431747f0f18b30aed5844c16fbf",
+      "model_attribution": {
+        "attempt_id": "attempt-625ab06cdb7880b6df350408bd0624dc033fb859c57a545f4e92d2fafdfe02ee",
+        "attribution": {
+          "attempt_id": "attempt-625ab06cdb7880b6df350408bd0624dc033fb859c57a545f4e92d2fafdfe02ee",
+          "contributor_sources": {
+            "unrelated-synthetic-model": [
+              "modelUsage"
+            ]
+          },
+          "contributors": [
+            "unrelated-synthetic-model"
+          ],
+          "evidence": {
+            "digest": "sha256:38e3d2b5178a09fc8e0f2205c922f023195b2668ab61411aa894bf2f54ed4b41",
+            "log": {
+              "attempt_id": "attempt-625ab06cdb7880b6df350408bd0624dc033fb859c57a545f4e92d2fafdfe02ee",
+              "stream": "provider.stdout"
+            }
+          },
+          "evidenced_cli_build": "2.1.247",
+          "job_id": "job-q4-codex-claude",
+          "mapped_identity": "claude-fable-5",
+          "outcome": "conflicting",
+          "phase": "review",
+          "provider": "claude",
+          "requested_model": "claude-fable-5[1m]",
+          "schema": "baton.model-attribution/1",
+          "selected_cli_build": "2.1.247"
+        },
+        "cause": "model-attribution-conflicting",
+        "context_label": {
+          "context_label_digest": "sha256:aa801225ffa5f928d5c10c611133b998760b0a5ce797dcd4806037011e831691",
+          "role": "review",
+          "schema": "baton.native-worker-context/1",
+          "worker_instructions_digest": "sha256:369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b"
+        },
+        "job_id": "job-q4-codex-claude",
+        "manifest_digest": "sha256:4727154cf7a084b76b747866243a517036223431747f0f18b30aed5844c16fbf",
+        "outcome": "held",
+        "result_id": "result-attempt-625ab06cdb7880b6df350408bd0624dc033fb859c57a545f4e92d2fafdfe02ee",
+        "selection_digest": "sha256:da899fd5f43fa9597602b6b6c80c71a88cdef293bf39a7a477ecb8565fc4cb98"
+      },
+      "outcome": "held",
+      "published": null,
+      "reason": "model-attribution-conflicting",
+      "result_id": "result-attempt-625ab06cdb7880b6df350408bd0624dc033fb859c57a545f4e92d2fafdfe02ee",
+      "verdict_id": null
+    },
+    "episode": 1,
+    "outcome": "performed",
+    "stage_id": "job-q4-codex-claude/review"
+  }
+]

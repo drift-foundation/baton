@@ -1,0 +1,18 @@
+{
+  "builds": 1,
+  "ceased": true,
+  "claude_image": null,
+  "codex_image": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "credential_reads": 0,
+  "error_type": "AssertionError",
+  "image_and_build_cache_retained": true,
+  "inventory_runs": 0,
+  "packet": "q4-386227",
+  "passed": false,
+  "payload_sha256": "1eb7ff182c623dfecfe1fed97b9176da441f80e13da2b7b007b1b85c6d3097dd",
+  "phase": "offline",
+  "private_root": "/var/tmp/baton-q4-prep-build-fail-g___nr5x/run",
+  "provider_calls": 0,
+  "removed": true,
+  "source": "b5abf7983fb07eb3a8268f2d4559a04de9c0f1bd"
+}

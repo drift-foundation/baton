@@ -1,0 +1,10 @@
+{
+  "packet": "q4-386227",
+  "payload_sha256": "1eb7ff182c623dfecfe1fed97b9176da441f80e13da2b7b007b1b85c6d3097dd",
+  "source": "b5abf7983fb07eb3a8268f2d4559a04de9c0f1bd",
+  "source_tar_sha256": "62d16e54faeab1678e1ceed5a78ec760c04e8e76c9940e435de435717a5059f7",
+  "codex_image": "sha256:2c982530412d6811cfa6aa2e28181f859cc2a9fb2e4372f29d88784763dbe693",
+  "read_only": true,
+  "engine_operations": 0,
+  "credential_access": false
+}

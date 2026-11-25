@@ -1,0 +1,30 @@
+{
+  "builds": 1,
+  "ceased": true,
+  "claude_image": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "cli_version": "2.1.247 (Claude Code)",
+  "codex_image": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "credential_reads": 0,
+  "error_type": "AssertionError",
+  "help_flags": {
+    "--dangerously-skip-permissions": true,
+    "--model": true,
+    "--output-format": true,
+    "--print": true
+  },
+  "image_and_build_cache_retained": true,
+  "image_file_differences": [
+    "/opt/baton/claude_agent.py"
+  ],
+  "image_files": 16,
+  "image_files_equal_source": false,
+  "inventory_runs": 3,
+  "packet": "q4-386227",
+  "passed": false,
+  "payload_sha256": "1eb7ff182c623dfecfe1fed97b9176da441f80e13da2b7b007b1b85c6d3097dd",
+  "phase": "offline",
+  "private_root": "/var/tmp/baton-q4-prep-image-drift-ykl7nkax/run",
+  "provider_calls": 0,
+  "removed": true,
+  "source": "b5abf7983fb07eb3a8268f2d4559a04de9c0f1bd"
+}

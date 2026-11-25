@@ -1,0 +1,30 @@
+{
+  "cause": null,
+  "receipt": {
+    "admitted_image": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "attempt_id": "attempt-e76d68c2cca5a300c9c880bf1a8ac47f821053baca1c88b29382364d9a480be0",
+    "observation": {
+      "engine": "docker",
+      "image_id": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "labels": {
+        "adapter_digest": "sha256:5209ad8d712f81c9c24dfbaf4ed406f1465649b626197c46ab7ed20e8c13a38f",
+        "authority_uuid": "386225aa000000000000000000000001",
+        "effective_scope": "scope:deployment",
+        "generation": 1,
+        "participant": "qualification.codex",
+        "policy_digest": "sha256:e157b186e254586431cbb05435a2b93954cde1d382d19af5c3fff5f9784c089b",
+        "principal": "principal:qualification.codex",
+        "profile_digest": "sha256:e0b3d46e2d38dee21c9ccbefe139c086a818f4806e04ec1b6ba510034573edcf",
+        "runtime_attempt_id": "attempt-e76d68c2cca5a300c9c880bf1a8ac47f821053baca1c88b29382364d9a480be0",
+        "work_id": "386225aa-W1"
+      },
+      "resolution": null,
+      "runtime_id": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "started_at": "2026-11-25T07:00:00.123456789Z"
+    },
+    "profile_digest": "sha256:e0b3d46e2d38dee21c9ccbefe139c086a818f4806e04ec1b6ba510034573edcf",
+    "recorded_at": "2026-11-25T16:43:57.053Z",
+    "schema": "baton.launched-image/1",
+    "selection_digest": "sha256:2bea88c8e77f850bb9969d039987fffd1475aabe8b3b56354491c07d09d6c4d4"
+  }
+}

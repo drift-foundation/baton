@@ -1,0 +1,274 @@
+{
+  "verification": "pass",
+  "changed_paths": [
+    "message.txt"
+  ],
+  "expected_changed_paths": [
+    "message.txt"
+  ],
+  "verification_method": "trusted post-cessation byte and complete tree comparison; no candidate code executed",
+  "candidate": {
+    "message.txt": {
+      "bytes": 6,
+      "sha256": "7b9a72466d3960eb2aacccfc848939453490db0678bd4725def3f789b891c919"
+    },
+    ".git/COMMIT_EDITMSG": {
+      "bytes": 23,
+      "sha256": "4a312cd607722a0cba24ea2f377c5d6f04cbb1d73ff8f16a3da363339cefb00c"
+    },
+    ".git/description": {
+      "bytes": 73,
+      "sha256": "85ab6c163d43a17ea9cf7788308bca1466f1b0a8d1cc92e26e9bf63da4062aee"
+    },
+    ".git/index": {
+      "bytes": 145,
+      "sha256": "00f082d28fd35e05b9d8f01039aa95b1c085c105cf60a1830ba3b92e93c222b6"
+    },
+    ".git/HEAD": {
+      "bytes": 19,
+      "sha256": "c0bbb298ea85fb6908894f8357424cea117e7241003fabce6042f64572b9329e"
+    },
+    ".git/config": {
+      "bytes": 144,
+      "sha256": "d09f70c909312f06ac0cb600ac323a46c2d56f0f300914407d1ea5d08b76af54"
+    },
+    ".git/logs/HEAD": {
+      "bytes": 170,
+      "sha256": "04cf6f25d213d0b415492e28c7288cadd6a2d4d45f45e47330d67941b9e8fda1"
+    },
+    ".git/logs/refs/heads/q2": {
+      "bytes": 170,
+      "sha256": "04cf6f25d213d0b415492e28c7288cadd6a2d4d45f45e47330d67941b9e8fda1"
+    },
+    ".git/hooks/pre-merge-commit.sample": {
+      "bytes": 416,
+      "sha256": "d3825a70337940ebbd0a5c072984e13245920cdf8898bd225c8d27a6dfc9cb53"
+    },
+    ".git/hooks/applypatch-msg.sample": {
+      "bytes": 478,
+      "sha256": "0223497a0b8b033aa58a3a521b8629869386cf7ab0e2f101963d328aa62193f7"
+    },
+    ".git/hooks/pre-receive.sample": {
+      "bytes": 544,
+      "sha256": "a4c3d2b9c7bb3fd8d1441c31bd4ee71a595d66b44fcf49ddb310252320169989"
+    },
+    ".git/hooks/commit-msg.sample": {
+      "bytes": 896,
+      "sha256": "1f74d5e9292979b573ebd59741d46cb93ff391acdd083d340b94370753d92437"
+    },
+    ".git/hooks/prepare-commit-msg.sample": {
+      "bytes": 1492,
+      "sha256": "e9ddcaa4189fddd25ed97fc8c789eca7b6ca16390b2392ae3276f0c8e1aa4619"
+    },
+    ".git/hooks/update.sample": {
+      "bytes": 3650,
+      "sha256": "8d5f2fa83e103cf08b57eaa67521df9194f45cbdbcb37da52ad586097a14d106"
+    },
+    ".git/hooks/pre-applypatch.sample": {
+      "bytes": 424,
+      "sha256": "e15c5b469ea3e0a695bea6f2c82bcf8e62821074939ddd85b77e0007ff165475"
+    },
+    ".git/hooks/pre-rebase.sample": {
+      "bytes": 4898,
+      "sha256": "4febce867790052338076f4e66cc47efb14879d18097d1d61c8261859eaaa7b3"
+    },
+    ".git/hooks/post-update.sample": {
+      "bytes": 189,
+      "sha256": "81765af2daef323061dcbc5e61fc16481cb74b3bac9ad8a174b186523586f6c5"
+    },
+    ".git/hooks/push-to-checkout.sample": {
+      "bytes": 2783,
+      "sha256": "a53d0741798b287c6dd7afa64aee473f305e65d3f49463bb9d7408ec3b12bf5f"
+    },
+    ".git/hooks/pre-commit.sample": {
+      "bytes": 1649,
+      "sha256": "57185b7b9f05239d7ab52db045f5b89eb31348d7b2177eab214f5eb872e1971b"
+    },
+    ".git/hooks/sendemail-validate.sample": {
+      "bytes": 2308,
+      "sha256": "44ebfc923dc5466bc009602f0ecf067b9c65459abfe8868ddc49b78e6ced7a92"
+    },
+    ".git/hooks/pre-push.sample": {
+      "bytes": 1374,
+      "sha256": "ecce9c7e04d3f5dd9d8ada81753dd1d549a9634b26770042b58dda00217d086a"
+    },
+    ".git/hooks/fsmonitor-watchman.sample": {
+      "bytes": 4726,
+      "sha256": "e0549964e93897b519bd8e333c037e51fff0f88ba13e086a331592bf801fa1d0"
+    },
+    ".git/refs/heads/q2": {
+      "bytes": 41,
+      "sha256": "78db5295d4ffef6efaf0793ca9e810f23db7a9929767e75dbed0b30e9ac0827f"
+    },
+    ".git/objects/db/d7e4b68742ad9e899a4eb003f31643699e6a12": {
+      "bytes": 134,
+      "sha256": "f39afae6866e1132c25b4c47514e9ac2b74d87c8356fa3eca022fc3fd790db4a"
+    },
+    ".git/objects/90/be1f3056c4f471f977a28497b8d4b392c55a02": {
+      "bytes": 22,
+      "sha256": "7e2d860937eae1d919e00466505b42928c76d8d57c9847a2bef720203d99f81e"
+    },
+    ".git/objects/d0/7bfae2c724719c2a7a3db6a48435e2172f7ddc": {
+      "bytes": 56,
+      "sha256": "b4b4b51ee9d0a70a5d3d399195a34acfb619f93f32d2968836e95973bcd429c1"
+    },
+    ".git/info/exclude": {
+      "bytes": 240,
+      "sha256": "6671fe83b7a07c8932ee89164d1f2793b2318058eb8b98dc5c06ee0a5a3b0ec1"
+    }
+  },
+  "workspace": {
+    "candidate/message.txt": {
+      "bytes": 6,
+      "sha256": "7b9a72466d3960eb2aacccfc848939453490db0678bd4725def3f789b891c919"
+    },
+    "candidate/.git/COMMIT_EDITMSG": {
+      "bytes": 23,
+      "sha256": "4a312cd607722a0cba24ea2f377c5d6f04cbb1d73ff8f16a3da363339cefb00c"
+    },
+    "candidate/.git/description": {
+      "bytes": 73,
+      "sha256": "85ab6c163d43a17ea9cf7788308bca1466f1b0a8d1cc92e26e9bf63da4062aee"
+    },
+    "candidate/.git/index": {
+      "bytes": 145,
+      "sha256": "00f082d28fd35e05b9d8f01039aa95b1c085c105cf60a1830ba3b92e93c222b6"
+    },
+    "candidate/.git/HEAD": {
+      "bytes": 19,
+      "sha256": "c0bbb298ea85fb6908894f8357424cea117e7241003fabce6042f64572b9329e"
+    },
+    "candidate/.git/config": {
+      "bytes": 144,
+      "sha256": "d09f70c909312f06ac0cb600ac323a46c2d56f0f300914407d1ea5d08b76af54"
+    },
+    "candidate/.git/logs/HEAD": {
+      "bytes": 170,
+      "sha256": "04cf6f25d213d0b415492e28c7288cadd6a2d4d45f45e47330d67941b9e8fda1"
+    },
+    "candidate/.git/logs/refs/heads/q2": {
+      "bytes": 170,
+      "sha256": "04cf6f25d213d0b415492e28c7288cadd6a2d4d45f45e47330d67941b9e8fda1"
+    },
+    "candidate/.git/hooks/pre-merge-commit.sample": {
+      "bytes": 416,
+      "sha256": "d3825a70337940ebbd0a5c072984e13245920cdf8898bd225c8d27a6dfc9cb53"
+    },
+    "candidate/.git/hooks/applypatch-msg.sample": {
+      "bytes": 478,
+      "sha256": "0223497a0b8b033aa58a3a521b8629869386cf7ab0e2f101963d328aa62193f7"
+    },
+    "candidate/.git/hooks/pre-receive.sample": {
+      "bytes": 544,
+      "sha256": "a4c3d2b9c7bb3fd8d1441c31bd4ee71a595d66b44fcf49ddb310252320169989"
+    },
+    "candidate/.git/hooks/commit-msg.sample": {
+      "bytes": 896,
+      "sha256": "1f74d5e9292979b573ebd59741d46cb93ff391acdd083d340b94370753d92437"
+    },
+    "candidate/.git/hooks/prepare-commit-msg.sample": {
+      "bytes": 1492,
+      "sha256": "e9ddcaa4189fddd25ed97fc8c789eca7b6ca16390b2392ae3276f0c8e1aa4619"
+    },
+    "candidate/.git/hooks/update.sample": {
+      "bytes": 3650,
+      "sha256": "8d5f2fa83e103cf08b57eaa67521df9194f45cbdbcb37da52ad586097a14d106"
+    },
+    "candidate/.git/hooks/pre-applypatch.sample": {
+      "bytes": 424,
+      "sha256": "e15c5b469ea3e0a695bea6f2c82bcf8e62821074939ddd85b77e0007ff165475"
+    },
+    "candidate/.git/hooks/pre-rebase.sample": {
+      "bytes": 4898,
+      "sha256": "4febce867790052338076f4e66cc47efb14879d18097d1d61c8261859eaaa7b3"
+    },
+    "candidate/.git/hooks/post-update.sample": {
+      "bytes": 189,
+      "sha256": "81765af2daef323061dcbc5e61fc16481cb74b3bac9ad8a174b186523586f6c5"
+    },
+    "candidate/.git/hooks/push-to-checkout.sample": {
+      "bytes": 2783,
+      "sha256": "a53d0741798b287c6dd7afa64aee473f305e65d3f49463bb9d7408ec3b12bf5f"
+    },
+    "candidate/.git/hooks/pre-commit.sample": {
+      "bytes": 1649,
+      "sha256": "57185b7b9f05239d7ab52db045f5b89eb31348d7b2177eab214f5eb872e1971b"
+    },
+    "candidate/.git/hooks/sendemail-validate.sample": {
+      "bytes": 2308,
+      "sha256": "44ebfc923dc5466bc009602f0ecf067b9c65459abfe8868ddc49b78e6ced7a92"
+    },
+    "candidate/.git/hooks/pre-push.sample": {
+      "bytes": 1374,
+      "sha256": "ecce9c7e04d3f5dd9d8ada81753dd1d549a9634b26770042b58dda00217d086a"
+    },
+    "candidate/.git/hooks/fsmonitor-watchman.sample": {
+      "bytes": 4726,
+      "sha256": "e0549964e93897b519bd8e333c037e51fff0f88ba13e086a331592bf801fa1d0"
+    },
+    "candidate/.git/refs/heads/q2": {
+      "bytes": 41,
+      "sha256": "78db5295d4ffef6efaf0793ca9e810f23db7a9929767e75dbed0b30e9ac0827f"
+    },
+    "candidate/.git/objects/db/d7e4b68742ad9e899a4eb003f31643699e6a12": {
+      "bytes": 134,
+      "sha256": "f39afae6866e1132c25b4c47514e9ac2b74d87c8356fa3eca022fc3fd790db4a"
+    },
+    "candidate/.git/objects/90/be1f3056c4f471f977a28497b8d4b392c55a02": {
+      "bytes": 22,
+      "sha256": "7e2d860937eae1d919e00466505b42928c76d8d57c9847a2bef720203d99f81e"
+    },
+    "candidate/.git/objects/d0/7bfae2c724719c2a7a3db6a48435e2172f7ddc": {
+      "bytes": 56,
+      "sha256": "b4b4b51ee9d0a70a5d3d399195a34acfb619f93f32d2968836e95973bcd429c1"
+    },
+    "candidate/.git/info/exclude": {
+      "bytes": 240,
+      "sha256": "6671fe83b7a07c8932ee89164d1f2793b2318058eb8b98dc5c06ee0a5a3b0ec1"
+    }
+  },
+  "logs": {
+    "provider.stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "provider.stdout.status.json": {
+      "bytes": 167,
+      "sha256": "d9c4830279ad942df17942bb048dc52fc89c9674da7e04368f961f564955e8ba"
+    },
+    "provider.stderr.status.json": {
+      "bytes": 167,
+      "sha256": "d9c4830279ad942df17942bb048dc52fc89c9674da7e04368f961f564955e8ba"
+    },
+    "provider.stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "exchange": {
+    "launch.json": {
+      "bytes": 4702,
+      "sha256": "b8dd694c525cbba3e22da53daef45bed57686990471607310562c93713ee8c99"
+    },
+    "events/state-work.json": {
+      "bytes": 456,
+      "sha256": "ef328c5ed757038fdfb934248832521e03028ad87996548dd141c64cc8f89102"
+    },
+    "events/state-describe.json": {
+      "bytes": 465,
+      "sha256": "46f471f365530333a111f57ea61782f5bdaaa9f20be3e9ec23435abbd3a4e4bf"
+    },
+    "events/receipt.json": {
+      "bytes": 367,
+      "sha256": "4476870d9a24ce4902af932a495a4ab9e10f5558b1de85746b0ca2a4975d6f5b"
+    },
+    "events/terminal.json": {
+      "bytes": 456,
+      "sha256": "32e2eb945e89b119b1b9a042dfee2643edff16ddc3fe3057951561fee3755a9d"
+    },
+    "command/sequence-0a026a687ecac91e4a1f0e829fd7dbf5.json": {
+      "bytes": 490,
+      "sha256": "3e27f5d82b16de48d388af352a754bb38e63f4fe53b18f04e986fac7f06fb146"
+    }
+  }
+}

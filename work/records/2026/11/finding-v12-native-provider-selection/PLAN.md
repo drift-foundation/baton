@@ -916,3 +916,41 @@ After source acceptance/checkpoint, exact-byte finalization produces the final Q
 ## 2026-11-25 — K review of bundled candidate 4033a352 (baton.prompt, no claim)
 
 [Review](review-2026-11-25T15-40-26Z.md), evidence `evidence/review-K-386216/`. Source (14 paths) accepted with no required corrections; rebuilt-image/Q2 packet (manifest cd0f4488) accepted as preparation only; Claude inventory accepted as inventory. Reproduced 499/499 focused and 19/19 packet checks; nine composed probes and seven finalization probes of my own. Next milestone: owner checkpoint of the 14 paths plus dossier, excluding `v12/DESIGN.md` and the five W386057 paths (finalization refuses otherwise), then `finalize.py`. Q4 gates added: uncertainty is a pull-only queue not shown in Job status, has no owner continuation, and keeps the review worker reserved (O1–O3). No build, engine, credential or provider operation.
+
+
+## 2026-11-25 — uncertainty checkpoint and readiness finalization
+
+Owner checkpoint b5abf7983fb07eb3a8268f2d4559a04de9c0f1bd verified against14 accepted paths. Reviewed finalizer passed exact1163-file source equality, excluding DESIGN/W386057 changes. Finalized packet evidence/readiness-final-386214/FINALIZATION.json; local finalization review and Q1 read-only check passed. Q1 manifest ca89a8e6ec18ab079711b51e045fd3880c3799db5b6d4b16ac9cbe548c8cba17. Next: owner selection of one rebuilt-image build/offline run. No engine/credentials/provider execution performed.
+
+
+## 2026-11-25 — Q2 selected execution ended, review pending
+
+Owner selection M386221. Public evidence/q2-execution-386214/RESULT.json records one container, terminal captured, ceased/removed, image receipt retained, volatile credential withdrawn and retained home preserved. Candidate present; edit_verified false; acceptance held-for-private-evidence-review and native_job_success false. No retry. Private root /var/tmp/baton-codex-q2-386214 preserved. Next: selected narrow private artifact/verification review; do not infer success from exit0.
+
+## 2026-11-25 — Q2 successor packet q2-386221 prepared (baton.prompt / K, no claim)
+
+On owner request after the failed Q2 run (`evidence/q2-execution-386214/DIAGNOSIS.md`). [Packet](evidence/q2-correction-386221/README.md), [commands](evidence/q2-correction-386221/COMMANDS.md), payload `7d56f899da54c2e1d8ec562c6e3ea112b1fd40f4ccd8a9b4c24769a64ab12340`; finalized packet and 386214 evidence unchanged; no product edit. Layout delivery corrected through the supported `verifier_layout` configuration member; guard untouched. The diagnosed verification-literal defect was not reproduced (the 386214 argv already accepts `after`+newline); the literal is rewritten escape-free with identical behaviour. Nine deterministic checks pass with a fake engine. Not exercised: the in-container tmpfs/ancestor proof. Next milestone: review of this packet, then a separate owner selection of one Q2 editing turn. No engine, build, credential or provider operation.
+
+
+### 2026-11-25 — Q2 retained-evidence acceptance
+
+Q2 native Codex editing accepted via evidence/q2-execution-386221/REVIEW.md; launcher completion-observation correction remains bounded preparation work. Preserve private root; no rerun needed. Next milestone: reconcile remaining Claude qualification / mixed-provider review gates against accepted readiness plan; no new live execution selected.
+
+## 2026-11-25 — consolidated next-step packet q4-preparation-386225 (baton.prompt / K, no claim)
+
+On owner request after M386225. [Packet](evidence/q4-preparation-386225/README.md): (1) launcher completion detection corrected in a successor launcher (`q2-launcher/observe.py`, payload `4ee53fd4463979474b134a776cb5a9bb29ea701710fc755ac188d299c2134b6f`) to recognise durable completed-stage custody bound to the watched attempt as well as the transient exchange terminal; the 386221 failure reproduced deterministically; 30-case matrix and 11 checks pass; `q2-execution-386221/RESULT.json` unchanged; no rerun. (2) [Reconciliation](evidence/q4-preparation-386225/RECONCILIATION.md) of Claude gates: four owner choices genuinely open (selector and reported identity, credential reference, reviewer container posture and limits, live uncertainty proof). (3) [Path](evidence/q4-preparation-386225/PATH.md): supported operator stack in a fresh instance, two execution selections (A offline image/inventory/instance, B one Job with one Codex and one Claude turn), reusing source b5abf798 and Codex image 2c982530. [Decisions](evidence/q4-preparation-386225/DECISIONS.md). Instance-route commands are from STACK.md and source command surfaces, not executed; selection A proves them offline. Next milestone: review of the packet and the four owner choices. No engine, build, credential or provider operation.
+
+
+### 2026-11-25 — next Q4 preparation milestone
+
+All four configuration choices resolved in evidence/q4-preparation-386225/OWNER-SELECTIONS.md. Fold into one executable offline-first packet, including script-enforced 20-minute live bound and descriptive Claude credential reference. Offline and live execution selections remain pending.
+
+## 2026-11-25 — Q4 executable offline-first packet q4-386227 (baton.prompt / K, no claim)
+
+From [owner selections](evidence/q4-preparation-386225/OWNER-SELECTIONS.md). [Packet](evidence/q4-packet-386227/README.md), [commands](evidence/q4-packet-386227/COMMANDS.md), payload `1eb7ff182c623dfecfe1fed97b9176da441f80e13da2b7b007b1b85c6d3097dd`. One script, two separately selected phases: offline (one Claude image build from b5abf798, offline inventory, fresh instance, Codex and Claude workers, routing to baton.slaw; no credential, no provider) and live (one Job, one Codex turn, one Claude review turn, 20-minute bound enforced by the script). Claude credential `operator-file:claude-primary-subscription` → `/home/sl/.claude/.credentials.json` through a packet-private registry; ordinary registry and existing deployments untouched. Provisioning runs the product's own bootstrap/pool/creation code from the frozen source with no runtime bundle build; this supersedes the command templates in q4-preparation-386225/PATH.md. Three product gaps found in dry run and handled inside configuration: shared launch home refuses two verifier-layout selections; default template /1 gives the review worker no findings/logs outputs (packet uses /3); source-run instance needs the installer's repository steps. 15 deterministic checks pass (fake engine, simulated providers, synthetic logins). Next milestone: review of the packet, then owner selection A. Nothing executed against a real engine, credential or provider.
+
+
+2026-11-25 — Q4 Selection A passed under M386238 on successor packet q4-packet-386227-modes. Corrected build-context permissions. All 16 image files matched and three real offline probes passed. Codex implementation and Claude review configured with separate homes. Private/public offline result identical, SHA256 766126924c66afb1288cec02fc69f8d3aeb1b7ca4618a1d4ccbbbdf0b61ebcdf. Next milestone is separate owner selection B for one live Job. Claude login refresh effects remain unqualified.
+
+
+2026-11-25 — Q4 live mixed-provider qualification passed retained-evidence review. See evidence/q4-execution-386227-modes/REVIEW.md. Ready for owner checkpoint and Work disposition.

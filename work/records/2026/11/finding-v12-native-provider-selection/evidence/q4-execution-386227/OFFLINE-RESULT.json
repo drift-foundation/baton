@@ -1,0 +1,18 @@
+{
+  "builds": 1,
+  "ceased": true,
+  "claude_image": "sha256:113d84b87e8de5373656e390bee0e1b48e930ecd8da7d1b6f349d7382b501568",
+  "codex_image": "sha256:2c982530412d6811cfa6aa2e28181f859cc2a9fb2e4372f29d88784763dbe693",
+  "credential_reads": 0,
+  "error_type": "AssertionError",
+  "image_and_build_cache_retained": true,
+  "inventory_runs": 3,
+  "packet": "q4-386227",
+  "passed": false,
+  "payload_sha256": "1eb7ff182c623dfecfe1fed97b9176da441f80e13da2b7b007b1b85c6d3097dd",
+  "phase": "offline",
+  "private_root": "/var/tmp/baton-q4-386227",
+  "provider_calls": 0,
+  "removed": true,
+  "source": "b5abf7983fb07eb3a8268f2d4559a04de9c0f1bd"
+}

@@ -1,0 +1,4 @@
+{
+  "diagnostic": "image files differ from the frozen source",
+  "type": "AssertionError"
+}

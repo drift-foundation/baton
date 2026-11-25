@@ -1,0 +1,4 @@
+{
+  "diagnostic": "(['docker', 'build', '--no-cache', '--pull=false'], 1)",
+  "type": "AssertionError"
+}
