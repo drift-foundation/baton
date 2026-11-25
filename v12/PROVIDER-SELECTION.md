@@ -219,13 +219,37 @@ check it. The logical delivered credential slot is `codex`; this names the
 Baton mount, not the vendor credential file. Claude keeps its existing slot
 and legacy context path.
 
-Codex has no production realization or managed-entry path yet: its exact-build
-credential filename remains an evidence gate. Composition therefore refuses;
-no null or guessed credential path enables native use. Tests that temporarily
+Codex has no production realization or managed-entry path yet. The selected
+detached probe evidenced CODEX_HOME/auth.json lookup and authenticated completion;
+that does not install the native credential/home realization. Composition still
+refuses; no null or guessed credential path enables native use. Tests that temporarily
 install synthetic realization/path tables prove the shared mechanisms only.
 The Codex recipe is source-only and copies the same provider-policy package.
 
-Codex terminal parsing and participation sources remain unqualified. Every
-Codex terminal return is unclassified, including exit zero. No turn fixture,
-model call, build or resume behavior is implied by this join. Provider-selected
+Codex 0.169.0 terminal parsing recognizes the retained fresh successful turn
+family: thread.started, turn.started, completed agent messages and paired
+command_execution items, then one final turn.completed with the evidenced
+usage shape. It requires exit zero, a complete bounded UTF-8 JSONL stream,
+unique JSON members and consistent item lifecycle. Unknown fields/events,
+truncation, unfinished items, nonzero exits and unevidenced failure shapes
+remain unclassified. This conservative parser does not claim coverage of other
+Codex tools or failure families. Sanitized fixtures retain the observed event
+structure; negative mutations are robustness tests, not live failure evidence.
+
+Terminal completion is separate from attribution and candidate acceptance.
+The observed stdout contains no participation source. Private session
+turn_context.model records CLI configuration only; it is neither contributor
+proof nor independently attested backend identity. No session ingestion or
+resume behavior is added. Codex attribution therefore remains missing with
+an empty contributor set, even for a recognized successful turn. Host validation
+holds the result and permits no publication/checkpoint/verdict ending while
+required attribution is missing. Requested model and service tier never supply
+observed participation. Claude terminal and attribution behavior is unchanged.
+
+The selected detached probe established authentication and instruction digest/
+role for its selected copy and image, not native worker qualification. A valid
+actual-participation source, production Codex realization/home integration,
+credential recovery/size gates, finished-image/native qualification and explicit
+Claude qualification remain outstanding. No new provider call or build is
+implied by terminal parsing. Provider-selected
 integration is a separate open issue and is not enabled by the Codex guards.

@@ -1,0 +1,9 @@
+# Selected live Codex probe — 2026-11-25
+
+Owner selected execution here after M386099. One detached Codex 0.169.0 invocation completed successfully in 11.23 seconds using gpt-6-astra, fast unset. Local login status passed; a service-backed turn completed and executed the instruction-file read/hash command. This satisfies the selected J1 authenticated-success criterion for this copied login and image, not native worker qualification.
+
+The reply matched the delivered worker instructions: SHA-256 369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b, 5646 bytes, implementation role and exact first line. stdout contains thread/turn/item events and turn.completed; retained CLI session turn_context names gpt-6-astra. That is CLI context evidence, not an independently attested backend identity. N4b must bind and evaluate its evidence source rather than infer contributors from the request.
+
+Container cessation and removal were verified and the owned network removed. Source credential inode/size/mtime/mode remained unchanged; no byte-identity claim is made. Private home, refreshed copy, source receipt and raw outputs remain in /var/tmp/baton-codex-q1-live-386097, mode-confined, pending classification. These private records are required for N4b evidence and are not durable repository backup; preserve them until a sanitized exact-build fixture is retained. No retry, native Job, image rebuild, fast selection or protected Git mutation.
+
+RESULT.json contains safe selected facts; run.py is the exact launcher. Native activation, N4b parsing/contributor validation, C2/C3, explicit Claude qualification and shared-login refresh behavior remain unproved. Next milestone: derive redacted exact-build fixtures from this retained turn and complete N4b against them, without another live call unless a concrete unresolved question requires one.

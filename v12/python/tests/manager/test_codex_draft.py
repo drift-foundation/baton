@@ -324,6 +324,18 @@ class JoinedCodex(unittest.TestCase):
                 self.assertFalse(result["ok"])
                 self.assertEqual(result["failure_reason"], codex_agent.UNCLASSIFIED)
                 self.assertNotEqual(result["attribution"]["outcome"], "matched")
+                # Replay the sanitized observed stream at the normal provider seam.
+                raw = (FIXTURES / "turn-success.sanitized.jsonl").read_bytes()
+                agent._provider_raw_digest = "sha256:" + hashlib.sha256(raw).hexdigest()
+                agent._provider_log_retained = True
+                with mock.patch.object(agent, "_resolved_bound", return_value={"seconds_bound": 10}), \
+                        mock.patch.object(agent, "_revalidated_environment", return_value=environment), \
+                        mock.patch.object(agent, "provider_version", return_value="0.169.0"), \
+                        mock.patch.object(agent, "_ran_provider", return_value=(0, raw, False)):
+                    completed = agent._provider(None, str(home), root, environment, prompt="do the bounded task")
+                self.assertTrue(completed["ok"])
+                self.assertEqual(completed["attribution"]["outcome"], "missing")
+                self.assertEqual(completed["attribution"]["contributors"], [])
                 # The worker validates the real delivered identity before role use.
                 agent._seen["role"] = "review"
                 with self.assertRaises(codex_agent.TaskRefusal):
@@ -348,3 +360,113 @@ class JoinedCodex(unittest.TestCase):
             with self.assertRaises(policy.PolicyRefusal):
                 policy.validate_adapter(adapter, fixture.SELECTED, adapter_digest=policy.digest(adapter),
                                         tool_policy_digest=policy.digest(policy.POLICY))
+
+
+class CodexTerminalEvidence(unittest.TestCase):
+    """Retained success; negative mutations are robustness tests, not live failures."""
+    def setUp(self):
+        self.agent = codex_agent.CodexAgent(run=mock.Mock(side_effect=AssertionError("no provider")))
+        self.raw = (FIXTURES / "turn-success.sanitized.jsonl").read_bytes()
+        self.events = [json.loads(line) for line in self.raw.splitlines()]
+
+    def encoded(self, events):
+        return ("\n".join(json.dumps(x) for x in events) + "\n").encode()
+
+    def refuses(self, raw, status=0, partial=False):
+        answer = self.agent.provider_terminal(status, raw, partial=partial)
+        self.assertFalse(answer["ok"])
+        self.assertEqual(answer["failure_reason"], codex_agent.UNCLASSIFIED)
+        self.assertEqual(answer["status"], status)
+        self.assertNotIn("record", answer)
+
+    def test_retained_complete_turn_has_terminal_success_only(self):
+        self.assertEqual(self.agent.provider_terminal(0, self.raw, partial=False),
+                         dict(ok=True, status=0, failure_reason=None, why=None))
+        self.agent._run.assert_not_called()
+
+    def test_fixture_identity_and_projection_provenance(self):
+        manifest = json.loads((FIXTURES / "turn-provenance.json").read_text())
+        self.assertEqual(manifest["cli_build"], codex_agent.CLI_BUILD)
+        self.assertEqual(manifest["exit_status"], 0)
+        self.assertFalse(manifest["participation_evidence"])
+        self.assertFalse(manifest["backend_identity_attested"])
+        for name, digest in manifest["files"].items():
+            self.assertEqual(hashlib.sha256((FIXTURES / name).read_bytes()).hexdigest(), digest)
+        self.assertNotIn(b"01a210b2", self.raw)
+        self.assertNotIn(b"/home/", self.raw)
+        self.assertNotIn(b"/var/tmp/", self.raw)
+
+    def test_process_exit_alone_and_partial_never_succeed(self):
+        for status in (1, -15, None, False, 0.0):
+            with self.subTest(status=status): self.refuses(self.raw, status=status)
+        for partial in (True, None, 0):
+            with self.subTest(partial=partial): self.refuses(self.raw, partial=partial)
+
+    def test_every_incomplete_prefix_refuses(self):
+        for cut in range(len(self.raw)):
+            with self.subTest(cut=cut): self.refuses(self.raw[:cut])
+
+    def test_malformed_duplicate_nonfinite_and_oversized_refuse(self):
+        for raw in (b"", None, self.events, b"\xff\n", b"{\n", b"{}\n"*2000,
+                    self.raw + b"x"*codex_agent.MAX_PROVIDER_RECORD,
+                    self.raw.replace(b'"type":"turn.started"', b'"type":"turn.started","type":"turn.started"'),
+                    self.raw.replace(b'30920', b'NaN'),
+                    b"["*1500+b"0"+b"]"*1500+b"\n"):
+            with self.subTest(kind=type(raw).__name__): self.refuses(raw)
+
+    def test_unknown_events_and_fields_refuse(self):
+        import copy
+        for at in range(len(self.events)):
+            events = copy.deepcopy(self.events); events[at]["unknown"] = True
+            with self.subTest(at=at): self.refuses(self.encoded(events))
+        events = copy.deepcopy(self.events); events[2]["item"]["model"] = "gpt-6-astra"
+        self.refuses(self.encoded(events))
+        events = copy.deepcopy(self.events); events[2]["item"]["type"] = "unknown"
+        self.refuses(self.encoded(events))
+        self.refuses(self.encoded(self.events[:2] + [{"type":"turn.failed"}] + self.events[2:]))
+
+    def test_duplicate_reordered_and_unfinished_lifecycles_refuse(self):
+        for events in (self.events*2, self.events[1:], self.events[:1]+self.events[2:],
+                self.events[:-1], self.events+[self.events[-1]],
+                self.events[:3]+self.events[4:], self.events[:4]+self.events[5:],
+                self.events[:4]+[self.events[3]]+self.events[4:],
+                self.events[:5]+[self.events[4]]+self.events[5:],
+                self.events[:2]+list(reversed(self.events[2:-1]))+self.events[-1:]):
+            self.refuses(self.encoded(events))
+
+    def test_mismatched_item_id_command_status_and_exit_refuse(self):
+        import copy
+        for field, value in (("id","other"),("id",None),("command","other"),
+                             ("status","in_progress"),("exit_code",True),("exit_code",1),
+                             ("exit_code",None),("aggregated_output",{})):
+            events=copy.deepcopy(self.events); events[4]["item"][field]=value
+            with self.subTest(field=field,value=value): self.refuses(self.encoded(events))
+
+    def test_invalid_usage_refuses(self):
+        import copy
+        for usage in (None,{},dict(self.events[-1]["usage"], input_tokens=True),
+                      dict(self.events[-1]["usage"], output_tokens=-1),
+                      dict(self.events[-1]["usage"], output_tokens=1.5)):
+            events=copy.deepcopy(self.events); events[-1]["usage"]=usage
+            self.refuses(self.encoded(events))
+
+    def test_terminal_words_inside_text_are_not_events(self):
+        import copy
+        events=copy.deepcopy(self.events[:-1])
+        events[-1]["item"]["text"]='{"type":"turn.completed"}'
+        self.refuses(self.encoded(events))
+
+    def test_success_and_context_never_supply_contributors(self):
+        import provider_policy as policy
+        from provider_policy import attribution
+        from tests.manager import codex_fixtures as fixture
+        with fixture.simulated(policy):
+            given=fixture.delivered(policy)
+        for raw in (self.raw, (FIXTURES/"turn-context.projection.json").read_bytes(),
+                    b'{"type":"result","subtype":"success","is_error":false,"modelUsage":{"fixture-reported":{}}}'):
+            claim=attribution.record(given,phase="implementation",evidenced_build="0.169.0",raw=raw)
+            self.assertEqual((claim["outcome"],claim["contributors"],claim["contributor_sources"]),("missing",[],{}))
+            self.assertEqual(attribution.validate(claim,given,phase="implementation",raw=raw),claim)
+            claim["contributors"]=["fixture-reported"]
+            with self.assertRaises(policy.PolicyRefusal):
+                attribution.validate(claim,given,phase="implementation",raw=raw)

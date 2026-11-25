@@ -1,19 +1,96 @@
-"""N4a Codex 0.169.0 adapter; native composition remains gated on J1.
+"""Codex 0.169.0 adapter; native composition remains gated.
 
 Arguments/version are grounded in retained N3 inventory. Instruction and home
 preparation use the shared D interface. There is no Codex policy realization
-or credential filename until selected evidence supplies one. Turn parsing and
-participation remain N4b; no process exit can establish semantic success here.
+or credential filename until qualified integration supplies one. Terminal
+success is grounded in a retained turn; contributor evidence remains missing.
 """
+import json
 import re
 
-from claude_agent import ClaudeAgent, TaskRefusal, UNCLASSIFIED
+from claude_agent import ClaudeAgent, TaskRefusal, UNCLASSIFIED, MAX_PROVIDER_RECORD
 
 CLI_BUILD = "0.169.0"
 EXEC_COMMANDS = frozenset(("resume", "fork", "review", "help"))
 ARGUMENTS = ("exec", "--dangerously-bypass-approvals-and-sandbox",
              "--ignore-user-config", "--ignore-rules", "--json")
 SELECTED = object()
+
+
+def _members(pairs):
+    value = {}
+    for key, member in pairs:
+        if key in value:
+            raise ValueError("duplicate JSON member")
+        value[key] = member
+    return value
+
+
+def completed_turn(raw, *, partial):
+    """Recognize only the evidenced fresh-turn family, within the shared bound.
+
+    This is a CLI terminal outcome, never candidate acceptance or attribution.
+    Unknown events and failure shapes remain unclassified. Text is opaque;
+    nested tool output cannot supply a terminal or a contributor.
+    """
+    if partial is not False or type(raw) is not bytes or not raw or len(raw) > MAX_PROVIDER_RECORD:
+        return False
+    try:
+        lines = raw.decode("utf-8").splitlines()
+        if len(lines) < 4 or len(lines) > 1024 or not raw.endswith(b"\n"):
+            return False
+        events = [json.loads(line, object_pairs_hook=_members,
+                            parse_constant=lambda value: (_ for _ in ()).throw(ValueError())) for line in lines]
+        if any(type(event) is not dict for event in events):
+            return False
+        first, start, *middle, end = events
+        if (set(first) != {"type", "thread_id"} or first["type"] != "thread.started"
+                or type(first["thread_id"]) is not str or not first["thread_id"]
+                or start != {"type": "turn.started"}
+                or set(end) != {"type", "usage"} or end["type"] != "turn.completed"):
+            return False
+        usage = end["usage"]
+        if (type(usage) is not dict or set(usage) != {"input_tokens", "cached_input_tokens",
+                "cache_write_input_tokens", "output_tokens", "reasoning_output_tokens"}
+                or any(type(n) is not int or n < 0 for n in usage.values())):
+            return False
+        pending, finished = {}, set()
+        last_message = False
+        for event in middle:
+            if set(event) != {"type", "item"} or event["type"] not in ("item.started", "item.completed"):
+                return False
+            item = event["item"]
+            if type(item) is not dict or type(item.get("id")) is not str or not item["id"]:
+                return False
+            ident = item["id"]
+            if ident in finished:
+                return False
+            last_message = item.get("type") == "agent_message"
+            if last_message:
+                if (set(item) != {"id", "type", "text"} or type(item["text"]) is not str
+                        or event["type"] != "item.completed" or ident in pending):
+                    return False
+                finished.add(ident)
+            elif item.get("type") == "command_execution":
+                if (set(item) != {"id", "type", "command", "aggregated_output", "exit_code", "status"}
+                        or type(item["command"]) is not str or type(item["aggregated_output"]) is not str):
+                    return False
+                if event["type"] == "item.started":
+                    if ident in pending or item["status"] != "in_progress" or item["exit_code"] is not None:
+                        return False
+                    pending[ident] = item["command"]
+                else:
+                    if (ident not in pending or pending[ident] != item["command"]
+                            or item["status"] != "completed" or type(item["exit_code"]) is not int
+                            or item["exit_code"] != 0):
+                        return False
+                    del pending[ident]
+                    finished.add(ident)
+            else:
+                return False
+        return bool(finished) and last_message and not pending
+    except (ValueError, UnicodeError, RecursionError, KeyError, TypeError):
+        return False
 
 
 def prompt_operand(prompt):
@@ -79,10 +156,10 @@ class CodexAgent(ClaudeAgent):
         return super().invoke_provider(prompt=prompt, room=room, seen=seen)
 
     def provider_terminal(self, status, record, *, partial):
-        # No raw bytes, exit-zero convention or Claude-shaped fixture can
-        # establish Codex success before exact-build turn evidence exists.
+        if type(status) is int and status == 0 and completed_turn(record, partial=partial):
+            return {"ok": True, "status": 0, "failure_reason": None, "why": None}
         return {"ok": False, "status": status, "failure_reason": UNCLASSIFIED,
-                "why": "Codex terminal interpretation awaits exact-build turn evidence"}
+                "why": "Codex did not supply a complete supported successful turn"}
 
     def decode_provider_version(self, raw):
         try:

@@ -1,0 +1,55 @@
+{
+ "fixture_ok": true,
+ "reencoded_ok": true,
+ "status_1": false,
+ "status_True": false,
+ "partial": false,
+ "no_final_newline": false,
+ "truncated": false,
+ "failed_command_exit_1": false,
+ "failed_status": false,
+ "file_change_item": false,
+ "reasoning_item": false,
+ "error_event": false,
+ "turn_failed_end": false,
+ "extra_member_model": false,
+ "turn_context_in_stdout": false,
+ "two_turn_completed": false,
+ "ends_on_command": false,
+ "text_with_U2028": false,
+ "text_with_U0085": false,
+ "output_with_formfeed_escaped": true,
+ "terminal_text_inside_output": true,
+ "attr_fixture": [
+  "missing",
+  [],
+  {}
+ ],
+ "attr_turn_context": [
+  "missing",
+  [],
+  {}
+ ],
+ "attr_claude_shaped": [
+  "missing",
+  [],
+  {}
+ ],
+ "attr_stdout_plus_context": [
+  "missing",
+  [],
+  {}
+ ],
+ "attr_model_member_in_terminal": [
+  "missing",
+  [],
+  {}
+ ],
+ "participation_sources": [],
+ "forged_matched_record": "refused: model-attribution-invalid",
+ "production_codex": [
+  false,
+  false,
+  []
+ ]
+}

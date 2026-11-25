@@ -1,0 +1,62 @@
+{
+  "base": "f875ed01b51b6b7541ad169b560004e47731ad34",
+  "files": [
+    {
+      "path": "v12/PROVIDER-SELECTION.md",
+      "sha256": "11943e31559dadd23daec41f6d797982d004f520e0a9b9ed8d195e03b31b77d2",
+      "bytes": 15724,
+      "mode": "0o664",
+      "base_sha256": "9166c94a6ff53f7b6f24ecab89e9d1165e4f3f18321b35440030724b4d94dd1b"
+    },
+    {
+      "path": "v12/python/src/baton_v12/provider_policy/attribution.py",
+      "sha256": "c6d88bf0a6710794d919e7d277e13dd4e9567c78771d3bbc358f6ec26c87215c",
+      "bytes": 5361,
+      "mode": "0o664",
+      "base_sha256": "7ab9e5ef97fb5e4170f94ec7a21bb7077e1fc11489cabdd9dcba228c97a85707"
+    },
+    {
+      "path": "v12/python/tests/manager/fixtures/codex-0.169.0/turn-context.projection.json",
+      "sha256": "2a5b93370c722c21510a2081820bb798d2cff3168f01577fd80efa823a570ae4",
+      "bytes": 58,
+      "mode": "0o664",
+      "base_sha256": null
+    },
+    {
+      "path": "v12/python/tests/manager/fixtures/codex-0.169.0/turn-provenance.json",
+      "sha256": "7e7672a7cf036cb489c12fc38f5457e76c1361f65120dadb22e8e97b562bec3a",
+      "bytes": 1080,
+      "mode": "0o664",
+      "base_sha256": null
+    },
+    {
+      "path": "v12/python/tests/manager/fixtures/codex-0.169.0/turn-success.sanitized.jsonl",
+      "sha256": "3d398c73e7a04f3f0c44efe24a6e35ca73197639a14dd8ee997d4238993368e0",
+      "bytes": 898,
+      "mode": "0o664",
+      "base_sha256": null
+    },
+    {
+      "path": "v12/python/tests/manager/test_codex_draft.py",
+      "sha256": "b210d1b0ff5a3554d7622f83b05835e74a4b2bc58155a0cc296d79e5ffb36784",
+      "bytes": 27638,
+      "mode": "0o664",
+      "base_sha256": "bb9ccbc87cd0a00efb9312d701808345d018be99407474ce46c53707dcb1a501"
+    },
+    {
+      "path": "v12/python/tests/tools/test_codex_selection.py",
+      "sha256": "2fa46cbf3b527a462090bf7b2136400780723bb60569f6bf69175d5298079234",
+      "bytes": 16661,
+      "mode": "0o664",
+      "base_sha256": "508336729aad731336653bbdb6453a8e4b530029b9f70b4bd387ab11e92467f7"
+    },
+    {
+      "path": "v12/worker/codex_agent.py",
+      "sha256": "1481458a083760412bd32cd2d73ae294dcd9a85f2fb0d362421df3f8ef1d735e",
+      "bytes": 8864,
+      "mode": "0o664",
+      "base_sha256": "46098e3abee28402eaf9d5aefd4c774668a4a5e5a650b6f93e40e719be6f57f3"
+    }
+  ],
+  "candidate": "sha256:5539eef92754e69d38e93c79abd6e020f9ed5368cc0b23f423beb9fc8da5fbe1"
+}

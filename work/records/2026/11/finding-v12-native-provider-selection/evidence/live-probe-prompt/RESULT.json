@@ -1,0 +1,64 @@
+{
+  "source_checkpoint": "f875ed01b51b6b7541ad169b560004e47731ad34",
+  "image": "sha256:46a46ee4ae3dcfdb23951fc8651b28c9ab50ad03e3422d96e53f615ac0eaaa63",
+  "requested_model": "gpt-6-astra",
+  "fast_selected": false,
+  "login_status_exit": 0,
+  "turn_exit": 0,
+  "turn_seconds": 11.230016354937106,
+  "turn_completed": true,
+  "events": [
+    {
+      "type": "thread.started",
+      "item_type": null
+    },
+    {
+      "type": "turn.started",
+      "item_type": null
+    },
+    {
+      "type": "item.completed",
+      "item_type": "agent_message"
+    },
+    {
+      "type": "item.started",
+      "item_type": "command_execution"
+    },
+    {
+      "type": "item.completed",
+      "item_type": "command_execution"
+    },
+    {
+      "type": "item.completed",
+      "item_type": "agent_message"
+    },
+    {
+      "type": "turn.completed",
+      "item_type": null
+    }
+  ],
+  "instruction_sha256": "369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b",
+  "instruction_bytes": 5646,
+  "instruction_response_matches": true,
+  "model_evidence": [
+    {
+      "source": "live/home/codex/sessions/2026/11/25/rollout-2026-11-25T03-14-08-01a210b2-42d5-71d3-8362-9d205cfdece5.jsonl",
+      "line": 10,
+      "event": "turn_context",
+      "model": "gpt-6-astra"
+    }
+  ],
+  "attribution_limit": "CLI turn_context records selected model; no served-model field in stdout and no claim this proves backend model identity",
+  "execution": {
+    "container_exit": 0,
+    "ceased": true,
+    "container_removed": true,
+    "source_metadata_unchanged": true,
+    "raw_output_private": true,
+    "native_qualification": false,
+    "no_retry": true
+  },
+  "private_evidence_root": "/var/tmp/baton-codex-q1-live-386097",
+  "native_qualification": false,
+  "calls": 1
+}

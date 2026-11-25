@@ -1,0 +1,26 @@
+{
+  "command": [
+    "just",
+    "--justfile",
+    "v12/justfile",
+    "test-one",
+    "tests.manager.test_codex_draft",
+    "tests.tools.test_codex_selection",
+    "tests.tools.test_provider_selection",
+    "tests.manager.test_claude_agent"
+  ],
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "base": "f875ed01b51b6b7541ad169b560004e47731ad34",
+  "candidate_repository_head": "f875ed01b51b6b7541ad169b560004e47731ad34",
+  "groups": [
+    "manager-pure",
+    "tools-pure"
+  ],
+  "collected": 380,
+  "bound_seconds": 180,
+  "disk_root": "/var/tmp/baton-n4b-386105",
+  "TMPDIR": "/var/tmp/baton-n4b-386105",
+  "accounting": "explicit ids from unittest -v; test-one has no registry accounting",
+  "pid": 2345589,
+  "pgid": 2345589
+}

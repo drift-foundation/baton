@@ -1,0 +1,13 @@
+{
+  "candidate": "sha256:5539eef92754e69d38e93c79abd6e020f9ed5368cc0b23f423beb9fc8da5fbe1",
+  "archive_matches": true,
+  "candidate_source_matches": true,
+  "inherited_isolation_unchanged": true,
+  "fixture_root": "/var/tmp/baton-n4b-386105",
+  "fixture_root_empty": true,
+  "private_home_preserved": true,
+  "no_private_cleanup_attempted": true,
+  "provider_calls": 0,
+  "builds": 0,
+  "engine_operations": 0
+}

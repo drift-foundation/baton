@@ -1,0 +1,404 @@
+--- a/v12/PROVIDER-SELECTION.md
++++ b/v12/PROVIDER-SELECTION.md
+@@ -219,13 +219,37 @@
+ Baton mount, not the vendor credential file. Claude keeps its existing slot
+ and legacy context path.
+ 
+-Codex has no production realization or managed-entry path yet: its exact-build
+-credential filename remains an evidence gate. Composition therefore refuses;
+-no null or guessed credential path enables native use. Tests that temporarily
++Codex has no production realization or managed-entry path yet. The selected
++detached probe evidenced CODEX_HOME/auth.json lookup and authenticated completion;
++that does not install the native credential/home realization. Composition still
++refuses; no null or guessed credential path enables native use. Tests that temporarily
+ install synthetic realization/path tables prove the shared mechanisms only.
+ The Codex recipe is source-only and copies the same provider-policy package.
+ 
+-Codex terminal parsing and participation sources remain unqualified. Every
+-Codex terminal return is unclassified, including exit zero. No turn fixture,
+-model call, build or resume behavior is implied by this join. Provider-selected
++Codex 0.169.0 terminal parsing recognizes the retained fresh successful turn
++family: thread.started, turn.started, completed agent messages and paired
++command_execution items, then one final turn.completed with the evidenced
++usage shape. It requires exit zero, a complete bounded UTF-8 JSONL stream,
++unique JSON members and consistent item lifecycle. Unknown fields/events,
++truncation, unfinished items, nonzero exits and unevidenced failure shapes
++remain unclassified. This conservative parser does not claim coverage of other
++Codex tools or failure families. Sanitized fixtures retain the observed event
++structure; negative mutations are robustness tests, not live failure evidence.
++
++Terminal completion is separate from attribution and candidate acceptance.
++The observed stdout contains no participation source. Private session
++turn_context.model records CLI configuration only; it is neither contributor
++proof nor independently attested backend identity. No session ingestion or
++resume behavior is added. Codex attribution therefore remains missing with
++an empty contributor set, even for a recognized successful turn. Host validation
++holds the result and permits no publication/checkpoint/verdict ending while
++required attribution is missing. Requested model and service tier never supply
++observed participation. Claude terminal and attribution behavior is unchanged.
++
++The selected detached probe established authentication and instruction digest/
++role for its selected copy and image, not native worker qualification. A valid
++actual-participation source, production Codex realization/home integration,
++credential recovery/size gates, finished-image/native qualification and explicit
++Claude qualification remain outstanding. No new provider call or build is
++implied by terminal parsing. Provider-selected
+ integration is a separate open issue and is not enabled by the Codex guards.
+--- a/v12/python/src/baton_v12/provider_policy/attribution.py
++++ b/v12/python/src/baton_v12/provider_policy/attribution.py
+@@ -53,7 +53,10 @@
+            raw_digest=None, log_retained=True):
+     selected = delivery["contract"]["selection"]
+     sources = delivery["contract"]["adapter"]["participation_sources"]
+-    reported = contributors(raw, sources, partial=partial)
++    # Codex 0.169.0 stdout has no evidenced participation field. Its private
++    # turn_context.model is configuration, not participation. Do not apply the
++    # Claude result family to Codex, even when a caller supplies such bytes.
++    reported = {} if selected["provider"] == "codex" else contributors(raw, sources, partial=partial)
+     if not log_retained:
+         reported = {}
+     if evidenced_build is not None:
+--- /dev/null
++++ b/v12/python/tests/manager/fixtures/codex-0.169.0/turn-context.projection.json
+@@ -0,0 +1 @@
++{"type":"turn_context","payload":{"model":"gpt-6-astra"}}
+--- /dev/null
++++ b/v12/python/tests/manager/fixtures/codex-0.169.0/turn-provenance.json
+@@ -0,0 +1,16 @@
++{
++  "cli_build": "0.169.0",
++  "image": "sha256:46a46ee4ae3dcfdb23951fc8651b28c9ab50ad03e3422d96e53f615ac0eaaa63",
++  "source_checkpoint": "f875ed01b51b6b7541ad169b560004e47731ad34",
++  "exit_status": 0,
++  "source_report": "work/records/2026/11/finding-v12-native-provider-selection/evidence/live-probe-prompt/REPORT.md",
++  "source_raw_private": true,
++  "raw_sha256": "1211481a07b5cfc0701b53a8fcd4d5b62431332bf300bbeae71435a8979c75fe",
++  "sanitization": "All thread/item identifiers replaced consistently; agent text, command and aggregated output replaced by fixed markers. Observed event order, field sets, status, exit and usage numbers preserved. Session fixture is ONLY a type/model projection from the reported turn_context line, not a full session or participation evidence.",
++  "files": {
++    "turn-success.sanitized.jsonl": "3d398c73e7a04f3f0c44efe24a6e35ca73197639a14dd8ee997d4238993368e0",
++    "turn-context.projection.json": "2a5b93370c722c21510a2081820bb798d2cff3168f01577fd80efa823a570ae4"
++  },
++  "participation_evidence": false,
++  "backend_identity_attested": false
++}
+--- /dev/null
++++ b/v12/python/tests/manager/fixtures/codex-0.169.0/turn-success.sanitized.jsonl
+@@ -0,0 +1,7 @@
++{"type":"thread.started","thread_id":"sanitized-thread"}
++{"type":"turn.started"}
++{"type":"item.completed","item":{"id":"sanitized-item-0","type":"agent_message","text":"[private agent text removed]"}}
++{"type":"item.started","item":{"id":"sanitized-item-1","type":"command_execution","command":"[private command removed]","aggregated_output":"[private output removed]","exit_code":null,"status":"in_progress"}}
++{"type":"item.completed","item":{"id":"sanitized-item-1","type":"command_execution","command":"[private command removed]","aggregated_output":"[private output removed]","exit_code":0,"status":"completed"}}
++{"type":"item.completed","item":{"id":"sanitized-item-2","type":"agent_message","text":"[private agent text removed]"}}
++{"type":"turn.completed","usage":{"input_tokens":30920,"cached_input_tokens":24064,"cache_write_input_tokens":0,"output_tokens":234,"reasoning_output_tokens":0}}
+--- a/v12/python/tests/manager/test_codex_draft.py
++++ b/v12/python/tests/manager/test_codex_draft.py
+@@ -324,6 +324,18 @@
+                 self.assertFalse(result["ok"])
+                 self.assertEqual(result["failure_reason"], codex_agent.UNCLASSIFIED)
+                 self.assertNotEqual(result["attribution"]["outcome"], "matched")
++                # Replay the sanitized observed stream at the normal provider seam.
++                raw = (FIXTURES / "turn-success.sanitized.jsonl").read_bytes()
++                agent._provider_raw_digest = "sha256:" + hashlib.sha256(raw).hexdigest()
++                agent._provider_log_retained = True
++                with mock.patch.object(agent, "_resolved_bound", return_value={"seconds_bound": 10}), \
++                        mock.patch.object(agent, "_revalidated_environment", return_value=environment), \
++                        mock.patch.object(agent, "provider_version", return_value="0.169.0"), \
++                        mock.patch.object(agent, "_ran_provider", return_value=(0, raw, False)):
++                    completed = agent._provider(None, str(home), root, environment, prompt="do the bounded task")
++                self.assertTrue(completed["ok"])
++                self.assertEqual(completed["attribution"]["outcome"], "missing")
++                self.assertEqual(completed["attribution"]["contributors"], [])
+                 # The worker validates the real delivered identity before role use.
+                 agent._seen["role"] = "review"
+                 with self.assertRaises(codex_agent.TaskRefusal):
+@@ -348,3 +360,113 @@
+             with self.assertRaises(policy.PolicyRefusal):
+                 policy.validate_adapter(adapter, fixture.SELECTED, adapter_digest=policy.digest(adapter),
+                                         tool_policy_digest=policy.digest(policy.POLICY))
++
++
++class CodexTerminalEvidence(unittest.TestCase):
++    """Retained success; negative mutations are robustness tests, not live failures."""
++    def setUp(self):
++        self.agent = codex_agent.CodexAgent(run=mock.Mock(side_effect=AssertionError("no provider")))
++        self.raw = (FIXTURES / "turn-success.sanitized.jsonl").read_bytes()
++        self.events = [json.loads(line) for line in self.raw.splitlines()]
++
++    def encoded(self, events):
++        return ("\n".join(json.dumps(x) for x in events) + "\n").encode()
++
++    def refuses(self, raw, status=0, partial=False):
++        answer = self.agent.provider_terminal(status, raw, partial=partial)
++        self.assertFalse(answer["ok"])
++        self.assertEqual(answer["failure_reason"], codex_agent.UNCLASSIFIED)
++        self.assertEqual(answer["status"], status)
++        self.assertNotIn("record", answer)
++
++    def test_retained_complete_turn_has_terminal_success_only(self):
++        self.assertEqual(self.agent.provider_terminal(0, self.raw, partial=False),
++                         dict(ok=True, status=0, failure_reason=None, why=None))
++        self.agent._run.assert_not_called()
++
++    def test_fixture_identity_and_projection_provenance(self):
++        manifest = json.loads((FIXTURES / "turn-provenance.json").read_text())
++        self.assertEqual(manifest["cli_build"], codex_agent.CLI_BUILD)
++        self.assertEqual(manifest["exit_status"], 0)
++        self.assertFalse(manifest["participation_evidence"])
++        self.assertFalse(manifest["backend_identity_attested"])
++        for name, digest in manifest["files"].items():
++            self.assertEqual(hashlib.sha256((FIXTURES / name).read_bytes()).hexdigest(), digest)
++        self.assertNotIn(b"01a210b2", self.raw)
++        self.assertNotIn(b"/home/", self.raw)
++        self.assertNotIn(b"/var/tmp/", self.raw)
++
++    def test_process_exit_alone_and_partial_never_succeed(self):
++        for status in (1, -15, None, False, 0.0):
++            with self.subTest(status=status): self.refuses(self.raw, status=status)
++        for partial in (True, None, 0):
++            with self.subTest(partial=partial): self.refuses(self.raw, partial=partial)
++
++    def test_every_incomplete_prefix_refuses(self):
++        for cut in range(len(self.raw)):
++            with self.subTest(cut=cut): self.refuses(self.raw[:cut])
++
++    def test_malformed_duplicate_nonfinite_and_oversized_refuse(self):
++        for raw in (b"", None, self.events, b"\xff\n", b"{\n", b"{}\n"*2000,
++                    self.raw + b"x"*codex_agent.MAX_PROVIDER_RECORD,
++                    self.raw.replace(b'"type":"turn.started"', b'"type":"turn.started","type":"turn.started"'),
++                    self.raw.replace(b'30920', b'NaN'),
++                    b"["*1500+b"0"+b"]"*1500+b"\n"):
++            with self.subTest(kind=type(raw).__name__): self.refuses(raw)
++
++    def test_unknown_events_and_fields_refuse(self):
++        import copy
++        for at in range(len(self.events)):
++            events = copy.deepcopy(self.events); events[at]["unknown"] = True
++            with self.subTest(at=at): self.refuses(self.encoded(events))
++        events = copy.deepcopy(self.events); events[2]["item"]["model"] = "gpt-6-astra"
++        self.refuses(self.encoded(events))
++        events = copy.deepcopy(self.events); events[2]["item"]["type"] = "unknown"
++        self.refuses(self.encoded(events))
++        self.refuses(self.encoded(self.events[:2] + [{"type":"turn.failed"}] + self.events[2:]))
++
++    def test_duplicate_reordered_and_unfinished_lifecycles_refuse(self):
++        for events in (self.events*2, self.events[1:], self.events[:1]+self.events[2:],
++                self.events[:-1], self.events+[self.events[-1]],
++                self.events[:3]+self.events[4:], self.events[:4]+self.events[5:],
++                self.events[:4]+[self.events[3]]+self.events[4:],
++                self.events[:5]+[self.events[4]]+self.events[5:],
++                self.events[:2]+list(reversed(self.events[2:-1]))+self.events[-1:]):
++            self.refuses(self.encoded(events))
++
++    def test_mismatched_item_id_command_status_and_exit_refuse(self):
++        import copy
++        for field, value in (("id","other"),("id",None),("command","other"),
++                             ("status","in_progress"),("exit_code",True),("exit_code",1),
++                             ("exit_code",None),("aggregated_output",{})):
++            events=copy.deepcopy(self.events); events[4]["item"][field]=value
++            with self.subTest(field=field,value=value): self.refuses(self.encoded(events))
++
++    def test_invalid_usage_refuses(self):
++        import copy
++        for usage in (None,{},dict(self.events[-1]["usage"], input_tokens=True),
++                      dict(self.events[-1]["usage"], output_tokens=-1),
++                      dict(self.events[-1]["usage"], output_tokens=1.5)):
++            events=copy.deepcopy(self.events); events[-1]["usage"]=usage
++            self.refuses(self.encoded(events))
++
++    def test_terminal_words_inside_text_are_not_events(self):
++        import copy
++        events=copy.deepcopy(self.events[:-1])
++        events[-1]["item"]["text"]='{"type":"turn.completed"}'
++        self.refuses(self.encoded(events))
++
++    def test_success_and_context_never_supply_contributors(self):
++        import provider_policy as policy
++        from provider_policy import attribution
++        from tests.manager import codex_fixtures as fixture
++        with fixture.simulated(policy):
++            given=fixture.delivered(policy)
++        for raw in (self.raw, (FIXTURES/"turn-context.projection.json").read_bytes(),
++                    b'{"type":"result","subtype":"success","is_error":false,"modelUsage":{"fixture-reported":{}}}'):
++            claim=attribution.record(given,phase="implementation",evidenced_build="0.169.0",raw=raw)
++            self.assertEqual((claim["outcome"],claim["contributors"],claim["contributor_sources"]),("missing",[],{}))
++            self.assertEqual(attribution.validate(claim,given,phase="implementation",raw=raw),claim)
++            claim["contributors"]=["fixture-reported"]
++            with self.assertRaises(policy.PolicyRefusal):
++                attribution.validate(claim,given,phase="implementation",raw=raw)
+--- a/v12/python/tests/tools/test_codex_selection.py
++++ b/v12/python/tests/tools/test_codex_selection.py
+@@ -202,3 +202,56 @@
+                 except SystemExit as stop:
+                     self.fail("compose-worker operands were refused: " + str(stop))
+                 self.assertEqual(compose.call_args.kwargs["provider_selection"], expected)
++
++
++class CodexMissingAttribution(unittest.TestCase):
++    def test_host_holds_evidenced_terminal_success_and_refuses_ending(self):
++        import json
++        from unittest import mock
++        from baton_v12.provider_policy import attribution
++        from baton_v12 import worker_manager as manager
++        from baton_v12.worker_manager import model_attribution as host
++        raw=(Path(__file__).parents[1]/"manager/fixtures/codex-0.169.0/turn-success.sanitized.jsonl").read_bytes()
++        with fixture.simulated(policy):
++            delivered=fixture.delivered(policy)
++        attempt=delivered["attempt_id"]
++        selected=dict(delivery=delivered,phase="implementation",logs_root="/synthetic-only")
++        claim=attribution.record(delivered,phase="implementation",evidenced_build="0.169.0",raw=raw)
++        label=policy.context_record(delivered["contract"]["adapter"],"implementation")
++        result=dict(outputs=[dict(status="present",result_metadata={attribution.SCHEMA:claim,policy.LABEL_SCHEMA:label})])
++        frozen=dict(result_id="synthetic-result",manifest_digest="sha256:"+"1"*64)
++        with mock.patch.object(host,"selection_of",return_value=selected), \
++                mock.patch.object(host,"assessment_of",return_value=None), \
++                mock.patch.object(manager,"load_manifest",return_value=result), \
++                mock.patch.object(host.attempt_logs,"complete_record",return_value=raw), \
++                mock.patch.object(host,"_write",side_effect=lambda c,k,a,v:v):
++            account=host.assess(object(),attempt,frozen)
++        self.assertEqual(account["outcome"],"held")
++        self.assertEqual(account["cause"],"model-attribution-missing")
++        self.assertEqual(account["attribution"]["contributors"],[])
++        held=host.held(account)
++        for key in ("published","checkpoint_id","verdict_id"):
++            self.assertIsNone(held[key])
++        with mock.patch.object(host,"selection_of",return_value=selected), \
++                mock.patch.object(host,"assessment_of",return_value=account), \
++                mock.patch.object(host,"_write") as write:
++            with self.assertRaises(ContractRefusal):
++                host.bind_ending(object(),attempt,{"checkpoint_id":"must-not-publish"})
++            write.assert_not_called()
++        self.assertNotIn("gpt-6-astra",json.dumps(account))
++
++    def test_codex_does_not_reinterpret_claude_participation_or_tier(self):
++        import json
++        from baton_v12.provider_policy import attribution
++        with fixture.simulated(policy):
++            delivered=fixture.delivered(policy)
++        # A deliberately invalid external claim must not turn the Claude family
++        # into Codex evidence; ordinary admission also rejects this adapter.
++        delivered["contract"]["adapter"]["participation_sources"]=[{"field":"modelUsage","kind":"keys"}]
++        delivered["contract"]["selection"]["service_tier"]="fast"
++        raw=json.dumps(dict(type="result",subtype="success",is_error=False,
++                            modelUsage={"fixture-reported":{}},service_tier="fast")).encode()
++        claim=attribution.record(delivered,phase="implementation",evidenced_build="0.169.0",raw=raw)
++        self.assertEqual(claim["outcome"],"missing")
++        self.assertEqual(claim["contributors"],[])
++        self.assertEqual(claim["service_tier"],dict(requested="fast",observed=None,outcome="missing"))
+--- a/v12/worker/codex_agent.py
++++ b/v12/worker/codex_agent.py
+@@ -1,19 +1,96 @@
+-"""N4a Codex 0.169.0 adapter; native composition remains gated on J1.
++"""Codex 0.169.0 adapter; native composition remains gated.
+ 
+ Arguments/version are grounded in retained N3 inventory. Instruction and home
+ preparation use the shared D interface. There is no Codex policy realization
+-or credential filename until selected evidence supplies one. Turn parsing and
+-participation remain N4b; no process exit can establish semantic success here.
++or credential filename until qualified integration supplies one. Terminal
++success is grounded in a retained turn; contributor evidence remains missing.
+ """
++import json
+ import re
+ 
+-from claude_agent import ClaudeAgent, TaskRefusal, UNCLASSIFIED
++from claude_agent import ClaudeAgent, TaskRefusal, UNCLASSIFIED, MAX_PROVIDER_RECORD
+ 
+ CLI_BUILD = "0.169.0"
+ EXEC_COMMANDS = frozenset(("resume", "fork", "review", "help"))
+ ARGUMENTS = ("exec", "--dangerously-bypass-approvals-and-sandbox",
+              "--ignore-user-config", "--ignore-rules", "--json")
+ SELECTED = object()
++
++
++def _members(pairs):
++    value = {}
++    for key, member in pairs:
++        if key in value:
++            raise ValueError("duplicate JSON member")
++        value[key] = member
++    return value
++
++
++def completed_turn(raw, *, partial):
++    """Recognize only the evidenced fresh-turn family, within the shared bound.
++
++    This is a CLI terminal outcome, never candidate acceptance or attribution.
++    Unknown events and failure shapes remain unclassified. Text is opaque;
++    nested tool output cannot supply a terminal or a contributor.
++    """
++    if partial is not False or type(raw) is not bytes or not raw or len(raw) > MAX_PROVIDER_RECORD:
++        return False
++    try:
++        lines = raw.decode("utf-8").splitlines()
++        if len(lines) < 4 or len(lines) > 1024 or not raw.endswith(b"\n"):
++            return False
++        events = [json.loads(line, object_pairs_hook=_members,
++                            parse_constant=lambda value: (_ for _ in ()).throw(ValueError())) for line in lines]
++        if any(type(event) is not dict for event in events):
++            return False
++        first, start, *middle, end = events
++        if (set(first) != {"type", "thread_id"} or first["type"] != "thread.started"
++                or type(first["thread_id"]) is not str or not first["thread_id"]
++                or start != {"type": "turn.started"}
++                or set(end) != {"type", "usage"} or end["type"] != "turn.completed"):
++            return False
++        usage = end["usage"]
++        if (type(usage) is not dict or set(usage) != {"input_tokens", "cached_input_tokens",
++                "cache_write_input_tokens", "output_tokens", "reasoning_output_tokens"}
++                or any(type(n) is not int or n < 0 for n in usage.values())):
++            return False
++        pending, finished = {}, set()
++        last_message = False
++        for event in middle:
++            if set(event) != {"type", "item"} or event["type"] not in ("item.started", "item.completed"):
++                return False
++            item = event["item"]
++            if type(item) is not dict or type(item.get("id")) is not str or not item["id"]:
++                return False
++            ident = item["id"]
++            if ident in finished:
++                return False
++            last_message = item.get("type") == "agent_message"
++            if last_message:
++                if (set(item) != {"id", "type", "text"} or type(item["text"]) is not str
++                        or event["type"] != "item.completed" or ident in pending):
++                    return False
++                finished.add(ident)
++            elif item.get("type") == "command_execution":
++                if (set(item) != {"id", "type", "command", "aggregated_output", "exit_code", "status"}
++                        or type(item["command"]) is not str or type(item["aggregated_output"]) is not str):
++                    return False
++                if event["type"] == "item.started":
++                    if ident in pending or item["status"] != "in_progress" or item["exit_code"] is not None:
++                        return False
++                    pending[ident] = item["command"]
++                else:
++                    if (ident not in pending or pending[ident] != item["command"]
++                            or item["status"] != "completed" or type(item["exit_code"]) is not int
++                            or item["exit_code"] != 0):
++                        return False
++                    del pending[ident]
++                    finished.add(ident)
++            else:
++                return False
++        return bool(finished) and last_message and not pending
++    except (ValueError, UnicodeError, RecursionError, KeyError, TypeError):
++        return False
+ 
+ 
+ def prompt_operand(prompt):
+@@ -79,10 +156,10 @@
+         return super().invoke_provider(prompt=prompt, room=room, seen=seen)
+ 
+     def provider_terminal(self, status, record, *, partial):
+-        # No raw bytes, exit-zero convention or Claude-shaped fixture can
+-        # establish Codex success before exact-build turn evidence exists.
++        if type(status) is int and status == 0 and completed_turn(record, partial=partial):
++            return {"ok": True, "status": 0, "failure_reason": None, "why": None}
+         return {"ok": False, "status": status, "failure_reason": UNCLASSIFIED,
+-                "why": "Codex terminal interpretation awaits exact-build turn evidence"}
++                "why": "Codex did not supply a complete supported successful turn"}
+ 
+     def decode_provider_version(self, raw):
+         try:

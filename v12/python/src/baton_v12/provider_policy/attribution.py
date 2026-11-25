@@ -53,7 +53,10 @@ def record(delivery, *, phase, evidenced_build, raw, partial=False,
            raw_digest=None, log_retained=True):
     selected = delivery["contract"]["selection"]
     sources = delivery["contract"]["adapter"]["participation_sources"]
-    reported = contributors(raw, sources, partial=partial)
+    # Codex 0.169.0 stdout has no evidenced participation field. Its private
+    # turn_context.model is configuration, not participation. Do not apply the
+    # Claude result family to Codex, even when a caller supplies such bytes.
+    reported = {} if selected["provider"] == "codex" else contributors(raw, sources, partial=partial)
     if not log_retained:
         reported = {}
     if evidenced_build is not None:

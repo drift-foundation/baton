@@ -1,0 +1,16 @@
+{
+  "cli_build": "0.169.0",
+  "image": "sha256:46a46ee4ae3dcfdb23951fc8651b28c9ab50ad03e3422d96e53f615ac0eaaa63",
+  "source_checkpoint": "f875ed01b51b6b7541ad169b560004e47731ad34",
+  "exit_status": 0,
+  "source_report": "work/records/2026/11/finding-v12-native-provider-selection/evidence/live-probe-prompt/REPORT.md",
+  "source_raw_private": true,
+  "raw_sha256": "1211481a07b5cfc0701b53a8fcd4d5b62431332bf300bbeae71435a8979c75fe",
+  "sanitization": "All thread/item identifiers replaced consistently; agent text, command and aggregated output replaced by fixed markers. Observed event order, field sets, status, exit and usage numbers preserved. Session fixture is ONLY a type/model projection from the reported turn_context line, not a full session or participation evidence.",
+  "files": {
+    "turn-success.sanitized.jsonl": "3d398c73e7a04f3f0c44efe24a6e35ca73197639a14dd8ee997d4238993368e0",
+    "turn-context.projection.json": "2a5b93370c722c21510a2081820bb798d2cff3168f01577fd80efa823a570ae4"
+  },
+  "participation_evidence": false,
+  "backend_identity_attested": false
+}
