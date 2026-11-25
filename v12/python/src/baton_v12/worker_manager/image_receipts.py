@@ -1,7 +1,7 @@
 """Host-retained launched-image evidence, separate from cessation and worker claims."""
 import re
 from datetime import datetime
-from ..contracts import digest
+from ..contracts import ContractRefusal, digest
 from . import attempts
 
 SCHEMA = "baton.launched-image/1"
@@ -37,6 +37,17 @@ def valid(observation):
 
 
 def retain(control, attempt, runtime_id, observation):
+    from . import model_attribution as owner
+    try:
+        return _retain(control, attempt, runtime_id, observation)
+    except ContractRefusal:
+        # Keep a content-free, durable hold before returning the lifecycle
+        # observation. A broken journal cannot promise either persistence.
+        owner._write(control, KIND + "-refused", attempt, {"refused": True})
+        return None
+
+
+def _retain(control, attempt, runtime_id, observation):
     # Called after engine I/O, never in the transaction that asks the engine.
     from . import model_attribution as owner
     selected = owner.selection_of(control, attempt)
@@ -47,12 +58,22 @@ def retain(control, attempt, runtime_id, observation):
         return None
     if observation["labels"] != attempts._runtime_labels(row):
         return None
-    previous = owner._read(control, KIND, attempt)
+    initial = owner._read(control, KIND, attempt)
+    supplement = owner._read(control, KIND + "-resolution", attempt)
+    previous = supplement or initial
     receipt = {"schema": SCHEMA, "attempt_id": attempt, "selection_digest": digest(selected["delivery"]),
                "admitted_image": selected["delivery"]["contract"]["runtime_profile"].get("image_digest"),
                "profile_digest": selected["delivery"]["profile_digest"],
                "recorded_at": previous["recorded_at"] if previous is not None else control._now(),
                "observation": observation}
+    if supplement is not None:
+        receipt["initial_receipt_digest"] = digest(initial)
+    if previous is not None and observation["resolution"] is not None and previous["observation"]["resolution"] is None:
+        if dict(observation, resolution=None) == previous["observation"]:
+            # An immutable supplement preserves the original receipt and its
+            # reference. Frozen assessments still cannot be upgraded in place.
+            receipt["initial_receipt_digest"] = digest(initial)
+            return owner._write(control, KIND + "-resolution", attempt, receipt)
     if previous is not None and observation["resolution"] is None:
         # A later unavailable image-resolution query is not contradictory
         # evidence and cannot erase an already retained engine binding.
@@ -70,14 +91,26 @@ def evidence(control, attempt, selected):
     from . import model_attribution as owner
     if not required(selected):
         return None, None
-    receipt = owner._read(control, KIND, attempt)
+    initial = owner._read(control, KIND, attempt)
+    supplement = owner._read(control, KIND + "-resolution", attempt)
+    receipt = supplement or initial
+    if owner._read(control, KIND + "-refused", attempt) is not None:
+        return receipt, "launched-image-refused"
     if receipt is None:
         return None, "launched-image-missing"
     row = attempts._require_attempt(control, attempt)
     if type(receipt) is not dict:
         return receipt, "launched-image-invalid"
     observation = receipt.get("observation")
-    if (set(receipt) != {"schema", "attempt_id", "selection_digest", "admitted_image", "profile_digest", "recorded_at", "observation"}
+    expected_keys = {"schema", "attempt_id", "selection_digest", "admitted_image", "profile_digest", "recorded_at", "observation"}
+    if supplement is not None:
+        expected_keys.add("initial_receipt_digest")
+        if (type(initial) is not dict or type(observation) is not dict
+                or supplement.get("initial_receipt_digest") != digest(initial)
+                or initial.get("observation") != dict(observation, resolution=None)
+                or {k: v for k, v in supplement.items() if k not in ("initial_receipt_digest", "observation")} != {k: v for k, v in initial.items() if k != "observation"}):
+            return receipt, "launched-image-invalid"
+    if (set(receipt) != expected_keys
             or receipt["schema"] != SCHEMA or receipt["attempt_id"] != attempt
             or receipt["selection_digest"] != digest(selected["delivery"])
             or receipt["admitted_image"] != selected["delivery"]["contract"]["runtime_profile"].get("image_digest")
@@ -97,4 +130,4 @@ def reference(attempt, receipt):
     if receipt is None:
         return None
     from . import model_attribution as owner
-    return {"operation_id": owner._id(KIND, attempt), "digest": digest(receipt)}
+    return {"operation_id": owner._id(KIND + "-resolution" if "initial_receipt_digest" in receipt else KIND, attempt), "digest": digest(receipt)}

@@ -2169,7 +2169,8 @@ class _SingleWorker:
                     nonlocal delivery
                     delivery = self.credential_home.materialize(
                         given["credential_resolution"], attempt_id=attempt_id,
-                        workspace_group=self.group, credential_provider=self.credential_provider)
+                        workspace_group=self.group, credential_provider=self.credential_provider,
+                        file_slots=[slot] if contract["selection"]["provider"] == "codex" else ())
                     home, unused, writable = mount.boundary()
                     source, target = delivery.mounts()[0]
                     prepare(home, credential_path=rule["path"], delivered=source, mode="seeded-retained")

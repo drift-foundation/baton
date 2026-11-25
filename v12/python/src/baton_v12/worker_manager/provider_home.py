@@ -7,6 +7,7 @@ stores plain identity beside the home; only home/ may enter a container.
 from contextlib import contextmanager
 from datetime import datetime, timezone
 import fcntl
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -261,19 +262,158 @@ def initialize_credential(home, state_directory, credential_path, initialize, *,
         fcntl.flock(fd, fcntl.LOCK_EX)
         validate()
         record = _read(fd, "credential.json")
-        expected = {"schema": "baton.home-credential/1", "path": credential_path, "state": "ready"}
-        if record is not None:
-            if record != expected or credential_state(home, credential_path) != "ready":
+        legacy = {"schema": "baton.home-credential/1", "path": credential_path, "state": "ready"}
+        if record == legacy:
+            if credential_state(home, credential_path) != "ready":
                 raise HomeRefusal("credential recovery required: retained initialization evidence disagrees")
             return None
+        if record is not None:
+            _credential_receipt(record, credential_path)
+            if record["state"] == "ready" and credential_state(home, credential_path) == "ready":
+                return None
+            if record["state"] != "authorized":
+                raise HomeRefusal("credential recovery required: retained initialization evidence disagrees")
+            if _home_snapshot(home) != record["home_snapshot"]:
+                raise HomeRefusal("credential recovery required: home changed after recovery authorization")
         if credential_state(home, credential_path) != "empty":
             raise HomeRefusal("credential recovery required: external initialization receipt is absent")
-        _write(fd, dict(expected, state="initializing"), "credential.json")
+        receipt = {"schema": "baton.home-credential/2", "path": credential_path,
+                   "state": "initializing", "receipt_id": uuid.uuid4().hex,
+                   "home_snapshot": _home_snapshot(home)}
+        if record is not None:
+            receipt["authorization"] = record["authorization"]
+            receipt["previous_receipt"] = record["receipt_id"]
+        _write(fd, receipt, "credential.json")
         result = initialize()
         if credential_state(home, credential_path) != "ready":
             raise HomeRefusal("credential recovery required: initialization did not complete")
-        _write(fd, expected, "credential.json")
+        _write(fd, dict(receipt, state="ready"), "credential.json")
         return result
+
+
+def _credential_receipt(record, path):
+    required = {"schema", "path", "state", "receipt_id", "home_snapshot"}
+    if (type(record) is not dict or not required <= set(record) <= required | {"authorization", "previous_receipt", "decision_id"}
+            or record["schema"] != "baton.home-credential/2" or record["path"] != path
+            or record["state"] not in ("initializing", "ready", "withdrawn", "authorized")
+            or type(record["receipt_id"]) is not str or len(record["receipt_id"]) != 32
+            or any(c not in "0123456789abcdef" for c in record["receipt_id"])
+            or type(record["home_snapshot"]) is not str
+            or (record["state"] == "authorized" and not record.get("authorization"))):
+        raise HomeRefusal("credential recovery required: receipt is incomplete or unsupported")
+
+
+def _home_snapshot(home):
+    """Metadata-only identity of a bounded private home, never credential reads.
+
+    Includes inode and nanosecond change times so replacing content and restoring
+    mtime cannot pass as unchanged. No symlink, special file or unbounded walk.
+    The caller excludes runtime writers and holds the home-owner lock.
+    """
+    from ..provider_policy.home import _open_home
+    entries = []
+    def visit(fd, prefix):
+        info = os.fstat(fd)
+        entries.append((prefix, info.st_dev, info.st_ino, info.st_mode, info.st_uid,
+                        info.st_gid, info.st_size, info.st_mtime_ns, info.st_ctime_ns))
+        if len(entries) > 1024 or len(prefix.split("/")) > 32:
+            raise HomeRefusal("credential recovery requires a bounded unchanged home")
+        for name in sorted(os.listdir(fd)):
+            info = os.stat(name, dir_fd=fd, follow_symlinks=False)
+            child = prefix + "/" + name
+            if stat.S_ISDIR(info.st_mode):
+                below = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+                try:
+                    visit(below, child)
+                finally:
+                    os.close(below)
+            elif stat.S_ISREG(info.st_mode):
+                entries.append((child, info.st_dev, info.st_ino, info.st_mode, info.st_uid,
+                                info.st_gid, info.st_size, info.st_mtime_ns, info.st_ctime_ns))
+                if len(entries) > 1024:
+                    raise HomeRefusal("credential recovery requires a bounded unchanged home")
+            else:
+                raise HomeRefusal("credential recovery refuses special entries")
+    fd = _open_home(home)
+    try:
+        visit(fd, "")
+    finally:
+        os.close(fd)
+    return "sha256:" + hashlib.sha256(json.dumps(entries, separators=(",", ":")).encode()).hexdigest()
+
+
+def _recovery_id(value):
+    if type(value) is not str or not 1 <= len(value) <= 128 or any(c not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_." for c in value):
+        raise HomeRefusal("credential recovery requires an explicit bounded decision identity")
+    return value
+
+
+def recover_failed_initialization(mount, control, *, receipt_id, decision_id, authorize_retry=None):
+    """Explicit host-owner operation, never called by startup or a worker.
+
+    Withdrawal and subsequent authorization are separate calls. This operation
+    supports the host's durable ended-before-start proof, which fences delayed
+    starts. Other runtime situations retain the hold rather than guess exclusion.
+    No credential contents are read and no filesystem content in home is changed.
+    """
+    from . import attempts, model_attribution
+    from ..provider_policy.home import credential_state
+    if type(mount) is not HomeMount:
+        raise HomeRefusal("credential recovery requires the held manager home")
+    decision_id = _recovery_id(decision_id)
+    if authorize_retry is not None:
+        _recovery_id(authorize_retry)
+    place = location(mount.root, mount.identity)
+    with _directory(place) as fd:
+        _private(fd)
+        fcntl.flock(fd, fcntl.LOCK_EX)
+        home, _, _ = mount.boundary()
+        record = _read(fd, "credential.json")
+        if type(record) is not dict:
+            raise HomeRefusal("credential recovery requires retained initialization evidence")
+        path = record.get("path")
+        _credential_receipt(record, path)
+        selected = model_attribution.selection_of(control, mount.attempt_id)
+        if (selected is None or selected["home_root"] != mount.root
+                or selected["delivery"]["home_identity"] != mount.identity
+                or selected["delivery"]["attempt_id"] != mount.attempt_id
+                or selected["delivery"]["contract"]["adapter"]["credential"] != {"mode": "seeded-retained", "path": path}):
+            raise HomeRefusal("credential recovery requires the exact manager selection and home binding")
+        if record["receipt_id"] != receipt_id:
+            raise HomeRefusal("credential recovery receipt identity disagrees")
+        history_name = "credential-withdrawal-" + receipt_id + ".json"
+        history = _read(fd, history_name)
+        if record["state"] in ("withdrawn", "authorized") and authorize_retry is None:
+            if history is None or history["decision_id"] != decision_id:
+                raise HomeRefusal("credential recovery decision identity disagrees")
+            return history
+        evidence = attempts.provider_home_cessation_of(control, mount.attempt_id)
+        if (evidence is None or evidence.get("attempt_id") != mount.attempt_id
+                or evidence.get("runtime") != "not-started" or evidence.get("ended_before_start") is not True):
+            raise HomeRefusal("credential recovery requires a fenced never-started holder")
+        if record["state"] == "ready" or credential_state(home, path) != "empty" or _home_snapshot(home) != record["home_snapshot"]:
+            raise HomeRefusal("credential recovery requires never-successful initialization and unchanged home")
+        if authorize_retry is not None:
+            if (record["state"] not in ("withdrawn", "authorized") or history is None
+                    or history["decision_id"] != decision_id):
+                raise HomeRefusal("credential retry authorization requires audited withdrawal first")
+            if record["state"] == "authorized" and record["authorization"] != authorize_retry:
+                raise HomeRefusal("credential retry authorization identity disagrees")
+            authorized = dict(record, state="authorized", authorization=authorize_retry)
+            _write(fd, authorized, "credential.json")
+            return {"receipt_id": receipt_id, "decision_id": decision_id, "authorization": authorize_retry, "state": "authorized"}
+        if record["state"] != "initializing":
+            raise HomeRefusal("only a failed first-initialization receipt can be withdrawn")
+        audit = {"schema": "baton.credential-withdrawal/1", "decision_id": decision_id,
+                 "original_receipt": record, "holder": mount.attempt_id,
+                 "runtime_evidence": evidence, "home_unchanged": True}
+        if history is not None and history != audit:
+            raise HomeRefusal("credential withdrawal audit disagrees")
+        if history is None:
+            _write(fd, audit, history_name)
+        _write(fd, dict(record, state="withdrawn", decision_id=decision_id), "credential.json")
+        return audit
+
 
 
 def status_of(root, bound):

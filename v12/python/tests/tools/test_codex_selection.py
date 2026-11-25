@@ -22,9 +22,11 @@ class CodexComposition(unittest.TestCase):
         values.update(changes)
         return self.fixture.composing(**values)["worker"]
 
-    def test_no_production_realization_can_be_composed(self):
-        with self.assertRaises(pool.PoolRefusal):
-            self.compose()
+    def test_production_realization_can_be_composed_without_activation(self):
+        worker = self.compose()
+        adapter = pool.admitted(self.fixture.held, worker, "fixture-principal")["deployment"]["provider_contract"]["adapter"]
+        self.assertEqual(adapter["credential"], {"mode": "seeded-retained", "path": "codex/auth.json"})
+        self.assertEqual(adapter["environment_policy"]["CODEX_HOME"], policy.HOME + "/codex")
 
     def test_composition_binds_codex_slot_entry_and_role(self):
         with fixture.simulated(policy):
@@ -94,8 +96,7 @@ class CodexServiceTier(unittest.TestCase):
         policy.selection(claude)
         with self.assertRaises(policy.PolicyRefusal):
             policy.selection(dict(claude, service_tier="fast"))
-        with self.assertRaises(policy.PolicyRefusal):
-            policy.selection(TIERED)  # No production Codex realization.
+        self.assertEqual(policy.selection(TIERED), TIERED)  # Capability, not execution selection.
 
     def test_unset_keeps_every_identity_and_fast_is_a_different_one(self):
         with fixture.simulated(policy):

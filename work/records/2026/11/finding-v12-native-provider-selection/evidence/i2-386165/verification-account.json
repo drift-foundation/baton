@@ -1,0 +1,85 @@
+{
+  "runs": {
+    "baseline": {
+      "collected": 343,
+      "executed": 343,
+      "passed": 340,
+      "duration_seconds": 2.8158886089222506,
+      "exit_status": 1,
+      "timed_out": false
+    },
+    "correction": {
+      "collected": 18,
+      "executed": 18,
+      "passed": 18,
+      "duration_seconds": 1.56506037293002,
+      "exit_status": 0,
+      "timed_out": false
+    },
+    "final": {
+      "collected": 1238,
+      "executed": 1238,
+      "passed": 1234,
+      "duration_seconds": 53.86804101394955,
+      "exit_status": 1,
+      "timed_out": false
+    },
+    "final2": {
+      "collected": 1240,
+      "executed": 1240,
+      "passed": 1236,
+      "duration_seconds": 54.21580736897886,
+      "exit_status": 1,
+      "timed_out": false
+    },
+    "final3": {
+      "collected": 1240,
+      "executed": 1240,
+      "passed": 1237,
+      "duration_seconds": 54.26317171100527,
+      "exit_status": 1,
+      "timed_out": false
+    },
+    "iteration1": {
+      "collected": 343,
+      "executed": 343,
+      "passed": 333,
+      "duration_seconds": 2.765949974069372,
+      "exit_status": 1,
+      "timed_out": false
+    },
+    "iteration2": {
+      "collected": 388,
+      "executed": 388,
+      "passed": 379,
+      "duration_seconds": 7.4703631709562615,
+      "exit_status": 1,
+      "timed_out": false
+    },
+    "iteration3": {
+      "collected": 390,
+      "executed": 390,
+      "passed": 384,
+      "duration_seconds": 7.620211419067346,
+      "exit_status": 1,
+      "timed_out": false
+    },
+    "iteration4": {
+      "collected": 390,
+      "executed": 390,
+      "passed": 387,
+      "duration_seconds": 7.169843076961115,
+      "exit_status": 1,
+      "timed_out": false
+    },
+    "joined1": {
+      "collected": 1237,
+      "executed": 1237,
+      "passed": 1233,
+      "duration_seconds": 53.460751301958226,
+      "exit_status": 1,
+      "timed_out": false
+    }
+  },
+  "cumulative_seconds": 245.21508801879827
+}

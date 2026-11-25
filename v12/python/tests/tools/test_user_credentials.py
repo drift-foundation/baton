@@ -1758,3 +1758,26 @@ class TwoInvocationContextsConsumeDistinctEverything(_Seam):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SubscriptionFiles(_Fixture):
+    def test_exact_byte_reader_bounds_preserve_whitespace_and_invalid_utf8(self):
+        from baton_v12.provider_policy.home import MAX_SUBSCRIPTION_BYTES
+        for size in (0, MAX_SUBSCRIPTION_BYTES - 1, MAX_SUBSCRIPTION_BYTES, MAX_SUBSCRIPTION_BYTES + 1):
+            with self.subTest(size=size):
+                raw = b"\xc3\xa9" * (size // 2) + (b"\xff" if size % 2 else b"")
+                source = self.private("file-" + str(size), raw)
+                config = self.registry("registry-"+str(size), [{"provider": "synthetic", "reference": "synthetic", "path": source}])
+                reader = self.resolver(config)
+                if 0 < size <= MAX_SUBSCRIPTION_BYTES:
+                    self.assertEqual(reader.resolve_file("synthetic", "synthetic"), raw)
+                else:
+                    with self.assertRaises(user_credentials.SourceRefusal) as raised: reader.resolve_file("synthetic", "synthetic")
+                    self.assertNamesNoPath(raised.exception)
+                    self.assertNotIn("é", str(raised.exception))
+                if size:
+                    with self.assertRaises(user_credentials.SourceRefusal): reader("synthetic", "synthetic")
+        raw = b" \r\nsynthetic file \xff\n"
+        source = self.private("whitespace", raw)
+        config = self.registry("whitespace-registry", [{"provider": "synthetic", "reference": "synthetic", "path": source}])
+        self.assertEqual(self.resolver(config).resolve_file("synthetic", "synthetic"), raw)

@@ -1166,6 +1166,24 @@ class QualificationCredentialPreparation(unittest.TestCase):
         with self.assertRaisesRegex(provider_home.HomeRefusal, "credential recovery required"):
             self.prepare()
 
+    def test_subscription_byte_bounds_and_exact_copy(self):
+        from baton_v12.provider_policy.home import MAX_SUBSCRIPTION_BYTES
+        for size in (0, MAX_SUBSCRIPTION_BYTES - 1, MAX_SUBSCRIPTION_BYTES, MAX_SUBSCRIPTION_BYTES + 1):
+            with self.subTest(size=size):
+                run = self.root / ("bound-" + str(size)); run.mkdir(mode=0o700)
+                raw = b"\xc3\xa9" * (size // 2) + (b"\xff" if size % 2 else b"")
+                self.source.write_bytes(raw)
+                if not 0 < size <= MAX_SUBSCRIPTION_BYTES:
+                    with self.assertRaises(ValueError) as raised: self.prepare(execution_root=str(run))
+                    self.assertNotIn("é", str(raised.exception))
+                else:
+                    self.prepare(execution_root=str(run))
+                    target = run / "live/home/synthetic-codex/synthetic-auth"
+                    self.assertEqual(target.read_bytes(), raw)
+                    target.write_bytes(b"x" * (MAX_SUBSCRIPTION_BYTES+1))
+                    from baton_v12.provider_policy import PolicyRefusal
+                    with self.assertRaises(PolicyRefusal): self.prepare(execution_root=str(run))
+
 
 class CodexToClaude(SelectedBase):
     """Synthetic providers at normal invocation boundary; real pipeline owners."""
@@ -1173,8 +1191,6 @@ class CodexToClaude(SelectedBase):
         super().setUp()
         import provider_policy as worker_policy
         from tests.manager import codex_fixtures
-        self.enterContext(codex_fixtures.simulated(policy))
-        self.enterContext(codex_fixtures.simulated(worker_policy))
         self.codex_selected = dict(codex_fixtures.SELECTED)
         adapter = policy.adapter(self.codex_selected, network=self.config["network"])
         profile = dict(self.config["provider_contract"]["runtime_profile"], provider="codex", cli_build="0.169.0")
@@ -1184,7 +1200,17 @@ class CodexToClaude(SelectedBase):
         self.submission["jobs"][0]["stages"][0]["profile_digest"] = self.codex_profile
 
     def serving(self, **members):
-        answer = super().serving(**members)
+        from tools import stage_execution
+        original = stage_execution.operations_from
+        secret = self.secret
+        class SyntheticSources:
+            def __call__(self, *args): return secret
+            def resolve_file(self, *args): return b"SYNTHETIC SUBSCRIPTION FILE\n"
+        def compose(*args, **kwargs):
+            kwargs["credential_provider"] = SyntheticSources()
+            return original(*args, **kwargs)
+        with mock.patch.object(stage_execution, "operations_from", side_effect=compose):
+            answer = super().serving(**members)
         self.image_test_control = answer[1]
         return answer
 
@@ -1227,6 +1253,9 @@ class CodexToClaude(SelectedBase):
                 os.write(options["stdout"], b"codex-cli 0.169.0\n")
             else:
                 self.invocations.append(list(argv))
+                self.assertEqual(options["env"]["CODEX_HOME"], options["env"]["HOME"] + "/codex")
+                self.assertEqual(Path(options["env"]["HOME"], "instructions/WORKER.md").read_bytes(), policy.worker_instructions())
+                self.assertEqual(Path(options["env"]["CODEX_HOME"], "auth.json").read_bytes(), b"SYNTHETIC SUBSCRIPTION FILE\n")
                 for name, body in (operands.get("edits") or {}).items():
                     self.write(os.path.join(options["cwd"], name), body)
                 raw = (Path(__file__).parents[1]/"manager/fixtures/codex-0.169.0/turn-success.sanitized.jsonl").read_bytes()

@@ -1,0 +1,7 @@
+[
+  "tests.manager.test_provider_home",
+  "tests.manager.test_credentials",
+  "tests.manager.test_secrets",
+  "tests.tools.test_user_credentials",
+  "tests.tools.test_provider_selection.QualificationCredentialPreparation"
+]

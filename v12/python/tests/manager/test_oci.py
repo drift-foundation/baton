@@ -2488,6 +2488,16 @@ class LaunchedImageEvidence(Adapting):
             self.assertEqual(image["started_at"], "2026-11-25T00:00:00Z")
             self.assertIsNone(image["resolution"])
 
+    def test_bare_podman_image_ids_are_normalized_from_engine_evidence(self):
+        observed, _ = self.observed(self.document(image=IMAGE[7:]))
+        self.assertEqual(observed["image_observation"]["image_id"], IMAGE)
+        image = "f"*64
+        observed, _ = self.observed(self.document(image=image), answer(stdout=json.dumps({"Id": image, "RepoDigests": ["fixture@"+IMAGE]})))
+        self.assertEqual(observed["image_observation"]["resolution"], {"image_id": "sha256:"+image, "registry_digest": IMAGE})
+        for invalid in ("image-tag", "F"*64, "f"*63):
+            observed, _ = self.observed(self.document(image=invalid))
+            self.assertIsNone(observed["image_observation"])
+
     def test_created_only_or_malformed_start_has_no_receipt(self):
         for stamp in (None, "", "0001-01-01T00:00:00Z", "2026-11-25T00:00:00", "untrusted text"):
             observed, _ = self.observed(self.document(started=stamp))

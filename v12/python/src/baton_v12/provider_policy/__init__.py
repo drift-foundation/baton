@@ -39,19 +39,32 @@ REALIZATIONS = {
         "model_substitution": {"selector_argument": "--model", "fallback": None},
     },
 }
-# No Codex realization is invented before its separately selected inventory.
+# Pinned 0.169.0 inventory and authenticated detached-probe path evidence.
+# This source mapping is not native image/engine qualification.
+REALIZATIONS["codex"] = {
+    "interaction": {"program": "codex", "before_permissions": ["exec"],
+                    "after_permissions": ["--ignore-user-config", "--ignore-rules", "--json"]},
+    "tool_permission": ["--dangerously-bypass-approvals-and-sandbox"],
+    "provider_sandbox": "container",
+    "user_configuration": "private-home-managed-worker-instructions",
+    "credentials": {"mode": "seeded-retained", "path": "codex/auth.json"},
+    "environment": dict(ENVIRONMENT, CODEX_HOME=HOME + "/codex"),
+    "ephemera": "fresh-scratch-roots",
+    "model_substitution": {"selector_argument": "--model", "fallback": None},
+}
 # W385853: what Baton itself places in a selected provider home, and which
 # launch roles the realization serves. One closed entry per provider; the
 # bytes are the packaged copy of docs/V12-WORKER-INSTRUCTIONS.md.
 INSTRUCTIONS_FILE = "worker_instructions.md"
 INSTRUCTIONS_KIND = "worker-instructions"
 INSTRUCTIONS_BOUND = 16384
-MANAGED = {"claude": {"path": ".claude/CLAUDE.md", "kind": INSTRUCTIONS_KIND}}
+MANAGED = {"claude": {"path": ".claude/CLAUDE.md", "kind": INSTRUCTIONS_KIND},
+           "codex": {"path": "instructions/WORKER.md", "kind": INSTRUCTIONS_KIND}}
 LABEL_SCHEMA = "baton.native-worker-context/1"
 LABEL_BOUND = 2048
 LABEL_ROLES = {"claude": ["implementation", "review"], "codex": ["implementation"]}
 # Entry and delivered-slot names are host/worker interface facts, not vendor
-# credential filenames. Codex still has no REALIZATIONS or MANAGED entry (J1).
+# credential filenames. They do not select a credential source.
 ENTRYPOINTS = {"claude": ["python3", "/opt/baton/dogfood_entry.py"],
                "codex": ["python3", "/opt/baton/codex_entry.py"]}
 CREDENTIAL_SLOTS = {"claude": "claude", "codex": "codex"}

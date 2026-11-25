@@ -1,7 +1,7 @@
 """Synthetic Codex policy for offline seam tests, NEVER vendor path evidence.
 
-Production deliberately has no Codex realization. These patch-only names let
-ordinary policy/delivery/home owners run while J1 remains unresolved.
+These deliberately different paths test policy-driven ownership independently
+of the production mapping. Native image and provider qualification stay separate.
 """
 from contextlib import contextmanager, ExitStack
 from copy import deepcopy

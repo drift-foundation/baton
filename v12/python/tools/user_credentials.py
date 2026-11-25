@@ -572,7 +572,11 @@ class UserCredentialSources:
     def __call__(self, provider, reference):
         return self.resolve(provider, reference)
 
-    def resolve(self, provider, reference):
+    def resolve_file(self, provider, reference):
+        """Explicit subscription-file selection; token behavior is unchanged."""
+        return self.resolve(provider, reference, subscription_file=True)
+
+    def resolve(self, provider, reference, *, subscription_file=False):
         """The bearer for EXACTLY this provider and this reference.
 
         THE TWO OPERANDS ARE THE SELECTION. They arrive from
@@ -611,8 +615,13 @@ class UserCredentialSources:
                     f"those is this reader choosing a credential the trusted "
                     f"profile did not name")
         # EXACTLY ONE, because `held_registry` refuses a duplicated pair.
-        raw = _proved_read(chosen[0]["path"], limit=self.max_bearer,
+        from baton_v12.provider_policy.home import MAX_SUBSCRIPTION_BYTES
+        raw = _proved_read(chosen[0]["path"], limit=MAX_SUBSCRIPTION_BYTES if subscription_file else self.max_bearer,
                            what=f"the credential source for {named}")
+        if subscription_file:
+            if not raw:
+                _refuse("subscription-login file is incomplete")
+            return raw
         try:
             # STRIPPED OF THE SURROUNDING WHITESPACE AN EDITOR ADDS, which is
             # what the operand this replaces did and is not part of a secret.

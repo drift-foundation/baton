@@ -577,3 +577,119 @@ class SharedProviderPackageBoundary(unittest.TestCase):
                     role="implementation", transport=baton_worker.EXCHANGE_TRANSPORT,
                     job_execution=job, provider_selection=delivered)
             self.assertIn("another Job or attempt", str(caught.exception))
+
+
+class SubscriptionFileBounds(unittest.TestCase):
+    setUp = WorkerHomePreparation.setUp
+
+    def test_byte_bounds_first_seed_and_retained_validation(self):
+        from baton_v12.provider_policy.home import MAX_SUBSCRIPTION_BYTES, prepare, credential_state
+        from baton_v12.provider_policy import PolicyRefusal
+        for length in (0, MAX_SUBSCRIPTION_BYTES - 1, MAX_SUBSCRIPTION_BYTES, MAX_SUBSCRIPTION_BYTES + 1):
+            with self.subTest(length=length):
+                home = self.root / ("home-" + str(length)); home.mkdir(mode=0o700)
+                raw = (b"\xc3\xa9" * (length // 2)) + (b"\xff" if length % 2 else b"")
+                self.seed.write_bytes(raw)
+                call = lambda: prepare(str(home), credential_path="codex/auth.json", delivered=str(self.seed), mode="seeded-retained")
+                if 0 < length <= MAX_SUBSCRIPTION_BYTES:
+                    call()
+                    self.assertEqual((home / "codex/auth.json").read_bytes(), raw)
+                    self.assertEqual(credential_state(str(home), "codex/auth.json"), "ready")
+                    for invalid_size in (0, MAX_SUBSCRIPTION_BYTES + 1):
+                        (home / "codex/auth.json").write_bytes(b"x" * invalid_size)
+                        with self.assertRaises(PolicyRefusal): call()
+                        self.assertEqual((home / "codex/auth.json").stat().st_size, invalid_size)
+                else:
+                    with self.assertRaises(PolicyRefusal) as raised: call()
+                    self.assertNotIn("é", str(raised.exception))
+                    self.assertFalse((home / "codex/auth.json").exists())
+
+
+class FailedInitializationRecovery(unittest.TestCase):
+    def setUp(self):
+        from baton_v12.worker_manager import ControlStore, attempts
+        self.temp = tempfile.TemporaryDirectory(dir=disk_backed_root()); self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        from tests.manager import test_attempts as fixtures
+        self.case = fixtures.TheRuntimeIsStartedOnceAndReconciled("runTest")
+        self.addCleanup(self.case.doCleanups); self.case.setUp()
+        self.case.activated()
+        self.control = self.case.store
+        self.kw = dict(authority_uuid="synthetic-authority", job_id="synthetic-job", worker_id="synthetic-worker", attempt_id=fixtures.ATTEMPT)
+        from baton_v12.worker_manager import model_attribution
+        from tests.manager import provider_fixtures
+        selected = provider_fixtures.delivery(attempt=self.kw["attempt_id"], job=self.kw["job_id"], worker=self.kw["worker_id"], authority=self.kw["authority_uuid"], provider="codex", cli_build="0.169.0")
+        model_attribution.select(self.control, selected, phase="implementation", logs_root=str(self.root / "logs"), home_root=str(self.root / "homes"))
+        homes.acquire(str(self.root / "homes"), **self.kw)
+        self.mount = homes.HomeMount(str(self.root / "homes"), **self.kw)
+        self.home = Path(self.mount.boundary()[0]); self.state = self.home.parent
+        def fail(): raise OSError("synthetic source unavailable before copy")
+        with self.assertRaises(OSError): self.mount.initialize_credential("codex/auth.json", fail)
+        self.original = json.loads((self.state / "credential.json").read_text())
+        self.args = dict(receipt_id=self.original["receipt_id"], decision_id="synthetic-decision")
+
+    def fence(self):
+        from baton_v12.worker_manager import attempts
+        from baton_v12.contracts import ContractRefusal
+        with self.assertRaises(ContractRefusal):
+            attempts.refuse_runtime_preparation(self.control, attempt_id=self.kw["attempt_id"], refusal=ContractRefusal("refused", "precondition", "synthetic preparation failure"))
+        self.assertTrue(attempts.provider_home_cessation_of(self.control, self.kw["attempt_id"])["ended_before_start"])
+        engine = mock.Mock()
+        with self.assertRaises(ContractRefusal): attempts.request_runtime_start(self.control, engine, attempt_id=self.kw["attempt_id"])
+        engine.start.assert_not_called()
+
+    def recover(self, **kw):
+        return homes.recover_failed_initialization(self.mount, self.control, **dict(self.args, **kw))
+
+    def test_no_fence_no_withdrawal_and_no_automatic_retry(self):
+        with self.assertRaises(homes.HomeRefusal): self.recover()
+        with self.assertRaises(homes.HomeRefusal): self.mount.initialize_credential("codex/auth.json", mock.Mock())
+        self.assertEqual(json.loads((self.state / "credential.json").read_text()), self.original)
+
+    def test_explicit_withdrawal_is_idempotent_separate_authorization_and_new_receipt(self):
+        self.fence()
+        audit = self.recover()
+        self.assertEqual(audit["original_receipt"], self.original)
+        self.assertEqual(self.recover(), audit)
+        self.assertEqual(len(list(self.state.glob("credential-withdrawal-*.json"))), 1)
+        with self.assertRaises(homes.HomeRefusal): self.mount.initialize_credential("codex/auth.json", mock.Mock())
+        self.recover(authorize_retry="synthetic-retry-decision")
+        from baton_v12.provider_policy.home import prepare
+        seed = self.root / "synthetic-seed"; seed.write_bytes(b"synthetic file bytes"); seed.chmod(0o600)
+        self.mount.initialize_credential("codex/auth.json", lambda: prepare(str(self.home), credential_path="codex/auth.json", delivered=str(seed), mode="seeded-retained"))
+        current = json.loads((self.state / "credential.json").read_text())
+        self.assertNotEqual(current["receipt_id"], self.original["receipt_id"])
+        self.assertEqual(current["previous_receipt"], self.original["receipt_id"])
+        self.assertEqual(current["state"], "ready")
+        self.assertEqual(json.loads(next(self.state.glob("credential-withdrawal-*.json")).read_text()), audit)
+        with self.assertRaises(homes.HomeRefusal): self.recover(receipt_id=current["receipt_id"])
+
+    def test_concurrent_repeat_has_one_audit(self):
+        from concurrent.futures import ThreadPoolExecutor
+        self.fence()
+        # Each contender has its own control connection, as real host callers do.
+        from baton_v12.worker_manager import ControlStore
+        def contender(_):
+            with ControlStore.open(self.control.database, incarnation="synthetic-contender", clock=lambda: "2026-11-25T00:00:00.000Z") as control:
+                return homes.recover_failed_initialization(self.mount, control, **self.args)
+        with ThreadPoolExecutor(max_workers=2) as pool: answers = list(pool.map(contender, range(2)))
+        self.assertEqual(answers[0], answers[1])
+        self.assertEqual(len(list(self.state.glob("credential-withdrawal-*.json"))), 1)
+
+    def test_changed_home_and_wrong_receipt_keep_evidence(self):
+        self.fence()
+        with self.assertRaises(homes.HomeRefusal): self.recover(receipt_id="0"*32)
+        marker = self.home / "private-state"; marker.write_bytes(b"synthetic private state")
+        with self.assertRaises(homes.HomeRefusal): self.recover()
+        marker.unlink()  # Restoring entries still changed directory ctime.
+        with self.assertRaises(homes.HomeRefusal): self.recover()
+        self.assertEqual(json.loads((self.state / "credential.json").read_text()), self.original)
+        self.assertEqual(list(self.state.glob("credential-withdrawal-*.json")), [])
+
+    def test_foreign_manager_home_binding_cannot_authorize_withdrawal(self):
+        self.fence()
+        from baton_v12.worker_manager import model_attribution
+        actual = model_attribution.selection_of(self.control, self.kw["attempt_id"])
+        for changed in (None, dict(actual, home_root=str(self.root / "other")), dict(actual, delivery=dict(actual["delivery"], home_identity=dict(actual["delivery"]["home_identity"], job_id="foreign")))):
+            with mock.patch.object(model_attribution, "selection_of", return_value=changed), self.assertRaises(homes.HomeRefusal): self.recover()
+        self.assertEqual(json.loads((self.state / "credential.json").read_text()), self.original)

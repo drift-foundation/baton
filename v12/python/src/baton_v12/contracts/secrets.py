@@ -60,6 +60,7 @@ _FORBIDDEN = frozenset(SECRET_MEMBERS)
 # arithmetic — never around a walk, which would make every durable write
 # contend on one mutex.
 _live = {}
+_file_live = {}
 _lock = threading.Lock()
 
 
@@ -162,7 +163,7 @@ def _snapshot():
     admitted in another, which is a decision that depends on traversal order.
     """
     with _lock:
-        return tuple(_live)
+        return (*_live, *_file_live)
 
 
 def _carries_live_secret(text, live=None):
@@ -186,7 +187,7 @@ def _carries_live_secret(text, live=None):
     if type(text) is not str:
         return False
     for secret in _live_values() if live is None else live:
-        if secret in text:
+        if (secret in text.encode("utf-8", errors="surrogatepass") if type(secret) is bytes else secret in text):
             return True
     return False
 
@@ -211,11 +212,15 @@ def check_no_durable_secret(document, what="a durable surface"):
 
 
 def _walk(node, what, live):
+    if type(node) is bytes:
+        if any((secret if type(secret) is bytes else secret.encode("utf-8", errors="surrogatepass")) in node for secret in live):
+            raise ContractRefusal("integrity", "secret-leak", "a durable byte surface carries a live secret")
+        return
     if type(node) is str:
         for secret in live:
             # CONTAINMENT. A message that interpolated the bearer carries it
             # just as durably as a member that held it alone.
-            if secret in node:
+            if (secret in node.encode("utf-8", errors="surrogatepass") if type(secret) is bytes else secret in node):
                 raise ContractRefusal(
                     "integrity", "secret-leak",
                     f"{what} carries a live bearer value; §13 keeps the one "
@@ -244,3 +249,24 @@ def _walk(node, what, live):
         # durable as one whose value is -- canonical JSON stores both.
         _walk(member, what, live)
         _walk(value, what, live)
+
+
+def remember_file_secret(value):
+    """Register exact subscription-file bytes without decoding or normalization."""
+    if type(value) is not bytes or not value:
+        raise ContractRefusal("integrity", "schema", "a file secret must contain bytes")
+    with _lock:
+        _file_live[value] = _file_live.get(value, 0) + 1
+    return value
+
+
+def forget_file_secret(value):
+    if type(value) is not bytes:
+        raise ContractRefusal("integrity", "schema", "a released file secret must contain bytes")
+    with _lock:
+        count = _file_live.get(value, 0)
+        if count > 1:
+            _file_live[value] = count - 1
+            return True
+        _file_live.pop(value, None)
+        return False

@@ -263,6 +263,64 @@ class ImageReceiptRecovery(unittest.TestCase):
         self.assertEqual(self.evidence(), (receipt, None))
 
 
+    def test_late_resolution_supplements_without_rewriting_initial_receipt(self):
+        image = "sha256:" + "f" * 64
+        base = dict(self.case.image_observation, image_id=image)
+        self.case.observe_image(base)
+        initial, cause = self.evidence(); self.assertEqual(cause, "launched-image-mismatch")
+        resolved = dict(base, resolution={"image_id": image, "registry_digest": self.case.image_observation["image_id"]})
+        self.case.observe_image(resolved)
+        receipt, cause = self.evidence(); self.assertIsNone(cause)
+        self.assertEqual(model_attribution._read(self.case.control, self.receipts.KIND, self.case.attempt_id), initial)
+        self.case.observe_image(base); self.case.observe_image(resolved)
+        self.assertEqual(self.evidence(), (receipt, None))
+        self.case.ready()
+        binding = publication_recovery.admission_for(self.case.jobs, self.case.recovery_job_id)["candidate"]["model_attribution"]
+        self.assertEqual(binding["launched_image"], receipt)
+        with ControlStore.open(self.case.control.database, incarnation="supplement-reopen", clock=self.case.clock) as reopened:
+            self.assertEqual(model_attribution.require_recovery(reopened, binding), binding)
+
+    def test_late_resolution_cannot_change_frozen_recovery_binding(self):
+        base = self.case.image_observation
+        self.case.observe_image(base)
+        self.case.ready()
+        previous = publication_recovery.admission_for(self.case.jobs, self.case.recovery_job_id)["candidate"]["model_attribution"]
+        self.case.observe_image(dict(base, resolution={"image_id": base["image_id"], "registry_digest": base["image_id"]}))
+        self.assertIsNone(self.evidence()[1])
+        with self.assertRaises(ContractRefusal): model_attribution.require_recovery(self.case.control, previous)
+        self.assertEqual(publication_recovery.admission_for(self.case.jobs, self.case.recovery_job_id)["candidate"]["model_attribution"], previous)
+
+    def test_malformed_resolution_supplement_holds(self):
+        self.case.observe_image(self.case.image_observation)
+        initial, _ = self.evidence()
+        from baton_v12.contracts import digest
+        supplement = dict(initial, initial_receipt_digest=digest(initial), observation=None)
+        actual = model_attribution._read
+        def read(control, kind, attempt):
+            return supplement if kind == self.receipts.KIND + "-resolution" else actual(control, kind, attempt)
+        with mock.patch.object(model_attribution, "_read", side_effect=read):
+            self.assertEqual(self.evidence()[1], "launched-image-invalid")
+
+    def test_same_container_restart_is_a_second_execution_and_holds(self):
+        self.case.observe_image(self.case.image_observation)
+        state, _, _ = self.case.observe_image(dict(self.case.image_observation, started_at="2026-11-25T00:01:00Z"))
+        self.assertEqual(state, "quiescent")
+        self.assertEqual(self.evidence()[1], "launched-image-invalid")
+
+    def test_contract_refusal_does_not_lose_cessation_or_accept_prior_image(self):
+        self.case.observe_image(self.case.image_observation)
+        actual = model_attribution._write
+        def refused(control, kind, attempt, value):
+            if kind == self.receipts.KIND + "-conflict":
+                raise ContractRefusal("refused", "precondition", "synthetic image journal refusal")
+            return actual(control, kind, attempt, value)
+        with mock.patch.object(model_attribution, "_write", side_effect=refused):
+            state, _, _ = self.case.observe_image(dict(self.case.image_observation, image_id="sha256:" + "f"*64))
+        self.assertEqual(state, "quiescent")
+        self.assertEqual(self.evidence()[1], "launched-image-refused")
+        with ControlStore.open(self.case.control.database, incarnation="refusal-reopen", clock=self.case.clock) as reopened:
+            self.assertEqual(self.receipts.evidence(reopened, self.case.attempt_id, model_attribution.selection_of(reopened, self.case.attempt_id))[1], "launched-image-refused")
+
     def test_lost_receipt_reply_replays_without_rewriting_observation(self):
         actual = model_attribution._write
         def lost(control, kind, attempt, value):

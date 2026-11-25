@@ -2712,3 +2712,49 @@ class TheOrphanEndingFollowsNoPathAndReadsNoRecord(CredentialCase):
         self.assertTrue(os.path.exists(marker),
                         "a path out of a record was followed and removed")
         self.assertFalse(os.path.exists(home.state_path("attempt-1")))
+
+
+class SubscriptionFileDelivery(CredentialCase):
+    def test_exact_bytes_below_at_above_limit_and_empty(self):
+        from baton_v12.provider_policy.home import MAX_SUBSCRIPTION_BYTES
+        from baton_v12.contracts.secrets import forget_file_secret, check_no_durable_secret
+        for length in (0, MAX_SUBSCRIPTION_BYTES - 1, MAX_SUBSCRIPTION_BYTES, MAX_SUBSCRIPTION_BYTES + 1):
+            with self.subTest(length=length):
+                raw = b"\xc3\xa9" * (length // 2) + (b"\xff" if length % 2 else b"")
+                call = lambda: self.home().materialize(credentials.resolved_delivery(["api"], profile=PROFILE), attempt_id="file-" + str(length), workspace_group=self.group, credential_provider=lambda *args: raw, file_slots=["api"])
+                if not 0 < length <= MAX_SUBSCRIPTION_BYTES:
+                    with self.assertRaises(ContractRefusal) as raised: call()
+                    self.assertNotIn("é", str(raised.exception))
+                    continue
+                delivered = call()
+                source, target = delivered.mounts()[0]
+                with open(source, "rb") as stream: self.assertEqual(stream.read(), raw)
+                with self.assertRaises(ContractRefusal): check_no_durable_secret({"nested": [raw]})
+                record = self.home().written_state("file-" + str(length), delivered.record(runtime_id="synthetic-runtime"))
+                forget_file_secret(raw)
+                adopted = self.home().adopt(record, attempt_id="file-"+str(length), runtime_id="synthetic-runtime", workspace_group=self.group, file_slots=["api"])
+                with self.assertRaises(ContractRefusal): check_no_durable_secret(raw)
+                self.home().tear_down(adopted)
+                check_no_durable_secret(raw)
+
+    def test_file_selection_does_not_relax_legacy_token_limit_or_type(self):
+        for raw in ("x"*4097, b"synthetic bytes"):
+            with self.assertRaises(ContractRefusal): self.home().materialize(credentials.resolved_delivery(["api"], profile=PROFILE), attempt_id="legacy", workspace_group=self.group, credential_provider=lambda *args: raw)
+        for slots in (["absent"], ["api", "api"], "api"):
+            with self.assertRaises(ContractRefusal): self.delivery(file_slots=slots)
+
+    def test_file_secret_registry_preserves_nested_ownership_and_safe_diagnostics(self):
+        from baton_v12.contracts.secrets import remember_file_secret, forget_file_secret, check_no_durable_secret
+        raw = "synthetic multi-byte é file\n".encode()
+        remember_file_secret(raw); remember_file_secret(raw)
+        try:
+            for value in (raw, {"nested": [raw.decode()]}, {raw.decode(): "value"}):
+                with self.assertRaises(ContractRefusal): check_no_durable_secret(value)
+            with self.assertRaises(ContractRefusal) as refused:
+                ContractRefusal("refused", "precondition", "unsafe " + raw.decode())
+            self.assertNotIn(raw.decode(), str(refused.exception))
+            self.assertTrue(forget_file_secret(raw))
+            with self.assertRaises(ContractRefusal): check_no_durable_secret(raw.decode())
+        finally:
+            while forget_file_secret(raw): pass
+        check_no_durable_secret(raw.decode())

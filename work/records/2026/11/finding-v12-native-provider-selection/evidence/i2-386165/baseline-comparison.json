@@ -1,0 +1,16 @@
+{
+  "baseline_failed_ids": {
+    "tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_every_durable_writer_is_covered": "FAIL",
+    "tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_no_declared_coverage_is_stale": "FAIL",
+    "tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor.test_every_exported_callable_is_in_exactly_one_class": "FAIL"
+  },
+  "final_failed_ids": {
+    "tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_every_durable_writer_is_covered": "FAIL",
+    "tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_no_declared_coverage_is_stale": "FAIL",
+    "tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor.test_every_exported_callable_is_in_exactly_one_class": "FAIL"
+  },
+  "failure_blocks": 2,
+  "failure_text_exactly_equal": true,
+  "waived": false,
+  "final_run_passed": false
+}

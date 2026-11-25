@@ -45,8 +45,8 @@ argv, configuration echoes and the selection itself are never read as one.
 The tier adds no hold cause. The retained 0.169.0 `exec` help evidences
 `-c <key=value>` with a TOML value. It does not evidence that this build
 recognizes `service_tier`, or how the key combines with
-`--ignore-user-config`; both stay qualification observations, and no Codex
-realization exists yet for any of this to run under.
+`--ignore-user-config`; both stay qualification observations. The production
+realization supports explicit selection but does not select fast mode.
 
 ## Attribution
 
@@ -177,8 +177,9 @@ belongs to the separately selected qualification turn.
 
 Deterministic fixtures simulate providers and engines while exercising real
 local admission, worker execution, Git fixture repositories, freezing, custody
-and handoff. A simulated Codex realization tests shared-policy admission only;
-it is not a Codex implementation or qualification. No container/image/provider
+and handoff. Synthetic path-table fixtures test shared-policy admission; the
+production-mapping pipeline also runs with deterministic providers. Neither is
+native engine or provider qualification. No container/image/provider
 qualification is implied, and existing installations require separately
 selected packaging and qualification before native use.
 
@@ -219,12 +220,44 @@ check it. The logical delivered credential slot is `codex`; this names the
 Baton mount, not the vendor credential file. Claude keeps its existing slot
 and legacy context path.
 
-Codex has no production realization or managed-entry path yet. The selected
-detached probe evidenced CODEX_HOME/auth.json lookup and authenticated completion;
-that does not install the native credential/home realization. Composition still
-refuses; no null or guessed credential path enables native use. Tests that temporarily
-install synthetic realization/path tables prove the shared mechanisms only.
-The Codex recipe is source-only and copies the same provider-policy package.
+The production Codex realization uses the retained 0.169.0 lookup and selected
+successful detached probe: `HOME=/run/baton/provider-home`,
+`CODEX_HOME=$HOME/codex`, credential `codex/auth.json`, managed worker instructions
+`instructions/WORKER.md`. These are part of the adapter identity. The explicit
+prompt label requires reading the delivered instructions; placement does not
+claim automatic vendor loading. The closed environment ignores ambient Codex
+configuration. Composition supports fresh implementation only. This source
+mapping does not qualify a built native worker image or select execution.
+
+The host automatically seeds each new Job/worker home once, from the configured
+source registry's exact provider/reference pair. Codex file delivery is explicit
+and byte-valued: `UserCredentialSources.resolve_file` preserves every byte,
+including whitespace and multibyte content. Delivery, first seed, retained-file
+validation and qualification copying all enforce **1 through 1,048,576 bytes**.
+An empty file is incomplete. Oversized files refuse without truncation or content
+in diagnostics. Legacy string-token bounds and Claude delivery remain unchanged.
+Restart preserves refreshed bytes without opening the original source; lost or
+invalid initialized credentials require recovery, never silent re-seeding.
+
+Failed first-initialization recovery is an explicit host API, never startup:
+`worker_manager.provider_home.recover_failed_initialization(mount, control,
+receipt_id=..., decision_id=...)`. Use the exact retained `HomeMount`, its control
+store and the external receipt identity. The API checks their admitted selection
+and home binding, exclusive home custody, a durable failed-preparation fence
+proving no runtime ever started, and an unchanged metadata snapshot of the home.
+It does not read credential contents. Legacy incomplete receipts without this
+snapshot, changed homes, successful initialization and other runtime states
+retain their hold. A directory restored after mutation still has changed ctime.
+
+Withdrawal keeps the original receipt and runtime proof in one immutable
+`credential-withdrawal-<receipt_id>.json` beside the home, outside its mount.
+Repeated/concurrent identical decisions return that audit. Before transferring
+custody, a separately authorized call with the same operands plus
+`authorize_retry=<new-decision-id>` records permission for a subsequent first
+initialization. Withdrawal alone permits no retry; authorization does not read a
+source or launch anything. The next initializer rechecks the snapshot and writes
+a new receipt linked to the old receipt and authorization. Normal claim/runtime
+and credential-access authority still apply. Never remove receipt files by hand.
 
 Codex 0.169.0 terminal parsing recognizes the retained fresh successful turn
 family: thread.started, turn.started, completed agent messages and paired
@@ -273,6 +306,15 @@ matching `RepoDigests` digest. This resolution comes from the engine, never the
 profile or worker metadata. Unavailable resolution or a different image holds
 Codex acceptance. Later absence cannot erase retained proof; contradictory
 observations retain the original receipt and record a separate conflict hold.
+A later engine resolution may append an immutable supplement bound to the first
+receipt; either observation order works before assessment freezes. It cannot
+upgrade an already frozen assessment. One attempt means one runtime start:
+changed `StartedAt`, including a same-container restart, holds acceptance.
+Podman bare hexadecimal image IDs are normalized only from engine inspection.
+Contract refusal while retaining evidence records a content-free durable refusal
+hold and leaves the lifecycle observation intact. An unwritable control journal
+cannot promise persistence of either evidence or lifecycle; it must be repaired
+before normal management continues.
 
 The host journal operation locator and receipt digest bind the evidence to the
 frozen assessment, ending and original-producer recovery candidate. Recovery
@@ -295,8 +337,10 @@ legal Unicode separators inside strings remain content. Requested model and serv
 observed participation. Claude terminal and attribution behavior is unchanged.
 
 The selected detached probe established authentication and instruction digest/
-role for its selected copy and image, not native worker qualification. Production Codex realization/home integration,
-credential recovery/size gates, finished-image/native qualification and explicit
-Claude qualification remain outstanding. No new provider call or build is
+role for its selected copy and image, not native worker qualification. Production mapping and deterministic credential recovery/size handling are
+implemented. Finished-image/offline engine qualification, editing-turn event
+coverage and native joined execution with explicitly qualified Claude remain
+outstanding. Actual Codex contributors remain unknown; shared-login/refresh
+service behavior is not established by synthetic tests. No new provider call or build is
 implied by terminal parsing. Provider-selected
 integration is a separate open issue and is not enabled by the Codex guards.

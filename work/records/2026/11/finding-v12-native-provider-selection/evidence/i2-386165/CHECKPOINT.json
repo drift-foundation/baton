@@ -1,0 +1,23 @@
+{
+  "base": "2d9a1f5afd84bfdcef461798d2418be3e6d65a9d",
+  "i1_candidate": "e3656475c5594b7b1a350cdba2f1d6252a42e4da4323ce691148d50665261ccd",
+  "accepted_paths_match": {
+    "v12/PROVIDER-SELECTION.md": true,
+    "v12/python/src/baton_v12/provider_policy/attribution.py": true,
+    "v12/python/src/baton_v12/worker_manager/attempts.py": true,
+    "v12/python/src/baton_v12/worker_manager/image_receipts.py": true,
+    "v12/python/src/baton_v12/worker_manager/model_attribution.py": true,
+    "v12/python/src/baton_v12/worker_manager/oci.py": true,
+    "v12/python/tests/job_manager/test_provider_attribution_recovery.py": true,
+    "v12/python/tests/manager/test_model_attribution.py": true,
+    "v12/python/tests/manager/test_oci.py": true,
+    "v12/python/tests/tools/test_codex_selection.py": true,
+    "v12/python/tests/tools/test_provider_selection.py": true
+  },
+  "credential_policy_in_design": true,
+  "claim": "E386165",
+  "ownership_pending": [
+    "M386162",
+    "M386166"
+  ]
+}

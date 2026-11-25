@@ -3205,7 +3205,8 @@ class OciAdapter:
         return {"lifecycle_state": "adopted", "runtime_id": runtime_id,
                 "delivery": home.adopt(record, attempt_id=attempt,
                                        runtime_id=runtime_id,
-                                       workspace_group=self.workspace_group)}
+                                       workspace_group=self.workspace_group,
+                                       file_slots=["codex"] if self.codex_image_receipt else ())}
 
     def _recovery_failed(self, home, attempt, existing, why, *, exact=None):
         """Fail closed: no output, stop only what is exactly identified,
@@ -4417,7 +4418,7 @@ class OciAdapter:
             document = json.loads(result["stdout"])
             if type(document) is list and len(document) == 1:
                 document = document[0]
-            if type(document) is not dict or document.get("Id") != image:
+            if type(document) is not dict or "sha256:" + _image_identity(document.get("Id"), "an inspected image id") != image:
                 return None
             digests = document.get("RepoDigests")
             if type(digests) is not list or not any(type(one) is str and one.rsplit("@", 1)[-1] == self.image_digest for one in digests):
@@ -4429,7 +4430,7 @@ class OciAdapter:
     def _image_observation(self, document, runtime_id):
         from . import image_receipts
         try:
-            image = document.get("Image")
+            image = "sha256:" + _image_identity(document.get("Image"), "an inspected runtime image")
             answer = {"engine": self.engine, "runtime_id": document.get("Id"), "image_id": image,
                       "started_at": document["State"].get("StartedAt"),
                       "labels": self._labels_of({"Labels": document["Config"]["Labels"]}),

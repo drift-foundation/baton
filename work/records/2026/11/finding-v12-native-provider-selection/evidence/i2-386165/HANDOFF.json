@@ -1,0 +1,13 @@
+{
+  "work": "W385830",
+  "participant": "baton.codxpc",
+  "claim": "E386173",
+  "message": "M386176",
+  "pass": "E386177",
+  "route": "baton.bug",
+  "phase": "queued",
+  "handler": null,
+  "gate": null,
+  "verified_snapshot": 386177,
+  "candidate_sha256": "87c3ba728e7fe75e649816a3bc44ae0bb6ff7bc6b3b915a84e70bbb495aa1627"
+}

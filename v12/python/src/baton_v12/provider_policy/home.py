@@ -71,6 +71,7 @@ def _overlap(left, right):
 
 # Owned lifecycle metadata, never provider output or credential contents.
 CREDENTIAL_STATE = ".baton-credential.json"
+MAX_SUBSCRIPTION_BYTES = 1048576
 
 
 def _recovery():
@@ -110,6 +111,8 @@ def _state(fd, parts):
     if record is None or credential is None:
         _recovery()
     if not stat.S_ISREG(credential.st_mode) or credential.st_uid != os.getuid() or stat.S_IMODE(credential.st_mode) & 0o077:
+        _recovery()
+    if not 0 < credential.st_size <= MAX_SUBSCRIPTION_BYTES:
         _recovery()
     return "ready"
 
@@ -187,14 +190,14 @@ def prepare(path, *, credential_path, delivered, mode, managed=(), provider_path
                 temporary = ".seed-" + uuid.uuid4().hex
                 target = None
                 try:
-                    if not stat.S_ISREG(os.fstat(seed).st_mode) or os.fstat(seed).st_size > 1048576:
+                    if not stat.S_ISREG(os.fstat(seed).st_mode) or not 0 < os.fstat(seed).st_size <= MAX_SUBSCRIPTION_BYTES:
                         raise PolicyRefusal("credential seed is not a bounded regular file")
                     _record_seed(fd, parts, "initializing")
                     target = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=parent)
                     copied = 0
                     while chunk := os.read(seed, 65536):
                         copied += len(chunk)
-                        if copied > 1048576:
+                        if copied > MAX_SUBSCRIPTION_BYTES:
                             raise PolicyRefusal("credential seed exceeds copy bound")
                         view = memoryview(chunk)
                         while view:
@@ -202,6 +205,8 @@ def prepare(path, *, credential_path, delivered, mode, managed=(), provider_path
                             if count <= 0:
                                 raise OSError("credential seed write made no progress")
                             view = view[count:]
+                    if copied == 0:
+                        raise PolicyRefusal("credential seed is incomplete")
                     os.fsync(target)
                     # No replacing even if a competing entry appeared.
                     os.link(temporary, leaf, src_dir_fd=parent, dst_dir_fd=parent, follow_symlinks=False)

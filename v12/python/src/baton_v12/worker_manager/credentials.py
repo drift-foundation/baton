@@ -70,6 +70,23 @@ from ..contracts import (ContractRefusal, check_no_durable_secret,
                          forget_secret, remember_secret)
 from ..contracts.errors import name_value
 from . import boundaries
+from ..provider_policy.home import MAX_SUBSCRIPTION_BYTES
+from ..contracts.secrets import remember_file_secret, forget_file_secret
+
+
+def _remember(value):
+    return remember_file_secret(value) if type(value) is bytes else remember_secret(value)
+
+
+def _forget(value):
+    return forget_file_secret(value) if type(value) is bytes else forget_secret(value)
+
+
+def _file_slots(value, names):
+    if type(value) not in (list, tuple) or any(type(one) is not str for one in value) or len(set(value)) != len(value) or not set(value) <= set(names):
+        raise ContractRefusal("integrity", "schema", "subscription-file slot selection disagrees")
+    return set(value)
+
 
 __all__ = ["CREDENTIAL_ROOT", "LIFECYCLE_STATES", "MAX_BEARER", "MAX_ORPHANS",
            "MAX_SLOTS", "VOLATILE_DIR", "VOLATILE_FILE", "CredentialHome",
@@ -437,7 +454,7 @@ class CredentialHome:
             + ".json")
 
     def materialize(self, resolution, *, attempt_id, workspace_group,
-                    credential_provider):
+                    credential_provider, file_slots=()):
         """One private file per resolved slot, bearer registered FIRST.
 
         THE ORDER IS THE SECURITY PROPERTY, so it is written out rather
@@ -495,6 +512,7 @@ class CredentialHome:
                     one["provider"], "a credential provider identity"),
                 "reference": boundaries.text(
                     one["reference"], "a credential provider reference")})
+        files = _file_slots(file_slots, [one["slot"] for one in proved])
         root = self.volatile_root(attempt)
         if os.path.exists(root):
             _refuse(f"a credential root already exists for attempt "
@@ -509,16 +527,17 @@ class CredentialHome:
         try:
             for one in proved:
                 name = one["slot"]
-                answer = credential_provider(one["provider"], one["reference"])
-                bearer = boundaries.injected(
-                    answer, "a materialized credential")
-                if len(bearer) > MAX_BEARER:
-                    _refuse(f"the credential for slot {name_value(name)} is "
-                            f"wider than {MAX_BEARER} characters; a value this"
-                            f" manager cannot hold is not one it will "
-                            f"write", code="limit")
-                # LIVE BEFORE IT IS ANYWHERE ELSE.
-                remember_secret(bearer)
+                resolver = getattr(credential_provider, "resolve_file", credential_provider) if name in files else credential_provider
+                answer = resolver(one["provider"], one["reference"])
+                if name in files:
+                    if type(answer) is not bytes or not 0 < len(answer) <= MAX_SUBSCRIPTION_BYTES:
+                        _refuse("subscription-login file is incomplete, not bytes or exceeds 1048576 bytes", code="limit")
+                    bearer = answer
+                else:
+                    bearer = boundaries.injected(answer, "a materialized credential")
+                    if len(bearer) > MAX_BEARER:
+                        _refuse("credential exceeds legacy token character limit", code="limit")
+                _remember(bearer)
                 bearers[name] = bearer
                 place = os.path.join(root, name)
                 # THE CREATION ORDER IS THE SECURITY PROPERTY, and W52800's
@@ -553,7 +572,7 @@ class CredentialHome:
                 try:
                     os.fchown(handle, -1, gid)
                     os.fchmod(handle, VOLATILE_FILE)
-                    _write_whole(handle, bearer.encode("utf-8"), name)
+                    _write_whole(handle, bearer if type(bearer) is bytes else bearer.encode("utf-8"), name)
                 finally:
                     os.close(handle)
                 slots.append({"slot": name, "provider": one["provider"],
@@ -577,7 +596,7 @@ class CredentialHome:
             # own error is not the answer, the state afterwards is.
             if _discard(root):
                 for value in bearers.values():
-                    forget_secret(value)
+                    _forget(value)
                 raise
             # UNRESOLVED, AND IT STAYS ARMED. Nothing is forgotten, because
             # forgetting is what would make the bytes still on disk invisible
@@ -595,7 +614,7 @@ class CredentialHome:
         return Delivery(attempt_id=attempt, root=root, slots=slots,
                         state="live", bearers=bearers)
 
-    def adopt(self, record, *, attempt_id, runtime_id, workspace_group):
+    def adopt(self, record, *, attempt_id, runtime_id, workspace_group, file_slots=()):
         """Recover one attempt after a manager restart, or FAIL CLOSED.
 
         The approved boundary admits recovery only on an EXACT agreement
@@ -674,6 +693,7 @@ class CredentialHome:
         # child or bearer read" still holds exactly, and a caller handing a
         # malformed record still learns that rather than learning about a root.
         _proved_root(root, attempt)
+        files = _file_slots(file_slots, [name for name, one in recorded])
         prepared = []
         for name, one in recorded:
             place = os.path.join(root, name)
@@ -695,10 +715,11 @@ class CredentialHome:
                     # DETECTED rather than silently truncated into a different
                     # value -- registering a prefix of a bearer would arm every
                     # later leak check against a string that is not the secret.
-                    raw = reading.read(MAX_BEARER + 1)
-                if len(raw) > MAX_BEARER:
-                    raise ValueError("wider than this manager holds")
-                bearer = raw.decode("utf-8")
+                    limit = MAX_SUBSCRIPTION_BYTES if name in files else MAX_BEARER
+                    raw = reading.read(limit + 1)
+                if not raw or len(raw) > limit:
+                    raise ValueError("incomplete or wider than this manager holds")
+                bearer = raw if name in files else raw.decode("utf-8")
             except (OSError, UnicodeDecodeError, ValueError):
                 _refuse(f"the volatile credential for slot {name_value(name)} "
                         f"cannot be read back; a delivery this manager cannot "
@@ -718,7 +739,7 @@ class CredentialHome:
         try:
             bearers = {}
             for name, _provider, _target, bearer in prepared:
-                remember_secret(bearer)
+                _remember(bearer)
                 registered.append(bearer)
                 bearers[name] = bearer
             return Delivery(
@@ -728,7 +749,7 @@ class CredentialHome:
                        for name, provider, target, _bearer in prepared])
         except BaseException:
             for value in registered:
-                forget_secret(value)
+                _forget(value)
             raise
 
     def tear_down(self, delivery):
@@ -755,7 +776,7 @@ class CredentialHome:
               "a credential lifecycle record", os.remove)
         # PROVED, THEN RELEASED.
         for value in delivery.bearers().values():
-            forget_secret(value)
+            _forget(value)
         delivery.state = "torn-down"
         return {"attempt_id": delivery.attempt_id,
                 "lifecycle_state": "torn-down",

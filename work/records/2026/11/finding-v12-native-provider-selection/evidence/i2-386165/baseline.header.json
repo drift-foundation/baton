@@ -1,0 +1,28 @@
+{
+  "command": [
+    "just",
+    "--justfile",
+    "v12/justfile",
+    "test-one",
+    "tests.manager.test_provider_home",
+    "tests.manager.test_credentials",
+    "tests.manager.test_secrets",
+    "tests.tools.test_user_credentials",
+    "tests.tools.test_provider_selection.QualificationCredentialPreparation"
+  ],
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "base": "2d9a1f5afd84bfdcef461798d2418be3e6d65a9d",
+  "candidate_repository_head": "2d9a1f5afd84bfdcef461798d2418be3e6d65a9d",
+  "groups": [
+    "manager-pure",
+    "tools-pure",
+    "job_manager"
+  ],
+  "collected": 343,
+  "bound_seconds": 120,
+  "disk_root": "/var/tmp/baton-i2-386165",
+  "TMPDIR": "/var/tmp/baton-i2-386165",
+  "accounting": "explicit ids from unittest -v; test-one has no registry accounting",
+  "pid": 2445401,
+  "pgid": 2445401
+}

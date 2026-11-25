@@ -1,0 +1,11 @@
+[
+  "tests.manager.test_provider_home",
+  "tests.manager.test_credentials",
+  "tests.manager.test_secrets",
+  "tests.tools.test_user_credentials",
+  "tests.tools.test_provider_selection.QualificationCredentialPreparation",
+  "tests.tools.test_codex_selection",
+  "tests.tools.test_provider_selection.CodexToClaude",
+  "tests.manager.test_oci.LaunchedImageEvidence",
+  "tests.job_manager.test_provider_attribution_recovery.ImageReceiptRecovery"
+]

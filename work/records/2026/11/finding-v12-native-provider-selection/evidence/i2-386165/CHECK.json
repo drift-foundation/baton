@@ -1,0 +1,12 @@
+{
+  "candidate": "87c3ba728e7fe75e649816a3bc44ae0bb6ff7bc6b3b915a84e70bbb495aa1627",
+  "paths": 22,
+  "shared_targets_match_baseline": true,
+  "prerequisites_match_retained": true,
+  "fixture_root_empty": true,
+  "fixture_root_removed": true,
+  "source_retained": "/home/sl/src/baton/work/scratch/i2-386165/source",
+  "protected_git_mutations_selected": false,
+  "engine_build_provider_real_credential_operations": false,
+  "diff_check_exit_status": 0
+}

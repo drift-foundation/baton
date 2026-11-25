@@ -246,14 +246,17 @@ class InventoryAndRecipe(unittest.TestCase):
 
 
 class JoinedCodex(unittest.TestCase):
-    def test_native_composition_still_refuses_without_j1(self):
+    def test_production_mapping_is_explicit_and_roles_remain_bounded(self):
         import provider_policy as policy
         from tests.manager import codex_fixtures as fixture
-        self.assertNotIn("codex", policy.REALIZATIONS)
-        self.assertNotIn("codex", policy.MANAGED)
+        adapter = policy.adapter(fixture.SELECTED, network="bridge")
+        self.assertEqual(adapter["credential"], {"mode": "seeded-retained", "path": "codex/auth.json"})
+        self.assertEqual(adapter["environment_policy"]["CODEX_HOME"], policy.HOME + "/codex")
+        self.assertEqual(adapter["managed_entries"][0]["path"], "instructions/WORKER.md")
         self.assertEqual(policy.LABEL_ROLES["codex"], ["implementation"])
-        with self.assertRaises(policy.PolicyRefusal):
-            policy.adapter(fixture.SELECTED, network="bridge")
+        for role in ("review", "integration"):
+            with self.assertRaises(policy.PolicyRefusal): policy.context_label(adapter, role)
+        with self.assertRaises(policy.PolicyRefusal): policy.adapter(dict(fixture.SELECTED, provider="unknown"), network="bridge")
 
     def test_exact_version_decode_and_probe_gate(self):
         import os

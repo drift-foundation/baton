@@ -158,7 +158,9 @@ def invocation_record(delivery, phase, argv, environment, status, *, expected_ho
             "environment_policy": delivery["contract"]["adapter"]["environment_policy"],
             "environment_validated": (set(environment) == set(delivery["contract"]["adapter"]["environment_policy"])
                 and environment.get("PATH") == delivery["contract"]["adapter"]["environment_policy"]["PATH"]
-                and environment.get("HOME") == expected_home),
+                and environment.get("HOME") == expected_home
+                and ("CODEX_HOME" not in delivery["contract"]["adapter"]["environment_policy"]
+                     or environment.get("CODEX_HOME") == expected_home + "/codex")),
             "context_label": context_record(delivery["contract"]["adapter"], phase),
             "status": status}
 

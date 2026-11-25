@@ -1,0 +1,1215 @@
+--- a/v12/PROVIDER-SELECTION.md
++++ b/v12/PROVIDER-SELECTION.md
+@@ -45,8 +45,8 @@
+ The tier adds no hold cause. The retained 0.169.0 `exec` help evidences
+ `-c <key=value>` with a TOML value. It does not evidence that this build
+ recognizes `service_tier`, or how the key combines with
+-`--ignore-user-config`; both stay qualification observations, and no Codex
+-realization exists yet for any of this to run under.
++`--ignore-user-config`; both stay qualification observations. The production
++realization supports explicit selection but does not select fast mode.
+ 
+ ## Attribution
+ 
+@@ -177,8 +177,9 @@
+ 
+ Deterministic fixtures simulate providers and engines while exercising real
+ local admission, worker execution, Git fixture repositories, freezing, custody
+-and handoff. A simulated Codex realization tests shared-policy admission only;
+-it is not a Codex implementation or qualification. No container/image/provider
++and handoff. Synthetic path-table fixtures test shared-policy admission; the
++production-mapping pipeline also runs with deterministic providers. Neither is
++native engine or provider qualification. No container/image/provider
+ qualification is implied, and existing installations require separately
+ selected packaging and qualification before native use.
+ 
+@@ -219,12 +220,44 @@
+ Baton mount, not the vendor credential file. Claude keeps its existing slot
+ and legacy context path.
+ 
+-Codex has no production realization or managed-entry path yet. The selected
+-detached probe evidenced CODEX_HOME/auth.json lookup and authenticated completion;
+-that does not install the native credential/home realization. Composition still
+-refuses; no null or guessed credential path enables native use. Tests that temporarily
+-install synthetic realization/path tables prove the shared mechanisms only.
+-The Codex recipe is source-only and copies the same provider-policy package.
++The production Codex realization uses the retained 0.169.0 lookup and selected
++successful detached probe: `HOME=/run/baton/provider-home`,
++`CODEX_HOME=$HOME/codex`, credential `codex/auth.json`, managed worker instructions
++`instructions/WORKER.md`. These are part of the adapter identity. The explicit
++prompt label requires reading the delivered instructions; placement does not
++claim automatic vendor loading. The closed environment ignores ambient Codex
++configuration. Composition supports fresh implementation only. This source
++mapping does not qualify a built native worker image or select execution.
++
++The host automatically seeds each new Job/worker home once, from the configured
++source registry's exact provider/reference pair. Codex file delivery is explicit
++and byte-valued: `UserCredentialSources.resolve_file` preserves every byte,
++including whitespace and multibyte content. Delivery, first seed, retained-file
++validation and qualification copying all enforce **1 through 1,048,576 bytes**.
++An empty file is incomplete. Oversized files refuse without truncation or content
++in diagnostics. Legacy string-token bounds and Claude delivery remain unchanged.
++Restart preserves refreshed bytes without opening the original source; lost or
++invalid initialized credentials require recovery, never silent re-seeding.
++
++Failed first-initialization recovery is an explicit host API, never startup:
++`worker_manager.provider_home.recover_failed_initialization(mount, control,
++receipt_id=..., decision_id=...)`. Use the exact retained `HomeMount`, its control
++store and the external receipt identity. The API checks their admitted selection
++and home binding, exclusive home custody, a durable failed-preparation fence
++proving no runtime ever started, and an unchanged metadata snapshot of the home.
++It does not read credential contents. Legacy incomplete receipts without this
++snapshot, changed homes, successful initialization and other runtime states
++retain their hold. A directory restored after mutation still has changed ctime.
++
++Withdrawal keeps the original receipt and runtime proof in one immutable
++`credential-withdrawal-<receipt_id>.json` beside the home, outside its mount.
++Repeated/concurrent identical decisions return that audit. Before transferring
++custody, a separately authorized call with the same operands plus
++`authorize_retry=<new-decision-id>` records permission for a subsequent first
++initialization. Withdrawal alone permits no retry; authorization does not read a
++source or launch anything. The next initializer rechecks the snapshot and writes
++a new receipt linked to the old receipt and authorization. Normal claim/runtime
++and credential-access authority still apply. Never remove receipt files by hand.
+ 
+ Codex 0.169.0 terminal parsing recognizes the retained fresh successful turn
+ family: thread.started, turn.started, completed agent messages and paired
+@@ -273,6 +306,15 @@
+ profile or worker metadata. Unavailable resolution or a different image holds
+ Codex acceptance. Later absence cannot erase retained proof; contradictory
+ observations retain the original receipt and record a separate conflict hold.
++A later engine resolution may append an immutable supplement bound to the first
++receipt; either observation order works before assessment freezes. It cannot
++upgrade an already frozen assessment. One attempt means one runtime start:
++changed `StartedAt`, including a same-container restart, holds acceptance.
++Podman bare hexadecimal image IDs are normalized only from engine inspection.
++Contract refusal while retaining evidence records a content-free durable refusal
++hold and leaves the lifecycle observation intact. An unwritable control journal
++cannot promise persistence of either evidence or lifecycle; it must be repaired
++before normal management continues.
+ 
+ The host journal operation locator and receipt digest bind the evidence to the
+ frozen assessment, ending and original-producer recovery candidate. Recovery
+@@ -295,8 +337,10 @@
+ observed participation. Claude terminal and attribution behavior is unchanged.
+ 
+ The selected detached probe established authentication and instruction digest/
+-role for its selected copy and image, not native worker qualification. Production Codex realization/home integration,
+-credential recovery/size gates, finished-image/native qualification and explicit
+-Claude qualification remain outstanding. No new provider call or build is
++role for its selected copy and image, not native worker qualification. Production mapping and deterministic credential recovery/size handling are
++implemented. Finished-image/offline engine qualification, editing-turn event
++coverage and native joined execution with explicitly qualified Claude remain
++outstanding. Actual Codex contributors remain unknown; shared-login/refresh
++service behavior is not established by synthetic tests. No new provider call or build is
+ implied by terminal parsing. Provider-selected
+ integration is a separate open issue and is not enabled by the Codex guards.
+--- a/v12/python/src/baton_v12/contracts/secrets.py
++++ b/v12/python/src/baton_v12/contracts/secrets.py
+@@ -60,6 +60,7 @@
+ # arithmetic — never around a walk, which would make every durable write
+ # contend on one mutex.
+ _live = {}
++_file_live = {}
+ _lock = threading.Lock()
+ 
+ 
+@@ -162,7 +163,7 @@
+     admitted in another, which is a decision that depends on traversal order.
+     """
+     with _lock:
+-        return tuple(_live)
++        return (*_live, *_file_live)
+ 
+ 
+ def _carries_live_secret(text, live=None):
+@@ -186,7 +187,7 @@
+     if type(text) is not str:
+         return False
+     for secret in _live_values() if live is None else live:
+-        if secret in text:
++        if (secret in text.encode("utf-8", errors="surrogatepass") if type(secret) is bytes else secret in text):
+             return True
+     return False
+ 
+@@ -211,11 +212,15 @@
+ 
+ 
+ def _walk(node, what, live):
++    if type(node) is bytes:
++        if any((secret if type(secret) is bytes else secret.encode("utf-8", errors="surrogatepass")) in node for secret in live):
++            raise ContractRefusal("integrity", "secret-leak", "a durable byte surface carries a live secret")
++        return
+     if type(node) is str:
+         for secret in live:
+             # CONTAINMENT. A message that interpolated the bearer carries it
+             # just as durably as a member that held it alone.
+-            if secret in node:
++            if (secret in node.encode("utf-8", errors="surrogatepass") if type(secret) is bytes else secret in node):
+                 raise ContractRefusal(
+                     "integrity", "secret-leak",
+                     f"{what} carries a live bearer value; §13 keeps the one "
+@@ -244,3 +249,24 @@
+         # durable as one whose value is -- canonical JSON stores both.
+         _walk(member, what, live)
+         _walk(value, what, live)
++
++
++def remember_file_secret(value):
++    """Register exact subscription-file bytes without decoding or normalization."""
++    if type(value) is not bytes or not value:
++        raise ContractRefusal("integrity", "schema", "a file secret must contain bytes")
++    with _lock:
++        _file_live[value] = _file_live.get(value, 0) + 1
++    return value
++
++
++def forget_file_secret(value):
++    if type(value) is not bytes:
++        raise ContractRefusal("integrity", "schema", "a released file secret must contain bytes")
++    with _lock:
++        count = _file_live.get(value, 0)
++        if count > 1:
++            _file_live[value] = count - 1
++            return True
++        _file_live.pop(value, None)
++        return False
+--- a/v12/python/src/baton_v12/provider_policy/__init__.py
++++ b/v12/python/src/baton_v12/provider_policy/__init__.py
+@@ -39,19 +39,32 @@
+         "model_substitution": {"selector_argument": "--model", "fallback": None},
+     },
+ }
+-# No Codex realization is invented before its separately selected inventory.
++# Pinned 0.169.0 inventory and authenticated detached-probe path evidence.
++# This source mapping is not native image/engine qualification.
++REALIZATIONS["codex"] = {
++    "interaction": {"program": "codex", "before_permissions": ["exec"],
++                    "after_permissions": ["--ignore-user-config", "--ignore-rules", "--json"]},
++    "tool_permission": ["--dangerously-bypass-approvals-and-sandbox"],
++    "provider_sandbox": "container",
++    "user_configuration": "private-home-managed-worker-instructions",
++    "credentials": {"mode": "seeded-retained", "path": "codex/auth.json"},
++    "environment": dict(ENVIRONMENT, CODEX_HOME=HOME + "/codex"),
++    "ephemera": "fresh-scratch-roots",
++    "model_substitution": {"selector_argument": "--model", "fallback": None},
++}
+ # W385853: what Baton itself places in a selected provider home, and which
+ # launch roles the realization serves. One closed entry per provider; the
+ # bytes are the packaged copy of docs/V12-WORKER-INSTRUCTIONS.md.
+ INSTRUCTIONS_FILE = "worker_instructions.md"
+ INSTRUCTIONS_KIND = "worker-instructions"
+ INSTRUCTIONS_BOUND = 16384
+-MANAGED = {"claude": {"path": ".claude/CLAUDE.md", "kind": INSTRUCTIONS_KIND}}
++MANAGED = {"claude": {"path": ".claude/CLAUDE.md", "kind": INSTRUCTIONS_KIND},
++           "codex": {"path": "instructions/WORKER.md", "kind": INSTRUCTIONS_KIND}}
+ LABEL_SCHEMA = "baton.native-worker-context/1"
+ LABEL_BOUND = 2048
+ LABEL_ROLES = {"claude": ["implementation", "review"], "codex": ["implementation"]}
+ # Entry and delivered-slot names are host/worker interface facts, not vendor
+-# credential filenames. Codex still has no REALIZATIONS or MANAGED entry (J1).
++# credential filenames. They do not select a credential source.
+ ENTRYPOINTS = {"claude": ["python3", "/opt/baton/dogfood_entry.py"],
+                "codex": ["python3", "/opt/baton/codex_entry.py"]}
+ CREDENTIAL_SLOTS = {"claude": "claude", "codex": "codex"}
+--- a/v12/python/src/baton_v12/provider_policy/attribution.py
++++ b/v12/python/src/baton_v12/provider_policy/attribution.py
+@@ -158,7 +158,9 @@
+             "environment_policy": delivery["contract"]["adapter"]["environment_policy"],
+             "environment_validated": (set(environment) == set(delivery["contract"]["adapter"]["environment_policy"])
+                 and environment.get("PATH") == delivery["contract"]["adapter"]["environment_policy"]["PATH"]
+-                and environment.get("HOME") == expected_home),
++                and environment.get("HOME") == expected_home
++                and ("CODEX_HOME" not in delivery["contract"]["adapter"]["environment_policy"]
++                     or environment.get("CODEX_HOME") == expected_home + "/codex")),
+             "context_label": context_record(delivery["contract"]["adapter"], phase),
+             "status": status}
+ 
+--- a/v12/python/src/baton_v12/provider_policy/home.py
++++ b/v12/python/src/baton_v12/provider_policy/home.py
+@@ -71,6 +71,7 @@
+ 
+ # Owned lifecycle metadata, never provider output or credential contents.
+ CREDENTIAL_STATE = ".baton-credential.json"
++MAX_SUBSCRIPTION_BYTES = 1048576
+ 
+ 
+ def _recovery():
+@@ -110,6 +111,8 @@
+     if record is None or credential is None:
+         _recovery()
+     if not stat.S_ISREG(credential.st_mode) or credential.st_uid != os.getuid() or stat.S_IMODE(credential.st_mode) & 0o077:
++        _recovery()
++    if not 0 < credential.st_size <= MAX_SUBSCRIPTION_BYTES:
+         _recovery()
+     return "ready"
+ 
+@@ -187,14 +190,14 @@
+                 temporary = ".seed-" + uuid.uuid4().hex
+                 target = None
+                 try:
+-                    if not stat.S_ISREG(os.fstat(seed).st_mode) or os.fstat(seed).st_size > 1048576:
++                    if not stat.S_ISREG(os.fstat(seed).st_mode) or not 0 < os.fstat(seed).st_size <= MAX_SUBSCRIPTION_BYTES:
+                         raise PolicyRefusal("credential seed is not a bounded regular file")
+                     _record_seed(fd, parts, "initializing")
+                     target = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=parent)
+                     copied = 0
+                     while chunk := os.read(seed, 65536):
+                         copied += len(chunk)
+-                        if copied > 1048576:
++                        if copied > MAX_SUBSCRIPTION_BYTES:
+                             raise PolicyRefusal("credential seed exceeds copy bound")
+                         view = memoryview(chunk)
+                         while view:
+@@ -202,6 +205,8 @@
+                             if count <= 0:
+                                 raise OSError("credential seed write made no progress")
+                             view = view[count:]
++                    if copied == 0:
++                        raise PolicyRefusal("credential seed is incomplete")
+                     os.fsync(target)
+                     # No replacing even if a competing entry appeared.
+                     os.link(temporary, leaf, src_dir_fd=parent, dst_dir_fd=parent, follow_symlinks=False)
+--- a/v12/python/src/baton_v12/worker_manager/credentials.py
++++ b/v12/python/src/baton_v12/worker_manager/credentials.py
+@@ -70,6 +70,23 @@
+                          forget_secret, remember_secret)
+ from ..contracts.errors import name_value
+ from . import boundaries
++from ..provider_policy.home import MAX_SUBSCRIPTION_BYTES
++from ..contracts.secrets import remember_file_secret, forget_file_secret
++
++
++def _remember(value):
++    return remember_file_secret(value) if type(value) is bytes else remember_secret(value)
++
++
++def _forget(value):
++    return forget_file_secret(value) if type(value) is bytes else forget_secret(value)
++
++
++def _file_slots(value, names):
++    if type(value) not in (list, tuple) or any(type(one) is not str for one in value) or len(set(value)) != len(value) or not set(value) <= set(names):
++        raise ContractRefusal("integrity", "schema", "subscription-file slot selection disagrees")
++    return set(value)
++
+ 
+ __all__ = ["CREDENTIAL_ROOT", "LIFECYCLE_STATES", "MAX_BEARER", "MAX_ORPHANS",
+            "MAX_SLOTS", "VOLATILE_DIR", "VOLATILE_FILE", "CredentialHome",
+@@ -437,7 +454,7 @@
+             + ".json")
+ 
+     def materialize(self, resolution, *, attempt_id, workspace_group,
+-                    credential_provider):
++                    credential_provider, file_slots=()):
+         """One private file per resolved slot, bearer registered FIRST.
+ 
+         THE ORDER IS THE SECURITY PROPERTY, so it is written out rather
+@@ -495,6 +512,7 @@
+                     one["provider"], "a credential provider identity"),
+                 "reference": boundaries.text(
+                     one["reference"], "a credential provider reference")})
++        files = _file_slots(file_slots, [one["slot"] for one in proved])
+         root = self.volatile_root(attempt)
+         if os.path.exists(root):
+             _refuse(f"a credential root already exists for attempt "
+@@ -509,16 +527,17 @@
+         try:
+             for one in proved:
+                 name = one["slot"]
+-                answer = credential_provider(one["provider"], one["reference"])
+-                bearer = boundaries.injected(
+-                    answer, "a materialized credential")
+-                if len(bearer) > MAX_BEARER:
+-                    _refuse(f"the credential for slot {name_value(name)} is "
+-                            f"wider than {MAX_BEARER} characters; a value this"
+-                            f" manager cannot hold is not one it will "
+-                            f"write", code="limit")
+-                # LIVE BEFORE IT IS ANYWHERE ELSE.
+-                remember_secret(bearer)
++                resolver = getattr(credential_provider, "resolve_file", credential_provider) if name in files else credential_provider
++                answer = resolver(one["provider"], one["reference"])
++                if name in files:
++                    if type(answer) is not bytes or not 0 < len(answer) <= MAX_SUBSCRIPTION_BYTES:
++                        _refuse("subscription-login file is incomplete, not bytes or exceeds 1048576 bytes", code="limit")
++                    bearer = answer
++                else:
++                    bearer = boundaries.injected(answer, "a materialized credential")
++                    if len(bearer) > MAX_BEARER:
++                        _refuse("credential exceeds legacy token character limit", code="limit")
++                _remember(bearer)
+                 bearers[name] = bearer
+                 place = os.path.join(root, name)
+                 # THE CREATION ORDER IS THE SECURITY PROPERTY, and W52800's
+@@ -553,7 +572,7 @@
+                 try:
+                     os.fchown(handle, -1, gid)
+                     os.fchmod(handle, VOLATILE_FILE)
+-                    _write_whole(handle, bearer.encode("utf-8"), name)
++                    _write_whole(handle, bearer if type(bearer) is bytes else bearer.encode("utf-8"), name)
+                 finally:
+                     os.close(handle)
+                 slots.append({"slot": name, "provider": one["provider"],
+@@ -577,7 +596,7 @@
+             # own error is not the answer, the state afterwards is.
+             if _discard(root):
+                 for value in bearers.values():
+-                    forget_secret(value)
++                    _forget(value)
+                 raise
+             # UNRESOLVED, AND IT STAYS ARMED. Nothing is forgotten, because
+             # forgetting is what would make the bytes still on disk invisible
+@@ -595,7 +614,7 @@
+         return Delivery(attempt_id=attempt, root=root, slots=slots,
+                         state="live", bearers=bearers)
+ 
+-    def adopt(self, record, *, attempt_id, runtime_id, workspace_group):
++    def adopt(self, record, *, attempt_id, runtime_id, workspace_group, file_slots=()):
+         """Recover one attempt after a manager restart, or FAIL CLOSED.
+ 
+         The approved boundary admits recovery only on an EXACT agreement
+@@ -674,6 +693,7 @@
+         # child or bearer read" still holds exactly, and a caller handing a
+         # malformed record still learns that rather than learning about a root.
+         _proved_root(root, attempt)
++        files = _file_slots(file_slots, [name for name, one in recorded])
+         prepared = []
+         for name, one in recorded:
+             place = os.path.join(root, name)
+@@ -695,10 +715,11 @@
+                     # DETECTED rather than silently truncated into a different
+                     # value -- registering a prefix of a bearer would arm every
+                     # later leak check against a string that is not the secret.
+-                    raw = reading.read(MAX_BEARER + 1)
+-                if len(raw) > MAX_BEARER:
+-                    raise ValueError("wider than this manager holds")
+-                bearer = raw.decode("utf-8")
++                    limit = MAX_SUBSCRIPTION_BYTES if name in files else MAX_BEARER
++                    raw = reading.read(limit + 1)
++                if not raw or len(raw) > limit:
++                    raise ValueError("incomplete or wider than this manager holds")
++                bearer = raw if name in files else raw.decode("utf-8")
+             except (OSError, UnicodeDecodeError, ValueError):
+                 _refuse(f"the volatile credential for slot {name_value(name)} "
+                         f"cannot be read back; a delivery this manager cannot "
+@@ -718,7 +739,7 @@
+         try:
+             bearers = {}
+             for name, _provider, _target, bearer in prepared:
+-                remember_secret(bearer)
++                _remember(bearer)
+                 registered.append(bearer)
+                 bearers[name] = bearer
+             return Delivery(
+@@ -728,7 +749,7 @@
+                        for name, provider, target, _bearer in prepared])
+         except BaseException:
+             for value in registered:
+-                forget_secret(value)
++                _forget(value)
+             raise
+ 
+     def tear_down(self, delivery):
+@@ -755,7 +776,7 @@
+               "a credential lifecycle record", os.remove)
+         # PROVED, THEN RELEASED.
+         for value in delivery.bearers().values():
+-            forget_secret(value)
++            _forget(value)
+         delivery.state = "torn-down"
+         return {"attempt_id": delivery.attempt_id,
+                 "lifecycle_state": "torn-down",
+--- a/v12/python/src/baton_v12/worker_manager/image_receipts.py
++++ b/v12/python/src/baton_v12/worker_manager/image_receipts.py
+@@ -1,7 +1,7 @@
+ """Host-retained launched-image evidence, separate from cessation and worker claims."""
+ import re
+ from datetime import datetime
+-from ..contracts import digest
++from ..contracts import ContractRefusal, digest
+ from . import attempts
+ 
+ SCHEMA = "baton.launched-image/1"
+@@ -37,6 +37,17 @@
+ 
+ 
+ def retain(control, attempt, runtime_id, observation):
++    from . import model_attribution as owner
++    try:
++        return _retain(control, attempt, runtime_id, observation)
++    except ContractRefusal:
++        # Keep a content-free, durable hold before returning the lifecycle
++        # observation. A broken journal cannot promise either persistence.
++        owner._write(control, KIND + "-refused", attempt, {"refused": True})
++        return None
++
++
++def _retain(control, attempt, runtime_id, observation):
+     # Called after engine I/O, never in the transaction that asks the engine.
+     from . import model_attribution as owner
+     selected = owner.selection_of(control, attempt)
+@@ -47,12 +58,22 @@
+         return None
+     if observation["labels"] != attempts._runtime_labels(row):
+         return None
+-    previous = owner._read(control, KIND, attempt)
++    initial = owner._read(control, KIND, attempt)
++    supplement = owner._read(control, KIND + "-resolution", attempt)
++    previous = supplement or initial
+     receipt = {"schema": SCHEMA, "attempt_id": attempt, "selection_digest": digest(selected["delivery"]),
+                "admitted_image": selected["delivery"]["contract"]["runtime_profile"].get("image_digest"),
+                "profile_digest": selected["delivery"]["profile_digest"],
+                "recorded_at": previous["recorded_at"] if previous is not None else control._now(),
+                "observation": observation}
++    if supplement is not None:
++        receipt["initial_receipt_digest"] = digest(initial)
++    if previous is not None and observation["resolution"] is not None and previous["observation"]["resolution"] is None:
++        if dict(observation, resolution=None) == previous["observation"]:
++            # An immutable supplement preserves the original receipt and its
++            # reference. Frozen assessments still cannot be upgraded in place.
++            receipt["initial_receipt_digest"] = digest(initial)
++            return owner._write(control, KIND + "-resolution", attempt, receipt)
+     if previous is not None and observation["resolution"] is None:
+         # A later unavailable image-resolution query is not contradictory
+         # evidence and cannot erase an already retained engine binding.
+@@ -70,14 +91,26 @@
+     from . import model_attribution as owner
+     if not required(selected):
+         return None, None
+-    receipt = owner._read(control, KIND, attempt)
++    initial = owner._read(control, KIND, attempt)
++    supplement = owner._read(control, KIND + "-resolution", attempt)
++    receipt = supplement or initial
++    if owner._read(control, KIND + "-refused", attempt) is not None:
++        return receipt, "launched-image-refused"
+     if receipt is None:
+         return None, "launched-image-missing"
+     row = attempts._require_attempt(control, attempt)
+     if type(receipt) is not dict:
+         return receipt, "launched-image-invalid"
+     observation = receipt.get("observation")
+-    if (set(receipt) != {"schema", "attempt_id", "selection_digest", "admitted_image", "profile_digest", "recorded_at", "observation"}
++    expected_keys = {"schema", "attempt_id", "selection_digest", "admitted_image", "profile_digest", "recorded_at", "observation"}
++    if supplement is not None:
++        expected_keys.add("initial_receipt_digest")
++        if (type(initial) is not dict or type(observation) is not dict
++                or supplement.get("initial_receipt_digest") != digest(initial)
++                or initial.get("observation") != dict(observation, resolution=None)
++                or {k: v for k, v in supplement.items() if k not in ("initial_receipt_digest", "observation")} != {k: v for k, v in initial.items() if k != "observation"}):
++            return receipt, "launched-image-invalid"
++    if (set(receipt) != expected_keys
+             or receipt["schema"] != SCHEMA or receipt["attempt_id"] != attempt
+             or receipt["selection_digest"] != digest(selected["delivery"])
+             or receipt["admitted_image"] != selected["delivery"]["contract"]["runtime_profile"].get("image_digest")
+@@ -97,4 +130,4 @@
+     if receipt is None:
+         return None
+     from . import model_attribution as owner
+-    return {"operation_id": owner._id(KIND, attempt), "digest": digest(receipt)}
++    return {"operation_id": owner._id(KIND + "-resolution" if "initial_receipt_digest" in receipt else KIND, attempt), "digest": digest(receipt)}
+--- a/v12/python/src/baton_v12/worker_manager/oci.py
++++ b/v12/python/src/baton_v12/worker_manager/oci.py
+@@ -3205,7 +3205,8 @@
+         return {"lifecycle_state": "adopted", "runtime_id": runtime_id,
+                 "delivery": home.adopt(record, attempt_id=attempt,
+                                        runtime_id=runtime_id,
+-                                       workspace_group=self.workspace_group)}
++                                       workspace_group=self.workspace_group,
++                                       file_slots=["codex"] if self.codex_image_receipt else ())}
+ 
+     def _recovery_failed(self, home, attempt, existing, why, *, exact=None):
+         """Fail closed: no output, stop only what is exactly identified,
+@@ -4417,7 +4418,7 @@
+             document = json.loads(result["stdout"])
+             if type(document) is list and len(document) == 1:
+                 document = document[0]
+-            if type(document) is not dict or document.get("Id") != image:
++            if type(document) is not dict or "sha256:" + _image_identity(document.get("Id"), "an inspected image id") != image:
+                 return None
+             digests = document.get("RepoDigests")
+             if type(digests) is not list or not any(type(one) is str and one.rsplit("@", 1)[-1] == self.image_digest for one in digests):
+@@ -4429,7 +4430,7 @@
+     def _image_observation(self, document, runtime_id):
+         from . import image_receipts
+         try:
+-            image = document.get("Image")
++            image = "sha256:" + _image_identity(document.get("Image"), "an inspected runtime image")
+             answer = {"engine": self.engine, "runtime_id": document.get("Id"), "image_id": image,
+                       "started_at": document["State"].get("StartedAt"),
+                       "labels": self._labels_of({"Labels": document["Config"]["Labels"]}),
+--- a/v12/python/src/baton_v12/worker_manager/provider_home.py
++++ b/v12/python/src/baton_v12/worker_manager/provider_home.py
+@@ -7,6 +7,7 @@
+ from contextlib import contextmanager
+ from datetime import datetime, timezone
+ import fcntl
++import hashlib
+ import json
+ import os
+ from pathlib import Path
+@@ -261,19 +262,158 @@
+         fcntl.flock(fd, fcntl.LOCK_EX)
+         validate()
+         record = _read(fd, "credential.json")
+-        expected = {"schema": "baton.home-credential/1", "path": credential_path, "state": "ready"}
+-        if record is not None:
+-            if record != expected or credential_state(home, credential_path) != "ready":
++        legacy = {"schema": "baton.home-credential/1", "path": credential_path, "state": "ready"}
++        if record == legacy:
++            if credential_state(home, credential_path) != "ready":
+                 raise HomeRefusal("credential recovery required: retained initialization evidence disagrees")
+             return None
++        if record is not None:
++            _credential_receipt(record, credential_path)
++            if record["state"] == "ready" and credential_state(home, credential_path) == "ready":
++                return None
++            if record["state"] != "authorized":
++                raise HomeRefusal("credential recovery required: retained initialization evidence disagrees")
++            if _home_snapshot(home) != record["home_snapshot"]:
++                raise HomeRefusal("credential recovery required: home changed after recovery authorization")
+         if credential_state(home, credential_path) != "empty":
+             raise HomeRefusal("credential recovery required: external initialization receipt is absent")
+-        _write(fd, dict(expected, state="initializing"), "credential.json")
++        receipt = {"schema": "baton.home-credential/2", "path": credential_path,
++                   "state": "initializing", "receipt_id": uuid.uuid4().hex,
++                   "home_snapshot": _home_snapshot(home)}
++        if record is not None:
++            receipt["authorization"] = record["authorization"]
++            receipt["previous_receipt"] = record["receipt_id"]
++        _write(fd, receipt, "credential.json")
+         result = initialize()
+         if credential_state(home, credential_path) != "ready":
+             raise HomeRefusal("credential recovery required: initialization did not complete")
+-        _write(fd, expected, "credential.json")
++        _write(fd, dict(receipt, state="ready"), "credential.json")
+         return result
++
++
++def _credential_receipt(record, path):
++    required = {"schema", "path", "state", "receipt_id", "home_snapshot"}
++    if (type(record) is not dict or not required <= set(record) <= required | {"authorization", "previous_receipt", "decision_id"}
++            or record["schema"] != "baton.home-credential/2" or record["path"] != path
++            or record["state"] not in ("initializing", "ready", "withdrawn", "authorized")
++            or type(record["receipt_id"]) is not str or len(record["receipt_id"]) != 32
++            or any(c not in "0123456789abcdef" for c in record["receipt_id"])
++            or type(record["home_snapshot"]) is not str
++            or (record["state"] == "authorized" and not record.get("authorization"))):
++        raise HomeRefusal("credential recovery required: receipt is incomplete or unsupported")
++
++
++def _home_snapshot(home):
++    """Metadata-only identity of a bounded private home, never credential reads.
++
++    Includes inode and nanosecond change times so replacing content and restoring
++    mtime cannot pass as unchanged. No symlink, special file or unbounded walk.
++    The caller excludes runtime writers and holds the home-owner lock.
++    """
++    from ..provider_policy.home import _open_home
++    entries = []
++    def visit(fd, prefix):
++        info = os.fstat(fd)
++        entries.append((prefix, info.st_dev, info.st_ino, info.st_mode, info.st_uid,
++                        info.st_gid, info.st_size, info.st_mtime_ns, info.st_ctime_ns))
++        if len(entries) > 1024 or len(prefix.split("/")) > 32:
++            raise HomeRefusal("credential recovery requires a bounded unchanged home")
++        for name in sorted(os.listdir(fd)):
++            info = os.stat(name, dir_fd=fd, follow_symlinks=False)
++            child = prefix + "/" + name
++            if stat.S_ISDIR(info.st_mode):
++                below = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
++                try:
++                    visit(below, child)
++                finally:
++                    os.close(below)
++            elif stat.S_ISREG(info.st_mode):
++                entries.append((child, info.st_dev, info.st_ino, info.st_mode, info.st_uid,
++                                info.st_gid, info.st_size, info.st_mtime_ns, info.st_ctime_ns))
++                if len(entries) > 1024:
++                    raise HomeRefusal("credential recovery requires a bounded unchanged home")
++            else:
++                raise HomeRefusal("credential recovery refuses special entries")
++    fd = _open_home(home)
++    try:
++        visit(fd, "")
++    finally:
++        os.close(fd)
++    return "sha256:" + hashlib.sha256(json.dumps(entries, separators=(",", ":")).encode()).hexdigest()
++
++
++def _recovery_id(value):
++    if type(value) is not str or not 1 <= len(value) <= 128 or any(c not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_." for c in value):
++        raise HomeRefusal("credential recovery requires an explicit bounded decision identity")
++    return value
++
++
++def recover_failed_initialization(mount, control, *, receipt_id, decision_id, authorize_retry=None):
++    """Explicit host-owner operation, never called by startup or a worker.
++
++    Withdrawal and subsequent authorization are separate calls. This operation
++    supports the host's durable ended-before-start proof, which fences delayed
++    starts. Other runtime situations retain the hold rather than guess exclusion.
++    No credential contents are read and no filesystem content in home is changed.
++    """
++    from . import attempts, model_attribution
++    from ..provider_policy.home import credential_state
++    if type(mount) is not HomeMount:
++        raise HomeRefusal("credential recovery requires the held manager home")
++    decision_id = _recovery_id(decision_id)
++    if authorize_retry is not None:
++        _recovery_id(authorize_retry)
++    place = location(mount.root, mount.identity)
++    with _directory(place) as fd:
++        _private(fd)
++        fcntl.flock(fd, fcntl.LOCK_EX)
++        home, _, _ = mount.boundary()
++        record = _read(fd, "credential.json")
++        if type(record) is not dict:
++            raise HomeRefusal("credential recovery requires retained initialization evidence")
++        path = record.get("path")
++        _credential_receipt(record, path)
++        selected = model_attribution.selection_of(control, mount.attempt_id)
++        if (selected is None or selected["home_root"] != mount.root
++                or selected["delivery"]["home_identity"] != mount.identity
++                or selected["delivery"]["attempt_id"] != mount.attempt_id
++                or selected["delivery"]["contract"]["adapter"]["credential"] != {"mode": "seeded-retained", "path": path}):
++            raise HomeRefusal("credential recovery requires the exact manager selection and home binding")
++        if record["receipt_id"] != receipt_id:
++            raise HomeRefusal("credential recovery receipt identity disagrees")
++        history_name = "credential-withdrawal-" + receipt_id + ".json"
++        history = _read(fd, history_name)
++        if record["state"] in ("withdrawn", "authorized") and authorize_retry is None:
++            if history is None or history["decision_id"] != decision_id:
++                raise HomeRefusal("credential recovery decision identity disagrees")
++            return history
++        evidence = attempts.provider_home_cessation_of(control, mount.attempt_id)
++        if (evidence is None or evidence.get("attempt_id") != mount.attempt_id
++                or evidence.get("runtime") != "not-started" or evidence.get("ended_before_start") is not True):
++            raise HomeRefusal("credential recovery requires a fenced never-started holder")
++        if record["state"] == "ready" or credential_state(home, path) != "empty" or _home_snapshot(home) != record["home_snapshot"]:
++            raise HomeRefusal("credential recovery requires never-successful initialization and unchanged home")
++        if authorize_retry is not None:
++            if (record["state"] not in ("withdrawn", "authorized") or history is None
++                    or history["decision_id"] != decision_id):
++                raise HomeRefusal("credential retry authorization requires audited withdrawal first")
++            if record["state"] == "authorized" and record["authorization"] != authorize_retry:
++                raise HomeRefusal("credential retry authorization identity disagrees")
++            authorized = dict(record, state="authorized", authorization=authorize_retry)
++            _write(fd, authorized, "credential.json")
++            return {"receipt_id": receipt_id, "decision_id": decision_id, "authorization": authorize_retry, "state": "authorized"}
++        if record["state"] != "initializing":
++            raise HomeRefusal("only a failed first-initialization receipt can be withdrawn")
++        audit = {"schema": "baton.credential-withdrawal/1", "decision_id": decision_id,
++                 "original_receipt": record, "holder": mount.attempt_id,
++                 "runtime_evidence": evidence, "home_unchanged": True}
++        if history is not None and history != audit:
++            raise HomeRefusal("credential withdrawal audit disagrees")
++        if history is None:
++            _write(fd, audit, history_name)
++        _write(fd, dict(record, state="withdrawn", decision_id=decision_id), "credential.json")
++        return audit
++
+ 
+ 
+ def status_of(root, bound):
+--- a/v12/python/tests/job_manager/test_provider_attribution_recovery.py
++++ b/v12/python/tests/job_manager/test_provider_attribution_recovery.py
+@@ -263,6 +263,64 @@
+         self.assertEqual(self.evidence(), (receipt, None))
+ 
+ 
++    def test_late_resolution_supplements_without_rewriting_initial_receipt(self):
++        image = "sha256:" + "f" * 64
++        base = dict(self.case.image_observation, image_id=image)
++        self.case.observe_image(base)
++        initial, cause = self.evidence(); self.assertEqual(cause, "launched-image-mismatch")
++        resolved = dict(base, resolution={"image_id": image, "registry_digest": self.case.image_observation["image_id"]})
++        self.case.observe_image(resolved)
++        receipt, cause = self.evidence(); self.assertIsNone(cause)
++        self.assertEqual(model_attribution._read(self.case.control, self.receipts.KIND, self.case.attempt_id), initial)
++        self.case.observe_image(base); self.case.observe_image(resolved)
++        self.assertEqual(self.evidence(), (receipt, None))
++        self.case.ready()
++        binding = publication_recovery.admission_for(self.case.jobs, self.case.recovery_job_id)["candidate"]["model_attribution"]
++        self.assertEqual(binding["launched_image"], receipt)
++        with ControlStore.open(self.case.control.database, incarnation="supplement-reopen", clock=self.case.clock) as reopened:
++            self.assertEqual(model_attribution.require_recovery(reopened, binding), binding)
++
++    def test_late_resolution_cannot_change_frozen_recovery_binding(self):
++        base = self.case.image_observation
++        self.case.observe_image(base)
++        self.case.ready()
++        previous = publication_recovery.admission_for(self.case.jobs, self.case.recovery_job_id)["candidate"]["model_attribution"]
++        self.case.observe_image(dict(base, resolution={"image_id": base["image_id"], "registry_digest": base["image_id"]}))
++        self.assertIsNone(self.evidence()[1])
++        with self.assertRaises(ContractRefusal): model_attribution.require_recovery(self.case.control, previous)
++        self.assertEqual(publication_recovery.admission_for(self.case.jobs, self.case.recovery_job_id)["candidate"]["model_attribution"], previous)
++
++    def test_malformed_resolution_supplement_holds(self):
++        self.case.observe_image(self.case.image_observation)
++        initial, _ = self.evidence()
++        from baton_v12.contracts import digest
++        supplement = dict(initial, initial_receipt_digest=digest(initial), observation=None)
++        actual = model_attribution._read
++        def read(control, kind, attempt):
++            return supplement if kind == self.receipts.KIND + "-resolution" else actual(control, kind, attempt)
++        with mock.patch.object(model_attribution, "_read", side_effect=read):
++            self.assertEqual(self.evidence()[1], "launched-image-invalid")
++
++    def test_same_container_restart_is_a_second_execution_and_holds(self):
++        self.case.observe_image(self.case.image_observation)
++        state, _, _ = self.case.observe_image(dict(self.case.image_observation, started_at="2026-11-25T00:01:00Z"))
++        self.assertEqual(state, "quiescent")
++        self.assertEqual(self.evidence()[1], "launched-image-invalid")
++
++    def test_contract_refusal_does_not_lose_cessation_or_accept_prior_image(self):
++        self.case.observe_image(self.case.image_observation)
++        actual = model_attribution._write
++        def refused(control, kind, attempt, value):
++            if kind == self.receipts.KIND + "-conflict":
++                raise ContractRefusal("refused", "precondition", "synthetic image journal refusal")
++            return actual(control, kind, attempt, value)
++        with mock.patch.object(model_attribution, "_write", side_effect=refused):
++            state, _, _ = self.case.observe_image(dict(self.case.image_observation, image_id="sha256:" + "f"*64))
++        self.assertEqual(state, "quiescent")
++        self.assertEqual(self.evidence()[1], "launched-image-refused")
++        with ControlStore.open(self.case.control.database, incarnation="refusal-reopen", clock=self.case.clock) as reopened:
++            self.assertEqual(self.receipts.evidence(reopened, self.case.attempt_id, model_attribution.selection_of(reopened, self.case.attempt_id))[1], "launched-image-refused")
++
+     def test_lost_receipt_reply_replays_without_rewriting_observation(self):
+         actual = model_attribution._write
+         def lost(control, kind, attempt, value):
+--- a/v12/python/tests/manager/codex_fixtures.py
++++ b/v12/python/tests/manager/codex_fixtures.py
+@@ -1,7 +1,7 @@
+ """Synthetic Codex policy for offline seam tests, NEVER vendor path evidence.
+ 
+-Production deliberately has no Codex realization. These patch-only names let
+-ordinary policy/delivery/home owners run while J1 remains unresolved.
++These deliberately different paths test policy-driven ownership independently
++of the production mapping. Native image and provider qualification stay separate.
+ """
+ from contextlib import contextmanager, ExitStack
+ from copy import deepcopy
+--- a/v12/python/tests/manager/test_codex_draft.py
++++ b/v12/python/tests/manager/test_codex_draft.py
+@@ -246,14 +246,17 @@
+ 
+ 
+ class JoinedCodex(unittest.TestCase):
+-    def test_native_composition_still_refuses_without_j1(self):
++    def test_production_mapping_is_explicit_and_roles_remain_bounded(self):
+         import provider_policy as policy
+         from tests.manager import codex_fixtures as fixture
+-        self.assertNotIn("codex", policy.REALIZATIONS)
+-        self.assertNotIn("codex", policy.MANAGED)
++        adapter = policy.adapter(fixture.SELECTED, network="bridge")
++        self.assertEqual(adapter["credential"], {"mode": "seeded-retained", "path": "codex/auth.json"})
++        self.assertEqual(adapter["environment_policy"]["CODEX_HOME"], policy.HOME + "/codex")
++        self.assertEqual(adapter["managed_entries"][0]["path"], "instructions/WORKER.md")
+         self.assertEqual(policy.LABEL_ROLES["codex"], ["implementation"])
+-        with self.assertRaises(policy.PolicyRefusal):
+-            policy.adapter(fixture.SELECTED, network="bridge")
++        for role in ("review", "integration"):
++            with self.assertRaises(policy.PolicyRefusal): policy.context_label(adapter, role)
++        with self.assertRaises(policy.PolicyRefusal): policy.adapter(dict(fixture.SELECTED, provider="unknown"), network="bridge")
+ 
+     def test_exact_version_decode_and_probe_gate(self):
+         import os
+--- a/v12/python/tests/manager/test_credentials.py
++++ b/v12/python/tests/manager/test_credentials.py
+@@ -2712,3 +2712,49 @@
+         self.assertTrue(os.path.exists(marker),
+                         "a path out of a record was followed and removed")
+         self.assertFalse(os.path.exists(home.state_path("attempt-1")))
++
++
++class SubscriptionFileDelivery(CredentialCase):
++    def test_exact_bytes_below_at_above_limit_and_empty(self):
++        from baton_v12.provider_policy.home import MAX_SUBSCRIPTION_BYTES
++        from baton_v12.contracts.secrets import forget_file_secret, check_no_durable_secret
++        for length in (0, MAX_SUBSCRIPTION_BYTES - 1, MAX_SUBSCRIPTION_BYTES, MAX_SUBSCRIPTION_BYTES + 1):
++            with self.subTest(length=length):
++                raw = b"\xc3\xa9" * (length // 2) + (b"\xff" if length % 2 else b"")
++                call = lambda: self.home().materialize(credentials.resolved_delivery(["api"], profile=PROFILE), attempt_id="file-" + str(length), workspace_group=self.group, credential_provider=lambda *args: raw, file_slots=["api"])
++                if not 0 < length <= MAX_SUBSCRIPTION_BYTES:
++                    with self.assertRaises(ContractRefusal) as raised: call()
++                    self.assertNotIn("é", str(raised.exception))
++                    continue
++                delivered = call()
++                source, target = delivered.mounts()[0]
++                with open(source, "rb") as stream: self.assertEqual(stream.read(), raw)
++                with self.assertRaises(ContractRefusal): check_no_durable_secret({"nested": [raw]})
++                record = self.home().written_state("file-" + str(length), delivered.record(runtime_id="synthetic-runtime"))
++                forget_file_secret(raw)
++                adopted = self.home().adopt(record, attempt_id="file-"+str(length), runtime_id="synthetic-runtime", workspace_group=self.group, file_slots=["api"])
++                with self.assertRaises(ContractRefusal): check_no_durable_secret(raw)
++                self.home().tear_down(adopted)
++                check_no_durable_secret(raw)
++
++    def test_file_selection_does_not_relax_legacy_token_limit_or_type(self):
++        for raw in ("x"*4097, b"synthetic bytes"):
++            with self.assertRaises(ContractRefusal): self.home().materialize(credentials.resolved_delivery(["api"], profile=PROFILE), attempt_id="legacy", workspace_group=self.group, credential_provider=lambda *args: raw)
++        for slots in (["absent"], ["api", "api"], "api"):
++            with self.assertRaises(ContractRefusal): self.delivery(file_slots=slots)
++
++    def test_file_secret_registry_preserves_nested_ownership_and_safe_diagnostics(self):
++        from baton_v12.contracts.secrets import remember_file_secret, forget_file_secret, check_no_durable_secret
++        raw = "synthetic multi-byte é file\n".encode()
++        remember_file_secret(raw); remember_file_secret(raw)
++        try:
++            for value in (raw, {"nested": [raw.decode()]}, {raw.decode(): "value"}):
++                with self.assertRaises(ContractRefusal): check_no_durable_secret(value)
++            with self.assertRaises(ContractRefusal) as refused:
++                ContractRefusal("refused", "precondition", "unsafe " + raw.decode())
++            self.assertNotIn(raw.decode(), str(refused.exception))
++            self.assertTrue(forget_file_secret(raw))
++            with self.assertRaises(ContractRefusal): check_no_durable_secret(raw.decode())
++        finally:
++            while forget_file_secret(raw): pass
++        check_no_durable_secret(raw.decode())
+--- a/v12/python/tests/manager/test_oci.py
++++ b/v12/python/tests/manager/test_oci.py
+@@ -2488,6 +2488,16 @@
+             self.assertEqual(image["started_at"], "2026-11-25T00:00:00Z")
+             self.assertIsNone(image["resolution"])
+ 
++    def test_bare_podman_image_ids_are_normalized_from_engine_evidence(self):
++        observed, _ = self.observed(self.document(image=IMAGE[7:]))
++        self.assertEqual(observed["image_observation"]["image_id"], IMAGE)
++        image = "f"*64
++        observed, _ = self.observed(self.document(image=image), answer(stdout=json.dumps({"Id": image, "RepoDigests": ["fixture@"+IMAGE]})))
++        self.assertEqual(observed["image_observation"]["resolution"], {"image_id": "sha256:"+image, "registry_digest": IMAGE})
++        for invalid in ("image-tag", "F"*64, "f"*63):
++            observed, _ = self.observed(self.document(image=invalid))
++            self.assertIsNone(observed["image_observation"])
++
+     def test_created_only_or_malformed_start_has_no_receipt(self):
+         for stamp in (None, "", "0001-01-01T00:00:00Z", "2026-11-25T00:00:00", "untrusted text"):
+             observed, _ = self.observed(self.document(started=stamp))
+--- a/v12/python/tests/manager/test_provider_home.py
++++ b/v12/python/tests/manager/test_provider_home.py
+@@ -577,3 +577,119 @@
+                     role="implementation", transport=baton_worker.EXCHANGE_TRANSPORT,
+                     job_execution=job, provider_selection=delivered)
+             self.assertIn("another Job or attempt", str(caught.exception))
++
++
++class SubscriptionFileBounds(unittest.TestCase):
++    setUp = WorkerHomePreparation.setUp
++
++    def test_byte_bounds_first_seed_and_retained_validation(self):
++        from baton_v12.provider_policy.home import MAX_SUBSCRIPTION_BYTES, prepare, credential_state
++        from baton_v12.provider_policy import PolicyRefusal
++        for length in (0, MAX_SUBSCRIPTION_BYTES - 1, MAX_SUBSCRIPTION_BYTES, MAX_SUBSCRIPTION_BYTES + 1):
++            with self.subTest(length=length):
++                home = self.root / ("home-" + str(length)); home.mkdir(mode=0o700)
++                raw = (b"\xc3\xa9" * (length // 2)) + (b"\xff" if length % 2 else b"")
++                self.seed.write_bytes(raw)
++                call = lambda: prepare(str(home), credential_path="codex/auth.json", delivered=str(self.seed), mode="seeded-retained")
++                if 0 < length <= MAX_SUBSCRIPTION_BYTES:
++                    call()
++                    self.assertEqual((home / "codex/auth.json").read_bytes(), raw)
++                    self.assertEqual(credential_state(str(home), "codex/auth.json"), "ready")
++                    for invalid_size in (0, MAX_SUBSCRIPTION_BYTES + 1):
++                        (home / "codex/auth.json").write_bytes(b"x" * invalid_size)
++                        with self.assertRaises(PolicyRefusal): call()
++                        self.assertEqual((home / "codex/auth.json").stat().st_size, invalid_size)
++                else:
++                    with self.assertRaises(PolicyRefusal) as raised: call()
++                    self.assertNotIn("é", str(raised.exception))
++                    self.assertFalse((home / "codex/auth.json").exists())
++
++
++class FailedInitializationRecovery(unittest.TestCase):
++    def setUp(self):
++        from baton_v12.worker_manager import ControlStore, attempts
++        self.temp = tempfile.TemporaryDirectory(dir=disk_backed_root()); self.addCleanup(self.temp.cleanup)
++        self.root = Path(self.temp.name)
++        from tests.manager import test_attempts as fixtures
++        self.case = fixtures.TheRuntimeIsStartedOnceAndReconciled("runTest")
++        self.addCleanup(self.case.doCleanups); self.case.setUp()
++        self.case.activated()
++        self.control = self.case.store
++        self.kw = dict(authority_uuid="synthetic-authority", job_id="synthetic-job", worker_id="synthetic-worker", attempt_id=fixtures.ATTEMPT)
++        from baton_v12.worker_manager import model_attribution
++        from tests.manager import provider_fixtures
++        selected = provider_fixtures.delivery(attempt=self.kw["attempt_id"], job=self.kw["job_id"], worker=self.kw["worker_id"], authority=self.kw["authority_uuid"], provider="codex", cli_build="0.169.0")
++        model_attribution.select(self.control, selected, phase="implementation", logs_root=str(self.root / "logs"), home_root=str(self.root / "homes"))
++        homes.acquire(str(self.root / "homes"), **self.kw)
++        self.mount = homes.HomeMount(str(self.root / "homes"), **self.kw)
++        self.home = Path(self.mount.boundary()[0]); self.state = self.home.parent
++        def fail(): raise OSError("synthetic source unavailable before copy")
++        with self.assertRaises(OSError): self.mount.initialize_credential("codex/auth.json", fail)
++        self.original = json.loads((self.state / "credential.json").read_text())
++        self.args = dict(receipt_id=self.original["receipt_id"], decision_id="synthetic-decision")
++
++    def fence(self):
++        from baton_v12.worker_manager import attempts
++        from baton_v12.contracts import ContractRefusal
++        with self.assertRaises(ContractRefusal):
++            attempts.refuse_runtime_preparation(self.control, attempt_id=self.kw["attempt_id"], refusal=ContractRefusal("refused", "precondition", "synthetic preparation failure"))
++        self.assertTrue(attempts.provider_home_cessation_of(self.control, self.kw["attempt_id"])["ended_before_start"])
++        engine = mock.Mock()
++        with self.assertRaises(ContractRefusal): attempts.request_runtime_start(self.control, engine, attempt_id=self.kw["attempt_id"])
++        engine.start.assert_not_called()
++
++    def recover(self, **kw):
++        return homes.recover_failed_initialization(self.mount, self.control, **dict(self.args, **kw))
++
++    def test_no_fence_no_withdrawal_and_no_automatic_retry(self):
++        with self.assertRaises(homes.HomeRefusal): self.recover()
++        with self.assertRaises(homes.HomeRefusal): self.mount.initialize_credential("codex/auth.json", mock.Mock())
++        self.assertEqual(json.loads((self.state / "credential.json").read_text()), self.original)
++
++    def test_explicit_withdrawal_is_idempotent_separate_authorization_and_new_receipt(self):
++        self.fence()
++        audit = self.recover()
++        self.assertEqual(audit["original_receipt"], self.original)
++        self.assertEqual(self.recover(), audit)
++        self.assertEqual(len(list(self.state.glob("credential-withdrawal-*.json"))), 1)
++        with self.assertRaises(homes.HomeRefusal): self.mount.initialize_credential("codex/auth.json", mock.Mock())
++        self.recover(authorize_retry="synthetic-retry-decision")
++        from baton_v12.provider_policy.home import prepare
++        seed = self.root / "synthetic-seed"; seed.write_bytes(b"synthetic file bytes"); seed.chmod(0o600)
++        self.mount.initialize_credential("codex/auth.json", lambda: prepare(str(self.home), credential_path="codex/auth.json", delivered=str(seed), mode="seeded-retained"))
++        current = json.loads((self.state / "credential.json").read_text())
++        self.assertNotEqual(current["receipt_id"], self.original["receipt_id"])
++        self.assertEqual(current["previous_receipt"], self.original["receipt_id"])
++        self.assertEqual(current["state"], "ready")
++        self.assertEqual(json.loads(next(self.state.glob("credential-withdrawal-*.json")).read_text()), audit)
++        with self.assertRaises(homes.HomeRefusal): self.recover(receipt_id=current["receipt_id"])
++
++    def test_concurrent_repeat_has_one_audit(self):
++        from concurrent.futures import ThreadPoolExecutor
++        self.fence()
++        # Each contender has its own control connection, as real host callers do.
++        from baton_v12.worker_manager import ControlStore
++        def contender(_):
++            with ControlStore.open(self.control.database, incarnation="synthetic-contender", clock=lambda: "2026-11-25T00:00:00.000Z") as control:
++                return homes.recover_failed_initialization(self.mount, control, **self.args)
++        with ThreadPoolExecutor(max_workers=2) as pool: answers = list(pool.map(contender, range(2)))
++        self.assertEqual(answers[0], answers[1])
++        self.assertEqual(len(list(self.state.glob("credential-withdrawal-*.json"))), 1)
++
++    def test_changed_home_and_wrong_receipt_keep_evidence(self):
++        self.fence()
++        with self.assertRaises(homes.HomeRefusal): self.recover(receipt_id="0"*32)
++        marker = self.home / "private-state"; marker.write_bytes(b"synthetic private state")
++        with self.assertRaises(homes.HomeRefusal): self.recover()
++        marker.unlink()  # Restoring entries still changed directory ctime.
++        with self.assertRaises(homes.HomeRefusal): self.recover()
++        self.assertEqual(json.loads((self.state / "credential.json").read_text()), self.original)
++        self.assertEqual(list(self.state.glob("credential-withdrawal-*.json")), [])
++
++    def test_foreign_manager_home_binding_cannot_authorize_withdrawal(self):
++        self.fence()
++        from baton_v12.worker_manager import model_attribution
++        actual = model_attribution.selection_of(self.control, self.kw["attempt_id"])
++        for changed in (None, dict(actual, home_root=str(self.root / "other")), dict(actual, delivery=dict(actual["delivery"], home_identity=dict(actual["delivery"]["home_identity"], job_id="foreign")))):
++            with mock.patch.object(model_attribution, "selection_of", return_value=changed), self.assertRaises(homes.HomeRefusal): self.recover()
++        self.assertEqual(json.loads((self.state / "credential.json").read_text()), self.original)
+--- a/v12/python/tests/tools/test_codex_selection.py
++++ b/v12/python/tests/tools/test_codex_selection.py
+@@ -22,9 +22,11 @@
+         values.update(changes)
+         return self.fixture.composing(**values)["worker"]
+ 
+-    def test_no_production_realization_can_be_composed(self):
+-        with self.assertRaises(pool.PoolRefusal):
+-            self.compose()
++    def test_production_realization_can_be_composed_without_activation(self):
++        worker = self.compose()
++        adapter = pool.admitted(self.fixture.held, worker, "fixture-principal")["deployment"]["provider_contract"]["adapter"]
++        self.assertEqual(adapter["credential"], {"mode": "seeded-retained", "path": "codex/auth.json"})
++        self.assertEqual(adapter["environment_policy"]["CODEX_HOME"], policy.HOME + "/codex")
+ 
+     def test_composition_binds_codex_slot_entry_and_role(self):
+         with fixture.simulated(policy):
+@@ -94,8 +96,7 @@
+         policy.selection(claude)
+         with self.assertRaises(policy.PolicyRefusal):
+             policy.selection(dict(claude, service_tier="fast"))
+-        with self.assertRaises(policy.PolicyRefusal):
+-            policy.selection(TIERED)  # No production Codex realization.
++        self.assertEqual(policy.selection(TIERED), TIERED)  # Capability, not execution selection.
+ 
+     def test_unset_keeps_every_identity_and_fast_is_a_different_one(self):
+         with fixture.simulated(policy):
+--- a/v12/python/tests/tools/test_provider_selection.py
++++ b/v12/python/tests/tools/test_provider_selection.py
+@@ -1166,6 +1166,24 @@
+         with self.assertRaisesRegex(provider_home.HomeRefusal, "credential recovery required"):
+             self.prepare()
+ 
++    def test_subscription_byte_bounds_and_exact_copy(self):
++        from baton_v12.provider_policy.home import MAX_SUBSCRIPTION_BYTES
++        for size in (0, MAX_SUBSCRIPTION_BYTES - 1, MAX_SUBSCRIPTION_BYTES, MAX_SUBSCRIPTION_BYTES + 1):
++            with self.subTest(size=size):
++                run = self.root / ("bound-" + str(size)); run.mkdir(mode=0o700)
++                raw = b"\xc3\xa9" * (size // 2) + (b"\xff" if size % 2 else b"")
++                self.source.write_bytes(raw)
++                if not 0 < size <= MAX_SUBSCRIPTION_BYTES:
++                    with self.assertRaises(ValueError) as raised: self.prepare(execution_root=str(run))
++                    self.assertNotIn("é", str(raised.exception))
++                else:
++                    self.prepare(execution_root=str(run))
++                    target = run / "live/home/synthetic-codex/synthetic-auth"
++                    self.assertEqual(target.read_bytes(), raw)
++                    target.write_bytes(b"x" * (MAX_SUBSCRIPTION_BYTES+1))
++                    from baton_v12.provider_policy import PolicyRefusal
++                    with self.assertRaises(PolicyRefusal): self.prepare(execution_root=str(run))
++
+ 
+ class CodexToClaude(SelectedBase):
+     """Synthetic providers at normal invocation boundary; real pipeline owners."""
+@@ -1173,8 +1191,6 @@
+         super().setUp()
+         import provider_policy as worker_policy
+         from tests.manager import codex_fixtures
+-        self.enterContext(codex_fixtures.simulated(policy))
+-        self.enterContext(codex_fixtures.simulated(worker_policy))
+         self.codex_selected = dict(codex_fixtures.SELECTED)
+         adapter = policy.adapter(self.codex_selected, network=self.config["network"])
+         profile = dict(self.config["provider_contract"]["runtime_profile"], provider="codex", cli_build="0.169.0")
+@@ -1184,7 +1200,17 @@
+         self.submission["jobs"][0]["stages"][0]["profile_digest"] = self.codex_profile
+ 
+     def serving(self, **members):
+-        answer = super().serving(**members)
++        from tools import stage_execution
++        original = stage_execution.operations_from
++        secret = self.secret
++        class SyntheticSources:
++            def __call__(self, *args): return secret
++            def resolve_file(self, *args): return b"SYNTHETIC SUBSCRIPTION FILE\n"
++        def compose(*args, **kwargs):
++            kwargs["credential_provider"] = SyntheticSources()
++            return original(*args, **kwargs)
++        with mock.patch.object(stage_execution, "operations_from", side_effect=compose):
++            answer = super().serving(**members)
+         self.image_test_control = answer[1]
+         return answer
+ 
+@@ -1227,6 +1253,9 @@
+                 os.write(options["stdout"], b"codex-cli 0.169.0\n")
+             else:
+                 self.invocations.append(list(argv))
++                self.assertEqual(options["env"]["CODEX_HOME"], options["env"]["HOME"] + "/codex")
++                self.assertEqual(Path(options["env"]["HOME"], "instructions/WORKER.md").read_bytes(), policy.worker_instructions())
++                self.assertEqual(Path(options["env"]["CODEX_HOME"], "auth.json").read_bytes(), b"SYNTHETIC SUBSCRIPTION FILE\n")
+                 for name, body in (operands.get("edits") or {}).items():
+                     self.write(os.path.join(options["cwd"], name), body)
+                 raw = (Path(__file__).parents[1]/"manager/fixtures/codex-0.169.0/turn-success.sanitized.jsonl").read_bytes()
+--- a/v12/python/tests/tools/test_user_credentials.py
++++ b/v12/python/tests/tools/test_user_credentials.py
+@@ -1758,3 +1758,26 @@
+ 
+ if __name__ == "__main__":
+     unittest.main()
++
++
++class SubscriptionFiles(_Fixture):
++    def test_exact_byte_reader_bounds_preserve_whitespace_and_invalid_utf8(self):
++        from baton_v12.provider_policy.home import MAX_SUBSCRIPTION_BYTES
++        for size in (0, MAX_SUBSCRIPTION_BYTES - 1, MAX_SUBSCRIPTION_BYTES, MAX_SUBSCRIPTION_BYTES + 1):
++            with self.subTest(size=size):
++                raw = b"\xc3\xa9" * (size // 2) + (b"\xff" if size % 2 else b"")
++                source = self.private("file-" + str(size), raw)
++                config = self.registry("registry-"+str(size), [{"provider": "synthetic", "reference": "synthetic", "path": source}])
++                reader = self.resolver(config)
++                if 0 < size <= MAX_SUBSCRIPTION_BYTES:
++                    self.assertEqual(reader.resolve_file("synthetic", "synthetic"), raw)
++                else:
++                    with self.assertRaises(user_credentials.SourceRefusal) as raised: reader.resolve_file("synthetic", "synthetic")
++                    self.assertNamesNoPath(raised.exception)
++                    self.assertNotIn("é", str(raised.exception))
++                if size:
++                    with self.assertRaises(user_credentials.SourceRefusal): reader("synthetic", "synthetic")
++        raw = b" \r\nsynthetic file \xff\n"
++        source = self.private("whitespace", raw)
++        config = self.registry("whitespace-registry", [{"provider": "synthetic", "reference": "synthetic", "path": source}])
++        self.assertEqual(self.resolver(config).resolve_file("synthetic", "synthetic"), raw)
+--- a/v12/python/tools/qualification_credentials.py
++++ b/v12/python/tools/qualification_credentials.py
+@@ -8,7 +8,7 @@
+ from pathlib import Path
+ import stat
+ 
+-from baton_v12.provider_policy.home import prepare, checked_home, _parts
++from baton_v12.provider_policy.home import prepare, checked_home, _parts, MAX_SUBSCRIPTION_BYTES
+ from baton_v12.worker_manager.provider_home import initialize_credential, HomeRefusal
+ 
+ 
+@@ -81,7 +81,7 @@
+         if not path.is_absolute() or path != Path(os.path.realpath(path)) or path.is_relative_to(root):
+             raise ValueError("source must be an explicit external file without symlink aliases")
+         info = path.lstat()
+-        if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or stat.S_IMODE(info.st_mode) != 0o600 or info.st_size > 1048576:
++        if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or stat.S_IMODE(info.st_mode) != 0o600 or not 0 < info.st_size <= MAX_SUBSCRIPTION_BYTES:
+             raise ValueError("selected source must be a private bounded regular file")
+         prepare(home, credential_path=relative, delivered=str(path), mode="seeded-retained")
+     initialize_credential(home, str(live / "credential-state"), relative, initialize)
+--- a/v12/python/tools/single_worker.py
++++ b/v12/python/tools/single_worker.py
+@@ -2169,7 +2169,8 @@
+                     nonlocal delivery
+                     delivery = self.credential_home.materialize(
+                         given["credential_resolution"], attempt_id=attempt_id,
+-                        workspace_group=self.group, credential_provider=self.credential_provider)
++                        workspace_group=self.group, credential_provider=self.credential_provider,
++                        file_slots=[slot] if contract["selection"]["provider"] == "codex" else ())
+                     home, unused, writable = mount.boundary()
+                     source, target = delivery.mounts()[0]
+                     prepare(home, credential_path=rule["path"], delivered=source, mode="seeded-retained")
+--- a/v12/python/tools/user_credentials.py
++++ b/v12/python/tools/user_credentials.py
+@@ -572,7 +572,11 @@
+     def __call__(self, provider, reference):
+         return self.resolve(provider, reference)
+ 
+-    def resolve(self, provider, reference):
++    def resolve_file(self, provider, reference):
++        """Explicit subscription-file selection; token behavior is unchanged."""
++        return self.resolve(provider, reference, subscription_file=True)
++
++    def resolve(self, provider, reference, *, subscription_file=False):
+         """The bearer for EXACTLY this provider and this reference.
+ 
+         THE TWO OPERANDS ARE THE SELECTION. They arrive from
+@@ -611,8 +615,13 @@
+                     f"those is this reader choosing a credential the trusted "
+                     f"profile did not name")
+         # EXACTLY ONE, because `held_registry` refuses a duplicated pair.
+-        raw = _proved_read(chosen[0]["path"], limit=self.max_bearer,
++        from baton_v12.provider_policy.home import MAX_SUBSCRIPTION_BYTES
++        raw = _proved_read(chosen[0]["path"], limit=MAX_SUBSCRIPTION_BYTES if subscription_file else self.max_bearer,
+                            what=f"the credential source for {named}")
++        if subscription_file:
++            if not raw:
++                _refuse("subscription-login file is incomplete")
++            return raw
+         try:
+             # STRIPPED OF THE SURROUNDING WHITESPACE AN EDITOR ADDS, which is
+             # what the operand this replaces did and is not part of a secret.
+--- a/v12/worker/claude_agent.py
++++ b/v12/worker/claude_agent.py
+@@ -3853,6 +3853,9 @@
+             # `PYTHONDONTWRITEBYTECODE`; `PYTHONPYCACHEPREFIX` is the name that
+             # decides WHERE, and it is the one that keeps the candidate clean.
+             composed[name] = self._checked_directory(scratch, roots[name])
++        selected = self._provider_selection()
++        if selected is not None and "CODEX_HOME" in selected["contract"]["adapter"]["environment_policy"]:
++            composed["CODEX_HOME"] = composed["HOME"] + "/codex"
+         return composed
+ 
+     def _revalidated_environment(self, scratch, environment):
+@@ -4654,7 +4657,8 @@
+         if selected is not None:
+             expected = selected["contract"]["adapter"]["environment_policy"]
+             if (set(launched) != set(expected) or launched["PATH"] != expected["PATH"]
+-                    or launched["HOME"] != self._retained_home()):
++                    or launched["HOME"] != self._retained_home()
++                    or ("CODEX_HOME" in expected and launched.get("CODEX_HOME") != launched["HOME"] + "/codex")):
+                 raise TaskRefusal("actual provider environment disagrees with the selected policy")
+         evidenced_build = self.provider_version(launched, candidate) if selected is not None else None
+         if selected is not None:

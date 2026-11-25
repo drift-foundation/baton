@@ -3853,6 +3853,9 @@ class ClaudeAgent:
             # `PYTHONDONTWRITEBYTECODE`; `PYTHONPYCACHEPREFIX` is the name that
             # decides WHERE, and it is the one that keeps the candidate clean.
             composed[name] = self._checked_directory(scratch, roots[name])
+        selected = self._provider_selection()
+        if selected is not None and "CODEX_HOME" in selected["contract"]["adapter"]["environment_policy"]:
+            composed["CODEX_HOME"] = composed["HOME"] + "/codex"
         return composed
 
     def _revalidated_environment(self, scratch, environment):
@@ -4654,7 +4657,8 @@ class ClaudeAgent:
         if selected is not None:
             expected = selected["contract"]["adapter"]["environment_policy"]
             if (set(launched) != set(expected) or launched["PATH"] != expected["PATH"]
-                    or launched["HOME"] != self._retained_home()):
+                    or launched["HOME"] != self._retained_home()
+                    or ("CODEX_HOME" in expected and launched.get("CODEX_HOME") != launched["HOME"] + "/codex")):
                 raise TaskRefusal("actual provider environment disagrees with the selected policy")
         evidenced_build = self.provider_version(launched, candidate) if selected is not None else None
         if selected is not None:

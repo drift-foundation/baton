@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 import stat
 
-from baton_v12.provider_policy.home import prepare, checked_home, _parts
+from baton_v12.provider_policy.home import prepare, checked_home, _parts, MAX_SUBSCRIPTION_BYTES
 from baton_v12.worker_manager.provider_home import initialize_credential, HomeRefusal
 
 
@@ -81,7 +81,7 @@ def prepare_selected(selection, source_configuration):
         if not path.is_absolute() or path != Path(os.path.realpath(path)) or path.is_relative_to(root):
             raise ValueError("source must be an explicit external file without symlink aliases")
         info = path.lstat()
-        if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or stat.S_IMODE(info.st_mode) != 0o600 or info.st_size > 1048576:
+        if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or stat.S_IMODE(info.st_mode) != 0o600 or not 0 < info.st_size <= MAX_SUBSCRIPTION_BYTES:
             raise ValueError("selected source must be a private bounded regular file")
         prepare(home, credential_path=relative, delivered=str(path), mode="seeded-retained")
     initialize_credential(home, str(live / "credential-state"), relative, initialize)
