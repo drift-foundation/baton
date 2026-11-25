@@ -1,0 +1,107 @@
+{
+  "proposal_only": true,
+  "authorization": null,
+  "engine_executed": false,
+  "create": [
+    "docker",
+    "create",
+    "--name",
+    "n4q-tier-discovery-386092",
+    "--label",
+    "baton.qualification=tier-discovery-386092",
+    "--network",
+    "none",
+    "--read-only",
+    "--cap-drop=ALL",
+    "--security-opt=no-new-privileges",
+    "--user",
+    "1000:1000",
+    "--pids-limit",
+    "128",
+    "--memory",
+    "512m",
+    "--cpus",
+    "1",
+    "--tmpfs",
+    "/tmp:rw,nosuid,nodev,size=128m",
+    "--workdir",
+    "/workspace",
+    "--mount",
+    "type=bind,src=/var/tmp/baton-codex-tier-discovery-386092/packet,dst=/packet,readonly",
+    "--mount",
+    "type=bind,src=/var/tmp/baton-codex-tier-discovery-386092/home,dst=/run/baton/provider-home",
+    "--mount",
+    "type=bind,src=/var/tmp/baton-codex-tier-discovery-386092/workspace,dst=/workspace",
+    "--mount",
+    "type=bind,src=/var/tmp/baton-codex-tier-discovery-386092/private-output,dst=/private-output",
+    "--entrypoint",
+    "python3",
+    "sha256:17d250b7f620cf69fce0fd96dc1ccbb5b76151a2a6f6bae4fedb2027076f6b0c",
+    "/packet/offline_tier_probe.py",
+    "help-discovery"
+  ],
+  "preflight": [
+    [
+      "docker",
+      "image",
+      "inspect",
+      "sha256:17d250b7f620cf69fce0fd96dc1ccbb5b76151a2a6f6bae4fedb2027076f6b0c"
+    ]
+  ],
+  "start": [
+    "docker",
+    "start",
+    "n4q-tier-discovery-386092"
+  ],
+  "wait": [
+    "docker",
+    "wait",
+    "n4q-tier-discovery-386092"
+  ],
+  "inspect_before_removal": [
+    "docker",
+    "inspect",
+    "n4q-tier-discovery-386092"
+  ],
+  "outer_deadline_seconds": 150,
+  "on_deadline": [
+    [
+      "docker",
+      "stop",
+      "--time",
+      "15",
+      "n4q-tier-discovery-386092"
+    ],
+    [
+      "docker",
+      "inspect",
+      "n4q-tier-discovery-386092"
+    ]
+  ],
+  "only_if_still_running": [
+    "docker",
+    "kill",
+    "n4q-tier-discovery-386092"
+  ],
+  "after_confirmed_exit": [
+    "docker",
+    "rm",
+    "n4q-tier-discovery-386092"
+  ],
+  "verify_absence": [
+    [
+      "docker",
+      "inspect",
+      "n4q-tier-discovery-386092"
+    ],
+    [
+      "docker",
+      "ps",
+      "-aq",
+      "--filter",
+      "label=baton.qualification=tier-discovery-386092"
+    ]
+  ],
+  "no_automatic_retry": true,
+  "effective_config_evidence": "unresolved; help exits never close it"
+}

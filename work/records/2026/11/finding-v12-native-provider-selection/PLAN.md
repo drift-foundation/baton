@@ -416,3 +416,40 @@ Remaining selections: original credential source/configuration and access, model
 ## 2026-11-25 — accepted credential lifecycle imported
 
 Interactive coordinator imported seven exact accepted paths from7f45e1e5 after whole-set drift/type/mode preflight and applied only the owner-approved DESIGN paragraph, linking FINDING. Prior42 DESIGN lines and W386057 edits preserved. Seven final hashes/modes verified; no tests rerun on the mixed host tree. Independent314/314 evidence at review-K-386086 remains applicable to those exact bytes; this is not joined/full-suite qualification. Human checkpoint script is evidence/import-7f45e1e5/owner-checkpoint.py, copied to /tmp/baton-w385830-credentials-checkpoint.py. C2/C3, J1/N4b and native activation remain gated.
+
+
+## 2026-11-25 — owner selects qualification model and credential-copy source
+
+Slawomir explicitly selected gpt-6-astra as the qualification explicit_model, matching the model-related setting read from codexpc config.toml. Earlier in this conversation he authorized the qualification launcher to automatically copy /home/sl/.codex-pushcoin/auth.json into its private retained home, leaving the source unchanged. Reference: codex-pushcoin-subscription; custodian Slawomir. No credential file was read or copied by the coordinator.
+
+Current editable selection draft: config/qualification-selection.json, based on the accepted lifecycle successor template. explicit_model is set; live/offline execution authorization fields remain null, as do unresolved placement/refresh/retention/settings. Existing image/source defaults in that draft are historical template values, not newly selected image/runtime authority; the final launcher must reconcile them with accepted product-image evidence and committed lifecycle source before execution. No live model call authorized. Reasoning effort was not separately selected by this model decision.
+
+
+## 2026-11-25 — owner requests configurable Codex fast mode
+
+Owner requests a way to enable fast mode explicitly through configuration. Add a separately selected service_tier beside explicit_model; the interactive coordinator added a null field to config/qualification-selection.json to record the unset selection, not runtime support. Current CLI documentation describes service_tier=fast via -c; exact pinned0.169.0 support and request behavior remain to be qualified. No fast mode or live call was selected by this capability request.
+
+Bounded implementation requirement: optional fast tier must be carried from JSON through validated adapter configuration into the exact argv (Codex -c service_tier="fast"), with identity binding, consistent qualification launcher rendering and requested-tier reporting. Unset preserves existing behavior; do not describe unset as proved Standard. Reject unsupported configured values; do not infer actual tier from requested configuration. Preserve legacy identities/behavior when unset if feasible, otherwise disclose the admission compatibility consequence. Tests should prove forwarding, refusal and unchanged unset behavior; help or mocked evidence is not proof the server honored fast mode. Update owning contract/DESIGN consistently before product implementation. Coordinate with codexpc current qualification packet and avoid a separate unrelated feature expansion.
+
+
+## 2026-11-25 UTC — optional service tier candidate ready for review (baton.prompt)
+
+Owner-selected slice, coordination M386089. Candidate `sha256:9c365d72625de16e193198d2f1938d82cc51cedad59d3dd54f1cd259db66c458`, eight paths on `1ed26970e74ea48013e3e533e057e6ace08d0058`: [report](evidence/service-tier-386089/REPORT.md). Selected `fast` forwards `-c 'service_tier="fast"'` for Codex 0.169.0, is bound into selection, runtime profile and adapter identity; unset is byte-identical; requested is recorded, observed is never inferred. 604/604 focused. Not verified: that 0.169.0 recognizes the key (retained help evidences only `-c key=value`). Launcher lines for codexpc: `evidence/service-tier-386089/LAUNCHER-DELTA.md`. Next: independent review, then import and human checkpoint. No live call; no tier selected.
+
+
+## 2026-11-25 — independent service-tier review and successor preparation (baton.codxpc, E386092)
+
+Owner selected independent review of K M386090 and a credential-free offline proposal, with no engine/provider execution. [Review](review-2026-11-25T02-52-55Z.md) accepts exact candidate `sha256:9c365d72625de16e193198d2f1938d82cc51cedad59d3dd54f1cd259db66c458` (8 paths, base1ed26970e74ea48013e3e533e057e6ace08d0058) for owner import/checkpoint, not native qualification.604/604 independently collected focused tests passed in61.768519333s, with no skips/unaccounted/source drift. Independent unset snapshots match byte-for-byte. Candidate and main product unchanged.
+
+[Successor packet](evidence/qualification-tier-386092/README.md), `sha256:8b9c0492453d2c574d81b4f90ca36008b91625d1eabd4187b0925651aa68323d`, applies LAUNCHER-DELTA only in new files, carries automated credential copying and pins the exact base plus reviewed overlay.29 static/mocked checks, two source-only context generations and code-only lifecycle pin check pass. Requested-tier metadata must match actual argv. No prior packet was altered.
+
+Correction to the offline-evidence interpretation in M386090: exit0 or help acceptance cannot establish service_tier recognition; unknown overrides may be ignored and help may bypass loading. No authoritative effective-config surface or exact-build loader proof is retained. [Offline proposal](evidence/qualification-tier-386092/OFFLINE-CHECK.md) provides exact network-none help discovery and the required typed-effective-config/unknown-key/ignore-user-config matrix. The effective-config command remains unresolved until exact-build help/source proves one; no guessed diagnostic or exec turn is selected. Recognition, effective requested config, and actual served tier stay distinct; fast is not selected.
+
+Current FINDING source/model selections are preserved; none were read/used for credentials or provider execution. Lifecycle C2/C3 remain open before Codex activation. J1/N4b/native use, W386048 and W386057 remain separate.
+
+Next bounded milestone: owner imports/checkpoints the accepted exact service-tier candidate; separately select the concrete offline help-discovery packet/settings if wanted. No engine/live authority follows from this acceptance. Source/model already selected in the prior ruling; execution settings, image/tool reconciliation, private retention/refresh disposition and later native credential gates are still required. Suggested commit: `Add optional provider service tier to selection, Codex adapter and attribution`. Current reviewer last read M386093/E386092; final result and atomic release follow on T385830.
+
+
+## 2026-11-25 — owner-selected interactive service-tier import
+
+Slawomir asked the interactive coordinator to handle the accepted import here. Imported exactly eight paths from9c365d72 after whole-set candidate/archive/base/drift/type/mode preflight. Independent acceptance M386094 (review-2026-11-25T02-52-55Z.md),604/604 focused checks. Final eight hashes and modes equal reviewed bytes; no reruns on the host with unrelated W386057 edits. DESIGN and other source edits preserved. Evidence/import-9c365d72 contains preflight/postflight and human-only selective checkpoint script. No protected Git mutation, image/build/engine, credential read or provider call. This accepts configuration/forwarding only: pinned CLI recognition, actual served tier, C2/C3, J1/N4b and native qualification remain open. Current draft service_tier=null is not selection of fast mode; successor maps unset to omitted product field. Next milestone: human checkpoint, then the bounded qualification successor, not additional feature scope.

@@ -1227,6 +1227,10 @@ def main(argv=None, *, stream=sys.stdout):
     composing.add_argument("--requested-model", default=None)
     composing.add_argument("--reported-identity", default=None,
                            help="owner-selected exact identity reported for the selector")
+    composing.add_argument("--service-tier", default=None,
+                           help="optional provider service tier, only where "
+                                "the selected provider and CLI build realize "
+                                "it; omitted means none is requested")
     composing.add_argument("--network", default=None,
                            help="the approved OCI network name (every role "
                                 "but publication, which reaches none)")
@@ -1305,11 +1309,12 @@ def main(argv=None, *, stream=sys.stdout):
                     role=taken.role, participant=taken.participant,
                     image_reference=taken.image_reference,
                     image_digest=taken.image_digest,
-                    provider_selection=({"provider": taken.provider,
+                    provider_selection=(dict({"provider": taken.provider,
                         "requested_model": taken.requested_model,
                         "reported_identity": taken.reported_identity,
-                        "cli_build": taken.cli_build}
-                        if any(value is not None for value in (taken.provider, taken.requested_model, taken.reported_identity)) else None),
+                        "cli_build": taken.cli_build},
+                        **({} if taken.service_tier is None else {"service_tier": taken.service_tier}))
+                        if any(value is not None for value in (taken.provider, taken.requested_model, taken.reported_identity, taken.service_tier)) else None),
                     cli_build=taken.cli_build, network=taken.network,
                     credential_sources=taken.credential_sources,
                     credentials=taken.credential,

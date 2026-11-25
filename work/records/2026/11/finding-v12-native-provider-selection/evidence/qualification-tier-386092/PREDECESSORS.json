@@ -1,0 +1,7 @@
+{
+  "r2_packet": "sha256:71c44a1521938308d16a6ddacc1efb2b5075454e418535396738c1fc7caeff87",
+  "lifecycle_packet": "sha256:35396a2b0a88faa89cb1623b325c8cc63b97a695f411723d064b0089de3b84c1",
+  "launcher_delta_sha256": "72b9711c89745805fefef36f6ef68994ce9cfe5a07574e992dfc89d8750b63e2",
+  "candidate": "sha256:9c365d72625de16e193198d2f1938d82cc51cedad59d3dd54f1cd259db66c458",
+  "no_predecessor_modified": true
+}

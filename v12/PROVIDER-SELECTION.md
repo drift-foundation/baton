@@ -20,6 +20,34 @@ digest. Changing a selector changes the worker profile identity; it does not
 change the shared Job tool policy. Admission still enforces that Job identity.
 A pool's separation class is derived from its selected providers and selectors.
 
+### Optional service tier
+
+A selection may carry one optional member, `service_tier`, beside the model.
+`pool compose-worker --service-tier <tier>` sets it. It is accepted only where
+the closed table `provider_policy.SERVICE_TIERS` names it for that provider and
+exact CLI build; today that is `fast` for Codex 0.169.0, which adds exactly
+`-c 'service_tier="fast"'` after the model argument and before the prompt.
+Any other value, provider or build refuses. Nothing selects a tier
+automatically, and no tier is a fallback for another.
+
+Unset is spelled by omitting the member. A selection without it produces the
+same selection, runtime profile, adapter and argv bytes as before, so every
+existing digest is unchanged. A selected tier is part of the selection, appears
+in the runtime profile and in the adapter's `argv_policy`, and therefore
+changes the profile and adapter digests: it is a different execution identity.
+The worker takes the tier only from its validated selection, and its argv is
+compared with the manager's as for the model.
+
+Requested is not observed. Attribution records `service_tier.requested` from
+the selection and `service_tier.observed` as absent, with outcome `missing`;
+no build has a declared source for the tier a provider actually served, and
+argv, configuration echoes and the selection itself are never read as one.
+The tier adds no hold cause. The retained 0.169.0 `exec` help evidences
+`-c <key=value>` with a TOML value. It does not evidence that this build
+recognizes `service_tier`, or how the key combines with
+`--ignore-user-config`; both stay qualification observations, and no Codex
+realization exists yet for any of this to run under.
+
 ## Attribution
 
 Before a selected provider turn, the adapter probes that program's `--version`

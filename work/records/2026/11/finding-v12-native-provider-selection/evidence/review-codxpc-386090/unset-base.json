@@ -1,0 +1,528 @@
+{
+  "claude": {
+    "adapter": {
+      "adapter_name": "docker-single-worker",
+      "argv_policy": {
+        "fallback": null,
+        "fixed": [
+          "--print",
+          "--dangerously-skip-permissions",
+          "--output-format",
+          "json"
+        ],
+        "model_argument": "--model",
+        "program": "claude",
+        "prompt": "last"
+      },
+      "context_label": {
+        "bound": 2048,
+        "placement": "prompt-prefix",
+        "roles": [
+          "implementation",
+          "review"
+        ],
+        "schema": "baton.native-worker-context/1",
+        "template_sha256": "sha256:f08208bcaf3acead01ec35eed147e53ed56a6dcd7e9ce0dd08de5cfcad41a7f8"
+      },
+      "credential": {
+        "mode": "delivered",
+        "path": ".claude/.credentials.json"
+      },
+      "engine": "docker",
+      "entrypoint": [
+        "python3",
+        "/opt/baton/dogfood_entry.py"
+      ],
+      "environment_policy": {
+        "HOME": "/run/baton/provider-home",
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "PYTHONPYCACHEPREFIX": "fresh",
+        "TMPDIR": "fresh",
+        "XDG_CACHE_HOME": "fresh"
+      },
+      "home": "/run/baton/provider-home",
+      "implements_tool_policy": "sha256:4721c6a05b14b8da07c7d278e03abe6e8830653fecdd331a72b3e01f8c40feb0",
+      "managed_entries": [
+        {
+          "bytes": 5646,
+          "kind": "worker-instructions",
+          "path": ".claude/CLAUDE.md",
+          "sha256": "sha256:369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b"
+        }
+      ],
+      "network": "bridge",
+      "participation_sources": [
+        {
+          "field": "modelUsage",
+          "kind": "keys"
+        }
+      ],
+      "provider": "claude",
+      "realization": {
+        "credentials": {
+          "mode": "delivered",
+          "path": ".claude/.credentials.json"
+        },
+        "environment": {
+          "HOME": "/run/baton/provider-home",
+          "PATH": "/usr/local/bin:/usr/bin:/bin",
+          "PYTHONPYCACHEPREFIX": "fresh",
+          "TMPDIR": "fresh",
+          "XDG_CACHE_HOME": "fresh"
+        },
+        "ephemera": "fresh-scratch-roots",
+        "interaction": {
+          "after_permissions": [
+            "--output-format",
+            "json"
+          ],
+          "before_permissions": [
+            "--print"
+          ],
+          "program": "claude"
+        },
+        "model_substitution": {
+          "fallback": null,
+          "selector_argument": "--model"
+        },
+        "provider_sandbox": "container",
+        "tool_permission": [
+          "--dangerously-skip-permissions"
+        ],
+        "user_configuration": "private-home-managed-worker-instructions"
+      },
+      "schema": "baton.single-implementation-adapter/2"
+    },
+    "adapter_digest": "sha256:1f6d8756480c78f835e80bb6f6342e25281be1ab28d11579842a2590b03ede24",
+    "argv": [
+      "claude",
+      "--print",
+      "--dangerously-skip-permissions",
+      "--output-format",
+      "json",
+      "--model",
+      "fixture-selector",
+      "work"
+    ],
+    "attribution": {
+      "attempt_id": "fixture-attempt",
+      "contributor_sources": {},
+      "contributors": [],
+      "evidence": {
+        "digest": null,
+        "log": {
+          "attempt_id": "fixture-attempt",
+          "stream": "provider.stdout"
+        }
+      },
+      "evidenced_cli_build": null,
+      "job_id": "fixture-job",
+      "mapped_identity": "fixture-reported",
+      "outcome": "missing",
+      "phase": "implementation",
+      "provider": "claude",
+      "requested_model": "fixture-selector",
+      "schema": "baton.model-attribution/1",
+      "selected_cli_build": "2.1.247"
+    },
+    "delivery": {
+      "adapter_digest": "sha256:1f6d8756480c78f835e80bb6f6342e25281be1ab28d11579842a2590b03ede24",
+      "attempt_id": "fixture-attempt",
+      "contract": {
+        "adapter": {
+          "adapter_name": "docker-single-worker",
+          "argv_policy": {
+            "fallback": null,
+            "fixed": [
+              "--print",
+              "--dangerously-skip-permissions",
+              "--output-format",
+              "json"
+            ],
+            "model_argument": "--model",
+            "program": "claude",
+            "prompt": "last"
+          },
+          "context_label": {
+            "bound": 2048,
+            "placement": "prompt-prefix",
+            "roles": [
+              "implementation",
+              "review"
+            ],
+            "schema": "baton.native-worker-context/1",
+            "template_sha256": "sha256:f08208bcaf3acead01ec35eed147e53ed56a6dcd7e9ce0dd08de5cfcad41a7f8"
+          },
+          "credential": {
+            "mode": "delivered",
+            "path": ".claude/.credentials.json"
+          },
+          "engine": "docker",
+          "entrypoint": [
+            "python3",
+            "/opt/baton/dogfood_entry.py"
+          ],
+          "environment_policy": {
+            "HOME": "/run/baton/provider-home",
+            "PATH": "/usr/local/bin:/usr/bin:/bin",
+            "PYTHONPYCACHEPREFIX": "fresh",
+            "TMPDIR": "fresh",
+            "XDG_CACHE_HOME": "fresh"
+          },
+          "home": "/run/baton/provider-home",
+          "implements_tool_policy": "sha256:4721c6a05b14b8da07c7d278e03abe6e8830653fecdd331a72b3e01f8c40feb0",
+          "managed_entries": [
+            {
+              "bytes": 5646,
+              "kind": "worker-instructions",
+              "path": ".claude/CLAUDE.md",
+              "sha256": "sha256:369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b"
+            }
+          ],
+          "network": "bridge",
+          "participation_sources": [
+            {
+              "field": "modelUsage",
+              "kind": "keys"
+            }
+          ],
+          "provider": "claude",
+          "realization": {
+            "credentials": {
+              "mode": "delivered",
+              "path": ".claude/.credentials.json"
+            },
+            "environment": {
+              "HOME": "/run/baton/provider-home",
+              "PATH": "/usr/local/bin:/usr/bin:/bin",
+              "PYTHONPYCACHEPREFIX": "fresh",
+              "TMPDIR": "fresh",
+              "XDG_CACHE_HOME": "fresh"
+            },
+            "ephemera": "fresh-scratch-roots",
+            "interaction": {
+              "after_permissions": [
+                "--output-format",
+                "json"
+              ],
+              "before_permissions": [
+                "--print"
+              ],
+              "program": "claude"
+            },
+            "model_substitution": {
+              "fallback": null,
+              "selector_argument": "--model"
+            },
+            "provider_sandbox": "container",
+            "tool_permission": [
+              "--dangerously-skip-permissions"
+            ],
+            "user_configuration": "private-home-managed-worker-instructions"
+          },
+          "schema": "baton.single-implementation-adapter/2"
+        },
+        "runtime_profile": {
+          "cli_build": "2.1.247",
+          "model": "fixture-selector",
+          "provider": "claude",
+          "reported_identity": "fixture-reported",
+          "schema": "baton.single-implementation-runtime-profile/2"
+        },
+        "selection": {
+          "cli_build": "2.1.247",
+          "provider": "claude",
+          "reported_identity": "fixture-reported",
+          "requested_model": "fixture-selector"
+        }
+      },
+      "home_identity": {
+        "authority_uuid": "fixture-authority",
+        "job_id": "fixture-job",
+        "worker_id": "fixture-worker"
+      },
+      "profile_digest": "sha256:1eba57c86a3ae6a683e6821464e2acbf0897d44e0a67549ceebc3190120d1a1b",
+      "schema": "baton.provider-delivery/1",
+      "tool_policy_digest": "sha256:4721c6a05b14b8da07c7d278e03abe6e8830653fecdd331a72b3e01f8c40feb0"
+    },
+    "diagnostic": "Requested: fixture-selector; mapped identity: fixture-reported; Reported contributors: no evidence; Requested model reported: no evidence; CLI build selected: 2.1.247; CLI build evidenced: no evidence; attribution: missing",
+    "profile": {
+      "cli_build": "2.1.247",
+      "model": "fixture-selector",
+      "provider": "claude",
+      "reported_identity": "fixture-reported",
+      "schema": "baton.single-implementation-runtime-profile/2"
+    },
+    "selection": {
+      "cli_build": "2.1.247",
+      "provider": "claude",
+      "reported_identity": "fixture-reported",
+      "requested_model": "fixture-selector"
+    }
+  },
+  "codex": {
+    "adapter": {
+      "adapter_name": "docker-single-worker",
+      "argv_policy": {
+        "fallback": null,
+        "fixed": [
+          "exec",
+          "--dangerously-bypass-approvals-and-sandbox",
+          "--ignore-user-config",
+          "--ignore-rules",
+          "--json"
+        ],
+        "model_argument": "--model",
+        "program": "codex",
+        "prompt": "last"
+      },
+      "context_label": {
+        "bound": 2048,
+        "placement": "prompt-prefix",
+        "roles": [
+          "implementation"
+        ],
+        "schema": "baton.native-worker-context/1",
+        "template_sha256": "sha256:f08208bcaf3acead01ec35eed147e53ed56a6dcd7e9ce0dd08de5cfcad41a7f8"
+      },
+      "credential": {
+        "mode": "seeded-retained",
+        "path": "fixture/credential"
+      },
+      "engine": "docker",
+      "entrypoint": [
+        "python3",
+        "/opt/baton/codex_entry.py"
+      ],
+      "environment_policy": {
+        "HOME": "/run/baton/provider-home",
+        "PATH": "/usr/local/bin:/usr/bin:/bin",
+        "PYTHONPYCACHEPREFIX": "fresh",
+        "TMPDIR": "fresh",
+        "XDG_CACHE_HOME": "fresh"
+      },
+      "home": "/run/baton/provider-home",
+      "implements_tool_policy": "sha256:4721c6a05b14b8da07c7d278e03abe6e8830653fecdd331a72b3e01f8c40feb0",
+      "managed_entries": [
+        {
+          "bytes": 5646,
+          "kind": "worker-instructions",
+          "path": "fixture/instructions.md",
+          "sha256": "sha256:369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b"
+        }
+      ],
+      "network": "bridge",
+      "participation_sources": [],
+      "provider": "codex",
+      "realization": {
+        "credentials": {
+          "mode": "seeded-retained",
+          "path": "fixture/credential"
+        },
+        "environment": {
+          "HOME": "/run/baton/provider-home",
+          "PATH": "/usr/local/bin:/usr/bin:/bin",
+          "PYTHONPYCACHEPREFIX": "fresh",
+          "TMPDIR": "fresh",
+          "XDG_CACHE_HOME": "fresh"
+        },
+        "ephemera": "fresh-scratch-roots",
+        "interaction": {
+          "after_permissions": [
+            "--ignore-user-config",
+            "--ignore-rules",
+            "--json"
+          ],
+          "before_permissions": [
+            "exec"
+          ],
+          "program": "codex"
+        },
+        "model_substitution": {
+          "fallback": null,
+          "selector_argument": "--model"
+        },
+        "provider_sandbox": "container",
+        "tool_permission": [
+          "--dangerously-bypass-approvals-and-sandbox"
+        ],
+        "user_configuration": "private-home-managed-worker-instructions"
+      },
+      "schema": "baton.single-implementation-adapter/2"
+    },
+    "adapter_digest": "sha256:b77ce974a22ba6b9cad7325a02eb76595709af44977b9b63e50645dd6a5ec2a8",
+    "argv": [
+      "codex",
+      "exec",
+      "--dangerously-bypass-approvals-and-sandbox",
+      "--ignore-user-config",
+      "--ignore-rules",
+      "--json",
+      "--model",
+      "fixture-selector",
+      "work"
+    ],
+    "attribution": {
+      "attempt_id": "fixture-attempt",
+      "contributor_sources": {},
+      "contributors": [],
+      "evidence": {
+        "digest": null,
+        "log": {
+          "attempt_id": "fixture-attempt",
+          "stream": "provider.stdout"
+        }
+      },
+      "evidenced_cli_build": null,
+      "job_id": "fixture-job",
+      "mapped_identity": "fixture-reported",
+      "outcome": "missing",
+      "phase": "implementation",
+      "provider": "codex",
+      "requested_model": "fixture-selector",
+      "schema": "baton.model-attribution/1",
+      "selected_cli_build": "0.169.0"
+    },
+    "delivery": {
+      "adapter_digest": "sha256:b77ce974a22ba6b9cad7325a02eb76595709af44977b9b63e50645dd6a5ec2a8",
+      "attempt_id": "fixture-attempt",
+      "contract": {
+        "adapter": {
+          "adapter_name": "docker-single-worker",
+          "argv_policy": {
+            "fallback": null,
+            "fixed": [
+              "exec",
+              "--dangerously-bypass-approvals-and-sandbox",
+              "--ignore-user-config",
+              "--ignore-rules",
+              "--json"
+            ],
+            "model_argument": "--model",
+            "program": "codex",
+            "prompt": "last"
+          },
+          "context_label": {
+            "bound": 2048,
+            "placement": "prompt-prefix",
+            "roles": [
+              "implementation"
+            ],
+            "schema": "baton.native-worker-context/1",
+            "template_sha256": "sha256:f08208bcaf3acead01ec35eed147e53ed56a6dcd7e9ce0dd08de5cfcad41a7f8"
+          },
+          "credential": {
+            "mode": "seeded-retained",
+            "path": "fixture/credential"
+          },
+          "engine": "docker",
+          "entrypoint": [
+            "python3",
+            "/opt/baton/codex_entry.py"
+          ],
+          "environment_policy": {
+            "HOME": "/run/baton/provider-home",
+            "PATH": "/usr/local/bin:/usr/bin:/bin",
+            "PYTHONPYCACHEPREFIX": "fresh",
+            "TMPDIR": "fresh",
+            "XDG_CACHE_HOME": "fresh"
+          },
+          "home": "/run/baton/provider-home",
+          "implements_tool_policy": "sha256:4721c6a05b14b8da07c7d278e03abe6e8830653fecdd331a72b3e01f8c40feb0",
+          "managed_entries": [
+            {
+              "bytes": 5646,
+              "kind": "worker-instructions",
+              "path": "fixture/instructions.md",
+              "sha256": "sha256:369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b"
+            }
+          ],
+          "network": "bridge",
+          "participation_sources": [],
+          "provider": "codex",
+          "realization": {
+            "credentials": {
+              "mode": "seeded-retained",
+              "path": "fixture/credential"
+            },
+            "environment": {
+              "HOME": "/run/baton/provider-home",
+              "PATH": "/usr/local/bin:/usr/bin:/bin",
+              "PYTHONPYCACHEPREFIX": "fresh",
+              "TMPDIR": "fresh",
+              "XDG_CACHE_HOME": "fresh"
+            },
+            "ephemera": "fresh-scratch-roots",
+            "interaction": {
+              "after_permissions": [
+                "--ignore-user-config",
+                "--ignore-rules",
+                "--json"
+              ],
+              "before_permissions": [
+                "exec"
+              ],
+              "program": "codex"
+            },
+            "model_substitution": {
+              "fallback": null,
+              "selector_argument": "--model"
+            },
+            "provider_sandbox": "container",
+            "tool_permission": [
+              "--dangerously-bypass-approvals-and-sandbox"
+            ],
+            "user_configuration": "private-home-managed-worker-instructions"
+          },
+          "schema": "baton.single-implementation-adapter/2"
+        },
+        "runtime_profile": {
+          "cli_build": "0.169.0",
+          "model": "fixture-selector",
+          "provider": "codex",
+          "reported_identity": "fixture-reported",
+          "schema": "baton.single-implementation-runtime-profile/2"
+        },
+        "selection": {
+          "cli_build": "0.169.0",
+          "provider": "codex",
+          "reported_identity": "fixture-reported",
+          "requested_model": "fixture-selector"
+        }
+      },
+      "home_identity": {
+        "authority_uuid": "fixture-authority",
+        "job_id": "fixture-job",
+        "worker_id": "fixture-worker"
+      },
+      "profile_digest": "sha256:db231a477c9e387fa1214cc78725408853651d993a1775d6c46d861163ea4cd9",
+      "schema": "baton.provider-delivery/1",
+      "tool_policy_digest": "sha256:4721c6a05b14b8da07c7d278e03abe6e8830653fecdd331a72b3e01f8c40feb0"
+    },
+    "diagnostic": "Requested: fixture-selector; mapped identity: fixture-reported; Reported contributors: no evidence; Requested model reported: no evidence; CLI build selected: 0.169.0; CLI build evidenced: no evidence; attribution: missing",
+    "profile": {
+      "cli_build": "0.169.0",
+      "model": "fixture-selector",
+      "provider": "codex",
+      "reported_identity": "fixture-reported",
+      "schema": "baton.single-implementation-runtime-profile/2"
+    },
+    "selection": {
+      "cli_build": "0.169.0",
+      "provider": "codex",
+      "reported_identity": "fixture-reported",
+      "requested_model": "fixture-selector"
+    }
+  },
+  "detached_codex_argv": [
+    "codex",
+    "exec",
+    "--dangerously-bypass-approvals-and-sandbox",
+    "--ignore-user-config",
+    "--ignore-rules",
+    "--json",
+    "--model",
+    "fixture-selector",
+    "work"
+  ]
+}

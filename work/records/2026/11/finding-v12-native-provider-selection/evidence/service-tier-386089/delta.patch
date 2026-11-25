@@ -1,0 +1,452 @@
+--- a/v12/PROVIDER-SELECTION.md
++++ b/v12/PROVIDER-SELECTION.md
+@@ -20,6 +20,34 @@
+ change the shared Job tool policy. Admission still enforces that Job identity.
+ A pool's separation class is derived from its selected providers and selectors.
+ 
++### Optional service tier
++
++A selection may carry one optional member, `service_tier`, beside the model.
++`pool compose-worker --service-tier <tier>` sets it. It is accepted only where
++the closed table `provider_policy.SERVICE_TIERS` names it for that provider and
++exact CLI build; today that is `fast` for Codex 0.169.0, which adds exactly
++`-c 'service_tier="fast"'` after the model argument and before the prompt.
++Any other value, provider or build refuses. Nothing selects a tier
++automatically, and no tier is a fallback for another.
++
++Unset is spelled by omitting the member. A selection without it produces the
++same selection, runtime profile, adapter and argv bytes as before, so every
++existing digest is unchanged. A selected tier is part of the selection, appears
++in the runtime profile and in the adapter's `argv_policy`, and therefore
++changes the profile and adapter digests: it is a different execution identity.
++The worker takes the tier only from its validated selection, and its argv is
++compared with the manager's as for the model.
++
++Requested is not observed. Attribution records `service_tier.requested` from
++the selection and `service_tier.observed` as absent, with outcome `missing`;
++no build has a declared source for the tier a provider actually served, and
++argv, configuration echoes and the selection itself are never read as one.
++The tier adds no hold cause. The retained 0.169.0 `exec` help evidences
++`-c <key=value>` with a TOML value. It does not evidence that this build
++recognizes `service_tier`, or how the key combines with
++`--ignore-user-config`; both stay qualification observations, and no Codex
++realization exists yet for any of this to run under.
++
+ ## Attribution
+ 
+ Before a selected provider turn, the adapter probes that program's `--version`
+--- a/v12/python/src/baton_v12/provider_policy/__init__.py
++++ b/v12/python/src/baton_v12/provider_policy/__init__.py
+@@ -85,6 +85,12 @@
+ """
+ # Participation sources are bound separately to the evidenced CLI build.
+ PARTICIPATION = {("claude", "2.1.247"): [{"field": "modelUsage", "kind": "keys"}]}
++# Optional service tiers, bound like participation to the evidenced CLI build.
++# A selection without the member asks for nothing: no tier is ever selected
++# implicitly. The 0.169.0 exec help evidences `-c <key=value>` with a TOML
++# value; that this build recognizes the `service_tier` key is NOT evidenced
++# by the retained help and stays a qualification observation.
++SERVICE_TIERS = {("codex", "0.169.0"): {"fast": ["-c", 'service_tier="fast"']}}
+ 
+ 
+ class PolicyRefusal(ValueError):
+@@ -172,14 +178,30 @@
+             "worker_instructions_digest": entries[0]["sha256"]}
+ 
+ 
++def service_tier_arguments(provider, cli_build, tier):
++    """The exact extra argv of one selected tier; an unset tier adds nothing."""
++    if tier is None:
++        return []
++    known = SERVICE_TIERS.get((provider, cli_build), {})
++    if type(tier) is not str or tier not in known:
++        raise PolicyRefusal("selected service tier has no realization for this provider and CLI build")
++    return list(known[tier])
++
++
+ def selection(value):
+     members = {"provider", "requested_model", "reported_identity", "cli_build"}
+-    if type(value) is not dict or set(value) != members:
++    # `service_tier` is the one optional member. Unset is spelled by omitting
++    # it, so a selection without a tier keeps its existing bytes and digest.
++    if type(value) is not dict or not members <= set(value) <= members | {"service_tier"}:
+         raise PolicyRefusal("provider selection requires provider, model, exact reported identity and CLI build")
+     for key in sorted(members):
+         _text(value[key], key)
+     if value["provider"] not in REALIZATIONS:
+         raise PolicyRefusal("selected provider has no supported policy realization")
++    if "service_tier" in value:
++        if value["service_tier"] is None:
++            raise PolicyRefusal("an unset service tier is omitted, not null")
++        service_tier_arguments(value["provider"], value["cli_build"], value["service_tier"])
+     return dict(value)
+ 
+ 
+@@ -219,7 +241,7 @@
+     if provider not in MANAGED or provider not in LABEL_ROLES or provider not in ENTRYPOINTS:
+         raise PolicyRefusal("provider realization declares no instruction delivery")
+     command = realization["interaction"]
+-    return {
++    document = {
+         "schema": "baton.single-implementation-adapter/2",
+         "adapter_name": "docker-single-worker", "engine": "docker",
+         "network": network, "entrypoint": list(ENTRYPOINTS[provider]),
+@@ -236,6 +258,13 @@
+         "implements_tool_policy": digest(POLICY),
+         "realization": deepcopy(realization),
+     }
++    if "service_tier" in selected:
++        # Present only when selected: the adapter digest of every existing
++        # selection is unchanged, and a tiered one is a different identity.
++        document["argv_policy"]["service_tier"] = {
++            "requested": selected["service_tier"],
++            "arguments": service_tier_arguments(provider, selected["cli_build"], selected["service_tier"])}
++    return document
+ 
+ 
+ def validate_adapter(document, selected, *, adapter_digest, tool_policy_digest):
+@@ -254,7 +283,8 @@
+     if document != adapter(selected, network=document.get("network")):
+         raise PolicyRefusal("provider command policy disagrees")
+     rule = document["argv_policy"]
+-    return [rule["program"], *rule["fixed"], rule["model_argument"], selected["requested_model"], prompt]
++    return [rule["program"], *rule["fixed"], rule["model_argument"], selected["requested_model"],
++            *rule.get("service_tier", {}).get("arguments", []), prompt]
+ 
+ 
+ def delivery(binding, *, adapter_digest, profile_digest, tool_policy_digest,
+@@ -268,7 +298,8 @@
+     if (type(profile) is not dict or profile.get("schema") != "baton.single-implementation-runtime-profile/2"
+             or digest(profile) != profile_digest or any(profile.get(key) != value for key, value in
+             (("provider", selected["provider"]), ("model", selected["requested_model"]),
+-             ("reported_identity", selected["reported_identity"]), ("cli_build", selected["cli_build"])))):
++             ("reported_identity", selected["reported_identity"]), ("cli_build", selected["cli_build"]),
++             ("service_tier", selected.get("service_tier"))))):
+         raise PolicyRefusal("selected profile identity disagrees")
+     for name, value in (("authority", authority_uuid), ("Job", job_id), ("worker", worker_id), ("attempt", attempt_id)):
+         if type(value) is not str or not value:
+--- a/v12/python/src/baton_v12/provider_policy/attribution.py
++++ b/v12/python/src/baton_v12/provider_policy/attribution.py
+@@ -63,7 +63,7 @@
+             evidenced_build = None
+     outcome = ("missing" if not reported or evidenced_build is None else
+                "matched" if selected["reported_identity"] in reported and evidenced_build == selected["cli_build"] else "conflicting")
+-    return {"schema": SCHEMA, "attempt_id": delivery["attempt_id"],
++    answer = {"schema": SCHEMA, "attempt_id": delivery["attempt_id"],
+             "job_id": delivery["home_identity"]["job_id"], "phase": phase,
+             "provider": selected["provider"], "selected_cli_build": selected["cli_build"],
+             "evidenced_cli_build": evidenced_build, "requested_model": selected["requested_model"],
+@@ -72,6 +72,12 @@
+             "evidence": {"digest": raw_digest if raw_digest is not None else
+                          ("sha256:" + hashlib.sha256(raw).hexdigest() if type(raw) is bytes else None),
+                          "log": {"attempt_id": delivery["attempt_id"], "stream": "provider.stdout"}}}
++    if "service_tier" in selected:
++        # REQUESTED IS NOT OBSERVED. No build has a declared source for the
++        # tier a provider actually served, so nothing here reads one: not the
++        # selection, not argv, not a configuration echo in the output.
++        answer["service_tier"] = {"requested": selected["service_tier"], "observed": None, "outcome": "missing"}
++    return answer
+ 
+ 
+ def validate(value, delivery, *, phase, raw):
+@@ -94,4 +100,6 @@
+             + "; Requested model reported: " + ("yes" if present else "no" if reported else "no evidence")
+             + "; CLI build selected: " + value["selected_cli_build"]
+             + "; CLI build evidenced: " + (value.get("evidenced_cli_build") or "no evidence")
+-            + "; attribution: " + value["outcome"])
++            + "; attribution: " + value["outcome"]
++            + ("; Service tier requested: " + value["service_tier"]["requested"] + "; observed: "
++               + (value["service_tier"]["observed"] or "no evidence") if value.get("service_tier") else ""))
+--- a/v12/python/tests/manager/test_codex_draft.py
++++ b/v12/python/tests/manager/test_codex_draft.py
+@@ -64,6 +64,56 @@
+             self.assertEqual(self.agent.provider_argv("work")[-3:],
+                              ["--model", "selected-model", "work"])
+ 
++    def test_service_tier_fast_is_one_exact_config_pair_before_the_prompt(self):
++        argv = self.agent.provider_argv("work", model="explicit", service_tier="fast")
++        self.assertEqual(argv, ["codex", "exec", "--dangerously-bypass-approvals-and-sandbox",
++                                "--ignore-user-config", "--ignore-rules", "--json",
++                                "--model", "explicit", "-c", 'service_tier="fast"', "work"])
++        self.assertIn(""" -c 'service_tier="fast"' work""", shlex.join(argv))
++        # The retained exact-build help evidences the option, not the key.
++        help_text = (FIXTURES / "exec-help.txt").read_text()
++        self.assertIn("-c, --config <key=value>", help_text)
++        self.assertIn("parsed\n          as TOML", help_text)
++        self.assertNotIn("service_tier", help_text)
++        self.run.assert_not_called()
++
++    def test_unset_service_tier_keeps_the_existing_argv(self):
++        expected = ["codex", "exec", "--dangerously-bypass-approvals-and-sandbox",
++                    "--ignore-user-config", "--ignore-rules", "--json", "--model", "explicit", "work"]
++        self.assertEqual(self.agent.provider_argv("work", model="explicit"), expected)
++        self.assertEqual(self.agent.provider_argv("work", model="explicit", service_tier=None), expected)
++        with mock.patch.object(self.agent, "_provider_selection", return_value=delivery()):
++            self.assertEqual(self.agent.provider_argv("work"), expected[:-3] + ["--model", "selected-model", "work"])
++
++    def test_unrealized_service_tiers_refuse(self):
++        for tier in ("flex", "FAST", "fast ", "", "priority", "default", 1, True, ["fast"], '"fast"'):
++            with self.subTest(tier=tier), self.assertRaises(codex_agent.TaskRefusal):
++                self.agent.provider_argv("work", model="explicit", service_tier=tier)
++        with mock.patch.object(codex_agent, "CLI_BUILD", "0.170.0"):
++            with self.assertRaises(codex_agent.TaskRefusal):
++                self.agent.provider_argv("work", model="explicit", service_tier="fast")
++        self.run.assert_not_called()
++
++    def test_launched_worker_takes_the_tier_only_from_its_selection(self):
++        tiered = delivery()
++        tiered["contract"]["selection"]["service_tier"] = "fast"
++        tail = ["--model", "selected-model", "-c", 'service_tier="fast"', "work"]
++        self.agent._seen = {"schema": "baton.worker-launch/6", "role": "implementation"}
++        with mock.patch.object(self.agent, "_provider_selection", return_value=tiered):
++            # Both calls the shared runner makes: without and with the model.
++            self.assertEqual(self.agent.provider_argv("work")[-5:], tail)
++            self.assertEqual(self.agent.provider_argv("work", model="selected-model")[-5:], tail)
++            for operand in ("fast", None):
++                with self.subTest(operand=operand), self.assertRaises(codex_agent.TaskRefusal):
++                    self.agent.provider_argv("work", model="selected-model", service_tier=operand)
++        with mock.patch.object(self.agent, "_provider_selection", return_value=delivery()):
++            self.assertEqual(self.agent.provider_argv("work", model="selected-model")[-3:], tail[:2] + ["work"])
++        self.agent._seen = None
++        with mock.patch.object(self.agent, "_provider_selection", return_value=tiered):
++            with self.assertRaises(codex_agent.TaskRefusal):
++                self.agent.provider_argv("work", service_tier="fast")
++        self.run.assert_not_called()
++
+     def test_invalid_explicit_models_refuse(self):
+         for model in ("", "-x", "a\nb", "a\0b", 3, "x" * 257):
+             with self.subTest(model=model), self.assertRaises(codex_agent.TaskRefusal):
+--- a/v12/python/tests/tools/test_codex_selection.py
++++ b/v12/python/tests/tools/test_codex_selection.py
+@@ -60,3 +60,145 @@
+                 given = dict(copy.deepcopy(original), **changes)
+                 with self.subTest(changes=changes), self.assertRaises(ContractRefusal):
+                     single_worker._held(given, roles=("implementation", "review", "integration"))
++
++
++TIERED = dict(fixture.SELECTED, service_tier="fast")
++
++
++class CodexServiceTier(unittest.TestCase):
++    """Optional service tier: synthetic realization, never a qualified row."""
++
++    def setUp(self):
++        self.fixture = existing.ComposingCase(methodName="runTest")
++        self.addCleanup(self.fixture.doCleanups)
++        self.fixture.setUp()
++        self.addCleanup(self.fixture.tearDown)
++
++    def compose(self, selected):
++        return self.fixture.composing(provider_selection=selected, cli_build="0.169.0",
++                                      credentials=["codex=operator-file:synthetic-only"])["worker"]
++
++    def test_selection_accepts_only_a_realized_tier(self):
++        with fixture.simulated(policy):
++            self.assertEqual(policy.selection(TIERED), TIERED)
++            self.assertEqual(policy.selection(fixture.SELECTED), fixture.SELECTED)
++            for tier in (None, "", "flex", "FAST", "fast ", 1, True, ["fast"]):
++                with self.subTest(tier=tier), self.assertRaises(policy.PolicyRefusal):
++                    policy.selection(dict(fixture.SELECTED, service_tier=tier))
++            with self.assertRaises(policy.PolicyRefusal):
++                policy.selection(dict(TIERED, cli_build="0.170.0"))
++            with self.assertRaises(policy.PolicyRefusal):
++                policy.selection(dict(TIERED, extra="member"))
++        claude = dict(provider="claude", requested_model="fixture-selector",
++                      reported_identity="fixture-reported", cli_build="2.1.247")
++        policy.selection(claude)
++        with self.assertRaises(policy.PolicyRefusal):
++            policy.selection(dict(claude, service_tier="fast"))
++        with self.assertRaises(policy.PolicyRefusal):
++            policy.selection(TIERED)  # No production Codex realization.
++
++    def test_unset_keeps_every_identity_and_fast_is_a_different_one(self):
++        with fixture.simulated(policy):
++            plain = policy.adapter(fixture.SELECTED, network="bridge")
++            tiered = policy.adapter(TIERED, network="bridge")
++            self.assertNotIn("service_tier", plain["argv_policy"])
++            self.assertEqual(tiered["argv_policy"]["service_tier"],
++                             {"requested": "fast", "arguments": ["-c", 'service_tier="fast"']})
++            self.assertEqual(dict(tiered, argv_policy=plain["argv_policy"]), plain)
++            self.assertNotEqual(policy.digest(tiered), policy.digest(plain))
++            self.assertEqual(policy.argv(plain, fixture.SELECTED, "work")[-3:], ["--model", "fixture-selector", "work"])
++            self.assertEqual(policy.argv(tiered, TIERED, "work")[-5:],
++                             ["--model", "fixture-selector", "-c", 'service_tier="fast"', "work"])
++            # A tiered adapter under an untiered selection, and the reverse, disagree.
++            for document, selected in ((tiered, fixture.SELECTED), (plain, TIERED)):
++                with self.assertRaises(policy.PolicyRefusal):
++                    policy.argv(document, selected, "work")
++                with self.assertRaises(policy.PolicyRefusal):
++                    policy.validate_adapter(document, selected, adapter_digest=policy.digest(document),
++                                            tool_policy_digest=policy.digest(policy.POLICY))
++            self.assertEqual(fixture.delivered(policy)["contract"]["adapter"], plain)
++
++    def test_delivery_binds_the_tier_into_profile_and_contract(self):
++        with fixture.simulated(policy):
++            adapter = policy.adapter(TIERED, network="bridge")
++            profile = {"schema": "baton.single-implementation-runtime-profile/2", "provider": "codex",
++                       "model": TIERED["requested_model"], "reported_identity": TIERED["reported_identity"],
++                       "cli_build": TIERED["cli_build"], "service_tier": "fast"}
++            def deliver(selected, adapter, profile):
++                return policy.delivery({"selection": selected, "adapter": adapter, "runtime_profile": profile},
++                    adapter_digest=policy.digest(adapter), profile_digest=policy.digest(profile),
++                    tool_policy_digest=policy.digest(policy.POLICY), authority_uuid="fixture-authority",
++                    job_id="fixture-job", worker_id="fixture-worker", attempt_id="fixture-attempt")
++            bound = deliver(TIERED, adapter, profile)
++            self.assertEqual(bound["contract"]["selection"]["service_tier"], "fast")
++            self.assertEqual(policy.validate_delivery(bound, {"attempt_id": "fixture-attempt", "job_id": "fixture-job"}), bound)
++            untiered = {key: value for key, value in profile.items() if key != "service_tier"}
++            plain = policy.adapter(fixture.SELECTED, network="bridge")
++            for selected, document, held in ((TIERED, adapter, untiered), (TIERED, adapter, dict(profile, service_tier="flex")),
++                                             (fixture.SELECTED, plain, profile)):
++                with self.subTest(selected=selected, held=held), self.assertRaises(policy.PolicyRefusal):
++                    deliver(selected, document, held)
++
++    def test_configuration_composes_and_revalidates_the_tier(self):
++        with fixture.simulated(policy):
++            plain = self.compose(fixture.SELECTED)["deployment"]
++            self.assertNotIn("service_tier", plain["provider_contract"]["selection"])
++            self.assertNotIn("service_tier", plain["provider_contract"]["runtime_profile"])
++            worker = self.compose(TIERED)
++            given = pool.admitted(self.fixture.held, worker, "fixture-principal")["deployment"]
++            contract = given["provider_contract"]
++            self.assertEqual(contract["selection"]["service_tier"], "fast")
++            self.assertEqual(contract["runtime_profile"]["service_tier"], "fast")
++            self.assertEqual(contract["adapter"]["argv_policy"]["service_tier"]["arguments"], ["-c", 'service_tier="fast"'])
++            for name in ("adapter_digest", "profile_digest"):
++                self.assertNotEqual(given[name], plain[name])
++            Path(given["nominated_source"]).mkdir(parents=True)
++            self.assertEqual(single_worker._held(given)["provider_contract"], contract)
++            # Dropping or changing the tier anywhere after composition is refused.
++            for change in ("selection", "runtime_profile"):
++                broken = copy.deepcopy(given)
++                del broken["provider_contract"][change]["service_tier"]
++                # Re-seal the profile so only the tier comparison can refuse.
++                broken["profile_digest"] = policy.digest(broken["provider_contract"]["runtime_profile"])
++                with self.subTest(change=change), self.assertRaises(ContractRefusal):
++                    single_worker._held(broken)
++            for tier in ("flex", None):
++                with self.subTest(tier=tier), self.assertRaises(pool.PoolRefusal):
++                    self.compose(dict(fixture.SELECTED, service_tier=tier))
++
++    def test_requested_tier_is_never_reported_as_observed(self):
++        from baton_v12.provider_policy import attribution
++        with fixture.simulated(policy):
++            adapter = policy.adapter(TIERED, network="bridge")
++            delivered = {"contract": {"selection": TIERED, "adapter": adapter}, "attempt_id": "fixture-attempt",
++                         "home_identity": {"job_id": "fixture-job"}}
++            # Simulated output that merely echoes configuration and argv.
++            raw = b'{"type":"result","subtype":"success","is_error":false,"service_tier":"fast","config":{"service_tier":"fast"}}'
++            record = attribution.record(delivered, phase="implementation", evidenced_build="0.169.0", raw=raw)
++            self.assertEqual(record["service_tier"], {"requested": "fast", "observed": None, "outcome": "missing"})
++            self.assertEqual(attribution.validate(record, delivered, phase="implementation", raw=raw), record)
++            self.assertTrue(attribution.diagnostic(record).endswith("; Service tier requested: fast; observed: no evidence"))
++            with self.assertRaises(policy.PolicyRefusal):
++                attribution.validate(dict(record, service_tier=dict(record["service_tier"], observed="fast", outcome="matched")),
++                                     delivered, phase="implementation", raw=raw)
++            plain = dict(delivered, contract={"selection": fixture.SELECTED, "adapter": policy.adapter(fixture.SELECTED, network="bridge")})
++            untiered = attribution.record(plain, phase="implementation", evidenced_build="0.169.0", raw=raw)
++            self.assertNotIn("service_tier", untiered)
++            self.assertNotIn("Service tier", attribution.diagnostic(untiered))
++
++    def test_compose_worker_operand_is_optional_and_forwarded(self):
++        from unittest import mock
++        base = ["compose-worker", "--deployment", "/synthetic/deployment.json", "--into", "/synthetic/worker.json",
++                "--worker-id", "w", "--role", "implementation", "--participant", "p",
++                "--image-reference", "i", "--image-digest", "sha256:" + "0" * 64, "--cli-build", "0.169.0",
++                "--network", "n", "--credential-sources", "/synthetic/registry", "--credential", "codex=operator-file:synthetic-only",
++                "--provider", "codex", "--requested-model", "fixture-selector", "--reported-identity", "fixture-reported",
++                "--workspace-group", "1", "--task-document", "/synthetic/task.md", "--record", "/synthetic/record",
++                "--legacy-verifier-layout"]
++        for extra, expected in (([], fixture.SELECTED), (["--service-tier", "fast"], TIERED)):
++            with self.subTest(extra=extra), mock.patch.object(pool, "compose") as compose:
++                try:
++                    pool.main(base + extra)
++                except SystemExit as stop:
++                    self.fail("compose-worker operands were refused: " + str(stop))
++                self.assertEqual(compose.call_args.kwargs["provider_selection"], expected)
+--- a/v12/python/tools/next_run_bindings.py
++++ b/v12/python/tools/next_run_bindings.py
+@@ -391,6 +391,8 @@
+             model=selected["requested_model"],
+             reported_identity=selected["reported_identity"],
+             provider=selected["provider"])
++        if "service_tier" in selected:
++            runtime_profile["service_tier"] = selected["service_tier"]
+         adapter = provider_policy.adapter(selected, network=provider_network)
+     profile_digest = digest(runtime_profile)
+     policy_digest = digest(policy)
+--- a/v12/python/tools/pool.py
++++ b/v12/python/tools/pool.py
+@@ -1227,6 +1227,10 @@
+     composing.add_argument("--requested-model", default=None)
+     composing.add_argument("--reported-identity", default=None,
+                            help="owner-selected exact identity reported for the selector")
++    composing.add_argument("--service-tier", default=None,
++                           help="optional provider service tier, only where "
++                                "the selected provider and CLI build realize "
++                                "it; omitted means none is requested")
+     composing.add_argument("--network", default=None,
+                            help="the approved OCI network name (every role "
+                                 "but publication, which reaches none)")
+@@ -1305,11 +1309,12 @@
+                     role=taken.role, participant=taken.participant,
+                     image_reference=taken.image_reference,
+                     image_digest=taken.image_digest,
+-                    provider_selection=({"provider": taken.provider,
++                    provider_selection=(dict({"provider": taken.provider,
+                         "requested_model": taken.requested_model,
+                         "reported_identity": taken.reported_identity,
+-                        "cli_build": taken.cli_build}
+-                        if any(value is not None for value in (taken.provider, taken.requested_model, taken.reported_identity)) else None),
++                        "cli_build": taken.cli_build},
++                        **({} if taken.service_tier is None else {"service_tier": taken.service_tier}))
++                        if any(value is not None for value in (taken.provider, taken.requested_model, taken.reported_identity, taken.service_tier)) else None),
+                     cli_build=taken.cli_build, network=taken.network,
+                     credential_sources=taken.credential_sources,
+                     credentials=taken.credential,
+--- a/v12/worker/codex_agent.py
++++ b/v12/worker/codex_agent.py
+@@ -13,6 +13,7 @@
+ EXEC_COMMANDS = frozenset(("resume", "fork", "review", "help"))
+ ARGUMENTS = ("exec", "--dangerously-bypass-approvals-and-sandbox",
+              "--ignore-user-config", "--ignore-rules", "--json")
++SELECTED = object()
+ 
+ 
+ def prompt_operand(prompt):
+@@ -46,16 +47,31 @@
+             raise TaskRefusal("Codex requires its selected exact CLI build")
+         return selected
+ 
+-    def provider_argv(self, prompt, *, model=None):
++    def provider_argv(self, prompt, *, model=None, service_tier=SELECTED):
+         prompt = prompt_operand(prompt)
+-        if model is None:
++        # A worker that has seen its launch takes the tier from the validated
++        # selection and nowhere else. A detached caller (the qualification
++        # launcher) names it explicitly; None there means no tier.
++        launched = model is None or getattr(self, "_seen", None) is not None
++        if service_tier is not SELECTED and launched:
++            raise TaskRefusal("Codex takes its service tier from the selection, not from an operand")
++        if launched:
+             # The shared runner first asks for argv without its model
+             # argument. Resolve the same validated selection, never a default.
+-            model = self._provider_selection()["contract"]["selection"]["requested_model"]
++            chosen = self._provider_selection()["contract"]["selection"]
++            model = chosen["requested_model"] if model is None else model
++            service_tier = chosen.get("service_tier")
++        elif service_tier is SELECTED:
++            service_tier = None
+         if (type(model) is not str or not model or len(model) > 256
+                 or model.startswith("-") or any(ord(char) < 32 for char in model)):
+             raise TaskRefusal("Codex requires an explicit bounded model selector")
+-        return [self.provider_program, *self.provider_arguments, "--model", model, prompt]
++        import provider_policy
++        try:
++            extra = provider_policy.service_tier_arguments(self.provider_program, CLI_BUILD, service_tier)
++        except ValueError as failure:
++            raise TaskRefusal("Codex has no realization for the selected service tier") from failure
++        return [self.provider_program, *self.provider_arguments, "--model", model, *extra, prompt]
+ 
+     def invoke_provider(self, *, prompt, room, seen=None):
+         # R1 applies before even preparing a home, not just at argv creation.

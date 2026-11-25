@@ -1,0 +1,15 @@
+{
+  "candidate": "sha256:9c365d72625de16e193198d2f1938d82cc51cedad59d3dd54f1cd259db66c458",
+  "base": "1ed26970e74ea48013e3e533e057e6ace08d0058",
+  "modes": {
+    "v12/PROVIDER-SELECTION.md": 420,
+    "v12/python/src/baton_v12/provider_policy/__init__.py": 420,
+    "v12/python/src/baton_v12/provider_policy/attribution.py": 420,
+    "v12/python/tests/manager/test_codex_draft.py": 420,
+    "v12/python/tests/tools/test_codex_selection.py": 420,
+    "v12/python/tools/next_run_bindings.py": 420,
+    "v12/python/tools/pool.py": 420,
+    "v12/worker/codex_agent.py": 420
+  },
+  "refusals": 0
+}

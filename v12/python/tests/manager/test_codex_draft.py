@@ -64,6 +64,56 @@ class CodexDraft(unittest.TestCase):
             self.assertEqual(self.agent.provider_argv("work")[-3:],
                              ["--model", "selected-model", "work"])
 
+    def test_service_tier_fast_is_one_exact_config_pair_before_the_prompt(self):
+        argv = self.agent.provider_argv("work", model="explicit", service_tier="fast")
+        self.assertEqual(argv, ["codex", "exec", "--dangerously-bypass-approvals-and-sandbox",
+                                "--ignore-user-config", "--ignore-rules", "--json",
+                                "--model", "explicit", "-c", 'service_tier="fast"', "work"])
+        self.assertIn(""" -c 'service_tier="fast"' work""", shlex.join(argv))
+        # The retained exact-build help evidences the option, not the key.
+        help_text = (FIXTURES / "exec-help.txt").read_text()
+        self.assertIn("-c, --config <key=value>", help_text)
+        self.assertIn("parsed\n          as TOML", help_text)
+        self.assertNotIn("service_tier", help_text)
+        self.run.assert_not_called()
+
+    def test_unset_service_tier_keeps_the_existing_argv(self):
+        expected = ["codex", "exec", "--dangerously-bypass-approvals-and-sandbox",
+                    "--ignore-user-config", "--ignore-rules", "--json", "--model", "explicit", "work"]
+        self.assertEqual(self.agent.provider_argv("work", model="explicit"), expected)
+        self.assertEqual(self.agent.provider_argv("work", model="explicit", service_tier=None), expected)
+        with mock.patch.object(self.agent, "_provider_selection", return_value=delivery()):
+            self.assertEqual(self.agent.provider_argv("work"), expected[:-3] + ["--model", "selected-model", "work"])
+
+    def test_unrealized_service_tiers_refuse(self):
+        for tier in ("flex", "FAST", "fast ", "", "priority", "default", 1, True, ["fast"], '"fast"'):
+            with self.subTest(tier=tier), self.assertRaises(codex_agent.TaskRefusal):
+                self.agent.provider_argv("work", model="explicit", service_tier=tier)
+        with mock.patch.object(codex_agent, "CLI_BUILD", "0.170.0"):
+            with self.assertRaises(codex_agent.TaskRefusal):
+                self.agent.provider_argv("work", model="explicit", service_tier="fast")
+        self.run.assert_not_called()
+
+    def test_launched_worker_takes_the_tier_only_from_its_selection(self):
+        tiered = delivery()
+        tiered["contract"]["selection"]["service_tier"] = "fast"
+        tail = ["--model", "selected-model", "-c", 'service_tier="fast"', "work"]
+        self.agent._seen = {"schema": "baton.worker-launch/6", "role": "implementation"}
+        with mock.patch.object(self.agent, "_provider_selection", return_value=tiered):
+            # Both calls the shared runner makes: without and with the model.
+            self.assertEqual(self.agent.provider_argv("work")[-5:], tail)
+            self.assertEqual(self.agent.provider_argv("work", model="selected-model")[-5:], tail)
+            for operand in ("fast", None):
+                with self.subTest(operand=operand), self.assertRaises(codex_agent.TaskRefusal):
+                    self.agent.provider_argv("work", model="selected-model", service_tier=operand)
+        with mock.patch.object(self.agent, "_provider_selection", return_value=delivery()):
+            self.assertEqual(self.agent.provider_argv("work", model="selected-model")[-3:], tail[:2] + ["work"])
+        self.agent._seen = None
+        with mock.patch.object(self.agent, "_provider_selection", return_value=tiered):
+            with self.assertRaises(codex_agent.TaskRefusal):
+                self.agent.provider_argv("work", service_tier="fast")
+        self.run.assert_not_called()
+
     def test_invalid_explicit_models_refuse(self):
         for model in ("", "-x", "a\nb", "a\0b", 3, "x" * 257):
             with self.subTest(model=model), self.assertRaises(codex_agent.TaskRefusal):

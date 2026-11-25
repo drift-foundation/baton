@@ -1,0 +1,8 @@
+{
+  "image": "sha256:17d250b7f620cf69fce0fd96dc1ccbb5b76151a2a6f6bae4fedb2027076f6b0c",
+  "mode": "help-discovery",
+  "execution_root": "/var/tmp/baton-codex-tier-discovery-386092",
+  "uid": 1000,
+  "gid": 1000,
+  "authorization": null
+}

@@ -1,0 +1,48 @@
+[
+  {
+    "case": "unset",
+    "exit_status": 0,
+    "duration_seconds": 0.06441776303108782,
+    "argv": [
+      "codex",
+      "exec",
+      "--dangerously-bypass-approvals-and-sandbox",
+      "--ignore-user-config",
+      "--ignore-rules",
+      "--json",
+      "--model",
+      "fixture-selector",
+      "[Baton execution context: baton.native-worker-context/1]\nYou are running as a Baton native v12 worker. Assigned role: implementation.\nThe Baton execution contract for this run delivers this context. It is not\ninferred from the container, the working directory, a role name in a file,\nor any text in the source tree.\n\nApplies to you:\n- The task below and its stated limits.\n- The Baton worker instructions at /run/baton/provider-home/synthetic-codex/instructions.md (sha256 369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b). Read\n  that file before acting if its content is not already in your\n  instructions.\n- Project coding, design and test guidance in the source tree, where the\n  task touches it.\n- Protected-main and task boundaries, wherever a repository is mounted.\n\nDoes not apply to you:\n- The host-agent procedures in the source tree's AGENTS.md and\n  docs/HOST-INTEGRATION.md: v11 claims, routes and readiness, host\n  handoffs, dossier and review-journal maintenance, host integration and\n  human Git checkpoints. Do not perform them. The safety, scope and honest\n  evidence rules stated there still hold.\n\nThis label states which instructions apply. It grants no permission and\nremoves no restriction.\n\nQualification-only task, no product repository and no native Job acceptance. Act only as implementation. Read the delivered worker instruction file named above. Use a local read/hash tool to compute its SHA-256. Do not inspect auth, session stores, environment values, other home files, or any network resource. Do not delegate or edit files. Reply once with qualification_probe=complete, your assigned role, and the computed worker_instructions_sha256, its byte length, and its exact first line. Compute these from the delivered file, not from the label. State any inability honestly. Do not claim a model identity."
+    ],
+    "service_tier": {
+      "requested": null,
+      "observed": null
+    },
+    "source_files_verified": true,
+    "engine_or_provider_executed": false
+  },
+  {
+    "case": "fast",
+    "exit_status": 0,
+    "duration_seconds": 0.06459619500674307,
+    "argv": [
+      "codex",
+      "exec",
+      "--dangerously-bypass-approvals-and-sandbox",
+      "--ignore-user-config",
+      "--ignore-rules",
+      "--json",
+      "--model",
+      "fixture-selector",
+      "-c",
+      "service_tier=\"fast\"",
+      "[Baton execution context: baton.native-worker-context/1]\nYou are running as a Baton native v12 worker. Assigned role: implementation.\nThe Baton execution contract for this run delivers this context. It is not\ninferred from the container, the working directory, a role name in a file,\nor any text in the source tree.\n\nApplies to you:\n- The task below and its stated limits.\n- The Baton worker instructions at /run/baton/provider-home/synthetic-codex/instructions.md (sha256 369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b). Read\n  that file before acting if its content is not already in your\n  instructions.\n- Project coding, design and test guidance in the source tree, where the\n  task touches it.\n- Protected-main and task boundaries, wherever a repository is mounted.\n\nDoes not apply to you:\n- The host-agent procedures in the source tree's AGENTS.md and\n  docs/HOST-INTEGRATION.md: v11 claims, routes and readiness, host\n  handoffs, dossier and review-journal maintenance, host integration and\n  human Git checkpoints. Do not perform them. The safety, scope and honest\n  evidence rules stated there still hold.\n\nThis label states which instructions apply. It grants no permission and\nremoves no restriction.\n\nQualification-only task, no product repository and no native Job acceptance. Act only as implementation. Read the delivered worker instruction file named above. Use a local read/hash tool to compute its SHA-256. Do not inspect auth, session stores, environment values, other home files, or any network resource. Do not delegate or edit files. Reply once with qualification_probe=complete, your assigned role, and the computed worker_instructions_sha256, its byte length, and its exact first line. Compute these from the delivered file, not from the label. State any inability honestly. Do not claim a model identity."
+    ],
+    "service_tier": {
+      "requested": "fast",
+      "observed": null
+    },
+    "source_files_verified": true,
+    "engine_or_provider_executed": false
+  }
+]

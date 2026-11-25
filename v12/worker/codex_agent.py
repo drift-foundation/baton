@@ -13,6 +13,7 @@ CLI_BUILD = "0.169.0"
 EXEC_COMMANDS = frozenset(("resume", "fork", "review", "help"))
 ARGUMENTS = ("exec", "--dangerously-bypass-approvals-and-sandbox",
              "--ignore-user-config", "--ignore-rules", "--json")
+SELECTED = object()
 
 
 def prompt_operand(prompt):
@@ -46,16 +47,31 @@ class CodexAgent(ClaudeAgent):
             raise TaskRefusal("Codex requires its selected exact CLI build")
         return selected
 
-    def provider_argv(self, prompt, *, model=None):
+    def provider_argv(self, prompt, *, model=None, service_tier=SELECTED):
         prompt = prompt_operand(prompt)
-        if model is None:
+        # A worker that has seen its launch takes the tier from the validated
+        # selection and nowhere else. A detached caller (the qualification
+        # launcher) names it explicitly; None there means no tier.
+        launched = model is None or getattr(self, "_seen", None) is not None
+        if service_tier is not SELECTED and launched:
+            raise TaskRefusal("Codex takes its service tier from the selection, not from an operand")
+        if launched:
             # The shared runner first asks for argv without its model
             # argument. Resolve the same validated selection, never a default.
-            model = self._provider_selection()["contract"]["selection"]["requested_model"]
+            chosen = self._provider_selection()["contract"]["selection"]
+            model = chosen["requested_model"] if model is None else model
+            service_tier = chosen.get("service_tier")
+        elif service_tier is SELECTED:
+            service_tier = None
         if (type(model) is not str or not model or len(model) > 256
                 or model.startswith("-") or any(ord(char) < 32 for char in model)):
             raise TaskRefusal("Codex requires an explicit bounded model selector")
-        return [self.provider_program, *self.provider_arguments, "--model", model, prompt]
+        import provider_policy
+        try:
+            extra = provider_policy.service_tier_arguments(self.provider_program, CLI_BUILD, service_tier)
+        except ValueError as failure:
+            raise TaskRefusal("Codex has no realization for the selected service tier") from failure
+        return [self.provider_program, *self.provider_arguments, "--model", model, *extra, prompt]
 
     def invoke_provider(self, *, prompt, room, seen=None):
         # R1 applies before even preparing a home, not just at argv creation.

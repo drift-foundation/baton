@@ -1,0 +1,54 @@
+{
+  "base": "1ed26970e74ea48013e3e533e057e6ace08d0058",
+  "files": [
+    {
+      "path": "v12/PROVIDER-SELECTION.md",
+      "sha256": "9166c94a6ff53f7b6f24ecab89e9d1165e4f3f18321b35440030724b4d94dd1b",
+      "bytes": 14054,
+      "base_sha256": "55adeccbdd02cb117049825547e96921839fa32c6ab420dc4b3ed0411e987b8f"
+    },
+    {
+      "path": "v12/python/src/baton_v12/provider_policy/__init__.py",
+      "sha256": "cf7e8e0c95d223d51dc2afe7ee42f82146dcd615848c62005a00a81387bc5d8b",
+      "bytes": 16847,
+      "base_sha256": "45927d92848cb19999bfa7af9c2539bd0dac0763590efb8f0c00e466e14cbc37"
+    },
+    {
+      "path": "v12/python/src/baton_v12/provider_policy/attribution.py",
+      "sha256": "7ab9e5ef97fb5e4170f94ec7a21bb7077e1fc11489cabdd9dcba228c97a85707",
+      "bytes": 5085,
+      "base_sha256": "5d32b3d239bd0223eb890ad564c70a7e70ca1d0ee84e5a4bab9da4a43918b052"
+    },
+    {
+      "path": "v12/python/tests/manager/test_codex_draft.py",
+      "sha256": "bb9ccbc87cd0a00efb9312d701808345d018be99407474ce46c53707dcb1a501",
+      "bytes": 20421,
+      "base_sha256": "d271a8d8de51865a6138ca4be13340c5277f1fb577f8a32b0263358b46cf6066"
+    },
+    {
+      "path": "v12/python/tests/tools/test_codex_selection.py",
+      "sha256": "508336729aad731336653bbdb6453a8e4b530029b9f70b4bd387ab11e92467f7",
+      "bytes": 13269,
+      "base_sha256": "6a2a2929ba3cea414b58d353f1cf5849a0094f204384b54b5cceb4d01ab17b0d"
+    },
+    {
+      "path": "v12/python/tools/next_run_bindings.py",
+      "sha256": "6e85e94ba2b28a4dfd429da276bef2149546927489402db6075bbb14e657916e",
+      "bytes": 51756,
+      "base_sha256": "b9d4df0dd6d51031f6f2e3f53c3ccb4bbdea175d39824a1a4da69dcc02258aed"
+    },
+    {
+      "path": "v12/python/tools/pool.py",
+      "sha256": "54cfba7b954708a2e8b04df16be724fd9d0b5437a136e13299a4e79b81e22c4e",
+      "bytes": 74053,
+      "base_sha256": "3517c905e0f674c4cb611f9167c10300c228e340dee50324c2e823dfdf2a0d57"
+    },
+    {
+      "path": "v12/worker/codex_agent.py",
+      "sha256": "46098e3abee28402eaf9d5aefd4c774668a4a5e5a650b6f93e40e719be6f57f3",
+      "bytes": 5111,
+      "base_sha256": "e78f6425de6dceb875cc408a7634793accf53df12f3ad4cc8ce22519b226ceea"
+    }
+  ],
+  "candidate": "sha256:9c365d72625de16e193198d2f1938d82cc51cedad59d3dd54f1cd259db66c458"
+}

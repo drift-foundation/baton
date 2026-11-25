@@ -63,7 +63,7 @@ def record(delivery, *, phase, evidenced_build, raw, partial=False,
             evidenced_build = None
     outcome = ("missing" if not reported or evidenced_build is None else
                "matched" if selected["reported_identity"] in reported and evidenced_build == selected["cli_build"] else "conflicting")
-    return {"schema": SCHEMA, "attempt_id": delivery["attempt_id"],
+    answer = {"schema": SCHEMA, "attempt_id": delivery["attempt_id"],
             "job_id": delivery["home_identity"]["job_id"], "phase": phase,
             "provider": selected["provider"], "selected_cli_build": selected["cli_build"],
             "evidenced_cli_build": evidenced_build, "requested_model": selected["requested_model"],
@@ -72,6 +72,12 @@ def record(delivery, *, phase, evidenced_build, raw, partial=False,
             "evidence": {"digest": raw_digest if raw_digest is not None else
                          ("sha256:" + hashlib.sha256(raw).hexdigest() if type(raw) is bytes else None),
                          "log": {"attempt_id": delivery["attempt_id"], "stream": "provider.stdout"}}}
+    if "service_tier" in selected:
+        # REQUESTED IS NOT OBSERVED. No build has a declared source for the
+        # tier a provider actually served, so nothing here reads one: not the
+        # selection, not argv, not a configuration echo in the output.
+        answer["service_tier"] = {"requested": selected["service_tier"], "observed": None, "outcome": "missing"}
+    return answer
 
 
 def validate(value, delivery, *, phase, raw):
@@ -94,4 +100,6 @@ def diagnostic(value):
             + "; Requested model reported: " + ("yes" if present else "no" if reported else "no evidence")
             + "; CLI build selected: " + value["selected_cli_build"]
             + "; CLI build evidenced: " + (value.get("evidenced_cli_build") or "no evidence")
-            + "; attribution: " + value["outcome"])
+            + "; attribution: " + value["outcome"]
+            + ("; Service tier requested: " + value["service_tier"]["requested"] + "; observed: "
+               + (value["service_tier"]["observed"] or "no evidence") if value.get("service_tier") else ""))

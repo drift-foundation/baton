@@ -85,6 +85,12 @@ removes no restriction.
 """
 # Participation sources are bound separately to the evidenced CLI build.
 PARTICIPATION = {("claude", "2.1.247"): [{"field": "modelUsage", "kind": "keys"}]}
+# Optional service tiers, bound like participation to the evidenced CLI build.
+# A selection without the member asks for nothing: no tier is ever selected
+# implicitly. The 0.169.0 exec help evidences `-c <key=value>` with a TOML
+# value; that this build recognizes the `service_tier` key is NOT evidenced
+# by the retained help and stays a qualification observation.
+SERVICE_TIERS = {("codex", "0.169.0"): {"fast": ["-c", 'service_tier="fast"']}}
 
 
 class PolicyRefusal(ValueError):
@@ -172,14 +178,30 @@ def context_record(document, role):
             "worker_instructions_digest": entries[0]["sha256"]}
 
 
+def service_tier_arguments(provider, cli_build, tier):
+    """The exact extra argv of one selected tier; an unset tier adds nothing."""
+    if tier is None:
+        return []
+    known = SERVICE_TIERS.get((provider, cli_build), {})
+    if type(tier) is not str or tier not in known:
+        raise PolicyRefusal("selected service tier has no realization for this provider and CLI build")
+    return list(known[tier])
+
+
 def selection(value):
     members = {"provider", "requested_model", "reported_identity", "cli_build"}
-    if type(value) is not dict or set(value) != members:
+    # `service_tier` is the one optional member. Unset is spelled by omitting
+    # it, so a selection without a tier keeps its existing bytes and digest.
+    if type(value) is not dict or not members <= set(value) <= members | {"service_tier"}:
         raise PolicyRefusal("provider selection requires provider, model, exact reported identity and CLI build")
     for key in sorted(members):
         _text(value[key], key)
     if value["provider"] not in REALIZATIONS:
         raise PolicyRefusal("selected provider has no supported policy realization")
+    if "service_tier" in value:
+        if value["service_tier"] is None:
+            raise PolicyRefusal("an unset service tier is omitted, not null")
+        service_tier_arguments(value["provider"], value["cli_build"], value["service_tier"])
     return dict(value)
 
 
@@ -219,7 +241,7 @@ def adapter(selected, *, network, tool_policy=None):
     if provider not in MANAGED or provider not in LABEL_ROLES or provider not in ENTRYPOINTS:
         raise PolicyRefusal("provider realization declares no instruction delivery")
     command = realization["interaction"]
-    return {
+    document = {
         "schema": "baton.single-implementation-adapter/2",
         "adapter_name": "docker-single-worker", "engine": "docker",
         "network": network, "entrypoint": list(ENTRYPOINTS[provider]),
@@ -236,6 +258,13 @@ def adapter(selected, *, network, tool_policy=None):
         "implements_tool_policy": digest(POLICY),
         "realization": deepcopy(realization),
     }
+    if "service_tier" in selected:
+        # Present only when selected: the adapter digest of every existing
+        # selection is unchanged, and a tiered one is a different identity.
+        document["argv_policy"]["service_tier"] = {
+            "requested": selected["service_tier"],
+            "arguments": service_tier_arguments(provider, selected["cli_build"], selected["service_tier"])}
+    return document
 
 
 def validate_adapter(document, selected, *, adapter_digest, tool_policy_digest):
@@ -254,7 +283,8 @@ def argv(document, selected, prompt):
     if document != adapter(selected, network=document.get("network")):
         raise PolicyRefusal("provider command policy disagrees")
     rule = document["argv_policy"]
-    return [rule["program"], *rule["fixed"], rule["model_argument"], selected["requested_model"], prompt]
+    return [rule["program"], *rule["fixed"], rule["model_argument"], selected["requested_model"],
+            *rule.get("service_tier", {}).get("arguments", []), prompt]
 
 
 def delivery(binding, *, adapter_digest, profile_digest, tool_policy_digest,
@@ -268,7 +298,8 @@ def delivery(binding, *, adapter_digest, profile_digest, tool_policy_digest,
     if (type(profile) is not dict or profile.get("schema") != "baton.single-implementation-runtime-profile/2"
             or digest(profile) != profile_digest or any(profile.get(key) != value for key, value in
             (("provider", selected["provider"]), ("model", selected["requested_model"]),
-             ("reported_identity", selected["reported_identity"]), ("cli_build", selected["cli_build"])))):
+             ("reported_identity", selected["reported_identity"]), ("cli_build", selected["cli_build"]),
+             ("service_tier", selected.get("service_tier"))))):
         raise PolicyRefusal("selected profile identity disagrees")
     for name, value in (("authority", authority_uuid), ("Job", job_id), ("worker", worker_id), ("attempt", attempt_id)):
         if type(value) is not str or not value:

@@ -1,0 +1,3 @@
+# Exact service-tier import
+
+Eight accepted paths from9c365d72, base1ed26970. Full candidate/archive identity, empty index, every base byte, owner write permission, regular-file type and parent path checked before writes. Existing modes preserved; postflight matches exact reviewed bytes. Acceptance M386094 and independent604/604 retained; no mixed-tree host rerun. DESIGN, isolation changes and other source untouched. Human checkpoint stages only these eight product files, owning FINDING/PLAN, accepted candidate/review/evidence, qualification successor and this import packet. Evidence patches/logs keep exact historical whitespace; whitespace check applies to current product/prose. No Git mutation by coordinator. No live qualification claim.

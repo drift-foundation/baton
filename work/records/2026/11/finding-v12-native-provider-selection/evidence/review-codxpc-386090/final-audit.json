@@ -1,0 +1,15 @@
+{
+  "candidate": "sha256:9c365d72625de16e193198d2f1938d82cc51cedad59d3dd54f1cd259db66c458",
+  "candidate_and_shared_main_unchanged": true,
+  "unset_snapshots_identical": true,
+  "unset_snapshot_sha256": "b4474e8badb2439d763e9bc3917caccc6341f35c067d1d18f4b4bcea0b40c7f3",
+  "predecessors_verified": {
+    "qualification-preparation-r2": 19,
+    "credential-lifecycle-386081": 39
+  },
+  "fixture_root_entries": 0,
+  "engine_operations": 0,
+  "real_credential_reads": 0,
+  "provider_calls": 0,
+  "no_fast_mode_selected": true
+}

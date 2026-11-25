@@ -1,0 +1,45 @@
+{
+  "files": {
+    "version": {
+      "path": "work/records/2026/11/finding-v12-native-provider-selection/evidence/n3-execution-n3-386002-01/probe-version-01/probe-output/stdout.txt",
+      "sha256": "f3807264176de3c20897352ed66cf258503bb4d52bf8428b5e8a3ac21c22cdcb",
+      "bytes": 18
+    },
+    "root_help": {
+      "path": "work/records/2026/11/finding-v12-native-provider-selection/evidence/n3-execution-n3-386002-01/probe-help-01/probe-output/stdout.txt",
+      "sha256": "b69c5454449539e250b4d7f636e612e7a6686d60d1a9d2d50c8b82628af00dde",
+      "bytes": 5860
+    },
+    "exec_help": {
+      "path": "work/records/2026/11/finding-v12-native-provider-selection/evidence/n3-execution-n3-386002-01/probe-exec-help-01/probe-output/stdout.txt",
+      "sha256": "b7bbe3ad07a91a11393c9a83d97873e0bca1d1766e4d7cd9013da2c374d34f51",
+      "bytes": 4538
+    },
+    "accepted_manifest": {
+      "path": "work/records/2026/11/finding-v12-native-provider-selection/evidence/service-tier-386089/candidate-manifest.json",
+      "sha256": "f3d5a005d9643d489850850f8c7b4531b49216c3451bb97f522923fc84cd4eac",
+      "bytes": 2270
+    },
+    "accepted_archive": {
+      "path": "work/records/2026/11/finding-v12-native-provider-selection/evidence/service-tier-386089/candidate-files.tar.gz",
+      "sha256": "8563be759cde8ab13abf5b2440f8532c35a2d68553626a0f30fdd04bef9f9d0a",
+      "bytes": 54951
+    },
+    "ownership": {
+      "path": "work/records/2026/11/finding-host-worker-instruction-separation/OWNERSHIP-N4A-DELIVERY-2026-11-24.md",
+      "sha256": "f0f41390b152f40b45090606e8954a683b651002440523e0d61ba363a512d16c",
+      "bytes": 7403
+    },
+    "acceptance": {
+      "path": "work/records/2026/11/finding-v12-native-provider-selection/review-2026-11-24T23-40-10Z.md",
+      "sha256": "d38fa34d330765cd093bb0381e88a699b9dc89f8ed570b514b92086b1454230d",
+      "bytes": 9024
+    }
+  },
+  "candidate": "sha256:9c365d72625de16e193198d2f1938d82cc51cedad59d3dd54f1cd259db66c458",
+  "base": "1ed26970e74ea48013e3e533e057e6ace08d0058",
+  "image": "sha256:17d250b7f620cf69fce0fd96dc1ccbb5b76151a2a6f6bae4fedb2027076f6b0c",
+  "worker_instructions_sha256": "369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b",
+  "source_checkpoint": "1ed26970e74ea48013e3e533e057e6ace08d0058",
+  "checkpoint_files_sha256": "7d75d6e35ee835a8688987e420a4c84ca55ed36ecdbfa89259dae9bf464b46f3"
+}

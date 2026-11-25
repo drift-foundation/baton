@@ -391,6 +391,8 @@ def deployment_identities(*, image_reference, image_digest, cli_build,
             model=selected["requested_model"],
             reported_identity=selected["reported_identity"],
             provider=selected["provider"])
+        if "service_tier" in selected:
+            runtime_profile["service_tier"] = selected["service_tier"]
         adapter = provider_policy.adapter(selected, network=provider_network)
     profile_digest = digest(runtime_profile)
     policy_digest = digest(policy)

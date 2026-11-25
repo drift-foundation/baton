@@ -1,0 +1,1 @@
+Initial packet-only check refused before running cases: ValueError unselected run_id, execution_root, uid, gid. Test fixture omitted required rendering settings; filled synthetic values in the check only. Selection template remains unselected. No engine/Codex/credential operation.
