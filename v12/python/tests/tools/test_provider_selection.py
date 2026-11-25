@@ -1271,6 +1271,54 @@ class CodexToClaude(SelectedBase):
         with mock.patch.object(claude_agent, "ClaudeAgent", codex_agent.CodexAgent):
             return super().turn(control, role, attempt_id, roots, **operands)
 
+    def check_launch_readers(self, receipt_state):
+        from baton_v12.contracts import ContractRefusal
+        from baton_v12.worker_manager import frozen_output_of, load_manifest
+        job, control, composed, attempt = self.started()
+        self.assertEqual(self.turn(control, "implementation", attempt,
+            self.mounted(composed, "implementation", attempt), edits={"harness.py": "print('changed')\n"}), 0)
+        selected = model_attribution.selection_of(control, attempt)
+        room = Path(selected["logs_root"], attempt)
+        receipt_path = room / "provider.invocation.log"
+        receipt = json.loads(receipt_path.read_bytes())
+        self.assertEqual((receipt["schema"], receipt["attempt_id"]), ("baton.codex-launch/1", attempt))
+        (room / "provider.stdout.log").unlink()
+        if receipt_state == "missing":
+            receipt_path.unlink()
+        elif receipt_state == "tampered":
+            receipt_path.write_text(json.dumps(dict(receipt, attempt_id="foreign")))
+        for _ in range(4):
+            sweep(job, composed, now=fixtures.NOW)
+        account = model_attribution.assess(control, attempt)
+        frozen = frozen_output_of(control, attempt)
+        manifest = load_manifest(control, frozen["manifest_digest"], "resultManifest")
+        claim, = [meta["baton.model-attribution/2"] for output in manifest["outputs"]
+                  if "baton.model-attribution/2" in (meta := output.get("result_metadata", {}))]
+        self.assertEqual(claim["invocation"], receipt)
+        recovery = dict(candidate="fixture-candidate", tree_digest=digest("fixture-tree"),
+                        result_digest=frozen["manifest_digest"], claim=claim)
+        if receipt_state == "intact":
+            self.assertEqual(account["outcome"], "matched")
+            bound = model_attribution.recovery_evidence(control, attempt, **recovery)
+            self.assertEqual(bound["attempt_id"], attempt)
+            self.assertEqual(bound["attribution"], account["attribution"])
+            self.assertEqual(bound["attribution"]["contributors"], [])
+            self.assertEqual(bound["attribution"]["actual_participation"], "unknown")
+        else:
+            expected = "missing" if receipt_state == "missing" else "invalid"
+            self.assertEqual((account["outcome"], account["cause"]), ("held", "model-attribution-" + expected))
+            with self.assertRaisesRegex(ContractRefusal, "model-attribution-invalid"):
+                model_attribution.recovery_evidence(control, attempt, **recovery)
+
+    def test_launch_readers_accept_without_diagnostic_stdout(self):
+        self.check_launch_readers("intact")
+
+    def test_launch_readers_hold_absent_attempt_receipt(self):
+        self.check_launch_readers("missing")
+
+    def test_launch_readers_hold_foreign_attempt_receipt(self):
+        self.check_launch_readers("tampered")
+
     def test_configured_implementation_and_stronger_Claude_review(self):
         held = self.implemented()
         producer = self.assert_recorded(held.control, held.attempt_id, "implementation")

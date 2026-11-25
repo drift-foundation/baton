@@ -4725,6 +4725,9 @@ class ClaudeAgent:
             if binding["selection"]["provider"] == "codex":
                 invocation = attribution.invocation_record(selected, self._seen["role"], argv, launched, status,
                     expected_home=self._retained_home(), evidenced_build=evidenced_build)
+                if invocation is not None:
+                    invocation.update(schema="baton.codex-launch/1", attempt_id=selected["attempt_id"],
+                                      observation=getattr(self, "_turn_observation", "unclassified"))
                 log_room, log_format = _log_room()
                 captured = _Captured(log_room, log_format, "provider.invocation")
                 captured.wrote(json.dumps(invocation, sort_keys=True, separators=(",", ":")).encode("utf-8"))
@@ -5164,6 +5167,11 @@ class ClaudeAgent:
         # unchanged, so nothing downstream reads different bytes than it did.
         recorded = _Captured(room, fmt, "provider.stdout")
         stream_hash = hashlib.sha256()
+        observer = None
+        if self.provider_program == "codex":
+            from provider_policy.codex import TurnObservation
+            observer = TurnObservation()
+        eof = threading.Event()
         self._provider_raw_digest = None
         self._provider_log_retained = False
         # AND STDERR IS NO LONGER OPENED ONTO /dev/null. It goes straight to the
@@ -5217,12 +5225,15 @@ class ClaudeAgent:
                         partial[0] = True
                         return
                     if not piece:
+                        eof.set()
                         # EOF: every writer is gone and the record is whole.
                         return
                     # EVERY BYTE TO THE LOG, and only a bounded prefix to
                     # memory. The ceiling exists so a chatty provider cannot
                     # decide this process's memory; it is not a reason to
                     # forget what it said, which is the whole finding.
+                    if observer is not None:
+                        observer.feed(piece)
                     stream_hash.update(piece)
                     recorded.wrote(piece)
                     space = MAX_PROVIDER_RECORD - len(held)
@@ -5265,6 +5276,7 @@ class ClaudeAgent:
             os.close(write_fd)
             ended.set()
             reader.join()
+            self._turn_observation = observer.finish(eof.is_set()) if observer else None
             self._provider_raw_digest = "sha256:" + stream_hash.hexdigest()
             self._provider_log_retained = room is not None and fmt is not None and not recorded._lost
             # THE DECLARATIONS ARE IN THE `finally`, so a timeout and a missing
@@ -5279,7 +5291,7 @@ class ClaudeAgent:
             # nothing to drain.
             recorded.declare(
                 outcome if outcome == _Outcome.NEVER_STARTED
-                else (_Outcome.INTERRUPTED if partial[0]
+                else (_Outcome.INTERRUPTED if (not eof.is_set() if observer else partial[0])
                       else _Outcome.COMPLETED))
             # STDERR'S WORD IS THE CHILD'S, because this process never touches
             # that descriptor: the child writes to the log directly.

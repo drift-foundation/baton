@@ -484,3 +484,46 @@ class CodexTerminalEvidence(unittest.TestCase):
             claim["contributors"]=["fixture-reported"]
             with self.assertRaises(policy.PolicyRefusal):
                 attribution.validate(claim,given,phase="implementation",raw=raw)
+
+
+class StreamingCodexTurn(unittest.TestCase):
+    def test_large_opaque_frames_split_across_reads_and_incomplete_eof(self):
+        from provider_policy.codex import TurnObservation
+        first, start, *_, end = (FIXTURES / "turn-success.sanitized.jsonl").read_bytes().splitlines(True)
+        frame = json.dumps({"type":"activity","payload":"x"*151525}).encode() + b"\n"
+        raw = first + start + frame * 6 + end
+        observed = TurnObservation()
+        for offset in range(0, len(raw), 4093):
+            observed.feed(raw[offset:offset + 4093])
+        self.assertEqual(observed.finish(False), "unclassified")
+        self.assertEqual(observed.finish(True), "complete")
+        observed.feed(b"trailing")
+        self.assertEqual(observed.finish(True), "unclassified")
+
+    def test_oversize_single_frame_holds_even_with_valid_ending(self):
+        from provider_policy.codex import TurnObservation
+        observed = TurnObservation()
+        observed.MAX_FRAME = 1024
+        observed.feed(b"x"*1025 + b"\n")
+        observed.feed((FIXTURES / "turn-success.sanitized.jsonl").read_bytes())
+        self.assertEqual(observed.finish(True), "unclassified")
+
+    def test_child_pipe_drains_large_turn_and_requires_its_terminal_frame(self):
+        import tempfile
+        import os
+        first, start, *_, end = (FIXTURES / "turn-success.sanitized.jsonl").read_bytes().splitlines(True)
+        activity = json.dumps({"type": "activity", "payload": "x" * 151525}).encode() + b"\n"
+        with tempfile.TemporaryDirectory() as root, mock.patch.dict(os.environ, {}, clear=True):
+            agent = codex_agent.CodexAgent()
+            child = [sys.executable, "-I", "-c",
+                     "import pathlib, sys; sys.stdout.buffer.write(pathlib.Path('stream').read_bytes())"]
+            for terminal in (end, b""):
+                with self.subTest(complete=bool(terminal)):
+                    raw = first + start + activity * 6 + terminal
+                    Path(root, "stream").write_bytes(raw)
+                    status, prefix, partial = agent._ran_provider(child, cwd=root, env={}, seconds=10)
+                    self.assertEqual(status, 0)
+                    self.assertTrue(partial)
+                    self.assertEqual(prefix, raw[:65536])
+                    self.assertEqual(agent._provider_raw_digest, "sha256:" + hashlib.sha256(raw).hexdigest())
+                    self.assertEqual(agent.provider_terminal(status, prefix, partial=partial)["ok"], bool(terminal))

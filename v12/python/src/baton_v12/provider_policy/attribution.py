@@ -91,9 +91,10 @@ def validate(value, delivery, *, phase, raw, invocation_raw=None):
     if type(value) is not dict or value.get("schema") != permitted:
         raise PolicyRefusal("model-attribution-missing")
     if permitted == CONFIGURED_SCHEMA and value.get("invocation") is not None:
+        from . import digest
         try:
             if (type(invocation_raw) is not bytes or len(invocation_raw) > MAX_OUTPUT
-                    or json.loads(invocation_raw, object_pairs_hook=_pairs) != value["invocation"]):
+                    or digest(json.loads(invocation_raw, object_pairs_hook=_pairs)) != digest(value["invocation"])):
                 raise ValueError("invocation receipt disagrees")
         except (ValueError, TypeError, UnicodeError, RecursionError) as failure:
             raise PolicyRefusal("model-attribution-invalid") from failure
@@ -179,6 +180,12 @@ def configured_record(delivery, *, phase, evidenced_build, raw, partial, raw_dig
     observed = codex.stream_outcome(raw, partial=partial) if log_retained else "unclassified"
     required = {"argv_prefix", "prompt_digest", "prompt_bytes", "argv_digest", "environment_policy",
                 "environment_validated", "context_label", "status", "selection_digest", "phase", "evidenced_cli_build"}
+    launch_record = isinstance(invocation, dict) and invocation.get("schema") == "baton.codex-launch/1"
+    if launch_record:
+        required.update(("schema", "attempt_id", "observation"))
+        observed = invocation.get("observation")
+        if invocation.get("attempt_id") != delivery["attempt_id"] or observed not in ("complete", "faulted", "rerouted", "unclassified"):
+            observed = "unclassified"
     valid = False
     try:
         valid = (type(invocation) is dict and set(invocation) == required
@@ -200,7 +207,9 @@ def configured_record(delivery, *, phase, evidenced_build, raw, partial, raw_dig
         pass
     if selected["cli_build"] != codex.CLI_BUILD or evidenced_build != codex.CLI_BUILD:
         observed = "unknown"
-    outcome = ("rerouted" if observed == "rerouted" else
+    outcome = ("faulted" if launch_record and (observed == "faulted" or invocation.get("status") != 0) else
+               "incomplete" if launch_record and observed == "unclassified" else
+               "rerouted" if observed == "rerouted" else
                "unqualified-build" if selected["cli_build"] != codex.CLI_BUILD else
                "conflicting" if evidenced_build not in (None, codex.CLI_BUILD) else
                "missing" if invocation is None or evidenced_build is None or not sha(image) or observed != "complete" else
@@ -216,6 +225,9 @@ def configured_record(delivery, *, phase, evidenced_build, raw, partial, raw_dig
               "evidence": {"digest": raw_digest if raw_digest is not None else
                   "sha256:" + hashlib.sha256(raw).hexdigest() if type(raw) is bytes else None,
                   "log": {"attempt_id": delivery["attempt_id"], "stream": "provider.stdout"}}}
+    if launch_record:
+        answer["evidence"] = {"digest": digest(invocation),
+                              "log": {"attempt_id": delivery["attempt_id"], "stream": "provider.invocation"}}
     if "service_tier" in selected:
         answer["service_tier"] = {"requested": selected["service_tier"], "observed": None, "outcome": "missing"}
     return answer

@@ -1423,3 +1423,15 @@ The current [deployment guide](python/DEPLOYMENT.md) and
 operations. They supply implementation references, not authority to weaken this
 target. Align them through owned documentation changes when the relevant code
 conforms; do not relabel old behavior as compliance by editing this specification.
+
+### Codex launch evidence — owner amendment W386257 (2026-11-25)
+
+For new selected Codex turns the worker MUST observe the framed provider stream
+during the invocation and retain a small, attempt-bound launch record with the
+actual invocation, status and observation. The host MUST validate that record
+against the frozen producer claim, admitted selection and observed image before
+handoff or recovery. Diagnostic stdout size MUST NOT gate this validation.
+Incomplete, missing, mismatched, rerouted or faulted evidence MUST hold the
+implementation. A launcher observing that hold MUST promptly surface its reason.
+Configured-model acceptance leaves actual contributors unknown. Existing Claude
+participation requirements and historical decisions retain their evidence basis.

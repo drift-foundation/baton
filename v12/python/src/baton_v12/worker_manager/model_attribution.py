@@ -60,9 +60,8 @@ def assess(control, attempt, frozen=None):
     claims = [value if type(value) is dict and value.get("schema") == key else None for one in result["outputs"] if one.get("status") == "present"
               for key, value in one.get("result_metadata", {}).items()
               if key.startswith("baton.model-attribution/")]
-    raw = attempt_logs.complete_record(attempt_logs.AttemptLogs(root=selected["logs_root"], attempt_id=attempt),
-                                       "provider.stdout", limit=attribution.MAX_OUTPUT)
     claim = claims[0] if len(claims) == 1 else None
+    compact, raw = _source(selected, attempt, claim)
     # W385853: the execution-context label the worker says it prefixed is
     # recomputed from the admitted adapter and launch role. It is judged
     # first: a turn that ran under the wrong or no label is held for that.
@@ -77,10 +76,11 @@ def assess(control, attempt, frozen=None):
                    None if expected_label is not None and labels[0] == expected_label else "context-label-mismatch")
     cause = "model-attribution-missing"
     accepted = None
-    if claim is not None and raw is not None:
+    receipt = _invocation_receipt(selected, attempt)
+    if claim is not None and (bool(receipt) if compact else raw is not None):
         try:
             accepted = attribution.validate(claim, selected["delivery"], phase=selected["phase"], raw=raw,
-                invocation_raw=_invocation_receipt(selected, attempt))
+                invocation_raw=receipt)
             cause = None if attribution.acceptable(accepted) else "model-attribution-" + accepted["outcome"]
         except ValueError:
             cause = "model-attribution-invalid"
@@ -134,9 +134,8 @@ def recovery_evidence(control, attempt, *, candidate, tree_digest, result_digest
     selected = selection_of(control, attempt)
     if selected is None:
         return None
-    raw = attempt_logs.complete_record(attempt_logs.AttemptLogs(root=selected["logs_root"], attempt_id=attempt),
-                                       "provider.stdout", limit=attribution.MAX_OUTPUT)
-    if claim is None or raw is None:
+    compact, raw = _source(selected, attempt, claim)
+    if claim is None or (raw is None and not compact):
         raise ContractRefusal("refused", "precondition", "model-attribution-missing: original producer")
     try:
         checked = attribution.validate(claim, selected["delivery"], phase=selected["phase"], raw=raw,
@@ -215,3 +214,14 @@ def _invocation_receipt(selected, attempt):
         return None
     return attempt_logs.complete_record(attempt_logs.AttemptLogs(root=selected["logs_root"], attempt_id=attempt),
                                         "provider.invocation", limit=attribution.MAX_OUTPUT)
+
+
+def _source(selected, attempt, claim):
+    invocation = claim.get("invocation") if isinstance(claim, dict) else None
+    if (selected["delivery"]["contract"]["selection"]["provider"] == "codex"
+            and isinstance(invocation, dict) and invocation.get("schema") == "baton.codex-launch/1"):
+        return True, None
+    # Historical Codex records and Claude still require their original evidence.
+    return False, attempt_logs.complete_record(
+        attempt_logs.AttemptLogs(root=selected["logs_root"], attempt_id=attempt),
+        "provider.stdout", limit=attribution.MAX_OUTPUT)

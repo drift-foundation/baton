@@ -145,6 +145,29 @@ class ConfiguredCodex(unittest.TestCase):
         args.update(changes)
         return subject.validate(claim, self.delivery, **args)
 
+    def test_launch_record_binds_attempt_and_observation_without_stdout(self):
+        receipt = dict(self.invocation, schema="baton.codex-launch/1",
+                       attempt_id=self.delivery["attempt_id"], observation="complete")
+        for changes, outcome in (({}, "configured-model-accepted"),
+                                 ({"attempt_id": "foreign"}, "incomplete"),
+                                 ({"observation": "faulted"}, "faulted"),
+                                 ({"observation": "rerouted"}, "rerouted"),
+                                 ({"environment_validated": False}, "conflicting")):
+            with self.subTest(changes=changes):
+                observed = dict(receipt, **changes)
+                claim = self.record(raw=None, invocation=observed)
+                checked = self.validate(claim, raw=None, invocation_raw=self.json.dumps(observed).encode())
+                self.assertEqual(checked["outcome"], outcome)
+                self.assertEqual(subject.acceptable(checked), not changes)
+                self.assertEqual(checked["actual_participation"], "unknown")
+                self.assertEqual(checked["contributors"], [])
+                self.assertEqual(checked["evidence"]["digest"], policy.digest(observed))
+                self.assertEqual(checked["evidence"]["log"]["stream"], "provider.invocation")
+        good = self.record(raw=None, invocation=receipt)
+        with self.assertRaises(policy.PolicyRefusal):
+            self.validate(dict(good, contributors=["invented"]), raw=None,
+                          invocation_raw=self.json.dumps(receipt).encode())
+
     def test_activity_is_not_substantive_judgment_or_participation(self):
         events=[self.json.loads(line) for line in self.raw.splitlines()]
         events.insert(-1,{"type":"item.updated","item":{"id":"future-edit","type":"future_edit",
