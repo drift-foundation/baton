@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "docker",
+    "image",
+    "inspect",
+    "node@sha256:f0960f8dc047f358e3fb428f36ccba21732194fa5f0cac849f401e63e62fb9e6"
+  ],
+  "bound_seconds": 30,
+  "status": 0,
+  "seconds": 0.007381135015748441
+}

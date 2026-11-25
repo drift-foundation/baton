@@ -1,0 +1,13 @@
+{
+  "commit": "ad6dcad0aa38f8ccc17fd6a50bd92bf6f2d8c402",
+  "source": {
+    "commit": "ad6dcad0aa38f8ccc17fd6a50bd92bf6f2d8c402",
+    "archive_sha256": "ce772e1e5169ba802d5443e3ec1ea727f727150e0a3b82c6e97ca51676fa1e6e",
+    "dockerignore_sha256": "b7da7ead0d55e0df74be3b2df79d309fd3aa5455967e3a6bc1d705293cb57ca8"
+  },
+  "base": "node@sha256:f0960f8dc047f358e3fb428f36ccba21732194fa5f0cac849f401e63e62fb9e6",
+  "original_recipe_sha256": "0c81e45ff858f96bbac78daadc6c0c03ffce4e241ff38e0d28bbf5e620fcdf0e",
+  "derived_recipe_sha256": "5b879e9c9f84b16e8d2cd17ed34674f46374edecc4ca9b22a2f8b8d19294e19c",
+  "change": "FROM pinned to observed pulled digest only",
+  "mutable_inputs": "apt/npm dependencies remain unlocked; not reproducible-build qualification"
+}

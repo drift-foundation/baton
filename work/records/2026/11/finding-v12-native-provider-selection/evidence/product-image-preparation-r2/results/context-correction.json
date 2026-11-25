@@ -1,0 +1,7 @@
+{
+  "path": "v12/.dockerignore",
+  "before": "b7da7ead0d55e0df74be3b2df79d309fd3aa5455967e3a6bc1d705293cb57ca8",
+  "after": "04e364e4dbc1fdf8cf9fa7a76d81473563e1f129608df6fde2a6688548907da7",
+  "change": "include provider_policy only; cache exclusions unchanged",
+  "product_imported": false
+}

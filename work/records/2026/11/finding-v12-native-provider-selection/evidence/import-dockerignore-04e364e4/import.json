@@ -1,0 +1,19 @@
+{
+  "path": "v12/.dockerignore",
+  "base": "ad6dcad0aa38f8ccc17fd6a50bd92bf6f2d8c402",
+  "head": "ad6dcad0aa38f8ccc17fd6a50bd92bf6f2d8c402",
+  "index_empty": true,
+  "before": "b7da7ead0d55e0df74be3b2df79d309fd3aa5455967e3a6bc1d705293cb57ca8",
+  "after": "04e364e4dbc1fdf8cf9fa7a76d81473563e1f129608df6fde2a6688548907da7",
+  "added_line": "!python/src/baton_v12/provider_policy",
+  "mode": "0o664",
+  "v12_status_paths_after": [
+    "v12/.dockerignore",
+    "v12/DESIGN.md",
+    "v12/python/TESTING.md",
+    "v12/python/tests/__init__.py",
+    "v12/python/tests/git_isolation.py",
+    "v12/python/tests/manager/disk_roots.py",
+    "v12/python/tests/tools/test_environment.py"
+  ]
+}

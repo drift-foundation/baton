@@ -28,6 +28,7 @@
 *
 !worker
 !python/src/baton_v12/source_profiles
+!python/src/baton_v12/provider_policy
 # W202663: AND THE SHARED CAPTURE FORMAT, which W198667 added to BOTH supported
 # recipes as `COPY python/src/baton_v12/attempt_log_format.py`. This allowlist
 # was not widened with them, so every build of `Dockerfile.claude` and

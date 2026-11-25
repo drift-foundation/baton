@@ -1,0 +1,30 @@
+{
+  "codex": "/usr/local/bin/codex",
+  "files": {
+    "/opt/baton/adapter_refusal.py": "97f6d9f5edee922017ead4c6d6b116382e56a398c59aa9262f959033d45a3e35",
+    "/opt/baton/attempt_log_format.py": "304152a5760e0ecf1c4e5947df3a402f3f141e3ccf3ebc9306fd7fc8f749de1f",
+    "/opt/baton/baton_worker.py": "bb16d4b14df274d06ac534c04aaceab2aebdb856ed73fc099af3c3fe5590f6c4",
+    "/opt/baton/bounded_command.py": "828b20fe3ea6910824582325dfe86036d6a1126e6aa59411d3e32f23eb4e85f7",
+    "/opt/baton/claude_agent.py": "ef3a641b168319fabefbd9329fc96515440ec36ab2d7b783acf7175d335184a6",
+    "/opt/baton/codex_agent.py": "e78f6425de6dceb875cc408a7634793accf53df12f3ad4cc8ce22519b226ceea",
+    "/opt/baton/codex_entry.py": "d08ebfb6812e5c1458f79136ce73ad0f3a110ca87643f42dfc56822c1fa3f86d",
+    "/opt/baton/dogfood_entry.py": "2b36f68faa0512db428d87ae705c03468417ba7d5d752133d81522a88ae4e807",
+    "/opt/baton/provider_policy/__init__.py": "45927d92848cb19999bfa7af9c2539bd0dac0763590efb8f0c00e466e14cbc37",
+    "/opt/baton/provider_policy/attribution.py": "5d32b3d239bd0223eb890ad564c70a7e70ca1d0ee84e5a4bab9da4a43918b052",
+    "/opt/baton/provider_policy/home.py": "56b2d7db42be55fb112db2f9333992b19eb2d41cf40f4eacb7b702802bbdbc4e",
+    "/opt/baton/provider_policy/worker_instructions.md": "369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b",
+    "/opt/baton/source_profiles/__init__.py": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+    "/opt/baton/source_profiles/checkout.py": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+    "/opt/baton/verification_context.py": "692d121682363ba519752fe78e64d3c0842da3dd3b4190131ee364ba75f0a1b0",
+    "/opt/baton/verifier-layout-marker.json": "3355c11a36044111f713d37a729e51f8b781801d655be5e0df14de7fb69c9648",
+    "/opt/baton/worker-control-1.0.schema.json": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+  },
+  "gid": 65532,
+  "git": "/usr/bin/git",
+  "git_version": "git version 2.47.3",
+  "python3": "/usr/bin/python3",
+  "sha256sum": "/usr/bin/sha256sum",
+  "strace": null,
+  "uid": 65532,
+  "version": "codex-cli 0.169.0"
+}

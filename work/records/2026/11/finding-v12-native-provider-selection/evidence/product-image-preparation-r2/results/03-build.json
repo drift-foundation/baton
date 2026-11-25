@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/home/sl/.local/state/baton-v12-venv/bin/python",
+    "-m",
+    "tools.worker_image",
+    "--context",
+    "/home/sl/baton-qualification/w385830-codex-product-ad6dcad0-2/source/v12",
+    "--dockerfile",
+    "/home/sl/baton-qualification/w385830-codex-product-ad6dcad0-2/source/v12/worker/Dockerfile.codex.qualified",
+    "--tag",
+    "baton-v12-codex:ad6dcad0-offline-2",
+    "--platform",
+    "linux/amd64"
+  ],
+  "bound_seconds": 2400,
+  "status": 0,
+  "seconds": 15.981554168043658
+}

@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "docker",
+    "inspect",
+    "w385830-codex-product-ad6dcad0-offline-2"
+  ],
+  "bound_seconds": 30,
+  "status": 0,
+  "seconds": 0.007417249958962202
+}

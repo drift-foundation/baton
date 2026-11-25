@@ -1,0 +1,207 @@
+[
+    {
+        "Id": "4fe840333e107ad93e95de220c86976b94b35db5187a8b905b28bc62694514bb",
+        "Created": "2026-11-25T01:11:39.458723166Z",
+        "Path": "python3",
+        "Args": [
+            "-c",
+            "\nimport hashlib,json,os,pathlib,shutil,subprocess\np=pathlib.Path('/run/baton/provider-home'); p.mkdir(exist_ok=True)\nos.environ.update(HOME=str(p),CODEX_HOME=str(p/'codex'))\nchecks={}\nfor name in ('git','sha256sum','python3','codex'):\n    checks[name]=shutil.which(name)\n    assert checks[name], 'required tool absent: '+name\nchecks['strace']=shutil.which('strace')\nr=subprocess.run(['codex','--version'],capture_output=True,text=True,timeout=10)\nassert r.returncode==0 and r.stdout.strip()=='codex-cli 0.169.0', (r.returncode,r.stdout,r.stderr)\nchecks['version']=r.stdout.strip()\nr=subprocess.run(['git','--version'],capture_output=True,text=True,timeout=10)\nassert r.returncode==0; checks['git_version']=r.stdout.strip()\nchecks['files']={str(f):hashlib.sha256(f.read_bytes()).hexdigest() for f in pathlib.Path('/opt/baton').rglob('*') if f.is_file()}\nchecks['uid']=os.getuid(); checks['gid']=os.getgid()\nprint(json.dumps(checks,sort_keys=True))\n"
+        ],
+        "State": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-11-25T01:11:39.525772538Z",
+            "FinishedAt": "2026-11-25T01:11:39.66979962Z"
+        },
+        "Image": "sha256:46a46ee4ae3dcfdb23951fc8651b28c9ab50ad03e3422d96e53f615ac0eaaa63",
+        "ResolvConfPath": "/var/lib/docker/containers/4fe840333e107ad93e95de220c86976b94b35db5187a8b905b28bc62694514bb/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/4fe840333e107ad93e95de220c86976b94b35db5187a8b905b28bc62694514bb/hostname",
+        "HostsPath": "/var/lib/docker/containers/4fe840333e107ad93e95de220c86976b94b35db5187a8b905b28bc62694514bb/hosts",
+        "LogPath": "/var/lib/docker/containers/4fe840333e107ad93e95de220c86976b94b35db5187a8b905b28bc62694514bb/4fe840333e107ad93e95de220c86976b94b35db5187a8b905b28bc62694514bb-json.log",
+        "Name": "/w385830-codex-product-ad6dcad0-offline-2",
+        "RestartCount": 0,
+        "Driver": "overlay2",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "docker-default",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": null,
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "none",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": false,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "CapAdd": null,
+            "CapDrop": [
+                "ALL"
+            ],
+            "CgroupnsMode": "private",
+            "Dns": null,
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": true,
+            "SecurityOpt": [
+                "no-new-privileges"
+            ],
+            "Tmpfs": {
+                "/run/baton/provider-home": "rw,nosuid,nodev,uid=65532,gid=65532,mode=0700,size=64m",
+                "/tmp": "rw,nosuid,nodev,size=128m"
+            },
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 536870912,
+            "NanoCpus": 1000000000,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": [],
+            "BlkioDeviceWriteBps": [],
+            "BlkioDeviceReadIOps": [],
+            "BlkioDeviceWriteIOps": [],
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "MemoryReservation": 0,
+            "MemorySwap": 1073741824,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": 128,
+            "Ulimits": [],
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/acpi",
+                "/proc/asound",
+                "/proc/interrupts",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/sys/devices/virtual/powercap",
+                "/sys/firmware"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ]
+        },
+        "GraphDriver": {
+            "Data": {
+                "ID": "4fe840333e107ad93e95de220c86976b94b35db5187a8b905b28bc62694514bb",
+                "LowerDir": "/var/lib/docker/overlay2/fc11433021457e606348f974a2e3694d878015bbb8eacf2549221f88042a4a17-init/diff:/var/lib/docker/overlay2/dcd0a4a3c5e967b4bf55ff8259f0504bfdb1b1c8e520d2229d5baec2c8a8d0fd/diff:/var/lib/docker/overlay2/7cc7e5e8ab0fe01051544bc9b582a586625132e02ed78161ab8c4dadde558148/diff:/var/lib/docker/overlay2/fdfab176310791939376e11ef1caa1d9cb1068e625f931f19774a58cbc312008/diff:/var/lib/docker/overlay2/5ed31cbef8bb76565c4c595ad672293d76cb8cbd4bbce562779467237ac1d243/diff:/var/lib/docker/overlay2/29057ce7226c8f17aff09b1316b09c390ad3042d08d482503a6ad4a6e4abd236/diff:/var/lib/docker/overlay2/8ed08ae54a56944681df169e9e62bce279b9523e0697cff2891a3916af193dd7/diff:/var/lib/docker/overlay2/b5d5a799361fd12442cdb5a6452a2e57d3f6ce4246db92e3e17f19518222dd04/diff:/var/lib/docker/overlay2/cfd934bcd0771f14325dcc9d53c25730143fd006667a43763f92fd29c374340b/diff:/var/lib/docker/overlay2/6a759aae31db15ed8a9091183d95b79f5e2588c2f6e49558e814ff5aaff0a3c8/diff:/var/lib/docker/overlay2/9956a76866c096402a828e70ede39338c644b7cb38629e4693dafbc07f091272/diff:/var/lib/docker/overlay2/b218fdbf00bc673d58b7e922bc8fb8802915f4a91cb1da386012d1052cb9620b/diff:/var/lib/docker/overlay2/d2a0daa847a31a1fc6330424cc37f01bf485214f639411a9ab203c1167d5bbf9/diff:/var/lib/docker/overlay2/86caeb229a5ad8a6ec7167922e715bd879d9b709b7f88b8798b4db62d0e22bfe/diff:/var/lib/docker/overlay2/734e37eecd9fd670d137596feaca96048f3b9a0d7a2fd1ab9356cdbb657e8c38/diff:/var/lib/docker/overlay2/0faac25c55bdab97793454dbf835d59bedce801e119622226dc5edce19bcf88b/diff:/var/lib/docker/overlay2/80d222bca895f051ca3c5153319636cf33e38a951ea64551e0af80edd280bcd8/diff:/var/lib/docker/overlay2/b09d7e46c3bf484e67c236ab95ed8b2c130d68abbeccbb0f85329c63b536eb73/diff:/var/lib/docker/overlay2/bb513988621fd8e8fa189a540d886e24526cd19a159e012c46a1b866a0085680/diff:/var/lib/docker/overlay2/147673a997022e0602984dfa2ed767e03917d31659a88947727782c1953f6744/diff:/var/lib/docker/overlay2/2f73d22f02fa8a00e66a7cf735cfa40ddd2f105251e5df6fb10377ac238f4890/diff:/var/lib/docker/overlay2/d3344df3bbb9e4e4afc8b58b643eb7d88ed82f730e5aade331d5d4bc58d53f64/diff:/var/lib/docker/overlay2/62ff45de4be9a0ec6fb75481a3100bfb043a7b50e75a24895e63ad95995cad27/diff:/var/lib/docker/overlay2/a56894523046796a1a39fd47ab5beb1f90af27063342f0af8a19cada160e5ee6/diff",
+                "MergedDir": "/var/lib/docker/overlay2/fc11433021457e606348f974a2e3694d878015bbb8eacf2549221f88042a4a17/merged",
+                "UpperDir": "/var/lib/docker/overlay2/fc11433021457e606348f974a2e3694d878015bbb8eacf2549221f88042a4a17/diff",
+                "WorkDir": "/var/lib/docker/overlay2/fc11433021457e606348f974a2e3694d878015bbb8eacf2549221f88042a4a17/work"
+            },
+            "Name": "overlay2"
+        },
+        "Mounts": [],
+        "Config": {
+            "Hostname": "4fe840333e10",
+            "Domainname": "",
+            "User": "65532:65532",
+            "AttachStdin": false,
+            "AttachStdout": true,
+            "AttachStderr": true,
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "NODE_VERSION=22.23.5",
+                "YARN_VERSION=1.22.22",
+                "PYTHONDONTWRITEBYTECODE=1",
+                "PYTHONUNBUFFERED=1",
+                "PYTHONPATH=/opt/baton",
+                "PYTHONHASHSEED=0",
+                "NODE_NO_WARNINGS=1"
+            ],
+            "Cmd": [
+                "-c",
+                "\nimport hashlib,json,os,pathlib,shutil,subprocess\np=pathlib.Path('/run/baton/provider-home'); p.mkdir(exist_ok=True)\nos.environ.update(HOME=str(p),CODEX_HOME=str(p/'codex'))\nchecks={}\nfor name in ('git','sha256sum','python3','codex'):\n    checks[name]=shutil.which(name)\n    assert checks[name], 'required tool absent: '+name\nchecks['strace']=shutil.which('strace')\nr=subprocess.run(['codex','--version'],capture_output=True,text=True,timeout=10)\nassert r.returncode==0 and r.stdout.strip()=='codex-cli 0.169.0', (r.returncode,r.stdout,r.stderr)\nchecks['version']=r.stdout.strip()\nr=subprocess.run(['git','--version'],capture_output=True,text=True,timeout=10)\nassert r.returncode==0; checks['git_version']=r.stdout.strip()\nchecks['files']={str(f):hashlib.sha256(f.read_bytes()).hexdigest() for f in pathlib.Path('/opt/baton').rglob('*') if f.is_file()}\nchecks['uid']=os.getuid(); checks['gid']=os.getgid()\nprint(json.dumps(checks,sort_keys=True))\n"
+            ],
+            "Image": "sha256:46a46ee4ae3dcfdb23951fc8651b28c9ab50ad03e3422d96e53f615ac0eaaa63",
+            "Volumes": null,
+            "WorkingDir": "",
+            "Entrypoint": [
+                "python3"
+            ],
+            "Labels": {
+                "baton.qualification": "w385830-product-ad6dcad0-2"
+            }
+        },
+        "NetworkSettings": {
+            "SandboxID": "",
+            "SandboxKey": "",
+            "Ports": {},
+            "Networks": {
+                "none": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "d98eb99a3242fbe1d6807607f8725950ed2563566801d6528722a30b1ea89d93",
+                    "EndpointID": "",
+                    "Gateway": "",
+                    "IPAddress": "",
+                    "MacAddress": "",
+                    "IPPrefixLen": 0,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": null
+                }
+            }
+        }
+    }
+]

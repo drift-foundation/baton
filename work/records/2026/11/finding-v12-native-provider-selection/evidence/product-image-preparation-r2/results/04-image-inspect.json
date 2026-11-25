@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "docker",
+    "image",
+    "inspect",
+    "baton-v12-codex:ad6dcad0-offline-2"
+  ],
+  "bound_seconds": 30,
+  "status": 0,
+  "seconds": 0.007430264027789235
+}
