@@ -1,0 +1,1 @@
+Accepted M386135 DESIGN hunk applied exactly; unrelated 42 lines preserved in worktree and excluded from prepared index snapshot. No Git mutation. Human checkpoint pending. Evidence includes immutable amendment, independent review and acceptance addendum.

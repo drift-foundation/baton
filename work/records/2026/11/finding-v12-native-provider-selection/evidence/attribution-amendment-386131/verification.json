@@ -1,0 +1,7 @@
+{
+  "patch_exit": 0,
+  "patch_stdout": "patching file v12/DESIGN.md\n",
+  "exact_result": true,
+  "shared_design_unchanged": true,
+  "runtime_tests_run": false
+}

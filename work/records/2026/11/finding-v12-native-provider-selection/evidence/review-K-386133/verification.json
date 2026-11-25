@@ -1,0 +1,14 @@
+{
+  "reviewed": "evidence/attribution-amendment-386131 (M386133)",
+  "manifest_sha256": "e20c40dda84583dc7f6aea3af9f95e329f65ab0a6ff4c7f7f57dc67aa79807ed",
+  "manifest_entries_rehashed": 6,
+  "manifest_entries_matching": 6,
+  "head": "99b69626a44e806860abadc2854920914f1cf0dc",
+  "shared_design_sha256_at_review": "8a7b4a5d5ea90809d1dee4c6b81db4156910ec0e6601a8acc4effbae19bca057",
+  "shared_design_equals_before_snapshot": true,
+  "shared_design_uncommitted_lines_vs_head": 42,
+  "patch_check": "copied DESIGN.before.md to /var/tmp/baton-k-review-386133/v12/DESIGN.md; patch -p1 -F0 dry-run then apply, exit 0, one hunk",
+  "patched_sha256": "c9f1611e58aea2a687cb01204d11a0760694ead3328c589c91ea0b9b05b6f74a",
+  "patched_equals_proposed_snapshot": true,
+  "operations": "file reads, hashing and one patch in a scratch copy outside the checkout; no tests, builds, engine, provider, credential or Git mutation; shared DESIGN not written"
+}

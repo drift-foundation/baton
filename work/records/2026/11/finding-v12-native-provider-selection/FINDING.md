@@ -371,3 +371,79 @@ Current FINDING source/model selections are preserved; none were read/used for c
 ## 2026-11-25 — owner-selected interactive service-tier import
 
 Slawomir asked the interactive coordinator to handle the accepted import here. Imported exactly eight paths from9c365d72 after whole-set candidate/archive/base/drift/type/mode preflight. Independent acceptance M386094 (review-2026-11-25T02-52-55Z.md),604/604 focused checks. Final eight hashes and modes equal reviewed bytes; no reruns on the host with unrelated W386057 edits. DESIGN and other source edits preserved. Evidence/import-9c365d72 contains preflight/postflight and human-only selective checkpoint script. No protected Git mutation, image/build/engine, credential read or provider call. This accepts configuration/forwarding only: pinned CLI recognition, actual served tier, C2/C3, J1/N4b and native qualification remain open. Current draft service_tier=null is not selection of fast mode; successor maps unset to omitted product field. Next milestone: human checkpoint, then the bounded qualification successor, not additional feature scope.
+
+
+## 2026-11-25 — qualification next offline packet (baton.codxpc, E386097)
+
+Observed human checkpoint f875ed01b51b6b7541ad169b560004e47731ad34; all eight service-tier candidate paths match accepted9c365d72 exactly. This supersedes the pending tier-import/checkpoint status above. [Bounded packet](evidence/qualification-next-386097/REPORT.md), `sha256:451a4f08983e1643c7626616a898b20979b9a12b76871cad9ba9a82086cd90e0`, carries gpt-6-astra and the already selected codex-pushcoin-subscription automatic first-copy source; source unchanged, refreshed retained copy preserved, no silent re-seeding. Fast remains unselected. No product or earlier packet edits.
+
+Next executable milestone, pending execution selection: exact credential-free help-discovery in retained17d250b7 image, network none, UID:GID1000:1000, fresh /var/tmp/baton-codex-tier-discovery-386097. Exact commands/settings, discovery-versus-recognition pass/unknown rules and bounded cleanup are in the packet. No authoritative typed effective-config diagnostic is yet established; exit0/help/schema alone cannot close recognition. No engine, builds, credential reads or provider calls performed. 54 source/static packet checks passed; prior604/604 product evidence reused, not rerun.
+
+Only remaining combined-live choices: proposed runtime/image/placement settings (46a46ee4 CLI/tool image, f875 host-generated detached harness, not older image worker code), private registry/custody/refresh disposition and subscription attestation, then explicit live/network execution selection. Model and source/copy do not need reselection; no fast or reasoning override proposed. Exact live renderer reconciliation is a mechanical prerequisite before execution, not an invented selection or a runnable claim in this offline packet. J1 requires authenticated same-run success after local status; N4b requires actual turn/contributor evidence, with role/instruction digest checked in that single turn. C2/C3/native activation, W386048 and W386057 stay separately gated. Ownership notice M386098; last incoming discussion M386094, canonical scope E386097.
+
+
+## 2026-11-25 — owner selects direct live qualification here
+
+Slawomir explicitly said run here after the offered M386099 settings: one network-enabled gpt-6-astra invocation, automatic private copy from ~/.codex-pushcoin/auth.json, fast unset, turn180s/outer255s, no retry, private evidence/home retained pending classification. Coordinator prepares and executes the detached harness directly, no managed handler impersonation. Image46a46ee4 with overridden entrypoint, f875ed01 source functions, UID1000:1000, HOME/run/baton/provider-home with codex/auth.json and instructions/WORKER.md, fresh /var/tmp/baton-codex-q1-live-386097, receipt outside mounts. Source remains unchanged. Native composition/attribution acceptance not implied; C2/C3 and N4b stay gated. Source registry is private reference/path JSON outside mounts, created automatically.
+
+
+## 2026-11-25 — direct selected live probe completed
+
+One selected detached Codex call succeeded (11.23s), local login and service-backed completion proved; delivered instruction digest/length/role matched. CLI turn_context records gpt-6-astra; stdout has no model field, so backend identity is not independently attested. Container/network cleanup completed; source credential metadata unchanged. See [report](evidence/live-probe-prompt/REPORT.md) and safe RESULT.json. J1 selected authenticated-success criterion met; N4b and native activation remain gated. Raw evidence/home retained privately outside repository, no retry.
+
+
+## 2026-11-25 — bounded N4b terminal interpretation selected (baton.codxpc)
+
+Owner confirms M386103: implement observed terminal parsing with explicit missing attribution; turn_context.model is configuration/context diagnostic only, never contributor evidence. Contributor requirement and acceptance hold remain unchanged. E386104 routes, E386105 claims, M386106 confirms K ownership. Independent candidate at f875ed01; Codex adapter, dedicated tests/fixtures and Codex provider documentation allocated. No shared Claude edit planned; no DESIGN/W386057 edits. Retain sanitized exact-build fixtures only; private raw sessions and credentials remain outside repository. Focused manager-pure/tools-pure verification; no provider/build/native execution. Current milestone: complete bounded candidate for independent review; attribution participation gap and native qualification remain gated.
+
+
+## 2026-11-25 — bounded N4b candidate ready (baton.codxpc, E386105)
+
+Completed eight-path candidate `sha256:5539eef92754e69d38e93c79abd6e020f9ed5368cc0b23f423beb9fc8da5fbe1` on f875ed01b51b6b7541ad169b560004e47731ad34. [Report](evidence/n4b-386105/REPORT.md), archive/manifest and sanitized exact-build fixtures retained. Owner-confirmed M386103, routing E386104 and ownership M386106 consumed; last thread read through M386106. Terminal completion recognized only for the observed complete bounded event family. Codex contributor evidence remains explicitly missing; turn_context.model is not participation, and host acceptance stays held. No production realization, session reader, resume, fast selection, Claude worker edit or protected source import.
+
+Final focused manager-pure/tools-pure selection:380/380 collected/executed/passed in37.196738566s, no skips/unaccounted/drift. First380/380 run in37.297730094s retained but superseded for a concurrent documentation change/source drift; total74.494468660s, no broad group/full run. Twelve Claude attribution snapshots byte-identical to base. Five isolation inputs inherited in disposable source only and excluded; fixture root empty, private evidence/home preserved. No additional provider/build/engine/native operation or credential read.
+
+Next milestone: independent exact-byte review of the complete bounded candidate, then owner import/checkpoint. Pending suggested commit: `Parse evidenced Codex terminal completion while holding missing attribution`. Actual participation source remains a concrete acceptance gate; native realization/image/combined pipeline qualification, C2/C3, shared-login refresh and explicit Claude qualification remain open. Fast and resume stay unselected; W386048/W386057 remain separate.
+
+
+## 2026-11-25 — offline participation investigation (baton.codxpc, E386111)
+
+Observed N4b checkpoint99b69626a44e806860abadc2854920914f1cf0dc and consumed K acceptance M386109. [Report](evidence/participation-386111/REPORT.md), evidence packet `sha256:ffdead6647a64d9e71ba3a2068d91fae433c70e71960f4399422c0a0d89194e7`. Inspected selected seven-event stdout and25-record session structurally, preserving private content. No actual-participation model field established. Additional model mentions are base-instruction provenance, world-state/collaboration settings and thread_settings_applied; they do not supersede M386103. Two token_usage_record entries have distinct response IDs and a common turn ID, but neither names a model. Proposed future binding requires each actual service receipt plus attempt/candidate and host-revalidated evidence, never configuration substitution.
+
+Local installed package is0.172.0, not executable proof for0.169.0. Local app-server schema has an unqualified model/rerouted lead, not exact-build provenance or actual-generation semantics; client attestation is not backend attribution. Exact-build source/export semantics and private provider-store contents remain unestablished/uninspected. Do not turn this bounded absence into a claim that the binary exposes no source anywhere.
+
+Next bounded milestone: review evidence gap, then separately select the prepared credential-free pinned-image version/app-server-help/debug-help probe or exact-build source inspection. Prefer supported offline export of the existing responses; authenticated existing-response retrieval only if supported and explicitly selected; a new turn only after proving a diagnostic can capture the missing service field. No new turn recommended merely to repeat stdout. Product unchanged, no tests rerun, no engine/build/network/provider operation or credential-content read. Attribution stays missing; native activation, C1 and all other qualification gates remain unchanged. Last incoming discussion M386109; scope notice M386112.
+
+
+## 2026-11-25 — exact-build deeper help complete (baton.codxpc, E386116)
+
+[Report](evidence/participation-help-386116/REPORT.md), packet `sha256:62d29d7b9b2d6300b3d3623b0c10fe1decdc5d4b43bd7b9509a9e870632c42a3`. Retained17d250b7 image: Codex0.169.0 version and generate-json-schema/debug app-server help passed once each offline. Zero connect syscalls observed, network none enforced, no credentials/model/daemon; exact container ceased/removed and label absent. Source unchanged.
+
+Documented export prepared only: `codex app-server generate-json-schema --experimental --out /schema`, proposed fresh64MiB schema tmpfs, empty home, same pinned image and bounds. Latest owner wording selects preparation, not export execution. Debug lists send-message-v2 only; no retrieval established. No actual model-participation field was exposed by help; exact-build schema/semantics remain pending. Configuration fields never count; current attribution missing/acceptance held unchanged.
+
+Next bounded milestone: select offline schema export and inspect actual response/model fields, requiring service-origin generation semantics and response/turn/attempt binding before any participation change. No live call or native activation. Scope notice M386117; last canonical handoff E386116/M386113.
+
+
+## 2026-11-25 — usageMetadata access/retention trace (baton.codxpc, E386121)
+
+[Report](evidence/usage-metadata-386121/REPORT.md), packet `sha256:6bd7a15d9620bd72acbe670e2db4f9c98b3098cfca3b04a5ad52a43b84b420fd`. Verified all479 exact-build schema files. Internal-only RawResponseCompletedNotification has optional nullable opaque usageMetadata, no declared model field. Neither the86-method ServerNotification union nor184-method ClientRequest union references it; schema export does not establish a callable/subscribable/replayable method. experimentalApi is not an evidenced internal-channel opt-in. Runtime metadata construction/emission control flow remains unavailable without matching0.169.0 source/provenance.
+
+Resolved prior uninspected status for three selected private provider stores through immutable read-only forensic checks (no nonempty WAL/journal, bytes/mtime unchanged): history has one selected turn/four items with no model/usage/response-ID fields; state holds configured selector only; logs has zero rows. Both rollout response-linked usage records omit usageMetadata and model. No private rows/IDs/prose copied, no credential or Baton-store reads. Cannot recover actual model identity for existing responses through inspected retention or any established supported operation. Do not infer global backend absence or which runtime stage omitted metadata.
+
+Current attribution missing/acceptance held unchanged. Next bounded milestone: matching exact-build source/provenance trace of constructor, upstream decoder, notification filtering and persistence/supported reader. No new live call, network, daemon, engine, build, product edit/test or attribution relaxation. Scope notice M386122, last incoming discussion M386118, canonical E386121.
+
+
+## 2026-11-25 — final exact-build source trace (baton.codxpc, E386126)
+
+[Report](evidence/source-provenance-386126/REPORT.md), packet manifest SHA256 `4569091bc8f5e2e320103471c433ac9b51956c2c46fe5d054f708d83052209bd`. Official release/npm provenance resolves Codex0.169.0 to source d32063f96c2dff1dc96af839b3952abb6acfeda4; retained17d image binary exactly matches published platform package (SHA256 b452ca20f838a8855a88a41050ee4a694033fff4ea3ecdad5633e6e0e8d13f2b). Signature verification/reproducible rebuilding not performed; official content/provenance correspondence established. Relevant source retained verbatim.
+
+Supersedes earlier runtime-unavailable uncertainty: rawResponse/completed is emitted internally to connected clients and deliberately stripped from exported JSON unions, not absent from runtime. usageMetadata holds opaque usage/cost metadata, overwritten with raw usage when present; no model semantics. Rollout explicitly excludes raw completion; persisted usage records lack model/metadata; exec JSON drops it. Separate ServerModel consumes server model headers, ignores response.model, logs matches and emits only mismatch notices, with no complete per-response contributor binding. Existing retained responses remain without qualifying attribution. Absence of reroute is not participation proof.
+
+Final bounded investigation complete. Next milestone is owner attribution decision; S7 and acceptance hold unchanged, no further research/live probe selected. No product/build/provider/credential operation or protected Git mutation. Byte-copy container never started, removal verified; public scratch retained, durable evidence promoted, private home untouched. Last incoming thread M386123; scope M386127. Other native gates and separate work unchanged.
+
+
+## 2026-11-25 — owner-approved bounded Codex attribution change (baton.codxpc, E386131)
+
+Owner explicitly approves configured-model acceptance for the bounded Codex path: record requested model, exact executed invocation/configuration and CLI/image identity; never present configuration as actual participation. Missing required evidence or observed mismatch/reroute refuses. Report no reroute observed, never rerouting proved absent. Other providers retain stronger contributor evidence. This supersedes prior Codex-only participation-presence acceptance holds (S7/N4b/M386103 and final investigation), not contributor semantics or Claude requirements. Existing accepted code/evidence is not retroactively relabelled.
+
+[Amendment and implementation/acceptance plan](evidence/attribution-amendment-386131/AMENDMENT.md) and exact DESIGN.patch/proposed bytes prepared for independent review and Slawomir checkpoint before implementation. Shared DESIGN not edited because it contains other work; owner/K application ownership preserved, M386132. Attempt to include baton.prompt refused (no live endpoint); plain owning-thread coordination retained. No runtime implementation, test run, provider/credential call, native activation or Git mutation. Current code remains fail-closed until reviewed delivery. Next milestone: review amendment, apply narrow hunk under shared ownership, observe human checkpoint; then implement bounded paired worker/host evidence semantics and A1–A10 checks. Other native gates and separate Work remain.

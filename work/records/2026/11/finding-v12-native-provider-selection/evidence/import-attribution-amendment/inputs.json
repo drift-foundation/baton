@@ -1,0 +1,20 @@
+{
+  "head": "99b69626a44e806860abadc2854920914f1cf0dc",
+  "files": {
+    "work/records/2026/11/finding-v12-native-provider-selection/evidence/attribution-amendment-386131/verification.json": "70c630930dc7d9f335db9e53774a45c0130fc282d797e6e61af81f90bf611f64",
+    "work/records/2026/11/finding-v12-native-provider-selection/evidence/attribution-amendment-386131/DESIGN.patch": "434f8bf7135bede531ad492dbefa1dca11bb82dd47bb9f579d0dcc2fd90bf069",
+    "work/records/2026/11/finding-v12-native-provider-selection/evidence/attribution-amendment-386131/identity.json": "64cc198da90a2a6cf4551e66419e17deeda3b22abbd7e1080f45e35672ae786b",
+    "work/records/2026/11/finding-v12-native-provider-selection/evidence/attribution-amendment-386131/DESIGN.before.md": "8a7b4a5d5ea90809d1dee4c6b81db4156910ec0e6601a8acc4effbae19bca057",
+    "work/records/2026/11/finding-v12-native-provider-selection/evidence/attribution-amendment-386131/manifest.json": "e20c40dda84583dc7f6aea3af9f95e329f65ab0a6ff4c7f7f57dc67aa79807ed",
+    "work/records/2026/11/finding-v12-native-provider-selection/evidence/attribution-amendment-386131/AMENDMENT.md": "790d65bcb80f2f854dc6e2682bcd75b012598db4444273f0ef2c66a4527ba405",
+    "work/records/2026/11/finding-v12-native-provider-selection/evidence/attribution-amendment-386131/DESIGN.proposed.md": "c9f1611e58aea2a687cb01204d11a0760694ead3328c589c91ea0b9b05b6f74a",
+    "work/records/2026/11/finding-v12-native-provider-selection/evidence/import-attribution-amendment/DESIGN.index.md": "8a97fd6189b077b78c0bcd40d5ee8baaa0889d4cc7c3027ebc4ccd952e6a657a",
+    "work/records/2026/11/finding-v12-native-provider-selection/evidence/import-attribution-amendment/IMPORT.md": "ee150c826e20e477e6b4ed88ea53b89c26221ab4bead6761fe46007db0835bf2",
+    "work/records/2026/11/finding-v12-native-provider-selection/evidence/import-attribution-amendment/ACCEPTANCE-ADDENDUM.md": "416c21025e7dab35342b2baffb9fcd9d4a9952e0fed009bc1405cc82578af796",
+    "work/records/2026/11/finding-v12-native-provider-selection/evidence/review-K-386133/verification.json": "1e824881d3cea89056e7c4667f9f95ab2a2b0859eeedcffba852c9d891bb2a5a",
+    "work/records/2026/11/finding-v12-native-provider-selection/FINDING.md": "66d122d38153650e131aa21d0729700b0403b637a97e59e6637c8ac42a4940b4",
+    "work/records/2026/11/finding-v12-native-provider-selection/review-2026-11-25T04-49-35Z.md": "cedd3da56ce451afee941b254e20d6d7eee0fe6a674723bfeb26693d1d9a7e86"
+  },
+  "design_worktree": "c9f1611e58aea2a687cb01204d11a0760694ead3328c589c91ea0b9b05b6f74a",
+  "design_index": "8a97fd6189b077b78c0bcd40d5ee8baaa0889d4cc7c3027ebc4ccd952e6a657a"
+}

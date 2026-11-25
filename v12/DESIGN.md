@@ -203,6 +203,35 @@ output remains preserved. A provider-free publication worker transports the
 candidate and MUST NOT replace its producer attribution. Existing legacy
 admissions retain their existing behavior. See the [owner ruling](../work/records/2026/11/finding-v12-native-provider-selection/ASSIGNMENT-N1N2-OWNER-B-2026-11-24.md).
 
+Owner ruling 2026-11-25 — bounded Codex configured-model acceptance:
+for the explicitly selected Codex adapter/build, acceptance MAY use a labelled
+configured-model evidence basis instead of requiring actual contributor evidence.
+This exception supersedes the contributor-presence requirement above only for
+that selected Codex path; other providers retain their stronger participation
+evidence requirements. It MUST NOT silently apply to another provider or an
+unqualified build, or reinterpret an earlier record as accepted.
+
+The configured-model record MUST identify the requested model, exact executed
+invocation and relevant configuration, CLI build and immutable image identity,
+bound to the producing attempt and exact retained candidate. The host MUST
+validate those bindings against retained execution evidence; a requested profile
+alone is insufficient. Credentials and private prompt content MUST NOT enter
+public records; exact private invocation evidence may be retained through a
+content-bound safe reference. Missing, invalid or conflicting required evidence,
+or an observed model mismatch or reroute, MUST hold/refuse acceptance and handoff.
+Successful CLI completion alone MUST NOT satisfy these requirements.
+
+Records, diagnostics and review handoffs MUST label the basis as configured-model
+acceptance and actual model participation as unknown unless separately evidenced.
+Configuration MUST NOT be inserted into the contributor set or described as
+independently attested backend identity. Where the retained observations contain
+no reroute indication, report "no reroute observed", never "rerouting proved
+absent"; incomplete observations MUST remain explicitly incomplete. Publication
+recovery MUST preserve and revalidate the original producer's evidence basis,
+record and candidate binding, without promoting its evidence strength. All other
+acceptance, independent review and runtime qualification requirements remain.
+See the [owner ruling and amendment plan](../work/records/2026/11/finding-v12-native-provider-selection/evidence/attribution-amendment-386131/AMENDMENT.md).
+
 **ID-5.** Principals are distinct from team-scoped role bindings. Capacity and
 review independence resolve actual principals rather than counting aliases as
 different workers. Organizational hierarchy does not imply shared repositories,
