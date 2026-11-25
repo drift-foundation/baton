@@ -1220,6 +1220,17 @@ stale or contradictory. Human-owned WIP commits are useful after major accepted
 milestones and before context replacement; recommend them with a useful message.
 They are recovery aids, not acceptance evidence or mandatory continuation gates.
 
+Job headlines aggregate the published phase facts. Failure has first priority,
+then a pending owner decision (with its cause on the following line), a recorded
+cancellation request, active work, confirmed admission and ready work, in that
+order. ADMITTED applies when admission is the furthest confirmed progress.
+BLOCKED requires a closed dependency path from each unfinished phase to a named
+external dependency. Each phase retains its own position,
+dependency and attempt cessation evidence. A stopped attempt alone does not
+imply a pending owner decision. All phases done without a recorded Job outcome
+is UNKNOWN unless finalization is explicitly underway. Snapshot freshness
+qualifies the entire observation (W385263).
+
 ## 16. Deployment and compatibility
 
 **DEP-1.** Separate installed code/images, mutable operational stores, managed

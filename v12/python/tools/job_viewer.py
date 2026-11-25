@@ -246,11 +246,13 @@ def render_list(snapshot, *, now, width=100, wall_now=None,
     observed_at = snapshot.observed_at
     for job in jobs:
         lines.append("")
+        observed = job_observation.job_view(snapshot.document, job)
         lines.append("JOB " + str(job.get("job_id") or UNKNOWN)
                      + "   submission " + str(job.get("submission_id")
-                                              or UNKNOWN) + "   " + job_observation.job_outcome(job))
+                                              or UNKNOWN) + "   " + observed["headline"])
+        if observed["headline_reason"]:
+            lines.append("  " + observed["headline_reason"])
         lines.append("  Job age " + job_observation.job_age(job, observed_at))
-        observed = job_observation.job_view(snapshot.document, job)
         lines.append("  " + observed["summary"])
         for one in observed["phases"]:
             # THE LABEL IS PART OF THE VALUE, because which label is honest
@@ -339,15 +341,16 @@ def render_detail(snapshot, job_id, *, now, wall_now=None,
                 + "; it holds "
                 + (", ".join(repr(one.get("job_id"))
                              for one in snapshot.jobs()) or "nothing"))
+    observed = job_observation.job_view(snapshot.document, job)
     lines = ["",
-             "JOB " + str(job.get("job_id")) + "   " + job_observation.job_outcome(job),
+             "JOB " + str(job.get("job_id")) + "   " + observed["headline"],
+             *(["  " + observed["headline_reason"]] if observed["headline_reason"] else []),
              "  submission   " + str(job.get("submission_id") or UNKNOWN),
              "  input        " + str(job.get("input_digest") or UNKNOWN),
              "  policy       " + str(job.get("policy_digest") or UNKNOWN),
              "  terminal     " + str(job.get("terminal_policy") or UNKNOWN)]
     observed_at = snapshot.observed_at
     lines.append("  Job age " + job_observation.job_age(job, observed_at))
-    observed = job_observation.job_view(snapshot.document, job)
     lines.append("  " + observed["summary"])
     for stage, one in zip(job.get("stages") or [], observed["phases"]):
         lines.append("")

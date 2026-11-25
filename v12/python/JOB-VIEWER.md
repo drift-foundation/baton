@@ -352,3 +352,15 @@ state)**. **Failed** denotes an exceptional ending; **stopping (state)** denotes
 a stop request or order with cessation unconfirmed; **stopped** requires recorded
 cessation; **cancelled before start** requires the exact attempt's
 `fenced-unstarted` target. Cancellation of the Job remains a separate line.
+
+Job headlines summarize the same observation in status, monitor list and monitor
+detail. A failed phase takes precedence over an owner decision. An owner hold
+shows its reason immediately below the headline. Next in order are CANCELLATION
+REQUESTED, IN PROGRESS, ADMITTED, then QUEUED. ADMITTED means admission
+is confirmed and no phase has progressed to active execution. A cancellation
+request alone does not establish cessation. BLOCKED includes a chain of closed
+gates when an external dependency holds up all remaining work.
+Phase rows still show the stopped attempt, active worker or named dependency.
+A closed gate on an unidentified dependency leaves the Job headline unknown.
+Completion of every phase does not establish the final Job outcome.
+The current status publisher has no Job finalization or final outcome field.

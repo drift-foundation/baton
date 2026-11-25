@@ -1149,9 +1149,11 @@ def _print_job_outcomes(published, stream):
     if not jobs:
         print("  No Jobs observed" + ("; idle" if published["state"] == "fresh" and published["canonical"] else "; current workload unknown"), file=stream)
     for job in jobs:
-        print("Job " + _status_text(job.get("job_id")) + ": " + _job_outcome(job), file=stream)
-        print("  Job age " + job_observation.job_age(job, published["document"].get("observed_at")), file=stream)
         observed = job_observation.job_view(published["document"], job)
+        print("Job " + _status_text(job.get("job_id")) + ": " + observed["headline"], file=stream)
+        if observed["headline_reason"]:
+            print("  " + observed["headline_reason"], file=stream)
+        print("  Job age " + job_observation.job_age(job, published["document"].get("observed_at")), file=stream)
         print("  " + observed["summary"], file=stream)
         for one in observed["phases"]:
             print("  " + _status_text(one["stage_id"]) + ": " + one["position"], file=stream)

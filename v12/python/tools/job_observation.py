@@ -41,28 +41,72 @@ def _status_text(value):
                       ensure_ascii=True)[1:-1]
 
 
-def _job_outcome(job):
-    states = [stage.get("state") for stage in _rows(_mapping(job).get("stages"))]
-    if "exceptional" in states:
-        return "FAILED"
+def _job_headline(job, phases):
+    stages = _rows(job.get("stages"))
+    states = [phase["state"] for phase in phases]
+    if any(phase["state"] == "exceptional" and not (phase["live_attempt"] or {}).get("stop")
+           for phase in phases):
+        return "FAILED", ""
+    for stage, phase in zip(stages, phases):
+        hold = _owner_hold(stage)
+        if hold and phase["live_attempt"] and phase["state"] not in ("completed", "changes-requested"):
+            return "DECISION NEEDED", phase["stage_id"] + ": " + hold + "; owner action needed"
     if type(job.get("cancellation")) is dict:
-        return "CANCELLATION REQUESTED"
-    if not states or any(state not in _STATUS_STAGE_STATES for state in states):
-        return "UNKNOWN"
-    if "changes-requested" in states:
-        return "CHANGES REQUESTED"
-    if all(state == "completed" for state in states):
-        return "COMPLETED"
-    if any(state in ("offered", "claimed", "starting", "waiting", "running",
-                     "reviewing", "integrating", "answering") for state in states):
-        return "IN PROGRESS"
-    if "awaiting-answer" in states:
-        return "WAITING FOR AN ANSWER"
-    if "answered" in states:
-        return "ANSWERED — HELD"
+        return "CANCELLATION REQUESTED", ""
+    if any(phase["execution_position"] == "in progress" for phase in phases):
+        return "IN PROGRESS", ""
+    if any(phase["execution_position"] == "admitted" for phase in phases):
+        return "ADMITTED", ""
     if "queued" in states:
-        return "QUEUED"
-    return "BLOCKED"
+        return "QUEUED", ""
+    if states and all(state == "completed" for state in states):
+        # job-status/9 publishes neither a final Job outcome nor an act of
+        # Job finalization. A completed *stage* establishes neither.
+        return "UNKNOWN", "The final Job outcome has not been recorded."
+    if "changes-requested" in states:
+        return "CHANGES REQUESTED", ""
+    if "awaiting-answer" in states:
+        return "WAITING FOR AN ANSWER", ""
+    if "answered" in states:
+        return "ANSWERED — HELD", ""
+    if _externally_blocked(stages):
+        return "BLOCKED", ""
+    return "UNKNOWN", ""
+
+
+def _externally_blocked(stages):
+    """Follow closed gates backwards from external blockers to their dependents."""
+    owned = {stage["stage_id"] for stage in stages if isinstance(stage.get("stage_id"), str) and stage["stage_id"]}
+    if len(owned) != len(stages):
+        return False
+    dependents = {}
+    pending = []
+    unfinished = set()
+    for stage in stages:
+        if stage.get("state") == "completed":
+            continue
+        if stage.get("state") != "blocked":
+            return False
+        identity = stage["stage_id"]
+        unfinished.add(identity)
+        for gate in _rows(stage.get("gates")):
+            dependency = gate.get("stage_id")
+            if gate.get("open") is False and isinstance(dependency, str) and dependency:
+                if dependency in owned:
+                    dependents.setdefault(dependency, []).append(identity)
+                else:
+                    pending.append(identity)
+    reached = set()
+    while pending:
+        identity = pending.pop()
+        if identity not in reached:
+            reached.add(identity)
+            pending.extend(dependents.get(identity, ()))
+    return bool(unfinished) and reached == unfinished
+
+
+def _job_outcome(job):
+    return job_view({}, job)["headline"]
 
 
 def _elapsed(started, ended, observed_at):
@@ -407,6 +451,8 @@ def _stage_line(stage, observed_at, job=None):
     held["role"] = held["kind"]
     held["position"] = _position(stage, held)
     held["facts"] = _facts(stage, held, observed_at)
+    if held["execution_position"] == "admitted":
+        held["facts"].append("reported phase state: " + state)
     return held
 
 
@@ -566,12 +612,20 @@ def _gate_text(gate):
             _status_text(gate.get("state")) + ")")
 
 
+def _owner_hold(stage):
+    hold = _mapping(stage.get("runtime")).get("model_attribution_hold")
+    if hold in ("model-attribution-missing", "model-attribution-conflicting", "model-attribution-invalid",
+                "model-attribution-faulted", "model-attribution-incomplete", "model-attribution-rerouted",
+                "model-attribution-unqualified-build", "context-label-missing", "context-label-mismatch",
+                "launched-image-refused", "launched-image-missing", "launched-image-invalid", "launched-image-mismatch"):
+        return hold
+    return None
+
+
 def _reason(stage, state):
-    runtime = stage.get("runtime")
-    attribution_hold = runtime.get("model_attribution_hold") if type(runtime) is dict else None
-    if attribution_hold in ("model-attribution-missing", "model-attribution-conflicting", "model-attribution-invalid",
-                            "context-label-missing", "context-label-mismatch"):
-        return "held: " + attribution_hold + "; owner action needed"
+    hold = _owner_hold(stage)
+    if hold:
+        return "held: " + hold + "; owner action needed"
     if state == "exceptional":
         exchange = stage.get("exchange")
         terminal = exchange.get("terminal") if type(exchange) is dict else None
@@ -694,6 +748,8 @@ def _position(stage, held):
     else:
         position = UNKNOWN
     held["plan_position"] = position if state in HELD_STATES else UNKNOWN
+    if held["live_attempt"] and state not in TERMINAL_STATES + HELD_STATES and _owner_hold(stage):
+        position = _status_text(state) + " — held for owner"
     stop = (held["live_attempt"] or {}).get("stop")
     if held["admission"] == "admitted" and stop and type(state) is str and state in _POSITIONS:
         position = position + " — " + stop if stop.startswith("stopping") and state != "exceptional" else stop
@@ -769,6 +825,7 @@ def job_view(document, job):
     phases = [stage_view(stage, _mapping(document).get("observed_at"), job)
               for stage in _rows(_mapping(job).get("stages"))]
     count = sum(phase["attempt_count"] for phase in phases if phase["state"] in _STATUS_STAGE_STATES and phase["state"] not in TERMINAL_STATES)
-    return {"phases": phases, "open_admitted": count,
+    headline, reason = _job_headline(job, phases)
+    return {"headline": headline, "headline_reason": reason, "phases": phases, "open_admitted": count,
             "recorded_runtimes": sum(stage.get("runtime") is not None for stage in _rows(_mapping(job).get("stages"))),
             "summary": str(count) + " admitted attempt(s) in nonterminal phases"}

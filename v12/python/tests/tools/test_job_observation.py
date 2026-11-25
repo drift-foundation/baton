@@ -46,7 +46,7 @@ class SharedObservation(unittest.TestCase):
             for rendered in views(doc):
                 self.assertIn(cause + "; owner action needed", rendered)
     def test_shared_outcomes_gates_and_typed_failure(self):
-        for state, outcome in (("running", "IN PROGRESS"), ("completed", "COMPLETED"), ("queued", "QUEUED"), ("changes-requested", "CHANGES REQUESTED"), ("exceptional", "FAILED"), ("blocked", "BLOCKED"), ("unrecognized", "UNKNOWN")):
+        for state, outcome in (("running", "IN PROGRESS"), ("completed", "UNKNOWN"), ("queued", "QUEUED"), ("changes-requested", "CHANGES REQUESTED"), ("exceptional", "FAILED"), ("blocked", "BLOCKED"), ("unrecognized", "UNKNOWN")):
             doc = document()
             stage = doc["jobs"][0]["stages"][0]
             stage["state"] = state
@@ -1057,3 +1057,103 @@ class A1Contract(unittest.TestCase):
         for state, expected in (("offered", "admitted"), ("claimed", "admitted"), ("starting", "admitted"), ("waiting", "admitted"), ("reviewing", "in progress"), ("answering", "in progress"), ("changes-requested", "changes requested")):
             doc, stage = self.fixture(state)
             self.check(doc, (expected + "; admission admitted",))
+
+class JobHeadlines(unittest.TestCase):
+    def check(self, doc, headline, *row_words, reason=None):
+        original = copy.deepcopy(doc)
+        for rendered in views(doc):
+            lines = rendered.splitlines()
+            idx = next(i for i, line in enumerate(lines) if line.startswith(("Job job-a:", "JOB job-a ")))
+            self.assertTrue(lines[idx].endswith(headline), lines[idx])
+            if reason:
+                self.assertIn(reason, lines[idx + 1])
+            for word in row_words:
+                self.assertIn(word, rendered)
+        self.assertEqual(doc, original)
+
+    def test_mixed_priority_preserves_rows(self):
+        doc = document()
+        stages = doc["jobs"][0]["stages"]
+        running = copy.deepcopy(stages[0])
+        running.update(kind="review", stage_id="review")
+        stages.append(running)
+        stages[0]["state"] = "answering"
+        stages[0]["runtime"]["model_attribution_hold"] = "model-attribution-missing"
+        self.check(doc, "DECISION NEEDED", "answering — held for owner", "in progress; admission admitted",
+                   reason="implementation: model-attribution-missing")
+        stages.append({"stage_id":"failure","kind":"integration","state":"exceptional"})
+        self.check(doc, "FAILED", "model-attribution-missing", "in progress; admission admitted")
+
+    def test_waiting_rows_require_named_external_dependencies(self):
+        doc = document()
+        stages = doc["jobs"][0]["stages"]
+        stages.append({"kind":"review","stage_id":"review","state":"blocked",
+                       "gates":[{"open":False,"stage_id":"implementation","state":"queued"}]})
+        self.check(doc, "IN PROGRESS", "waiting on implementation")
+        stages[0]["state"] = "queued"
+        self.check(doc, "QUEUED", "waiting on implementation")
+        stages[0].update(state="blocked", gates=[{"open":False,"stage_id":"external-a","state":"waiting"}])
+        self.check(doc, "BLOCKED", "waiting on external-a", "waiting on implementation")
+        stages[1]["gates"][0]["stage_id"] = "external-b"
+        self.check(doc, "BLOCKED", "waiting on external-a", "waiting on external-b")
+        stages[1]["gates"] = []
+        self.check(doc, "UNKNOWN", "blocker unknown")
+
+    def test_completion_without_job_result_and_stop_without_decision(self):
+        doc = document()
+        job = doc["jobs"][0]
+        stage = job["stages"][0]
+        stage["state"] = "completed"
+        self.check(doc, "UNKNOWN", "done; admission admitted", reason="final Job outcome has not been recorded")
+        stage["state"] = "exceptional"
+        job["cancellation"] = {"targets":[{"stage_id":"implementation","episode":1,"attempt_id":"attempt-a","state":"ceased"}]}
+        self.check(doc, "CANCELLATION REQUESTED", "attempt 1 attempt-a — stopped")
+        stage["runtime"]["model_attribution_hold"] = "model-attribution-missing"
+        self.check(doc, "DECISION NEEDED", "attempt 1 attempt-a — stopped", reason="model-attribution-missing")
+
+    def test_admission_priority_requires_published_admission(self):
+        for state in ("offered", "claimed", "starting", "waiting"):
+            with self.subTest(state=state):
+                doc = document()
+                stages = doc["jobs"][0]["stages"]
+                stages[0]["state"] = state
+                self.check(doc, "ADMITTED", "admitted; admission admitted", "reported phase state: " + state)
+                stages.append({"stage_id":"review", "kind":"review", "state":"blocked",
+                               "gates":[{"open":False, "stage_id":"implementation", "state":state}]})
+                self.check(doc, "ADMITTED", "waiting on implementation (" + state + ")")
+                stages.append({"stage_id":"another", "kind":"research", "state":"queued"})
+                self.check(doc, "ADMITTED", "ready; admission unknown")
+                stages.append(dict(document()["jobs"][0]["stages"][0], stage_id="active"))
+                self.check(doc, "IN PROGRESS", "in progress; admission admitted")
+                del stages[1:]
+                stages[0].pop("allocation")
+                self.check(doc, "UNKNOWN", "admission unknown")
+
+    def test_cancellation_priority_keeps_phase_positions(self):
+        for state, position in (("running","in progress"), ("offered","admitted"), ("queued","ready")):
+            with self.subTest(state=state):
+                doc = document()
+                job = doc["jobs"][0]
+                job["cancellation"] = {"trigger":"operator", "shutdown":"unresolved"}
+                stage = job["stages"][0]
+                stage["state"] = state
+                self.check(doc, "CANCELLATION REQUESTED", position + "; admission")
+                stage["state"] = "answering"
+                stage["runtime"]["model_attribution_hold"] = "model-attribution-missing"
+                self.check(doc, "DECISION NEEDED", reason="model-attribution-missing")
+                job["stages"].append({"stage_id":"failed","state":"exceptional"})
+                self.check(doc, "FAILED", "model-attribution-missing")
+
+    def test_dependency_chain_is_order_independent_and_needs_external_evidence(self):
+        doc = document()
+        def waiting(name, dependency):
+            return {"kind":name, "stage_id":name, "state":"blocked",
+                    "gates":[{"stage_id":dependency, "open":False, "state":"blocked"}]}
+        stages = [waiting("integration","review"), waiting("review","implementation"),
+                  waiting("implementation","external-fix")]
+        doc["jobs"][0]["stages"] = stages
+        self.check(doc, "BLOCKED", "waiting on external-fix", "waiting on implementation", "waiting on review")
+        stages[-1]["gates"][0]["open"] = True
+        self.check(doc, "UNKNOWN")
+        stages[-1]["gates"] = waiting("implementation","review")["gates"]
+        self.check(doc, "UNKNOWN", "waiting on review")

@@ -472,8 +472,12 @@ class JobOutcomesFirst(Fixture):
         jobs = [self.job("active", ("running", "blocked")), self.job("queued", ("queued", "blocked")),
                 self.job("done", ("completed", "completed")), self.job("correction", ("completed", "changes-requested")),
                 self.job("held", ("completed", "blocked")), self.job("unknown", (None, "blocked"))]
+        active = jobs[0]["stages"][0]
+        active.update(episode=1, attempt_id="a", episodes=[{"episode":1,"attempt_id":"a"}],
+                      allocation={"episode":1,"assignment_id":"a"})
+        jobs[4]["stages"][1]["gates"] = [{"stage_id":"another-job/input","state":"waiting","open":False}]
         text = self.shown(jobs)
-        for job_id, outcome in [("active", "IN PROGRESS"), ("queued", "QUEUED"), ("done", "COMPLETED"), ("correction", "CHANGES REQUESTED"), ("held", "BLOCKED"), ("unknown", "UNKNOWN")]:
+        for job_id, outcome in [("active", "IN PROGRESS"), ("queued", "QUEUED"), ("done", "UNKNOWN"), ("correction", "CHANGES REQUESTED"), ("held", "BLOCKED"), ("unknown", "UNKNOWN")]:
             self.assertIn("Job " + job_id + ": " + outcome, text)
         self.assertNotIn("accepted", text)
 
