@@ -73,6 +73,17 @@ def _job_headline(job, phases):
         return "IN PROGRESS", ""
     if any(phase["execution_position"] == "admitted" for phase in phases):
         return "ADMITTED", ""
+    # W386395: NOTHING IS RUNNING OR ABOUT TO, and a review froze without a
+    # usable report. Failure, an owner decision, cancellation, an expired
+    # budget and genuine activity elsewhere have all been answered above.
+    held_reasons = []
+    for stage, phase in zip(stages, phases):
+        if phase["execution_position"] == "held":
+            sentence = held_review(stage, phase["state"])
+            if sentence and sentence not in held_reasons:
+                held_reasons.append(sentence)
+    if held_reasons:
+        return "BLOCKED", "; ".join(held_reasons)
     if manual_open and all(state in ("completed", "blocked", "queued") for state in states):
         if _externally_blocked(stages):
             return "BLOCKED", ""
@@ -698,6 +709,26 @@ def review_report_sentence(observation):
     return ""
 
 
+def held_review(stage, state):
+    """The sentence for a review whose current attempt froze without a usable
+    report, or `""`. W386395.
+
+    A review stage reads `answering` both while its worker is still working --
+    verification may run after the provider turn -- and after the attempt has
+    frozen its result. Only the second is a hold, and only the attempt-bound
+    evidence says which: the worker's declaration for THIS attempt must carry a
+    known frozen result (`frozen_at`) and a known report state the sentence
+    owner classifies. Unknown, unbound or `not-read` evidence never makes a
+    phase held.
+    """
+    if stage.get("kind") != "review" or state != "answering":
+        return ""
+    declared = _mapping(_diagnostic(stage, stage.get("attempt_id")).get(_DECLARATION_MEMBER))
+    if not declared or _declared_fact(declared, "frozen_at") is None:
+        return ""
+    return review_report_sentence(declared.get("review_report"))
+
+
 def _reason(stage, state):
     diagnostic = _diagnostic(stage, stage.get("attempt_id"))
     report = (review_report_sentence(_mapping(diagnostic.get("worker_declaration")).get("review_report"))
@@ -840,6 +871,9 @@ def _position(stage, held):
     held["plan_position"] = position if state in HELD_STATES else UNKNOWN
     if held["live_attempt"] and state not in TERMINAL_STATES + HELD_STATES and _owner_hold(stage):
         position = _status_text(state) + " — held for owner"
+    elif held["admission"] == "admitted" and held_review(stage, state):
+        # W386395: a frozen review without a usable report is not progress.
+        position = "held"
     stop = (held["live_attempt"] or {}).get("stop")
     if held["admission"] == "admitted" and stop and type(state) is str and state in _POSITIONS:
         position = position + " — " + stop if stop.startswith("stopping") and state != "exceptional" else stop

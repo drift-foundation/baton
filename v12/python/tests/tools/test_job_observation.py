@@ -1159,6 +1159,129 @@ class JobHeadlines(unittest.TestCase):
         self.check(doc, "UNKNOWN", "waiting on review")
 
 
+DIAGNOSTIC_SCHEMA = "baton.v12.attempt-failure-cause/1"
+
+
+class AFrozenReviewWithoutAReportIsBlocked(unittest.TestCase):
+    """W386395, from native run M386388 on 0cb8b0de.
+
+    THE MEASURED DEFECT: the implementation had completed and the sole
+    remaining review attempt had frozen its result `unable` with the sealed
+    report state `missing`. The stage still read `answering`, so every surface
+    said the review was in progress and the Job IN PROGRESS, while the
+    launcher, reading the same evidence, reported a terminal hold.
+
+    THE SHAPE is the retained snapshot's (`evidence/retained-final.status.json`
+    in the W386395 dossier): the members the read model consults, with the
+    same states, the same attempt binding and the same declaration leaves.
+    """
+
+    REVIEW_ATTEMPT = "attempt-review"
+
+    @staticmethod
+    def declaration(**members):
+        return {name: {"known": True, "value": value, "source": "fixture"} for name, value in members.items()}
+
+    def job(self, review_declaration=None, **review):
+        stages = [
+            {"stage_id": "job-a/implementation", "kind": "implementation", "state": "completed",
+             "attempt_id": "attempt-impl", "episode": 1, "episodes": [{"episode": 1, "attempt_id": "attempt-impl"}],
+             "allocation": {"episode": 1, "assignment_id": "attempt-impl", "allocation_state": "released"},
+             "attempt_diagnostics": {"schema": DIAGNOSTIC_SCHEMA, "attempt_id": "attempt-impl", "worker_declaration": self.declaration(
+                 disposition="completed", frozen_at="2026-11-19T17:50:00.000Z")}},
+            {"stage_id": "job-a/review", "kind": "review", "state": "answering",
+             "attempt_id": self.REVIEW_ATTEMPT, "episode": 1,
+             "episodes": [{"episode": 1, "attempt_id": self.REVIEW_ATTEMPT}],
+             "allocation": {"episode": 1, "assignment_id": self.REVIEW_ATTEMPT, "allocation_state": "reserved"},
+             "gates": [{"open": True, "stage_id": "job-a/implementation", "state": "completed"}],
+             "attempt_diagnostics": {"schema": DIAGNOSTIC_SCHEMA, "attempt_id": self.REVIEW_ATTEMPT, "worker_declaration": self.declaration(
+                 **(review_declaration if review_declaration is not None else
+                    {"disposition": "unable", "frozen_at": "2026-11-19T17:55:00.000Z", "review_report": "missing"}))}}]
+        stages[1].update(review)
+        return {"schema": stack.STATUS_SCHEMA, "observed_at": NOW, "canonical": True, "incarnation": "publisher",
+                "jobs": [{"job_id": "job-a", "submission_id": "submission-a", "stages": stages}]}
+
+    def seen(self, doc):
+        view = model.job_view(doc, doc["jobs"][0])
+        return view, {phase["role"]: phase for phase in view["phases"]}
+
+    def test_the_retained_run_reads_BLOCKED_with_the_report_reason_on_every_surface(self):
+        doc = self.job()
+        view, phases = self.seen(doc)
+        self.assertEqual((view["headline"], view["headline_reason"]), ("BLOCKED", "Review held: review report missing"))
+        self.assertEqual(phases["review"]["row_position"], "held")
+        self.assertEqual(phases["review"]["reason"], "Review held: review report missing")
+        status, listed, detail = views(doc)
+        for text in (status, listed, detail):
+            self.assertIn("BLOCKED", text)
+            self.assertIn("Review held: review report missing", text)
+            self.assertNotIn("IN PROGRESS", text)
+        from tools import job_tui
+        with tempfile.TemporaryDirectory(prefix="v12-w386395-") as room:
+            place = os.path.join(room, "status.json")
+            Path(place).write_text(json.dumps(doc))
+            session = job_tui.Session(job_tui.source_from(place))
+            session.read()
+            painted = "\n".join(session.frame(24, 120).lines)
+            session.key("open")
+            opened = "\n".join(session.frame(24, 120).lines)
+        for text in (painted, opened):
+            self.assertIn("BLOCKED", text)
+            self.assertIn("Review held: review report missing", text)
+        self.assertIn("review          held", opened)
+
+    def test_each_classified_report_state_holds(self):
+        for state, sentence in (("empty", "Review held: review report empty"),
+                                ("malformed", "Review held: review report malformed"),
+                                ("unclassified", "Review held: no usable report")):
+            with self.subTest(state=state):
+                view, _ = self.seen(self.job({"disposition": "unable", "frozen_at": "2026-11-19T17:55:00.000Z",
+                                              "review_report": state}))
+                self.assertEqual((view["headline"], view["headline_reason"]), ("BLOCKED", sentence))
+
+    def test_an_answering_review_that_has_not_frozen_is_still_IN_PROGRESS(self):
+        """Post-turn verification can still be running: no frozen result, no hold."""
+        for declaration in ({}, {"disposition": "unable", "review_report": "missing"}, {"review_report": "not-read",
+                            "disposition": "unable", "frozen_at": "2026-11-19T17:55:00.000Z"}):
+            with self.subTest(declaration=sorted(declaration)):
+                view, phases = self.seen(self.job(declaration))
+                self.assertEqual(view["headline"], "IN PROGRESS")
+                self.assertEqual(phases["review"]["row_position"], "in progress")
+
+    def test_evidence_of_another_attempt_or_unknown_evidence_never_holds(self):
+        doc = self.job()
+        doc["jobs"][0]["stages"][1]["attempt_diagnostics"]["attempt_id"] = "attempt-earlier"
+        self.assertEqual(self.seen(doc)[0]["headline"], "IN PROGRESS")
+        doc = self.job()
+        doc["jobs"][0]["stages"][1]["attempt_diagnostics"]["worker_declaration"]["review_report"] = {"known": False, "value": None}
+        self.assertEqual(self.seen(doc)[0]["headline"], "IN PROGRESS")
+
+    def test_a_genuinely_active_parallel_phase_still_reads_IN_PROGRESS(self):
+        doc = self.job()
+        doc["jobs"][0]["stages"].append({"stage_id": "job-a/integration", "kind": "integration", "state": "running",
+                                         "attempt_id": "attempt-int", "episode": 1,
+                                         "episodes": [{"episode": 1, "attempt_id": "attempt-int"}],
+                                         "allocation": {"episode": 1, "assignment_id": "attempt-int"}})
+        view, phases = self.seen(doc)
+        self.assertEqual((view["headline"], view["headline_reason"]), ("IN PROGRESS", ""))
+        self.assertEqual(phases["review"]["row_position"], "held")
+        self.assertEqual(phases["integration"]["row_position"], "running")
+
+    def test_failure_and_owner_decisions_keep_their_priority(self):
+        doc = self.job()
+        doc["jobs"][0]["stages"][0]["state"] = "exceptional"
+        self.assertEqual(self.seen(doc)[0]["headline"], "FAILED")
+        doc = self.job(runtime={"model_attribution_hold": "model-attribution-missing"})
+        view, phases = self.seen(doc)
+        self.assertEqual(view["headline"], "DECISION NEEDED")
+        self.assertEqual(phases["review"]["row_position"], "answering — held for owner")
+        self.assertEqual(phases["review"]["reason"],
+                         "held: model-attribution-missing; owner action needed; Review held: review report missing")
+        doc = self.job()
+        doc["jobs"][0]["cancellation"] = {"requested_at": NOW}
+        self.assertEqual(self.seen(doc)[0]["headline"], "CANCELLATION REQUESTED")
+
+
 # Simulated provider and engine at their normal boundaries; actual worker,
 # custody, manager, projection and three rendered views.
 from tests.tools import test_provider_selection as report_fixtures
