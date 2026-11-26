@@ -1264,6 +1264,7 @@ class ManualSelectionAndBudget(JobManagerCase):
         self.see(13)
         self.settle("old")
         connection = self.jobs._connection
+        connection.execute("DROP TABLE creation_requests")
         connection.execute("ALTER TABLE manual_phases DROP COLUMN held_cause")
         connection.execute("ALTER TABLE manual_phases DROP COLUMN frozen")
         connection.execute("UPDATE meta SET value='11' WHERE key='schema_version'")

@@ -468,8 +468,15 @@ def publication_operations(given, *, jobs, control, authority, provider,
                            host, exclusion, identity, workspaces=None,
                            engine_run=None, clock=None,
                            execution_context=None, lifetime_policy=None,
-                           dispose=None, ending=None, served=None):
+                           dispose=None, ending=None, served=None,
+                           works=None):
     """ONE publication worker's ordinary operations, with its stage owner.
+
+    `works` is `single_worker.worker_operations`' operand of that name, for
+    the INSTALLED document alone (W386365): this worker serves no recovery
+    under the Work it was installed against, so a pool whose Jobs each have
+    their own Work need not hold that one. Each per-recovery document still
+    proves the Work it names.
 
     `served` IS THE PER-RECOVERY OPERAND SETS (review 2026-11-23T18-55-03Z
     R3): `{recovery_job_id: deployment}`, each the installed document as
@@ -500,17 +507,17 @@ def publication_operations(given, *, jobs, control, authority, provider,
         identity=identity,
         workspaces=workspaces or staging_root(identity["root"]),
         clock=clock if clock is not None else jobs._now)
-    def composed(document):
+    def composed(document, works=None):
         return single_worker.worker_operations(
             document, control, authority, provider, engine_run=engine_run,
-            clock=clock, stage=stage,
+            clock=clock, stage=stage, works=works,
             dispose=dispose if dispose is not None else (lambda: None),
             execution_context=(execution_context
                                if execution_context is not None
                                else single_worker.job_execution_reader(jobs)),
             lifetime_policy=lifetime_policy)
 
-    operations = composed(given)
+    operations = composed(given, works)
     held = None
     if served is not None:
         held = {}

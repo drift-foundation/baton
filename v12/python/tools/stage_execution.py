@@ -6190,27 +6190,72 @@ def _with_job_task(held, binding, job_task):
 
 
 def _manifest_for_work(manifest, work_id):
-    """One input manifest naming ANOTHER WORK of the same Authority, and
-    identifying itself.
+    """`job_task.manifest_on_work`, under the name this module's callers use."""
+    from tools import job_task
 
-    THE AUTHORITY DOES NOT MOVE: a Work is reused inside the deployment that
-    owns it, and a manifest rebound across Authorities would be another
-    deployment's document. The digest is recomputed by section 12's rule and
-    the result is proved by its own owner before anybody is handed it, which
-    is `job_task.manifest_for`'s discipline for the other per-Job member.
+    return job_task.manifest_on_work(manifest, work_id)
+
+
+def _created_works(given):
+    """The Works generated for the Jobs this deployment binds. W386365.
+
+    An ordinary Job is created under a Work named from this Authority and
+    the Job identity, so which bound Works are such Works is derivable from
+    the document alone -- no store is read. A document that names no
+    Authority binds none.
     """
-    from baton_v12.contracts.manifest import check_manifest_structure
+    authority_uuid = given.get("authority_uuid")
+    if authority_uuid is None:
+        return frozenset()
+    from baton_v12.job_manager import creation
 
-    if manifest["work_ref"]["work_id"] == work_id:
-        return manifest
-    held = dict(manifest)
-    held["work_ref"] = dict(manifest["work_ref"], work_id=work_id)
-    held["manifest_digest"] = digest(
-        {name: value for name, value in held.items()
-         if name != "manifest_digest"})
-    return check_manifest_structure(
-        held, "inputManifest",
-        what="a publication recovery's input manifest")
+    return frozenset(
+        one["job_work_id"] for one in given.get("job_bindings") or []
+        if one.get("job_id") is not None and one["job_work_id"]
+        == creation.generated_work_id(authority_uuid, one["job_id"]))
+
+
+def _on_created_work(given, held, binding):
+    """One held deployment, naming the Work a Job was CREATED under.
+
+    W386365. An ordinary Job has its own Work, generated from this Authority
+    and the Job identity, and no installed manifest names it. So a worker
+    serves such a Job under its installed declarations bound to that Work --
+    the rule the publication role already keeps for a recovery.
+
+    ONLY FOR A WORK THAT IS PROVABLY A BOUND JOB'S GENERATED ONE. That is the
+    stage's own Job, or -- for a publication recovery, which runs on the
+    ORIGINAL Job's Work -- the Job it recovers. A binding that names any
+    other Work is compared exactly as before, so a worker installed against
+    another Job's Work is still excluded from this one.
+    """
+    if binding.get("job_id") is None:
+        return held
+    # THE BINDING IN HAND IS ASKED TOO, and not only the bound ones: a
+    # creation asks which workers could serve a Job whose binding is the one
+    # it is about to publish.
+    if binding["job_work_id"] not in _created_works(
+            dict(given, job_bindings=list(given.get("job_bindings") or [])
+                 + [binding])):
+        return held
+    return dict(held, input_manifest=_manifest_for_work(
+        held["input_manifest"], binding["job_work_id"]))
+
+
+def _works_served(given, worker):
+    """The Works one worker's installed document must find in this Authority.
+
+    W386365. Its installed Work, whenever any bound Job is served under an
+    installed Work -- which is every deployment there was before ordinary
+    Jobs had their own. When every bound Job runs under its own created
+    Work, those are the Works this worker serves and the installed one is a
+    name no Job uses, so it is not demanded.
+    """
+    created = _created_works(given)
+    bound = {one["job_work_id"] for one in given["job_bindings"]}
+    if not created or bound != set(created):
+        return None
+    return sorted(created)
 
 
 def publication_input_identity(given, binding, job_task=None):
@@ -6283,7 +6328,8 @@ def _served_deployment(given, worker, binding, job_task=None):
     # submitted by hand, created before the relation existed, or created
     # against a deployment that composes none -- and its delivery is the
     # installed one exactly as before.
-    held = _with_job_task(held, binding, job_task)
+    held = _on_created_work(given, _with_job_task(held, binding, job_task),
+                            binding)
     if worker["role"] == PUBLICATION_ROLE and binding["job_id"] is not None:
         # W385695 / REC-9 (review 2026-11-23T18-55-03Z R3): THE PUBLICATION
         # ROLE IS THE OTHER ONE THAT IS NOT CONFIGURED PER JOB. It is
@@ -6317,9 +6363,10 @@ def _served_deployment(given, worker, binding, job_task=None):
     # have accepted -- inert for a role that mounts nothing, and exactly the
     # kind of half-derived document a later reader is entitled to trust.
     producer = _producer_of(given, binding)["deployment"]
-    return dict(held, input_manifest=producer["input_manifest"],
-                task_document=producer["task_document"],
-                task_bytes=producer["task_bytes"])
+    return _on_created_work(given, dict(
+        held, input_manifest=producer["input_manifest"],
+        task_document=producer["task_document"],
+        task_bytes=producer["task_bytes"]), binding)
 
 
 def _declared_contract_disagreement(manifest, template_version):
@@ -7714,6 +7761,7 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
                         identity=identity, engine_run=engine_run,
                         clock=clock, lifetime_policy=lifetime_policy,
                         dispose=lambda: None,
+                        works=_works_served(given, one),
                         ending=PriorAssignment(
                             composed.authority, identity,
                             sessions=_held_producer_sessions(deployment)))
@@ -7732,6 +7780,7 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
                     checkpoint=checkpoint, permission_policy=permission_policy,
                     lifetime_policy=lifetime_policy,
                     job_task=single_worker.job_task_reader(job_store), worker_id=one["worker_id"],
+                    works=_works_served(given, one),
                     stage=None if one["role"] == "research" else StageComposition(deployment, role=one["role"],
                                            worker_id=one["worker_id"]),
                     # W156162: the same reader every Job-bound factory gets.

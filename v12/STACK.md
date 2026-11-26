@@ -1081,6 +1081,43 @@ spelled `label-work` and `unlabel-work`. The Worker Manager's own `labels` are
 OCI runtime labels, the container execution identity a runtime is discovered
 and fenced by. Neither is reachable from this subcommand.
 
+### `manager create` on a running instance
+
+The same `manager create` command works whether the instance's manager is
+stopped or serving. Do not stop the stack to submit a Job.
+
+While a manager serves, it is the instance's only owner, so the command does not
+create the Job itself. It records the request in the Job Store and the serving
+manager performs the creation, normally within a second or two, and then serves
+the Job without restarting. The command prints the same creation answer either
+way.
+
+- By default the command waits up to 30 seconds for the manager's answer
+  (`--wait-seconds N` changes this).
+- If the answer has not arrived, the command prints a
+  `baton.v12.template-job.creation-pending/1` document with `state: pending`, the
+  `request_id` and the `job_id`, and exits **3**. Nothing is lost: run the same
+  command again to read the status.
+- `--no-wait` returns as soon as the request is recorded, with the same pending
+  document and exit 0.
+- Repeating a request never creates a second Job or Work. Once the Job exists,
+  the repeat prints the recorded creation answer.
+- If the manager refuses the request (for example no configured worker can serve
+  it), the command reports the manager's reason and exits non-zero. Fix what is
+  named and run the same command again; the request is queued again.
+- A request reserves its Job identity the moment it is recorded, whether the
+  manager is serving or stopped. The same task name with a different statement,
+  scope, acceptance or template is then refused as a different creation, even if
+  the first request is still pending or a manager stopped before answering it.
+  Running the first request's command again creates that one Job. Use another
+  `--task` or `--job-id` for the different one.
+- `--no-wait` always reports the recorded request as pending (exit 0) when a
+  manager is serving; it does not check whether the manager has answered yet.
+
+Every ordinary Job is created under **its own Work**, named from the instance's
+Authority and the Job identity. Two Jobs on one instance never share a Work.
+`binding.job_work_id` in the answer names it.
+
 ### `manager create --label` — a Work's create-time labels
 
 `manager create` takes the same repeatable `--label`, and it applies **only
@@ -1096,7 +1133,11 @@ The labels are part of the caller's intent, so an exact retry replays the
 creation and a second request under the same Job identity naming other labels
 is refused as the different creation it is.
 
-If the deployment's derived Work **already exists**, a creation that states
+Every ordinary Job now has its own Work, so a first creation always makes it and
+its labels apply. The rule below still governs a Job identity whose Work exists
+already, such as one created before per-Job Works.
+
+If the Job's Work **already exists**, a creation that states
 labels is **refused by name** — whether the Work carries none of them, some,
 all of them or more — and the refusal says to use `work label-work` instead
 and then to repeat the creation without `--label`: that Work is shared by

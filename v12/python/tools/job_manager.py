@@ -35,6 +35,7 @@ rather than being adopted or projected.
 
 import importlib
 import json
+import os
 import sys
 
 from baton_v12.contracts import ContractRefusal
@@ -839,33 +840,185 @@ def _create(taken, clock, stream):
     workspace root, and a surface that needed write access to the Worker
     Manager to create a Job could change the evidence it was judging.
     """
-    from tools.creation_ports import (DeploymentDerivation, InstanceOwnership,
-                                      NewJobBinding, WorkAuthorization,
-                                      agreeing, instance_identity)
+    from baton_v12.job_manager import creation, creation_requests
+    from baton_v12.worker_manager import workspaces
 
-    identity = instance_identity(taken.instance)
+    request = _creation_request(taken)
+    place = {"instance": os.path.realpath(str(taken.instance)),
+             "authority": os.path.realpath(str(taken.authority)),
+             "route": taken.route}
+    # BEFORE ANYTHING IS OPENED: a store that belongs to another deployment
+    # is refused without being created, read or recorded into.
+    _instance_of(taken, place)
+    with _job_store(taken, clock) as store:
+        # A COMPLETED CREATION ANSWERS FIRST, whoever performed it -- and a
+        # changed intent against one is refused here, by the creation's own
+        # replay. This is also every Job created before requests existed.
+        found, value = creation.recorded_creation(store, request)
+        if found:
+            return _emit(value, stream)
+        # W386365 review R1: THE INTENT IS RECORDED BEFORE ANY GUARD IS
+        # TRIED, on both paths. The request row is what reserves the Job
+        # identity, so a second intent under it is refused here whether the
+        # first is pending for a serving manager, being performed by another
+        # command, or left behind by a manager that stopped.
+        held = dict(creation_requests.record(store, request, place),
+                    request=request)
+        try:
+            with ControlStore.open_readonly(taken.control,
+                                            incarnation=taken.incarnation,
+                                            clock=clock) as control:
+                _performed(taken, store, control, held, place)
+            # ONE RECEIPT ON EVERY PATH: the creation's own journalled answer,
+            # which a retry, a serving manager and a replay all print.
+            return _emit(creation.recorded_creation(store, request)[1],
+                         stream)
+        except workspaces.ManagerActive:
+            # THIS INSTANCE'S MANAGER IS SERVING, and it is the one process
+            # that may perform a creation's effects. It performs the request
+            # just recorded; this command reports its answer.
+            pass
+        return _requested(taken, stream, store, request, held)
+
+
+def _performed(taken, store, control, held, place):
+    """Perform ONE recorded request in this process, and answer it.
+
+    The body of the stopped-manager path, and the serving manager's body for
+    each pending request: the creation itself is `_created`, under the guard
+    its own owner takes. The answer is recorded against the request that
+    reserved the identity. A refusal is recorded and raised. Anything else
+    leaves the request pending, which the same command -- or the next manager
+    -- resumes.
+    """
+    from contextlib import ExitStack
+
+    from baton_v12.job_manager import creation, creation_requests
+    from baton_v12.worker_manager import workspaces
+    from tools.creation_ports import BindingRefusal, InstanceOwnership, NewJobBinding
+
+    # Keep the instance guard through settlement. A delayed caller must check
+    # its attempt again after acquiring the guard and before making any Work.
+    with ExitStack() as stack:
+        try:
+            identity = _instance_of(taken, place)
+            deployment = NewJobBinding(place["instance"], stream=sys.stderr, identity=identity)
+            ownership = InstanceOwnership.of(control, deployment.configuration(), identity=identity)
+            stack.enter_context(ownership.held())
+            current = creation_requests.attempt_status(store, held["job_id"], held["request_id"], held["attempts"], place=place)
+            if current["state"] == "refused":
+                refusal = current["answer"]
+                raise ContractRefusal(refusal["category"], refusal["code"], refusal["message"])
+            answer = _created(taken, store, control, held["request"], place, identity, deployment, ownership)
+        except workspaces.ManagerActive:
+            raise
+        except (ContractRefusal, BindingRefusal) as refusal:
+            # If replaced, report this attempt's recorded refusal, leaving
+            # the next attempt free to proceed.
+            current = creation_requests.attempt_status(store, held["job_id"], held["request_id"], held["attempts"], place=place)
+            if current["state"] == "pending":
+                creation_requests.settle(store, held, "refused", {
+                    "category": getattr(refusal, "category", "refused"),
+                    "code": getattr(refusal, "code", "precondition"),
+                    "message": str(refusal)})
+            raise
+        creation_requests.settle(store, held, "created", {
+            "job_id": answer["job_id"],
+            "operation_id": creation.create_operation_id(answer["job_id"])})
+        return answer
+
+
+def _created(taken, store, control, request, place, identity, deployment, ownership):
+    """One ordinary creation, performed by THIS process under the guard.
+
+    The command's body when no manager serves, and the serving manager's body
+    for a recorded request (W386365). One composition of the four owner ports
+    for both, so a request is performed exactly as the command would have.
+    """
+    from tools.creation_ports import DeploymentDerivation, WorkAuthorization
+
+    derivation = DeploymentDerivation(place["instance"], identity=identity)
+    authorization = WorkAuthorization.opened(
+        place["authority"], authority_uuid=taken.authority_uuid,
+        route=_first_work_route(place["route"]), identity=identity,
+        producers=_producers_of(deployment.configuration()))
+    try:
+        return create_template_job(
+            store, _ReadOnly(control), request=request,
+            derivation=derivation, authorization=authorization,
+            binding=deployment,
+            ownership=ownership)
+    finally:
+        # A SERVING MANAGER PERFORMS MANY OF THESE, so the Authority handle
+        # this one opened is given back rather than left to process exit.
+        authorization.dispose()
+
+
+def _instance_of(taken, place):
+    """The instance a creation names, with every store operand held to it.
+
+    Review R14's rule, in one place for the command and for the serving
+    manager performing a recorded request: the instance's own layout says
+    where its stores live, and each operand is compared against that rather
+    than against itself.
+    """
+    from tools.creation_ports import agreeing, instance_identity
+
+    identity = instance_identity(place["instance"])
     agreeing("job_store", taken.store, "Job store", identity)
     agreeing("control_store", taken.control, "control store", identity)
-    agreeing("authority_store", taken.authority, "Authority store", identity)
-    request = _creation_request(taken)
-    deployment = NewJobBinding(taken.instance, stream=sys.stderr,
-                              identity=identity)
-    derivation = DeploymentDerivation(taken.instance, identity=identity)
-    with _job_store(taken, clock) as store:
-        with ControlStore.open_readonly(taken.control,
-                                        incarnation=taken.incarnation,
-                                        clock=clock) as control:
-            authorization = WorkAuthorization.opened(
-                taken.authority, authority_uuid=taken.authority_uuid,
-                route=_first_work_route(taken.route), identity=identity,
-                producers=_producers_of(deployment.configuration()))
-            return _emit(create_template_job(
-                store, _ReadOnly(control), request=request,
-                derivation=derivation, authorization=authorization,
-                binding=deployment,
-                ownership=InstanceOwnership.of(control,
-                                               deployment.configuration(),
-                                               identity=identity)), stream)
+    agreeing("authority_store", place["authority"], "Authority store",
+             identity)
+    return identity
+
+
+# W386365: what `create` answers when the serving manager has not answered a
+# recorded request yet, and the exit status that says so.
+PENDING_SCHEMA = "baton.v12.template-job.creation-pending/1"
+PENDING_EXIT = 3
+REQUEST_WAIT_SECONDS = 30
+_REQUEST_POLL_SECONDS = 0.2
+
+
+def _requested(taken, stream, store, request, held):
+    """Report the serving manager's answer to a recorded request.
+
+    THE COMMAND PERFORMS NOTHING HERE. The request is already recorded; the
+    manager that holds the instance creates the Job. `--no-wait` reports the
+    recorded request at once, without reading whether it has been answered
+    yet, so what it returns does not depend on how fast the manager is.
+    """
+    import time
+
+    from baton_v12.job_manager import creation, creation_requests
+
+    started = time.monotonic()
+    waited = 0.0
+    while not taken.no_wait:
+        held = creation_requests.attempt_status(store, held["job_id"], held["request_id"], held["attempts"])
+        if held["state"] == "created":
+            return _emit(creation.recorded_creation(store, request)[1], stream)
+        if held["state"] == "refused":
+            answer = held["answer"]
+            raise ContractRefusal(
+                answer["category"], answer["code"],
+                f"the serving manager refused creation request "
+                f"{held['request_id']}: {answer['message']}")
+        waited = time.monotonic() - started
+        if waited >= taken.wait_seconds:
+            break
+        time.sleep(_REQUEST_POLL_SECONDS)
+    json.dump({"schema": PENDING_SCHEMA, "state": "pending",
+               "request_id": held["request_id"], "job_id": held["job_id"],
+               "recorded_at": held["recorded_at"],
+               "waited_seconds": round(waited, 3),
+               "detail": "this instance's manager is serving and performs "
+                         "the creation; the request is recorded and not yet "
+                         "answered. Run the same command again to read its "
+                         "status; nothing is created twice"},
+              stream, indent=2, ensure_ascii=False)
+    stream.write("\n")
+    return 0 if taken.no_wait else PENDING_EXIT
 
 
 def _creation_request(taken):
@@ -1241,21 +1394,136 @@ def _serve(taken, clock, stream):
                 if taken.once:
                     return _emit(reconcile(store, operations, now=clock()),
                                  stream)
+                from baton_v12.job_manager import creation_requests
+
+                def asked():
+                    return creation_requests.has_pending(store)
+
+                class Asked(Exception):
+                    """A creation request arrived while the loop waited."""
+
+                def wait(seconds):
+                    # W386365: A RECORDED CREATION REQUEST ENDS THE WAIT, so
+                    # an operator's `create` is answered within a moment
+                    # rather than after the next tick's sweep. It leaves the
+                    # loop FROM ITS WAIT -- between two sweeps, with nothing
+                    # in flight -- and the loop is entered again once the
+                    # request is answered. Nothing else about the cadence
+                    # moves: with no request this sleeps the whole interval,
+                    # in slices short enough to notice one or a stop.
+                    ends = time.monotonic() + seconds
+                    while running[0]:
+                        if asked():
+                            raise Asked()
+                        left = ends - time.monotonic()
+                        if left <= 0:
+                            return
+                        time.sleep(min(_REQUEST_POLL_SECONDS, left))
                 # W275774: AND THE EXPIRY PASS IS SUPPLIED, not defaulted away.
                 # A deployment whose factory composes its own pass wins, because it
                 # may know more about its adapters than this tool does; otherwise
                 # this tool's own lean pass is used.
-                return _emit(serve(store, operations, clock=clock,
-                                   sleep=time.sleep,
-                                   should_continue=lambda: running[0],
-                                   interval=taken.interval,
-                                   reclaim=getattr(operations, "reclaim", None)
-                                   or _reclaiming(control, taken.engine,
-                                                  _engine_runner,
-                                                  taken.custodian_image)), stream)
+                report = {"observed_at": clock(), "acts": []}
+                while True:
+                    try:
+                        report = serve(
+                            store, operations, clock=clock, sleep=wait,
+                            should_continue=lambda: running[0]
+                            and not asked(), interval=taken.interval,
+                            reclaim=getattr(operations, "reclaim", None)
+                            or _reclaiming(control, taken.engine,
+                                           _engine_runner,
+                                           taken.custodian_image))
+                    except Asked:
+                        pass
+                    if not running[0]:
+                        return _emit(report, stream)
+                    # W386365: THE SOLE MANAGER PERFORMS WHAT WAS ASKED OF
+                    # ITS INSTANCE, between two runs of the loop and never
+                    # inside a sweep.
+                    ownership = _answer_requests(taken, store, control)
+                    if ownership is None:
+                        continue
+                    # A CREATED JOB IS ADOPTED WITHOUT THE PROCESS ENDING. A
+                    # composition reads its Job bindings, mints its receipt
+                    # sessions and builds its workers once, so the operations
+                    # are released and composed again from the configuration
+                    # the creation just published -- the path a restart takes
+                    # -- while a borrow of the instance guard spans both, so
+                    # the guard is never free in between. `operations` is
+                    # cleared first: a composition that refuses leaves nothing
+                    # for the release below to close twice.
+                    with ownership.held():
+                        held, operations = operations, None
+                        _release(held, stream)
+                        operations = _operations_from(taken.operations,
+                                                      store, control)
+                    print(f"serving initialization complete: "
+                          f"incarnation={taken.incarnation!r} "
+                          f"operations={taken.operations!r} (adopted a "
+                          f"created Job)", file=sys.stderr, flush=True)
             finally:
                 if operations is not None:
                     _release(operations, stream)
+
+
+def _answer_requests(taken, store, control):
+    """Perform every recorded creation request. Answers the instance's
+    ownership port when a Job was created, and `None` otherwise.
+
+    W386365. THIS PROCESS HOLDS THE INSTANCE, so `create_template_job`'s
+    guard is borrowed from the hold it already has and no second manager
+    exists at any point. Each request is performed exactly as the command
+    would have performed it (`_created`) and its answer or its refusal is
+    recorded against the request. A refusal is an ANSWER: the manager keeps
+    serving, and the operator reads why.
+
+    The caller adopts a created Job by composing its operations again under
+    the port answered here.
+    """
+    from baton_v12.job_manager import creation_requests
+    from tools.creation_ports import (BindingRefusal, InstanceOwnership,
+                                      NewJobBinding, instance_identity)
+
+    adopted = None
+    for held in creation_requests.pending(store):
+        place = held["place"]
+        try:
+            answer = _performed(taken, store, control, held, place)
+        except (ContractRefusal, BindingRefusal) as refusal:
+            print(f"creation request {held['request_id']} for Job "
+                  f"{held['job_id']!r} refused: {refusal}", file=sys.stderr,
+                  flush=True)
+            continue
+        except Exception as fault:
+            # ONE REQUEST MUST NOT BE ABLE TO STOP THE INSTANCE'S ONLY
+            # MANAGER, now or at every restart after. A fault that is not a
+            # refusal is answered as the uncertain outcome it is: whatever
+            # the creation had published remains, and the same command
+            # resumes it. The fault itself is in this manager's log.
+            import traceback
+
+            traceback.print_exc(file=sys.stderr)
+            creation_requests.settle(store, held, "refused", {
+                "category": "ambiguous", "code": "operation",
+                "message": f"the creation stopped on an unexpected fault "
+                           f"({type(fault).__name__}: {fault}). Whatever it "
+                           f"had already published remains; run the same "
+                           f"command again to resume it"})
+            print(f"creation request {held['request_id']} for Job "
+                  f"{held['job_id']!r} stopped on a fault: {fault!r}",
+                  file=sys.stderr, flush=True)
+            continue
+        print(f"creation request {held['request_id']} created Job "
+              f"{answer['job_id']!r}", file=sys.stderr, flush=True)
+        adopted = place
+    if adopted is None:
+        return None
+    identity = instance_identity(adopted["instance"])
+    return InstanceOwnership.of(
+        control, NewJobBinding(adopted["instance"], stream=sys.stderr,
+                               identity=identity).configuration(),
+        identity=identity)
 
 
 def _first_work_route(named):
@@ -1472,6 +1740,18 @@ def main(argv, *, clock=None, stream=None):
                                "an explicit route no configured implementation "
                                "worker handles is refused before any Work or "
                                "Job is created")
+    creating.add_argument("--wait-seconds", type=int,
+                          default=REQUEST_WAIT_SECONDS,
+                          help="when this instance's manager is serving, it "
+                               "performs the creation: how long to wait for "
+                               "its answer before reporting the request as "
+                               "pending (exit %d). Repeating the command "
+                               "reads the same request's status"
+                               % PENDING_EXIT)
+    creating.add_argument("--no-wait", action="store_true",
+                          help="return as soon as the request is durably "
+                               "recorded for the serving manager (exit 0, "
+                               "state pending)")
     creating.add_argument("--job-id", default=None,
                           help="the Job identity; derived from --task when "
                                "omitted, so no operator or model has to "

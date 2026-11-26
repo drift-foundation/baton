@@ -4033,9 +4033,16 @@ def given_for_job(given, reader, stage):
         return given
     from tools import job_task as composer
 
-    return dict(given,
-                input_manifest=composer.manifest_for(given["input_manifest"],
-                                                     held),
+    manifest = composer.manifest_for(given["input_manifest"], held)
+    # W386365: AND THIS JOB'S OWN WORK, when it was created under one. The
+    # installed manifest names the Work the pool was installed against; an
+    # ordinary Job runs under a Work generated for it, and the Job owner's
+    # record says which. Any other Job keeps the installed Work exactly.
+    created = getattr(reader, "created_work", None)
+    work_id = None if created is None else created(stage.get("job_id"))
+    if work_id is not None:
+        manifest = composer.manifest_on_work(manifest, work_id)
+    return dict(given, input_manifest=manifest,
                 task_bytes=composer.delivered_bytes(held))
 
 
@@ -4081,6 +4088,23 @@ def job_task_reader(job_store):
             return None
         return job_creation.job_task_of(job_store, prior)
 
+    def created_work(job_id):
+        """W386365: the Work generated for the creation behind this Job;
+        `None` for every Job whose delivery names the installed Work."""
+        from baton_v12.job_manager import creation as job_creation
+        from baton_v12.job_manager import publication_recovery
+
+        held = job_creation.job_work_of(job_store, job_id)
+        if held is not None:
+            return held
+        # A PUBLICATION RECOVERY RUNS ON THE ORIGINAL JOB'S WORK, as it runs
+        # the original Job's task: the same lineage, read the same way as
+        # `reader` above.
+        prior = publication_recovery.prior_job_of(job_store, job_id)
+        return None if prior is None else job_creation.job_work_of(job_store,
+                                                                   prior)
+
+    reader.created_work = created_work
     from baton_v12.job_manager import manual, research
     reader.research_decision = lambda job_id, frozen, cause: research.owner_disposition(job_store, job_id, frozen, cause)
     reader.research = lambda job_id: manual.phase_for_execution(job_store, job_id)
@@ -4244,8 +4268,14 @@ def worker_operations(given, control_store, authority, provider, *,
                       workload_document_name=None,
                       execution_context=None, job_task=None, activity=None,
                       permission_policy=None,
-                      lifetime_policy=None, worker_id=None):
+                      lifetime_policy=None, worker_id=None, works=None):
     """The half that needs an Authority, over one the CALLER owns.
+
+    `works` is the Works this worker is composed to serve, when its composer
+    knows them better than the installed manifest does (W386365): a pool whose
+    Jobs were each created under their own Work serves none of them under the
+    Work its manifests were installed against, so that one need not exist.
+    `None` is every other caller, and proves the installed Work as before.
 
     `dispose` is what makes this reusable by a pool. A single-worker
     deployment hands its own `authority.dispose`, because it opened that
@@ -4264,10 +4294,12 @@ def worker_operations(given, control_store, authority, provider, *,
         _refuse("the configured participant resolves to another principal",
                 category="refused", code="capability")
     if given["launch_role"] != "research":
-        projected = authority.project_work(given["input_manifest"]["work_ref"]["work_id"])
-        if projected is None or projected["authority_uuid"] != given["authority_uuid"]:
-            _refuse("the configured bootstrap Work is absent from this "
-                    "Authority", category="refused", code="precondition")
+        for work_id in ([given["input_manifest"]["work_ref"]["work_id"]]
+                        if works is None else works):
+            projected = authority.project_work(work_id)
+            if projected is None or projected["authority_uuid"] != given["authority_uuid"]:
+                _refuse("the configured bootstrap Work is absent from this "
+                        "Authority", category="refused", code="precondition")
     elif job_task is None:
         _refuse("a research worker requires its selected assignment reader")
     # ONE MINTED SESSION, TWO NARROW VIEWS OF IT. W125032: the deployment keeps

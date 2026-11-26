@@ -172,6 +172,14 @@ class ConnectedCreationCase(test_bootstrap.ValidFixture):
         return {one["job_id"]: one
                 for one in self.configuration().get("job_bindings") or []}
 
+    def job_work(self, job_id="job-cli-first"):
+        """W386365: the Work an ordinary Job is created under -- its own,
+        named from this instance's Authority and the Job identity."""
+        from baton_v12.job_manager import creation
+
+        return creation.generated_work_id(self.owned["authority_uuid"],
+                                          job_id)
+
     def rows(self):
         from baton_v12.job_manager import JobStore, creation
 
@@ -543,7 +551,10 @@ class TheConnectedCreation(ConnectedCreationCase):
         self.installed()
         held = self.answered()
         self.assertEqual(held["job_id"], "job-cli-first")
-        self.assertEqual(held["work_id"], self.work)
+        # W386365: ITS OWN WORK, not the one the install's Job runs under.
+        self.assertEqual(held["work_id"], self.job_work())
+        self.assertNotEqual(held["work_id"], self.work)
+        self.assertEqual(held["work"]["state"], "created")
         self.assertEqual(held["template"]["origin"], "configured-default")
         # EVERY DIGEST IS DERIVED: the operator named none.
         self.assertEqual(held["source"]["policy_digest"],
@@ -552,7 +563,9 @@ class TheConnectedCreation(ConnectedCreationCase):
         # THE BINDING IS PUBLISHED INTO THE CONFIGURATION.
         bound = self.bindings()
         self.assertIn("job-cli-first", bound)
-        self.assertEqual(bound["job-cli-first"]["job_work_id"], self.work)
+        self.assertEqual(bound["job-cli-first"]["job_work_id"],
+                         self.job_work())
+        self.assertEqual(bound["job-a"]["job_work_id"], self.work)
         self.assertEqual(bound["job-cli-first"]["source_worker_id"], "impl-a")
         # AND INTO THE INSTALL DOCUMENT, additively: the Job the install
         # already named is still there.
@@ -897,14 +910,25 @@ class TheReusableInstanceServesDefinedJobs(ConnectedCreationCase):
         self.assertEqual(
             {one["job_id"] for one in self.install_document()["jobs"]},
             {"job-labels-one", "job-labels-two"})
-        # THE DERIVED WORK WAS CREATED ON THE DEPLOYMENT'S OWN IMPLEMENTATION
-        # ROUTE -- the one its bootstrap registered impl-a on -- and the
-        # review handoff route the implementation worker carries resolves to
-        # the configured reviewer, so stage two does not meet the same
-        # mismatch. The old fixture spelling resolves to nobody here.
+        # EACH JOB'S OWN WORK WAS CREATED ON THE DEPLOYMENT'S OWN
+        # IMPLEMENTATION ROUTE -- the one its bootstrap registered impl-a on
+        # -- and the review handoff route the implementation worker carries
+        # resolves to the configured reviewer, so stage two does not meet the
+        # same mismatch. The old fixture spelling resolves to nobody here.
+        # W386365: two Jobs, two Works; the Work the manifests were installed
+        # against is a name no Job uses and is never created.
         held = authority()
-        self.assertEqual(held.project_work(derived)["route"],
-                         bootstrap.ROUTES["implementation"])  # "impl"
+        one_work = self.job_work("job-labels-one")
+        two_work = self.job_work("job-labels-two")
+        self.assertNotEqual(one_work, two_work)
+        self.assertEqual(self.bindings()["job-labels-one"]["job_work_id"],
+                         one_work)
+        self.assertEqual(self.bindings()["job-labels-two"]["job_work_id"],
+                         two_work)
+        self.assertIsNone(held.work_creation(derived))
+        for made in (one_work, two_work):
+            self.assertEqual(held.project_work(made)["route"],
+                             bootstrap.ROUTES["implementation"])  # "impl"
         self.assertTrue(held.handles_route(bootstrap.ROUTES["implementation"],
                                            "baton.impl-a"))
         self.assertEqual(workers["impl-a"]["deployment"]["review_route"],
@@ -1544,6 +1568,24 @@ class CreateTimeWorkLabelsThroughTheRealCommand(ConnectedCreationCase):
     sentence tells an operator to use.
     """
 
+    # W386365: the Work under test is the created Job's own. `created_as` is the Job
+    # identity the case creates under; `minted_under` moves it.
+    created_as = "job-cli-first"
+
+    @property
+    def minted(self):
+        return self.job_work(self.created_as)
+
+    def taken_by_another(self):
+        """The Job's Work, already made by an act that is not this creation
+        -- the one way an ordinary creation still meets a Work it did not
+        make, now that it never shares the deployment's."""
+        from tools.fresh_attempt_ports import ASSIGNMENT_CONTRACT
+
+        self.authority(writable=True).create_work(
+            self.minted, bootstrap.ROUTES["implementation"],
+            operation_id="made-by-another", contract=ASSIGNMENT_CONTRACT)
+
     def labelled(self, *labels, **named):
         """One creation that also states Work labels, as argv."""
         argv = self.argv(**named)
@@ -1602,11 +1644,11 @@ class CreateTimeWorkLabelsThroughTheRealCommand(ConnectedCreationCase):
         """THE PRESERVED PATH, and the additive member in the answer."""
         self.installed()
         held = self.made(self.argv())
-        self.assertEqual(held["work"]["state"], "reused")
+        self.assertEqual(held["work"]["state"], "created")
         self.assertEqual(held["work"]["requested_labels"], [])
-        self.assertEqual(self.authority().labels_of(self.work), [])
-        self.assertEqual(self.authority().work_label_events(self.work), [])
-        code, said = self.work_verb("labels", "--work", self.work)
+        self.assertEqual(self.authority().labels_of(self.minted), [])
+        self.assertEqual(self.authority().work_label_events(self.minted), [])
+        code, said = self.work_verb("labels", "--work", self.minted)
         self.assertEqual(code, 0, said)
         self.assertEqual(json.loads(said)["labels"], [])
 
@@ -1626,37 +1668,38 @@ class CreateTimeWorkLabelsThroughTheRealCommand(ConnectedCreationCase):
         refusal = self.stopped(self.labelled("Release-Foo", "V12"))
         self.assertIn("is RESERVED", str(refusal))
         authority = self.authority()
-        self.assertEqual(authority.labels_of(self.work),
+        self.assertEqual(authority.labels_of(self.minted),
                          ["release-foo", "v12"])
         # ONE INSTANT AND ONE ACT: every label event is the creation's own.
         self.assertEqual(
             [(one["label"], one["act"]) for one
-             in authority.work_label_events(self.work)],
+             in authority.work_label_events(self.minted)],
             [("release-foo", "work-create"), ("v12", "work-create")])
         self.assertEqual(authority.works_with_labels(all_of=["v12"]),
-                         [self.work])
+                         [self.minted])
         # AND THE RECORD NAMES THIS CREATION (W385292): the Authority says
         # which creation minted the Work, which is what lets the same request
         # -- and only it -- reuse the Work with its labels.
         from baton_v12.job_manager import creation as creating
         self.assertEqual(
-            authority.work_creation(self.work)["operation_id"],
-            creating.work_operation_id("job-cli-first", self.work))
+            authority.work_creation(self.minted)["operation_id"],
+            creating.work_operation_id("job-cli-first", self.minted))
         # AND THE SAME REQUEST AGAIN REACHES THE SAME PLACE rather than
         # refusing about labels the Work already carries.
         again = self.stopped(self.labelled("Release-Foo", "V12"))
         self.assertIn("is RESERVED", str(again))
         self.assertNotIn("work label-work", str(again))
-        self.assertEqual(authority.labels_of(self.work),
+        self.assertEqual(authority.labels_of(self.minted),
                          ["release-foo", "v12"])
 
     def test_a_creation_that_reuses_a_work_refuses_to_relabel_it(self):
         self.installed()
+        self.taken_by_another()
         refusal = self.stopped(self.labelled("v12"))
         self.assertIn("would reuse the existing Work", str(refusal))
         self.assertIn("was not made by this creation", str(refusal))
-        # AND WHOSE IT IS: the bootstrap's own creation record, by name.
-        self.assertIn("it was made by the operation `bootstrap-job-a`",
+        # AND WHOSE IT IS: the other act's own creation record, by name.
+        self.assertIn("it was made by the operation `made-by-another`",
                       str(refusal))
         self.assertIn("work label-work", str(refusal))
         # AND NOTHING WAS RESERVED (W385292): the identity stays free for the
@@ -1665,20 +1708,21 @@ class CreateTimeWorkLabelsThroughTheRealCommand(ConnectedCreationCase):
         self.assertNotIn("is RESERVED", str(refusal))
         # NOTHING WAS MUTATED ON THE SHARED WORK, and no Job was submitted.
         authority = self.authority()
-        self.assertEqual(authority.labels_of(self.work), [])
-        self.assertEqual(authority.work_label_events(self.work), [])
+        self.assertEqual(authority.labels_of(self.minted), [])
+        self.assertEqual(authority.work_label_events(self.minted), [])
         self.assertNotIn("job-cli-first", self.bindings())
         self.assertEqual(self.submitted("job-cli-first"), [])
 
     def test_the_work_verb_is_how_a_reused_works_labels_are_added(self):
         """The refusal's own guidance, carried out through the real command."""
         self.installed()
+        self.taken_by_another()
         self.stopped(self.labelled("v12"))
         self.authority(writable=True).grant_capability(
             "baton.slaw", "manage-work-labels")
         code, said = self.work_verb(
             "label-work", "--participant", "baton.slaw",
-            "--work", self.work, "--operation-id", "labels-1",
+            "--work", self.minted, "--operation-id", "labels-1",
             "--label", "V12")
         self.assertEqual(code, 0, said)
         answer = json.loads(said)
@@ -1691,13 +1735,13 @@ class CreateTimeWorkLabelsThroughTheRealCommand(ConnectedCreationCase):
         # and the label the authorized act added is what `list` finds.
         again = self.stopped(self.labelled("v12"))
         self.assertIn("was not made by this creation", str(again))
-        self.assertEqual(self.authority().labels_of(self.work), ["v12"])
+        self.assertEqual(self.authority().labels_of(self.minted), ["v12"])
         held = self.made(self.argv())
         self.assertEqual(held["work"]["state"], "reused")
         self.assertEqual(held["work"]["requested_labels"], [])
         self.assertIn("job-cli-first", self.bindings())
         code, said = self.work_verb("list", "--label", "v12")
-        self.assertEqual(json.loads(said)["work"], [self.work])
+        self.assertEqual(json.loads(said)["work"], [self.minted])
 
     def minted_under(self, job_id, *labels):
         """A Job-less install and one creation under `job_id` that mints the
@@ -1708,16 +1752,17 @@ class CreateTimeWorkLabelsThroughTheRealCommand(ConnectedCreationCase):
         from baton_v12.authority import identity as grammar
         from baton_v12.job_manager import creation as creating
 
+        self.created_as = job_id
         self.installed(jobs=[], line_declared_base="a" * 40,
                        canonical_target_id="target-1")
         refusal = self.stopped(self.labelled(*labels, job_id=job_id))
         self.assertIn("is RESERVED", str(refusal))
         self.assertIn("reported no binding", str(refusal))
         authority = self.authority()
-        self.assertEqual(authority.labels_of(self.work), sorted(labels))
-        record = authority.work_creation(self.work)
+        self.assertEqual(authority.labels_of(self.minted), sorted(labels))
+        record = authority.work_creation(self.minted)
         self.assertEqual(record["operation_id"],
-                         creating.work_operation_id(job_id, self.work))
+                         creating.work_operation_id(job_id, self.minted))
         self.assertIsNone(grammar.opaque_id_fault(record["operation_id"]))
         store, module = self.rows()
         self.assertEqual([one["state"] for one
@@ -1727,7 +1772,7 @@ class CreateTimeWorkLabelsThroughTheRealCommand(ConnectedCreationCase):
         again = self.stopped(self.labelled(*labels, job_id=job_id))
         self.assertIn("reported no binding", str(again))
         self.assertNotIn("label-work", str(again))
-        self.assertEqual(authority.labels_of(self.work), sorted(labels))
+        self.assertEqual(authority.labels_of(self.minted), sorted(labels))
         return record
 
     def test_a_130_character_job_id_mints_the_work_with_labels(self):
@@ -1750,7 +1795,7 @@ class CreateTimeWorkLabelsThroughTheRealCommand(ConnectedCreationCase):
 
         record = self.minted_under("j" * 130, "v12")
         self.assertNotEqual(record["operation_id"],
-                            creating.work_operation_id("j" * 131, self.work))
+                            creating.work_operation_id("j" * 131, self.minted))
         self.assertNotEqual(record["operation_id"],
                             creating.work_operation_id("j" * 130,
                                                        "0000000a-W2"))
@@ -1768,7 +1813,7 @@ class CreateTimeWorkLabelsThroughTheRealCommand(ConnectedCreationCase):
             "baton.slaw", "manage-work-labels")
         code, said = self.work_verb(
             "label-work", "--participant", "baton.slaw",
-            "--work", self.work, "--operation-id", "labels-1",
+            "--work", self.minted, "--operation-id", "labels-1",
             "--label", "hot")
         self.assertEqual(code, 0, said)
         again = self.stopped(self.labelled("v12"))
@@ -1776,7 +1821,7 @@ class CreateTimeWorkLabelsThroughTheRealCommand(ConnectedCreationCase):
         self.assertIn("carrying exactly 'v12'", str(again))
         self.assertIn("it now carries 'hot', 'v12'", str(again))
         self.assertIn(f"`baton-v12-stack work unlabel-work --work "
-                      f"{self.work} --label hot`", str(again))
+                      f"{self.minted} --label hot`", str(again))
         self.assertIn("is RESERVED", str(again))
         self.assertNotIn("was not made by this creation", str(again))
         self.assertNotIn("Nothing was reserved", str(again))
@@ -1786,10 +1831,10 @@ class CreateTimeWorkLabelsThroughTheRealCommand(ConnectedCreationCase):
                       str(collided))
         code, said = self.work_verb(
             "unlabel-work", "--participant", "baton.slaw",
-            "--work", self.work, "--operation-id", "labels-2",
+            "--work", self.minted, "--operation-id", "labels-2",
             "--label", "hot")
         self.assertEqual(code, 0, said)
-        self.assertEqual(self.authority().labels_of(self.work), ["v12"])
+        self.assertEqual(self.authority().labels_of(self.minted), ["v12"])
         third = self.stopped(self.labelled("v12"))
         self.assertIn("reported no binding", str(third))
         self.assertNotIn("label-work", str(third))
@@ -1817,13 +1862,13 @@ class CreateTimeWorkLabelsThroughTheRealCommand(ConnectedCreationCase):
                        canonical_target_id="target-1")
         first = self.stopped(self.labelled(*minted))
         self.assertIn("reported no binding", str(first))
-        self.assertEqual(self.authority().labels_of(self.work), minted)
+        self.assertEqual(self.authority().labels_of(self.minted), minted)
         self.authority(writable=True).grant_capability(
             "baton.slaw", "manage-work-labels")
 
         def act(verb, operation_id, *labels):
             operands = [verb, "--participant", "baton.slaw",
-                        "--work", self.work, "--operation-id", operation_id]
+                        "--work", self.minted, "--operation-id", operation_id]
             for one in labels:
                 operands += ["--label", one]
             return self.work_verb(*operands)
@@ -1833,22 +1878,22 @@ class CreateTimeWorkLabelsThroughTheRealCommand(ConnectedCreationCase):
         code, said = act("label-work", "drift-2", "extra")
         self.assertEqual(code, 0, said)
         drifted = sorted(minted[1:] + ["extra"])
-        self.assertEqual(self.authority().labels_of(self.work), drifted)
+        self.assertEqual(self.authority().labels_of(self.minted), drifted)
         self.assertEqual(len(drifted), MAX_LABELS)
         again = self.stopped(self.labelled(*minted))
         self.assertIn("this creation minted the Work", str(again))
         self.assertIn("is RESERVED", str(again))
         named = re.findall(r"`(baton-v12-stack work [^`]+)`", str(again))
         self.assertEqual(named, [
-            f"baton-v12-stack work unlabel-work --work {self.work} "
+            f"baton-v12-stack work unlabel-work --work {self.minted} "
             f"--label extra",
-            f"baton-v12-stack work label-work --work {self.work} "
+            f"baton-v12-stack work label-work --work {self.minted} "
             f"--label label-00"])
         # THE OTHER ORDER IS WHAT THE AUTHORITY REFUSES: an addition to a
         # Work at capacity, leaving the set exactly as it was.
         code, said = act("label-work", "wrong-order", "label-00")
         self.assertEqual(code, 2, said)
-        self.assertEqual(self.authority().labels_of(self.work), drifted)
+        self.assertEqual(self.authority().labels_of(self.minted), drifted)
         # FOLLOWING THE NAMED ACTS, AS NAMED, IN ORDER.
         for index, command in enumerate(named):
             operands = command.split()[2:]
@@ -1856,15 +1901,15 @@ class CreateTimeWorkLabelsThroughTheRealCommand(ConnectedCreationCase):
                 *operands, "--participant", "baton.slaw",
                 "--operation-id", f"restore-{index}")
             self.assertEqual(code, 0, (command, said))
-        self.assertEqual(self.authority().labels_of(self.work), minted)
+        self.assertEqual(self.authority().labels_of(self.minted), minted)
         third = self.stopped(self.labelled(*minted))
         self.assertIn("reported no binding", str(third))
         self.assertNotIn("minted the Work", str(third))
         self.assertNotIn("label-work", str(third))
-        self.assertEqual(self.authority().labels_of(self.work), minted)
+        self.assertEqual(self.authority().labels_of(self.minted), minted)
         self.assertEqual(self.submitted("job-cli-first"), [])
-        record = self.authority().work_creation(self.work)
-        self.assertEqual(len(self.authority().work_label_events(self.work)),
+        record = self.authority().work_creation(self.minted)
+        self.assertEqual(len(self.authority().work_label_events(self.minted)),
                          MAX_LABELS + 4)
         self.assertIsNotNone(record)
 
@@ -1872,7 +1917,9 @@ class CreateTimeWorkLabelsThroughTheRealCommand(ConnectedCreationCase):
         self.installed()
         refusal = self.stopped(self.labelled("v12", "V12"))
         self.assertIn("one label after normalization", str(refusal))
-        self.assertEqual(self.authority().labels_of(self.work), [])
+        # W386365: the Job's own Work was not made, which is the stronger
+        # form of "carries no label".
+        self.assertIsNone(self.authority().work_creation(self.minted))
         self.assertNotIn("job-cli-first", self.bindings())
         self.assertEqual(
             [one["job_id"] for one in self.install_document()["jobs"]],

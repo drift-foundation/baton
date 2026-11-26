@@ -325,6 +325,32 @@ def manifest_for(manifest, task):
                                     what="a created Job's input manifest")
 
 
+def manifest_on_work(manifest, work_id):
+    """One input manifest naming ANOTHER WORK of the same Authority, and
+    identifying itself.
+
+    THE AUTHORITY DOES NOT MOVE: a Work is used inside the deployment that
+    owns it, and a manifest rebound across Authorities would be another
+    deployment's document. The digest is recomputed by section 12's rule and
+    the result is proved by its own owner before anybody is handed it, which
+    is `manifest_for`'s discipline for the other per-Job member.
+
+    W386365: here beside `manifest_for` because both the pool's selector and
+    the single worker's own per-Job rule bind a created Job's Work, and one
+    rule in two modules is how they came to disagree before.
+    """
+    if manifest["work_ref"]["work_id"] == work_id:
+        return manifest
+    held = dict(manifest)
+    held["work_ref"] = dict(manifest["work_ref"], work_id=work_id)
+    held["manifest_digest"] = digest(
+        {name: value for name, value in held.items()
+         if name != "manifest_digest"})
+    return check_manifest_structure(
+        held, "inputManifest",
+        what="a Job's input manifest on its own Work")
+
+
 def per_job_delivery(installed_task, installed_manifest, selection):
     """One created Job's task bytes and the manifest that names them.
 

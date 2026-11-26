@@ -129,9 +129,25 @@ class DeploymentDerivation:
                       for kind, found in lanes.items()}}
         if selection is None:
             return answer
-        return dict(answer, **self._for_task(lanes, selection))
+        # W386365: EVERY ORDINARY JOB HAS ITS OWN WORK. The installed
+        # manifests name the Work the pool was installed against; a Job
+        # created here runs under a Work derived from this Authority and the
+        # Job identity, so two independent Jobs never share a claim. Without a
+        # selection the answer above is still the installed fact.
+        from baton_v12.job_manager import creation
+        from tools import job_task
 
-    def _for_task(self, lanes, selection):
+        # THE COMPOSER OWNS THE SELECTION FIRST, so a selection missing a
+        # member is refused in its words before a Job id is read out of it.
+        job_task.instructions_for(
+            dict(selection, work_id=answer["work_id"])
+            if type(selection) is dict else selection)
+        work_id = creation.generated_work_id(
+            self.configuration().get("authority_uuid"), selection["job_id"])
+        return dict(answer, work_id=work_id,
+                    **self._for_task(lanes, selection, work_id))
+
+    def _for_task(self, lanes, selection, work_id):
         """This Job's own task, and the input identity that names it.
 
         THE INSTALLED TASK IS THE BASE AND EVERY LANE MUST AGREE ABOUT IT,
@@ -170,13 +186,17 @@ class DeploymentDerivation:
         # halves of different ones.
         held = job_task.per_job_delivery(
             installed_task, installed_manifest,
-            dict(selection,
-                 work_id=self._agreed(lanes, self._work_of, "the Work")))
+            dict(selection, work_id=work_id))
+        # THE SAME TWO STEPS IN THE SAME ORDER AS THE SERVING SIDE
+        # (`single_worker.given_for_job`, `stage_execution._served_deployment`):
+        # this Job's task, then this
+        # Job's Work. What the Job records and what its workers are served
+        # under are one derivation.
+        manifest = job_task.manifest_on_work(held["input_manifest"], work_id)
         return {"task_document": held["task_document"],
-                "input_manifest": held["input_manifest"],
+                "input_manifest": manifest,
                 "input_digest": job_input_identity(
-                    held["input_manifest"],
-                    what="a created Job's own input")}
+                    manifest, what="a created Job's own input")}
 
     # -- the four derivations, each from the owned worker document ----------
 

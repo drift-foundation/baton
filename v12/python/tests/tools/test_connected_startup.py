@@ -197,14 +197,31 @@ class ConnectedStartupCase(_connected.ConnectedCreationCase):
                                    clock=lambda: fixtures.NOW)
         self.addCleanup(control.close)
         self.engine = _execution._ConcurrentEngine()
-        composed = stage_execution.operations_from(
-            configured, jobs, control, engine_run=self.engine,
+        held = {"jobs": jobs, "control": control, "composed": None,
+                "configured": None}
+        # ONE CLEANUP FOR WHICHEVER COMPOSITION IS CURRENT AT THE END.
+        self.addCleanup(lambda: held["composed"].close())
+        return self.adopted(held)
+
+    def adopted(self, held):
+        """Compose the serving operations over the configuration AS IT IS.
+
+        W386365. `just start` does this once; and the serving manager does
+        it again, in the same process and under the same guard, when it has
+        created a Job -- every ordinary Job has its own Work, and a
+        composition serves the Jobs bound when it was composed. So a routine
+        start includes this step and it is INSIDE the clock below.
+        """
+        if held["composed"] is not None:
+            held["composed"].close()
+        held["configured"] = self.configuration()
+        held["composed"] = stage_execution.operations_from(
+            held["configured"], held["jobs"], held["control"],
+            engine_run=self.engine,
             credential_provider=lambda provider, reference: "a-secret",
             clock=lambda: fixtures.NOW,
             checkpoint_profile=self.profile_seam)
-        self.addCleanup(composed.close)
-        return {"jobs": jobs, "control": control, "composed": composed,
-                "configured": configured}
+        return held
 
     # -- the two workers -----------------------------------------------------
 
@@ -381,6 +398,8 @@ class ConnectedStartupCase(_connected.ConnectedCreationCase):
                          said.getvalue())
         answered = json.loads(said.getvalue())
         admitted = time.monotonic()
+        # THE SERVING MANAGER ADOPTS WHAT IT CREATED, inside the interval.
+        self.adopted(held)
         stage = self.driven(held, answered["job_id"])
         launched = time.monotonic()
         self.assertEqual(
@@ -483,7 +502,9 @@ class TheInitialRoutineStartIsMeasured(ConnectedStartupCase):
         # records and does not perform.
         bound = self.bindings()
         self.assertIn(job_id, bound)
-        self.assertEqual(bound[job_id]["job_work_id"], self.work)
+        # W386365: the created Job's own Work.
+        self.assertEqual(bound[job_id]["job_work_id"],
+                         self.job_work(job_id))
         self.assertEqual([one["job_id"]
                           for one in self.install_document()["jobs"]],
                          ["job-a", job_id])
@@ -495,7 +516,7 @@ class TheInitialRoutineStartIsMeasured(ConnectedStartupCase):
             expected_authority_uuid=self.owned["authority_uuid"])
         try:
             self.assertEqual(
-                authority.project_work(self.work)["status"], "open")
+                authority.project_work(self.job_work(job_id))["status"], "open")
         finally:
             authority.dispose()
         # AND THE CREATION WAS RECORDED BY THE MANAGER, with the derived

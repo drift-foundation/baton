@@ -412,6 +412,10 @@ class WorkAuthorization:
                                     labels=tuple(labels))
         return self._authority.project_work(work_id)
 
+    def dispose(self):
+        """Give back the Authority handle `opened` took. W386365."""
+        self._authority.dispose()
+
     @classmethod
     def opened(cls, path, *, authority_uuid, route, identity, producers=()):
         return cls(Authority.open(path,

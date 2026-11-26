@@ -770,6 +770,24 @@ DB-3 through DB-7, REC-7 and OBS-0/OBS-0a continue to apply. This extends SCH-1;
 it does not authorize live execution, deployment or authority cutover. Decision:
 [template-first creation](../work/records/2026/10/finding-v12-development-coordination-pilot/FINDING.md#2026-10-24t003647z--template-based-job-creation-follows-accepted-retry).
 
+**Creation on a serving instance (owner 2026-11-26).** The same ordinary
+creation command MUST work whether or not the instance's manager is serving.
+While it serves, that manager is the instance's sole owner: the command MUST
+durably record the request without taking manager ownership or performing any
+creation effect, and the serving manager MUST perform it through the same owning
+APIs, record the answer or the typed refusal, and serve the created Job without a
+restart. By default the command waits up to 30 seconds for the answer; it MAY be
+told to return once the request is recorded. A request not yet answered MUST be
+reported as pending with its request identity, and repeating the same request
+MUST report its status without creating a second Job or Work. Running and stopped
+managers MUST honor one durable intent: a recorded request reserves its Job
+identity before any creation effect, so a different request under that identity
+is refused before anything is created, and the recorded request still recovers
+exactly one Job and one Work with the same receipt. Every ordinary Job
+MUST be created under its own Work, so independent Jobs never share a claim; Jobs
+created earlier keep the Work they recorded. Decision:
+[submission while serving](../work/records/2026/11/finding-v12-submission-while-serving/FINDING.md).
+
 **Development role-contract admission (owner 2026-10-28).**
 A versioned development template MUST bind its supported task/source and
 role-specific consumed and produced result contracts, including concrete output

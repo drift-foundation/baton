@@ -1135,11 +1135,17 @@ def hold_manager_instance(store, place):
                 if fault.errno not in (errno.EACCES, errno.EAGAIN, errno.EWOULDBLOCK):
                     _refuse(f"the manager instance guard at {name_value(path)} could not be "
                             f"taken: {fault.strerror or fault!r}")
-                _denied(f"another manager is already active for workspace "
-                        f"{name_value(place)}{_guarding(descriptor)}; only one Host manager "
-                        f"may be active for one workspace and database, so this start is a "
-                        f"configuration error rather than a standby -- point this manager at "
-                        f"its own database and workspace, or stop the active one first")
+                # W386365: THE SAME REFUSAL, AND NAMEABLE. Another process
+                # holding this guard is a fact a caller may act on -- an
+                # ordinary creation hands its request to that manager -- and
+                # it is told apart by type, never by this sentence.
+                raise ManagerActive(
+                    "policy", "denied",
+                    f"another manager is already active for workspace "
+                    f"{name_value(place)}{_guarding(descriptor)}; only one Host manager "
+                    f"may be active for one workspace and database, so this start is a "
+                    f"configuration error rather than a standby -- point this manager at "
+                    f"its own database and workspace, or stop the active one first")
             held = os.fstat(descriptor)
             try:
                 found = os.stat(path)
@@ -5121,6 +5127,10 @@ def _refuse(message, code="path"):
 
 def _denied(message):
     raise ContractRefusal("policy", "denied", message)
+
+
+class ManagerActive(ContractRefusal):
+    """Another process holds this instance's manager guard. W386365."""
 
 
 # -- canonical, contained roots ----------------------------------------------

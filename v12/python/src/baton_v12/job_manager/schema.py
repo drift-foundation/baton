@@ -103,7 +103,7 @@ def check_authority(value, *, what):
 # constraint is the only thing that moves -- which is why `REBUILT_OBJECTS`
 # names them and `store._created_name` is told, instead of this step
 # pretending to be a create.
-SCHEMA_VERSION = 12
+SCHEMA_VERSION = 13
 
 # W197661 review 2026-09-18T02-59-56Z [R2]: `deferrals` was in `SCHEMA` and in
 # the migration and NOT here, and `JobStore`'s required-table validation reads
@@ -115,7 +115,7 @@ TABLES = ("meta", "operations", "submissions", "jobs",
           "receipts", "deferrals", "fresh_attempts", "template_jobs",
           "pool_generations",
           "pool_workers", "stage_allocations", "worker_affinity",
-          "manual_jobs", "manual_phases")
+          "manual_jobs", "manual_phases", "creation_requests")
 
 OPERATION_STATES = ("committed", "refused")
 
@@ -156,6 +156,29 @@ CREATE TABLE manual_phases (
   CHECK ((settled_at IS NULL AND outcome IS NULL AND result IS NULL) OR
          (selected_at IS NOT NULL AND settled_at >= selected_at AND
           settled_at IS NOT NULL AND outcome IS NOT NULL AND result IS NOT NULL))
+);
+"""
+
+# W386365: an ordinary creation an operator asked of an instance whose
+# manager is SERVING. The command records the request and holds no guard; the
+# serving manager, the instance's sole owner, performs the creation and writes
+# the answer here. One row per Job identity, so a changed intent under the
+# same identity has something to collide with before any Job exists.
+CREATION_REQUEST_STATES = ("pending", "created", "refused")
+
+_CREATION_REQUESTS = """
+CREATE TABLE creation_requests (
+  request_id TEXT PRIMARY KEY,
+  job_id TEXT NOT NULL UNIQUE,
+  request_digest TEXT NOT NULL,
+  document TEXT NOT NULL,
+  state TEXT NOT NULL CHECK (state IN ('pending','created','refused')),
+  attempts INTEGER NOT NULL CHECK (attempts >= 1),
+  recorded_at TEXT NOT NULL,
+  answered_at TEXT,
+  answer TEXT,
+  CHECK ((state = 'pending' AND answered_at IS NULL AND answer IS NULL) OR
+         (state != 'pending' AND answered_at IS NOT NULL AND answer IS NOT NULL))
 );
 """
 
@@ -742,7 +765,7 @@ CREATE UNIQUE INDEX template_jobs_one_submission
   ON template_jobs (submission_id);
 CREATE INDEX template_jobs_by_state
   ON template_jobs (state, intended_at);
-""" + _MANUAL_SCHEMA + _MANUAL_FREEZE
+""" + _MANUAL_SCHEMA + _MANUAL_FREEZE + _CREATION_REQUESTS
 
 # version already recorded -> the statements that carry it to the next one.
 #
@@ -762,6 +785,7 @@ CREATE INDEX template_jobs_by_state
 MIGRATIONS = {
     10: _MANUAL_SCHEMA,
     11: _MANUAL_FREEZE,
+    12: _CREATION_REQUESTS,
     # W161230 slice1, CREATE ONLY for the same reason the 4 -> 5 step is:
     # `_schema_three_shape` subtracts what every step after 3 creates, and an
     # ALTER of `stage_allocations` could not be subtracted at all.

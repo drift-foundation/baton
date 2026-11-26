@@ -1426,11 +1426,14 @@ class TheConnectedAdmissionCarriesTheTask(connected.ConnectedCreationCase):
     def test_the_real_adapters_bind_and_select_the_inherited_task(self):
         """THE OUTCOME, with the owners real and the task inherited."""
         made = self.one_created_job()
+        # W386365: THE CREATED JOB'S OWN WORK, which its retry runs on.
+        own_work = self.job_work()
+        self.assertEqual(made["work_id"], own_work)
         store = self.store()
         answer = self.admitted(store=store)
         self.assertEqual(answer["job_id"], self.RETRY)
-        # THE WORK IS THE INSTANCE'S OWN AND IT WAS REUSED, not created.
-        self.assertEqual(answer["work"], {"work_id": self.work,
+        # THE WORK IS THE PRIOR JOB'S OWN AND IT WAS REUSED, not created.
+        self.assertEqual(answer["work"], {"work_id": own_work,
                                           "disposition": "reused",
                                           "status": "open"})
         # THE REAL SELECTOR ANSWERED FOR BOTH STAGES. This is the fact the
@@ -1440,7 +1443,7 @@ class TheConnectedAdmissionCarriesTheTask(connected.ConnectedCreationCase):
         # as unservable.
         self.assertEqual(answer["binding"],
                          {"job_id": self.RETRY, "disposition": "added",
-                          "job_work_id": self.work,
+                          "job_work_id": own_work,
                           "serving": {"implementation": ["impl-a"],
                                       "review": ["review-a"]}})
         self.assertEqual(made["servable"], {"implementation": ["impl-a"],
@@ -1448,7 +1451,7 @@ class TheConnectedAdmissionCarriesTheTask(connected.ConnectedCreationCase):
         # AND IT WAS PUBLISHED, into both documents this instance owns.
         bound = self.bindings()
         self.assertIn(self.RETRY, bound)
-        self.assertEqual(bound[self.RETRY]["job_work_id"], self.work)
+        self.assertEqual(bound[self.RETRY]["job_work_id"], own_work)
         # DERIVED FROM THE JOB BEING REPLACED rather than composed: the
         # producer, the declared base and the canonical target are facts
         # about the specification being re-attempted.

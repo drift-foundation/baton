@@ -717,6 +717,7 @@ class MigratingPinsTheAuthorityWithoutRenamingAnything(MigratingFromSchemaOne):
         # note again -- a fixture that impersonates schema 2 with today's
         # build has to subtract every relation added since, or the schema-3
         # check correctly reports an object schema 2 never had.
+        connection.execute("DROP TABLE creation_requests")
         connection.execute("DROP TABLE manual_phases")
         connection.execute("DROP TABLE manual_jobs")
         connection.execute("DROP TABLE template_jobs")
@@ -942,6 +943,7 @@ class ManualJobsMigration(JobManagerCase):
         receipt = submit(store, submission())
         # Schema 10 is exactly the prior store without the two new empty relations.
         connection = store._connection
+        connection.execute("DROP TABLE creation_requests")
         connection.execute("DROP TABLE manual_phases")
         connection.execute("DROP TABLE manual_jobs")
         connection.execute("UPDATE meta SET value='10' WHERE key='schema_version'")

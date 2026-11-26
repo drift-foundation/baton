@@ -2194,10 +2194,14 @@ class TheCommandRequestsTheOperation(unittest.TestCase):
     def test_the_verb_delegates_every_decision_to_the_manager(self):
         """IT HOLDS NO RULE, asserted from the source.
 
-        `_create` composes four ports, opens the control store read-only and
-        calls one operation. A branch here deciding identity, uniqueness,
-        servability or generation agreement would be the script-side precheck
-        REC-7 forbids.
+        `_create` opens the control store read-only and `_created` composes
+        four ports and calls one operation. A branch here deciding identity,
+        uniqueness, servability or generation agreement would be the
+        script-side precheck REC-7 forbids.
+
+        W386365: the one exception policy `_create` holds is handing the
+        request to a manager that is serving -- told by the guard owner's own
+        type -- and the request path performs no creation either.
         """
         import ast
         import pathlib as _pathlib
@@ -2206,21 +2210,194 @@ class TheCommandRequestsTheOperation(unittest.TestCase):
 
         source = _pathlib.Path(job_manager.__file__).read_text(
             encoding="utf-8")
-        node = next(one for one in ast.parse(source).body
-                    if type(one) is ast.FunctionDef
-                    and one.name == "_create")
-        called = {piece.func.attr if type(piece.func) is ast.Attribute
-                  else getattr(piece.func, "id", None)
-                  for piece in ast.walk(node) if type(piece) is ast.Call}
-        self.assertIn("create_template_job", called)
-        self.assertIn("open_readonly", called,
+        nodes = {one.name: one for one in ast.parse(source).body
+                 if type(one) is ast.FunctionDef}
+
+        def calls(name):
+            return {piece.func.attr if type(piece.func) is ast.Attribute
+                    else getattr(piece.func, "id", None)
+                    for piece in ast.walk(nodes[name])
+                    if type(piece) is ast.Call}
+
+        self.assertIn("_performed", calls("_create"))
+        self.assertIn("_created", calls("_performed"))
+        self.assertIn("create_template_job", calls("_created"))
+        # W386365 R1: THE INTENT IS RECORDED BEFORE THE OPERATION IS ASKED.
+        line = {}
+        for piece in ast.walk(nodes["_create"]):
+            if type(piece) is ast.Call:
+                named = piece.func.attr if type(piece.func) is ast.Attribute else getattr(piece.func, "id", None)
+                line.setdefault(named, piece.lineno)
+        self.assertLess(line["record"], line["_performed"])
+        self.assertIn("open_readonly", calls("_create"),
                       "the control store is opened read-only")
-        self.assertNotIn("submit", called)
-        self.assertNotIn("resolve", called,
-                         "the CLI does not resolve; the manager does")
-        for piece in ast.walk(node):
-            self.assertNotIsInstance(
-                piece, ast.Try, "_create holds no exception policy")
+        self.assertNotIn("create_template_job", calls("_requested"),
+                         "a request is recorded, never performed, by the "
+                         "command")
+        for name in ("_create", "_created", "_requested"):
+            self.assertNotIn("submit", calls(name))
+            self.assertNotIn("resolve", calls(name),
+                             "the CLI does not resolve; the manager does")
+        handled = [piece for piece in ast.walk(nodes["_create"])
+                   if type(piece) is ast.ExceptHandler]
+        self.assertEqual([ast.unparse(one.type) for one in handled],
+                         ["workspaces.ManagerActive"],
+                         "_create's one exception policy is the serving "
+                         "manager")
+        for piece in ast.walk(nodes["_created"]):
+            self.assertNotIsInstance(piece, ast.ExceptHandler,
+                                     "_created holds no exception policy")
+
+
+class ARequestRecordedForTheServingManager(CreationCase):
+    """W386365: `creation_requests`, the durable request a command records
+    when the instance's manager is serving, asked of the real Job store."""
+
+    PLACE = {"instance": "/srv/instance", "authority": "/srv/instance/db/authority.sqlite3", "route": None}
+
+    def setUp(self):
+        super().setUp()
+        from baton_v12.job_manager import creation_requests
+        self.requests = creation_requests
+
+    def test_a_request_is_recorded_once_and_found_again(self):
+        first = self.requests.record(self.jobs, request(), self.PLACE)
+        again = self.requests.record(self.jobs, request(), self.PLACE)
+        self.assertEqual(first, again)
+        self.assertEqual(first["state"], "pending")
+        self.assertEqual(first["attempts"], 1)
+        # ITS IDENTITY IS THE CREATION'S OWN: the Job and the request digest
+        # `create_template_job` would journal under.
+        intent = creation.intent_of(request())
+        self.assertEqual((first["job_id"], first["request_digest"]), (intent["job_id"], intent["request_digest"]))
+        self.assertEqual(first["request_id"], self.requests.request_id(intent["job_id"], intent["request_digest"]))
+        held = self.requests.pending(self.jobs)
+        self.assertEqual([one["request_id"] for one in held], [first["request_id"]])
+        # AND WHAT THE MANAGER IS HANDED IS A REQUEST THE CREATION ACCEPTS AS
+        # THE SAME INTENT, with the place the operator named.
+        self.assertEqual(creation.intent_of(held[0]["request"])["request_digest"], intent["request_digest"])
+        self.assertEqual(held[0]["place"], self.PLACE)
+        # NOTHING WAS CREATED BY RECORDING.
+        self.assertEqual(creation.created_job_rows(self.jobs), [])
+        self.assertEqual(creation.recorded_creation(self.jobs, request()), (False, None))
+
+    def test_a_different_intent_under_the_same_job_is_refused_and_not_recorded(self):
+        first = self.requests.record(self.jobs, request(), self.PLACE)
+        changed = request(task={"task_id": TASK, "statement": "Another statement entirely."})
+        with self.assertRaises(ContractRefusal) as caught:
+            self.requests.record(self.jobs, changed, self.PLACE)
+        self.assertIn("DIFFERENT intent", caught.exception.message)
+        self.assertEqual(self.requests.status(self.jobs, first["job_id"]), first)
+
+    def test_an_answer_is_recorded_once_per_attempt(self):
+        first = self.requests.record(self.jobs, request(), self.PLACE)
+        self.requests.settle(self.jobs, first, "created", {"job_id": first["job_id"]})
+        held = self.requests.status(self.jobs, first["job_id"])
+        self.assertEqual((held["state"], held["answer"]), ("created", {"job_id": first["job_id"]}))
+        self.assertEqual(self.requests.pending(self.jobs), [])
+        self.assertFalse(self.requests.has_pending(self.jobs))
+        # THE SAME ANSWER AGAIN IS THE SAME ACT; a created request asked
+        # again stays created and is not queued a second time.
+        self.requests.settle(self.jobs, first, "created", {"job_id": first["job_id"]})
+        self.assertEqual(self.requests.record(self.jobs, request(), self.PLACE), held)
+        for state, answer in (("pending", {"a": 1}), ("created", {}), ("done", {"a": 1})):
+            with self.subTest(state=state):
+                with self.assertRaises(ContractRefusal):
+                    self.requests.settle(self.jobs, first, state, answer)
+
+    def test_a_refused_request_asked_again_is_queued_again(self):
+        first = self.requests.record(self.jobs, request(), self.PLACE)
+        refusal = {"category": "refused", "code": "precondition", "message": "no lane"}
+        self.requests.settle(self.jobs, first, "refused", refusal)
+        self.assertEqual(self.requests.status(self.jobs, first["job_id"])["answer"], refusal)
+        elsewhere = dict(self.PLACE, route="impl")
+        second = self.requests.record(self.jobs, request(), elsewhere)
+        self.assertEqual((second["request_id"], second["state"], second["attempts"], second["answer"]),
+                         (first["request_id"], "pending", 2, None))
+        # THE PLACE IS THE LATEST COMMAND'S: what was repaired may be there.
+        self.assertEqual(self.requests.pending(self.jobs)[0]["place"], elsewhere)
+        # AND THE FIRST ATTEMPT'S ANSWER CANNOT BE WRITTEN OVER THE SECOND.
+        with self.assertRaises(ContractRefusal):
+            self.requests.settle(self.jobs, dict(first, attempts=3), "created", {"job_id": first["job_id"]})
+        self.requests.settle(self.jobs, second, "created", {"job_id": first["job_id"]})
+        self.assertEqual(self.requests.status(self.jobs, first["job_id"])["state"], "created")
+
+    def test_a_finished_creation_supersedes_a_concurrent_refusal_of_the_same_attempt(self):
+        """Two performers of one request: the loser is refused as
+        concurrent, then the winner finishes. The Job is the outcome."""
+        first = self.requests.record(self.jobs, request(), self.PLACE)
+        self.requests.settle(self.jobs, first, "refused", {"category": "refused", "code": "precondition",
+                                                           "message": "another creation is in flight"})
+        self.requests.settle(self.jobs, first, "created", {"job_id": first["job_id"]})
+        held = self.requests.status(self.jobs, first["job_id"])
+        self.assertEqual((held["state"], held["attempts"], held["answer"]), ("created", 1, {"job_id": first["job_id"]}))
+        # AND NOTHING REPLACES CREATED: the same refusal again is the act
+        # already recorded, and leaves the request created.
+        self.requests.settle(self.jobs, first, "refused", {"category": "refused", "code": "precondition",
+                                                           "message": "another creation is in flight"})
+        self.assertEqual(self.requests.status(self.jobs, first["job_id"])["state"], "created")
+        with self.assertRaises(ContractRefusal):
+            self.requests.settle(self.jobs, dict(first, attempts=2), "refused",
+                                 {"category": "refused", "code": "precondition", "message": "no such attempt"})
+
+    def test_a_request_under_an_identity_a_creation_already_holds_is_checked_against_it(self):
+        """A creation made without a request row holds its identity too."""
+        self.created()
+        with self.assertRaises(ContractRefusal) as caught:
+            self.requests.record(self.jobs, request(task={"task_id": TASK, "statement": "Changed."}), self.PLACE)
+        self.assertIn("DIFFERENT request", caught.exception.message)
+        self.assertIsNone(self.requests.status(self.jobs, creation.job_id_for(TASK)))
+        # THE SAME INTENT IS RECORDED, and the creation's replay answers it.
+        held = self.requests.record(self.jobs, request(), self.PLACE)
+        self.assertEqual(held["state"], "pending")
+        self.assertTrue(creation.recorded_creation(self.jobs, request())[0])
+
+    def test_a_refused_request_reserves_nothing_and_a_different_one_replaces_it(self):
+        """A refusal leaves the identity free, as the creation's own
+        refusals promise (W385292); the counter keeps every act distinct."""
+        refusal = {"category": "refused", "code": "precondition", "message": "no lane"}
+        changed = request(task={"task_id": TASK, "statement": "Changed."})
+        first = self.requests.record(self.jobs, request(), self.PLACE)
+        self.requests.settle(self.jobs, first, "refused", refusal)
+        second = self.requests.record(self.jobs, changed, self.PLACE)
+        self.assertNotEqual(second["request_id"], first["request_id"])
+        self.assertEqual((second["state"], second["attempts"]), ("pending", 2))
+        # WHILE IT IS PENDING, IT RESERVES: the first intent is now the change.
+        with self.assertRaises(ContractRefusal):
+            self.requests.record(self.jobs, request(), self.PLACE)
+        self.requests.settle(self.jobs, second, "refused", refusal)
+        third = self.requests.record(self.jobs, request(), self.PLACE)
+        self.assertEqual((third["request_id"], third["state"], third["attempts"]), (first["request_id"], "pending", 3))
+        self.requests.settle(self.jobs, third, "created", {"job_id": third["job_id"]})
+        held = self.requests.status(self.jobs, third["job_id"])
+        self.assertEqual((held["state"], held["attempts"]), ("created", 3))
+        with self.assertRaises(ContractRefusal):
+            self.requests.record(self.jobs, changed, self.PLACE)
+
+    def test_waiter_reports_its_original_refusal_after_replacement(self):
+        import io
+        from types import SimpleNamespace
+        from tools import job_manager
+
+        first = self.requests.record(self.jobs, request(), self.PLACE)
+        refusal = {"category": "refused", "code": "precondition", "message": "first route unavailable"}
+        self.requests.settle(self.jobs, first, "refused", refusal)
+        changed = request(task={"task_id": TASK, "statement": "Replacement."})
+        self.requests.record(self.jobs, changed, self.PLACE)
+        with self.assertRaises(ContractRefusal) as caught:
+            job_manager._requested(SimpleNamespace(no_wait=False, wait_seconds=0), io.StringIO(), self.jobs, request(), first)
+        self.assertIn(refusal["message"], str(caught.exception))
+
+    def test_every_ordinary_job_names_its_own_work(self):
+        one = creation.generated_work_id("0000000a" + "0" * 24, "job-one")
+        self.assertEqual(one, creation.generated_work_id("0000000a" + "0" * 24, "job-one"))
+        self.assertTrue(one.startswith("0000000a-W"))
+        self.assertNotEqual(one, creation.generated_work_id("0000000a" + "0" * 24, "job-two"))
+        self.assertNotEqual(one, creation.generated_work_id("0000000b" + "0" * 24, "job-one"))
+        for bad in ("", None):
+            with self.subTest(bad=bad):
+                with self.assertRaises(ContractRefusal):
+                    creation.generated_work_id("0000000a" + "0" * 24, bad)
 
 
 if __name__ == "__main__":

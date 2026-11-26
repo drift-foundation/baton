@@ -90,9 +90,12 @@ from ..contracts.errors import name_value, sample_of
 from ..worker_manager import boundaries
 from . import (documents, execution_limits, role_capability, role_contract,
                submission, templates)
+from .schema import check_authority
 from .store import job_signature
 
-__all__ = ["ACQUIRE_KIND", "CREATE_KIND", "DERIVATION_MEMBERS",
+__all__ = ["generated_work_id", "intent_of", "job_work_of",
+           "recorded_creation",
+           "ACQUIRE_KIND", "CREATE_KIND", "DERIVATION_MEMBERS",
            "INSTALLED_SOURCE", "INTENT_KIND", "PROFILE_MEMBERS",
            "create_operation_id", "create_template_job", "created_job_of",
            "created_job_rows", "intent_operation_id", "job_id_for",
@@ -200,9 +203,7 @@ def create_template_job(store, operations, *, request, derivation,
     # keyed on the first; the second is RECORDED as the created Job's
     # provenance and is never compared on replay.
     asked = _asked(request)
-    operands = {"job_id": asked["job_id"],
-                "submission_id": asked["submission_id"],
-                "request_digest": asked["request_digest"]}
+    operands = _identity_of(asked)
 
     # AND A REPLAY ANSWERS BEFORE THE DEPLOYMENT IS ASKED ANYTHING AT ALL.
     # The earlier claim's own case comment promised this and the code did not
@@ -210,22 +211,7 @@ def create_template_job(store, operations, *, request, derivation,
     # recorded creation costs the deployment nothing and cannot start refusing
     # later because the pool moved on -- `fresh_attempt.admit`'s rule, and the
     # same stale-check defect it removes.
-    try:
-        found, value = store.replay(create_operation_id(operands["job_id"]),
-                                    job_signature(CREATE_KIND, operands),
-                                    kind=CREATE_KIND)
-    except ContractRefusal as collision:
-        if collision.code != "operation-collision":
-            raise
-        # AN OPERATION COLLISION HERE IS A CHANGED CALLER INTENT, and the
-        # generic sentence does not say so. The operation identity is the Job
-        # and the signature carries the digest of the REQUEST, so a second
-        # request under this identity whose statement, acceptance contract,
-        # selected work scope, template selection or overrides differ
-        # collides -- which is exactly the case W361910's acceptance review
-        # says a submission signature could not have caught, because the
-        # normalized submission is byte-identical for three of those five.
-        raise _changed(store, operands) from collision
+    found, value = _recorded(store, operands)
     if found:
         return value
 
@@ -256,6 +242,69 @@ def create_template_job(store, operations, *, request, derivation,
         return _owned(store, resolution=resolution, operands=held,
                       derived=derived, authorization=authorization,
                       binding=binding, owner=owner)
+
+
+def _identity_of(asked):
+    return {"job_id": asked["job_id"],
+            "submission_id": asked["submission_id"],
+            "request_digest": asked["request_digest"]}
+
+
+def _recorded(store, operands):
+    """`(found, answer)` for a creation this store already completed."""
+    try:
+        found, value = store.replay(create_operation_id(operands["job_id"]),
+                                    job_signature(CREATE_KIND, operands),
+                                    kind=CREATE_KIND)
+    except ContractRefusal as collision:
+        if collision.code != "operation-collision":
+            raise
+        # AN OPERATION COLLISION HERE IS A CHANGED CALLER INTENT, and the
+        # generic sentence does not say so. The operation identity is the Job
+        # and the signature carries the digest of the REQUEST, so a second
+        # request under this identity whose statement, acceptance contract,
+        # selected work scope, template selection or overrides differ
+        # collides -- which is exactly the case W361910's acceptance review
+        # says a submission signature could not have caught, because the
+        # normalized submission is byte-identical for three of those five.
+        raise _changed(store, operands) from collision
+    return found, value
+
+
+def intent_of(request):
+    """W386365: the identity of one request, and the owned request itself.
+
+    What a caller that is NOT performing the creation may know about it: the
+    Job identity it resolves to, its submission identity and the digest of
+    the intent. `creation_requests` records these beside the request so the
+    serving manager can perform exactly what was asked.
+    """
+    asked = _asked(request)
+    return dict(_identity_of(asked), request=asked["request"])
+
+
+def recorded_creation(store, request):
+    """W386365: `(found, answer)` for this exact request, asking no owner.
+
+    The replay `create_template_job` begins with, alone. A different request
+    under the same Job identity is refused as the changed intent it is.
+    """
+    return _recorded(store, _identity_of(_asked(request)))
+
+
+def generated_work_id(authority_uuid, job_id):
+    """W386365: the one Work an ordinary Job is created under.
+
+    Every ordinary Job has its own Work, so two independent Jobs never share
+    a claim. Derived from the Authority and the Job identity alone, so a
+    repeated or resumed creation names the same Work.
+    """
+    check_authority(authority_uuid, what="a created Job's Authority")
+    # ANY JOB NAME THE CREATION ACCEPTS: the name is digested, never spelled
+    # into the Work identity, so its length and grammar do not matter here.
+    boundaries.text(job_id, "a Job id")
+    namespace = digest(["template-job.work", authority_uuid, job_id])
+    return f"{authority_uuid[:8]}-W{1 + int(namespace[7:39], 16)}"
 
 
 def _changed(store, operands):
@@ -1497,6 +1546,30 @@ def job_task_of(store, job_id):
     loop, because answering a delivery question from a corrupt lineage is
     worse than saying so.
     """
+    created = _creation_behind(store, job_id)
+    return None if created is None else created["task_document"]
+
+
+def job_work_of(store, job_id):
+    """W386365: the Work GENERATED for the creation behind this Job, or `None`.
+
+    An ordinary Job is created under its own Work and a fresh attempt at it
+    runs on that same Work, so the answer follows the retry lineage exactly
+    as `job_task_of` does and for the same reason: the creation is the one
+    record of the fact. `None` for a Job with no creation behind it, and for
+    one created under a Work that is not the one generated for it -- every
+    Job that existed before ordinary Jobs had their own -- whose delivery
+    names the installed Work exactly as before.
+    """
+    created = _creation_behind(store, job_id)
+    if created is None:
+        return None
+    generated = generated_work_id(store.authority_uuid, created["job_id"])
+    return generated if created["work_id"] == generated else None
+
+
+def _creation_behind(store, job_id):
+    """The creation row at the root of this Job's retry lineage, or `None`."""
     boundaries.identity(job_id, "a Job id")
     seen = []
     held = job_id
@@ -1509,7 +1582,7 @@ def job_task_of(store, job_id):
         seen.append(held)
         created = created_job_of(store, held)
         if created is not None:
-            return created["task_document"]
+            return created
         prior = _retried_from(store, held)
         if prior is None:
             return None

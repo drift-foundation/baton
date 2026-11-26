@@ -571,6 +571,11 @@ PARALLEL_MODULES = ("tests.job_manager.test_accepted_offer_retirement",
     "tests.tools.test_connected_startup",
     "tests.tools.test_correction_restart",
     "tests.tools.test_creation_ports",
+    # W386365: the real serve command in this process and the operator's
+    # command in child processes, over case-owned temporary instances with a
+    # deterministic engine; no daemon, provider, network or shared name. The
+    # tests.tools package assigns this module to tools-pure.
+    "tests.tools.test_creation_while_serving",
     "tests.tools.test_disposition_command",
     "tests.tools.test_dossier_command",
     "tests.tools.test_dossier_recovery",
