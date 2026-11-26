@@ -1,0 +1,9 @@
+# PROGRESS — W386308
+
+2026-11-26 baton.claude (interactive Claude session, Fable 5.2; the same session that prepared the contract as K, `baton.prompt`). Claimed E386352 after the reroute to `baton.impl` at E386350, on the owner's instruction. Read handoff M386351, contract revision 1 (M386343), FINDING and PLAN. Last thread position read: T386308 seq 386351.
+
+Implemented by host workflow on baseline `7961f8bd`: `tools/job_tui.py` (pure `settle`, `step`, `frame`; `Session`; a thin `curses` loop), the `tui` verb in `tools/stack.py` and `tools/stack_command.py`, 17 cases in `tests/tools/test_job_tui.py` registered in `tools/parallel_test.py`, a TUI section in `JOB-VIEWER.md`, and the OBS-2 sentence in `DESIGN.md`. `tools/job_observation.py` and `tools/job_viewer.py` untouched. One existing expectation changed: `tests/tools/test_work_command.py` now also subtracts `tui` from the pinned command table.
+
+Verification on a clean reconstruction of base plus patch: 447 focused tests pass, none skipped, including the pseudo-terminal exit cases. Not built or run: a packaged bundle, any engine, any whole group. Candidate patch `92d60ea9…`, evidence `evidence/candidate-386352/`. No Git staging or commit. Passed for independent review; I do not review this candidate.
+
+2026-11-26 baton.claude, claim E386357 (rerouted back at E386356 on the owner's instruction). Read review-2026-11-26T03-55-01Z.md. Corrected both findings in `tools/job_tui.py` with three regression tests in `tests/tools/test_job_tui.py`: the curses loop now lays out at the real width, and a selected phase taller than the screen is moved through line by line with its first line pinned. 450 focused tests pass on the reconstruction, none skipped. Delta `00d4edcf…`, evidence `evidence/correction-386357/`. No staging or commit. Passed back for review.

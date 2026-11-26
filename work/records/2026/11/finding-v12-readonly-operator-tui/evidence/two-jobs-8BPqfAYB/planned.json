@@ -1,0 +1,112 @@
+{
+  "schema": "baton.v12.job-status/10",
+  "observed_at": "2026-11-26T04:37:04.493Z",
+  "incarnation": "v12-stack-publisher",
+  "canonical": true,
+  "jobs": [
+    {
+      "job_id": "guide-survey",
+      "submission_id": null,
+      "input_digest": null,
+      "policy_digest": null,
+      "test_scope": [],
+      "terminal_policy": "owner-close",
+      "execution_limits": null,
+      "stages": [
+        {
+          "stage_id": "guide-survey/guide",
+          "job_id": "guide-survey",
+          "kind": "research",
+          "state": "queued",
+          "work_id": "1fb88912-W161547164961318801219473621378831195032",
+          "profile_name": "claude-fresh-implementation",
+          "profile_digest": "sha256:b317341bd27c6ee02b495b3b1bd5965cfe360aa136cebb11ebed13cdb5f1c204",
+          "episode": null,
+          "offer_id": null,
+          "attempt_id": null,
+          "episodes": [],
+          "corrections": 0,
+          "allocation": null,
+          "allocations": [],
+          "gates": [],
+          "receipts": [],
+          "deferral": null,
+          "runtime": null,
+          "exchange": null,
+          "artifacts": null,
+          "selected_at": null,
+          "settled_at": null,
+          "result": null,
+          "execution_job_id": "manual-phase-0abd752c717ac81fe85666df75fbc1add7031907b8f80b25c08e357723c407c6",
+          "execution_cancellation": null
+        }
+      ],
+      "cancellation": null,
+      "created_at": "2026-11-26T04:36:59.688Z",
+      "mode": "MANUAL",
+      "lifecycle": "open",
+      "budget": {
+        "limit_seconds": 360,
+        "charged_milliseconds": 0,
+        "charged_seconds": 0,
+        "remaining_seconds": 360,
+        "expired": false,
+        "timing": "trusted",
+        "deadline_at": null
+      },
+      "closed_at": null
+    },
+    {
+      "job_id": "overview-survey",
+      "submission_id": null,
+      "input_digest": null,
+      "policy_digest": null,
+      "test_scope": [],
+      "terminal_policy": "owner-close",
+      "execution_limits": null,
+      "stages": [
+        {
+          "stage_id": "overview-survey/overview",
+          "job_id": "overview-survey",
+          "kind": "research",
+          "state": "queued",
+          "work_id": "1fb88912-W336178736227383873375258347050609153122",
+          "profile_name": "claude-fresh-implementation",
+          "profile_digest": "sha256:b317341bd27c6ee02b495b3b1bd5965cfe360aa136cebb11ebed13cdb5f1c204",
+          "episode": null,
+          "offer_id": null,
+          "attempt_id": null,
+          "episodes": [],
+          "corrections": 0,
+          "allocation": null,
+          "allocations": [],
+          "gates": [],
+          "receipts": [],
+          "deferral": null,
+          "runtime": null,
+          "exchange": null,
+          "artifacts": null,
+          "selected_at": null,
+          "settled_at": null,
+          "result": null,
+          "execution_job_id": "manual-phase-e8d0d8510278373a12549e1b9b35c98d2b6f3ca680c78307114b9affd1a9cd8b",
+          "execution_cancellation": null
+        }
+      ],
+      "cancellation": null,
+      "created_at": "2026-11-26T04:37:00.287Z",
+      "mode": "MANUAL",
+      "lifecycle": "open",
+      "budget": {
+        "limit_seconds": 360,
+        "charged_milliseconds": 0,
+        "charged_seconds": 0,
+        "remaining_seconds": 360,
+        "expired": false,
+        "timing": "trusted",
+        "deadline_at": null
+      },
+      "closed_at": null
+    }
+  ]
+}

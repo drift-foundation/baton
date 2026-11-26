@@ -1,0 +1,24 @@
+Baton v12 Jobs   2 Jobs · 0 need a decision
+observed 2026-11-26T04:37:36.143Z (2s old)
+
+  guide-survey                                 MANUAL OPEN   AWAITING ASSIGNMENT
+    The planned phase finished.
+> overview-survey                                      MANUAL OPEN   IN PROGRESS
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ‘“ select   Enter open   n next needing a decision   r read now   q quit

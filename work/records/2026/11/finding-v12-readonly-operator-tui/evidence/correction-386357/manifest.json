@@ -1,0 +1,20 @@
+{
+ "base": "7961f8bd4f5aae1209c72f796acb693d5ba65b76",
+ "previous_patch_sha256": "92d60ea9b4db2d07ea6d3ba47a6b7bfd183c74aef462d7c86b0d392057738c4a",
+ "delta_sha256": "00d4edcf4ad5728e232fee1626d97ba027d59ffddf91e5877b72b3c8a2e77e11",
+ "combined_patch_sha256": "f0cc2bd83ac98ddb8b7918f5d5bae1cfce13e8156363bc7bda86730ff9e0c4c6",
+ "delta_paths": [
+  "v12/python/tools/job_tui.py",
+  "v12/python/tests/tools/test_job_tui.py"
+ ],
+ "files": {
+  "v12/DESIGN.md": "4194efa0cbfed4c661de6ade246ee99bd87f65ecc6e6ac086c8f12ef18921485",
+  "v12/python/JOB-VIEWER.md": "6a7902ba1eb7ed52dbdf1799ed35f92c0e93e2c2996c41528d97dc69b912bf5e",
+  "v12/python/tests/tools/test_job_tui.py": "1dad12c30d56498d8c2f160ed8be9e44560f0c45a8eab8f97e390f8e64eb5a6a",
+  "v12/python/tests/tools/test_work_command.py": "dbe974a8cbe78cec246e715b8dd0bffb691e4f0d55763709bb5966c800eb8d77",
+  "v12/python/tools/job_tui.py": "6e6f84bc72aa6294ff8cc961d0b7263e7347889b34e07cfe179832f50c702a45",
+  "v12/python/tools/parallel_test.py": "e56c450276ff0ef9770981eea3c3f0468755ea2327742dd5502b1ee2507c3144",
+  "v12/python/tools/stack.py": "eaa5d823add2903317a541e3c4ec1e6416ea7afb9021f4af79b8ed04fb089d79",
+  "v12/python/tools/stack_command.py": "4dcbafbd154c76cf37ecedec72f46e1c324074ba3db57cf8797f699cf5bee302"
+ }
+}

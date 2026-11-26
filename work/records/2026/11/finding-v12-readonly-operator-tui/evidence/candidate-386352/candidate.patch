@@ -1,0 +1,1258 @@
+diff -ruN '--exclude=__pycache__' pin/v12/DESIGN.md cand/v12/DESIGN.md
+--- a/v12/DESIGN.md	2026-11-25 20:02:25.000000000 -0700
++++ b/v12/DESIGN.md	2026-11-25 20:48:27.956123749 -0700
+@@ -1190,6 +1190,12 @@
+ CLI event parsing/metrics proposals. Decision and bounds:
+ [shared liveness approval](../work/records/2026/11/finding-v12-shared-work-liveness/FINDING.md).
+ 
++Owner selection 2026-11-25 (W386308): a single-instance read-only TUI is the
++first operator interface built on that snapshot and shared read model. It reads
++the published document only, takes every word from the read model, and performs
++no act; leaving it does not affect execution. Decision:
++[read-only operator TUI](../work/records/2026/11/finding-v12-readonly-operator-tui/FINDING.md).
++
+ **OBS-3.** Failures have a bounded typed cause, exact attempt/operation, originating
+ component, observed time and safe diagnostic locator. Missing authority, engine
+ unavailability, malformed worker output, provider failure and genuine code defects
+diff -ruN '--exclude=__pycache__' pin/v12/python/JOB-VIEWER.md cand/v12/python/JOB-VIEWER.md
+--- a/v12/python/JOB-VIEWER.md	2026-11-25 20:02:25.000000000 -0700
++++ b/v12/python/JOB-VIEWER.md	2026-11-25 20:48:27.948571215 -0700
+@@ -374,3 +374,33 @@
+ retained evidence is unknown and supplies no sentence. Attribution holds appear
+ first when both facts are evidenced, and stale snapshots keep their stale marker.
+ This diagnostic does not change the Job headline or authorize further execution.
++
++## The read-only TUI (W386308)
++
++`tui` is the same snapshot and the same words as `monitor`, kept on screen and
++navigable. It is read-only: it opens the published status file and nothing
++else, and quitting it leaves every Job as it was.
++
++```sh
++"$DEST/distro/baton-v12-stack" tui --instance "$DEST/instance.json"
++python3 -m tools.job_tui --status "$DEST/state/status.json"      # the same program over a named document
++```
++
++- **List**: one row per Job in the snapshot's own order, with its headline and,
++  beneath it, the reason when there is one. The header counts Jobs and how many
++  need a decision.
++- **Detail**: the selected Job's headline, reason and summary, then one row per
++  phase with its position and reason. The selected phase also shows its attempt
++  identity, recorded facts, timing and requested model.
++- **Keys**: `↑`/`k` and `↓`/`j` move; `PgUp`, `PgDn`, `Home`, `End` jump;
++  `Enter` opens the selected Job; `Esc` goes back; `n` moves to the next Job
++  needing a decision; `r` reads the snapshot now; `q` or `Ctrl-C` quits.
++- **Selection** is the Job's or phase's identity and survives refresh. One that
++  is no longer in the snapshot is shown as `… — not in the current snapshot`
++  until you move.
++- **Freshness**: `!! STALE` when the observation is at least 15 seconds old,
++  `!! DISCONNECTED` with the cause when a read fails (the last good content
++  stays), and `not read yet` before the first good read.
++- It refuses, with exit 2, when standard input or output is not a terminal;
++  `monitor` is the plain-text view. `--interval` sets the seconds between
++  reads (default 5).
+diff -ruN '--exclude=__pycache__' pin/v12/python/tests/tools/test_job_tui.py cand/v12/python/tests/tools/test_job_tui.py
+--- a/v12/python/tests/tools/test_job_tui.py	1969-12-31 17:00:00.000000000 -0700
++++ b/v12/python/tests/tools/test_job_tui.py	2026-11-25 20:48:27.950794897 -0700
+@@ -0,0 +1,612 @@
++"""W386308: the read-only TUI, first slice -- the contract's numbered cases 1 to 17.
++
++Cases 1 to 11, 13 and 15 to 17 drive the pure parts (`settle`, `step`, `frame`)
++and `Session` with scripted keys and snapshot sequences; no terminal exists.
++Cases 12 and 14 run the real program as a child. Case 12 allocates its OWN
++pseudo-terminal and sets `TERM` itself, because a worker runs verification with
++no terminal and a closed environment; it fails rather than skips when no
++terminal description loads.
++
++Every expected word is taken from `job_observation.job_view` for the same
++document, never from a copied literal: the TUI adds no words of its own.
++"""
++import copy
++import datetime
++import json
++import os
++import pty
++import select
++import signal
++import subprocess
++import sys
++import tempfile
++import termios
++import time
++import unittest
++from pathlib import Path
++
++from tools import job_observation, job_tui, job_viewer, stack, stack_command
++
++NOW = "2026-11-26T12:00:00.000Z"
++EPOCH = datetime.datetime.fromisoformat(NOW.replace("Z", "+00:00")).timestamp()
++_PYTHON = Path(__file__).resolve().parents[2]
++
++A1_ATTEMPT = "attempt-5c8cded2904fc3d5832ec474e045dde81fa63a770b5903e97a07abff7af532a2"
++
++
++def held_job(job_id="job-w385263-a1", hold="model-attribution-missing"):
++    """The retained A1 shape: implementation held for the owner, review waiting on it."""
++    runtime = {"model_attribution_hold": hold} if hold else {}
++    return {"job_id": job_id, "stages": [
++        {"stage_id": job_id + "/implementation", "state": "answering", "kind": "implementation",
++         "attempt_id": A1_ATTEMPT, "episode": 1, "gates": [],
++         "episodes": [{"attempt_id": A1_ATTEMPT, "episode": 1}],
++         "allocation": {"assignment_id": A1_ATTEMPT, "episode": 1}, "runtime": runtime},
++        {"stage_id": job_id + "/review", "state": "blocked", "kind": "review",
++         "attempt_id": "attempt-review", "episode": 1,
++         "gates": [{"open": False, "stage_id": job_id + "/implementation", "state": "answering"}],
++         "episodes": [{"attempt_id": "attempt-review", "episode": 1}], "allocation": None}]}
++
++
++def queued_job(job_id):
++    return {"job_id": job_id, "stages": [
++        {"stage_id": job_id + "/implementation", "state": "queued", "kind": "implementation",
++         "attempt_id": None, "episode": None, "gates": [], "episodes": [], "allocation": None}]}
++
++
++def running_job(job_id):
++    attempt = "attempt-" + job_id
++    return {"job_id": job_id, "stages": [
++        {"stage_id": job_id + "/implementation", "state": "running", "kind": "implementation",
++         "attempt_id": attempt, "episode": 1, "gates": [],
++         "episodes": [{"episode": 1, "attempt_id": attempt}],
++         "allocation": {"episode": 1, "assignment_id": attempt},
++         "runtime": {"activity": {"attempt_id": attempt, "bytes_observed": 0, "observed_at": NOW}},
++         "exchange": {"states": [{"operation": "work", "state": "dispatched"}]}}]}
++
++
++def document(*jobs, observed_at=NOW, schema=None):
++    return {"schema": schema or stack.STATUS_SCHEMA, "canonical": True, "observed_at": observed_at,
++            "incarnation": "publisher", "jobs": [copy.deepcopy(job) for job in jobs]}
++
++
++def seen(doc, job_id):
++    job = next(one for one in doc["jobs"] if one["job_id"] == job_id)
++    return job_observation.job_view(doc, job)
++
++
++class Clocks:
++    def __init__(self):
++        self.now, self.wall = 100.0, EPOCH
++
++    def advance(self, seconds):
++        self.now += seconds
++        self.wall += seconds
++
++
++class Fed:
++    """A source the test feeds: a document, raw bytes, or an exception to raise."""
++
++    def __init__(self, first=None):
++        self.next = first
++        self.reads = 0
++
++    def __call__(self):
++        self.reads += 1
++        if isinstance(self.next, BaseException):
++            raise self.next
++        return self.next
++
++
++class Case(unittest.TestCase):
++    def session(self, first=None):
++        self.clocks = Clocks()
++        self.fed = Fed(first)
++        return job_tui.Session(self.fed, clock=lambda: self.clocks.now, wall=lambda: self.clocks.wall)
++
++    def painted(self, session, rows=24, columns=100):
++        return session.frame(rows, columns)
++
++    def text(self, session, rows=24, columns=100):
++        return "\n".join(self.painted(session, rows, columns).lines)
++
++    def selected_line(self, session, rows=24, columns=100):
++        painted = self.painted(session, rows, columns)
++        self.assertIsNotNone(painted.selected, painted.lines)
++        return painted.lines[painted.selected]
++
++
++class TheList(Case):
++    def test_case_01_one_row_per_job_with_headline_reason_and_counts(self):
++        doc = document(running_job("job-run"), held_job("job-held"), queued_job("job-wait"))
++        session = self.session(doc)
++        session.read()
++        lines = self.painted(session).lines
++        headlines = {job_id: seen(doc, job_id) for job_id in ("job-run", "job-held", "job-wait")}
++        self.assertEqual(sum(view["headline"] == job_tui.DECISION_NEEDED for view in headlines.values()), 1)
++        self.assertIn("3 Jobs · 1 needs a decision", lines[0])
++        rows = [line for line in lines if line[2:].startswith("job-")]
++        self.assertEqual([row[2:].split()[0] for row in rows], ["job-run", "job-held", "job-wait"])
++        for row, job_id in zip(rows, ("job-run", "job-held", "job-wait")):
++            self.assertTrue(row.rstrip().endswith(headlines[job_id]["labelled_headline"]), row)
++        reasons = [line.strip() for line in lines if line.startswith("    ")]
++        self.assertEqual(reasons, [view["headline_reason"] for view in headlines.values() if view["headline_reason"]])
++        self.assertEqual(len(reasons), 1)
++
++    def test_case_02_the_retained_a1_case_carries_exactly_the_read_models_strings(self):
++        doc = document(held_job())
++        view = seen(doc, "job-w385263-a1")
++        self.assertEqual(view["headline"], "DECISION NEEDED")
++        session = self.session(doc)
++        session.read()
++        listed = self.painted(session, columns=120).lines
++        self.assertIn(view["labelled_headline"], listed[3])
++        self.assertEqual(listed[4].strip(), view["headline_reason"])
++        session.key("open")
++        detail = self.painted(session, rows=30, columns=160).lines
++        self.assertEqual(detail[0], "job-w385263-a1   " + view["labelled_headline"])
++        self.assertEqual(detail[2].strip(), view["headline_reason"])
++        self.assertTrue(detail[3].strip().startswith(view["summary"] + " · Job age "), detail[3])
++        body = [line.strip() for line in detail]
++        implementation, review = view["phases"]
++        self.assertIn("> " + implementation["role"].ljust(15) + " " + implementation["position"], detail)
++        self.assertIn("  " + review["role"].ljust(15) + " " + review["position"], detail)
++        for phase in (implementation, review):
++            self.assertIn(phase["reason"], body)
++        self.assertIn("attempt 1 " + A1_ATTEMPT, body)
++        for fact in implementation["facts"]:
++            self.assertIn(fact, body)
++        self.assertIn(implementation["duration"] + " · " + implementation["timeout"] + " · activity "
++                      + implementation["activity"] + " · operation " + implementation["operation"], body)
++        self.assertIn(implementation["model_attribution"], body)
++
++    def test_case_03_a_selected_job_that_comes_to_need_a_decision_changes_in_place(self):
++        before = document(queued_job("job-a"), held_job("job-b", hold=None))
++        after = document(queued_job("job-a"), held_job("job-b"))
++        self.assertNotEqual(seen(before, "job-b")["headline"], job_tui.DECISION_NEEDED)
++        session = self.session(before)
++        session.read()
++        session.key("down")
++        self.assertEqual(session.state.job_id, "job-b")
++        first = self.painted(session)
++        self.assertIn("0 need a decision", first.lines[0])
++        self.fed.next = after
++        session.read()
++        second = self.painted(session)
++        self.assertEqual(session.state.job_id, "job-b")
++        self.assertEqual(second.selected, first.selected)
++        self.assertIn(seen(after, "job-b")["labelled_headline"], second.lines[second.selected])
++        self.assertEqual(second.lines[second.selected + 1].strip(), seen(after, "job-b")["headline_reason"])
++        self.assertIn("1 needs a decision", second.lines[0])
++
++    def test_case_04_the_selection_follows_its_job_through_insertion_and_reordering(self):
++        session = self.session(document(queued_job("job-a"), queued_job("job-b"), queued_job("job-c")))
++        session.read()
++        session.key("down")
++        self.assertEqual(session.state.job_id, "job-b")
++        for jobs in ((queued_job("job-new"), queued_job("job-a"), queued_job("job-b"), queued_job("job-c")),
++                     (queued_job("job-c"), queued_job("job-b"), queued_job("job-new"), queued_job("job-a")),
++                     tuple(queued_job("job-%02d" % index) for index in range(30)) + (queued_job("job-b"),)):
++            self.fed.next = document(*jobs)
++            session.read()
++            self.assertEqual(session.state.job_id, "job-b")
++            line = self.selected_line(session, rows=10)
++            self.assertTrue(line.startswith("> job-b "), line)
++
++    def test_case_05_a_vanished_job_is_one_line_and_never_stale_content(self):
++        first = document(queued_job("job-a"), held_job("job-b"), queued_job("job-c"))
++        session = self.session(first)
++        session.read()
++        session.key("down")
++        self.fed.next = document(queued_job("job-a"), queued_job("job-c"))
++        session.read()
++        self.assertEqual(session.state.job_id, "job-b")
++        text = self.text(session)
++        self.assertEqual(self.selected_line(session), "> job-b" + job_tui.ABSENT)
++        self.assertNotIn("DECISION NEEDED", text)
++        self.assertNotIn(seen(first, "job-b")["headline_reason"], text)
++        rows = [line[2:].split()[0] for line in self.painted(session).lines if line[2:].startswith("job-")]
++        self.assertEqual(rows, ["job-a", "job-b", "job-c"])       # it keeps its place until the operator moves
++        session.key("open")
++        detail = self.painted(session).lines
++        self.assertEqual(detail[0], "job-b" + job_tui.ABSENT)
++        self.assertIn("Esc back", detail[-1])
++        session.key("back")
++        session.key("down")
++        self.assertEqual(session.state.job_id, "job-c")
++        self.assertNotIn("job-b", self.text(session))
++        # and upward from the vanished row selects the neighbour above
++        session = self.session(first)
++        session.read()
++        session.key("down")
++        self.fed.next = document(queued_job("job-a"), queued_job("job-c"))
++        session.read()
++        session.key("up")
++        self.assertEqual(session.state.job_id, "job-a")
++
++
++class TheDetail(Case):
++    def test_case_06_the_selected_phase_is_kept_and_a_vanished_one_is_one_line(self):
++        job = held_job("job-a")
++        session = self.session(document(job))
++        session.read()
++        session.key("open")
++        session.key("down")
++        self.assertEqual(session.state.stage_id, "job-a/review")
++        changed = held_job("job-a")
++        changed["stages"][0]["state"] = "completed"
++        changed["stages"][0]["runtime"] = {}
++        changed["stages"][1]["gates"][0].update(open=True, state="completed")
++        changed["stages"][1]["state"] = "queued"
++        after = document(changed)
++        self.fed.next = after
++        session.read()
++        self.assertEqual(session.state.stage_id, "job-a/review")
++        review = seen(after, "job-a")["phases"][1]
++        self.assertEqual(self.selected_line(session, columns=160), "> " + review["role"].ljust(15) + " " + review["position"])
++        gone = held_job("job-a")
++        gone["stages"] = gone["stages"][:1]
++        self.fed.next = document(gone)
++        session.read()
++        self.assertEqual(session.state.stage_id, "job-a/review")
++        self.assertEqual(self.selected_line(session), "> job-a/review" + job_tui.ABSENT)
++        self.assertNotIn(review["position"], self.text(session, columns=160))
++        session.key("up")
++        self.assertEqual(session.state.stage_id, "job-a/implementation")
++
++
++class Freshness(Case):
++    def test_case_07_stale_at_fifteen_seconds_on_both_screens_and_fresh_again(self):
++        session = self.session(document(held_job("job-a")))
++        session.read()
++        for screen in ("list", "detail"):
++            if screen == "detail":
++                session.key("open")
++            self.clocks.now, self.clocks.wall = 100.0, EPOCH + 14
++            self.fed.next = document(held_job("job-a"))
++            session.read()
++            self.assertNotIn("STALE", self.text(session))
++            self.assertIn("observed " + NOW + " (14s old)", self.painted(session).lines[1])
++            self.clocks.wall = EPOCH + 15
++            said = self.painted(session).lines[1]
++            self.assertEqual(said, "!! STALE observed 15s ago; observed " + NOW)
++            later = (datetime.datetime.fromtimestamp(EPOCH + 15, datetime.timezone.utc)
++                     .isoformat(timespec="milliseconds").replace("+00:00", "Z"))
++            self.fed.next = document(held_job("job-a"), observed_at=later)
++            session.read()
++            self.assertNotIn("STALE", self.text(session))
++        # Reading the same old observation again does not make it fresh.
++        self.clocks.wall = EPOCH + 600
++        session.read()
++        self.assertIn("!! STALE", self.painted(session).lines[1])
++        self.assertEqual(job_observation.STALE_SECONDS, 15.0)
++
++    def test_case_08_a_failed_read_says_why_and_keeps_the_last_good_content(self):
++        good = document(held_job("job-a"))
++        malformed = document(held_job("job-a"))
++        malformed["jobs"].append("not a Job")
++        unknown = document(held_job("job-a"), schema="baton.v12.job-status/999")
++        failures = (FileNotFoundError(2, "No such file or directory"),
++                    b'{"schema": "baton.v12.job-status/9", "jobs": [',
++                    b" " * (job_viewer.MAX_SNAPSHOT_BYTES + 1),
++                    json.dumps(unknown).encode(), json.dumps(malformed).encode())
++        for failure in failures:
++            with self.subTest(failure=repr(failure)[:40]):
++                session = self.session(good)
++                session.read()
++                kept = self.painted(session).lines[3:6]
++                self.clocks.advance(7)
++                self.fed.next = failure
++                session.read()
++                painted = self.painted(session, columns=260)
++                self.assertEqual(painted.lines[1], "!! DISCONNECTED last read 7s ago; observed " + NOW + "; "
++                                 + str(session.snapshot.failure))
++                self.assertTrue(str(session.snapshot.failure))
++                # on a narrow terminal the cause is what is cut, never the ages
++                self.assertTrue(self.painted(session, columns=60).lines[1].startswith(
++                    "!! DISCONNECTED last read 7s ago; observed 2026-11-26T12:00"))
++                self.assertEqual(self.painted(session).lines[3:6], kept)
++                session.key("open")
++                self.assertTrue(self.painted(session).lines[1].startswith("!! DISCONNECTED "))
++                self.fed.next = good
++                session.read()
++                self.assertNotIn("DISCONNECTED", self.text(session))
++
++    def test_case_09_no_status_file_at_start_says_not_read_yet_and_stays_up(self):
++        session = self.session(FileNotFoundError(2, "No such file or directory"))
++        first = self.painted(session)
++        self.assertEqual(first.lines[1], "not read yet")
++        self.assertIn("0 Jobs · 0 need a decision", first.lines[0])
++        self.assertIn("no snapshot has been read", "\n".join(first.lines))
++        session.read()
++        said = self.painted(session).lines[1]
++        self.assertTrue(said.startswith("not read yet"), said)
++        self.assertIn("FileNotFoundError", said)
++        for key in ("down", "open", "back", "next", "read"):
++            session.key(key)
++        self.assertFalse(session.state.quit)
++        self.fed.next = document(held_job("job-a"))
++        session.read()
++        self.assertIn("job-a", self.text(session))
++
++
++class Keys(Case):
++    def test_case_10_every_key_at_the_top_middle_and_bottom_and_unknown_keys(self):
++        jobs = [queued_job("job-a"), held_job("job-b"), queued_job("job-c"), held_job("job-d"), queued_job("job-e")]
++        session = self.session(document(*jobs))
++        session.read()
++        self.assertEqual(session.state.job_id, "job-a")
++        moves = (("up", "job-a"), ("down", "job-b"), ("down", "job-c"), ("end", "job-e"), ("down", "job-e"),
++                 ("up", "job-d"), ("home", "job-a"), ("pgdn", "job-e"), ("pgup", "job-a"))
++        for key, expected in moves:
++            session.key(key)
++            self.assertEqual(session.state.job_id, expected, key)
++        # n: the next Job needing a decision, in snapshot order, wrapping once
++        for expected in ("job-b", "job-d", "job-b"):
++            session.key("next")
++            self.assertEqual(session.state.job_id, expected)
++        before = session.state
++        for unknown in (None, "x", "tab", 7):
++            self.assertEqual(session.key(unknown), before)
++        self.assertEqual(session.key("back"), before)             # nowhere to go back to on the list
++        session.key("open")
++        self.assertEqual((session.state.screen, session.state.stage_id), ("detail", "job-b/implementation"))
++        for key, expected in (("up", "job-b/implementation"), ("down", "job-b/review"), ("down", "job-b/review"),
++                              ("home", "job-b/implementation"), ("end", "job-b/review")):
++            session.key(key)
++            self.assertEqual(session.state.stage_id, expected, key)
++        held = session.state
++        self.assertEqual(session.key("next"), held)               # n belongs to the list
++        session.key("back")
++        self.assertEqual((session.state.screen, session.state.job_id), ("list", "job-b"))
++        reads = self.fed.reads
++        session.key("read")
++        self.assertEqual(self.fed.reads, reads + 1)
++        # n with one, and with none
++        one = self.session(document(queued_job("job-a"), held_job("job-b")))
++        one.read()
++        for _ in range(2):
++            one.key("next")
++            self.assertEqual(one.state.job_id, "job-b")
++        none = self.session(document(queued_job("job-a"), queued_job("job-b")))
++        none.read()
++        self.assertEqual(none.key("next").job_id, "job-a")
++        self.assertTrue(session.key("quit").quit)
++        # the terminal's key codes
++        import curses
++        for code, name in ((curses.KEY_UP, "up"), (ord("k"), "up"), (curses.KEY_DOWN, "down"), (ord("j"), "down"),
++                           (curses.KEY_PPAGE, "pgup"), (curses.KEY_NPAGE, "pgdn"), (curses.KEY_HOME, "home"),
++                           (curses.KEY_END, "end"), (10, "open"), (curses.KEY_ENTER, "open"), (curses.KEY_RIGHT, "open"),
++                           (27, "back"), (curses.KEY_LEFT, "back"), (curses.KEY_BACKSPACE, "back"), (127, "back"),
++                           (ord("n"), "next"), (ord("r"), "read"), (ord("q"), "quit"), (3, "quit"),
++                           (ord("x"), None), (curses.KEY_F1, None), (-1, None)):
++            self.assertEqual(job_tui.key_name(code, curses), name, code)
++
++    def test_case_11_narrow_wide_long_and_resized_terminals_keep_the_selection(self):
++        long_reason = held_job("job-" + "x" * 70)
++        jobs = [queued_job("job-%02d" % index) for index in range(40)] + [long_reason]
++        session = self.session(document(*jobs))
++        session.read()
++        for _ in range(25):
++            session.key("down")
++        self.assertEqual(session.state.job_id, "job-25")
++        for rows, columns in ((24, 60), (12, 200), (9, 61), (40, 100), (8, 60)):
++            painted = self.painted(session, rows, columns)
++            self.assertEqual(len(painted.lines), rows)
++            self.assertTrue(all(len(line) <= columns for line in painted.lines), (rows, columns))
++            self.assertTrue(painted.lines[painted.selected].startswith("> job-25 "), (rows, columns))
++            self.assertEqual(session.state.job_id, "job-25")
++        session.key("end")
++        narrow = self.painted(session, 24, 60)
++        self.assertTrue(narrow.lines[narrow.selected].endswith("…"))
++        self.assertTrue(narrow.lines[narrow.selected + 1].endswith("…"))      # the reason is cut, not wrapped
++        self.assertEqual(len(narrow.lines[narrow.selected + 1]), 60)
++        # the offset moves only when it has to
++        session.key("home")
++        top = self.painted(session, 12, 100).state.job_top
++        session.key("down")
++        self.assertEqual(self.painted(session, 12, 100).state.job_top, top)
++        small = self.painted(session, 7, 100)
++        self.assertEqual(small.lines[0], "terminal too small: needs 60x8")
++        self.assertIsNone(small.selected)
++        self.assertTrue(self.painted(session, 24, 59).lines[0].startswith("terminal too small"))
++        self.assertTrue(self.selected_line(session, 24, 100).startswith("> job-01 "))
++
++
++def _terminal():
++    """The first terminal description that loads, or a failure -- never a skip."""
++    for name in ("xterm", "vt100", "linux", "ansi"):
++        done = subprocess.run([sys.executable, "-c", "import curses,sys;curses.setupterm(sys.argv[1],1)", name],
++                              stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
++        if done.returncode == 0:
++            return name
++    raise AssertionError("no terminal description loads for xterm, vt100, linux or ansi; "
++                         "the clean-exit cases cannot run here and are not skipped")
++
++
++def _environment(term=None):
++    held = {"PATH": "/usr/bin:/bin", "PYTHONPATH": "src:.", "PYTHONDONTWRITEBYTECODE": "1", "LANG": "C.UTF-8"}
++    if term:
++        held["TERM"] = term
++    return held
++
++
++class TheRealProgram(unittest.TestCase):
++    def setUp(self):
++        self._room = tempfile.TemporaryDirectory(prefix="v12-job-tui-")
++        self.addCleanup(self._room.cleanup)
++        self.status = os.path.join(self._room.name, "status.json")
++        with open(self.status, "w") as stream:
++            json.dump(document(held_job()), stream)
++
++    def under_a_terminal(self, *, send=None, sign=None):
++        term = _terminal()
++        master, slave = pty.openpty()
++        self.addCleanup(lambda: [os.close(fd) for fd in (master, slave) if _open(fd)])
++        before = termios.tcgetattr(slave)
++
++        def controlling():
++            os.setsid()
++            import fcntl
++            fcntl.ioctl(0, termios.TIOCSCTTY, 0)
++
++        child = subprocess.Popen([sys.executable, "-B", "-m", "tools.job_tui", "--status", self.status],
++                                 stdin=slave, stdout=slave, stderr=slave, cwd=str(_PYTHON),
++                                 env=_environment(term), preexec_fn=controlling)
++        drawn, deadline = b"", time.monotonic() + 20
++        while b"DECISION NEEDED" not in drawn and time.monotonic() < deadline:
++            if select.select([master], [], [], 0.2)[0]:
++                try:
++                    drawn += os.read(master, 65536)
++                except OSError:
++                    break
++        self.assertIn(b"DECISION NEEDED", drawn, "the program never drew the Job list")
++        self.assertIn(b"job-w385263-a1", drawn)
++        if send is not None:
++            os.write(master, send)
++        if sign is not None:
++            child.send_signal(sign)
++        deadline = time.monotonic() + 20
++        while child.poll() is None and time.monotonic() < deadline:
++            if select.select([master], [], [], 0.05)[0]:
++                try:
++                    os.read(master, 65536)
++                except OSError:
++                    pass
++        if child.poll() is None:
++            child.kill()
++            child.wait()
++            self.fail("the program did not exit")
++        self.assertEqual(termios.tcgetattr(slave), before, "terminal attributes were not restored")
++        with self.assertRaises(ProcessLookupError):                 # no child of its own is left behind
++            os.killpg(child.pid, 0)
++        return child.returncode
++
++    def test_case_12_q_ctrl_c_and_sigterm_restore_the_terminal_and_leave_nothing(self):
++        self.assertEqual(self.under_a_terminal(send=b"q"), 0)
++        self.assertEqual(self.under_a_terminal(send=b"\x03"), 0)
++        self.assertEqual(self.under_a_terminal(sign=signal.SIGTERM), 128 + signal.SIGTERM)
++
++    def test_case_14_without_a_terminal_it_refuses_with_exit_2_and_draws_nothing(self):
++        done = subprocess.run([sys.executable, "-B", "-m", "tools.job_tui", "--status", self.status],
++                              stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60,
++                              cwd=str(_PYTHON), env=_environment())
++        self.assertEqual(done.returncode, 2, done.stderr)
++        self.assertEqual(done.stdout, "")
++        self.assertIn("refused: the TUI needs a terminal", done.stderr)
++        self.assertIn("monitor", done.stderr)
++
++
++def _open(fd):
++    try:
++        os.fstat(fd)
++        return True
++    except OSError:
++        return False
++
++
++class ItOnlyReads(Case):
++    def test_case_13_a_whole_session_opens_only_the_status_file_read_only(self):
++        with tempfile.TemporaryDirectory(prefix="v12-job-tui-") as room:
++            status = os.path.join(room, "status.json")
++            with open(status, "w") as stream:
++                json.dump(document(held_job("job-a"), queued_job("job-b")), stream)
++
++            def whole_session():
++                clocks = Clocks()
++                session = job_tui.Session(job_tui.source_from(status), clock=lambda: clocks.now, wall=lambda: clocks.wall)
++                for key in ("read", "down", "open", "down", "read", "back", "next", "up", "read"):
++                    session.key(key)
++                    session.frame(24, 100)
++                    clocks.advance(6)
++                    if session.due():
++                        session.read()
++                return session
++
++            whole_session()                     # once unobserved, so lazy imports are not mistaken for reads
++            events, watching = [], [True]
++
++            def audit(event, args):
++                if watching[0] and event in ("open", "sqlite3.connect", "subprocess.Popen", "os.remove",
++                                             "os.rename", "os.mkdir", "os.rmdir", "socket.connect", "os.truncate"):
++                    events.append((event, args))
++
++            sys.addaudithook(audit)
++            before = sorted(os.listdir(room))
++            try:
++                session = whole_session()
++            finally:
++                watching[0] = False
++            self.assertGreaterEqual(len(events), 3)
++            for event, args in events:
++                self.assertEqual(event, "open", (event, args))
++                self.assertIsInstance(args[0], str, args)
++                self.assertEqual(args[0], status)
++                flags = args[2] if len(args) > 2 and isinstance(args[2], int) else os.O_RDONLY
++                self.assertEqual(flags & (os.O_WRONLY | os.O_RDWR | os.O_CREAT | os.O_TRUNC | os.O_APPEND), 0, args)
++            self.assertEqual(sorted(os.listdir(room)), before)
++            self.assertEqual(session.state.screen, "list")
++
++
++class WhatItIsBuiltOn(Case):
++    def test_case_15_manual_jobs_show_the_read_models_labelled_headline_and_counts(self):
++        opened = queued_job("study-open")
++        opened.update(mode="MANUAL", lifecycle="open", budget={"charged_seconds": 3, "limit_seconds": 60})
++        opened["stages"][0].update(kind="research", selected_at=None)
++        closed = queued_job("study-closed")
++        closed.update(mode="MANUAL", lifecycle="closed", closed_at=NOW)
++        closed["stages"][0].update(kind="research", selected_at=None)
++        doc = document(opened, closed, schema=stack.MANUAL_STATUS_SCHEMA)
++        session = self.session(doc)
++        session.read()
++        text = self.text(session, columns=120)
++        for job_id in ("study-open", "study-closed"):
++            view = seen(doc, job_id)
++            self.assertTrue(view["labelled_headline"].startswith("MANUAL"), view["labelled_headline"])
++            self.assertIn(view["labelled_headline"], text)
++        self.assertIn("    " + seen(doc, "study-closed")["headline_reason"], text)
++        self.assertIn("never selected", seen(doc, "study-closed")["headline_reason"])
++        session.key("down")
++        session.key("open")
++        detail = self.painted(session, columns=120).lines
++        self.assertEqual(detail[0], "study-closed   " + seen(doc, "study-closed")["labelled_headline"])
++        self.assertIn(seen(doc, "study-closed")["summary"], detail[3])
++
++    def test_case_16_it_edits_nothing_it_is_built_on_and_is_reachable_beside_monitor(self):
++        source = (_PYTHON / "tools" / "job_tui.py").read_text()
++        for private in ("job_viewer._", "job_observation._", "sqlite3", "subprocess", "socket"):
++            self.assertNotIn(private, source, private)
++        for name in ("job_view", "job_age"):
++            self.assertIn("job_observation." + name, source)
++        self.assertIn("tui", stack_command.COMMANDS)
++        self.assertIn("monitor", stack_command.COMMANDS)
++        from unittest import mock
++        with mock.patch.object(job_tui, "main", return_value=0) as entered:
++            self.assertEqual(stack.main(["--root", "/srv/state", "tui", "--interval", "2"]), 0)
++        entered.assert_called_once_with(["--status", str(stack.snapshot_path("/srv/state")), "--interval", "2.0"])
++        with mock.patch.object(stack, "main", return_value=0) as entered:
++            stack_command.COMMANDS["tui"](["--instance", "/srv/d/instance.json", "--interval", "9"])
++        entered.assert_called_once_with(["--instance", "/srv/d/instance.json", "tui", "--interval", "9"])
++
++    def test_case_17_a_review_held_for_its_report_shows_the_read_models_sentence(self):
++        job = held_job("job-a", hold=None)
++        job["stages"][0].update(state="completed", runtime={})
++        job["stages"][1].update(
++            state="answering", gates=[{"open": True, "stage_id": "job-a/implementation", "state": "completed"}],
++            allocation={"assignment_id": "attempt-review", "episode": 1},
++            attempt_diagnostics={"schema": "baton.v12.attempt-failure-cause/1", "attempt_id": "attempt-review",
++                                 "worker_declaration": {"review_report": {"known": True, "value": "missing"}}})
++        doc = document(job)
++        review = seen(doc, "job-a")["phases"][1]
++        self.assertEqual(review["reason"], "Review held: review report missing")
++        session = self.session(doc)
++        session.read()
++        session.key("open")
++        session.key("down")
++        lines = self.painted(session, columns=120).lines
++        at = lines.index("> " + review["role"].ljust(15) + " " + review["position"])
++        self.assertEqual(lines[at + 1].strip(), review["reason"])
++
++
++if __name__ == "__main__":                                  # pragma: no cover
++    unittest.main()
+diff -ruN '--exclude=__pycache__' pin/v12/python/tests/tools/test_work_command.py cand/v12/python/tests/tools/test_work_command.py
+--- a/v12/python/tests/tools/test_work_command.py	2026-11-25 20:02:25.000000000 -0700
++++ b/v12/python/tests/tools/test_work_command.py	2026-11-25 20:48:27.949009610 -0700
+@@ -148,7 +148,8 @@
+ 
+     def test_the_existing_subcommands_are_untouched_and_work_is_additive(self):
+         """The change to this table is ONE new name and nothing else."""
+-        self.assertEqual(set(stack_command.COMMANDS) - {"work"}, BEFORE)
++        # W386308 added `tui`, the read-only terminal interface beside `monitor`.
++        self.assertEqual(set(stack_command.COMMANDS) - {"work", "tui"}, BEFORE)
+ 
+     def test_the_four_verbs_are_the_whole_surface(self):
+         self.assertEqual(sorted(work_command.VERBS),
+diff -ruN '--exclude=__pycache__' pin/v12/python/tools/job_tui.py cand/v12/python/tools/job_tui.py
+--- a/v12/python/tools/job_tui.py	1969-12-31 17:00:00.000000000 -0700
++++ b/v12/python/tools/job_tui.py	2026-11-25 20:48:27.951178761 -0700
+@@ -0,0 +1,504 @@
++"""W386308 -- the read-only terminal interface for watching v12 Jobs, first slice.
++
++ONE PROGRAM, TWO SCREENS. A compact list of the Jobs in one instance's
++published snapshot and, for a selected Job, its phases. It refreshes in place,
++keeps the selection, says when what it shows is stale or unreadable, and exits
++without touching execution.
++
++IT ADDS NO SOURCE OF TRUTH AND NO WORDS (DESIGN OBS-1, OBS-2). The only input is
++the status file `monitor` reads. The bounded read, the last-good retention and
++the DISCONNECTED state are `job_viewer.JobViewer`'s; every headline, reason,
++position and fact is the string `job_observation.job_view` returns. Nothing is
++re-derived here, and a value the read model gives as `unknown` is shown as
++`unknown`. No store, engine, network, child process, log or cache file.
++
++THE TERMINAL IS THE THIN PART. `settle`, `step` and `frame` are pure: a state
++value, a key name and a snapshot go in; a state value and text lines come out.
++`Session` joins them to the viewer. `run` is the only code that touches
++`curses`, and all it does is read keys, call those and paint.
++
++SELECTION IS AN IDENTITY, NEVER A ROW NUMBER: a `job_id` in the list and a
++`stage_id` in the detail. A selected Job or phase that is not in the current
++snapshot is shown as one line saying so, and stays selected until the operator
++moves; old content is never shown as current.
++"""
++import argparse
++import dataclasses
++import os
++import signal
++import sys
++import time
++
++from tools import job_observation, job_viewer
++
++__all__ = ["MIN_ROWS", "MIN_COLUMNS", "INTERVAL_SECONDS", "DECISION_NEEDED",
++           "ABSENT", "State", "View", "Frame", "Session", "view_of", "settle",
++           "step", "frame", "key_name", "main"]
++
++# Below this the two screens cannot say anything useful; the program says so
++# on one line and redraws when the terminal grows.
++MIN_ROWS = 8
++MIN_COLUMNS = 60
++
++# `monitor`'s own default cadence (`tools.stack`): one read per interval.
++INTERVAL_SECONDS = 5.0
++
++# The one headline `n` looks for, as the read model spells it.
++DECISION_NEEDED = "DECISION NEEDED"
++ABSENT = " — not in the current snapshot"
++
++LIST, DETAIL = "list", "detail"
++
++LIST_KEYS = " ↑↓ select   Enter open   n next needing a decision   r read now   q quit"
++DETAIL_KEYS = " ↑↓ phase   Esc back   r read now   q quit"
++ABSENT_KEYS = " Esc back   r read now   q quit"
++
++
++@dataclasses.dataclass(frozen=True)
++class State:
++    """Everything the two screens remember between keys and refreshes."""
++
++    screen: str = LIST
++    job_id: object = None       # the selected Job's identity, or None before any
++    job_at: int = 0             # where it last sat, so a vanished one keeps its place
++    job_top: int = 0            # first body line shown on the list
++    stage_id: object = None     # the selected phase's identity on the detail screen
++    stage_at: int = 0
++    stage_top: int = 0
++    quit: bool = False
++
++
++@dataclasses.dataclass(frozen=True)
++class View:
++    """The read model's answer for one snapshot: Jobs in the snapshot's own order."""
++
++    jobs: tuple = ()            # ((job_id, job_view dict, job document), ...)
++
++    def ids(self):
++        return [one[0] for one in self.jobs]
++
++    def job(self, job_id):
++        for one in self.jobs:
++            if one[0] == job_id:
++                return one
++        return None
++
++    def stages(self, job_id):
++        held = self.job(job_id)
++        return [] if held is None else [phase["stage_id"] for phase in held[1]["phases"]]
++
++
++@dataclasses.dataclass(frozen=True)
++class Frame:
++    lines: tuple                # exactly `rows` lines, each at most `columns` wide
++    selected: object            # index into `lines` of the selected row, or None
++    state: State                # the state with its scroll offset as painted
++
++
++def view_of(snapshot):
++    """Every word comes from `job_view`; this only pairs it with the Job's identity."""
++    jobs = []
++    for job in snapshot.jobs():
++        if not isinstance(job, dict):
++            continue
++        jobs.append((job.get("job_id"), job_observation.job_view(snapshot.document, job), job))
++    return View(tuple(jobs))
++
++
++def _entries(present, selected, at):
++    """The rows of one screen: the present identities, plus the selected one
++    where it last sat when the snapshot no longer has it."""
++    rows = list(present)
++    if selected is not None and selected not in rows:
++        rows.insert(max(0, min(at, len(rows))), selected)
++    return rows
++
++
++def settle(state, view):
++    """After a refresh: the same identities stay selected, wherever they now sit."""
++    ids = view.ids()
++    job_id, job_at = state.job_id, state.job_at
++    if job_id is None and ids:
++        job_id = ids[0]
++    if job_id in ids:
++        job_at = ids.index(job_id)
++    stage_id, stage_at = state.stage_id, state.stage_at
++    if state.screen == DETAIL:
++        stages = view.stages(job_id)
++        if stage_id is None and stages:
++            stage_id = stages[0]
++        if stage_id in stages:
++            stage_at = stages.index(stage_id)
++    return dataclasses.replace(state, job_id=job_id, job_at=job_at,
++                               stage_id=stage_id, stage_at=stage_at)
++
++
++def _moved(present, selected, at, key, page):
++    """The identity `key` moves to. Stops at the first and last row; a selected
++    identity that vanished gives way to a neighbour that is really there."""
++    rows = _entries(present, selected, at)
++    if not rows:
++        return selected, at
++    here = rows.index(selected) if selected in rows else 0
++    there = {"up": here - 1, "down": here + 1, "pgup": here - page,
++             "pgdn": here + page, "home": 0, "end": len(rows) - 1}[key]
++    there = max(0, min(there, len(rows) - 1))
++    if rows[there] not in present and present:
++        # Only the vanished row itself can be absent, and it was selected:
++        # the nearest row that exists takes its place.
++        beside = [index for index in range(len(rows)) if rows[index] in present]
++        there = min(beside, key=lambda index: (abs(index - there), index))
++    chosen = rows[there]
++    return chosen, (present.index(chosen) if chosen in present else at)
++
++
++def step(state, key, view, *, page=10):
++    """One key. Unknown keys, and keys with nowhere to go, change nothing.
++
++    `read` is not handled here: a read is the session's act, not a movement.
++    """
++    state = settle(state, view)
++    if key == "quit":
++        return dataclasses.replace(state, quit=True)
++    ids = view.ids()
++    if state.screen == LIST:
++        if key in ("up", "down", "pgup", "pgdn", "home", "end"):
++            job_id, job_at = _moved(ids, state.job_id, state.job_at, key, max(1, page))
++            return dataclasses.replace(state, job_id=job_id, job_at=job_at)
++        if key == "next":
++            waiting = [one[0] for one in view.jobs if one[1]["headline"] == DECISION_NEEDED]
++            if not waiting:
++                return state
++            here = ids.index(state.job_id) if state.job_id in ids else state.job_at - 1
++            after = [job_id for job_id in ids[here + 1:] if job_id in waiting]
++            chosen = after[0] if after else waiting[0]      # one wrap to the top
++            return dataclasses.replace(state, job_id=chosen, job_at=ids.index(chosen))
++        if key == "open" and state.job_id is not None:
++            return settle(dataclasses.replace(state, screen=DETAIL, stage_id=None,
++                                              stage_at=0, stage_top=0), view)
++        return state
++    if key == "back":
++        return dataclasses.replace(state, screen=LIST, stage_id=None, stage_at=0, stage_top=0)
++    if key in ("up", "down", "pgup", "pgdn", "home", "end"):
++        stage_id, stage_at = _moved(view.stages(state.job_id), state.stage_id,
++                                    state.stage_at, key, max(1, page))
++        return dataclasses.replace(state, stage_id=stage_id, stage_at=stage_at)
++    return state
++
++
++def _age(seconds):
++    if seconds is None:
++        return "an unknown time"
++    seconds = max(0, int(seconds))
++    if seconds < 60:
++        return str(seconds) + "s"
++    if seconds < 3600:
++        return "%dm%02ds" % divmod(seconds, 60)
++    return "%dh%02dm" % divmod(seconds // 60, 60)
++
++
++def _cut(text, columns):
++    """One fact per line: a long line is cut with an ellipsis, never wrapped."""
++    text = str(text).replace("\n", " ")
++    return text if len(text) <= columns else text[:max(0, columns - 1)] + "…"
++
++
++def banner(snapshot, now, wall_now):
++    """How old this reading is, by the shared fifteen-second rule."""
++    if snapshot.document is None:
++        if snapshot.failure in (None, "not read yet"):
++            return "not read yet"
++        return "not read yet: " + str(snapshot.failure)
++    observed = str(snapshot.observed_at or job_viewer.UNKNOWN)
++    if not snapshot.connected:
++        # The ages first: a long cause is what gets cut on a narrow terminal.
++        return ("!! DISCONNECTED last read " + _age(snapshot.age_seconds(now)) + " ago; observed "
++                + observed + "; " + str(snapshot.failure or "the last read failed"))
++    age = snapshot.observation_age(wall_now)
++    if snapshot.stale(now, wall_now=wall_now):
++        return "!! STALE observed " + _age(age) + " ago; observed " + observed
++    return "observed " + observed + " (" + _age(age) + " old)"
++
++
++def _window(blocks, selected, top, height):
++    """Lay blocks of lines out in `height` rows, keeping the selected block whole
++    and on screen; the offset moves only when it has to."""
++    lines, owner, first, last = [], [], None, None
++    for index, block in enumerate(blocks):
++        if index == selected:
++            first, last = len(lines), len(lines) + len(block) - 1
++        for line in block:
++            lines.append(line)
++            owner.append(index)
++    top = max(0, min(top, max(0, len(lines) - height)))
++    if first is not None:
++        if first < top:
++            top = first
++        elif last >= top + height:
++            top = max(first - max(0, height - (last - first + 1)), last - height + 1)
++            top = min(top, first)
++    shown = lines[top:top + height]
++    return shown, (first - top if first is not None and top <= first < top + height else None), top
++
++
++def _list_blocks(state, view, columns):
++    blocks, selected = [], None
++    present = {one[0]: one for one in view.jobs}
++    for index, job_id in enumerate(_entries(view.ids(), state.job_id, state.job_at)):
++        mark = "> " if job_id == state.job_id else "  "
++        if job_id == state.job_id:
++            selected = index
++        held = present.get(job_id)
++        if held is None:
++            blocks.append([_cut(mark + str(job_id) + ABSENT, columns)])
++            continue
++        seen = held[1]
++        name, headline = str(job_id), seen["labelled_headline"]
++        gap = max(3, columns - len(mark) - len(name) - len(headline))
++        block = [_cut(mark + name + " " * gap + headline, columns)]
++        if seen["headline_reason"]:
++            block.append(_cut("    " + seen["headline_reason"], columns))
++        blocks.append(block)
++    return blocks, selected
++
++
++def _phase_block(phase, chosen, columns):
++    mark = "> " if chosen else "  "
++    block = [_cut(mark + str(phase["role"]).ljust(15) + " " + str(phase["position"]), columns)]
++    if phase["reason"]:
++        block.append(_cut("      " + str(phase["reason"]), columns))
++    if not chosen:
++        return block
++    if phase["attempt_count"]:
++        block.append(_cut("      attempt " + str(phase["episode"]) + " " + str(phase["attempt_id"]), columns))
++    for fact in phase["facts"]:
++        block.append(_cut("      " + str(fact), columns))
++    block.append(_cut("      " + str(phase["duration"]) + " · " + str(phase["timeout"])
++                      + " · activity " + str(phase["activity"])
++                      + " · operation " + str(phase["operation"]), columns))
++    if phase["model_attribution"]:
++        block.append(_cut("      " + str(phase["model_attribution"]), columns))
++    return block
++
++
++def frame(state, snapshot, now, wall_now, rows, columns):
++    """The whole screen as text. Pure: the same inputs paint the same lines."""
++    if rows < MIN_ROWS or columns < MIN_COLUMNS:
++        said = _cut("terminal too small: needs %dx%d" % (MIN_COLUMNS, MIN_ROWS), max(1, columns))
++        return Frame(tuple([said] + [""] * max(0, rows - 1))[:max(1, rows)], None, state)
++    view = view_of(snapshot)
++    state = settle(state, view)
++    said = banner(snapshot, now, wall_now)
++    if state.screen == LIST:
++        waiting = sum(1 for one in view.jobs if one[1]["headline"] == DECISION_NEEDED)
++        count = len(view.jobs)
++        head = [_cut("Baton v12 Jobs   %d Job%s · %d need%s a decision"
++                     % (count, "" if count == 1 else "s", waiting, "s" if waiting == 1 else ""), columns),
++                _cut(said, columns), ""]
++        blocks, selected = _list_blocks(state, view, columns)
++        if not blocks:
++            blocks = [["  no Jobs in this snapshot" if snapshot.document is not None
++                       else "  no snapshot has been read"]]
++        body, at, top = _window(blocks, selected, state.job_top, rows - len(head) - 1)
++        state = dataclasses.replace(state, job_top=top)
++        keys = LIST_KEYS
++    else:
++        held = view.job(state.job_id)
++        if held is None:
++            head = [_cut(str(state.job_id) + ABSENT, columns), _cut(said, columns), ""]
++            body, at, top, keys = [], None, 0, ABSENT_KEYS
++        else:
++            seen, job = held[1], held[2]
++            head = [_cut(str(state.job_id) + "   " + seen["labelled_headline"], columns),
++                    _cut(said, columns)]
++            if seen["headline_reason"]:
++                head.append(_cut("  " + seen["headline_reason"], columns))
++            head.append(_cut("  " + seen["summary"] + " · Job age "
++                             + job_observation.job_age(job, snapshot.observed_at), columns))
++            head.append("")
++            phases = {phase["stage_id"]: phase for phase in seen["phases"]}
++            blocks, selected = [], None
++            for index, stage_id in enumerate(_entries(list(phases), state.stage_id, state.stage_at)):
++                if stage_id == state.stage_id:
++                    selected = index
++                if stage_id in phases:
++                    blocks.append(_phase_block(phases[stage_id], stage_id == state.stage_id, columns))
++                else:
++                    blocks.append([_cut("> " + str(stage_id) + ABSENT, columns)])
++            if not blocks:
++                blocks = [["  this Job publishes no phases"]]
++            body, at, top = _window(blocks, selected, state.stage_top, rows - len(head) - 1)
++            keys = DETAIL_KEYS
++        state = dataclasses.replace(state, stage_top=top)
++    lines = head + body
++    lines += [""] * (rows - 1 - len(lines))
++    lines.append(_cut(keys, columns))
++    return Frame(tuple(lines[:rows]), (len(head) + at if at is not None else None), state)
++
++
++class Session:
++    """The pure parts joined to the bounded reader. Still no terminal."""
++
++    def __init__(self, source, *, clock=time.monotonic, wall=time.time, interval=INTERVAL_SECONDS):
++        self.interval = job_viewer.checked_interval(interval)
++        self.viewer = job_viewer.JobViewer(source, clock=clock, wall=wall, interval=self.interval,
++                                           sleeper=lambda seconds: None)
++        self.clock, self.wall = clock, wall
++        self.state = State()
++        self.read_at = None
++
++    @property
++    def snapshot(self):
++        return self.viewer.snapshot
++
++    def read(self):
++        """One read of the snapshot. Never an act."""
++        self.viewer.refresh()
++        self.read_at = self.clock()
++        self.state = settle(self.state, view_of(self.snapshot))
++
++    def due(self):
++        return self.read_at is None or self.clock() - self.read_at >= self.interval
++
++    def key(self, name, *, page=10):
++        if name == "read":
++            self.read()
++        elif name is not None:
++            self.state = step(self.state, name, view_of(self.snapshot), page=page)
++        return self.state
++
++    def frame(self, rows, columns):
++        painted = frame(self.state, self.snapshot, self.clock(), self.wall(), rows, columns)
++        self.state = painted.state
++        return painted
++
++
++def source_from(place):
++    """The status file, opened read-only and read to the viewer's own bound."""
++    class PublishedBytes(bytes):
++        pass
++
++    def read():
++        with open(place, "rb") as handle:
++            taken = PublishedBytes(handle.read(job_viewer.MAX_SNAPSHOT_BYTES + 1))
++            taken.published_at = os.fstat(handle.fileno()).st_mtime
++            return taken
++    return read
++
++
++_NAMED = {"k": "up", "j": "down", "g": "home", "G": "end", "n": "next", "r": "read",
++          "q": "quit", "\n": "open", "\r": "open", "l": "open", "h": "back",
++          "\x1b": "back", "\x7f": "back", "\x08": "back", "\x03": "quit"}
++
++
++def key_name(code, curses=None):
++    """A terminal key code as one of this program's key names, or None."""
++    if curses is not None:
++        special = {curses.KEY_UP: "up", curses.KEY_DOWN: "down", curses.KEY_PPAGE: "pgup",
++                   curses.KEY_NPAGE: "pgdn", curses.KEY_HOME: "home", curses.KEY_END: "end",
++                   curses.KEY_ENTER: "open", curses.KEY_RIGHT: "open", curses.KEY_LEFT: "back",
++                   curses.KEY_BACKSPACE: "back"}
++        if code in special:
++            return special[code]
++    if isinstance(code, int) and 0 <= code < 256:
++        return _NAMED.get(chr(code))
++    return None
++
++
++class _Signalled(Exception):
++    def __init__(self, number):
++        super().__init__(number)
++        self.number = number
++
++
++def run(place, *, interval=INTERVAL_SECONDS):
++    """The curses loop: read keys, call the pure parts, paint. Returns the exit code."""
++    import curses
++
++    session = Session(source_from(place), interval=interval)
++
++    def signalled(number, _frame):
++        raise _Signalled(number)
++
++    previous = {number: signal.signal(number, signalled)
++                for number in (signal.SIGTERM, signal.SIGHUP)}
++    screen = None
++    try:
++        screen = curses.initscr()
++        curses.noecho()
++        curses.cbreak()
++        screen.keypad(True)
++        try:
++            curses.curs_set(0)
++        except curses.error:
++            pass
++        screen.timeout(200)
++        shown = None
++        while not session.state.quit:
++            if session.due():
++                session.read()
++            rows, columns = screen.getmaxyx()
++            painted = session.frame(rows, columns - 1)
++            if (painted.lines, painted.selected) != shown:
++                screen.erase()
++                for row, line in enumerate(painted.lines):
++                    try:
++                        screen.addnstr(row, 0, line, columns - 1,
++                                       curses.A_REVERSE if row == painted.selected else curses.A_NORMAL)
++                    except curses.error:
++                        pass
++                screen.refresh()
++                shown = (painted.lines, painted.selected)
++            code = screen.getch()
++            if code in (-1, curses.KEY_RESIZE):
++                continue
++            session.key(key_name(code, curses), page=max(1, rows - 6))
++        return 0
++    except KeyboardInterrupt:
++        return 0
++    except _Signalled as ended:
++        return 128 + ended.number
++    finally:
++        # THE TERMINAL IS RESTORED ON EVERY WAY OUT, before anything is said.
++        if screen is not None:
++            try:
++                screen.keypad(False)
++                curses.nocbreak()
++                curses.echo()
++                curses.endwin()
++            except curses.error:
++                pass
++        for number, handler in previous.items():
++            signal.signal(number, handler)
++
++
++def main(argv=None, *, stream=None):
++    parser = argparse.ArgumentParser(
++        prog="job_tui",
++        description="Read-only terminal interface over a v12 status snapshot. "
++                    "It reads the published document and performs no act; "
++                    "leaving it does not affect any Job.")
++    parser.add_argument("--status", required=True,
++                        help="path to the published status document, as `monitor` reads it")
++    parser.add_argument("--interval", type=float, default=INTERVAL_SECONDS,
++                        help="seconds between reads of the snapshot")
++    taken = parser.parse_args(argv)
++    stream = sys.stderr if stream is None else stream
++    try:
++        interval = job_viewer.checked_interval(taken.interval)
++    except job_viewer.ViewerRefusal as refusal:
++        print("refused: " + str(refusal), file=stream)
++        return 2
++    if not (sys.stdin.isatty() and sys.stdout.isatty()):
++        print("refused: the TUI needs a terminal on standard input and output; "
++              "use `monitor` for a plain-text view", file=stream)
++        return 2
++    try:
++        return run(taken.status, interval=interval)
++    except Exception as failure:                    # noqa: BLE001 -- reported after the terminal is restored
++        print("error: " + type(failure).__name__ + ": " + str(failure), file=stream)
++        return 1
++
++
++if __name__ == "__main__":                          # pragma: no cover
++    sys.exit(main())
+diff -ruN '--exclude=__pycache__' pin/v12/python/tools/parallel_test.py cand/v12/python/tools/parallel_test.py
+--- a/v12/python/tools/parallel_test.py	2026-11-25 20:02:25.000000000 -0700
++++ b/v12/python/tools/parallel_test.py	2026-11-25 20:48:27.949448202 -0700
+@@ -438,6 +438,10 @@
+     # The tests.tools package assigns this module to tools-pure.
+     "tests.tools.test_job_observation",
+     "tests.tools.test_job_viewer",
++    # W386308: pure screen functions over status documents, plus a child under
++    # a pseudo-terminal this module allocates itself; case-owned temporary
++    # files, no engine, provider, network or shared resource.
++    "tests.tools.test_job_tui",
+     "tests.tools.test_live_ab",
+     "tests.tools.test_managed_integration",
+     "tests.tools.test_managed_preparation",
+diff -ruN '--exclude=__pycache__' pin/v12/python/tools/stack_command.py cand/v12/python/tools/stack_command.py
+--- a/v12/python/tools/stack_command.py	2026-11-25 20:02:25.000000000 -0700
++++ b/v12/python/tools/stack_command.py	2026-11-25 20:48:27.950416033 -0700
+@@ -274,6 +274,9 @@
+     # `monitor` derives this instance's own snapshot, so an operator watching a
+     # deployment names the instance rather than a path inside it.
+     "monitor": _stack("monitor"),
++    # W386308: THE READ-ONLY TERMINAL INTERFACE over the same snapshot `monitor`
++    # derives; it reads and nothing else.
++    "tui": _stack("tui"),
+     # READ-ONLY, and part of the installed command because the question --
+     # "what is this deployment's repository, actually?" -- is asked of a
+     # deployment, from wherever it is installed.
+diff -ruN '--exclude=__pycache__' pin/v12/python/tools/stack.py cand/v12/python/tools/stack.py
+--- a/v12/python/tools/stack.py	2026-11-25 20:02:25.000000000 -0700
++++ b/v12/python/tools/stack.py	2026-11-25 20:48:27.949996884 -0700
+@@ -1323,6 +1323,18 @@
+                             "--ticks", str(ticks)] + (["--todo"] if todo else []), stream=stream)
+ 
+ 
++def tui(root, *, interval):
++    """W386308: the read-only terminal interface, over the same published snapshot.
++
++    Like `monitor` it reads and nothing else; leaving it does not stop
++    scheduling. Unlike `monitor` it does not need a snapshot to exist yet: it
++    starts by saying nothing has been read and keeps looking.
++    """
++    from tools import job_tui
++
++    return job_tui.main(["--status", str(snapshot_path(root)), "--interval", str(interval)])
++
++
+ def repository(document, *, stream=sys.stdout):
+     """What this instance's repository IS, read and nothing else.
+ 
+@@ -1458,6 +1470,9 @@
+                           help="seconds between refreshes")
+     watching.add_argument("--ticks", type=int, default=1000000,
+                           help="bounded refreshes; Ctrl-C is the way out")
++    terminal = commands.add_parser("tui")
++    terminal.add_argument("--interval", type=float, default=5.0,
++                          help="seconds between reads of the snapshot")
+     taken = parser.parse_args(argv)
+     environ = os.environ if environ is None else environ
+     try:
+@@ -1492,6 +1507,8 @@
+         if taken.command == "monitor":
+             return monitor(root, interval=taken.interval, ticks=taken.ticks,
+                            stream=stream, todo=taken.todo)
++        if taken.command == "tui":
++            return tui(root, interval=taken.interval)
+         return publish(root, environ=environ)
+     except StackRefusal as refusal:
+         print("refused: " + str(refusal), file=stream)

@@ -1,0 +1,318 @@
+diff -ruN '--exclude=__pycache__' cand/v12/python/tests/tools/test_job_tui.py cand2/v12/python/tests/tools/test_job_tui.py
+--- a/v12/python/tests/tools/test_job_tui.py	2026-11-25 20:48:27.950794897 -0700
++++ b/v12/python/tests/tools/test_job_tui.py	2026-11-25 21:03:21.533491512 -0700
+@@ -17,6 +17,7 @@
+ import pty
+ import select
+ import signal
++import struct
+ import subprocess
+ import sys
+ import tempfile
+@@ -255,6 +256,104 @@
+         self.assertEqual(session.state.stage_id, "job-a/implementation")
+ 
+ 
++def long_job(job_id="field-survey"):
++    """A finished research phase with more recorded facts than a short screen holds."""
++    def phase(name, attempt):
++        return {"stage_id": job_id + "/" + name, "kind": "research", "state": "completed", "episode": 1,
++                "attempt_id": attempt, "episodes": [{"episode": 1, "attempt_id": attempt}],
++                "allocations": [{"assignment_id": attempt, "episode": 1, "worker_id": "field-research"}],
++                "runtime": {"runtime_id": "runtime-" + name, "execution_runtime": "destroyed",
++                            "model_attribution": "Requested: field-fixture; attribution: matched"},
++                "artifacts": [{"output_name": "findings"}], "selected_at": NOW, "gates": [],
++                "result": {"attempt_id": attempt, "locator": "file:///retained/" + name + "/findings"}}
++    return {"job_id": job_id, "mode": "MANUAL", "lifecycle": "open",
++            "budget": {"charged_seconds": 29, "limit_seconds": 360},
++            "stages": [phase("guide", "attempt-guide"), phase("overview", "attempt-overview")]}
++
++
++class TheDetailOfALongPhase(Case):
++    """Review 2026-11-26T03-55-01Z [2]: a selected phase taller than the screen
++    showed only its first lines, and no key reached the rest."""
++
++    def setUp(self):
++        self.doc = document(long_job(), schema=stack.MANUAL_STATUS_SCHEMA)
++        self.view = seen(self.doc, "field-survey")
++        self.guide = self.view["phases"][0]
++        self.block = job_tui._phase_block(self.guide, True, 80)         # as painted at 80 columns
++        self.session = self.session(self.doc)
++        self.session.read()
++        self.session.key("open")
++
++    def shown(self, rows=8, columns=80):
++        return self.painted(self.session, rows, columns)
++
++    def test_case_06_the_last_fact_of_a_tall_phase_is_reachable_and_the_phase_stays_selected(self):
++        self.assertEqual(self.session.state.stage_id, "field-survey/guide")
++        first = self.shown()
++        height = 8 - (first.lines.index("") + 1) - 1     # the lines above the blank one, and the key line below
++        self.assertEqual(height, 2)
++        self.assertGreater(len(self.block), height)
++        last_fact, attribution = "      " + self.guide["facts"][-1], "      " + self.guide["model_attribution"]
++        self.assertNotIn(attribution, first.lines)
++        self.assertNotIn(last_fact, first.lines)
++        hidden = len(self.block) - height
++        self.assertEqual(first.lines[-1], job_tui.SCROLL_KEYS % (0, hidden))      # the hint is on screen
++        reached = set(first.lines)
++        for pressed in range(1, hidden + 1):
++            self.session.key("down")
++            painted = self.shown()
++            self.assertEqual(self.session.state.stage_id, "field-survey/guide", pressed)
++            self.assertEqual(painted.lines[painted.selected], self.block[0])    # its own first line stays selected
++            self.assertEqual(painted.lines[-1], job_tui.SCROLL_KEYS % (pressed, hidden - pressed))
++            reached.update(painted.lines)
++        for line in self.block:
++            self.assertIn(line, reached)                                           # every line was shown at some point
++        self.assertIn(last_fact, reached)
++        self.assertIn(attribution, self.shown().lines)                            # and the very last line is on screen now
++        # a refresh in the middle of it keeps both the phase and the place
++        self.fed.next = copy.deepcopy(self.doc)
++        self.session.read()
++        self.assertEqual((self.session.state.stage_id, self.session.state.stage_line), ("field-survey/guide", hidden))
++        self.assertIn(attribution, self.shown().lines)
++        # only now does ↓ leave the phase
++        self.session.key("down")
++        self.assertEqual(self.session.state.stage_id, "field-survey/overview")
++        self.assertEqual(self.shown().lines[-1], job_tui.SCROLL_KEYS % (0, hidden))
++        # ↑ returns to the phase above at its last lines, and on up to its first
++        self.session.key("up")
++        self.assertEqual((self.session.state.stage_id, self.session.state.stage_line), ("field-survey/guide", hidden))
++        for _ in range(hidden):
++            self.session.key("up")
++        self.assertEqual((self.session.state.stage_id, self.session.state.stage_line), ("field-survey/guide", 0))
++        self.assertEqual(self.shown().lines, first.lines)
++        self.session.key("up")                                                    # nothing above the first phase
++        self.assertEqual((self.session.state.stage_id, self.session.state.stage_line), ("field-survey/guide", 0))
++
++    def test_case_10_page_home_and_end_within_and_between_tall_phases(self):
++        first = self.shown()
++        hidden = len(self.block) - (8 - (first.lines.index("") + 1) - 1)
++        self.session.key("pgdn")
++        self.assertEqual((self.session.state.stage_id, self.session.state.stage_line), ("field-survey/guide", min(hidden, 10)))
++        self.session.key("pgup")
++        self.assertEqual((self.session.state.stage_id, self.session.state.stage_line), ("field-survey/guide", 0))
++        self.shown()
++        self.session.key("end")
++        self.assertEqual(self.session.state.stage_id, "field-survey/overview")
++        overview = "      " + self.view["phases"][1]["model_attribution"]
++        self.assertIn(overview, self.shown().lines)                               # End shows the last phase's last line
++        self.session.key("home")
++        self.assertEqual((self.session.state.stage_id, self.session.state.stage_line), ("field-survey/guide", 0))
++        self.session.key("end")
++        self.session.key("pgup")
++        self.assertEqual(self.session.state.stage_id, "field-survey/overview")
++        # on a screen that holds everything nothing scrolls and the plain hint is back
++        tall = self.shown(rows=40)
++        self.assertEqual(tall.lines[-1], job_tui.DETAIL_KEYS)
++        self.assertEqual(self.session.state.stage_line, 0)
++        for line in job_tui._phase_block(self.view["phases"][1], True, 80):
++            self.assertIn(line, tall.lines)
++
++
+ class Freshness(Case):
+     def test_case_07_stale_at_fifteen_seconds_on_both_screens_and_fresh_again(self):
+         session = self.session(document(held_job("job-a")))
+@@ -439,9 +538,12 @@
+         with open(self.status, "w") as stream:
+             json.dump(document(held_job()), stream)
+ 
+-    def under_a_terminal(self, *, send=None, sign=None):
++    def under_a_terminal(self, *, send=None, sign=None, size=None, expect=b"DECISION NEEDED"):
+         term = _terminal()
+         master, slave = pty.openpty()
++        if size is not None:
++            import fcntl
++            fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", size[0], size[1], 0, 0))
+         self.addCleanup(lambda: [os.close(fd) for fd in (master, slave) if _open(fd)])
+         before = termios.tcgetattr(slave)
+ 
+@@ -454,14 +556,14 @@
+                                  stdin=slave, stdout=slave, stderr=slave, cwd=str(_PYTHON),
+                                  env=_environment(term), preexec_fn=controlling)
+         drawn, deadline = b"", time.monotonic() + 20
+-        while b"DECISION NEEDED" not in drawn and time.monotonic() < deadline:
++        while expect not in drawn and time.monotonic() < deadline:
+             if select.select([master], [], [], 0.2)[0]:
+                 try:
+                     drawn += os.read(master, 65536)
+                 except OSError:
+                     break
+-        self.assertIn(b"DECISION NEEDED", drawn, "the program never drew the Job list")
+-        self.assertIn(b"job-w385263-a1", drawn)
++        self.assertIn(expect, drawn, "the program never drew what was expected")
++        self.drawn = drawn
+         if send is not None:
+             os.write(master, send)
+         if sign is not None:
+@@ -487,6 +589,16 @@
+         self.assertEqual(self.under_a_terminal(send=b"\x03"), 0)
+         self.assertEqual(self.under_a_terminal(sign=signal.SIGTERM), 128 + signal.SIGTERM)
+ 
++    def test_case_11_the_real_program_accepts_exactly_60_by_8_and_refuses_one_less(self):
++        """Review 2026-11-26T03-55-01Z [1]: the loop laid out one column short, so
++        a terminal of exactly the stated minimum was told it was too small."""
++        self.assertEqual(self.under_a_terminal(send=b"q", size=(job_tui.MIN_ROWS, job_tui.MIN_COLUMNS)), 0)
++        self.assertIn(b"job-w385263-a1", self.drawn)
++        self.assertNotIn(b"terminal too small", self.drawn)
++        for rows, columns in ((job_tui.MIN_ROWS, job_tui.MIN_COLUMNS - 1), (job_tui.MIN_ROWS - 1, job_tui.MIN_COLUMNS)):
++            self.assertEqual(self.under_a_terminal(send=b"q", size=(rows, columns), expect=b"terminal too small"), 0)
++            self.assertNotIn(b"DECISION NEEDED", self.drawn)
++
+     def test_case_14_without_a_terminal_it_refuses_with_exit_2_and_draws_nothing(self):
+         done = subprocess.run([sys.executable, "-B", "-m", "tools.job_tui", "--status", self.status],
+                               stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60,
+diff -ruN '--exclude=__pycache__' cand/v12/python/tools/job_tui.py cand2/v12/python/tools/job_tui.py
+--- a/v12/python/tools/job_tui.py	2026-11-25 20:48:27.951178761 -0700
++++ b/v12/python/tools/job_tui.py	2026-11-25 21:03:21.533046084 -0700
+@@ -51,6 +51,9 @@
+ 
+ LIST_KEYS = " ↑↓ select   Enter open   n next needing a decision   r read now   q quit"
+ DETAIL_KEYS = " ↑↓ phase   Esc back   r read now   q quit"
++# When the selected phase has more lines than the screen: ↑↓ move through its
++# lines first and reach the neighbouring phase only at its first or last line.
++SCROLL_KEYS = " ↑↓ lines (%d above, %d below)   Esc back   r read   q quit"
+ ABSENT_KEYS = " Esc back   r read now   q quit"
+ 
+ 
+@@ -65,6 +68,7 @@
+     stage_id: object = None     # the selected phase's identity on the detail screen
+     stage_at: int = 0
+     stage_top: int = 0
++    stage_line: int = 0         # lines of the selected phase scrolled past, when it is taller than the screen
+     quit: bool = False
+ 
+ 
+@@ -129,8 +133,9 @@
+             stage_id = stages[0]
+         if stage_id in stages:
+             stage_at = stages.index(stage_id)
+-    return dataclasses.replace(state, job_id=job_id, job_at=job_at,
+-                               stage_id=stage_id, stage_at=stage_at)
++    stage_line = state.stage_line if stage_id == state.stage_id and stage_id in view.stages(job_id) else 0
++    return dataclasses.replace(state, job_id=job_id, job_at=job_at, stage_id=stage_id,
++                               stage_at=stage_at, stage_line=stage_line)
+ 
+ 
+ def _moved(present, selected, at, key, page):
+@@ -152,10 +157,25 @@
+     return chosen, (present.index(chosen) if chosen in present else at)
+ 
+ 
+-def step(state, key, view, *, page=10):
++def _hidden(state, view, rows):
++    """How many lines of the selected phase do not fit beneath its own first
++    line on a screen of `rows`; 0 when it fits or the size is not known."""
++    held = view.job(state.job_id)
++    if rows is None or held is None:
++        return 0
++    phase = next((one for one in held[1]["phases"] if one["stage_id"] == state.stage_id), None)
++    if phase is None:
++        return 0
++    head = 5 if held[1]["headline_reason"] else 4
++    return max(0, len(_phase_block(phase, True, 1 << 20)) - (rows - head - 1))
++
++
++def step(state, key, view, *, page=10, rows=None):
+     """One key. Unknown keys, and keys with nowhere to go, change nothing.
+ 
+     `read` is not handled here: a read is the session's act, not a movement.
++    `rows` is the screen height; with it, a selected phase taller than the
++    screen is moved through line by line before the selection leaves it.
+     """
+     state = settle(state, view)
+     if key == "quit":
+@@ -180,9 +200,25 @@
+     if key == "back":
+         return dataclasses.replace(state, screen=LIST, stage_id=None, stage_at=0, stage_top=0)
+     if key in ("up", "down", "pgup", "pgdn", "home", "end"):
++        hidden = _hidden(state, view, rows)
++        line = min(state.stage_line, hidden)
++        # WITHIN THE SELECTED PHASE FIRST. Its identity stays selected while its
++        # lines move; only at its last (or first) line does the key leave it.
++        if key in ("down", "pgdn") and line < hidden:
++            return dataclasses.replace(state, stage_line=min(hidden, line + (1 if key == "down" else max(1, page))))
++        if key in ("up", "pgup") and line > 0:
++            return dataclasses.replace(state, stage_line=max(0, line - (1 if key == "up" else max(1, page))))
+         stage_id, stage_at = _moved(view.stages(state.job_id), state.stage_id,
+                                     state.stage_at, key, max(1, page))
+-        return dataclasses.replace(state, stage_id=stage_id, stage_at=stage_at)
++        moved = dataclasses.replace(state, stage_id=stage_id, stage_at=stage_at, stage_line=0)
++        if key == "end" or (key in ("up", "pgup") and stage_id != state.stage_id):
++            # Arriving from below, or by End, shows the phase's last lines.
++            moved = dataclasses.replace(moved, stage_line=_hidden(moved, view, rows))
++        elif key == "home" or stage_id != state.stage_id:
++            moved = dataclasses.replace(moved, stage_line=0)
++        else:
++            moved = dataclasses.replace(moved, stage_line=line)
++        return moved
+     return state
+ 
+ 
+@@ -327,8 +363,20 @@
+                     blocks.append([_cut("> " + str(stage_id) + ABSENT, columns)])
+             if not blocks:
+                 blocks = [["  this Job publishes no phases"]]
+-            body, at, top = _window(blocks, selected, state.stage_top, rows - len(head) - 1)
+-            keys = DETAIL_KEYS
++            height = rows - len(head) - 1
++            tall = selected is not None and state.stage_id in phases and len(blocks[selected]) > height
++            if tall:
++                # THE SELECTED PHASE ALONE, its first line pinned so the selection
++                # stays in sight, and the rest moved beneath it line by line.
++                block = blocks[selected]
++                line = max(0, min(state.stage_line, len(block) - height))
++                body, at, top = [block[0]] + block[1 + line:line + height], 0, state.stage_top
++                keys = SCROLL_KEYS % (line, len(block) - height - line)
++                state = dataclasses.replace(state, stage_line=line)
++            else:
++                body, at, top = _window(blocks, selected, state.stage_top, height)
++                keys = DETAIL_KEYS
++                state = dataclasses.replace(state, stage_line=0)
+         state = dataclasses.replace(state, stage_top=top)
+     lines = head + body
+     lines += [""] * (rows - 1 - len(lines))
+@@ -346,6 +394,7 @@
+         self.clock, self.wall = clock, wall
+         self.state = State()
+         self.read_at = None
++        self.rows = None            # the height last painted, so keys can move within a tall phase
+ 
+     @property
+     def snapshot(self):
+@@ -364,12 +413,12 @@
+         if name == "read":
+             self.read()
+         elif name is not None:
+-            self.state = step(self.state, name, view_of(self.snapshot), page=page)
++            self.state = step(self.state, name, view_of(self.snapshot), page=page, rows=self.rows)
+         return self.state
+ 
+     def frame(self, rows, columns):
+         painted = frame(self.state, self.snapshot, self.clock(), self.wall(), rows, columns)
+-        self.state = painted.state
++        self.state, self.rows = painted.state, rows
+         return painted
+ 
+ 
+@@ -438,14 +487,17 @@
+             if session.due():
+                 session.read()
+             rows, columns = screen.getmaxyx()
+-            painted = session.frame(rows, columns - 1)
++            # THE REAL DIMENSIONS decide the layout; a 60-column terminal is 60 columns.
++            painted = session.frame(rows, columns)
+             if (painted.lines, painted.selected) != shown:
+                 screen.erase()
+                 for row, line in enumerate(painted.lines):
+                     try:
+-                        screen.addnstr(row, 0, line, columns - 1,
++                        screen.addnstr(row, 0, line, columns,
+                                        curses.A_REVERSE if row == painted.selected else curses.A_NORMAL)
+                     except curses.error:
++                        # Writing the bottom-right cell cannot advance the cursor and
++                        # reports that; the character itself has been written.
+                         pass
+                 screen.refresh()
+                 shown = (painted.lines, painted.selected)
