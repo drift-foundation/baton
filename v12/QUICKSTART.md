@@ -107,6 +107,56 @@ base, and `identity` reports that commit with `dirty: true` — disclosed in
 the source after this commit is absent here until a new bundle is built,
 bound by independent review and installed.
 
+## Running an owner-paced research Job
+
+Use an instance with a configured research worker and its research route handler. A research worker is composed with `pool compose-worker --role research`, a selected Claude provider, its exact CLI/model configuration and the report-only research template; install it through the usual pool/bootstrap procedure. Two workers with distinct execution capacity allow two assignments to run concurrently. Create the Job on the instance that will serve it. Its JSON document names a stable Job ID, a nonempty list of repository-relative scope paths and a positive wall budget in seconds. For example, `research-job.json` can contain:
+
+```json
+{"job_id":"project-survey","scope":["src","docs"],"wall_seconds":1800}
+```
+
+Prepare one JSON document per assignment. Omit `work_id` to give each assignment a distinct Work in its own scope. The serving manager creates it when acting on the explicit start, using the configured research route. To reuse an existing authorized Work instead, supply its full canonical ID. The manager derives the task input digest, policy and profile from compatible configured research workers using the statement, scope and pinned source. With multiple distinct matches, supply the desired `profile_name`, `profile_digest`, `policy_digest` or `input_digest` to narrow the selection. Each digest uses `sha256:` and 64 lowercase hexadecimal digits. The configured base pins the source revision. A deployment without a declared base requires an explicit full `source_commit` in the assignment.
+
+```json
+{
+  "kind": "research",
+  "statement": "Trace how the router resolves a destination and retain the findings.",
+  "scope": ["src/routing"],
+  "depends_on": []
+}
+```
+
+Use a second document with its own statement and scope for the storage assignment. An empty `depends_on` allows independent selection. To require a previous phase’s completed result, list its phase name, such as `["routing"]`. All scope paths must fall within the Job’s declared scope.
+
+```sh
+stack="$DEST/distro/baton-v12-stack"
+instance="$DEST/instance.json"
+job=project-survey
+"$stack" manager create --instance "$instance" --mode manual --document research-job.json
+"$stack" manager add-phase --instance "$instance" --job "$job" --phase routing --document routing.json
+"$stack" manager add-phase --instance "$instance" --job "$job" --phase storage --document storage.json
+"$stack" manager start-phase --instance "$instance" --job "$job" --phase routing
+"$stack" manager start-phase --instance "$instance" --job "$job" --phase storage
+"$stack" monitor --instance "$instance" --todo
+```
+
+Each start returns a durable selection receipt. The serving manager may run both selections concurrently when eligible capacity exists. The clock charges from selection through the verifiable worker-result freeze, including waits for capacity. When there is no verifiable freeze, it charges through settlement. Concurrent assignments share that clock. Idle gaps consume no budget, including across restarts.
+
+If a selected phase freezes a result under an attribution hold, inspect its evidence in the detail view. As the local account that owns the installation, use the configured owner identity to record a final decision. Choose `success` or `failure` explicitly.
+
+```sh
+"$stack" manager finish-phase --instance "$instance" --job "$job" --phase routing --outcome failure
+```
+
+The receipt records the configured participant, Authority principal, local UID, chosen outcome and frozen evidence. An exact retry returns the receipt. A conflicting decision is refused. The phase detail keeps the worker’s original uncertainty visible. Time spent waiting for this decision after a verified freeze consumes no Job budget.
+
+After both assignments complete, the to-do list shows **MANUAL OPEN   AWAITING ASSIGNMENT** and **All 2 planned phases finished.** Open the detail view for phase outcomes and retained result locators. Add another named phase or explicitly close the Job. Closure waits for every selected phase to settle. You can leave never-selected phases unrun, for example after a prerequisite fails. Their history preserves that disposition. Closed Jobs leave the to-do list. Status and monitor history show **MANUAL · CLOSED**, the counts of finished, failed and never-selected phases, and each phase’s retained results.
+
+```sh
+"$stack" view --status "$DEST/state/status.json" --job "$job"
+"$stack" manager close-job --instance "$instance" --job "$job"
+```
+
 ## Execution is not acceptance
 
 A stage state is a projection computed from receipts and the Worker Manager's

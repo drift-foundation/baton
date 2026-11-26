@@ -290,7 +290,8 @@ def deployment_bounds(*, identities, provider_network, image_reference,
     from baton_v12.worker_manager import source_boundary
     from tools import single_worker
 
-    held = templates.template_of(template_version)
+    from baton_v12.job_manager import research
+    held = research.template() if template_version == research.TEMPLATE else templates.template_of(template_version)
     declared = [one for one in held["roles"] if one["role"] == role]
     if len(declared) != 1:
         _refuse(f"template {template_version!r} declares no role {role!r}")
@@ -339,7 +340,7 @@ def _plain(value):
 def deployment_identities(*, image_reference, image_digest, cli_build,
                           provider_network, runtime_uid, turn_seconds,
                           verification_seconds, implementer_invocations,
-                          contextual, provider_selection=None):
+                          contextual, provider_selection=None, research=False):
     """The three identities a deployment is accountable for, as THIS build
     composes them: the runtime profile, the execution policy and the adapter,
     each with its digest. W321608: factored out verbatim so the installed
@@ -393,7 +394,7 @@ def deployment_identities(*, image_reference, image_digest, cli_build,
             provider=selected["provider"])
         if "service_tier" in selected:
             runtime_profile["service_tier"] = selected["service_tier"]
-        adapter = provider_policy.adapter(selected, network=provider_network)
+        adapter = provider_policy.adapter(selected, network=provider_network, research=research)
     profile_digest = digest(runtime_profile)
     policy_digest = digest(policy)
     adapter_digest = digest(adapter)

@@ -39,7 +39,7 @@ from ..contracts.errors import name_value
 from ..worker_manager import boundaries
 from ..worker_manager import events
 from . import (cancellation, delegation, documents, ending, episodes,
-               failure_analysis, job_control, projection,
+               failure_analysis, job_control, manual_execution, projection,
                retained_verification, scheduler, submission)
 from .store import job_signature
 
@@ -132,6 +132,7 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
     episode, including an admission whose receipt was lost.
     """
     boundaries.instant(now, "the sweep's instant")
+    manual_execution.prepare(store, operations, now)
     observed = _observe(store, operations, attach=True, admitted_only=not attach)
     scheduler.reconcile_allocations(store)
     replaced = _replace(store, operations)
@@ -306,8 +307,10 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
     # release is already visible where a reader looks for it -- the allocation
     # projection's own `allocation_state`, `released_at` and `release_reason`,
     # which is what a status document carries.
-    scheduler.reconcile_allocations(
-        store, projection.stage_states(store, operations))
+    final = projection.stage_states(store, operations)
+    scheduler.reconcile_allocations(store, final)
+    manual_execution.collect_freezes(store, operations, now)
+    manual_execution.finish(store, operations, final)
     return documents.sweep_report(observed_at=now, recovered=recovered,
                                   observed=observed, replaced=replaced,
                                   acts=acts, started=started, spoken=spoken,

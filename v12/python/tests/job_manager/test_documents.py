@@ -149,12 +149,17 @@ class SubmissionShape(unittest.TestCase):
         self.assertEqual(
             tuple(sorted(STAGE_KINDS)),
             tuple(sorted(documents.ORDINARY_STAGE_KINDS
-                         + (documents.PUBLICATION_STAGE,))))
+                         + (documents.PUBLICATION_STAGE, "research"))))
         with self.assertRaises(ContractRefusal) as caught:
             owned_submission(submission(jobs=[job(stages=[
                 stage(documents.PUBLICATION_STAGE)])]))
         self.assertIn(documents.SUBMISSION_RECOVERY_SCHEMA,
                       str(caught.exception))
+        with self.assertRaisesRegex(ContractRefusal, "MANUAL"):
+            owned_submission(submission(jobs=[job(stages=[stage("research")])]))
+        research = submission(jobs=[job(stages=[stage("research")])])
+        research["schema"] = documents.RESEARCH_SUBMISSION_SCHEMA
+        self.assertEqual(owned_submission(research)["jobs"][0]["stages"][0]["kind"], "research")
 
 
 class Dependencies(unittest.TestCase):

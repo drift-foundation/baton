@@ -5197,3 +5197,69 @@ class ExplicitReviewUncertainty(ReviewCase):
         answer = self.reviewed(status=1, report=json.dumps({"schema": claude_agent.REVIEW_UNCERTAINTY_SCHEMA,
             "findings": "partial"}))
         self.assertEqual(answer["disposition"], "unable")
+
+
+class ResearchFindings(LineCase):
+    def setUp(self):
+        super().setUp()
+        # Deliver one immutable source tree without mounting a development checkout.
+        self.git("clone", "--no-local", self.origin, os.path.join(self.inputs, "repo"), at=None)
+        shutil.rmtree(self.source)
+        os.rename(os.path.join(self.inputs, "repo"), self.source)
+        self.task({"schema": "baton.v12.research-task/1", "source_commit": self.base,
+                   "scope": ["harness.py"], "statement": "What does the harness print?"})
+        self.selection = {"contract": {"adapter": {"research": True}}}
+        self.agent = ClaudeAgent(run=self.runner(), home=self.scratch)
+        self.provider_call = mock.Mock(return_value={"ok": True, "findings": "It prints the staged harness."})
+        for name, fn in (("_provider_selection", lambda: self.selection),
+                         ("_scratch", lambda: self.scratch),
+                         ("_child_environments", lambda _: {"provider": {}}),
+                         ("_provider", self.provider_call)):
+            patcher = mock.patch.object(self.agent, name, fn)
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
+    def report(self):
+        from baton_v12.job_manager import research
+        return self.agent.work({"role": "research"}, research.outputs())
+
+    def test_turn_consumes_only_pinned_scoped_files_and_publishes_findings(self):
+        self.write(os.path.join(self.source, "harness.py"), "uncommitted mutation")
+        result = self.report()
+        self.assertEqual(result["disposition"], "completed")
+        self.assertEqual(result["outputs"][0]["name"], "findings")
+        self.assertEqual(pathlib.Path(self.outputs, "findings", "report.txt").read_bytes(), b"It prints the staged harness.")
+        prompt = self.provider_call.call_args.kwargs["prompt"]
+        self.assertIn("the staged harness", prompt)
+        self.assertNotIn("uncommitted mutation", prompt)
+        self.assertNotIn("preflight.py", prompt)
+
+    def test_no_findings_refuses_publication(self):
+        self.provider_call.return_value = {"ok": True, "findings": ""}
+        with self.assertRaisesRegex(TaskRefusal, "no bounded successful findings"):
+            self.report()
+        self.assertFalse(pathlib.Path(self.outputs, "findings").exists())
+
+    def test_wrong_role_contract_refuses_before_invocation(self):
+        self.selection["contract"]["adapter"] = {}
+        with self.assertRaisesRegex(TaskRefusal, "report-only"):
+            self.report()
+        self.provider_call.assert_not_called()
+
+    def test_oversized_and_binary_blobs_refuse_before_invocation(self):
+        for name, content, diagnostic in (("binary", b"\xff", "UTF-8"), ("large", b"x"*49153, "48 KiB")):
+            with self.subTest(name=name):
+                pathlib.Path(self.source, name).write_bytes(content)
+                self.git("add", "--", name, at=self.source)
+                self.git("commit", "-qm", "scoped input", at=self.source)
+                commit = self.git("rev-parse", "HEAD", at=self.source).strip()
+                self.task({"schema": "baton.v12.research-task/1", "source_commit": commit,
+                           "scope": [name], "statement": "Read."})
+                with self.assertRaisesRegex(TaskRefusal, diagnostic):
+                    self.report()
+                self.provider_call.assert_not_called()
+
+    def test_recursive_listing_is_byte_bounded_before_blob_reads(self):
+        with self.assertRaisesRegex(TaskRefusal, "byte bound"):
+            claude_agent._research_git(self.source, ["ls-tree", "HEAD"], 1, time.monotonic()+1)
+        self.provider_call.assert_not_called()

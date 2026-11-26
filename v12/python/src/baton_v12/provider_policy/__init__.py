@@ -143,9 +143,9 @@ def _managed_entries(provider):
     return [dict(MANAGED[provider], sha256=_sha256(raw), bytes=len(raw))]
 
 
-def _context_label(provider):
+def _context_label(provider, *, research=False):
     return {"schema": LABEL_SCHEMA, "template_sha256": _sha256(LABEL_TEMPLATE.encode()),
-            "placement": "prompt-prefix", "roles": list(LABEL_ROLES[provider]), "bound": LABEL_BOUND}
+            "placement": "prompt-prefix", "roles": ["research"] if research else list(LABEL_ROLES[provider]), "bound": LABEL_BOUND}
 
 
 def managed_payloads(document):
@@ -162,7 +162,7 @@ def context_label(document, role):
     """The exact label bytes for one adapter and launch role."""
     bound = document.get("context_label") if type(document) is dict else None
     provider = document.get("provider") if type(document) is dict else None
-    if provider not in LABEL_ROLES or bound != _context_label(provider):
+    if provider not in LABEL_ROLES or bound != _context_label(provider, research=document.get("research") is True):
         raise PolicyRefusal("execution-context label is not this build's template")
     if type(role) is not str or role not in bound["roles"]:
         raise PolicyRefusal("launch role has no execution-context label")
@@ -230,6 +230,9 @@ def validate_execution(document, role, provider_context=None):
     Claude's existing integration behavior is separately owned (W386048).
     The caller first validates the adapter; this adds no alternative role list.
     """
+    if role == "research" or document.get("research") is True:
+        if role != "research" or document.get("research") is not True or provider_context is not None:
+            raise PolicyRefusal("research requires its fresh report-only adapter")
     if document.get("provider") == "codex":
         if provider_context is not None or role not in document["context_label"]["roles"]:
             raise PolicyRefusal("Codex requires a fresh launch in a declared label role")
@@ -242,7 +245,7 @@ def validate_credential_slots(document, slots, profile):
             raise PolicyRefusal("Codex requires exactly its declared credential slot")
 
 
-def adapter(selected, *, network, tool_policy=None):
+def adapter(selected, *, network, tool_policy=None, research=False):
     selected = selection(selected)
     policy = POLICY if tool_policy is None else tool_policy
     if policy != POLICY:
@@ -271,6 +274,12 @@ def adapter(selected, *, network, tool_policy=None):
         "implements_tool_policy": digest(POLICY),
         "realization": deepcopy(realization),
     }
+    if research:
+        if provider != "claude" or not document["participation_sources"]:
+            raise PolicyRefusal("research requires a Claude build with evidenced model participation")
+        document["research"] = True
+        document["context_label"] = _context_label(provider, research=True)
+        document["argv_policy"]["fixed"] += ["--tools", "", "--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}', "--disable-slash-commands"]
     if "service_tier" in selected:
         # Present only when selected: the adapter digest of every existing
         # selection is unchanged, and a tiered one is a different identity.
@@ -285,7 +294,7 @@ def validate_adapter(document, selected, *, adapter_digest, tool_policy_digest):
         raise PolicyRefusal("adapter identity disagrees")
     if document.get("implements_tool_policy") != tool_policy_digest:
         raise PolicyRefusal("adapter implements a different Job tool policy")
-    expected = adapter(selected, network=document.get("network"))
+    expected = adapter(selected, network=document.get("network"), research=document.get("research") is True)
     if document != expected:
         raise PolicyRefusal("adapter is not this build's selected realization")
     return deepcopy(document)
@@ -293,7 +302,7 @@ def validate_adapter(document, selected, *, adapter_digest, tool_policy_digest):
 
 def argv(document, selected, prompt):
     selected = selection(selected)
-    if document != adapter(selected, network=document.get("network")):
+    if document != adapter(selected, network=document.get("network"), research=document.get("research") is True):
         raise PolicyRefusal("provider command policy disagrees")
     rule = document["argv_policy"]
     return [rule["program"], *rule["fixed"], rule["model_argument"], selected["requested_model"],

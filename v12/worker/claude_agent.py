@@ -2357,6 +2357,8 @@ class ClaudeAgent:
         elif any(one["name"] == CONTEXT_RECEIPT for one in declared):
             import baton_worker
             baton_worker.context_declaration(seen, declared)
+        if seen.get("role") == "research":
+            return self._research(declared)
         if seen.get("role") == REVIEW_ROLE:
             return self._review(declared)
         if len(selected_declarations) == 1:
@@ -2731,6 +2733,76 @@ class ClaudeAgent:
                 "recipient": recipient}
 
     # -- W110772: the review turn --------------------------------------------
+
+    def _research(self, declared):
+        """Read selected immutable Git blobs and retain the provider's own answer."""
+        expected = {"name": "findings", "path": "findings", "type": "directory-result",
+                    "required": True, "constraints": {"max_bytes": 65536, "max_entries": 1,
+                    "allowed_media_types": ["application/octet-stream"], "link_policy": "forbid",
+                    "validator_digest": None}}
+        if declared != [expected]:
+            raise TaskRefusal("research requires the sole bounded findings declaration")
+        selected = self._provider_selection()
+        if not selected or selected["contract"]["adapter"].get("research") is not True:
+            raise TaskRefusal("research requires the selected report-only Claude adapter")
+        raw = _read_bounded(INPUT_ROOT, TASK_DOCUMENT, "the research assignment")
+        task = json.loads(raw, object_pairs_hook=_no_duplicates) if raw else None
+        if (type(task) is not dict or set(task) != {"schema", "source_commit", "scope", "statement"}
+                or task["schema"] != "baton.v12.research-task/1" or type(task["statement"]) is not str
+                or not task["statement"].strip() or type(task["scope"]) is not list or not task["scope"]):
+            raise TaskRefusal("the research assignment contract disagrees")
+        commit = task["source_commit"]
+        if type(commit) is not str or not re.fullmatch(r"[0-9a-f]{40}(?:[0-9a-f]{24})?", commit):
+            raise TaskRefusal("research needs an immutable commit")
+        source = os.path.join(INPUT_ROOT, "source")
+        deadline = time.monotonic() + CHECKOUT_SECONDS
+        def git(args, limit):
+            return _research_git(source, args, limit, deadline)
+        if git(["cat-file", "-t", commit], 16) != b"commit\n":
+            raise TaskRefusal("research source identity must name a commit")
+        for path in task["scope"]:
+            _under(path, what="a research scope path")
+        listing = git(["ls-tree", "-rlz", commit, "--", *task["scope"]], 131072)
+        files = {}
+        size = 0
+        for line in listing.split(b"\x00")[:-1]:
+            header, raw_name = line.split(b"\t", 1)
+            mode, kind, oid, length = header.split()
+            try:
+                name = raw_name.decode("utf-8")
+            except UnicodeDecodeError:
+                raise TaskRefusal("research filenames must be UTF-8") from None
+            if not any(name == path or name.startswith(path + "/") for path in task["scope"]):
+                raise TaskRefusal("the research source selection disagrees")
+            if mode not in (b"100644", b"100755") or kind != b"blob":
+                raise TaskRefusal("research scope includes a non-regular Git object")
+            size += int(length)
+            if size > 49152 or len(files) >= 128:
+                raise TaskRefusal("research source exceeds 48 KiB or 128 files")
+            content = git(["cat-file", "blob", oid.decode("ascii")], int(length))
+            try:
+                files[name] = content.decode("utf-8")
+            except UnicodeDecodeError:
+                raise TaskRefusal("research source must contain UTF-8 text") from None
+        if not all(any(name == path or name.startswith(path + "/") for name in files) for path in task["scope"]):
+            raise TaskRefusal("a research scope path is missing from the pinned commit")
+        prompt = ("Answer this research assignment using only the supplied source. Return your findings as text."
+                  + "\nAssignment: " + task["statement"] + "\nSource: " + json.dumps(files, ensure_ascii=False))
+        if len(prompt.encode()) > 98304 or "\x00" in prompt:
+            raise TaskRefusal("research input exceeds the prompt bound")
+        scratch = self._scratch()
+        room = self._new_directory(scratch, "research")
+        provider = self._provider(task, room, scratch, self._child_environments(scratch)["provider"], prompt=prompt)
+        answer = provider.get("findings")
+        if not provider["ok"] or type(answer) is not str or not answer.strip() or len(answer.encode()) > 65536:
+            raise TaskRefusal("the research provider returned no bounded successful findings")
+        output = os.path.join(OUTPUT_ROOT, "findings")
+        os.mkdir(output, 0o700)
+        with open(os.path.join(output, "report.txt"), "xb") as handle:
+            handle.write(answer.encode("utf-8"))
+        return {"disposition": "completed", "outputs": [{"name": "findings", "status": "present",
+                                                          "result_metadata": {}}],
+                "recap": "Published the research findings."}
 
     def _review(self, declared):
         """Assess a frozen checkpoint and author a findings and a logs output.
@@ -4620,7 +4692,10 @@ class ClaudeAgent:
                 self._context_label = provider_policy.context_record(binding["adapter"], self._seen["role"])
             except (ValueError, KeyError, TypeError) as failure:
                 raise TaskRefusal("the execution-context label cannot be delivered") from failure
-            argv = self.provider_argv(prompt, model=binding["selection"]["requested_model"])
+            if self._seen["role"] == "research":
+                argv = provider_policy.argv(binding["adapter"], binding["selection"], prompt)
+            else:
+                argv = self.provider_argv(prompt, model=binding["selection"]["requested_model"])
             if argv != provider_policy.argv(binding["adapter"], binding["selection"], prompt):
                 raise TaskRefusal("actual provider argv disagrees with the selected policy")
         if contextual is not None:
@@ -4742,7 +4817,12 @@ class ClaudeAgent:
             self._context_receipt = self._context_result(contextual, status=status, record=record, partial=partial)
             if self._context_receipt["complete"] is not True:
                 return {"ok": False, "status": status, "failure_reason": PROVIDER_START_ERROR, **bound, "why": "provider context terminal identity is unproved"}
-        return {**self.provider_terminal(status, record, partial=partial), **bound,
+        report = {}
+        if self._seen.get("role") == "research":
+            document = _provider_document(record, partial=partial) or {}
+            if document.get("type") == "result" and document.get("subtype") == "success" and document.get("is_error") is False:
+                report["findings"] = document.get("result")
+        return {**self.provider_terminal(status, record, partial=partial), **bound, **report,
                 **({"attribution": self._attribution} if selected is not None else {})}
 
     def _context_bound(self):
@@ -6097,6 +6177,38 @@ def _disposition(provider, patch, verification):
             f"the task's own command ended {verification['status']}")
     return "candidate", "the candidate changed the source and its own "\
                         "verification passed"
+
+
+def _research_git(repository, args, limit, deadline):
+    """Read immutable objects from this repository within a shared time and byte bound."""
+    metadata = os.path.join(repository, ".git")
+    if not os.path.isdir(metadata) or os.path.realpath(metadata) != metadata:
+        raise TaskRefusal("research requires an ordinary mounted Git checkout")
+    argv = ["git", "--no-replace-objects", "--literal-pathspecs", "--git-dir=" + metadata, *args]
+    env = {"PATH": os.defpath, "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull,
+           "GIT_NO_LAZY_FETCH": "1", "GIT_ALLOW_PROTOCOL": ""}
+    with subprocess.Popen(argv, env=env, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                          stderr=subprocess.DEVNULL) as child:
+        try:
+            output = bytearray()
+            while True:
+                left = deadline - time.monotonic()
+                if left <= 0 or not select.select([child.stdout], [], [], left)[0]:
+                    raise TaskRefusal("research source read exceeded its time bound")
+                part = os.read(child.stdout.fileno(), min(65536, limit - len(output) + 1))
+                if not part:
+                    break
+                output.extend(part)
+                if len(output) > limit:
+                    raise TaskRefusal("research source read exceeded its byte bound")
+            if child.wait(timeout=max(0, deadline - time.monotonic())):
+                raise TaskRefusal("the selected research Git object is unavailable")
+            return bytes(output)
+        except subprocess.TimeoutExpired:
+            raise TaskRefusal("research source read exceeded its time bound") from None
+        finally:
+            if child.poll() is None:
+                child.kill()
 
 
 def _line_path(place):

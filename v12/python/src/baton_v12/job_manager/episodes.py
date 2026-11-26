@@ -257,6 +257,9 @@ def open_next(store, stage_id, ended):
             (stage_id,)).fetchone()
         opened_at = store._now()
         if owner is not None:
+            from . import manual
+            if manual.execution_gate(connection, owner["job_id"], opened_at) is not None:
+                raise ContractRefusal("refused", "precondition", "a MANUAL selection authorizes one episode")
             # W383217: AND NO REPLACEMENT AFTER THE DEADLINE OR UNDER
             # UNCERTAIN TIMING, by the same guard, under the same lock.
             from . import job_control

@@ -7,6 +7,7 @@ and reports; the sweep carries the request out through `cancel_attempt` and
 the pre-attach fence; the stores say what was ordered and what ceased.
 """
 import copy
+from contextlib import redirect_stdout
 import io
 import json
 import os
@@ -468,3 +469,145 @@ class TheCommandBoundary(InstalledCancellation):
         with self.assertRaises(SystemExit):
             stack_command.main(["manager", "cancel-job", "--instance",
                                 self.places["instance"], "--job", "job-a"])
+
+
+class ManualOperatorCommands(InstalledCancellation):
+    def test_finish_phase_authenticates_installed_owner_before_writable_open(self):
+        from baton_v12.authority import Authority
+        from baton_v12.job_manager import manual_decision
+
+        inputs = Path(self.places["install_inputs"])
+        inputs.write_text(json.dumps({"owner_participant": "baton.slaw"}))
+        with Authority.open(self.authority_path, expected_authority_uuid=self.config["authority_uuid"]) as authority:
+            authority.bind_endpoint("baton.slaw", "principal:installed-owner")
+        argv = ["manager", "finish-phase", "--instance", self.places["instance"],
+                "--job", "study", "--phase", "routing", "--outcome", "failure"]
+        with mock.patch.object(manual_decision, "finish", return_value={"outcome": "failure"}) as finish:
+            with redirect_stdout(io.StringIO()):
+                self.assertEqual(stack_command.main(argv), 0)
+            self.assertEqual(finish.call_args.args[1:], ("study", "routing", "failure"))
+            self.assertEqual(finish.call_args.kwargs["actor"], {
+                "authority_uuid": self.config["authority_uuid"], "participant": "baton.slaw",
+                "principal": "principal:installed-owner", "uid": os.getuid()})
+        with mock.patch.object(JobStore, "open") as opened:
+            with mock.patch("tools.manual_job.os.getuid", return_value=os.getuid() + 1):
+                with self.assertRaisesRegex(ContractRefusal, "owner"):
+                    stack_command.main(argv)
+            inputs.write_text("{}")
+            with self.assertRaisesRegex(ContractRefusal, "no configured owner"):
+                stack_command.main(argv)
+            foreign = Path(self.root) / "other-inputs"
+            inputs.rename(foreign)
+            inputs.symlink_to(foreign)
+            with self.assertRaisesRegex(ContractRefusal, "owner-controlled"):
+                stack_command.main(argv)
+            opened.assert_not_called()
+
+    def test_create_append_select_and_close_over_installed_command(self):
+
+        def run(command, *operands):
+            output = io.StringIO()
+            with redirect_stdout(output), mock.patch.object(job_manager, "_utc_clock", return_value=lambda: fixtures.NOW):
+                code = stack_command.main(["manager", command, "--instance", self.places["instance"], *operands])
+            self.assertEqual(code, 0, output.getvalue())
+            return json.loads(output.getvalue())
+
+        job_id = "manual-research"
+        document = Path(self.root) / "request.json"
+        document.write_text(json.dumps({"job_id": job_id, "scope": ["src"], "wall_seconds": 60}))
+        created = run("create", "--mode", "manual", "--document", str(document))
+        self.assertEqual(created["job_id"], job_id)
+        from baton_v12 import provider_policy
+        from baton_v12.authority import Authority
+        from baton_v12.contracts import digest
+        from baton_v12.job_manager import research
+        from tests.manager import provider_fixtures
+        from tools import bootstrap, research_authorization, single_worker
+
+        worker = self.worker("research", participant="baton.research")
+        chosen, identities = provider_fixtures.identities()
+        profile = dict(identities["runtime_profile"], image_digest=self.config["image_digest"], network=self.config["network"])
+        adapter = provider_policy.adapter(chosen, network=self.config["network"], research=True)
+        manifest = worker["deployment"]["input_manifest"]
+        manifest.update(outputs=research.outputs(), runtime_profile_digest=digest(profile), tool_policy_digest=digest(provider_policy.POLICY))
+        manifest.pop("manifest_digest")
+        manifest["manifest_digest"] = digest(manifest)
+        auth = Authority.open(self.authority_path, expected_authority_uuid=self.config["authority_uuid"])
+        self.addCleanup(auth.dispose)
+        worker["deployment"].update(schema=single_worker.PROVIDER_CONFIG_SCHEMA, provider_context=None, verifier_layout=None,
+                                    profile_name=profile["name"], profile_digest=digest(profile),
+                                    principal=auth.principal_of("baton.research"),
+                                    adapter_name="report-only-claude", adapter_digest=digest(adapter),
+                                    credential_slots=["claude"], credential_profile={"claude": {"provider": "fixture", "reference": "test-key"}},
+                                    provider_home_root=str(Path(self.root)/"job-work"),
+                                    provider_contract={"selection": chosen, "runtime_profile": profile, "adapter": adapter})
+        self.deployment_document["workers"].append(worker)
+        Path(self.places["deployment"]).write_text(json.dumps(self.deployment_document))
+        phase = {"kind": "research", "scope": ["src"], "statement": "Inspect the routing code.", "depends_on": []}
+        document.write_text(json.dumps(phase))
+        identity = ("--job", job_id, "--phase", "routing")
+        added = run("add-phase", *identity, "--document", str(document))
+        self.assertEqual(added["phase"], "routing")
+        deployment_path = Path(self.places["deployment"])
+        deployed = deployment_path.read_bytes()
+        deployment_path.write_text("{}")
+        self.assertEqual(run("add-phase", *identity, "--document", str(document)), added)
+        deployment_path.write_bytes(deployed)
+        from baton_v12.job_manager import manual
+        def phase_pins(name):
+            return manual.phase_for_execution(self.jobs, manual.execution_job_id(job_id, name))["document"]
+        pinned = phase_pins("routing")
+        self.assertEqual(pinned["source_commit"], self.base)
+        self.assertEqual(pinned["profile_digest"], worker["deployment"]["profile_digest"])
+        self.assertEqual(pinned["policy_digest"], worker["deployment"]["policy_digest"])
+        for member in ("profile_digest", "input_digest"):
+            with self.subTest(member=member):
+                document.write_text(json.dumps(dict(phase, **{member: "sha256:" + "f" * 64})))
+                with self.assertRaisesRegex(ContractRefusal, "no configured research worker"):
+                    run("add-phase", "--job", job_id, "--phase", "foreign", "--document", str(document))
+        document.write_text(json.dumps(dict(phase, statement="Inspect the storage code.", scope=["src/storage"])))
+        run("add-phase", "--job", job_id, "--phase", "storage", "--document", str(document))
+        self.assertNotEqual(phase_pins("storage")["input_digest"], pinned["input_digest"])
+        selected = run("start-phase", *identity)
+        self.assertEqual(run("start-phase", *identity), selected)
+        published = io.StringIO()
+        job_manager.main(["--store", self.job_path, "--incarnation", "manual-observer",
+                          "--authority-uuid", self.config["authority_uuid"], "status"],
+                         stream=published, clock=lambda: fixtures.NOW)
+        projection = json.loads(published.getvalue())
+        self.assertEqual(projection["schema"], "baton.v12.job-status/10")
+        manual_job = next(job for job in projection["jobs"] if job["job_id"] == job_id)
+        self.assertEqual((manual_job["mode"], manual_job["lifecycle"]), ("MANUAL", "open"))
+        by_id = {one["stage_id"]: one for one in manual_job["stages"]}
+        self.assertEqual(by_id[job_id + "/routing"]["selected_at"], selected["recorded_at"])
+        self.assertIsNone(by_id[job_id + "/storage"]["selected_at"])
+        execution = manual.execution_job_id(job_id, "routing")
+        self.assertEqual(pinned["work_origin"], "generated")
+        self.assertIsNone(auth.work_creation(pinned["work_id"]))
+        with self.assertRaisesRegex(ContractRefusal, "handles the configured research route"):
+            research_authorization.ensure_phase_work(auth, execution, pinned, [worker])
+        self.assertIsNone(auth.work_creation(pinned["work_id"]))
+        auth.add_route_handler(bootstrap.ROUTES["research"], worker["deployment"]["participant"])
+        grants = auth.grants_of(worker["deployment"]["participant"])
+        granted = research_authorization.ensure_phase_work(auth, execution, pinned, [worker])
+        receipt = auth.work_creation(pinned["work_id"])
+        self.assertEqual(granted["scope"], "scope:" + execution)
+        self.assertEqual(granted["route"], bootstrap.ROUTES["research"])
+        self.assertEqual(research_authorization.ensure_phase_work(auth, execution, pinned, [worker]), granted)
+        self.assertEqual(auth.work_creation(pinned["work_id"]), receipt)
+        self.assertEqual(auth.grants_of(worker["deployment"]["participant"]), grants)
+        self.assertNotEqual(pinned["work_id"], phase_pins("storage")["work_id"])
+        storage = phase_pins("storage")
+        auth.create_work(storage["work_id"], bootstrap.ROUTES["research"], contract="v12-assignment-1",
+                         operation_id="belongs-to-another-operation")
+        with self.assertRaises(ContractRefusal):
+            research_authorization.ensure_phase_work(auth, manual.execution_job_id(job_id, "storage"), storage, [worker])
+        self.assertEqual(auth.work_creation(storage["work_id"])["operation_id"], "belongs-to-another-operation")
+        with self.assertRaisesRegex(ContractRefusal, "unsettled"):
+            run("close-job", "--job", job_id)
+        self.assertEqual(self.engine.starts, [])
+        # The same CLI closes an empty open Job. The manager/worker acceptance
+        # exercises closure after a real retained result.
+        document.write_text(json.dumps({"job_id": "empty-research", "scope": ["src"], "wall_seconds": 60}))
+        run("create", "--mode", "manual", "--document", str(document))
+        self.assertEqual(run("close-job", "--job", "empty-research")["action"], "close-job")

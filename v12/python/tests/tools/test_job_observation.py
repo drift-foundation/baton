@@ -1157,3 +1157,129 @@ class JobHeadlines(unittest.TestCase):
         self.check(doc, "UNKNOWN")
         stages[-1]["gates"] = waiting("implementation","review")["gates"]
         self.check(doc, "UNKNOWN", "waiting on review")
+
+
+class OwnerPacedObservation(unittest.TestCase):
+    def test_phase_cancellation_binds_internal_stage_episode_and_attempt(self):
+        doc = document()
+        doc["schema"] = stack.MANUAL_STATUS_SCHEMA
+        job = doc["jobs"][0]
+        job.update(mode="MANUAL", lifecycle="open")
+        stage = job["stages"][0]
+        target = {"stage_id": "exec-1/research", "episode": 1, "attempt_id": "attempt-a", "state": "ordered"}
+        stage.update(stage_id="job-a/routing", kind="research", execution_job_id="exec-1",
+                     execution_cancellation={"trigger": "job-deadline", "targets": [target]})
+        for rendered in views(doc):
+            self.assertIn("stopping (ordered)", rendered)
+            self.assertNotIn("CANCELLATION REQUESTED", rendered)
+        for key, foreign in (("stage_id", "exec-2/research"), ("stage_id", "job-a/routing"),
+                             ("episode", 2), ("attempt_id", "foreign-attempt")):
+            with self.subTest(key=key, foreign=foreign):
+                stage["execution_cancellation"]["targets"] = [dict(target, **{key: foreign})]
+                for rendered in views(doc):
+                    self.assertNotIn("stopping (ordered)", rendered)
+
+    def test_mixed_status_preserves_automatic_attempt_diagnostics(self):
+        from tools import attempt_diagnostics
+        older = document()
+        mixed = copy.deepcopy(older)
+        mixed.update(schema=stack.MANUAL_STATUS_SCHEMA)
+        mixed["jobs"].append({"job_id": "study", "mode": "MANUAL", "lifecycle": "open", "stages": []})
+        self.assertEqual(attempt_diagnostics.report(mixed)["rows"], attempt_diagnostics.report(older)["rows"])
+        prior = worker_visibility.visibility(older)
+        current = worker_visibility.visibility(mixed)
+        self.assertEqual(current["source_schema"], stack.MANUAL_STATUS_SCHEMA)
+        self.assertEqual(current["stages"], prior["stages"])
+        mixed["jobs"][1]["lifecycle"] = "unexpected"
+        with self.assertRaises(worker_visibility.VisibilityRefusal):
+            worker_visibility.visibility(mixed)
+        self.assertIsNotNone(stack._malformed(mixed))
+        mixed["schema"] = "baton.v12.job-status/999"
+        with self.assertRaises(worker_visibility.VisibilityRefusal):
+            worker_visibility.visibility(mixed)
+        with self.assertRaises(job_viewer.ViewerRefusal):
+            attempt_diagnostics.report(mixed)
+
+    def test_a_ready_unselected_assignment_preserves_a_real_hold(self):
+        doc = document()
+        doc["schema"] = stack.MANUAL_STATUS_SCHEMA
+        job = doc["jobs"][0]
+        job.update(mode="MANUAL", lifecycle="open")
+        job["stages"][0]["state"] = "answering"
+        job["stages"][0]["runtime"]["model_attribution_hold"] = "model-attribution-missing"
+        job["stages"].append({"kind": "research", "stage_id": "job-a/another", "state": "queued", "selected_at": None})
+        for rendered in views(doc):
+            self.assertIn("MANUAL OPEN   DECISION NEEDED", rendered)
+            self.assertIn("model-attribution-missing", rendered)
+
+    def test_owner_decisions_keep_worker_uncertainty_and_closed_phase_counts_on_every_surface(self):
+        doc = document()
+        doc["schema"] = stack.MANUAL_STATUS_SCHEMA
+        job = doc["jobs"][0]
+        job.update(mode="MANUAL", lifecycle="open")
+        stage = job["stages"][0]
+        cause = "model-attribution-missing"
+        stage["runtime"]["model_attribution_hold"] = cause
+        decision = {"actor": {"participant": "baton.slaw", "principal": "owner"},
+                    "outcome": "success", "recorded_at": NOW, "held_cause": cause,
+                    "frozen": {"result_id": "frozen-1", "frozen_at": NOW, "manifest_digest": "manifest-1"}}
+        stage.update(selected_at=NOW, state="completed", stage_id="job-a/review",
+                     result={"reason": "owner-decision", "owner_decision": decision, "attempt_id": "attempt-a"})
+        job["stages"].append({"state": "queued", "kind": "research", "stage_id": "job-a/unselected"})
+        for rendered in views(doc):
+            self.assertIn("AWAITING ASSIGNMENT", rendered)
+            self.assertNotIn("owner action needed", rendered)
+            self.assertIn("Worker hold at freeze: " + cause, rendered)
+            self.assertIn("Owner decision: success by baton.slaw (owner)", rendered)
+            self.assertIn("Frozen result: frozen-1", rendered)
+        job["stages"].extend([{"state": "exceptional", "kind": "research", "stage_id": "job-a/failed", "selected_at": NOW},
+                              {"state": "blocked", "kind": "research", "stage_id": "job-a/blocked"}])
+        job.update(lifecycle="closed", closed_at=NOW)
+        for rendered in views(doc):
+            self.assertIn("MANUAL · CLOSED", rendered)
+            self.assertIn("1 finished · 1 failed · 2 never selected", rendered)
+            self.assertIn("job-a/failed", rendered)
+            self.assertIn("job-a/blocked", rendered)
+            self.assertIn("manifest-1", rendered)
+
+    def test_idle_selected_settled_and_closed_on_every_surface(self):
+        doc = document()
+        doc["schema"] = stack.MANUAL_STATUS_SCHEMA
+        job = doc["jobs"][0]
+        stage = {"kind": "research", "stage_id": "job-a/routing", "state": "queued", "selected_at": None}
+        job.update(mode="MANUAL", lifecycle="open", stages=[stage],
+                   budget={"charged_seconds": 3, "limit_seconds": 60})
+        for rendered in views(doc):
+            self.assertIn("MANUAL OPEN   AWAITING ASSIGNMENT", rendered)
+            self.assertIn("Ready for explicit start", rendered)
+            self.assertIn("3/60s charged", rendered)
+        job["budget"]["expired"] = True
+        for rendered in views(doc):
+            self.assertIn("MANUAL OPEN   BUDGET EXHAUSTED", rendered)
+            self.assertNotIn("Ready for explicit start", rendered)
+        job["budget"]["expired"] = False
+        stage["selected_at"] = NOW
+        for rendered in views(doc):
+            self.assertIn("MANUAL OPEN   QUEUED", rendered)
+            self.assertIn("Selection recorded; waiting for admission", rendered)
+        stage.update(state="completed", result={"attempt_id": "attempt-1", "locator": "file:///retained/findings"},
+                     artifacts=[{"output_name": "findings", "locator": "file:///retained/findings"}])
+        for rendered in views(doc):
+            self.assertIn("MANUAL OPEN   AWAITING ASSIGNMENT", rendered)
+            self.assertIn("The planned phase finished.", rendered)
+            self.assertIn("Retained result for attempt attempt-1", rendered)
+            self.assertIn("Retained findings: file:///retained/findings", rendered)
+        auto = {"job_id": "auto-1", "stages": []}
+        doc["jobs"].append(auto)
+        snapshot = job_viewer.read_snapshot(doc, received_at=0)
+        def todo():
+            return "\n".join(job_viewer.render_list(snapshot, now=0, wall_now=EPOCH, todo=True))
+        self.assertIn("job-a", todo())
+        self.assertNotIn("auto-1", todo())
+        job.update(lifecycle="closed", closed_at=NOW)
+        self.assertNotIn("job-a", todo())
+        for rendered in views(doc):
+            self.assertIn("MANUAL · CLOSED", rendered)
+            self.assertIn("1 finished · 0 failed · 0 never selected", rendered)
+            self.assertIn("closed at " + NOW, rendered)
+        self.assertIn("file:///retained/findings", views(doc)[2])

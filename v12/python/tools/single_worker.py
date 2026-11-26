@@ -1518,7 +1518,7 @@ class _SingleWorker:
             self.control, self.port, offer_id=issued["offer_id"],
             decision="accept", bearer=issued["bearer"], now=self.clock(),
             runtime_attempt_id=issued["runtime_attempt_id"],
-            work_ref=dict(manifest["work_ref"]))
+            work_ref=dict(manifest["work_ref"], work_id=expected["work_id"]))
 
     def _matches(self, stage, job):
         given = self._given_for(stage)
@@ -3301,6 +3301,11 @@ class _SingleWorker:
         self._matches(stage, job)
         row = self._claim(stage)
         attempt_id = stage["attempt_id"]
+        if stage.get("kind") == "research":
+            from baton_v12.worker_manager import model_attribution
+            hold = model_attribution.held(model_attribution.assessment_of(self.control, attempt_id))
+            if hold is not None:
+                return self._held_research_ending(stage, _assignment(row), hold)
         if self.stage is not None:
             historical = self.stage.historical(stage, _assignment(row))
             if historical is not None:
@@ -3461,6 +3466,33 @@ class _SingleWorker:
         attribution_hold = model_attribution.held(model_attribution.assess(self.control, attempt_id, frozen))
         if attribution_hold is not None:
             return attribution_hold
+        return self._retain_and_release(attempt_id, _assignment(row), adapter, frozen, disposition)
+
+    def _held_research_ending(self, stage, assignment, hold):
+        from baton_v12.job_manager import research
+
+        attempt = stage["attempt_id"]
+        frozen, cause = research.frozen_evidence(self.control, attempt)
+        decision = self.job_task.research_decision(stage["job_id"], frozen, cause)
+        if decision is None:
+            return hold
+        # The original freeze already proved the worker's terminal and stopped
+        # writer. Re-enter from that evidence even after destroy removed the
+        # launch/exchange but the cleanup receipt did not commit.
+        roots = self._mounted(stage, attempt, checkpoint=False, writer=False)[0]
+        launched = self._adopted(stage)
+        orphan = (credentials.OrphanTeardown(attempt, homes=[self.credential_home])
+                  if self.given["credential_resolution"] else None)
+        adapter = self._adapter(roots, None, orphan, launched, stage=stage, attempt_id=attempt)
+        state = attempt_runtime_of(self.control, attempt)
+        observed = reconcile_runtime(self.control, adapter, attempt_id=attempt)
+        if (not state["runtime_id"] or observed.get("runtime_id") != state["runtime_id"]
+                or observed.get("observed") not in ("quiescent", "destroyed")):
+            _refuse("owner-disposed research attempt still needs confirmed runtime cessation",
+                    category="refused", code="precondition")
+        return self._retain_and_release(attempt, assignment, adapter, frozen, None, owner_decision=decision)
+
+    def _retain_and_release(self, attempt_id, assignment, adapter, frozen, disposition, *, owner_decision=None):
         receipt = request_intake(self.control, self.port, adapter,
                                  attempt_id=attempt_id)
         held = list(receipt["artifacts"])
@@ -3469,7 +3501,10 @@ class _SingleWorker:
             artifact_ids=[one["artifact_id"] for one in held],
             disposition=self.given["retention_disposition"],
             retention_policy_digest=self.given["retention_policy_digest"])
-        passed = self._passed(attempt_id, _assignment(row))
+        comment = None if owner_decision is None else (
+            f"MANUAL research phase {owner_decision['phase']} finished by owner decision "
+            f"{owner_decision['operation_id']}: {owner_decision['outcome']}; worker attribution remains held")
+        passed = self._passed(attempt_id, assignment, comment=comment)
         # AND THE ENDING RETURNS WHAT THE START RESERVED. A governed start with an
         # ungoverned ending is worse than no governance: the workspace would stay
         # held for the life of the store.
@@ -3477,7 +3512,8 @@ class _SingleWorker:
             self.control, self.port, adapter, attempt_id=attempt_id,
             retention_policy_digest=self.given["retention_policy_digest"],
             govern=tokens.workspace_governance())
-        return {"disposition": disposition,
+        return {**({"disposition": disposition} if owner_decision is None else
+                   {"owner_decision": owner_decision["operation_id"], "owner_outcome": owner_decision["outcome"]}),
                 "manifest_digest": frozen["manifest_digest"],
                 "result_id": frozen["result_id"],
                 "receipt_digest": receipt["receipt_digest"],
@@ -3558,7 +3594,7 @@ class _SingleWorker:
                     f"set it", category="refused", code="precondition")
         return {"route": route, "answer": answered}
 
-    def _passed(self, attempt_id, expect):
+    def _passed(self, attempt_id, expect, *, comment=None):
         """The authority's own answer to this deployment's pass, held to shape.
 
         WHAT IS KEPT IS WHAT THE AUTHORITY SAID, not what this deployment asked
@@ -3583,7 +3619,7 @@ class _SingleWorker:
         route = self.given["review_route"]
         answered = self.session.pass_work({
             "expect": dict(expect), "operation_id": f"pass:{attempt_id}",
-            "to_route": route, "comment": PASS_COMMENT})
+            "to_route": route, "comment": PASS_COMMENT if comment is None else comment})
         if type(answered) is not dict:
             _refuse(f"the authority answered the review pass with "
                     f"{type(answered).__name__} and this deployment reads a "
@@ -3986,6 +4022,12 @@ def given_for_job(given, reader, stage):
     """
     if reader is None or stage is None:
         return given
+    if given.get("launch_role") == "research":
+        phase = reader.research(stage.get("job_id"))
+        if phase is None:
+            _refuse("research delivery has no selected phase", category="refused", code="precondition")
+        from baton_v12.job_manager import research
+        return research.delivery(given, phase["document"])
     held = reader(job_id=stage.get("job_id"))
     if held is None:
         return given
@@ -4039,6 +4081,9 @@ def job_task_reader(job_store):
             return None
         return job_creation.job_task_of(job_store, prior)
 
+    from baton_v12.job_manager import manual, research
+    reader.research_decision = lambda job_id, frozen, cause: research.owner_disposition(job_store, job_id, frozen, cause)
+    reader.research = lambda job_id: manual.phase_for_execution(job_store, job_id)
     return reader
 
 
@@ -4218,12 +4263,13 @@ def worker_operations(given, control_store, authority, provider, *,
     if authority.principal_of(given["participant"]) != given["principal"]:
         _refuse("the configured participant resolves to another principal",
                 category="refused", code="capability")
-    projected = authority.project_work(
-        given["input_manifest"]["work_ref"]["work_id"])
-    if projected is None or projected["authority_uuid"] \
-            != given["authority_uuid"]:
-        _refuse("the configured bootstrap Work is absent from this "
-                "Authority", category="refused", code="precondition")
+    if given["launch_role"] != "research":
+        projected = authority.project_work(given["input_manifest"]["work_ref"]["work_id"])
+        if projected is None or projected["authority_uuid"] != given["authority_uuid"]:
+            _refuse("the configured bootstrap Work is absent from this "
+                    "Authority", category="refused", code="precondition")
+    elif job_task is None:
+        _refuse("a research worker requires its selected assignment reader")
     # ONE MINTED SESSION, TWO NARROW VIEWS OF IT. W125032: the deployment keeps
     # the plain forwarder for its own calls, and the manager's port is handed
     # the one that translates a concrete claim refusal into this manager's

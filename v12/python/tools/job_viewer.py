@@ -173,10 +173,10 @@ def read_snapshot(source, *, received_at):
         _refuse("a status snapshot is one document, not "
                 + type(held).__name__)
     schema = held.get("schema")
-    if schema != documents.STATUS_SCHEMA:
+    if schema not in (documents.STATUS_SCHEMA, documents.MANUAL_STATUS_SCHEMA):
         # A VERSION THIS VIEW DOES NOT KNOW IS NOT A DOCUMENT TO READ THE
         # PARTS IT RECOGNISES OUT OF.
-        _refuse("this view reads " + documents.STATUS_SCHEMA + " and this is "
+        _refuse("this view reads " + documents.STATUS_SCHEMA + " and " + documents.MANUAL_STATUS_SCHEMA + "; this is "
                 + repr(schema))
     _shaped(held)
     return Snapshot(held, received_at=received_at, published_at=getattr(source, "published_at", None))
@@ -204,6 +204,9 @@ def _shaped(held):
         if not isinstance(job, dict):
             _refuse("every Job in this document is a document; one is "
                     + type(job).__name__)
+        problem = job_observation.lifecycle_problem(job)
+        if problem:
+            _refuse(problem)
         stages = job.get("stages")
         if stages is None:
             continue
@@ -230,11 +233,15 @@ def _shaped(held):
 
 
 def render_list(snapshot, *, now, width=100, wall_now=None,
-                stale_seconds=None):
+                stale_seconds=None, todo=False):
     """The list view: every Job, and how old this reading is."""
     lines = [_banner(snapshot, now, wall_now=wall_now,
                      stale_seconds=stale_seconds)]
     jobs = snapshot.jobs()
+    if todo:
+        jobs = [job for job in jobs if job.get("mode") == "MANUAL" and job.get("lifecycle") == "open"]
+        if not jobs:
+            return lines + ["  No open MANUAL Jobs in this snapshot."]
     if not jobs:
         lines.append("  (this snapshot reports no Jobs"
                      + ("" if snapshot.canonical
@@ -249,7 +256,7 @@ def render_list(snapshot, *, now, width=100, wall_now=None,
         observed = job_observation.job_view(snapshot.document, job)
         lines.append("JOB " + str(job.get("job_id") or UNKNOWN)
                      + "   submission " + str(job.get("submission_id")
-                                              or UNKNOWN) + "   " + observed["headline"])
+                                              or UNKNOWN) + "   " + observed["labelled_headline"])
         if observed["headline_reason"]:
             lines.append("  " + observed["headline_reason"])
         lines.append("  Job age " + job_observation.job_age(job, observed_at))
@@ -343,7 +350,7 @@ def render_detail(snapshot, job_id, *, now, wall_now=None,
                              for one in snapshot.jobs()) or "nothing"))
     observed = job_observation.job_view(snapshot.document, job)
     lines = ["",
-             "JOB " + str(job.get("job_id")) + "   " + observed["headline"],
+             "JOB " + str(job.get("job_id")) + "   " + observed["labelled_headline"],
              *(["  " + observed["headline_reason"]] if observed["headline_reason"] else []),
              "  submission   " + str(job.get("submission_id") or UNKNOWN),
              "  input        " + str(job.get("input_digest") or UNKNOWN),
@@ -630,7 +637,9 @@ def main(argv=None, *, stream=sys.stdout):
     parser.add_argument("--status", required=True,
                         help="path to a status document written by "
                              "`job_manager ... status`")
-    parser.add_argument("--job", default=None,
+    view = parser.add_mutually_exclusive_group()
+    view.add_argument("--todo", action="store_true", help="list open MANUAL Jobs")
+    view.add_argument("--job", default=None,
                         help="show one Job in detail")
     parser.add_argument("--interval", type=float, default=POLL_SECONDS,
                         help="seconds between bounded refreshes; finite and "
@@ -651,12 +660,10 @@ def main(argv=None, *, stream=sys.stdout):
                            interval=checked_interval(taken.interval))
         if taken.artifact is not None:
             return _drilled(viewer, taken, stream)
-        render = (render_list if taken.job is None
-                  else (lambda snapshot, *, now, wall_now=None,
-                               stale_seconds=None:
-                        render_detail(snapshot, taken.job, now=now,
-                                      wall_now=wall_now,
-                                      stale_seconds=stale_seconds)))
+        def render(snapshot, **timing):
+            if taken.job is None:
+                return render_list(snapshot, todo=taken.todo, **timing)
+            return render_detail(snapshot, taken.job, **timing)
         viewer.run(ticks=max(1, taken.ticks), render=render, stream=stream)
     except ViewerRefusal as refusal:
         print("refused: " + str(refusal), file=stream)

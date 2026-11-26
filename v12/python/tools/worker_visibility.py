@@ -1,7 +1,7 @@
 """W324214 -- the minimum read-only worker visibility view.
 
 WHAT IT IS. A bounded PROJECTION over one status document the Job Manager
-already publishes (`baton.v12.job-status/9`): one row per current stage, with
+already publishes (job-status/9 or job-status/10): one row per current stage, with
 the worker, allocation, runtime, exchange and activity facts that document
 actually carries, each labelled with WHERE IT CAME FROM and -- when the source
 records one -- WHEN IT WAS OBSERVED. It answers "which worker is this stage
@@ -434,10 +434,10 @@ def _document(source):
     if type(held) is not dict:
         _refuse("a status snapshot is one JSON document, not "
                 + type(held).__name__)
-    if held.get("schema") != SOURCE_SCHEMA:
+    if held.get("schema") not in (SOURCE_SCHEMA, documents.MANUAL_STATUS_SCHEMA):
         # AN UNSUPPORTED VERSION IS NOT A DOCUMENT TO READ THE RECOGNISED
         # PARTS OUT OF, and the rejected value is not echoed back.
-        _refuse("this view reads " + SOURCE_SCHEMA + " and this document "
+        _refuse("this view reads " + SOURCE_SCHEMA + " and " + documents.MANUAL_STATUS_SCHEMA + "; this document "
                 "declares another schema (" + type(held.get("schema")).__name__
                 + "); an unsupported version is refused rather than partly "
                 "read")
@@ -911,7 +911,7 @@ def visibility(document, *, read_at=None):
     held = _document(document)
     return {
         "schema": SCHEMA,
-        "source_schema": SOURCE_SCHEMA,
+        "source_schema": held["schema"],
         "snapshot": {
             # THE SNAPSHOT'S OWN INSTANT, NAMED FOR WHAT IT IS.
             "query_time": _at(held["observed_at"], "observed_at"),

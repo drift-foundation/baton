@@ -1,8 +1,4 @@
-"""Pure shared interpretation of existing job-status/9 facts (W385263).
-
-No stores, collectors, provider calls or new wire schema. Both operator views
-use job_view; a future TUI can consume the same phase and attempt evidence.
-"""
+"""Shared, read-only interpretation of /9 execution and /10 MANUAL lifecycle facts."""
 import datetime
 import json
 import math
@@ -41,23 +37,51 @@ def _status_text(value):
                       ensure_ascii=True)[1:-1]
 
 
+def lifecycle_problem(job):
+    if "mode" not in job and "lifecycle" not in job:
+        return None
+    if job.get("mode") != "MANUAL" or job.get("lifecycle") not in ("open", "closed"):
+        return "the published Job mode or owner lifecycle is unknown"
+    if not isinstance(job.get("stages"), list):
+        return "a MANUAL Job must publish its planned phases"
+    return None
+
+
 def _job_headline(job, phases):
     stages = _rows(job.get("stages"))
     states = [phase["state"] for phase in phases]
+    manual_open = job.get("mode") == "MANUAL" and job.get("lifecycle") == "open"
+    if job.get("mode") == "MANUAL" and job.get("lifecycle") == "closed":
+        finished = states.count("completed")
+        failed = states.count("exceptional")
+        unselected = sum(not stage.get("selected_at") and state in HELD_STATES for stage, state in zip(stages, states))
+        summary = f"{finished} finished · {failed} failed · {unselected} never selected"
+        unknown = len(states) - finished - failed - unselected
+        return "CLOSED", summary + (f" · {unknown} unknown" if unknown else "")
     if any(phase["state"] == "exceptional" and not (phase["live_attempt"] or {}).get("stop")
            for phase in phases):
         return "FAILED", ""
     for stage, phase in zip(stages, phases):
         hold = _owner_hold(stage)
-        if hold and phase["live_attempt"] and phase["state"] not in ("completed", "changes-requested"):
+        if hold and phase["live_attempt"] and phase["state"] not in ("completed", "changes-requested") and not _owner_decision(stage, job):
             return "DECISION NEEDED", phase["stage_id"] + ": " + hold + "; owner action needed"
     if type(job.get("cancellation")) is dict:
         return "CANCELLATION REQUESTED", ""
+    if manual_open and _mapping(job.get("budget")).get("expired") is True:
+        return "BUDGET EXHAUSTED", "The Job wall budget has expired; further phase starts are refused."
     if any(phase["execution_position"] == "in progress" for phase in phases):
         return "IN PROGRESS", ""
     if any(phase["execution_position"] == "admitted" for phase in phases):
         return "ADMITTED", ""
-    if "queued" in states:
+    if manual_open and all(state in ("completed", "blocked", "queued") for state in states):
+        if _externally_blocked(stages):
+            return "BLOCKED", ""
+        if not any(stage.get("selected_at") and state != "completed" for stage, state in zip(stages, states)):
+            reason = ""
+            if states and all(state == "completed" for state in states):
+                reason = "The planned phase finished." if len(states) == 1 else f"All {len(states)} planned phases finished."
+            return "AWAITING ASSIGNMENT", reason
+    if any(state == "queued" and (not manual_open or stage.get("selected_at")) for stage, state in zip(stages, states)):
         return "QUEUED", ""
     if states and all(state == "completed" for state in states):
         # job-status/9 publishes neither a final Job outcome nor an act of
@@ -451,6 +475,38 @@ def _stage_line(stage, observed_at, job=None):
     held["role"] = held["kind"]
     held["position"] = _position(stage, held)
     held["facts"] = _facts(stage, held, observed_at)
+    if job and job.get("mode") == "MANUAL":
+        if job.get("lifecycle") == "closed" and not stage.get("selected_at"):
+            held["position"] = "never selected; Job closed"
+        elif state == "queued":
+            if _mapping(job.get("budget")).get("expired") is True:
+                held["position"] = "admission fenced; Job wall budget exhausted"
+            else:
+                held["facts"].append("Selection recorded; waiting for admission" if stage.get("selected_at") else "Ready for explicit start")
+        phase_cancellation = _mapping(stage.get("execution_cancellation"))
+        if phase_cancellation:
+            held["facts"].append("Phase cancellation: " + _status_text(phase_cancellation.get("trigger")))
+
+        if state == "completed":
+            held["facts"].append("Phase COMPLETED")
+        if isinstance(stage.get("result"), dict):
+            result = stage["result"]
+            decision = _owner_decision(stage, job)
+            if decision:
+                actor = _mapping(decision.get("actor"))
+                frozen = _mapping(decision.get("frozen"))
+                held["reason"] = "Worker hold at freeze: " + _status_text(decision.get("held_cause"))
+                held["facts"].extend([
+                    "Owner decision: " + _status_text(decision.get("outcome")) + " by " + _status_text(actor.get("participant"))
+                    + " (" + _status_text(actor.get("principal")) + ") at " + _status_text(decision.get("recorded_at")),
+                    "Frozen result: " + _status_text(frozen.get("result_id")) + " at " + _status_text(frozen.get("frozen_at")),
+                    "Frozen manifest: " + _status_text(frozen.get("manifest_digest"))])
+            if result.get("reason"):
+                held["facts"].append("Settlement reason: " + _status_text(result["reason"]))
+            if result.get("attempt_id"):
+                held["facts"].append("Retained result for attempt " + _status_text(result["attempt_id"]))
+            if result.get("locator"):
+                held["facts"].append("Retained findings: " + _status_text(result["locator"]))
     if held["execution_position"] == "admitted":
         held["facts"].append("reported phase state: " + state)
     return held
@@ -612,6 +668,12 @@ def _gate_text(gate):
             _status_text(gate.get("state")) + ")")
 
 
+def _owner_decision(stage, job):
+    if job.get("mode") == "MANUAL" and stage.get("state") in ("completed", "exceptional"):
+        return _mapping(_mapping(stage.get("result")).get("owner_decision"))
+    return {}
+
+
 def _owner_hold(stage):
     hold = _mapping(stage.get("runtime")).get("model_attribution_hold")
     if hold in ("model-attribution-missing", "model-attribution-conflicting", "model-attribution-invalid",
@@ -704,13 +766,19 @@ def _attempts(stage, job):
     attempts = []
     live = None
     allocations = _rows(stage.get("allocations")) + [_mapping(stage.get("allocation"))]
-    targets = _rows(_mapping(_mapping(job).get("cancellation")).get("targets"))
+    target_stage = stage.get("stage_id")
+    cancellation = _mapping(job).get("cancellation")
+    if _mapping(job).get("mode") == "MANUAL":
+        execution = stage.get("execution_job_id")
+        target_stage = execution + "/research" if type(execution) is str and execution and stage.get("kind") == "research" else None
+        cancellation = stage.get("execution_cancellation")
+    targets = _rows(_mapping(cancellation).get("targets")) if target_stage else []
     for row in _rows(stage.get("episodes")):
         number, identity = row.get("episode"), row.get("attempt_id")
         valid = type(number) is int and number > 0 and type(identity) is str and bool(identity)
         current = valid and type(stage.get("episode")) is int and number == stage.get("episode") and identity == stage.get("attempt_id")
         allocation = next((one for one in allocations if valid and type(one.get("episode")) is int and one.get("episode") == number and one.get("assignment_id") == identity), {})
-        target = next((one for one in targets if valid and one.get("stage_id") == stage.get("stage_id") and type(one.get("episode")) is int and one.get("episode") == number and one.get("attempt_id") == identity), {})
+        target = next((one for one in targets if valid and one.get("stage_id") == target_stage and type(one.get("episode")) is int and one.get("episode") == number and one.get("attempt_id") == identity), {})
         receipts = [one for one in _rows(stage.get("receipts")) if current and type(one.get("episode")) is int and one.get("episode") == number]
         offered = any(one.get("act") == "admit" and one.get("state") in ("performed", "adopted") and _mapping(one.get("detail")).get("canonical_state") == "committed" for one in receipts)
         claimed = any(one.get("act") == "claim" and _mapping(_mapping(one.get("detail")).get("result")).get("state") == "claimed" for one in receipts)
@@ -826,6 +894,16 @@ def job_view(document, job):
               for stage in _rows(_mapping(job).get("stages"))]
     count = sum(phase["attempt_count"] for phase in phases if phase["state"] in _STATUS_STAGE_STATES and phase["state"] not in TERMINAL_STATES)
     headline, reason = _job_headline(job, phases)
-    return {"headline": headline, "headline_reason": reason, "phases": phases, "open_admitted": count,
+    label = ""
+    summary = str(count) + " admitted attempt(s) in nonterminal phases"
+    if job.get("mode") == "MANUAL":
+        budget = _mapping(job.get("budget"))
+        charged, limit = budget.get("charged_seconds"), budget.get("limit_seconds")
+        if type(charged) is int and type(limit) is int:
+            summary += f"; Job wall budget {charged}/{limit}s charged"
+        if job.get("closed_at"):
+            summary += "; closed at " + _status_text(job["closed_at"])
+        label = "MANUAL OPEN   " if job.get("lifecycle") == "open" else "MANUAL · "
+    return {"headline": headline, "labelled_headline": label + headline, "headline_reason": reason, "phases": phases, "open_admitted": count,
             "recorded_runtimes": sum(stage.get("runtime") is not None for stage in _rows(_mapping(job).get("stages"))),
-            "summary": str(count) + " admitted attempt(s) in nonterminal phases"}
+            "summary": summary}

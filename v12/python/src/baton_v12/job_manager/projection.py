@@ -60,7 +60,7 @@ _DISPOSITIONS = {"completed": "completed", "unable": "exceptional",
 
 # Which state a claimed stage with a live runtime is IN, by what the stage is
 # for. One vocabulary, three kinds, written down rather than inferred.
-_RUNNING = {"implementation": "running", "review": "reviewing",
+_RUNNING = {"research": "running", "implementation": "running", "review": "reviewing",
             "integration": "integrating",
             # W385695: A PUBLICATION STAGE WITH AN ATTACHED RUNTIME IS RUNNING.
             # It had no entry, so the first publication stage ever served
@@ -101,7 +101,7 @@ def replaceable(entry):
     ended any other way is a stage that stopped, and it is projected as such
     rather than re-offered on this leaf's own authority.
     """
-    if entry["episode"] is not None or not entry["history"]:
+    if entry.get("manual_phase") or entry["episode"] is not None or not entry["history"]:
         return False
     return (entry["history"][-1]["ended_state"]
             in documents.REPLACEABLE_ENDINGS)
@@ -504,7 +504,12 @@ def materialized(store, stages=None):
     from .publication_execution import execution_gate as publication_gate
     from .retained_recovery import execution_gate
 
+    from . import manual
     with store.read_snapshot():
+        manual_jobs = manual.snapshot_in(store._connection, store._now())
+        selections = {phase["execution_job_id"]: dict(job_id=job["job_id"], phase=phase["phase"], state=phase["state"],
+                                                     expired=job["budget"]["expired"], timing=job["budget"]["timing"])
+                      for job in manual_jobs for phase in job["phases"]}
         rows = stages if stages is not None else submission.stage_rows(store)
         jobs = submission.job_rows(store)
         owned = {}
@@ -517,7 +522,7 @@ def materialized(store, stages=None):
             # as this stage's current one.
             live = episodes.live_of(store, stage_id)
             owned[stage_id] = {
-                "stage": stage, "episode": live,
+                "stage": stage, "episode": live, "manual_phase": selections.get(stage["job_id"]),
                 "recovery_gate": execution_gate(store, stage["job_id"]),
                 # W385695 / DESIGN REC-9: AND THE PUBLICATION RECOVERY'S OWN
                 # GATE, beside REC-8's rather than folded into it. The two
@@ -616,7 +621,7 @@ def materialized(store, stages=None):
         grouped = {job["job_id"]: [] for job in jobs}
         for stage in rows:
             grouped.setdefault(stage["job_id"], []).append(stage)
-        return {"jobs": jobs, "stages": rows, "owned": owned,
+        return {"jobs": jobs, "stages": rows, "owned": owned, "manual_jobs": manual_jobs,
                 "stages_by_job": grouped,
                 # W383215: THE FENCES, IN THE SAME READ VIEW as the episodes
                 # they retire, so a stage is never derived beside a request
@@ -858,6 +863,9 @@ def control_closed(evaluation, stage_id):
 
 
 def _owed(entry):
+    selection = entry.get("manual_phase")
+    if selection and (selection["state"] != "selected" or selection["expired"] or selection["timing"] != "trusted"):
+        return None
     if entry["episode"] is None:
         return None
     # W383215: A CANCELLED JOB OWES NO ADMISSION AND NO CLAIM. This is the
@@ -1097,8 +1105,13 @@ def status(store, operations, *, observed_at):
             control=job_control.reported(
                 snapshot["controls"].get(job["job_id"]),
                 snapshot["cancellations"].get(job["job_id"]))))
+    version = documents.STATUS_SCHEMA
+    if snapshot["manual_jobs"]:
+        from . import manual_status
+        jobs = manual_status.combine(jobs, snapshot["manual_jobs"])
+        version = documents.MANUAL_STATUS_SCHEMA
     return documents.status(
-        schema=documents.STATUS_SCHEMA, observed_at=observed_at,
+        schema=version, observed_at=observed_at,
         incarnation=store.incarnation,
         # WHETHER THE CANONICAL STORE WAS READ AT ALL. A status assembled
         # without the manager can still report what was submitted and what

@@ -125,7 +125,7 @@ ROLES = ("implementation", "review", "integration")
 # install one serves exactly what it always served, and a recovery admitted
 # against it is HELD by the admission boundary naming this owner.
 PUBLICATION_ROLE = "publication"
-WORKER_ROLES = ROLES + (PUBLICATION_ROLE,)
+WORKER_ROLES = ROLES + (PUBLICATION_ROLE, "research")
 
 # WHICH ROLES MAY NOT SHARE A PARTICIPANT OR A PRINCIPAL. Independence is the
 # whole reason a review exists, and `attach_review` already refuses a reviewer
@@ -999,7 +999,7 @@ def _held_workers(workers, checkout, authority_uuid, *, many=False,
                     f"{', '.join(ROLES)}")
         # THE ROLE RULE FIRST, so the one-Job variant's refusal is the exact
         # sentence it has always been rather than one about identities.
-        if role in seen_roles and not many:
+        if role in seen_roles and not many and role != "research":
             _refuse(f"two workers are configured for the {role} stage; each "
                     f"stage is served by exactly one")
         if one["worker_id"] in identities:
@@ -1050,7 +1050,7 @@ def _held_workers(workers, checkout, authority_uuid, *, many=False,
     # independently reviewed serves nothing.
     missing = [role for role in ROLES
                if role not in seen_roles and role != "integration"]
-    if missing:
+    if missing and not (empty_ok and set(seen_roles) == {"research"}):
         _refuse(f"this deployment serves {', '.join(ROLES)} and names no "
                 f"worker for {', '.join(missing)}")
     # W385695 (review 2026-11-23T18-55-03Z R1): ONE DEDICATED PUBLICATION
@@ -5612,6 +5612,31 @@ class StageExecution:
 
     # -- the owned observation and the two stage driver operations -----------
 
+    def prepare_research(self, execution_job_id, descriptor):
+        from baton_v12.job_manager import research
+
+        if self.deployment is None:
+            raise research.refusal("research needs a configured deployment")
+        workers = [worker for worker in self.deployment.given["workers"] if worker["role"] == "research"
+                   and research.compatible(worker["deployment"], descriptor)]
+        if not workers:
+            raise research.refusal("no research worker matches the pinned phase input, profile and policy")
+        from tools.research_authorization import ensure_phase_work
+        ensure_phase_work(self.authority, execution_job_id, descriptor, workers)
+        if not _research_workers(self.deployment, execution_job_id, descriptor):
+            raise research.refusal("the research Work is outside the configured worker's authorized scope")
+        return research.prepare_submission(execution_job_id, descriptor)
+
+    def research_freeze(self, attempt_id):
+        from baton_v12.job_manager import research
+
+        return research.frozen_evidence(self.deployment.control, attempt_id)
+
+    def research_result(self, attempt_id):
+        from baton_v12.job_manager import research
+
+        return research.retained_result(self.deployment.control, attempt_id)
+
     def admit(self, stage, job=None):
         """Admit a stage, revalidating an allocation that already exists.
 
@@ -6359,6 +6384,34 @@ def _disagreements(given, stage, job, binding, template_version=None):
     return {what: pair for what, pair in named.items() if pair[0] != pair[1]}
 
 
+def _research_workers(deployment, execution_job_id, descriptor):
+    """Re-prove the pinned capability and its actual Work route before reserve."""
+    from baton_v12.job_manager import research
+    from tools import research_authorization
+
+    authority = deployment.authority
+    generated = descriptor.get("work_origin") == "generated"
+    if generated:
+        work = research_authorization.verify_generated_phase_work(authority, execution_job_id, descriptor)
+    else:
+        work = authority.project_work(descriptor["work_id"])
+    if not work or work["status"] != "open":
+        raise research.refusal("research requires an open authorized Work")
+    compatible = []
+    for worker in deployment.given["workers"]:
+        given = worker["deployment"]
+        if worker["role"] != "research" or not research.compatible(given, descriptor):
+            continue
+        if not authority.handles_route(work["route"], given["participant"]):
+            continue
+        if not generated:
+            installed = authority.project_work(given["input_manifest"]["work_ref"]["work_id"])
+            if not installed or installed["scope"] != work["scope"]:
+                continue
+        compatible.append(worker)
+    return compatible
+
+
 def _job_workers(deployment, stage, job=None):
     """The configured workers this Job's stage could actually be served by.
 
@@ -6370,6 +6423,16 @@ def _job_workers(deployment, stage, job=None):
     EVERY ROLE IS DERIVED HERE, by the one rule, and a Job with no compatible
     worker for its stage is refused before anything is reserved for it.
     """
+    if stage.get("kind") == "research":
+        from baton_v12.job_manager import manual, research
+
+        row = manual.phase_for_execution(deployment.jobs, stage["job_id"])
+        if not row or not row["selected_at"] or row["settled_at"]:
+            raise research.refusal("research allocation has no outstanding selected assignment")
+        compatible = _research_workers(deployment, stage["job_id"], row["document"])
+        if not compatible:
+            raise research.refusal("the selected research assignment has no compatible worker")
+        return None, compatible
     binding = deployment.binding_for(stage["job_id"])
     if job is None:
         job = job_of(deployment.jobs, stage["job_id"])
@@ -7363,7 +7426,7 @@ def _pool(given, resolved):
                         # PUBLICATION LANE, explicitly. It fell through to
                         # `implementation` here, which is the one mapping
                         # REC-9's contract forbids by name.
-                        "lane": ("review" if one["role"] == "review"
+                        "lane": ("review" if one["role"] in ("review", "research")
                                  else scheduler.PUBLICATION_LANE
                                  if one["role"] == PUBLICATION_ROLE
                                  else "implementation"),
@@ -7467,8 +7530,9 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
         # first start. The moment a Job is bound the binding is read here, the
         # Work exists, and the receipts are minted and authorized in its own
         # scope before anything is dispatched or published, exactly as before.
-        idle = scope is None
-        composed.sessions = None if idle else _minted(composed.authority,
+        research_capacity = any(worker["role"] == "research" for worker in given["workers"])
+        idle = scope is None and not research_capacity
+        composed.sessions = None if scope is None else _minted(composed.authority,
                                                       given, scope)
         # NO CAPACITY MEANS NO POOL TO PREDICT OR ACTIVATE. A pool document
         # is a list of workers, and `scheduler.own_pool` refuses an empty one
@@ -7667,8 +7731,8 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
                     provider, engine_run=engine_run, clock=clock,
                     checkpoint=checkpoint, permission_policy=permission_policy,
                     lifetime_policy=lifetime_policy,
-                    job_task=single_worker.job_task_reader(job_store),
-                    stage=StageComposition(deployment, role=one["role"],
+                    job_task=single_worker.job_task_reader(job_store), worker_id=one["worker_id"],
+                    stage=None if one["role"] == "research" else StageComposition(deployment, role=one["role"],
                                            worker_id=one["worker_id"]),
                     # W156162: the same reader every Job-bound factory gets.
                     execution_context=single_worker.job_execution_reader(

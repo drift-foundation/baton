@@ -941,3 +941,104 @@ class Persistence(SweepCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ManualSweep(SweepCase):
+    """Crash/replay and owner-facing status across real Job Store transactions."""
+
+    def setUp(self):
+        super().setUp()
+        from .fixtures import INPUT_DIGEST, POLICY_DIGEST, PROFILE, WORK_A
+        from baton_v12.job_manager import manual, research
+        self.manual = manual
+        self.acts.prepare_research = research.prepare_submission
+        self.descriptor = dict(kind="research", statement="Inspect the declared sources", scope=["src"],
+                               depends_on=[], work_id=WORK_A, profile_name="reference", profile_digest=PROFILE,
+                               input_digest=INPUT_DIGEST, policy_digest=POLICY_DIGEST)
+        manual.create(self.jobs, "research", {"wall_seconds": 120, "scope": ["src"]})
+
+    def add(self, name, **changes):
+        self.manual.add_phase(self.jobs, "research", name, dict(self.descriptor, **changes))
+        return self.manual.execution_job_id("research", name)
+
+    def tick(self, second, *, resume=False):
+        from datetime import datetime, timedelta
+        self.instants.append((datetime.fromisoformat(NOW) + timedelta(seconds=second)).isoformat(timespec="milliseconds").replace("+00:00", "Z"))
+        if resume:
+            self.jobs.close()
+            self.jobs = self.store("resumed")
+            return manager.reconcile(self.jobs, self.acts, now=self.clock())
+        return sweep(self.jobs, self.acts, now=self.clock())
+
+    def test_restart_while_idle_and_while_two_workers_have_accepted_commands(self):
+        from .fixtures import WORK_B
+        left = self.add("left") + "/research"
+        right = self.add("right", work_id=WORK_B) + "/research"
+        self.tick(1000, resume=True)
+        self.assertFalse([call for call in self.acts.calls if call[0] in ("admit", "claim", "launch")])
+        for name, stage_id in [("left", left), ("right", right)]:
+            self.manual.start_phase(self.jobs, "research", name)
+            self.acts.starts(stage_id, attaches=True)
+            self.tick(1000)
+            self.tick(1000)
+            self.acts.commanded(stage_id, state="working")
+        self.tick(1017, resume=True)
+        self.manual.start_phase(self.jobs, "research", "left")
+        doc = status(self.jobs, self.acts, observed_at=self.clock())
+        owner, = doc["jobs"]
+        self.assertEqual([phase["state"] for phase in owner["stages"]], ["running", "running"])
+        self.assertEqual(owner["budget"]["charged_seconds"], 17)
+        for stage_id in (left, right):
+            for act in ("admit", "claim", "launch"):
+                self.assertEqual(self.acts.calls.count((act, stage_id)), 1)
+        # The provider/custody boundary has its own integrated test. This case
+        # fixes the manager's clock at the instant it receives those outcomes.
+        self.acts.research_result = lambda attempt: {"attempt_id": attempt, "locator": "fixture-findings/" + attempt}
+        for stage_id in (left, right):
+            self.acts.frozen(stage_id, "completed")
+        self.tick(1021)
+        self.tick(3000, resume=True)
+        owner, = status(self.jobs, self.acts, observed_at=self.clock())["jobs"]
+        self.assertEqual(owner["budget"]["charged_seconds"], 21)
+        self.assertEqual(owner["lifecycle"], "open")
+        self.assertTrue(all(p["result"]["attempt_id"] == p["attempt_id"] for p in owner["stages"]))
+        self.manual.close_job(self.jobs, "research")
+        self.assertEqual(status(self.jobs, self.acts, observed_at=self.clock())["jobs"][0]["lifecycle"], "closed")
+
+    def test_selected_phase_identity_cannot_be_taken_by_an_ordinary_submission(self):
+        from baton_v12.job_manager import research
+        child = self.add("left")
+        self.manual.start_phase(self.jobs, "research", "left")
+        for document in (research.prepare_submission(child, self.descriptor),
+                         submission(submission_id=child, jobs=[job("foreign")]),
+                         submission(jobs=[job(child)]), submission(jobs=[job("research")])):
+            with self.assertRaises(ContractRefusal):
+                submit(self.jobs, document)
+        self.tick(0)
+        self.assertEqual(self.acts.calls.count(("admit", child + "/research")), 1)
+
+    def test_capacity_wait_expires_and_is_never_dispatched_after_restart(self):
+        child = self.add("left")
+        self.manual.start_phase(self.jobs, "research", "left")
+        def busy(stage, job):
+            raise ContractRefusal("refused", "precondition", "all eligible workers reserved")
+        self.acts.admit = busy
+        self.tick(0)
+        self.tick(120, resume=True)
+        owner, = status(self.jobs, self.acts, observed_at=self.clock())["jobs"]
+        phase, = owner["stages"]
+        self.assertTrue(owner["budget"]["expired"])
+        self.assertEqual(phase["result"]["reason"], "execution-fenced-before-admission")
+        self.assertFalse([c for c in self.acts.calls if c[0] in ("launch", "claim")])
+
+    def test_replacement_paths_cannot_turn_one_selection_into_a_second_episode(self):
+        from baton_v12.job_manager import fresh_attempt
+        child = self.add("left")
+        self.manual.start_phase(self.jobs, "research", "left")
+        self.tick(0)
+        stage_id = child + "/research"
+        with self.assertRaisesRegex(ContractRefusal, "one episode"):
+            episodes.open_next(self.jobs, stage_id, {"stage_id": stage_id, "episode": 1, "ended_state": "abandoned-after-restart"})
+        with self.assertRaisesRegex(ContractRefusal, "new named phase"):
+            fresh_attempt._prior(self.jobs, child)
+        self.assertEqual(episodes.live_of(self.jobs, stage_id)["episode"], 1)

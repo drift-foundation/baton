@@ -414,7 +414,7 @@ _MAX_MARKER_BYTES = 64 * 1024
 # implementation's result goes to review; the review's verdict goes on to
 # integration. `tests/tools/test_bootstrap.ValidFixture` and the standard
 # next-run packet agree on these two values.
-REVIEW_ROUTES = {"implementation": "rview", "review": "integration",
+REVIEW_ROUTES = {"research": "owner", "implementation": "rview", "review": "integration",
                  "integration": "owner",
                  # A PUBLISHED RECOVERY IS REVIEWED NEXT, exactly as an
                  # implementation's candidate is: the publication stands
@@ -758,8 +758,17 @@ def composed(held, *, worker_id, role, participant, image_reference,
                               "this is " + repr(place) + ". Nothing was "
                               "changed.")
     layout = _layout_selection(verifier_layout, legacy_layout)
-    template = _template_selection(template_version)
-    declared = _declared_outputs(template_version, template)
+    from baton_v12.job_manager import research
+    if role == "research":
+        if template_version not in (TEMPLATE_VERSION, research.TEMPLATE):
+            raise PoolRefusal("a research worker requires the report-only research template")
+        if not provider_selection or provider_selection.get("provider") != "claude":
+            raise PoolRefusal("a research worker requires an explicit Claude model selection")
+        template_version = research.TEMPLATE
+        declared = research.outputs()
+    else:
+        template = _template_selection(template_version)
+        declared = _declared_outputs(template_version, template)
     destination = Path(held["state_root"]).parent
     places = instance.layout(destination)
     if places["authority_store"] != held["authority_store"]:
@@ -782,7 +791,7 @@ def composed(held, *, worker_id, role, participant, image_reference,
             turn_seconds=limits["provider_turn"]["seconds"],
             verification_seconds=limits["ordinary_verification"]["seconds"],
             implementer_invocations=1, contextual=False,
-            provider_selection=provider_selection)
+            provider_selection=provider_selection, research=role == "research")
         if provider_selection is not None:
             from baton_v12 import provider_policy
             provider_policy.validate_execution(identities["adapter"], role)

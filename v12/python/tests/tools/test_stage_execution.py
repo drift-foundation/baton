@@ -13835,3 +13835,669 @@ class OrdinaryReviewUncertainty(ComposedOneJobCase):
             self.tick(held)
         self.assertEqual(review_uncertainty.items_of(held.job), [])
         self.assertNotEqual(self.states(held.job, held.composed)["review"], "completed")
+
+
+class OwnerPacedResearchTurns(ComposedOneJobCase):
+    """Real Authority/Job/Worker stores, exchange, and custody; deterministic engine and provider."""
+
+    def provision(self, capacity, *, storage_depends=False, cold=False):
+        from baton_v12.authority import Authority
+        from baton_v12.contracts import digest
+        from baton_v12 import provider_policy
+        from tests.manager import provider_fixtures
+        from baton_v12.job_manager import research
+        from tests.job_manager import fixtures
+        self.seconds = 0
+        self.providers = {}
+        self.engine = _ConcurrentEngine()
+        self.given = self.composed_document()
+        if cold:
+            self.given.update(schema=stage_execution.MULTI_CONFIG_SCHEMA, job_bindings=[], workers=[])
+            for name in ("job_work_id", "review_work_id", "line_declared_base", "canonical_target_id"):
+                del self.given[name]
+        selected, identities = provider_fixtures.identities()
+        profile = dict(identities["runtime_profile"], image_digest=self.config["image_digest"], network=self.config["network"])
+        adapter = provider_policy.adapter(selected, network=self.config["network"], research=True)
+        manifest = dict(self.manifest, outputs=research.outputs(), runtime_profile_digest=digest(profile),
+                        tool_policy_digest=digest(provider_policy.POLICY))
+        manifest.pop("manifest_digest")
+        manifest["manifest_digest"] = digest(manifest)
+        authority = Authority.open(self.authority_path, expected_authority_uuid=self.config["authority_uuid"])
+        try:
+            authority.create_work(fixtures.WORK_B, fixtures.ROUTE, contract="v12-assignment-1", operation_id="manual-independent-work")
+            for index in range(capacity):
+                participant = "baton.research-" + str(index)
+                authority.add_route_handler(fixtures.ROUTE, participant)
+                worker = self.worker("research", participant=participant, principal=authority.principal_of(participant),
+                                     input_manifest=manifest, launch_home=os.path.join(self.root, f"launch-research-{index}"),
+                                     credential_home=os.path.join(self.root, f"cred-research-{index}"))
+                worker["deployment"].update(
+                    schema=single_worker.PROVIDER_CONFIG_SCHEMA, provider_context=None, verifier_layout=None,
+                    profile_name=profile["name"], profile_digest=digest(profile), adapter_name="report-only-claude", adapter_digest=digest(adapter),
+                    credential_slots=["claude"], credential_profile={"claude": {"provider": "fixture", "reference": "test-key"}},
+                    provider_home_root=os.path.join(self.root, "job-work"),
+                    provider_contract={"selection": selected, "runtime_profile": profile, "adapter": adapter})
+                worker["worker_id"] = f"research-{index}"
+                self.given["workers"].append(worker)
+        finally:
+            authority.dispose()
+        self.attach()
+        from baton_v12.job_manager import manual
+        manual.create(self.job, "study", {"scope": ["worker-task.txt"], "wall_seconds": 100})
+        installed = self.composed.deployment.given["workers"][-1]["deployment"]
+        self.descriptors = {}
+        for phase, work_id in [("routing", fixtures.WORK_A), ("storage", fixtures.WORK_B)]:
+            descriptor = dict(kind="research", statement="Summarize " + phase, scope=["worker-task.txt"], source_commit=self.base, depends_on=[],
+                              work_id=work_id, policy_digest=installed["policy_digest"],
+                              profile_name=installed["profile_name"], profile_digest=installed["profile_digest"])
+            descriptor["depends_on"] = ["routing"] if phase == "storage" and storage_depends else []
+            descriptor["input_digest"] = job_input_identity(research.delivery(installed, descriptor)["input_manifest"])
+            manual.add_phase(self.job, "study", phase, descriptor)
+            self.descriptors[phase] = descriptor
+
+    def now(self):
+        from tests.job_manager.test_job_control import at
+        return at(self.seconds)
+
+    def attach(self):
+        from baton_v12.job_manager import JobStore
+        from baton_v12.worker_manager import ControlStore
+        self.job = JobStore.open(self.job_path, authority_uuid=self.config["authority_uuid"], incarnation="manual-serving", clock=self.now)
+        self.control = ControlStore.open(self.control_path, incarnation="research-serving", clock=self.now)
+        self.addCleanup(self.job.close)
+        self.addCleanup(self.control.close)
+        self.composed = stage_execution.operations_from(
+            self.given, self.job, self.control, engine_run=self.engine,
+            credential_provider=lambda *_: self.secret, clock=self.now, checkout=self.checkout)
+        self.addCleanup(self.composed.close)
+
+    def reopen(self):
+        self.composed.close()
+        self.control.close()
+        self.job.close()
+        self.attach()
+        from baton_v12.job_manager import reconcile
+        reconcile(self.job, self.composed, now=self.now())
+
+    def ticks(self, count=4):
+        from baton_v12.job_manager import sweep
+        for _ in range(count):
+            self.last_report = sweep(self.job, self.composed, now=self.now())
+
+    def projection(self):
+        from baton_v12.job_manager import status
+        return status(self.job, self.composed, observed_at=self.now())["jobs"][0]
+
+    def test_independent_selected_phases_overlap_and_recover_with_exactly_one_launch_each(self):
+        from baton_v12.job_manager import manual
+        self.provision(2, cold=True)
+        self.ticks()
+        self.assertEqual(len(self.engine.starts), 0)
+        self.seconds = 5
+        first = manual.start_phase(self.job, "study", "routing")
+        self.ticks()
+        self.assertEqual(len(self.engine.starts), 1, (self.last_report, self.projection()))
+        self.seconds = 8
+        second = manual.start_phase(self.job, "study", "storage")
+        self.ticks()
+        self.assertEqual(len(self.engine.starts), 2, (self.last_report, self.projection()))
+        for name in ("routing", "storage"):
+            self.enter_worker(name)
+        self.ticks()
+        self.assertEqual([row["state"] for row in self.projection()["stages"]], ["running", "running"])
+        commands, journal = self.command_and_launch_identities()
+        self.assertEqual(len(commands), 2)
+        self.assertEqual(len({command["attempt_id"] for command in commands}), 2)
+        self.assertEqual(len({command["sequence_id"] for command in commands}), 2)
+        self.assertEqual(len({op["operation_id"] for command in commands for op in command["operations"] if op["operation"] == "work"}), 2)
+        self.assertEqual(len(journal), 2)
+        self.seconds = 16
+        self.reopen()
+        self.ticks()
+        self.assertEqual(self.command_and_launch_identities(), (commands, journal))
+        self.assertEqual(manual.start_phase(self.job, "study", "routing"), first)
+        self.assertEqual(manual.start_phase(self.job, "study", "storage"), second)
+        self.assertEqual(len(self.engine.starts), 2)
+        self.assertEqual(manual.snapshot(self.job)[0]["budget"]["charged_seconds"], 11)
+        self.assertEqual([row["state"] for row in self.projection()["stages"]], ["running", "running"])
+        for name in ("routing", "storage"):
+            self.finish_worker(name)
+        self.ticks()
+        self.assertEqual([row["state"] for row in manual.snapshot(self.job)[0]["phases"]], ["completed", "completed"])
+
+    def test_installed_owner_resolves_held_phases_once_and_preserves_worker_evidence(self):
+        import io
+        from contextlib import redirect_stdout
+        from baton_v12.authority import Authority
+        from baton_v12.job_manager import manual
+        from baton_v12.worker_manager import frozen_output_of, load_manifest
+        from baton_v12.worker_manager.model_attribution import assessment_of
+        from tools import instance, job_manager, stack_command
+
+        places = instance.layout(self.root)
+        pathlib.Path(places["stores"]).mkdir(mode=0o700)
+        os.rename(self.authority_path, places["authority_store"])
+        self.authority_path = self.config["authority_store"] = places["authority_store"]
+        self.job_path, self.control_path = places["job_store"], places["control_store"]
+        distro = pathlib.Path(places["distro"])
+        distro.mkdir()
+        pathlib.Path(places["command"]).write_text("packaged operator fixture")
+        selector = instance.emit(self.root, authority_uuid=self.config["authority_uuid"],
+                                 identity={"fixture": True}, runtime=instance.manifest(distro), now=1)
+        instance.publish(places["instance"], selector)
+        inputs = pathlib.Path(places["install_inputs"])
+        inputs.write_text(json.dumps({"owner_participant": "baton.slaw"}))
+        inputs.chmod(0o600)
+        self.provision(2)
+        for path in (self.job_path, self.authority_path):
+            pathlib.Path(path).chmod(0o600)
+        authority = Authority.open(self.authority_path, expected_authority_uuid=self.config["authority_uuid"])
+        try:
+            principal = authority.principal_of("baton.slaw")
+        finally:
+            authority.dispose()
+
+        def decide(name, outcome):
+            command = ["manager", "finish-phase", "--instance", places["instance"],
+                       "--job", "study", "--phase", name, "--outcome", outcome]
+            out = io.StringIO()
+            with redirect_stdout(out), mock.patch.object(job_manager, "_utc_clock", return_value=self.now):
+                self.assertEqual(stack_command.main(command), 0)
+            return json.loads(out.getvalue())
+
+        def evidence(attempt):
+            frozen = frozen_output_of(self.control, attempt)
+            return (frozen, load_manifest(self.control, frozen["manifest_digest"], "resultManifest"),
+                    assessment_of(self.control, attempt))
+
+        attempts = {}
+        for phase in ("routing", "storage"):
+            manual.start_phase(self.job, "study", phase)
+        self.ticks()
+        with self.assertRaises(ContractRefusal):
+            decide("routing", "success")
+        for phase in ("routing", "storage"):
+            self.enter_worker(phase, contributor="unexpected-model")
+            attempts[phase] = self.finish_worker(phase)
+        self.seconds = 7
+        self.ticks()
+        before = {key: evidence(attempt) for key, attempt in attempts.items()}
+        self.seconds = 600
+        self.reopen()
+        decisions = {}
+        for name, outcome in (("routing", "success"), ("storage", "failure")):
+            with self.subTest(phase=name):
+                decisions[name] = answer = decide(name, outcome)
+                self.assertEqual(answer["actor"], {"participant": "baton.slaw", "principal": principal,
+                                                  "uid": os.getuid(), "authority_uuid": self.config["authority_uuid"]})
+                self.assertEqual((answer["phase"], answer["outcome"], answer["held_cause"]),
+                                 (name, outcome, "model-attribution-conflicting"))
+                self.assertEqual(answer["frozen"]["attempt_id"], attempts[name])
+                self.assertEqual(answer["frozen"]["manifest_digest"], before[name][0]["manifest_digest"])
+                self.assertEqual(before[name][2]["outcome"], "held")
+                self.assertEqual(decide(name, outcome), answer)
+                with self.assertRaises(ContractRefusal):
+                    decide(name, "failure" if outcome == "success" else "success")
+        manual.close_job(self.job, "study")
+        self.reopen()
+        self.ticks()
+        view = self.projection()
+        self.assertEqual(view["lifecycle"], "closed")
+        self.assertEqual(view["budget"]["charged_seconds"], 7)
+        for row in view["stages"]:
+            name = row["stage_id"].split("/")[-1]
+            self.assertEqual(row["state"], "completed" if name == "routing" else "exceptional")
+            self.assertEqual(row["result"]["owner_decision"], decisions[name])
+            self.assertEqual(evidence(attempts[name]), before[name])
+            self.assertEqual(decide(name, decisions[name]["outcome"]), decisions[name])
+        self.assertEqual(len(self.engine.starts), 2)
+
+    def test_competing_final_decisions_commit_exactly_one_receipt(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from threading import Barrier
+        from baton_v12.job_manager import JobStore, manual, manual_decision
+        self.provision(1)
+        manual.start_phase(self.job, "study", "routing")
+        self.ticks()
+        self.enter_worker("routing", contributor="unexpected-model")
+        self.finish_worker("routing")
+        self.ticks()
+        actor = {"uid": os.getuid(), "authority_uuid": self.config["authority_uuid"],
+                 "participant": "baton.owner", "principal": "test-owner"}
+        barrier = Barrier(2)
+
+        def finish(outcome):
+            with JobStore.open(self.job_path, authority_uuid=self.config["authority_uuid"],
+                               incarnation="fixture-owner-" + outcome, clock=self.now) as writer:
+                barrier.wait(timeout=10)
+                try:
+                    return manual_decision.finish(writer, "study", "routing", outcome, actor=actor)
+                except ContractRefusal:
+                    return None
+
+        with ThreadPoolExecutor(2) as pool:
+            answers = list(pool.map(finish, ("success", "failure")))
+        winner, = [receipt for receipt in answers if receipt is not None]
+        self.assertEqual(manual_decision.finish(self.job, "study", "routing", winner["outcome"], actor=actor), winner)
+        with self.assertRaises(ContractRefusal):
+            manual_decision.finish(self.job, "study", "routing", winner["outcome"], actor=dict(actor, uid=actor["uid"] + 1))
+        self.assertEqual(self.job._connection.execute(
+            "SELECT count(*) FROM operations WHERE kind='manual.finish-phase'").fetchone()[0], 1)
+        manual.close_job(self.job, "study")
+
+    def command_and_launch_identities(self):
+        from baton_v12.worker_manager import exchange
+        commands = []
+        for container in self.engine.records.values():
+            root = next(m["Source"] for m in container["mounts"] if m["Destination"] == exchange.COMMAND_TARGET)
+            commands.extend(json.loads(path.read_bytes()) for path in sorted(pathlib.Path(root).glob("*.json")))
+        starts = [tuple(row) for row in self.control._connection.execute(
+            "SELECT operation_id, state FROM operations WHERE kind='runtime.start' ORDER BY operation_id")]
+        return commands, starts
+
+    def enter_worker(self, phase, *, contributor="fixture-reported"):
+        import multiprocessing
+        row = next(row for row in self.projection()["stages"] if row["stage_id"].endswith("/" + phase))
+        attempt = row["attempt_id"]
+        container = next(row for row in self.engine.records.values() if attempt in row["labels"].values())
+        mounts = {one["Destination"]: one["Source"] for one in container["mounts"]}
+        # Each real worker has independent fixed paths. A process per worker
+        # preserves that boundary while its deterministic provider waits.
+        context = multiprocessing.get_context("spawn")
+        channel, remote = context.Pipe()
+        runner = context.Process(target=_research_worker_exchange, args=(mounts, phase, remote, contributor))
+        runner.start()
+        remote.close()
+        def stop():
+            if runner.is_alive():
+                runner.terminate()
+            runner.join(timeout=10)
+            channel.close()
+        self.addCleanup(stop)
+        self.assertTrue(channel.poll(10), "worker never reached its provider")
+        try:
+            response = channel.recv()
+        except EOFError:
+            from baton_v12.worker_manager import exchange
+            records = [p.read_text() for p in pathlib.Path(mounts[exchange.EVENT_TARGET]).glob("*.json")]
+            self.fail(f"worker exited before provider entry; events {records!r}")
+        self.assertEqual(response, "entered")
+        self.providers[phase] = (channel, runner, attempt)
+
+    def finish_worker(self, phase):
+        channel, runner, attempt = self.providers[phase]
+        channel.send("finish")
+        runner.join(timeout=10)
+        self.assertEqual(runner.exitcode, 0)
+        return attempt
+
+    def worker_turn(self, phase):
+        self.enter_worker(phase)
+        return self.finish_worker(phase)
+
+    def test_owner_success_returns_capacity_before_any_successor_is_selected(self):
+        from baton_v12.job_manager import allocation_of, manual, manual_decision
+        from baton_v12.worker_manager.model_attribution import assessment_of
+        self.provision(1, storage_depends=True)
+        manual.start_phase(self.job, "study", "routing")
+        self.ticks()
+        self.enter_worker("routing", contributor="unexpected-model")
+        first = self.finish_worker("routing")
+        self.ticks()
+        held = assessment_of(self.control, first)
+        self.assertEqual(held["cause"], "model-attribution-conflicting")
+        actor = {"uid": os.getuid(), "authority_uuid": self.job.authority_uuid,
+                 "participant": "baton.owner", "principal": "test-owner"}
+        receipt = manual_decision.finish(self.job, "study", "routing", "success", actor=actor)
+        self.reopen()
+        self.ticks()
+        first_allocation = allocation_of(self.job, first)
+        self.assertEqual(first_allocation["allocation_state"], "released")
+        self.assertEqual(len(self.engine.starts), 1)
+        manual.start_phase(self.job, "study", "storage")
+        self.ticks()
+        second = self.worker_turn("storage")
+        self.ticks()
+        self.assertEqual(allocation_of(self.job, second)["worker_id"], first_allocation["worker_id"])
+        self.assertEqual(assessment_of(self.control, first), held)
+        routing, storage = self.projection()["stages"]
+        self.assertEqual(routing["result"]["owner_decision"], receipt)
+        self.assertEqual(storage["state"], "completed")
+        self.assertEqual(len(self.engine.starts), 2)
+
+    def test_owner_disposed_hold_releases_one_worker_for_selected_research_across_restart(self):
+        from baton_v12.job_manager import allocation_of, manual, manual_decision, research
+        from baton_v12.worker_manager import frozen_output_of, load_manifest
+        from baton_v12.worker_manager.model_attribution import assessment_of
+
+        self.provision(1)
+        manual.start_phase(self.job, "study", "routing")
+        self.ticks()
+        self.enter_worker("routing", contributor="unexpected-model")
+        first = self.providers["routing"][2]
+        work = self.descriptors["routing"]["work_id"]
+        assignment = self.composed.authority.assignment_of(work)
+        self.assertIsNotNone(assignment)
+        self.reopen()
+        self.ticks()
+        self.assertEqual(len(self.engine.starts), 1)
+        self.assertTrue(self.engine.records[self.engine.runtime_id]["running"])
+        self.assertEqual(allocation_of(self.job, first)["allocation_state"], "reserved")
+
+        def first_evidence():
+            frozen = frozen_output_of(self.control, first)
+            return frozen, load_manifest(self.control, frozen["manifest_digest"], "resultManifest"), assessment_of(self.control, first)
+
+        self.finish_worker("routing")
+        self.ticks()
+        evidence = first_evidence()
+        self.assertEqual(evidence[2]["cause"], "model-attribution-conflicting")
+        self.assertEqual(len(self.engine.starts), 1)
+        self.assertEqual(allocation_of(self.job, first)["allocation_state"], "reserved")
+        actor = {"uid": os.getuid(), "authority_uuid": self.config["authority_uuid"],
+                 "participant": "baton.owner", "principal": "test-owner"}
+        decision = manual_decision.finish(self.job, "study", "routing", "failure", actor=actor)
+
+        manual.start_phase(self.job, "study", "storage")
+        first_runtime = self.engine.runtime_id
+        self.assertFalse(self.engine.records[first_runtime]["running"])
+        original = _ConcurrentEngine.__call__
+        for observed in ("still-running", "unobservable"):
+            with self.subTest(observed=observed):
+                inspections = []
+                def inspect(engine, argv, *, seconds=None):
+                    if argv[1] == "inspect" and argv[-1] == first_runtime:
+                        inspections.append(argv[-1])
+                        if observed == "unobservable":
+                            return engine.answer(status=1, stderr="engine inspection unavailable")
+                    return original(engine, argv, seconds=seconds)
+
+                self.engine.records[first_runtime]["running"] = observed == "still-running"
+                boundary = len(self.engine.vectors)
+                with mock.patch.object(_ConcurrentEngine, "__call__", inspect):
+                    self.reopen()
+                    self.ticks()
+                self.assertIn(first_runtime, inspections)
+                self.assertFalse(any(v[1] in ("rm", "stop") and v[-1] == first_runtime
+                                     for v in self.engine.vectors[boundary:]))
+                self.assertNotEqual(allocation_of(self.job, first)["allocation_state"], "released")
+                self.assertEqual(self.composed.authority.assignment_of(work), assignment)
+                self.assertEqual(len(self.engine.starts), 1)
+
+        self.engine.records[first_runtime]["running"] = False
+        class InterruptedAfterRemove(BaseException):
+            pass
+
+        def interrupt_after_remove(engine, argv, *, seconds=None):
+            answer = original(engine, argv, seconds=seconds)
+            if argv[1] == "rm" and argv[-1] == first_runtime:
+                raise InterruptedAfterRemove()
+            return answer
+
+        with mock.patch.object(_ConcurrentEngine, "__call__", interrupt_after_remove):
+            try:
+                self.reopen()
+                self.ticks()
+            except InterruptedAfterRemove:
+                pass
+            else:
+                self.fail(f"missing removal of {first_runtime}: {self.last_report}")
+        self.assertTrue(self.engine.records[first_runtime]["gone"])
+        self.assertEqual(len(self.engine.starts), 1)
+        self.assertNotEqual(allocation_of(self.job, first)["allocation_state"], "released")
+        self.reopen()
+        self.ticks()
+        self.assertEqual(len(self.engine.starts), 2, (self.last_report, allocation_of(self.job, first)))
+        self.assertEqual(allocation_of(self.job, first)["allocation_state"], "released")
+        self.assertIsNone(self.composed.authority.assignment_of(work))
+        self.assertTrue(self.engine.records[first_runtime]["gone"])
+        second = self.worker_turn("storage")
+        self.assertNotEqual(first, second)
+        self.assertEqual(allocation_of(self.job, first)["worker_id"], allocation_of(self.job, second)["worker_id"])
+        self.ticks()
+        self.reopen()
+        self.ticks()
+        routing, storage = self.projection()["stages"]
+        self.assertEqual((routing["state"], routing["result"]["owner_decision"]), ("exceptional", decision))
+        self.assertEqual(first_evidence(), evidence)
+        retained = research.retained_result(self.control, first)
+        report = pathlib.Path(retained["locator"].removeprefix("file://"), "report.txt")
+        self.assertEqual(report.read_text(), "Findings for routing")
+        self.assertEqual(storage["state"], "completed")
+        report = pathlib.Path(storage["result"]["locator"].removeprefix("file://"), "report.txt")
+        self.assertEqual(report.read_text(), "Findings for storage")
+        self.assertEqual(len(self.engine.starts), 2)
+
+    def test_one_worker_charges_capacity_wait_and_preserves_both_custody_results(self):
+        from baton_v12.contracts import digest
+        from baton_v12.job_manager import manual
+        self.provision(1)
+        manual.start_phase(self.job, "study", "routing")
+        self.ticks()
+        self.seconds = 5
+        manual.start_phase(self.job, "study", "storage")
+        self.ticks()
+        self.seconds = 8
+        self.assertEqual(len(self.engine.starts), 1)
+        self.assertEqual(manual.snapshot(self.job)[0]["budget"]["charged_seconds"], 8)
+        first = self.worker_turn("routing")
+        self.ticks(5)
+        self.assertEqual(len(self.engine.starts), 2, (self.last_report, self.projection()))
+        self.seconds = 12
+        second = self.worker_turn("storage")
+        self.ticks(5)
+        self.reopen()
+        self.seconds = 1000
+        self.ticks()
+        held = manual.snapshot(self.job)[0]
+        self.assertEqual(held["lifecycle"], "open")
+        self.assertEqual(held["budget"]["charged_seconds"], 12)
+        self.assertEqual({p["result"]["attempt_id"] for p in held["phases"]}, {first, second})
+        for phase in held["phases"]:
+            result = phase["result"]
+            self.assertEqual(phase["state"], "completed", phase)
+            place = result["locator"].removeprefix("file://")
+            entries = TheRetainedResultReopensAfterOrdinaryCleanup.measured(place)
+            self.assertEqual(digest(entries), result["content_digest"])
+            self.assertEqual(pathlib.Path(place, "report.txt").read_text(), "Findings for " + phase["phase"])
+            from baton_v12.worker_manager.model_attribution import assessment_of
+            evidence = assessment_of(self.control, result["attempt_id"])
+            self.assertEqual(evidence["outcome"], "matched", evidence)
+        manual.close_job(self.job, "study")
+        self.assertEqual(len(self.engine.starts), 2)
+
+    def test_dependency_and_an_idle_restart_do_not_launch_the_next_research_turn(self):
+        from baton_v12.job_manager import manual
+        self.provision(2, storage_depends=True)
+        with self.assertRaisesRegex(ContractRefusal, "routing"):
+            manual.start_phase(self.job, "study", "storage")
+        self.assertEqual(self.projection()["stages"][1]["gates"][0]["stage_id"], "study/routing")
+        manual.start_phase(self.job, "study", "routing")
+        self.ticks()
+        self.worker_turn("routing")
+        self.seconds = 6
+        self.ticks()
+        self.assertEqual(len(self.engine.starts), 1)
+        before = manual.snapshot(self.job)[0]
+        self.assertEqual(before["budget"]["charged_seconds"], 6)
+        result = next(row["result"] for row in before["phases"] if row["phase"] == "routing")
+        self.seconds = 405
+        self.reopen()
+        self.ticks()
+        self.assertEqual(len(self.engine.starts), 1)
+        self.assertEqual(manual.snapshot(self.job)[0]["budget"]["charged_seconds"], 6)
+        manual.add_phase(self.job, "study", "additional", self.descriptors["storage"])
+        retained = manual.snapshot(self.job)[0]
+        self.assertEqual(next(row["result"] for row in retained["phases"] if row["phase"] == "routing"), result)
+        manual.start_phase(self.job, "study", "storage")
+        self.ticks()
+        self.assertEqual(len(self.engine.starts), 2)
+        self.worker_turn("storage")
+        self.ticks()
+        manual.close_job(self.job, "study")
+        self.assertEqual(self.projection()["lifecycle"], "closed")
+
+    def test_wrong_claude_contributor_holds_the_research_result(self):
+        from baton_v12.job_manager import manual
+        from baton_v12.worker_manager.model_attribution import assessment_of
+        self.provision(1)
+        manual.start_phase(self.job, "study", "routing")
+        self.ticks()
+        self.enter_worker("routing", contributor="other-model")
+        attempt = self.finish_worker("routing")
+        self.ticks()
+        evidence = assessment_of(self.control, attempt)
+        self.assertEqual(evidence["outcome"], "held")
+        self.assertEqual(evidence["cause"], "model-attribution-conflicting")
+        routing = next(row for row in manual.snapshot(self.job)[0]["phases"] if row["phase"] == "routing")
+        self.assertEqual((routing["state"], routing["result"]), ("selected", None))
+        with self.assertRaisesRegex(ContractRefusal, "unsettled"):
+            manual.close_job(self.job, "study")
+
+    def test_reconcile_recovers_the_recorded_freeze_before_deciding_expiry(self):
+        from baton_v12.job_manager import cancellation, manual
+        from baton_v12.worker_manager import frozen_output_of
+        self.provision(1)
+        self.seconds = 5
+        manual.start_phase(self.job, "study", "routing")
+        self.ticks()
+        attempt = self.worker_turn("routing")
+        self.seconds = 12
+        # Crash after Control committed the genuine freeze, before the Job Store
+        # imported the evidence or settled the selection.
+        with mock.patch.object(manual, "record_freeze", side_effect=RuntimeError("crash after freeze")):
+            with self.assertRaisesRegex(RuntimeError, "crash after freeze"):
+                self.ticks()
+        worker_fact = frozen_output_of(self.control, attempt)
+        self.assertEqual(worker_fact["frozen_at"], self.now())
+        self.assertIsNone(next(p for p in manual.snapshot(self.job)[0]["phases"] if p["phase"] == "routing")["frozen"])
+        self.seconds = 600
+        self.reopen()
+        self.ticks()
+        job = manual.snapshot(self.job)[0]
+        phase = next(p for p in job["phases"] if p["phase"] == "routing")
+        self.assertEqual(phase["state"], "completed", self.projection())
+        self.assertEqual(phase["frozen"]["frozen_at"], self.now_at(12))
+        self.assertEqual(phase["frozen"]["manifest_digest"], worker_fact["manifest_digest"])
+        self.assertEqual(phase["settled_at"], self.now_at(600))
+        self.assertEqual(phase["result"]["attempt_id"], attempt)
+        self.assertEqual(job["budget"]["charged_seconds"], 7)
+        self.assertIsNone(cancellation.fence_of(self.job, phase["execution_job_id"]))
+        manual.start_phase(self.job, "study", "storage")
+        self.ticks()
+        self.assertEqual(len(self.engine.starts), 2)
+
+    def test_overlapping_held_and_completed_freezes_preserve_the_union_on_restart(self):
+        from baton_v12.job_manager import cancellation, manual
+        self.provision(2, cold=True)
+        self.seconds = 2
+        manual.start_phase(self.job, "study", "routing")
+        self.ticks()
+        self.seconds = 5
+        manual.start_phase(self.job, "study", "storage")
+        self.ticks()
+        self.enter_worker("routing", contributor="other-model")
+        self.enter_worker("storage")
+        self.seconds = 8
+        first = self.finish_worker("routing")
+        self.ticks()
+        self.seconds = 12
+        self.reopen()
+        job = manual.snapshot(self.job)[0]
+        self.assertEqual(job["budget"]["charged_seconds"], 10)
+        self.assertEqual(job["budget"]["deadline_at"], self.now_at(102))
+        self.seconds = 21
+        self.finish_worker("storage")
+        self.ticks()
+        self.seconds = 1000
+        self.reopen()
+        job = manual.snapshot(self.job)[0]
+        routing = next(p for p in job["phases"] if p["phase"] == "routing")
+        storage = next(p for p in job["phases"] if p["phase"] == "storage")
+        self.assertEqual((routing["state"], routing["held_cause"], routing["result"]),
+                         ("selected", "model-attribution-conflicting", None))
+        self.assertEqual((routing["frozen"]["attempt_id"], routing["frozen"]["frozen_at"]), (first, self.now_at(8)))
+        self.assertEqual((storage["state"], storage["frozen"]["frozen_at"]), ("completed", self.now_at(21)))
+        self.assertEqual(job["budget"]["charged_seconds"], 19)
+        self.assertFalse(job["budget"]["expired"])
+        self.assertIsNone(job["budget"]["deadline_at"])
+        self.assertIsNone(cancellation.fence_of(self.job, routing["execution_job_id"]))
+        with self.assertRaisesRegex(ContractRefusal, "unsettled"):
+            manual.close_job(self.job, "study")
+        self.assertEqual(len(self.engine.starts), 2)
+
+    def test_expired_capacity_wait_cannot_launch_on_manager_restart(self):
+        from baton_v12.job_manager import manual
+        self.provision(1)
+        manual.start_phase(self.job, "study", "routing")
+        self.ticks()
+        self.seconds = 8
+        manual.start_phase(self.job, "study", "storage")
+        self.ticks()
+        self.assertEqual(len(self.engine.starts), 1)
+        self.seconds = 105
+        self.reopen()
+        self.ticks()
+        self.assertEqual(len(self.engine.starts), 1)
+        held = manual.snapshot(self.job)[0]
+        self.assertTrue(held["budget"]["expired"])
+        self.assertEqual(held["budget"]["deadline_at"], self.now_at(100))
+        waiting = next(row for row in held["phases"] if row["phase"] == "storage")
+        self.assertEqual(waiting["state"], "exceptional", self.last_report)
+        self.assertEqual(waiting["result"]["reason"], "execution-fenced-before-admission")
+
+    @staticmethod
+    def now_at(seconds):
+        from tests.job_manager.test_job_control import at
+        return at(seconds)
+
+
+def _research_worker_exchange(mounts, phase, channel, contributor):
+    """Translate container mount names, then substitute only the provider process."""
+    import subprocess
+    import tempfile
+    import baton_worker
+    import claude_agent
+    import provider_policy
+    import provider_policy.home as home
+    from baton_v12.worker_manager import exchange, launch
+    from tests.manager import provider_fixtures
+
+    git = claude_agent._research_git
+    def mounted_git(repository, args, limit, deadline):
+        if repository != os.path.join(mounts["/input"], "source"):
+            raise ValueError("unexpected Git working directory")
+        return git(mounts["/input/source"], args, limit, deadline)
+
+    def run(argv, **options):
+        if argv == ["claude", "--version"]:
+            os.write(options["stdout"], b"2.1.247 (Claude Code)\n")
+        elif argv[0] == "claude":
+            if "Summarize " + phase not in argv[-1] or "write one bounded proposal" not in argv[-1]:
+                raise ValueError("missing selected input or assignment in provider prompt")
+            if argv[argv.index("--tools")+1] != "" or json.loads(argv[argv.index("--mcp-config")+1]) != {"mcpServers": {}}:
+                raise ValueError("unexpected tool authority")
+            channel.send("entered")
+            if not channel.poll(20) or channel.recv() != "finish":
+                raise RuntimeError("simulated research provider lacked its release")
+            os.write(options["stdout"], provider_fixtures.terminal(contributor, result="Findings for " + phase))
+        else:
+            raise ValueError("unexpected child")
+        return subprocess.CompletedProcess(argv, 0)
+
+    seen = launch.payload_of(json.loads(pathlib.Path(mounts[launch.LAUNCH_TARGET]).read_bytes()))
+    if seen["role"] != "research":
+        raise ValueError("wrong worker assigned to a research turn")
+    baton_worker.INPUT_ROOT = claude_agent.INPUT_ROOT = mounts["/input"]
+    baton_worker.OUTPUT_ROOT = claude_agent.OUTPUT_ROOT = mounts["/output"]
+    claude_agent.CREDENTIAL_ROOT = os.path.dirname(mounts["/run/baton/credentials/claude"])
+    os.environ["BATON_ATTEMPT_LOG_ROOM"] = mounts["/run/baton/attempt-logs"]
+    check, prepare = home.checked_home, home.prepare
+    host_home = mounts[provider_policy.HOME]
+    with tempfile.TemporaryDirectory() as scratch, \
+         mock.patch.object(claude_agent, "_research_git", mounted_git), \
+         mock.patch.object(home, "checked_home", side_effect=lambda path: check(host_home)), \
+         mock.patch.object(home, "prepare", side_effect=lambda path, **kw: prepare(host_home, **kw)):
+        agent = claude_agent.ClaudeAgent(run=run, home=scratch)
+        raise SystemExit(baton_worker.serve_exchange(agent, seen, seen["session"],
+                                                     mounts[exchange.COMMAND_TARGET], mounts[exchange.EVENT_TARGET]))

@@ -46,12 +46,14 @@ def submit(store, document):
     afterwards.
     """
     owned = documents.owned_submission(document)
+    if owned["schema"] == documents.RESEARCH_SUBMISSION_SCHEMA:
+        raise ContractRefusal("refused", "precondition", "research submissions require a MANUAL phase selection through the serving manager")
     for job in owned["jobs"]:
         job_control.require_ordinary_profile(job.get("control"))
     return _submit_owned(store, owned)
 
 
-def _submit_owned(store, owned):
+def _submit_owned(store, owned, *, manual_execution=None):
     # Internal normalized submission; recovery validates its exact reserved
     # document before reaching this shared atomic writer.
     submission_id = owned["submission_id"]
@@ -62,6 +64,16 @@ def _submit_owned(store, owned):
     signature = job_signature(_KIND, owned)
 
     def act(connection):
+        from . import manual
+        for job in owned["jobs"]:
+            job_id = job["job_id"]
+            if manual_execution is None:
+                manual.refuse_reserved(connection, job_id, submission_id)
+            else:
+                gate = manual.execution_gate(connection, job_id, store._now())
+                if (gate is None or manual_execution != job_id or submission_id != job_id
+                        or gate["state"] != "selected" or gate["timing"] != "trusted" or gate["expired"]):
+                    raise ContractRefusal("refused", "precondition", "research submission requires a current MANUAL selection")
         _unclaimed(connection, submission_id, owned, signature)
         recorded_at = store._now()
         connection.execute(

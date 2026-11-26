@@ -717,6 +717,8 @@ class MigratingPinsTheAuthorityWithoutRenamingAnything(MigratingFromSchemaOne):
         # note again -- a fixture that impersonates schema 2 with today's
         # build has to subtract every relation added since, or the schema-3
         # check correctly reports an object schema 2 never had.
+        connection.execute("DROP TABLE manual_phases")
+        connection.execute("DROP TABLE manual_jobs")
         connection.execute("DROP TABLE template_jobs")
         connection.execute("DROP TABLE fresh_attempts")
         connection.execute("DROP TABLE deferrals")
@@ -930,3 +932,22 @@ class MigratingPinsTheAuthorityWithoutRenamingAnything(MigratingFromSchemaOne):
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
+
+
+class ManualJobsMigration(JobManagerCase):
+    def test_schema_ten_jobs_survive_manual_tables_and_stay_automatic(self):
+        from baton_v12.job_manager import manual, submit
+        from tests.job_manager.fixtures import submission
+        store = self.store()
+        receipt = submit(store, submission())
+        # Schema 10 is exactly the prior store without the two new empty relations.
+        connection = store._connection
+        connection.execute("DROP TABLE manual_phases")
+        connection.execute("DROP TABLE manual_jobs")
+        connection.execute("UPDATE meta SET value='10' WHERE key='schema_version'")
+        store.close()
+        resumed = self.store("manual-migration")
+        self.assertEqual(submit(resumed, submission()), receipt)
+        self.assertEqual(manual.snapshot(resumed), [])
+        manual.create(resumed, "new-research", {"scope": ["docs"], "wall_seconds": 90})
+        self.assertEqual(manual.snapshot(resumed)[0]["lifecycle"], "open")

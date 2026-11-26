@@ -86,6 +86,7 @@ ABSENT, LIVE, GONE, UNKNOWN = "absent", "live", "gone", "unknown"
 # package -- which is exactly when an operator needs it. The copy cannot drift
 # silently: `tests/tools/test_stack.py` holds it equal to the original.
 STATUS_SCHEMA = "baton.v12.job-status/9"
+MANUAL_STATUS_SCHEMA = "baton.v12.job-status/10"
 
 # What `job_manager serve` prints on stderr once its deployment has composed.
 # REVIEW 2026-09-16T06-00-07Z [C3]: an observer's published snapshot is
@@ -990,8 +991,8 @@ def _malformed(document):
     """
     if type(document) is not dict:
         return "a status snapshot is one document, not " + type(document).__name__
-    if document.get("schema") != STATUS_SCHEMA:
-        return ("this launcher reads " + STATUS_SCHEMA + " and this is "
+    if document.get("schema") not in (STATUS_SCHEMA, MANUAL_STATUS_SCHEMA):
+        return ("this launcher reads " + STATUS_SCHEMA + " and " + MANUAL_STATUS_SCHEMA + "; this is "
                 + repr(document.get("schema")))
     if _instant(document.get("observed_at")) is None:
         return ("this document does not carry a readable observed_at: "
@@ -1005,6 +1006,9 @@ def _malformed(document):
         if type(job) is not dict:
             return ("every Job in this document is a document; one is "
                     + type(job).__name__)
+        problem = job_observation.lifecycle_problem(job)
+        if problem:
+            return problem
         stages = job.get("stages")
         if stages is None:
             continue
@@ -1150,7 +1154,7 @@ def _print_job_outcomes(published, stream):
         print("  No Jobs observed" + ("; idle" if published["state"] == "fresh" and published["canonical"] else "; current workload unknown"), file=stream)
     for job in jobs:
         observed = job_observation.job_view(published["document"], job)
-        print("Job " + _status_text(job.get("job_id")) + ": " + observed["headline"], file=stream)
+        print("Job " + _status_text(job.get("job_id")) + ": " + observed["labelled_headline"], file=stream)
         if observed["headline_reason"]:
             print("  " + observed["headline_reason"], file=stream)
         print("  Job age " + job_observation.job_age(job, published["document"].get("observed_at")), file=stream)
@@ -1293,7 +1297,7 @@ def instance_settings(place, environ):
     return document, prepared
 
 
-def monitor(root, *, interval, ticks, stream=sys.stdout):
+def monitor(root, *, interval, ticks, stream=sys.stdout, todo=False):
     """The read-only monitor, over the snapshot the PUBLISHER writes.
 
     W183883: an installed instance must be watchable without the development
@@ -1316,7 +1320,7 @@ def monitor(root, *, interval, ticks, stream=sys.stdout):
     from tools import job_viewer
 
     return job_viewer.main(["--status", str(place), "--interval", str(interval),
-                            "--ticks", str(ticks)], stream=stream)
+                            "--ticks", str(ticks)] + (["--todo"] if todo else []), stream=stream)
 
 
 def repository(document, *, stream=sys.stdout):
@@ -1449,6 +1453,7 @@ def main(argv=None, *, stream=sys.stdout, environ=None):
         commands.add_parser(name)
     commands.add_parser("repository")
     watching = commands.add_parser("monitor")
+    watching.add_argument("--todo", action="store_true", help="show open MANUAL Jobs")
     watching.add_argument("--interval", type=float, default=5.0,
                           help="seconds between refreshes")
     watching.add_argument("--ticks", type=int, default=1000000,
@@ -1486,7 +1491,7 @@ def main(argv=None, *, stream=sys.stdout, environ=None):
             return repository(document, stream=stream)
         if taken.command == "monitor":
             return monitor(root, interval=taken.interval, ticks=taken.ticks,
-                           stream=stream)
+                           stream=stream, todo=taken.todo)
         return publish(root, environ=environ)
     except StackRefusal as refusal:
         print("refused: " + str(refusal), file=stream)

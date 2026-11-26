@@ -1176,6 +1176,8 @@ def _reserved(store, operands, resolution, document, derived):
     task_document = derived.get("task_document")
 
     def act(connection):
+        from . import manual
+        manual.refuse_reserved(connection, operands["job_id"], operands["submission_id"])
         # THE ORDINARY JOB TABLE, INSIDE THE SAME LOCK. An identity an
         # ordinary submission or a fresh attempt already holds is not free,
         # and finding that out at `submit` would be finding it out with a

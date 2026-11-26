@@ -1295,6 +1295,10 @@ def main(argv, *, clock=None, stream=None):
     import argparse
     from tools import (job_cancellation, publication_decision,
                        recovery_decision, stopped_settlement, review_uncertainty, credential_recovery)
+    if argv and (argv[0] in ("add-phase", "start-phase", "finish-phase", "close-job")
+                 or argv[0] == "create" and any(word == "--mode" or word.startswith("--mode=") for word in argv[1:])):
+        from tools import manual_job
+        return manual_job.main(argv, clock=clock, stream=stream)
     if argv and argv[0] in credential_recovery.COMMANDS:
         return credential_recovery.main(argv, clock=clock, stream=stream)
     if argv and argv[0] in review_uncertainty.COMMANDS:
@@ -1323,6 +1327,7 @@ def main(argv, *, clock=None, stream=None):
         description="Submit Jobs to the v12 Job manager, read its status, or "
                     "run its control loop. Instance-addressed commands: "
                     "settlement-preview, settle-stopped, settlement-status, settlement-remove, "
+                    "create --mode manual, add-phase, start-phase, finish-phase, close-job, "
                     "cancel-job, cancel-status, recovery-item, "
                     "recovery-decide, publication-inspect, "
                     "publication-decide, publication-status "

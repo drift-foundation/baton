@@ -1197,3 +1197,222 @@ class TheHeavyNativeProfile(ControlCase):
                         getattr(case, method)()
                 finally:
                     case.doCleanups()
+
+
+class ManualSelectionAndBudget(JobManagerCase):
+    def setUp(self):
+        super().setUp()
+        from baton_v12.job_manager import manual
+        self.manual = manual
+        self.jobs = self.store()
+        self.manual.create(self.jobs, "research", {"scope": ["docs"], "wall_seconds": 100})
+
+    def add(self, phase, depends=()):
+        return self.manual.add_phase(self.jobs, "research", phase, {
+            "kind": "research", "statement": "Inspect the scoped findings.",
+            "scope": ["docs/" + phase], "depends_on": list(depends), "work_id": "work-" + phase,
+            "profile_name": "researcher", "profile_digest": "sha256:" + "a" * 64,
+            "input_digest": "sha256:" + "b" * 64, "policy_digest": "sha256:" + "c" * 64})
+
+    def restart(self):
+        self.jobs.close()
+        self.jobs = self.store("restarted")
+
+    def see(self, seconds):
+        self.instants.append(at(seconds))
+        return self.manual.snapshot(self.jobs)[0]
+
+    def start(self, phase):
+        return self.manual.start_phase(self.jobs, "research", phase)
+
+    def settle(self, phase):
+        return self.manual.settle_phase(self.jobs, "research", phase, "completed", {"findings": phase})
+
+    def test_restart_in_idle_then_overlap_charges_union_and_replays_both_selections(self):
+        self.add("routing")
+        self.add("storage")
+        self.see(5)
+        first = self.start("routing")
+        self.see(13)
+        self.settle("routing")
+        self.restart()
+        self.assertEqual(self.see(1000)["budget"]["charged_seconds"], 8)
+        self.assertEqual(self.start("routing"), first)
+        self.add("other")
+        self.start("storage")
+        self.see(1003)
+        other = self.start("other")
+        self.restart()
+        self.assertEqual(self.start("other"), other)
+        active = self.see(1007)
+        self.assertEqual(active["budget"]["charged_seconds"], 15)
+        self.assertEqual(active["budget"]["deadline_at"], at(1092))
+        self.assertEqual(sum(p["state"] == "selected" for p in active["phases"]), 2)
+        self.settle("other")
+        self.see(1010)
+        self.settle("storage")
+        self.restart()
+        retained = self.see(2000)
+        self.assertEqual(retained["budget"]["charged_seconds"], 18)
+        self.assertEqual(retained["lifecycle"], "open")
+        self.assertCountEqual([p["result"] for p in retained["phases"]], [{"findings": p} for p in ("routing","other","storage")])
+
+    def test_schema_eleven_phase_without_a_freeze_keeps_its_settlement_and_replay(self):
+        self.add("old")
+        self.see(3)
+        started = self.start("old")
+        self.see(13)
+        self.settle("old")
+        connection = self.jobs._connection
+        connection.execute("ALTER TABLE manual_phases DROP COLUMN held_cause")
+        connection.execute("ALTER TABLE manual_phases DROP COLUMN frozen")
+        connection.execute("UPDATE meta SET value='11' WHERE key='schema_version'")
+        self.restart()
+        migrated = self.see(700)
+        self.assertEqual(self.start("old"), started)
+        self.assertEqual(migrated["budget"]["charged_seconds"], 10)
+        phase, = migrated["phases"]
+        self.assertEqual((phase["state"], phase["settled_at"], phase["frozen"], phase["held_cause"]),
+                         ("completed", at(13), None, None))
+
+    def test_capacity_wait_is_charged_and_closes_execution_at_exact_boundary(self):
+        self.add("waiting")
+        self.add("unselected")
+        self.start("waiting")
+        self.see(99)
+        execution = self.manual.execution_job_id("research", "waiting")
+        self.assertFalse(self.manual.execution_gate(self.jobs._connection, execution, at(99))["expired"])
+        self.restart()
+        self.assertTrue(self.see(100)["budget"]["expired"])
+        with self.assertRaisesRegex(ContractRefusal, "exhausted"):
+            self.start("unselected")
+        self.assertEqual(self.manual.phase_for_execution(self.jobs, execution)["state"], "selected")
+
+    def test_dependency_settlement_does_not_implicitly_start_or_close(self):
+        self.add("first")
+        self.add("second", ["first"])
+        with self.assertRaisesRegex(ContractRefusal, "waits on first"):
+            self.start("second")
+        receipt = self.start("first")
+        with self.assertRaisesRegex(ContractRefusal, "unsettled"):
+            self.manual.close_job(self.jobs, "research")
+        self.settle("first")
+        self.assertEqual(self.see(10)["budget"]["charged_seconds"], 0)
+        self.assertEqual(next(p for p in self.see(10)["phases"] if p["phase"] == "second")["state"], "planned")
+        self.start("second")
+        self.settle("second")
+        closed = self.manual.close_job(self.jobs, "research")
+        self.assertEqual(self.manual.close_job(self.jobs, "research"), closed)
+        self.assertEqual(self.start("first"), receipt)
+        self.assertEqual(self.see(11)["lifecycle"], "closed")
+        with self.assertRaisesRegex(ContractRefusal, "closed"):
+            self.add("new")
+
+    def test_rollback_holds_starts_without_reducing_known_charged_time(self):
+        self.add("one")
+        self.add("two")
+        self.start("one")
+        self.see(20)
+        self.start("two")
+        self.restart()
+        regressed = self.see(9)["budget"]
+        self.assertEqual((regressed["timing"], regressed["charged_seconds"]), ("uncertain", 20))
+        with self.assertRaisesRegex(ContractRefusal, "watermark"):
+            self.settle("one")
+        self.see(21)
+        self.settle("one")
+        self.settle("two")
+        self.assertEqual(self.see(21)["budget"]["charged_seconds"], 21)
+
+    def race(self, *operations):
+        """Two separate manager connections obtain the same store writer lock."""
+        from concurrent.futures import ThreadPoolExecutor
+        from threading import Barrier
+        barrier = Barrier(len(operations))
+
+        def execute(operation):
+            with JobStore.open(self.job_path, authority_uuid=UUID, incarnation="racer", clock=self.clock) as store:
+                barrier.wait(timeout=5)
+                try:
+                    return operation(store)
+                except ContractRefusal as refusal:
+                    return refusal
+
+        with ThreadPoolExecutor(max_workers=len(operations)) as workers:
+            return list(workers.map(execute, operations))
+
+    def test_concurrent_starts_return_one_receipt_and_close_cannot_race_a_selection(self):
+        self.add("routing")
+        start = lambda store: self.manual.start_phase(store, "research", "routing")
+        receipts = self.race(start, start)
+        self.assertEqual(receipts[0], receipts[1])
+        self.assertEqual(receipts[0]["action"], "start-phase")
+        selected, refused = self.race(start, lambda store: self.manual.close_job(store, "research"))
+        self.assertEqual(selected, receipts[0])
+        self.assertIsInstance(refused, ContractRefusal)
+        self.assertEqual(self.jobs._connection.execute(
+            "SELECT COUNT(*) FROM operations WHERE kind='manual.start-phase'").fetchone()[0], 1)
+
+    def test_parallel_close_and_append_leave_a_coherent_owner_state(self):
+        self.add("done")
+        self.start("done")
+        self.settle("done")
+        doc = self.see(10)["phases"][0]["document"]
+        appended, closed = self.race(lambda store: self.manual.add_phase(store, "research", "more", doc),
+                                    lambda store: self.manual.close_job(store, "research"))
+        self.assertEqual(closed["action"], "close-job")
+        view = self.see(12)
+        self.assertEqual(view["lifecycle"], "closed")
+        self.assertEqual([p["phase"] for p in view["phases"] if p["phase"] == "more"],
+                         [] if isinstance(appended, ContractRefusal) else ["more"])
+
+    def test_scope_inputs_and_execution_namespace_are_immutable(self):
+        self.add("routing")
+        doc = self.see(1)["phases"][0]["document"]
+        with self.assertRaisesRegex(ContractRefusal, "scope"):
+            self.manual.add_phase(self.jobs, "research", "escape", dict(doc, scope=["docs-sibling/README"]))
+        with self.assertRaises(ContractRefusal):
+            self.manual.add_phase(self.jobs, "research", "routing", dict(doc, statement="changed"))
+        with self.assertRaisesRegex(ContractRefusal, "reserved"):
+            self.manual.create(self.jobs, self.manual.execution_job_id("research", "routing"),
+                               {"wall_seconds": 5, "scope": ["docs"]})
+
+    def test_subsecond_portions_accumulate_across_idle_and_restart(self):
+        self.add("a")
+        self.add("b")
+        self.see(0.125)
+        self.start("a")
+        self.see(0.875)
+        self.settle("a")
+        self.restart()
+        self.see(100.750)
+        self.start("b")
+        before = self.see(199.999)["budget"]
+        self.assertEqual(before["charged_milliseconds"], 99999)
+        self.assertEqual(before["deadline_at"], at(200))
+        self.assertFalse(before["expired"])
+        self.assertTrue(self.see(200)["budget"]["expired"])
+
+    def test_expired_or_failed_prerequisite_does_not_strand_a_never_selected_phase(self):
+        self.add("failed")
+        self.add("dependent", ["failed"])
+        self.start("failed")
+        self.see(120)
+        self.manual.settle_phase(self.jobs, "research", "failed", "exceptional", {"reason": "deadline"})
+        self.manual.close_job(self.jobs, "research")
+        status = self.see(130)
+        self.assertEqual(status["lifecycle"], "closed")
+        self.assertEqual({row["phase"]: row["state"] for row in status["phases"]},
+                         {"failed": "exceptional", "dependent": "planned"})
+
+    def test_generated_work_belongs_to_exact_authority_job_and_named_phase(self):
+        self.add("explicit")
+        descriptor = self.see(0)["phases"][0]["document"]
+        execution = self.manual.execution_job_id("research", "generated")
+        work = self.manual.generated_work_id(self.jobs.authority_uuid, execution)
+        generated = dict(descriptor, work_origin="generated", work_id=work)
+        self.manual.add_phase(self.jobs, "research", "generated", generated)
+        for name, doc in (("wrong", generated), ("foreign", dict(generated, work_id="0000000a-W1")),
+                          ("invalid", dict(generated, work_origin="other"))):
+            with self.subTest(name=name), self.assertRaisesRegex(ContractRefusal, "identity"):
+                self.manual.add_phase(self.jobs, "research", name, doc)

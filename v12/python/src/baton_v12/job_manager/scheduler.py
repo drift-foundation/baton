@@ -49,7 +49,7 @@ LANES = ("implementation", PUBLICATION_LANE, "review")
 # missing entry is now a refusal rather than a default, so a kind added to the
 # vocabulary without a lane is a loud failure at the one place that routes it
 # instead of a silent misroute.
-STAGE_LANES = {"implementation": "implementation",
+STAGE_LANES = {"implementation": "implementation", "research": "review",
                PUBLICATION_LANE: PUBLICATION_LANE,
                "review": "review",
                "integration": "implementation"}

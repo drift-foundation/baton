@@ -127,8 +127,9 @@ SUBMISSION_CONTROL_SCHEMA = "baton.v12.job-submission/3"
 # generation rather than against a flag, and /1 to /3 keep exactly the
 # three-kind vocabulary they shipped with.
 SUBMISSION_RECOVERY_SCHEMA = "baton.v12.job-submission/4"
+RESEARCH_SUBMISSION_SCHEMA = "baton.v12.research-phase-submission/1"
 SUBMISSION_SCHEMAS = ("baton.v12.job-submission/1", SUBMISSION_SCHEMA,
-                      SUBMISSION_CONTROL_SCHEMA, SUBMISSION_RECOVERY_SCHEMA)
+                      SUBMISSION_CONTROL_SCHEMA, SUBMISSION_RECOVERY_SCHEMA, RESEARCH_SUBMISSION_SCHEMA)
 # Which submitted members each version admits. `execution_limits` is optional
 # even in /2: a Job that configures nothing is the ordinary case.
 SUBMISSION_LIMITS_SCHEMAS = (SUBMISSION_SCHEMA, SUBMISSION_CONTROL_SCHEMA,
@@ -173,6 +174,7 @@ SUBMISSION_CONTROL_SCHEMAS = (SUBMISSION_CONTROL_SCHEMA,
 # state changed; a /8 reader sees a Job whose deadlines it does not know are
 # enforced, which is why the version moved.
 STATUS_SCHEMA = "baton.v12.job-status/9"
+MANUAL_STATUS_SCHEMA = "baton.v12.job-status/10"
 
 # The three stages this milestone's vertical slice has. They are a CLOSED
 # vocabulary rather than free text because the projection below maps each one
@@ -191,7 +193,7 @@ STATUS_SCHEMA = "baton.v12.job-status/9"
 # they shipped with, and `publication` is reachable only through the `/4`
 # recovery generation the output-publication-recovery owner admits.
 PUBLICATION_STAGE = "publication"
-STAGE_KINDS = ("implementation", PUBLICATION_STAGE, "review", "integration")
+STAGE_KINDS = ("implementation", PUBLICATION_STAGE, "review", "integration", "research")
 ORDINARY_STAGE_KINDS = ("implementation", "review", "integration")
 # THE EXACT ORDERED SET A /4 JOB IS, compared as a SEQUENCE because the order
 # is part of the selection: publication is the producer edge the review
@@ -352,7 +354,7 @@ EXCHANGE_ACTS = ("dispatch", "conclude")
 # Bounds on one submission. A control plane that accepts an unbounded document
 # accepts an unbounded amount of durable work from one call.
 MAX_JOBS = 64
-MAX_STAGES = len(STAGE_KINDS)
+MAX_STAGES = len(ORDINARY_STAGE_KINDS) + 1
 
 SUBMISSION_MEMBERS = ("schema", "submission_id", "jobs")
 JOB_MEMBERS = ("job_id", "input_digest", "policy_digest", "test_scope",
@@ -421,6 +423,8 @@ def owned_submission(document):
     # Jobs would be two recoveries admitted on one decision, which is the
     # duplicate effect the admission fence exists to prevent arriving one
     # layer earlier.
+    if taken["schema"] == RESEARCH_SUBMISSION_SCHEMA and len(jobs) != 1:
+        _refuse("a selected MANUAL phase admits one research execution Job")
     if taken["schema"] == SUBMISSION_RECOVERY_SCHEMA and len(jobs) != 1:
         _refuse(f"an {name_value(SUBMISSION_RECOVERY_SCHEMA)} submission "
                 f"carries exactly one Job and this one carries {len(jobs)}; "
@@ -569,6 +573,12 @@ def _generation_shape(job_id, owned, schema):
     gated on nothing would be a review admitted beside its own producer.
     """
     kinds = tuple(one["kind"] for one in owned)
+    if schema == RESEARCH_SUBMISSION_SCHEMA:
+        if kinds != ("research",) or owned[0]["depends_on"]:
+            _refuse("a selected research assignment admits exactly one independent research stage")
+        return owned
+    if "research" in kinds:
+        _refuse("a research stage needs a selected MANUAL phase")
     if schema != SUBMISSION_RECOVERY_SCHEMA:
         if PUBLICATION_STAGE in kinds:
             _refuse(f"Job {name_value(job_id)} carries a "
@@ -823,7 +833,7 @@ CONTRACTS = {
                       "attempt_id", "episodes", "corrections", "allocation",
                       "allocations", "gates", "receipts", "deferral",
                       "runtime", "exchange", "artifacts"),
-                     ("attempt_diagnostics", "diagnostic_degradation",)),
+                     ("attempt_diagnostics", "diagnostic_degradation", "selected_at", "settled_at", "result", "execution_job_id", "execution_cancellation")),
     # W156162 added `execution_limits`, which is why STATUS_SCHEMA moved to /5.
     # W197661 added `deferral` to `stage.status`, which is why it is at /6: a
     # reader that must not mistake a re-enterable deferral for a state has to
@@ -837,7 +847,7 @@ CONTRACTS = {
     "job.status": (("job_id", "submission_id", "input_digest",
                     "policy_digest", "test_scope", "terminal_policy",
                     "execution_limits", "stages"), ("cancellation",
-                                                    "control", "created_at")),
+                                                    "control", "created_at", "mode", "lifecycle", "budget", "closed_at")),
     # W383217: ONE JOB'S ADMITTED CONTROL, journalled inside its submission.
     "job.control": (("operation_id", "job_id", "profile", "resolved",
                      "admitted_at", "incarnation"), ()),

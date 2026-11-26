@@ -1547,3 +1547,22 @@ class ExplicitProviderPolicy(ComposingCase):
         policy = dict(provider_policy.POLICY, model_substitution="fallback")
         with self.assertRaises(provider_policy.PolicyRefusal):
             provider_policy.adapter(self.selected(), network="fixture-network", tool_policy=policy)
+
+    def test_research_composition_pins_read_only_report_capability(self):
+        from baton_v12 import provider_policy
+        from baton_v12.job_manager import research
+        selected = self.selected()
+        composed = self.composing(role="research", provider_selection=selected)
+        deployment = composed["worker"]["deployment"]
+        self.assertEqual(composed["template"], research.TEMPLATE)
+        self.assertEqual(deployment["input_manifest"]["outputs"], research.outputs())
+        bound = deployment["provider_contract"]["adapter"]
+        self.assertEqual(bound["context_label"]["roles"], ["research"])
+        argv = provider_policy.argv(bound, selected, "inspect")
+        self.assertEqual(argv[argv.index("--tools") + 1], "")
+        self.assertIn("--strict-mcp-config", argv)
+        self.assertTrue(bound["participation_sources"])
+        with self.assertRaises(ValueError):
+            provider_policy.validate_execution(bound, "implementation")
+        with self.assertRaises(pool.PoolRefusal):
+            self.composing(role="research")

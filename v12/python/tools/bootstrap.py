@@ -54,7 +54,7 @@ ROLES = ("implementation", "review", "integration")
 # only approved publication recoveries: `stage_execution.WORKER_ROLES` is the
 # consumer's spelling of the same widening, and a case holds the two equal.
 PUBLICATION_ROLE = "publication"
-WORKER_ROLES = ROLES + (PUBLICATION_ROLE,)
+WORKER_ROLES = ROLES + (PUBLICATION_ROLE, "research")
 # WHERE THAT WORKER'S READ-ONLY INPUT IS STAGED, under the instance's own
 # root. `tools.publication_worker.DEFAULT_STAGING` is the owner of the name
 # and a case holds this spelling equal to it; it is restated because this
@@ -217,7 +217,7 @@ ROUTING_SCHEMA = "baton.native-handoff-routing/1"
 
 # The route each stage is served on. `review_route` on a worker names where its
 # own ending hands the Work on to, which is why the last one is not a stage.
-ROUTES = {"implementation": "impl", "review": "rview", "integration": "integration",
+ROUTES = {"research": "research", "implementation": "impl", "review": "rview", "integration": "integration",
           # A RECOVERY REUSES THE FAILED JOB'S OWN WORK, which sits where its
           # producer left it: on the implementation route. The publication
           # worker makes the FRESH claim there, so that is the route its
@@ -543,7 +543,7 @@ def held(document):
     # 2026-09-20T14:57:48Z (W202663, the PR model): integration is a human
     # act or an explicitly submitted ordinary Job, never an obligatory
     # worker, and `stage_execution`'s own coverage gate says the same.
-    for role in (ROLES if workers_of(document) else ()):
+    for role in (ROLES if by_role and (set(by_role) != {"research"} or jobs_of(document)) else ()):
         if role != "integration" and not by_role.get(role):
             faults.append("no worker is configured for the " + role + " stage")
     for role in set(by_role) - set(WORKER_ROLES):

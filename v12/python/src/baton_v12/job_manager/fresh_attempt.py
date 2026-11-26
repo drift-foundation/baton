@@ -441,6 +441,9 @@ def _prior(store, prior_job_id):
     the bytes the operator submitted, not an equivalent this build would have
     written.
     """
+    from . import manual
+    if manual.phase_for_execution(store, prior_job_id) is not None:
+        raise ContractRefusal("refused", "precondition", "a new MANUAL attempt requires a new named phase and explicit start")
     held = submission.job_of(store, prior_job_id)
     stages = submission.stages_of(store, prior_job_id)
     if not stages:
@@ -785,6 +788,8 @@ def _reserved(store, operands, prior, document):
     intended = job_signature("submission.record", document)
 
     def act(connection):
+        from . import manual
+        manual.refuse_reserved(connection, operands["job_id"], operands["submission_id"])
         # W383215: THE FENCE, DECIDED UNDER THE SAME LOCK AS THE RESERVATION.
         cancellation.refuse_fenced(connection, operands["prior_job_id"],
                                    "a fresh attempt at it")

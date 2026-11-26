@@ -711,6 +711,10 @@ def closed_of(store, job_id, now=None, *, stage_id=None, any_stage=False):
     fence = cancellation.fenced(store._connection, job_id)
     if fence is not None:
         return {"cause": "fenced", "fence": fence}
+    from . import manual_execution
+    owner_fence = manual_execution.closed(store._connection, job_id, now)
+    if owner_fence is not None:
+        return owner_fence
     held = evaluate(store._connection, job_id, now)
     if held is None:
         return None
@@ -724,6 +728,8 @@ def closed_of(store, job_id, now=None, *, stage_id=None, any_stage=False):
 
 def closed_message(closed, what):
     """One sentence saying why `what` is not admitted, from `closed_of`."""
+    if closed["cause"] == "manual-selection":
+        return f"MANUAL phase is {closed['state']}; {what} requires an outstanding selection"
     if closed["cause"] == "fenced":
         fence = closed["fence"]
         return (f"the Job was {'cancelled' if fence.get('trigger', 'operator') == 'operator' else 'expired'} at "
@@ -750,6 +756,10 @@ def refuse_closed(connection, job_id, what, *, now, stage_id=None,
     from . import cancellation
 
     cancellation.refuse_fenced(connection, job_id, what)
+    from . import manual_execution
+    owner_fence = manual_execution.closed(connection, job_id, now)
+    if owner_fence is not None:
+        _refuse(closed_message(owner_fence, what), category="refused", code="precondition")
     held = evaluate(connection, job_id, now)
     if held is None:
         return None
@@ -895,7 +905,11 @@ def expire(store, *, job_id, trigger, stage_id, deadline_at, observed_at):
               + (f" (stage {stage_id})" if stage_id is not None else ""))
 
     def act(connection):
-        if control_in(connection, job_id) is None:
+        from . import manual
+        selection = manual.execution_gate(connection, job_id, observed_at)
+        manual_expired = (selection is not None and selection["state"] == "selected" and selection["expired"]
+                          and selection["deadline_at"] == deadline_at and trigger == "job-deadline")
+        if control_in(connection, job_id) is None and not manual_expired:
             _refuse(f"Job {name_value(job_id)} holds no control; a deadline "
                     f"is reached under a profile", category="integrity",
                     code="schema")

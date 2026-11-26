@@ -103,7 +103,7 @@ def check_authority(value, *, what):
 # constraint is the only thing that moves -- which is why `REBUILT_OBJECTS`
 # names them and `store._created_name` is told, instead of this step
 # pretending to be a create.
-SCHEMA_VERSION = 10
+SCHEMA_VERSION = 12
 
 # W197661 review 2026-09-18T02-59-56Z [R2]: `deferrals` was in `SCHEMA` and in
 # the migration and NOT here, and `JobStore`'s required-table validation reads
@@ -114,7 +114,8 @@ TABLES = ("meta", "operations", "submissions", "jobs",
           "job_execution_limits", "stages", "episodes",
           "receipts", "deferrals", "fresh_attempts", "template_jobs",
           "pool_generations",
-          "pool_workers", "stage_allocations", "worker_affinity")
+          "pool_workers", "stage_allocations", "worker_affinity",
+          "manual_jobs", "manual_phases")
 
 OPERATION_STATES = ("committed", "refused")
 
@@ -132,6 +133,36 @@ FRESH_ATTEMPT_STATES = ("intended", "admitted")
 # Deliberately the same vocabulary and deliberately NOT the same relation --
 # see the 8 -> 9 migration for why one table could not carry both.
 TEMPLATE_JOB_STATES = ("intended", "created")
+
+# Each named assignment owns one immutable selection and its disposition.
+# Their union is the owner-paced wall budget, including time waiting for capacity.
+_MANUAL_SCHEMA = """
+CREATE TABLE manual_jobs (
+  job_id TEXT PRIMARY KEY,
+  document TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  closed_at TEXT
+);
+CREATE TABLE manual_phases (
+  job_id TEXT NOT NULL REFERENCES manual_jobs(job_id),
+  phase TEXT NOT NULL,
+  execution_job_id TEXT NOT NULL UNIQUE,
+  document TEXT NOT NULL,
+  selected_at TEXT,
+  settled_at TEXT,
+  outcome TEXT CHECK (outcome IN ('completed','exceptional')),
+  result TEXT,
+  PRIMARY KEY (job_id, phase),
+  CHECK ((settled_at IS NULL AND outcome IS NULL AND result IS NULL) OR
+         (selected_at IS NOT NULL AND settled_at >= selected_at AND
+          settled_at IS NOT NULL AND outcome IS NOT NULL AND result IS NOT NULL))
+);
+"""
+
+_MANUAL_FREEZE = """
+ALTER TABLE manual_phases ADD COLUMN frozen TEXT;
+ALTER TABLE manual_phases ADD COLUMN held_cause TEXT CHECK (held_cause IS NULL OR frozen IS NOT NULL);
+"""
 
 SCHEMA = """
 CREATE TABLE meta (
@@ -711,7 +742,7 @@ CREATE UNIQUE INDEX template_jobs_one_submission
   ON template_jobs (submission_id);
 CREATE INDEX template_jobs_by_state
   ON template_jobs (state, intended_at);
-"""
+""" + _MANUAL_SCHEMA + _MANUAL_FREEZE
 
 # version already recorded -> the statements that carry it to the next one.
 #
@@ -729,6 +760,8 @@ CREATE INDEX template_jobs_by_state
 # An entry that does not exist is a version this build refuses to migrate, so
 # the key has to be present even though its text is empty.
 MIGRATIONS = {
+    10: _MANUAL_SCHEMA,
+    11: _MANUAL_FREEZE,
     # W161230 slice1, CREATE ONLY for the same reason the 4 -> 5 step is:
     # `_schema_three_shape` subtracts what every step after 3 creates, and an
     # ALTER of `stage_allocations` could not be subtracted at all.
@@ -1406,6 +1439,7 @@ PRAGMA legacy_alter_table=OFF;
 # by an earlier step -- which is what makes the subtraction still correct --
 # and `store` proves that rather than taking this table's word for it.
 REBUILT_OBJECTS = {
+    11: ("manual_phases",),
     9: ("pool_workers", "stage_allocations", "worker_affinity",
         "allocations_one_live_per_worker", "allocations_one_live_per_principal",
         "allocations_one_live_per_stage_episode"),
