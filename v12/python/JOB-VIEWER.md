@@ -462,3 +462,13 @@ python3 -m tools.job_tui --status "$DEST/state/status.json"      # the same prog
 - It refuses, with exit 2, when standard input or output is not a terminal;
   `monitor` is the plain-text view. `--interval` sets the seconds between
   reads (default 5).
+
+### Main conversation
+
+Every Job has an implicit `main` conversation. `manager thread --instance
+/path/to/instance.json --job JOB` reads it without starting services. Use `thread
+note --body TEXT --operation ID` to append a note, or `thread answer --request
+REQUEST --phase PHASE --checkpoint CHECKPOINT --body TEXT` to answer one open
+owner question (with the same instance and Job options). Notes do not schedule
+work. Answers remain recorded awaiting delivery until the manager resumes the
+same Job. These commands share `job_manager.main_thread` with library clients.

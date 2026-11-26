@@ -1397,6 +1397,9 @@ def _producers_of(configuration):
 
 def main(argv, *, clock=None, stream=None):
     import argparse
+    if argv and argv[0] == "thread":
+        from tools import job_thread
+        return job_thread.main(argv[1:], clock=clock, stream=stream)
     from tools import (job_cancellation, publication_decision,
                        recovery_decision, stopped_settlement, review_uncertainty, credential_recovery)
     if argv and (argv[0] in ("add-phase", "start-phase", "finish-phase", "close-job")

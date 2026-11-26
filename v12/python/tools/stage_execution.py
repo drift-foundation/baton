@@ -5332,7 +5332,8 @@ class StageDeployment:
             episode=live["episode"], message_id=message["message_id"],
             request_id=request["message_id"],
             destination=message["destination"],
-            checkpoint_id=answered["checkpoint_id"])
+            checkpoint_id=answered["checkpoint_id"],
+            question=request["body"]["body"])
         return dict(answered, escalation=recorded)
 
 
@@ -5454,7 +5455,11 @@ class StageExecution:
         correction exists to avoid.
         """
         self._nothing_unserved("on this serving tick")
-        return self.pooled.drain(handlers, quiescent=quiescent)
+        result = self.pooled.drain(handlers, quiescent=quiescent)
+        if self.deployment is not None:
+            from baton_v12.job_manager import main_thread
+            main_thread.reconcile(self.deployment.jobs, self.deployment.control, self.authority)
+        return result
 
     # -- stopping what is still executing ------------------------------------
 

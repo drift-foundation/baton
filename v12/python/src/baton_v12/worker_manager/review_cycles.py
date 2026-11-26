@@ -3080,6 +3080,43 @@ def response_of(store, attachment_id):
     return json.loads(record["result"])
 
 
+OWNER_CONTINUATION_KIND = "review.owner-continuation"
+
+
+def hold_owner_continuation(store, *, checkpoint_id, decision, response_digest):
+    """Convert an ended escalation into a continuation hold, once.
+
+    The Job owner validates the decision against Authority evidence before
+    calling. Custody independently binds it to the ended review and retained
+    checkpoint. No response, checkpoint or verdict is rewritten.
+    """
+    checkpoint = checkpoint_of(store, checkpoint_id)
+    line = line_of(store, checkpoint["line_id"])
+    operands = dict(checkpoint_id=checkpoint_id, line_id=line["line_id"],
+                    decision=decision, response_digest=response_digest)
+    operation_id = OWNER_CONTINUATION_KIND + ":" + checkpoint_id
+    signature = manager_signature(OWNER_CONTINUATION_KIND, operands)
+    found, result = store.replay(operation_id, signature, kind=OWNER_CONTINUATION_KIND)
+    if found:
+        return result
+
+    def act(connection):
+        current = line_of(store, line["line_id"])
+        if (current["state"] != "review-ready" or current["current_checkpoint_id"] != checkpoint_id
+                or checkpoint["state"] != "frozen" or decision["checkpoint_id"] != checkpoint_id
+                or decision["checkpoint_ref"] != checkpoint["evidence"]["head"]):
+            raise ContractRefusal("refused", "precondition", "owner continuation requires the held current checkpoint")
+        attachments = connection.execute("SELECT attachment_id FROM review_attachments WHERE checkpoint_id = ? AND state = 'ended'", (checkpoint_id,)).fetchall()
+        responses = [response_of(store, row["attachment_id"]) for row in attachments]
+        if not any(response is not None and response["disposition"] == "escalate"
+                   and response["response_digest"] == response_digest for response in responses):
+            raise ContractRefusal("refused", "precondition", "owner continuation requires the exact ended escalation")
+        connection.execute("UPDATE review_lines SET state = ? WHERE line_id = ?", (CONTINUATION_READY, line["line_id"]))
+        return operands
+
+    return store.transact(operation_id, OWNER_CONTINUATION_KIND, signature, act)
+
+
 def continuation_hold_of(store, checkpoint_id):
     """The ANSWERED response holding this checkpoint for a continuation.
 
@@ -3091,6 +3128,9 @@ def continuation_hold_of(store, checkpoint_id):
     writer -- an escalation is not a continuation hold and answers `None` here.
     """
     boundaries.identity(checkpoint_id, "a line checkpoint identity")
+    owner_hold = store.operation_record(OWNER_CONTINUATION_KIND + ":" + checkpoint_id)
+    if owner_hold is not None and owner_hold["state"] == "committed":
+        return json.loads(owner_hold["result"])
     # ONLY THE JOURNAL'S OWN ROW OWNER READS A RECORD. The scan selects
     # identities by kind -- `provider_context`'s own shape for its journal
     # families -- and every candidate row is then read through

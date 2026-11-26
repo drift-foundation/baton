@@ -69,6 +69,12 @@ def _job_headline(job, phases):
     if any(phase["state"] == "exceptional" and not (phase["live_attempt"] or {}).get("stop")
            for phase in phases):
         return "FAILED", ""
+    questions = _rows(job.get("owner_questions"))
+    if questions:
+        pending = [one for one in questions if one.get("state") == "open"]
+        selected = pending or questions
+        reason = "; ".join(_status_text(one.get("phase")) + ": " + _status_text(one.get("question")) for one in selected)
+        return ("DECISION NEEDED", reason) if pending else ("ANSWER RECORDED", reason + "; awaiting delivery")
     for stage, phase in zip(stages, phases):
         hold = _owner_hold(stage)
         if hold and phase["live_attempt"] and phase["state"] not in ("completed", "changes-requested") and not _owner_decision(stage, job):

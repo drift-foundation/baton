@@ -290,6 +290,7 @@ PARALLEL_MODULES = ("tests.job_manager.test_accepted_offer_retirement",
                     # `test_stage_execution`: real version control and real
                     # worker children, each inside its own temporary root.
                     "tests.tools.test_native_handoffs",
+                    "tests.tools.test_job_main_thread",
     # W110935: the integration worker's additive provider wrapper. PARALLEL:
     # every case owns one temporary root, the process seam is a recording
     # callable and no provider, credential, engine or network is reached.

@@ -504,7 +504,7 @@ def materialized(store, stages=None):
     from .publication_execution import execution_gate as publication_gate
     from .retained_recovery import execution_gate
 
-    from . import manual
+    from . import manual, main_thread
     with store.read_snapshot():
         manual_jobs = manual.snapshot_in(store._connection, store._now())
         selections = {phase["execution_job_id"]: dict(job_id=job["job_id"], phase=phase["phase"], state=phase["state"],
@@ -623,6 +623,7 @@ def materialized(store, stages=None):
             grouped.setdefault(stage["job_id"], []).append(stage)
         return {"jobs": jobs, "stages": rows, "owned": owned, "manual_jobs": manual_jobs,
                 "stages_by_job": grouped,
+                "owner_questions": {job["job_id"]: main_thread.outstanding(store, job["job_id"]) for job in jobs},
                 # W383215: THE FENCES, IN THE SAME READ VIEW as the episodes
                 # they retire, so a stage is never derived beside a request
                 # another moment held.
@@ -1108,6 +1109,10 @@ def status(store, operations, *, observed_at):
             # W385263 / M386422: the owner's integration receipt, read from
             # this Job store alone, so DONE needs no serving process.
             **_integration_of(store, job["job_id"])))
+    for job in jobs:
+        questions = snapshot["owner_questions"][job["job_id"]]
+        if questions:
+            job["owner_questions"] = questions
     version = documents.STATUS_SCHEMA
     if snapshot["manual_jobs"]:
         from . import manual_status

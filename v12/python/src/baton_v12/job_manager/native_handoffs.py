@@ -607,7 +607,7 @@ def record_yield(store, *, stage_id, episode, attempt_id, kind, message_id,
 
 
 def record_hold(store, *, stage_id, episode, message_id, request_id,
-                destination, checkpoint_id):
+                destination, checkpoint_id, question=None):
     """Journal that an ESCALATION left this episode held.
 
     ONE DURABLE PENDING ESCALATION PER REQUEST, and this record is what makes
@@ -623,7 +623,14 @@ def record_hold(store, *, stage_id, episode, message_id, request_id,
               "episode": episode, "message_id": message_id,
               "request_id": request_id, "destination": destination,
               "checkpoint_id": checkpoint_id}
+    if question is not None:
+        record["question"] = question
     operation_id = hold_operation_id(stage_id, episode)
+    previous = hold_of(store, stage_id, episode)
+    if previous is not None and "question" not in previous and previous == {key: value for key, value in record.items() if key != "question"}:
+        # Pre-main holds have no display text. Re-enter their exact original
+        # operation rather than colliding with additive observation metadata.
+        return previous
     return store.transact(
         operation_id, HOLD_KIND, job_signature(HOLD_KIND, record),
         lambda connection: record)
@@ -802,9 +809,9 @@ def advance_continuation(store, custody, authority, *, job_id, now=None):
         a Job past its stage or Job deadline, and a Job whose timing is
         uncertain all refuse here rather than resuming -- and no clock is
         reset.
-      * AN ESCALATION RESUMES NOTHING. A reply whose effect is `held` leaves the
-        execution held for the configured decision recipient, and this refuses
-        rather than manufacturing a continuation from it.
+      * AN ESCALATION ALONE RESUMES NOTHING. A held reply requires a distinct
+        targeted owner decision and the custody transition for that checkpoint.
+        The original escalation and its held effect remain immutable.
     """
     boundaries.identity(job_id, "a Job identity")
     now = store._now() if now is None else now
@@ -821,7 +828,19 @@ def advance_continuation(store, custody, authority, *, job_id, now=None):
     frozen = review_cycles.checkpoint_of(custody, yielded["checkpoint_id"])
     request, reply, effect = _answered_request(
         authority, yielded, "continuation", head=frozen["evidence"]["head"])
-    if effect["effect"] != CONTINUATION_EFFECT:
+    from . import main_thread
+    owner_decision = main_thread.decision_of(store, job_id, request["message_id"])
+    if owner_decision is not None:
+        hold = hold_of(store, implementation["stage_id"], episode)
+        if (effect["effect"] != "held" or hold is None
+                or owner_decision["phase"] != implementation["stage_id"]
+                or owner_decision["checkpoint_id"] != yielded["checkpoint_id"]
+                or owner_decision["checkpoint_ref"] != frozen["evidence"]["head"]
+                or owner_decision["escalation_id"] != reply["message_id"]
+                or owner_decision["author"] != reply["destination"]
+                or hold["request_id"] != request["message_id"]):
+            _refuse("owner decision does not bind this request, phase and held checkpoint")
+    if effect["effect"] != CONTINUATION_EFFECT and owner_decision is None:
         _refuse(f"reply {name_value(reply['message_id'])} earned the effect "
                 f"{name_value(effect['effect'])}; an escalation leaves the "
                 f"execution held for its configured decision recipient and a "
@@ -832,6 +851,8 @@ def advance_continuation(store, custody, authority, *, job_id, now=None):
               "request_id": request["message_id"],
               "checkpoint_id": yielded["checkpoint_id"],
               "task_digest": yielded["task_digest"]}
+    if owner_decision is not None:
+        record["owner_decision"] = owner_decision
     operation_id = continuation_operation_id(implementation["stage_id"],
                                              episode)
     signature = job_signature(CONTINUE_KIND, record)
@@ -852,6 +873,17 @@ def advance_continuation(store, custody, authority, *, job_id, now=None):
     if review_live is None:
         _refuse(f"stage {name_value(review['stage_id'])} has no live episode; "
                 f"a continuation advances the pair that answered")
+    if owner_decision is not None:
+        # Do not release custody for a closed Job. The decisive admission
+        # fences are repeated in the Job transaction below after this
+        # replay-safe cross-store transition.
+        closed = job_control.closed_of(store, job_id, now, stage_id=implementation["stage_id"])
+        if closed is not None:
+            _refuse(job_control.closed_message(closed, "an owner continuation"))
+        job_control.refuse_continuation(store._connection, job_id)
+        episodes._unheld(store, live, "implementation")
+        episodes._unheld(store, review_live, "review")
+        review_cycles.hold_owner_continuation(custody, checkpoint_id=yielded["checkpoint_id"], decision=owner_decision, response_digest=reply["handoff_digest"])
     # THE LINE AND THE RETAINED CHECKPOINT, through the custody owner's own
     # readers and nothing else. `_continuation_line` is the one proof this act
     # adds, and what it proves is that the line is held for a CONTINUATION.
@@ -1120,6 +1152,8 @@ def delivered_context(store, custody, authority, *, role, job_id, stage_id,
             held["continuation"] = {"request": request, "reply": reply,
                                     "checkpoint_id": prior["checkpoint_id"],
                                     "text": text}
+            if prior.get("owner_decision") is not None:
+                held["continuation"]["owner_decision"] = prior["owner_decision"]
         return held
     if role != "review":
         return None

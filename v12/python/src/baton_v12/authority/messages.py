@@ -158,7 +158,7 @@ def message_document(row):
     THE SAME RECORD SERVES HUMANS AND AGENTS, which is the slice's own rule:
     there is one read model and not a second rendering for operators.
     """
-    return {"message_id": row["message_id"], "work_id": row["work_id"],
+    return {"sequence": row["seq"], "message_id": row["message_id"], "work_id": row["work_id"],
             "job_id": row["job_id"], "author": row["author"],
             "generation": row["generation"], "claim_seq": row["claim_seq"],
             "kind": row["kind"], "body": json.loads(row["body"]),
