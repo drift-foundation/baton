@@ -76,9 +76,11 @@ def _job_headline(job, phases):
     # W386395: NOTHING IS RUNNING OR ABOUT TO, and a review froze without a
     # usable report. Failure, an owner decision, cancellation, an expired
     # budget and genuine activity elsewhere have all been answered above.
+    # The hold is the frozen review's, not its runtime's: when that attempt
+    # later stops, its row says `stopped` and the Job stays BLOCKED.
     held_reasons = []
     for stage, phase in zip(stages, phases):
-        if phase["execution_position"] == "held":
+        if phase["admission"] == "admitted":
             sentence = held_review(stage, phase["state"])
             if sentence and sentence not in held_reasons:
                 held_reasons.append(sentence)

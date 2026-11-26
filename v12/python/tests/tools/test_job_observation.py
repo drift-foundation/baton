@@ -1230,6 +1230,45 @@ class AFrozenReviewWithoutAReportIsBlocked(unittest.TestCase):
             self.assertIn("Review held: review report missing", text)
         self.assertIn("review          held", opened)
 
+    def test_the_hold_survives_its_runtime_stopping_on_every_surface(self):
+        """M386388 after expiry reclaim: the same frozen attempt, now ceased.
+        The row says `stopped`; the Job stays BLOCKED with the same sentence."""
+        from tools import job_tui
+        stopped = {"outcome": {"known": True, "value": "ceased-absent", "source": "attempt.cessation-outcome"}}
+        for label, row in (("before", "held"), ("after", "stopped")):
+            with self.subTest(runtime=label):
+                doc = self.job()
+                if label == "after":
+                    doc["jobs"][0]["stages"][1]["attempt_diagnostics"]["cause"] = stopped
+                view, phases = self.seen(doc)
+                self.assertEqual((view["headline"], view["headline_reason"]), ("BLOCKED", "Review held: review report missing"))
+                self.assertEqual(phases["review"]["row_position"], row)
+                status, listed, detail = views(doc)
+                with tempfile.TemporaryDirectory(prefix="v12-w386395-") as room:
+                    place = os.path.join(room, "status.json")
+                    Path(place).write_text(json.dumps(doc))
+                    session = job_tui.Session(job_tui.source_from(place))
+                    session.read()
+                    painted = "\n".join(session.frame(24, 120).lines)
+                    session.key("open")
+                    opened = "\n".join(session.frame(24, 120).lines)
+                for text in (status, listed, detail, painted, opened):
+                    self.assertIn("BLOCKED", text)
+                    self.assertIn("Review held: review report missing", text)
+                    self.assertNotIn("UNKNOWN", text)
+                self.assertIn("review          " + row, opened)
+        # A stopped review that never froze is no hold; genuine parallel work still leads.
+        doc = self.job({"disposition": "unable", "review_report": "missing"})
+        doc["jobs"][0]["stages"][1]["attempt_diagnostics"]["cause"] = stopped
+        self.assertNotEqual(self.seen(doc)[0]["headline"], "BLOCKED")
+        doc = self.job()
+        doc["jobs"][0]["stages"][1]["attempt_diagnostics"]["cause"] = stopped
+        doc["jobs"][0]["stages"].append({"stage_id": "job-a/integration", "kind": "integration", "state": "running",
+                                         "attempt_id": "attempt-int", "episode": 1,
+                                         "episodes": [{"episode": 1, "attempt_id": "attempt-int"}],
+                                         "allocation": {"episode": 1, "assignment_id": "attempt-int"}})
+        self.assertEqual(self.seen(doc)[0]["headline"], "IN PROGRESS")
+
     def test_each_classified_report_state_holds(self):
         for state, sentence in (("empty", "Review held: review report empty"),
                                 ("malformed", "Review held: review report malformed"),

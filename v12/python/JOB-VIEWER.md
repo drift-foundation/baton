@@ -362,7 +362,9 @@ request alone does not establish cessation. BLOCKED includes a chain of closed
 gates when an external dependency holds up all remaining work. After ADMITTED,
 a review whose attempt froze its result without a usable report makes the Job
 BLOCKED, with that review's `Review held: …` sentence below the headline, and
-the phase row reads `held`. A review still answering with no frozen result is
+the phase row reads `held`. That hold outlasts its runtime: once the attempt
+stops, the row reads `stopped` and the Job stays BLOCKED with the same sentence.
+A review still answering with no frozen result is
 in progress, because its verification may still be running.
 Phase rows still show the stopped attempt, active worker or named dependency.
 A closed gate on an unidentified dependency leaves the Job headline unknown.
