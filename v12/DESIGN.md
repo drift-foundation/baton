@@ -1233,6 +1233,17 @@ imply a pending owner decision. All phases done without a recorded Job outcome
 is UNKNOWN unless finalization is explicitly underway. Snapshot freshness
 qualifies the entire observation (W385263).
 
+A review held for no usable report MUST expose the worker's closed observation
+(missing, empty, malformed, unclassified, usable or not-read), read only from
+sealed and re-measured review-log evidence. Status, monitor list and monitor
+detail MUST share their phase-row wording. Missing, empty and malformed have
+specific sentences; unclassified and qualifying historical logs show
+"Review held: no usable report". Unbound evidence stays unknown and supplies no
+sentence. The held conclusion carries the same typed observation and words.
+Attribution holds keep priority, with both evidenced facts visible when present.
+This observation changes no verdict, retry, owner item, cleanup authorization or
+Job headline (owner ruling M386301, 2026-11-25).
+
 ## 16. Deployment and compatibility
 
 **DEP-1.** Separate installed code/images, mutable operational stores, managed

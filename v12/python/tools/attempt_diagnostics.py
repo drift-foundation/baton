@@ -190,6 +190,7 @@ WORKER_DECLARATION_MEMBERS = (
     ("seconds_bound_source", (str,)),
     ("verification_attempted", (bool,)),
     ("verification_status", (int,)),
+    ("review_report", (str,)),
 )
 
 # THE CLOSED VALUES, NOT ONLY THE CLOSED NAMES -- the same rule
@@ -208,6 +209,7 @@ SOURCE_DECLARED_FAILURE_REASONS = ("api-error", "start-error", "timeout",
 SOURCE_DECLARED_BOUND_SOURCES = ("job-default", "job-selected", "unstated",
                                  "worker-default")
 _CLOSED_DECLARATION = {
+    "review_report": ("missing", "empty", "malformed", "unclassified", "usable", "not-read"),
     "disposition": SOURCE_DISPOSITIONS,
     "declared_ending": SOURCE_DECLARED_ENDINGS,
     "failure_reason": SOURCE_DECLARED_FAILURE_REASONS,

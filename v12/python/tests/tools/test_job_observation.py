@@ -1159,6 +1159,250 @@ class JobHeadlines(unittest.TestCase):
         self.check(doc, "UNKNOWN", "waiting on review")
 
 
+# Simulated provider and engine at their normal boundaries; actual worker,
+# custody, manager, projection and three rendered views.
+from tests.tools import test_provider_selection as report_fixtures
+
+
+class ReviewReportVisibility(report_fixtures.SelectedBase):
+    REPORT = {"schema": "baton.review-report/1", "verdict": "accepted", "findings": "Reviewed fixture"}
+    SENTENCES = ("Review held: review report missing", "Review held: review report empty",
+                 "Review held: review report malformed", "Review held: no usable report")
+
+    def provider(self, **kwargs):
+        original = super().provider(**kwargs)
+        def run(argv, **options):
+            answer = original(argv, **options)
+            if argv[0] == "claude" and argv != ["claude", "--version"] and getattr(self, "report_link", False):
+                target = Path(options["cwd"], "valid-report")
+                target.write_text(json.dumps(self.REPORT))
+                Path(options["cwd"], "review-report.json").symlink_to(target)
+            return answer
+        return run
+
+    def review(self, body=None, *, status=0, mismatch=False, historical=False, link=False):
+        from unittest import mock
+        from baton_v12.job_manager import review_driver, sweep
+        from tests.job_manager import fixtures
+        import claude_agent
+        held = self.implemented()
+        from baton_v12.authority import Authority
+        from baton_v12.authority.messages import ROUTING_SCHEMA
+        authority = Authority.open(self.authority_path, expected_authority_uuid=self.config["authority_uuid"])
+        try:
+            authority.set_policy("native_handoff_routing", {"schema": ROUTING_SCHEMA,
+                "reviewer": "baton.reviewer", "decision_recipient": "baton.slaw"})
+        finally:
+            authority.dispose()
+        self.drive(held.job, held.composed, "review", "waiting")
+        held.review = self.only_attempt(held.composed, "review")
+        if mismatch:
+            self.reported = ["other-model"]
+        self.report_link = link
+        actual_write = claude_agent._written
+        def historical_write(path, content, *args, **kwargs):
+            if path.endswith("/logs/review.json"):
+                log = json.loads(content)
+                log.pop("report_state")
+                content = json.dumps(log)
+            return actual_write(path, content, *args, **kwargs)
+        with mock.patch.object(claude_agent, "_written", side_effect=historical_write if historical else actual_write):
+            self.assertEqual(self.turn(held.control, "review", held.review,
+                self.mounted(held.composed, "review", held.review),
+                edits={} if body is None else {"review-report.json": body}, status=status), 0)
+        actual_end = review_driver.end_review_from_result
+        self.conclusions = []
+        def end(*args, **kwargs):
+            self.end_args, self.end_kwargs = args, kwargs
+            answer = actual_end(*args, **kwargs)
+            self.conclusions.append(answer)
+            return answer
+        with mock.patch.object(review_driver, "end_review_from_result", side_effect=end):
+            for _ in range(4):
+                sweep(held.job, held.composed, now=fixtures.NOW)
+                if self.conclusions:
+                    break
+        self.assertTrue(self.conclusions)
+        self.held = held
+        return held, self.conclusions[-1]
+
+    def snapshot(self):
+        from baton_v12.job_manager import status
+        from tests.job_manager import fixtures
+        doc = status(self.held.job, self.held.composed, observed_at=fixtures.NOW)
+        # Observation time alone is translated to the fixed rendering clock.
+        doc["observed_at"] = NOW
+        return doc
+
+    def check(self, sentence, conclusion=None, *, stale=False, attribution=False):
+        doc = self.snapshot()
+        stage = next(s for s in doc["jobs"][0]["stages"] if s["kind"] == "review")
+        diagnostic = stage["attempt_diagnostics"]
+        self.assertEqual(diagnostic["attempt_id"], self.held.review)
+        if stale:
+            doc["observed_at"] = "2026-11-18T18:00:00.000Z"
+            output = io.StringIO()
+            stack._print_job_outcomes({"state": "stale", "canonical": True, "document": doc}, output)
+            snap = job_viewer.read_snapshot(doc, received_at=0)
+            rendered = (output.getvalue(), "\n".join(job_viewer.render_list(snap, now=60, wall_now=EPOCH)),
+                        "\n".join(job_viewer.render_detail(snap, "job-a", now=60, wall_now=EPOCH)))
+        else:
+            rendered = views(doc)
+        for view in rendered:
+            if sentence:
+                self.assertIn(sentence, view)
+            for other in self.SENTENCES:
+                if other != sentence:
+                    self.assertNotIn(other, view)
+            if stale:
+                self.assertIn("STALE", view.upper())
+            if attribution:
+                first = "held: model-attribution-conflicting; owner action needed"
+                self.assertIn(first, view)
+                if sentence:
+                    self.assertLess(view.index(first), view.index(sentence))
+        if conclusion is not None:
+            if sentence:
+                self.assertIn(sentence, conclusion["held_reason"])
+                self.assertEqual(conclusion["outcome"], "held")
+                self.assertIsNone(conclusion.get("verdict_id"))
+                self.assertFalse(conclusion["cleaned_up"])
+                from baton_v12.job_manager import review_uncertainty
+                self.assertEqual(review_uncertainty.items_of(self.held.job), [])
+                self.assertEqual(conclusion["review_report"], diagnostic["worker_declaration"]["review_report"])
+            else:
+                for other in self.SENTENCES:
+                    self.assertNotIn(other, json.dumps(conclusion))
+        return doc, stage
+
+    def test_17_missing(self):
+        held, end = self.review()
+        doc, stage = self.check(self.SENTENCES[0], end)
+        self.assertEqual(stage["state"], "answering")
+        from baton_v12.job_manager import review_uncertainty
+        self.assertEqual(review_uncertainty.items_of(held.job), [])
+        self.assertIsNone(end.get("verdict"))
+
+    def test_17_empty(self):
+        held, end = self.review("")
+        self.check(self.SENTENCES[1], end)
+
+    def test_17_malformed(self):
+        held, end = self.review("not JSON")
+        self.check(self.SENTENCES[2], end)
+
+    def test_18_symlink(self):
+        held, end = self.review(link=True)
+        self.check(self.SENTENCES[3], end)
+
+    def test_19_historical(self):
+        held, end = self.review(historical=True)
+        self.check(self.SENTENCES[3], end)
+
+    def test_20_replaced_sealed_log(self):
+        from baton_v12.worker_manager import frozen_output_of
+        from baton_v12.worker_manager.failure_cause import review_report_of
+        from baton_v12.job_manager import review_driver
+        from urllib.parse import urlsplit, unquote
+        held, end = self.review()
+        frozen = frozen_output_of(held.control, held.review)
+        artifact = next(a for a in frozen["artifacts"] if a["output_name"] == "logs")
+        path = Path(unquote(urlsplit(artifact["locator"]).path), "review.json")
+        original = path.read_bytes()
+        # Same byte length, different digest: no size-only trust.
+        path.chmod(0o600)
+        path.write_bytes(original.replace(b'"missing"', b'"garbage"'))
+        reason = review_report_of(held.control, held.review)
+        self.assertFalse(reason["known"])
+        self.assertIn("recompute", reason["why"])
+        self.assertLessEqual(len(reason["why"]), 512)
+        end = review_driver.end_review_from_result(*self.end_args, **self.end_kwargs)
+        self.check(None, end)
+
+    def test_21_provider_failure(self):
+        held, end = self.review(json.dumps(self.REPORT), status=1)
+        self.check(None, end)
+        self.assertEqual(end["review_report"]["value"], "not-read")
+        for view in views(self.snapshot()):
+            self.assertIn("provider failure unclassified", view)
+
+    def test_22_uncertainty(self):
+        held, end = self.review(json.dumps({"schema": "baton.review-uncertainty/1", "findings": "Cannot decide"}))
+        self.check(None, end)
+        self.assertIn("uncertainty", end)
+        self.assertIn("owner decision", end["held_reason"])
+        from baton_v12.job_manager import review_uncertainty
+        [item] = review_uncertainty.items_of(held.job)
+        self.assertEqual(item["destination"], "baton.slaw")
+        self.assertEqual(item["evidence"]["attempt_id"], held.review)
+        self.assertIsNone(item["verdict"])
+        self.assertIsNone(item["automatic_retry"])
+
+    def test_23_attribution_with_usable_report(self):
+        held, end = self.review(json.dumps(self.REPORT), mismatch=True)
+        self.check(None, end, attribution=True)
+        self.assertEqual(end["reason"], "model-attribution-conflicting")
+
+    def test_24_attribution_and_missing_report(self):
+        held, end = self.review(mismatch=True)
+        self.check(self.SENTENCES[0], end, attribution=True)
+        self.assertTrue(end["held_reason"].startswith("model-attribution-conflicting"))
+
+    def test_25_accepted(self):
+        held, end = self.review(json.dumps(self.REPORT))
+        self.check(None, end)
+        self.assertEqual(end["outcome"], "accepted")
+
+    def test_26_later_episode_does_not_inherit(self):
+        held, end = self.review()
+        doc, stage = self.check(self.SENTENCES[0], end)
+        # A later correction episode snapshot retains historical evidence;
+        # its live attempt association must prevent using the earlier log.
+        stage["episodes"].append({"episode": 2, "attempt_id": "later-review"})
+        stage.update(episode=2, attempt_id="later-review")
+        stage["allocation"].update(episode=2, assignment_id="later-review")
+        for view in views(doc):
+            for sentence in self.SENTENCES:
+                self.assertNotIn(sentence, view)
+
+    def test_27_stale_snapshot(self):
+        held, end = self.review()
+        self.check(self.SENTENCES[0], end, stale=True)
+
+    def test_28_recovered_ending_remeasures_without_duplicate_writes(self):
+        from baton_v12.job_manager import review_driver
+        from baton_v12.worker_manager.failure_cause import review_report_of
+        held, end = self.review()
+        worker = self.worker_of(held.composed, "review")
+        worker.stage._prepared.clear()
+        from baton_v12.worker_manager import ControlStore
+        reopened = ControlStore.open(self.control_path, incarnation="report-reopen", clock=lambda: NOW)
+        try:
+            changes = reopened._connection.total_changes
+            self.assertEqual(review_report_of(reopened, held.review), end["review_report"])
+            self.assertEqual(reopened._connection.total_changes, changes)
+        finally:
+            reopened.close()
+        starts = len(self.engine.starts)
+        before = held.control._connection.total_changes
+        again = review_driver.end_review_from_result(*self.end_args, **self.end_kwargs)
+        self.assertEqual(again, end)
+        self.assertEqual(review_report_of(held.control, held.review), end["review_report"])
+        self.assertEqual(held.control._connection.total_changes, before)
+        self.assertEqual(len(self.engine.starts), starts)
+        self.check(self.SENTENCES[0], again)
+
+
+    def test_sentence_vocabularies_agree_and_unknown_stays_silent(self):
+        from baton_v12.worker_manager import review_reports
+        for word in review_reports.REPORT_STATES + ("foreign-prose", None):
+            for known in (True, False):
+                fact = {"known": known, "value": word}
+                self.assertEqual(model.review_report_sentence(fact), review_reports.review_report_sentence(fact))
+                if not known or word in ("usable", "not-read", "foreign-prose", None):
+                    self.assertEqual(model.review_report_sentence(fact), "")
+
+
 class OwnerPacedObservation(unittest.TestCase):
     def test_phase_cancellation_binds_internal_stage_episode_and_attempt(self):
         doc = document()

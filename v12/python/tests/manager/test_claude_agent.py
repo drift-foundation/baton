@@ -399,6 +399,15 @@ class NeitherChildLeavesEphemeraInTheCandidate(AdapterCase):
     perfectly clean.
     """
 
+    def setUp(self):
+        super().setUp()
+        # These cases exercise the legacy descriptor layout, independently
+        # of a native worker container's own mounted layout selection.
+        self.enterContext(mock.patch.object(ClaudeAgent, "LAYOUT_DOCUMENT",
+                                            os.path.join(self.home, "no-layout-selection")))
+        self.enterContext(mock.patch.object(ClaudeAgent, "LAYOUT_MARKER",
+                                            os.path.join(self.home, "no-layout-marker")))
+
     def envs(self):
         """The two composed environments, by the program each belongs to."""
         self.worked(edits={"harness.py": "print('now covered')\n"})
@@ -3141,7 +3150,7 @@ class TheReviewTurnAuthorsAVerdictItDidNotDecide(ReviewCase):
                                             "tree": self.tree})
         self.assertEqual(held["provider"]["status"], 0)
         self.assertEqual(sorted(held),
-                         ["provider", "report_bytes", "reviewed", "schema",
+                         ["provider", "report_bytes", "report_state", "reviewed", "schema",
                           "task_id", "verdict", "verification"])
 
     # -- W321528: the bound the review log reports ---------------------------
@@ -5197,6 +5206,126 @@ class ExplicitReviewUncertainty(ReviewCase):
         answer = self.reviewed(status=1, report=json.dumps({"schema": claude_agent.REVIEW_UNCERTAINTY_SCHEMA,
             "findings": "partial"}))
         self.assertEqual(answer["disposition"], "unable")
+
+
+class ReviewReportObservations(ReviewCase):
+    """W386299 cases 1–16: actual report files and retained worker log."""
+
+    def observed(self, word, **kwargs):
+        answer = self.reviewed(**kwargs)
+        log = json.loads(self.read(self.logs(claude_agent.REVIEW_LOG)))
+        self.assertEqual(log["report_state"], word)
+        if word not in ("usable",):
+            self.assertEqual(answer["disposition"], "unable")
+            self.assertIsNone(self.claim(answer))
+        return answer, log
+
+    def test_01_missing(self):
+        self.observed("missing", report=None)
+
+    def test_02_zero_bytes(self):
+        self.observed("empty", report="")
+
+    def test_03_whitespace(self):
+        self.observed("empty", report=" \t\n")
+
+    def test_04_not_json(self):
+        self.observed("malformed", report="not JSON")
+
+    def test_05_wrong_members(self):
+        self.observed("malformed", report='{"schema":"baton.review-report/1"}')
+
+    def test_06_blank_findings(self):
+        self.observed("malformed", report=self.report(findings="  "))
+
+    def test_07_unknown_verdict(self):
+        self.observed("malformed", report=self.report(verdict="unknown"))
+
+    def test_08_over_bound(self):
+        self.observed("malformed", report="x" * (claude_agent.MAX_REPORT_BYTES + 1))
+
+    def special(self, kind):
+        def after():
+            place = os.path.join(self.calls[-1][1]["cwd"], claude_agent.REVIEW_REPORT)
+            target = place + ".valid"
+            os.rename(place, target)
+            if kind == "link":
+                os.symlink(target, place)
+            elif kind == "fifo":
+                os.mkfifo(place)
+            else:
+                os.mkdir(place)
+        return self.observed("unclassified", after=after)
+
+    def test_09_symlink(self):
+        self.special("link")
+
+    def test_10_fifo_does_not_block(self):
+        import time
+        before = time.monotonic()
+        self.special("fifo")
+        self.assertLess(time.monotonic() - before, 5)
+
+    def test_11_directory(self):
+        self.special("directory")
+
+    def test_12_accepted(self):
+        answer, log = self.observed("usable")
+        self.assertEqual(answer["disposition"], "completed")
+        self.assertEqual(self.claim(answer)["verdict"], "accepted")
+
+    def test_13_uncertain(self):
+        answer, log = self.observed("usable", report=json.dumps({
+            "schema": claude_agent.REVIEW_UNCERTAINTY_SCHEMA, "findings": "Cannot decide"}))
+        self.assertEqual(answer["disposition"], "completed")
+        self.assertIsNone(self.claim(answer))
+        self.assertIn(claude_agent.REVIEW_UNCERTAINTY_CLAIM, answer["outputs"][0]["result_metadata"])
+
+    def test_14_provider_failure(self):
+        answer, log = self.observed("not-read", status=1)
+        self.assertEqual(log["provider"]["failure_reason"], "unclassified")
+
+    def test_15_provider_timeout(self):
+        answer, log = self.observed("not-read", timeout=True)
+        self.assertEqual(log["provider"]["failure_reason"], "timeout")
+
+    def test_16_withheld_acceptance(self):
+        # The required verification outcome is simulated; the review reads a
+        # real valid report and writes its actual held log and absent claims.
+        def provider(agent, task, room, *args, **kwargs):
+            self.write(os.path.join(room, claude_agent.REVIEW_REPORT), self.report())
+            return {"ok": True, "status": 0, "failure_reason": None, "seconds_bound": 30, "seconds_bound_source": "worker-default"}
+        with mock.patch.object(claude_agent, "_reviewer_requirement", return_value={"command_seconds": 30}), \
+             mock.patch.object(ClaudeAgent, "_reviewer_check", return_value={"outcome": "failed", "seconds_bound": 30, "descendants_gone": True}), \
+             mock.patch.object(ClaudeAgent, "_provider", provider), \
+             mock.patch.object(claude_agent, "_commands_account", return_value={"supervised": 1, "timed_out": 0, "unfinished": 0, "descendants_gone": True, "provider": {}}):
+            answer, log = self.observed("usable")
+        self.assertEqual(answer["disposition"], "unable")
+        self.assertIsNone(self.claim(answer))
+        self.assertIsNotNone(log["verdict_withheld"])
+        from baton_v12.worker_manager.review_reports import review_report_sentence
+        self.assertEqual(review_report_sentence({"known": True, "value": log["report_state"]}), "")
+
+    def test_other_malformed_forms_record_only_the_closed_word(self):
+        forms = ['[]', '{"schema":"x","schema":"y"}',
+                 self.report(findings=["not text"]),
+                 self.report(findings="x" * (claude_agent.MAX_FINDINGS + 1)),
+                 self.report(findings="bad \ud800"),
+                 json.dumps(dict(json.loads(self.report()), recovery_digest="not-a-digest"))]
+        for body in forms:
+            with self.subTest(body=body[:50]):
+                self.observed("malformed", report=body)
+
+    def test_undecodable_bytes_and_stat_failure(self):
+        def after():
+            path = pathlib.Path(self.calls[-1][1]["cwd"], claude_agent.REVIEW_REPORT)
+            path.write_bytes(b"\xff")
+        self.observed("malformed", after=after)
+        with mock.patch.object(claude_agent.os, "stat", side_effect=PermissionError):
+            self.assertEqual(claude_agent._read_bounded_observation(self.home, "report"), (None, "unclassified"))
+
+    def test_unicode_whitespace_is_empty(self):
+        self.observed("empty", report="\u2003\u00a0")
 
 
 class ResearchFindings(LineCase):

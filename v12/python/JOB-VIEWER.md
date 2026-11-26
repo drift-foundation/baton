@@ -364,3 +364,13 @@ Phase rows still show the stopped attempt, active worker or named dependency.
 A closed gate on an unidentified dependency leaves the Job headline unknown.
 Completion of every phase does not establish the final Job outcome.
 The current status publisher has no Job finalization or final outcome field.
+
+A review held because its worker had no usable report shows one of
+`Review held: review report missing`, `Review held: review report empty`,
+`Review held: review report malformed`, or `Review held: no usable report` on
+its phase row in status, list and detail. The held conclusion carries the same
+reason. These words come only from the current attempt's sealed, re-measured
+review log; qualifying older logs use the last sentence. Missing or changed
+retained evidence is unknown and supplies no sentence. Attribution holds appear
+first when both facts are evidenced, and stale snapshots keep their stale marker.
+This diagnostic does not change the Job headline or authorize further execution.

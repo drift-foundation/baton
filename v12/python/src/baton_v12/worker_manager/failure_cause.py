@@ -119,7 +119,7 @@ __all__ = ["COMPONENTS", "OUTCOMES", "CESSATION", "EFFECTS",
            "WORKER_DECLARATION_MEMBERS", "DECLARED_ENDINGS",
            "DECLARED_FAILURE_REASONS", "DECLARED_BOUND_SOURCES",
            "RETAINED_RESULT_SCHEMAS", "RETAINED_RESULT_PATH",
-           "declaration_of"]
+           "declaration_of", "review_report_of"]
 
 # W333486 review340349 item 2: THE ONE OWNED, VERSIONED DIAGNOSTIC SHAPE, and
 # it is one shape on all THREE sides -- this producer, the ordinary versioned
@@ -1296,7 +1296,7 @@ def _returned(store, domain, generation):
 WORKER_DECLARATION_MEMBERS = ("disposition", "result_id", "frozen_at",
                               "declared_ending", "failure_reason",
                               "seconds_bound", "seconds_bound_source",
-                              "verification_attempted", "verification_status")
+                              "verification_attempted", "verification_status", "review_report")
 
 # THE WORKER'S OWN TYPED ENDINGS. Mirrored by value rather than imported: the
 # producing vocabulary lives in the worker image, which carries no `baton_v12`
@@ -1437,7 +1437,7 @@ def _bound_bytes(place, size, expected):
     return raw
 
 
-def _retained_declaration(store, attempt_id, frozen):
+def _retained_declaration(store, attempt_id, frozen, *, review=False):
     """The worker's typed result document, or `(None, why)`.
 
     EVERY STEP IS A BINDING AND NOT A LOOKUP. The retained manifest is the one
@@ -1454,6 +1454,10 @@ def _retained_declaration(store, attempt_id, frozen):
     another attempt fails the identity test before anything is opened, and a
     substituted file fails the digest after.
     """
+    # Review logs use the same custody and remeasurement proof as results.
+    path = "review.json" if review else RETAINED_RESULT_PATH
+    output_type = "directory-result" if review else schema.OUTPUT_TYPES[0]
+    schemas = ("baton.review-log/1",) if review else RETAINED_RESULT_SCHEMAS
     try:
         manifest = manifests.load_manifest(store, frozen["manifest_digest"],
                                            "resultManifest")
@@ -1465,7 +1469,8 @@ def _retained_declaration(store, attempt_id, frozen):
         return None, ("this manager retains no result manifest for the "
                       "output this attempt froze")
     named = [one for one in manifest["outputs"]
-             if one.get("type") == schema.OUTPUT_TYPES[0]
+             if one.get("type") == output_type
+             and (not review or one.get("name") == "logs")
              and one.get("status") == "present"]
     if len(named) != 1:
         return None, ("this attempt's frozen result carries no single present "
@@ -1481,11 +1486,11 @@ def _retained_declaration(store, attempt_id, frozen):
     measured = measured.get("entries") if isinstance(measured, dict) else None
     entries = [one for one in measured
                if isinstance(one, dict)
-               and one.get("path") == RETAINED_RESULT_PATH] \
+               and one.get("path") == path] \
         if isinstance(measured, list) else []
     artifact = held.get("artifact")
     if len(entries) != 1 or not isinstance(artifact, dict):
-        return None, ("this manager measured no single " + RETAINED_RESULT_PATH
+        return None, ("this manager measured no single " + path
                       + " in the frozen candidate tree, so there is nothing "
                       "a measurement binds")
     if artifact.get("artifact_id") != f"{attempt_id}:{held['name']}":
@@ -1501,23 +1506,23 @@ def _retained_declaration(store, attempt_id, frozen):
         return None, ("this manager's recorded artifact and its retained "
                       "result manifest disagree about the frozen candidate, "
                       "so neither is read")
-    place = _custody_place(rows[0]["locator"], RETAINED_RESULT_PATH)
+    place = _custody_place(rows[0]["locator"], path)
     if place is None:
         return None, ("this attempt's frozen candidate is not in local "
                       "custody this manager can open")
     raw = _bound_bytes(place, entries[0].get("bytes"),
                        entries[0].get("content_digest"))
     if raw is None:
-        return None, ("the retained " + RETAINED_RESULT_PATH + " is absent, "
+        return None, ("the retained " + path + " is absent, "
                       "unreadable or does not recompute to the digest this "
                       "manager measured when it sealed the tree")
     try:
-        document = json.loads(raw.decode("utf-8"))
-    except (UnicodeDecodeError, ValueError):
-        return None, ("the retained " + RETAINED_RESULT_PATH + " is not a "
+        document = json.loads(raw.decode("utf-8"), object_pairs_hook=_unique_members)
+    except (UnicodeDecodeError, ValueError, RecursionError):
+        return None, ("the retained " + path + " is not a "
                       "readable document")
     if not isinstance(document, dict) \
-            or document.get("schema") not in RETAINED_RESULT_SCHEMAS:
+            or document.get("schema") not in schemas:
         return None, ("the retained result declares a generation this build "
                       "does not read; it is not decoded against a shape "
                       "nobody promised, and what it declared is omitted "
@@ -1607,6 +1612,49 @@ def _declared_members(document):
     return answer
 
 
+def _unique_members(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate member")
+        result[key] = value
+    return result
+
+
+def review_report_of(store, attempt_id):
+    """Report observation from this attempt's sealed, re-measured log only."""
+    from .review_reports import REPORT_STATES
+    frozen = output.frozen_output_of(store, attempt_id)
+    if frozen is None:
+        return _unknown(_NO_FROZEN_RESULT)
+    document, why = _retained_declaration(store, attempt_id, frozen, review=True)
+    if document is None:
+        return _unknown(why)
+    provider = document.get("provider")
+    if not isinstance(provider, dict):
+        return _unknown("the retained review log has no provider account")
+    state = document.get("report_state")
+    if "report_state" not in document:
+        if (frozen["disposition"] == "unable"
+                and type(provider.get("status")) is int and provider["status"] == 0
+                and "failure_reason" in provider and provider["failure_reason"] is None
+                and "verdict" in document and document["verdict"] is None
+                and type(document.get("report_bytes")) is int and document["report_bytes"] == 0
+                and document.get("verdict_withheld") is None):
+            return _known("unclassified", "sealed review log: historical no usable report")
+        return _unknown("the historical review log does not establish an unusable report")
+    if not isinstance(state, str) or state not in REPORT_STATES:
+        return _unknown("the retained review log has no closed report observation")
+    if state in ("missing", "empty", "malformed", "unclassified") and not (
+            frozen["disposition"] == "unable"
+            and type(provider.get("status")) is int and provider["status"] == 0
+            and "failure_reason" in provider and provider["failure_reason"] is None
+            and "verdict" in document and document["verdict"] is None
+            and document.get("verdict_withheld") is None):
+        return _unknown("the retained review log contradicts an unusable report hold")
+    return _known(state, "sealed review log: report_state")
+
+
 def _worker_declaration(store, attempt_id):
     """WHAT THE WORKER DECLARED AND THIS MANAGER SEALED, member by member.
 
@@ -1631,7 +1679,12 @@ def _worker_declaration(store, attempt_id):
                       _unknown("this manager stamped no instant on the "
                                "freeze of this result")),
     }
+    answer["review_report"] = review_report_of(store, attempt_id)
     document, why = _retained_declaration(store, attempt_id, frozen)
+    if document is None and answer["review_report"]["known"]:
+        document, why = _retained_declaration(store, attempt_id, frozen, review=True)
+        if document is not None and answer["review_report"]["value"] == "not-read":
+            document = dict(document, disposition="provider-failed")
     if document is None:
         answer.update({name: _unknown(why) for name in
                        WORKER_DECLARATION_MEMBERS if name not in answer})

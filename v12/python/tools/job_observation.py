@@ -684,10 +684,30 @@ def _owner_hold(stage):
     return None
 
 
+def review_report_sentence(observation):
+    """Unknown evidence never supplies a sentence; historical evidence is classified upstream."""
+    if not isinstance(observation, dict) or observation.get("known") is not True:
+        return ""
+    state = observation.get("value")
+    if state in ("missing", "empty", "malformed"):
+        return "Review held: review report " + state
+    if state == "unclassified":
+        return "Review held: no usable report"
+    return ""
+
+
 def _reason(stage, state):
+    diagnostic = _diagnostic(stage, stage.get("attempt_id"))
+    report = (review_report_sentence(_mapping(diagnostic.get("worker_declaration")).get("review_report"))
+              if stage.get("kind") == "review" and state == "answering" else "")
     hold = _owner_hold(stage)
     if hold:
-        return "held: " + hold + "; owner action needed"
+        return "held: " + hold + "; owner action needed" + ("; " + report if report else "")
+    if report:
+        return report
+    if stage.get("kind") == "review" and state == "answering" and _declared_fact(
+            _mapping(diagnostic.get("worker_declaration")), "review_report") == "not-read":
+        return _declared_ending(stage) or ""
     if state == "exceptional":
         exchange = stage.get("exchange")
         terminal = exchange.get("terminal") if type(exchange) is dict else None

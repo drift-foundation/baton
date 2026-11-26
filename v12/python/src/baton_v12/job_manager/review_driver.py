@@ -1866,6 +1866,10 @@ def _ended_review(control, port, adapter, *, attachment_id, disposition,
     # anything can fail, so that entry point still reports the verdict it was
     # given; the frozen-result resolver may refuse, and then there is no
     # verdict to report and `null` is the honest answer rather than a guess.
+    from ..worker_manager.failure_cause import review_report_of
+    from ..worker_manager.review_reports import review_report_sentence
+    report_observation = review_report_of(control, attempt_id)
+    report_sentence = review_report_sentence(report_observation)
     verdict = None
     try:
         if historical:
@@ -1888,6 +1892,9 @@ def _ended_review(control, port, adapter, *, attachment_id, disposition,
         from ..worker_manager import model_attribution
         attribution_hold = model_attribution.held(model_attribution.assess(control, attempt_id, frozen))
         if attribution_hold is not None:
+            attribution_hold["review_report"] = report_observation
+            if report_sentence:
+                attribution_hold["held_reason"] = attribution_hold.get("held_reason", attribution_hold.get("cause", "attribution hold")) + "; " + report_sentence
             return attribution_hold
         resolved = resolve(frozen)
         if type(resolved) is dict and resolved.get("outcome") == "uncertain":
@@ -1898,6 +1905,7 @@ def _ended_review(control, port, adapter, *, attachment_id, disposition,
                     "receipt_digest": receipt["receipt_digest"],
                     "artifacts": sorted(one["artifact_id"] for one in held),
                     "retention": decided["disposition"], "outcome": "held",
+                    "review_report": report_observation,
                     "held_reason": "reviewer uncertainty requires an owner decision; no verdict or automatic retry",
                     "uncertainty": resolved, "cleaned_up": False}
         verdict = resolved["verdict"] if type(resolved) is dict else resolved
@@ -1920,7 +1928,8 @@ def _ended_review(control, port, adapter, *, attachment_id, disposition,
                 "receipt_digest": receipt.get("receipt_digest"),
                 "artifacts": sorted(one["artifact_id"] for one in held),
                 "retention": decided["disposition"], "outcome": "held",
-                "held_reason": f"the checkpoint's review evidence is not one "
+                "review_report": report_observation,
+                "held_reason": (report_sentence + "; " if report_sentence else "") + f"the checkpoint's review evidence is not one "
                                f"this manager can settle: "
                                f"{refusal.category}/{refusal.code} -- "
                                f"{refusal}",

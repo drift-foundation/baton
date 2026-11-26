@@ -614,6 +614,8 @@ REVIEW_FINDINGS = "findings.txt"
 # adopted from a validated document; they are NOT a diagnostic-stream
 # exemption, and no raw stdout, stderr or credential content reaches either.
 REVIEW_LOG = "review.json"
+# Additive report_state preserves every /1 member, especially report_bytes
+# and verdict_withheld. Older readers retain their previous interpretation.
 REVIEW_LOG_SCHEMA = "baton.review-log/1"
 
 # THE WORKER-OWNED CHECKPOINT-REVIEW CLAIM, and its namespace. The same shape
@@ -2912,7 +2914,8 @@ class ClaudeAgent:
                 "unfinished": account["unfinished"],
                 "descendants_gone": account["descendants_gone"]
                 and account["provider"] is not None}
-        report = _review_report(room) if provider["ok"] else None
+        report, report_state = (_review_report_observation(room) if provider["ok"]
+                                else (None, "not-read"))
         # AN ACCEPTANCE IS NOT PUBLISHED OVER A REQUIRED CHECK THAT DID NOT
         # PASS. The report is the provider's; whether the required command
         # passed is this adapter's own observation, and an `accepted` verdict
@@ -2956,6 +2959,7 @@ class ClaudeAgent:
         _written(os.path.join(logs, REVIEW_LOG),
                  json.dumps({"schema": REVIEW_LOG_SCHEMA,
                              "task_id": task["task_id"],
+                             "report_state": report_state,
                              "verdict": report["verdict"] if report else None,
                              "reviewed": observed,
                              "report_bytes": (len(report["findings"])
@@ -6983,6 +6987,10 @@ def _no_duplicates(pairs):
 
 
 def _review_report(room):
+    return _review_report_observation(room)[0]
+
+
+def _review_report_observation(room):
     """The provider's report, read from a proved regular file and validated.
 
     EVERY RULE HERE IS THIS ADAPTER'S. The report is written by the provider --
@@ -6997,12 +7005,16 @@ def _review_report(room):
     then finds no claim and holds. An exit status is not a decision and this
     adapter will not map one into a verdict.
     """
-    raw = _read_bounded(room, REVIEW_REPORT, "the review report")
+    raw, state = _read_bounded_observation(room, REVIEW_REPORT)
     if raw is None:
-        return None
+        return None, state
+    if not raw.strip():
+        return None, "empty"
     try:
-        document = json.loads(raw.decode("utf-8"),
-                              object_pairs_hook=_no_duplicates)
+        decoded = raw.decode("utf-8")
+        if not decoded.strip():
+            return None, "empty"
+        document = json.loads(decoded, object_pairs_hook=_no_duplicates)
     except (UnicodeDecodeError, ValueError, RecursionError):
         # AND RECURSION IS ONE OF THE PARSER'S ANSWERS. Found by the sweep
         # review 2026-09-18T04-53-08Z [R1] asked for: this read is bounded in
@@ -7010,23 +7022,23 @@ def _review_report(room):
         # deeply nested document raises is not a `ValueError`. A malformed
         # report is not a verdict, and that has to hold for every way it can
         # be malformed.
-        return None
+        return None, "malformed"
     uncertain = type(document) is dict and document.get("schema") == REVIEW_UNCERTAINTY_SCHEMA
     if uncertain:
         if set(document) not in ({"schema", "findings"}, {"schema", "findings", "recovery_digest"}):
-            return None
+            return None, "malformed"
         document = dict(document, verdict=None)
     if type(document) is not dict \
             or set(document) not in (set(REVIEW_REPORT_MEMBERS), set(REVIEW_REPORT_MEMBERS) | {"recovery_digest"}):
-        return None
+        return None, "malformed"
     if document["schema"] != REVIEW_REPORT_SCHEMA and not uncertain:
-        return None
+        return None, "malformed"
     if document["verdict"] not in REVIEW_VERDICTS and not uncertain:
-        return None
+        return None, "malformed"
     findings = document["findings"]
     if type(findings) is not str or not findings.strip() \
             or len(findings) > MAX_FINDINGS:
-        return None
+        return None, "malformed"
     # AND IT MUST BE TEXT THIS ADAPTER CAN ACTUALLY WRITE. REVIEW
     # 2026-09-07T15-19-16Z [P1]: `json` decodes an escaped lone surrogate into
     # a `str` that no UTF-8 encoder will accept, so a report carrying one
@@ -7039,11 +7051,11 @@ def _review_report(room):
     try:
         findings.encode("utf-8")
     except UnicodeEncodeError:
-        return None
+        return None, "malformed"
     if "recovery_digest" in document and (type(document["recovery_digest"]) is not str or not re.fullmatch(r"sha256:[0-9a-f]{64}", document["recovery_digest"])):
-        return None
+        return None, "malformed"
     return {"schema": document["schema"], "verdict": document["verdict"],
-            "findings": findings, **({"recovery_digest": document["recovery_digest"]} if "recovery_digest" in document else {})}
+            "findings": findings, **({"recovery_digest": document["recovery_digest"]} if "recovery_digest" in document else {})}, "usable"
 
 
 def _read_bounded(root, relative, what):
@@ -7076,12 +7088,22 @@ def _read_bounded(root, relative, what):
     THE PARENT IS STILL OPENED NO-FOLLOW AND THE CHILD IS RELATIVE TO IT, so
     a link swapped in at either level is refused rather than resolved.
     """
+    return _read_bounded_observation(root, relative)[0]
+
+
+def _read_bounded_observation(root, relative):
     flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_DIRECTORY
     try:
         parent = os.open(root, flags)
     except OSError:
-        return None
+        return None, "unclassified"
     try:
+        try:
+            os.stat(relative, dir_fd=parent, follow_symlinks=False)
+        except FileNotFoundError:
+            return None, "missing"
+        except OSError:
+            return None, "unclassified"
         try:
             handle = os.open(relative,
                              os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
@@ -7089,7 +7111,7 @@ def _read_bounded(root, relative, what):
         except OSError:
             # ABSENT, A LINK, OR A DEVICE THIS PROGRAM WILL NOT OPEN. All
             # three are "no usable report", which is the unable path.
-            return None
+            return None, "unclassified"
     finally:
         os.close(parent)
     try:
@@ -7099,13 +7121,13 @@ def _read_bounded(root, relative, what):
             # whole point of the ordering: `O_NONBLOCK` on a FIFO with no
             # writer opens immediately for reading, and this is where it is
             # refused as not being a document.
-            return None
+            return None, "unclassified"
         raw = os.read(handle, MAX_REPORT_BYTES + 1)
     except OSError:
-        return None
+        return None, "unclassified"
     finally:
         os.close(handle)
-    return None if len(raw) > MAX_REPORT_BYTES else raw
+    return (None, "malformed") if len(raw) > MAX_REPORT_BYTES else (raw, None)
 
 
 def _supervisor_ready():
