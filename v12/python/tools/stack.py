@@ -1175,8 +1175,19 @@ def _print_job_outcomes(published, stream):
             print("  Cancellation: " + _status_text(cancellation.get("trigger")) + "; shutdown " + _status_text(cancellation.get("shutdown")), file=stream)
 
 
-def status(root, *, stream=sys.stdout, environ=None, now=None):
+def status(root, *, stream=sys.stdout, environ=None, now=None, reader=None, as_json=False):
     answer, snapshot_read = _status_observation(root, now=now, environ=environ)
+    if reader is not None:
+        document = reader()
+        snapshot_read = {"state": "fresh", "canonical": bool(document.get("canonical")), "document": document,
+                         "observed_age_seconds": 0.0, "published_age_seconds": 0.0}
+        answer["jobs"] = _jobs(snapshot_read)
+        answer["runtime"] = runtime_boundary(root, now=now, held=snapshot_read)
+    if as_json:
+        if snapshot_read["state"] in ("absent", "unreadable"):
+            raise StackRefusal("no status document is available for export")
+        print(json.dumps(snapshot_read["document"], sort_keys=True), file=stream)
+        return 0
     _print_job_outcomes(snapshot_read, stream)
     print("Services:", file=stream)
     for name in PROCESSES:
@@ -1323,7 +1334,7 @@ def monitor(root, *, interval, ticks, stream=sys.stdout, todo=False):
                             "--ticks", str(ticks)] + (["--todo"] if todo else []), stream=stream)
 
 
-def tui(root, *, interval):
+def tui(root, *, interval, environ=None):
     """W386308: the read-only terminal interface, over the same published snapshot.
 
     Like `monitor` it reads and nothing else; leaving it does not stop
@@ -1332,7 +1343,10 @@ def tui(root, *, interval):
     """
     from tools import job_tui
 
-    return job_tui.main(["--status", str(snapshot_path(root)), "--interval", str(interval)])
+    if environ is None or not any(environ.get(name) for name in REQUIRED):
+        return job_tui.main(["--status", str(snapshot_path(root)), "--interval", str(interval)])
+    from tools import job_status
+    return job_tui.main(["--interval", str(interval)], source=job_status.source(configured(environ)))
 
 
 def repository(document, *, stream=sys.stdout):
@@ -1461,8 +1475,11 @@ def main(argv=None, *, stream=sys.stdout, environ=None):
                         help="the external state root; defaults to "
                              + ROOT_ENV + " or the XDG state directory")
     commands = parser.add_subparsers(dest="command", required=True)
-    for name in ("start", "stop", "status", "publish"):
+    for name in ("start", "stop", "publish"):
         commands.add_parser(name)
+    reading = commands.add_parser("status")
+    reading.add_argument("--json", action="store_true", help="export the same durable Job read as JSON")
+    reading.add_argument("--snapshot", action="store_true", help="explicitly read the publisher file for diagnostics/replay")
     commands.add_parser("repository")
     watching = commands.add_parser("monitor")
     watching.add_argument("--todo", action="store_true", help="show open MANUAL Jobs")
@@ -1481,7 +1498,8 @@ def main(argv=None, *, stream=sys.stdout, environ=None):
 
             document, environ = instance_settings(taken.instance, environ)
             root = Path(document["state"])
-            Path(document["logs"]).mkdir(parents=True, exist_ok=True)
+            if taken.command in ("start", "publish"):
+                Path(document["logs"]).mkdir(parents=True, exist_ok=True)
         else:
             root = Path(taken.root) if taken.root else state_root(environ)
     except Exception as refusal:                             # noqa: BLE001
@@ -1497,7 +1515,12 @@ def main(argv=None, *, stream=sys.stdout, environ=None):
         if taken.command == "stop":
             return stop(root, stream=stream)
         if taken.command == "status":
-            return status(root, stream=stream, environ=environ)
+            from tools import job_status
+            reader = None
+            if not taken.snapshot and any(environ.get(name) for name in REQUIRED):
+                settings = configured(environ)
+                reader = lambda: job_status.read(settings)
+            return status(root, stream=stream, environ=environ, reader=reader, as_json=taken.json)
         if taken.command == "repository":
             if not taken.instance:
                 print("refused: `repository` reads an instance's own "
@@ -1508,7 +1531,7 @@ def main(argv=None, *, stream=sys.stdout, environ=None):
             return monitor(root, interval=taken.interval, ticks=taken.ticks,
                            stream=stream, todo=taken.todo)
         if taken.command == "tui":
-            return tui(root, interval=taken.interval)
+            return tui(root, interval=taken.interval, environ=environ)
         return publish(root, environ=environ)
     except StackRefusal as refusal:
         print("refused: " + str(refusal), file=stream)

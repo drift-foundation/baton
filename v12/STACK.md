@@ -971,6 +971,20 @@ signalled.
 
 ## Reading `just status`
 
+Default `status` and `tui` query the durable Job read API, including when the
+manager and publisher are stopped and `status.json` is absent. They display
+recorded Jobs, retained results and decisions without starting any service or
+refreshing a runtime. The read time does not replace worker activity timestamps.
+An old exported snapshot never overrides newer durable facts.
+
+`status --json` exports the same Job read as JSON on demand. `status --snapshot`
+explicitly selects the periodic publisher's file for diagnostics/replay;
+`monitor` and standalone `job_tui --status FILE` retain their file paths.
+The periodic publisher, its atomic writes, and start/readiness checks are
+unchanged. The snapshot freshness line below describes that file separately
+from the default durable Job read.
+
+
 ```
 manager    running pid 12345
 publisher  running pid 12346

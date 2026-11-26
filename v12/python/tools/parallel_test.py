@@ -576,6 +576,7 @@ PARALLEL_MODULES = ("tests.job_manager.test_accepted_offer_retirement",
     # deterministic engine; no daemon, provider, network or shared name. The
     # tests.tools package assigns this module to tools-pure.
     "tests.tools.test_creation_while_serving",
+    "tests.tools.test_offline_job_status",
     "tests.tools.test_disposition_command",
     "tests.tools.test_dossier_command",
     "tests.tools.test_dossier_recovery",

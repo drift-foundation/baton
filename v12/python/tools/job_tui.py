@@ -476,11 +476,11 @@ class _Signalled(Exception):
         self.number = number
 
 
-def run(place, *, interval=INTERVAL_SECONDS):
+def run(place, *, interval=INTERVAL_SECONDS, source=None):
     """The curses loop: read keys, call the pure parts, paint. Returns the exit code."""
     import curses
 
-    session = Session(source_from(place), interval=interval)
+    session = Session(source_from(place) if source is None else source, interval=interval)
 
     def signalled(number, _frame):
         raise _Signalled(number)
@@ -540,17 +540,19 @@ def run(place, *, interval=INTERVAL_SECONDS):
             signal.signal(number, handler)
 
 
-def main(argv=None, *, stream=None):
+def main(argv=None, *, stream=None, source=None):
     parser = argparse.ArgumentParser(
         prog="job_tui",
         description="Read-only terminal interface over a v12 status snapshot. "
                     "It reads the published document and performs no act; "
                     "leaving it does not affect any Job.")
-    parser.add_argument("--status", required=True,
+    parser.add_argument("--status", required=False,
                         help="path to the published status document, as `monitor` reads it")
     parser.add_argument("--interval", type=float, default=INTERVAL_SECONDS,
                         help="seconds between reads of the snapshot")
     taken = parser.parse_args(argv)
+    if taken.status is None and source is None:
+        parser.error("--status is required without an instance read source")
     stream = sys.stderr if stream is None else stream
     try:
         interval = job_viewer.checked_interval(taken.interval)
@@ -562,7 +564,9 @@ def main(argv=None, *, stream=None):
               "use `monitor` for a plain-text view", file=stream)
         return 2
     try:
-        return run(taken.status, interval=interval)
+        if source is None:
+            return run(taken.status, interval=interval)
+        return run(taken.status, interval=interval, source=source)
     except Exception as failure:                    # noqa: BLE001 -- reported after the terminal is restored
         print("error: " + type(failure).__name__ + ": " + str(failure), file=stream)
         return 1

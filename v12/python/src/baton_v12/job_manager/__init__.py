@@ -244,9 +244,11 @@ __all__ = ["ACTS", "ACT_OUTCOMES", "ALLOCATION_STATES", "CANONICAL_OPERATIONS",
            "receipts_of", "reconcile", "reconcile_allocations", "release",
            "replaceable", "require_recovery",
            "serve", "stage_id", "stage_intent", "stage_rows", "stages_of",
-           "reserve", "status", "submission_of", "submission_rows",
+           "reserve", "read_status", "status", "submission_of", "submission_rows",
            "submission_signature", "submit", "sweep",
            "CANCEL_KIND", "SHUTDOWN_BOUND_SECONDS", "cancellation_report",
            "CONTROL_KIND", "CONTROL_PROFILES", "EXPIRY_KIND", "control_of",
            "control_report",
            "fence_of", "request_job_cancellation"]
+
+from .reading import read_status

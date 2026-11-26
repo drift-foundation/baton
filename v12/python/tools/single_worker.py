@@ -4724,7 +4724,7 @@ class _Observation:
             job_execution=self._job_execution(stage),
             provider_context=_context_descriptor(self.control, self.given, attempt_id),
             provider_selection=self._provider_delivery(stage),
-            workspace_group=self.group)
+            workspace_group=self.group, read_only=True)
         return None if launched is None else launched.exchange
 
     def observe_exchange(self, stage):

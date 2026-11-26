@@ -5,13 +5,27 @@ fixes "parallel Jobs are invisible", and it is deliberately not more than that.
 
 ## Running it
 
-The viewer reads the status document the Job Manager already publishes, so the
-ordinary invocation is two commands:
+For an installed instance, default status and TUI read durable Job facts through
+`baton_v12.job_manager.read_status`, the same API used by `manager status`.
+They work while every service is stopped and no `status.json` exists:
+
+```sh
+"$DEST/distro/baton-v12-stack" status --instance "$DEST/instance.json"
+"$DEST/distro/baton-v12-stack" tui --instance "$DEST/instance.json"
+"$DEST/distro/baton-v12-stack" status --instance "$DEST/instance.json" --json > export.json
+```
+
+The JSON export serializes that read on demand; neither default client consults
+an older export. Reads open existing stores read-only, perform no runtime refresh,
+and start no manager, publisher, worker, engine or provider. The document's
+`observed_at` describes the read; nested worker activity keeps its original
+source observation time. A new read is not new worker activity.
+
+For file diagnostics and replay, `status --snapshot` reads the instance's
+publisher file; `monitor` and the standalone viewer retain their file interface:
 
 ```
-python3 tools/job_manager.py --store /path/to/jobs.sqlite \
-    --incarnation <incarnation> --authority-uuid <uuid> status > status.json
-python3 tools/job_viewer.py --status status.json
+python3 tools/job_viewer.py --status export.json
 ```
 
 One Job in detail:
@@ -383,9 +397,10 @@ This diagnostic does not change the Job headline or authorize further execution.
 
 ## The read-only TUI (W386308)
 
-`tui` is the same snapshot and the same words as `monitor`, kept on screen and
-navigable. It is read-only: it opens the published status file and nothing
-else, and quitting it leaves every Job as it was.
+`tui` uses the same interpretation and words as `monitor`, kept on screen and
+navigable. The instance command queries the durable read API on each refresh.
+The standalone `--status` form reads an explicitly named export. Both are
+read-only, and quitting leaves every Job as it was.
 
 ```sh
 "$DEST/distro/baton-v12-stack" tui --instance "$DEST/instance.json"

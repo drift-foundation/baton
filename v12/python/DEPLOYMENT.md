@@ -2060,3 +2060,24 @@ reserved, no binding is published and no offer is issued, and `reserved` is
 `false` — do not read a returned Job id as a Job. Ordinary `create`, `submit` and `fresh-attempt` cannot
 name the recovery profile, template or stage vocabulary; each is refused by
 name by the owner that holds it.
+
+
+## Offline Job status
+
+An installed instance needs no running service to answer `status` or `tui`:
+
+```sh
+"$DEST/distro/baton-v12-stack" status --instance "$DEST/instance.json"
+"$DEST/distro/baton-v12-stack" tui --instance "$DEST/instance.json"
+"$DEST/distro/baton-v12-stack" status --instance "$DEST/instance.json" --json > export.json
+```
+
+These clients and `manager status` share the durable `read_status` library API.
+It opens existing stores read-only and reads recorded results and decisions;
+it neither starts execution nor refreshes runtime state. Worker activity retains
+its source observation time. Missing or unreadable stores are not replaced by
+an old export. `status.json` remains the periodic publisher's atomic export,
+with its existing readiness checks. Use `status --snapshot`, `monitor`, or
+`python3 -m tools.job_tui --status export.json` for explicit file diagnostics
+and replay. Ordinary `manager create` can queue a Job while the manager is
+stopped; submitting and reading do not start it.

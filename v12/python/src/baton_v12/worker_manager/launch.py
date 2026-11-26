@@ -693,6 +693,23 @@ def _logs_adopted(home, attempt, workspace_group):
                                         workspace_group=workspace_group)
 
 
+def _logs_observed(home, attempt, workspace_group):
+    """Read an existing room without adoption's execution-time repairs.
+
+    The log owner validates the room; its reader reports absent native logs.
+    In particular, do not call `attempt_logs.adopt`: it creates a missing
+    native-log directory even when the enclosing room already exists.
+    """
+    if workspace_group is None:
+        return None
+    logs = attempt_logs.AttemptLogs(root=_log_root(home), attempt_id=attempt)
+    if not os.path.lexists(logs.log_root):
+        return None
+    opened = attempt_logs._own_directory(logs.log_root, "an attempt log room")
+    os.close(opened)
+    return logs
+
+
 def materialize(storage, *, attempt_id, session, contract, role,
                 transport=None, job_execution=None, workspace_group=None, provider_context=None, provider_selection=None):
     """Author one launch document and put it on disk as this manager's own.
@@ -821,8 +838,11 @@ def _exchange_materialized(root, attempt, document, workspace_group):
 
 
 def adopt(storage, *, attempt_id, session, contract, role,
-          transport=None, job_execution=None, workspace_group=None, provider_context=None, provider_selection=None):
+          transport=None, job_execution=None, workspace_group=None, provider_context=None, provider_selection=None, read_only=False):
     """Recover the delivery THIS MANAGER already made, or FAIL CLOSED.
+
+    With `read_only=True`, absent log storage stays absent. Launch bytes and
+    exchange validation are identical; only execution may repair log storage.
 
     W47225. `materialize` refuses an existing root and `discard` removes one,
     so a restarted process had no way to hold a delivery it had already made
@@ -967,8 +987,8 @@ def adopt(storage, *, attempt_id, session, contract, role,
                               transport=transport,
                               job_execution=job_execution, provider_context=provider_context, provider_selection=provider_selection),
                           delivery=delivery,
-                          logs=_logs_adopted(os.path.dirname(root), attempt,
-                                             workspace_group))
+                          logs=(_logs_observed if read_only else _logs_adopted)(
+                              os.path.dirname(root), attempt, workspace_group))
 
 
 def _root_entries(transport):
