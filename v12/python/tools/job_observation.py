@@ -473,14 +473,16 @@ def _stage_line(stage, observed_at, job=None):
     held.update(interpreted)
     held["dependencies"] = [_gate_text(gate) for gate in _rows(stage.get("gates"))]
     held["role"] = held["kind"]
-    held["position"] = _position(stage, held)
+    position = _position(stage, held)
+    held["position"] = position + "; admission " + held["admission"]
+    held["row_position"] = _row_position(position, stage, held, job)
     held["facts"] = _facts(stage, held, observed_at)
     if job and job.get("mode") == "MANUAL":
         if job.get("lifecycle") == "closed" and not stage.get("selected_at"):
-            held["position"] = "never selected; Job closed"
+            held["position"] = held["row_position"] = "never selected; Job closed"
         elif state == "queued":
             if _mapping(job.get("budget")).get("expired") is True:
-                held["position"] = "admission fenced; Job wall budget exhausted"
+                held["position"] = held["row_position"] = "admission fenced; Job wall budget exhausted"
             else:
                 held["facts"].append("Selection recorded; waiting for admission" if stage.get("selected_at") else "Ready for explicit start")
         phase_cancellation = _mapping(stage.get("execution_cancellation"))
@@ -842,7 +844,26 @@ def _position(stage, held):
     if held["admission"] == "admitted" and stop and type(state) is str and state in _POSITIONS:
         position = position + " — " + stop if stop.startswith("stopping") and state != "exceptional" else stop
     held["execution_position"] = position if state not in HELD_STATES else UNKNOWN
-    return position + "; admission " + held["admission"]
+    return position
+
+
+def _row_position(position, stage, held, job):
+    if held["admission"] == "not admitted":
+        return position + " · not admitted"
+    if position == "in progress" and stage.get("state") == "running":
+        return "running"
+    if position == "admitted" and stage.get("state") in ("offered", "claimed"):
+        return "admitted · waiting for worker to start"
+    if stage.get("state") == "blocked" and position == held["plan_position"]:
+        gates = [gate for gate in _rows(stage.get("gates")) if gate.get("open") is False]
+        if gates:
+            prefix = str(_mapping(job).get("job_id")) + "/"
+            names = [gate["stage_id"].removeprefix(prefix) if isinstance(gate.get("stage_id"), str) and gate["stage_id"] else _gate_text(gate)
+                     for gate in gates]
+            return "waiting for " + ", ".join(names)
+    if position == UNKNOWN or position.startswith("unknown (reported state:"):
+        return position + (" · admitted" if held["admission"] == "admitted" else " · admission unknown")
+    return position
 
 
 # Ending vocabulary of the published offer settlement result.

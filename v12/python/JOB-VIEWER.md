@@ -392,6 +392,7 @@ python3 -m tools.job_tui --status "$DEST/state/status.json"      # the same prog
 - **Detail**: the selected Job's headline, reason and summary, then one row per
   phase with its position and reason. The selected phase also shows its attempt
   identity, recorded facts, timing and requested model.
+  The detail shows a phase's name before its role when it has one.
 - **Keys**: `↑`/`k` and `↓`/`j` move; `PgUp`, `PgDn`, `Home`, `End` jump;
   `Enter` opens the selected Job; `Esc` goes back; `n` moves to the next Job
   needing a decision; `r` reads the snapshot now; `q` or `Ctrl-C` quits.

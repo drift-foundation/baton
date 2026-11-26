@@ -117,6 +117,22 @@ class Case(unittest.TestCase):
         return painted.lines[painted.selected]
 
 
+class PhaseRowWording(Case):
+    def test_phase_progress_and_admission_have_distinct_words(self):
+        job = held_job("job-a", hold=None)
+        impl, review = job["stages"]
+        for state, expected in (("running", "running"), ("claimed", "admitted · waiting for worker to start"),
+                                ("waiting", "admitted"), ("completed", "done")):
+            with self.subTest(state=state):
+                impl["state"] = state
+                phases = seen(document(job), "job-a")["phases"]
+                self.assertEqual(phases[0]["row_position"], expected)
+                self.assertEqual(phases[1]["row_position"], "waiting for implementation")
+        impl.pop("allocation")
+        impl["state"] = "running"
+        self.assertIn("admission unknown", seen(document(job), "job-a")["phases"][0]["row_position"])
+
+
 class TheList(Case):
     def test_case_01_one_row_per_job_with_headline_reason_and_counts(self):
         doc = document(running_job("job-run"), held_job("job-held"), queued_job("job-wait"))
@@ -150,11 +166,11 @@ class TheList(Case):
         self.assertTrue(detail[3].strip().startswith(view["summary"] + " · Job age "), detail[3])
         body = [line.strip() for line in detail]
         implementation, review = view["phases"]
-        self.assertIn("> " + implementation["role"].ljust(15) + " " + implementation["position"], detail)
-        self.assertIn("  " + review["role"].ljust(15) + " " + review["position"], detail)
+        self.assertIn("> " + implementation["role"].ljust(15) + " " + implementation["row_position"], detail)
+        self.assertIn("  " + review["role"].ljust(15) + " " + review["row_position"], detail)
         for phase in (implementation, review):
             self.assertIn(phase["reason"], body)
-        self.assertIn("attempt 1 " + A1_ATTEMPT, body)
+        self.assertIn("attempt 1 " + A1_ATTEMPT + " · admitted", body)
         for fact in implementation["facts"]:
             self.assertIn(fact, body)
         self.assertIn(implementation["duration"] + " · " + implementation["timeout"] + " · activity "
@@ -244,14 +260,14 @@ class TheDetail(Case):
         session.read()
         self.assertEqual(session.state.stage_id, "job-a/review")
         review = seen(after, "job-a")["phases"][1]
-        self.assertEqual(self.selected_line(session, columns=160), "> " + review["role"].ljust(15) + " " + review["position"])
+        self.assertEqual(self.selected_line(session, columns=160), "> " + review["role"].ljust(15) + " " + review["row_position"])
         gone = held_job("job-a")
         gone["stages"] = gone["stages"][:1]
         self.fed.next = document(gone)
         session.read()
         self.assertEqual(session.state.stage_id, "job-a/review")
         self.assertEqual(self.selected_line(session), "> job-a/review" + job_tui.ABSENT)
-        self.assertNotIn(review["position"], self.text(session, columns=160))
+        self.assertNotIn(review["row_position"], self.text(session, columns=160))
         session.key("up")
         self.assertEqual(session.state.stage_id, "job-a/implementation")
 
@@ -279,7 +295,7 @@ class TheDetailOfALongPhase(Case):
         self.doc = document(long_job(), schema=stack.MANUAL_STATUS_SCHEMA)
         self.view = seen(self.doc, "field-survey")
         self.guide = self.view["phases"][0]
-        self.block = job_tui._phase_block(self.guide, True, 80)         # as painted at 80 columns
+        self.block = job_tui._phase_block(self.guide, True, 80, label="guide · research", label_width=19)  # as painted at 80 columns
         self.session = self.session(self.doc)
         self.session.read()
         self.session.key("open")
@@ -350,8 +366,135 @@ class TheDetailOfALongPhase(Case):
         tall = self.shown(rows=40)
         self.assertEqual(tall.lines[-1], job_tui.DETAIL_KEYS)
         self.assertEqual(self.session.state.stage_line, 0)
-        for line in job_tui._phase_block(self.view["phases"][1], True, 80):
+        for line in job_tui._phase_block(self.view["phases"][1], True, 80, label="overview · research", label_width=19):
             self.assertIn(line, tall.lines)
+
+
+class PhaseNames(Case):
+    """W386361 acceptance cases; snapshots are deterministic, with no live provider."""
+
+    def detail(self, job):
+        doc = document(job, schema=stack.MANUAL_STATUS_SCHEMA)
+        session = self.session(doc)
+        session.read()
+        session.key("open")
+        return session, seen(doc, job["job_id"])["phases"]
+
+    def test_case_01_manual_research_phases_have_distinct_names(self):
+        session, phases = self.detail(long_job())
+        lines = self.painted(session, rows=40).lines
+        expected = ["> " + "guide · research".ljust(19) + " " + phases[0]["row_position"],
+                    "  overview · research " + phases[1]["row_position"]]
+        self.assertNotEqual(expected[0][2:], expected[1][2:])
+        for row in expected:
+            self.assertIn(row, lines)
+            self.assertIn("research", row)
+        # A named Job also aligns unnamed labels; short names keep the 15-column floor.
+        job = queued_job("job-a")
+        job["stages"].append(dict(job["stages"][0], stage_id="job-a/a", kind="research"))
+        session, phases = self.detail(job)
+        lines = self.painted(session).lines
+        self.assertIn("> implementation  " + phases[0]["row_position"], lines)
+        self.assertIn("  " + "a · research".ljust(15) + " " + phases[1]["row_position"], lines)
+        job["stages"][1]["stage_id"] = "job-a/overview"
+        session, phases = self.detail(job)
+        self.assertIn("> " + "implementation".ljust(19) + " " + phases[0]["row_position"], self.painted(session).lines)
+
+    def test_case_02_refresh_preserves_overview_identity_and_label(self):
+        job = long_job()
+        session, phases = self.detail(job)
+        self.painted(session, rows=40)
+        session.key("down")
+        self.assertEqual(session.state.stage_id, "field-survey/overview")
+        third = dict(job["stages"][0], stage_id="field-survey/extra")
+        job["stages"] = [job["stages"][1], third, job["stages"][0]]
+        self.fed.next = document(job, schema=stack.MANUAL_STATUS_SCHEMA)
+        session.read()
+        self.assertEqual(session.state.stage_id, "field-survey/overview")
+        self.assertEqual(session.state.stage_at, 0)
+        self.assertEqual(self.selected_line(session, rows=50), "> overview · research " + phases[1]["row_position"])
+
+    def test_case_03_ordinary_rows_are_byte_equal(self):
+        session, phases = self.detail(held_job("job-a"))
+        lines = self.painted(session).lines
+        for mark, phase in zip(("> ", "  "), phases):
+            old = mark + phase["role"].ljust(15) + " " + phase["row_position"]
+            self.assertIn(old.encode(), [line.encode() for line in lines])
+            self.assertNotIn("·", old)
+
+    def test_case_04_missing_invalid_and_role_only_ids_keep_old_row(self):
+        for identity in ("research", None, 42, [], {}, "", "unknown", "job-a/", "job-a/unknown"):
+            with self.subTest(stage_id=identity):
+                job = queued_job("job-a")
+                phase = job["stages"][0]
+                phase["kind"] = "research"
+                if identity is None:
+                    del phase["stage_id"]
+                else:
+                    phase["stage_id"] = identity
+                session, phases = self.detail(job)
+                row = self.selected_line(session)
+                self.assertEqual(row.encode(), ("> " + "research".ljust(15) + " " + phases[0]["row_position"]).encode())
+                self.assertNotIn("·", row)
+
+    def test_case_05_prefixed_role_is_not_duplicated(self):
+        job = queued_job("job-a")
+        job["stages"][0].update(stage_id="job-a/research", kind="research")
+        session, phases = self.detail(job)
+        self.assertEqual(self.selected_line(session), "> " + "research".ljust(15) + " " + phases[0]["row_position"])
+
+    def test_case_06_foreign_prefix_is_shown_whole(self):
+        for identity in ("job-ab/overview", "other/overview", "overview", "job-a"):
+            with self.subTest(stage_id=identity):
+                job = queued_job("job-a")
+                job["stages"][0].update(stage_id=identity, kind="research")
+                session, phases = self.detail(job)
+                self.assertEqual(self.selected_line(session), "> " + (identity + " · research").ljust(15) + " " + phases[0]["row_position"])
+
+    def test_case_07_long_name_is_ellipsized_without_wrapping(self):
+        job = queued_job("job-a")
+        job["stages"][0].update(stage_id="job-a/" + "long-name-" * 12, kind="research")
+        session, _ = self.detail(job)
+        painted = self.painted(session, columns=60)
+        self.assertEqual(painted.lines[painted.selected], ("> " + "long-name-" * 12)[:59] + "…")
+        self.assertEqual(sum("long-name" in line for line in painted.lines), 1)
+        self.assertTrue(all(len(line) <= 60 for line in painted.lines))
+
+    def test_case_08_tall_phase_keeps_named_first_line_pinned(self):
+        session, phases = self.detail(long_job())
+        first = self.painted(session, rows=8)
+        expected = "> " + "guide · research".ljust(19) + " " + phases[0]["row_position"]
+        self.assertEqual(first.lines[first.selected], expected)
+        session.key("down")
+        second = self.painted(session, rows=8)
+        self.assertEqual(second.lines[second.selected], expected)
+        self.assertEqual(session.state.stage_id, "field-survey/guide")
+        self.assertEqual(session.state.stage_line, 1)
+        self.assertNotEqual(first.lines[first.selected + 1], second.lines[second.selected + 1])
+
+    def test_case_09_vanished_named_phase_keeps_absent_line(self):
+        job = long_job()
+        session, _ = self.detail(job)
+        job["stages"] = job["stages"][1:]
+        self.fed.next = document(job, schema=stack.MANUAL_STATUS_SCHEMA)
+        session.read()
+        self.assertEqual(session.state.stage_id, "field-survey/guide")
+        self.assertEqual(self.selected_line(session), "> field-survey/guide — not in the current snapshot")
+
+    def test_case_10_named_labels_leave_other_phase_lines_and_list_unchanged(self):
+        job = long_job()
+        session, phases = self.detail(job)
+        lines = self.painted(session, rows=40).lines
+        old_block = job_tui._phase_block(phases[0], True, 100)
+        at = lines.index("> " + "guide · research".ljust(19) + " " + phases[0]["row_position"])
+        self.assertEqual(list(lines[at + 1:at + len(old_block)]), old_block[1:])
+        session.key("back")
+        before = self.painted(session).lines
+        for phase in job["stages"]:
+            phase["stage_id"] = "field-survey/research"
+        self.fed.next = document(job, schema=stack.MANUAL_STATUS_SCHEMA)
+        session.read()
+        self.assertEqual(self.painted(session).lines, before)
 
 
 class Freshness(Case):
@@ -716,7 +859,7 @@ class WhatItIsBuiltOn(Case):
         session.key("open")
         session.key("down")
         lines = self.painted(session, columns=120).lines
-        at = lines.index("> " + review["role"].ljust(15) + " " + review["position"])
+        at = lines.index("> " + review["role"].ljust(15) + " " + review["row_position"])
         self.assertEqual(lines[at + 1].strip(), review["reason"])
 
 

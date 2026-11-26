@@ -298,15 +298,27 @@ def _list_blocks(state, view, columns):
     return blocks, selected
 
 
-def _phase_block(phase, chosen, columns):
+def _phase_label(phase, job_id):
+    role = str(phase["role"])
+    name = phase.get("stage_id")
+    if isinstance(name, str):
+        if isinstance(job_id, str) and name.startswith(job_id + "/"):
+            name = name[len(job_id) + 1:]
+        if name and name != "unknown" and name != role:
+            return name + " · " + role
+    return role
+
+
+def _phase_block(phase, chosen, columns, *, label=None, label_width=15):
     mark = "> " if chosen else "  "
-    block = [_cut(mark + str(phase["role"]).ljust(15) + " " + str(phase["position"]), columns)]
+    block = [_cut(mark + (str(phase["role"]) if label is None else label).ljust(label_width) + " " + str(phase["row_position"]), columns)]
     if phase["reason"]:
         block.append(_cut("      " + str(phase["reason"]), columns))
     if not chosen:
         return block
     if phase["attempt_count"]:
-        block.append(_cut("      attempt " + str(phase["episode"]) + " " + str(phase["attempt_id"]), columns))
+        block.append(_cut("      attempt " + str(phase["episode"]) + " " + str(phase["attempt_id"])
+                          + (" · admitted" if phase["admission"] == "admitted" else ""), columns))
     for fact in phase["facts"]:
         block.append(_cut("      " + str(fact), columns))
     block.append(_cut("      " + str(phase["duration"]) + " · " + str(phase["timeout"])
@@ -353,12 +365,16 @@ def frame(state, snapshot, now, wall_now, rows, columns):
                              + job_observation.job_age(job, snapshot.observed_at), columns))
             head.append("")
             phases = {phase["stage_id"]: phase for phase in seen["phases"]}
+            labels = {stage_id: _phase_label(phase, state.job_id) for stage_id, phase in phases.items()}
+            named = any(labels[stage_id] != str(phase["role"]) for stage_id, phase in phases.items())
+            label_width = max(15, max(map(len, labels.values()), default=0)) if named else 15
             blocks, selected = [], None
             for index, stage_id in enumerate(_entries(list(phases), state.stage_id, state.stage_at)):
                 if stage_id == state.stage_id:
                     selected = index
                 if stage_id in phases:
-                    blocks.append(_phase_block(phases[stage_id], stage_id == state.stage_id, columns))
+                    blocks.append(_phase_block(phases[stage_id], stage_id == state.stage_id, columns,
+                                               label=labels[stage_id], label_width=label_width))
                 else:
                     blocks.append([_cut("> " + str(stage_id) + ABSENT, columns)])
             if not blocks:
