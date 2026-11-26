@@ -472,6 +472,15 @@ PARALLEL_MODULES = ("tests.job_manager.test_accepted_offer_retirement",
     "tests.job_manager.test_native_handoffs",
     "tests.job_manager.test_native_permission",
     "tests.job_manager.test_native_stop_restart",
+    # W385263: which review verdict a Job headline may show. PARALLEL: one
+    # disposable control store per case driven through the real review-line
+    # acts, fixture composed from `test_review_cycles` by module attribute
+    # (none of its test classes is bound), no engine, no provider.
+    "tests.job_manager.test_review_verdicts",
+    # W385263 / M386422: the owner's integration receipt and DONE. PARALLEL:
+    # a disposable Job store and a disposable Git repository per case, no
+    # engine, no provider, no serving process.
+    "tests.job_manager.test_job_integration",
     # W385623: the retained verification failure, its one automatic analysis
     # and the owner item it delivers. PARALLEL: a disposable Job store and
     # control store per case, a real custody tree under this case's own

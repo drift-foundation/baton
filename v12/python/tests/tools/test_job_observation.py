@@ -46,7 +46,7 @@ class SharedObservation(unittest.TestCase):
             for rendered in views(doc):
                 self.assertIn(cause + "; owner action needed", rendered)
     def test_shared_outcomes_gates_and_typed_failure(self):
-        for state, outcome in (("running", "IN PROGRESS"), ("completed", "UNKNOWN"), ("queued", "QUEUED"), ("changes-requested", "CHANGES REQUESTED"), ("exceptional", "FAILED"), ("blocked", "BLOCKED"), ("unrecognized", "UNKNOWN")):
+        for state, outcome in (("running", "IN PROGRESS"), ("completed", "ALL PHASES COMPLETE"), ("queued", "QUEUED"), ("changes-requested", "CHANGES REQUESTED"), ("exceptional", "FAILED"), ("blocked", "BLOCKED"), ("unrecognized", "UNKNOWN")):
             doc = document()
             stage = doc["jobs"][0]["stages"][0]
             stage["state"] = state
@@ -1104,7 +1104,9 @@ class JobHeadlines(unittest.TestCase):
         job = doc["jobs"][0]
         stage = job["stages"][0]
         stage["state"] = "completed"
-        self.check(doc, "UNKNOWN", "done; admission admitted", reason="final Job outcome has not been recorded")
+        # W385263 (owner 2026-11-26): all phases done is ALL PHASES COMPLETE, not UNKNOWN; with no
+        # matching review verdict it shows none, and it still records no Job closure.
+        self.check(doc, "ALL PHASES COMPLETE", "done; admission admitted", reason="No review verdict is recorded")
         stage["state"] = "exceptional"
         job["cancellation"] = {"targets":[{"stage_id":"implementation","episode":1,"attempt_id":"attempt-a","state":"ceased"}]}
         self.check(doc, "CANCELLATION REQUESTED", "attempt 1 attempt-a — stopped")
@@ -1689,3 +1691,168 @@ class OwnerPacedObservation(unittest.TestCase):
             self.assertIn("1 finished · 0 failed · 0 never selected", rendered)
             self.assertIn("closed at " + NOW, rendered)
         self.assertIn("file:///retained/findings", views(doc)[2])
+
+
+class AllPhasesCompleteShowsOnlyItsOwnVerdict(unittest.TestCase):
+    """W385263, owner decision 2026-11-26, with M386415 as the regression case.
+
+    M386415 (job-offline-status-successor-386415) finished both phases and its
+    review recorded an ACCEPTED verdict on the candidate checkpoint, yet every
+    surface read UNKNOWN. THE SHAPE is the retained snapshot's
+    (`runs/M386415/final.status.json` on the field instance) reduced to the
+    members the read model consults, with its real stage, attempt, checkpoint
+    and verdict identities; `review_verdict` is the member this change's read
+    publishes for the review stage (`job_manager.review_verdicts.matching`).
+    """
+
+    JOB = "job-offline-status-successor-386415"
+    REVIEW_ATTEMPT = "attempt-7a47d72c3a7a73567104592b6d70341c38ff7aecb8f1e9165fea0ac3ec27ca95"
+    CHECKPOINT = "checkpoint-a9affab3e5516d2c6fe715d0e4a9457c81036992019040a2c47d57f4a28e906b"
+    VERDICT = {"disposition": "accepted",
+               "verdict_id": "verdict-0dc0fcbf9da7bb6f41556baff503fbf2edfff1ff009bf10c63c06dc4665e8eaf",
+               "attachment_id": "review-20155d4a646c9a373d67bf5658a406a7ed597b0898dd080807d5101678c2b345",
+               "attempt_id": REVIEW_ATTEMPT, "checkpoint_id": CHECKPOINT,
+               "line_id": "line-dbaa6202656126256eee7ffd0fc1d9b953c0ebe37c99d81aff29ea939747a2ca",
+               "base_object": "6ac23589f24aa94fe8cfd9cb7d79eb57d78d061c",
+               "head_object": "340f867479024e6dcffec92345a2dfc5d0263189",
+               "tree_object": "35686824a2f560f9c20e80d6905873dd0c89c41e", "importable": True}
+    # M386422: main commit 6540775d integrated the accepted candidate with the same tree.
+    RECEIPT = {"job_id": JOB, "action": "record-integration", "operation_id": "job.integration-recorded:x",
+               "recorded_at": "2026-11-26T19:00:00.000Z",
+               "recorded_by": {"participant": "baton.slaw", "principal": "principal:baton.slaw"},
+               "candidate": {"checkpoint_id": CHECKPOINT, "head_object": "340f867479024e6dcffec92345a2dfc5d0263189",
+                             "tree_object": "35686824a2f560f9c20e80d6905873dd0c89c41e"},
+               "target": {"commit": "6540775d5f29bea86f71756486c092be9d0a3ccd", "tree": "35686824a2f560f9c20e80d6905873dd0c89c41e"},
+               "phases": []}
+
+    def snapshot(self, verdict=None, publish=True):
+        implementation = "attempt-9b8f859bb00bd68102a6d26908097b23322e7f44af0c1f78e67b2b3f17769a64"
+        stages = [
+            {"stage_id": self.JOB + "/implementation", "kind": "implementation", "state": "completed",
+             "attempt_id": implementation, "episode": 1, "episodes": [{"episode": 1, "attempt_id": implementation}],
+             "allocation": {"episode": 1, "assignment_id": implementation, "allocation_state": "released"},
+             "runtime": {"assignment": {"generation": 1}}},
+            {"stage_id": self.JOB + "/review", "kind": "review", "state": "completed",
+             "attempt_id": self.REVIEW_ATTEMPT, "episode": 1,
+             "episodes": [{"episode": 1, "attempt_id": self.REVIEW_ATTEMPT}],
+             "allocation": {"episode": 1, "assignment_id": self.REVIEW_ATTEMPT, "allocation_state": "released"},
+             "gates": [{"open": True, "stage_id": self.JOB + "/implementation", "state": "completed"}],
+             "runtime": {"assignment": {"generation": 2}}}]
+        if publish:
+            stages[1]["review_verdict"] = verdict
+        return {"schema": stack.STATUS_SCHEMA, "observed_at": NOW, "canonical": True, "incarnation": "publisher",
+                "jobs": [{"job_id": self.JOB, "submission_id": "sub-" + self.JOB, "stages": stages}]}
+
+    def surfaces(self, doc):
+        from tools import job_tui
+        output = io.StringIO()
+        stack._print_job_outcomes({"state": "fresh", "canonical": True, "document": doc}, output)
+        snapshot = job_viewer.read_snapshot(doc, received_at=0)
+        texts = [output.getvalue(), "\n".join(job_viewer.render_list(snapshot, now=0, wall_now=EPOCH)),
+                 "\n".join(job_viewer.render_detail(snapshot, self.JOB, now=0, wall_now=EPOCH))]
+        with tempfile.TemporaryDirectory(prefix="v12-w385263-") as room:
+            place = os.path.join(room, "status.json")
+            Path(place).write_text(json.dumps(doc))
+            session = job_tui.Session(job_tui.source_from(place))
+            session.read()
+            texts.append("\n".join(session.frame(24, 160).lines))
+            session.key("open")
+            texts.append("\n".join(session.frame(24, 160).lines))
+        return texts
+
+    def test_M386415_with_its_accepted_importable_candidate_reads_READY_FOR_INTEGRATION_everywhere(self):
+        doc = self.snapshot(dict(self.VERDICT))
+        before = copy.deepcopy(doc)
+        view = model.job_view(doc, doc["jobs"][0])
+        self.assertEqual(view["headline"], "READY FOR INTEGRATION")
+        self.assertIn("340f867479024e6dcffec92345a2dfc5d0263189", view["headline_reason"])
+        self.assertIn(self.CHECKPOINT, view["headline_reason"])
+        self.assertEqual(view["review_verdict"], self.VERDICT)
+        for text in self.surfaces(doc):
+            self.assertIn("READY FOR INTEGRATION", text)
+            self.assertNotIn("DONE", text)
+        self.assertEqual(doc, before, "interpretation must be pure")
+
+    def test_an_accepted_verdict_whose_candidate_is_NOT_IMPORTABLE_falls_back_to_ALL_PHASES_COMPLETE(self):
+        for importable in (False, None, "yes"):
+            with self.subTest(importable=importable):
+                doc = self.snapshot(dict(self.VERDICT, importable=importable))
+                view = model.job_view(doc, doc["jobs"][0])
+                self.assertEqual(view["headline"], "ALL PHASES COMPLETE · REVIEW ACCEPTED")
+                self.assertIn("Job closure has not been recorded", view["headline_reason"])
+                for text in self.surfaces(doc):
+                    self.assertNotIn("READY FOR INTEGRATION", text)
+
+    def test_M386415_after_the_owner_records_6540775d_reads_DONE_everywhere_with_the_verdict_still_readable(self):
+        for publish in (True, False):
+            with self.subTest(verdict_published=publish):
+                doc = self.snapshot(dict(self.VERDICT), publish=publish)
+                doc["jobs"][0]["integration"] = copy.deepcopy(self.RECEIPT)
+                view = model.job_view(doc, doc["jobs"][0])
+                self.assertEqual(view["headline"], "DONE")
+                self.assertIn("Integrated as 6540775d5f29bea86f71756486c092be9d0a3ccd from accepted candidate 340f8674", view["headline_reason"])
+                self.assertEqual(view["review_verdict"], self.VERDICT if publish else None)
+                self.assertEqual([phase["state"] for phase in view["phases"]], ["completed", "completed"])
+                for text in self.surfaces(doc):
+                    self.assertIn("DONE", text)
+                    self.assertIn("6540775d5f29bea86f71756486c092be9d0a3ccd", text)
+
+    def test_a_DAMAGED_or_FOREIGN_receipt_and_a_MANUAL_Job_never_read_DONE(self):
+        for label, change in (("another Job", {"job_id": "job-other"}), ("no target", {"target": {}}),
+                              ("no actor", {"recorded_by": None}), ("not a mapping", None)):
+            with self.subTest(label):
+                doc = self.snapshot(dict(self.VERDICT))
+                doc["jobs"][0]["integration"] = None if change is None else dict(self.RECEIPT, **change)
+                self.assertEqual(model.job_view(doc, doc["jobs"][0])["headline"], "READY FOR INTEGRATION")
+        doc = self.snapshot(dict(self.VERDICT))
+        doc["schema"] = stack.MANUAL_STATUS_SCHEMA
+        job = doc["jobs"][0]
+        job.update(mode="MANUAL", lifecycle="open", integration=copy.deepcopy(self.RECEIPT))
+        for stage in job["stages"]:
+            stage["selected_at"] = NOW
+        self.assertEqual(model.job_view(doc, job)["headline"], "AWAITING ASSIGNMENT")
+
+    def test_M386415_as_the_old_build_published_it_reads_ALL_PHASES_COMPLETE_without_a_verdict(self):
+        """The retained snapshot itself carries no review_verdict member: no verdict is invented."""
+        doc = self.snapshot(publish=False)
+        view = model.job_view(doc, doc["jobs"][0])
+        self.assertEqual(view["headline"], "ALL PHASES COMPLETE")
+        self.assertIsNone(view["review_verdict"])
+        for text in self.surfaces(doc):
+            self.assertIn("ALL PHASES COMPLETE", text)
+            self.assertNotIn("REVIEW ACCEPTED", text)
+
+    def test_a_MISSING_FOREIGN_or_DAMAGED_verdict_never_reads_REVIEW_ACCEPTED(self):
+        cases = {
+            "null (read, none matches -- including a verdict on another checkpoint)": None,
+            "another attempt": dict(self.VERDICT, attempt_id="attempt-other"),
+            "unknown disposition": dict(self.VERDICT, disposition="approved"),
+            "no checkpoint": dict(self.VERDICT, checkpoint_id=""),
+            "not a mapping": "accepted",
+        }
+        for label, verdict in cases.items():
+            with self.subTest(case=label):
+                doc = self.snapshot(verdict)
+                self.assertEqual(model.job_view(doc, doc["jobs"][0])["headline"], "ALL PHASES COMPLETE")
+                for text in self.surfaces(doc):
+                    self.assertNotIn("REVIEW ACCEPTED", text)
+        doc = self.snapshot(dict(self.VERDICT))
+        doc["jobs"][0]["stages"].append(dict(doc["jobs"][0]["stages"][1], stage_id=self.JOB + "/second-review"))
+        self.assertEqual(model.job_view(doc, doc["jobs"][0])["headline"], "ALL PHASES COMPLETE",
+                         "two review stages: no single verdict is the Job's")
+
+    def test_a_verdict_beside_an_UNFINISHED_phase_changes_nothing(self):
+        doc = self.snapshot(dict(self.VERDICT))
+        doc["jobs"][0]["stages"][0]["state"] = "queued"
+        self.assertNotIn("ALL PHASES COMPLETE", model.job_view(doc, doc["jobs"][0])["headline"])
+
+    def test_MANUAL_owner_close_rules_are_unchanged(self):
+        doc = self.snapshot(dict(self.VERDICT))
+        doc["schema"] = stack.MANUAL_STATUS_SCHEMA
+        job = doc["jobs"][0]
+        job.update(mode="MANUAL", lifecycle="open")
+        for stage in job["stages"]:
+            stage["selected_at"] = NOW
+        self.assertEqual(model.job_view(doc, job)["headline"], "AWAITING ASSIGNMENT")
+        job.update(lifecycle="closed", closed_at=NOW)
+        self.assertEqual(model.job_view(doc, job)["headline"], "CLOSED")

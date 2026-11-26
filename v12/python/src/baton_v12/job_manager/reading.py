@@ -4,6 +4,7 @@ from baton_v12.worker_manager import ControlStore
 from .store import JobStore
 from .delegation import ManagerOperations, Unobserved
 from .projection import status
+from . import review_verdicts
 
 
 def read_status(job_store, *, authority_uuid, incarnation, clock, control_store=None, observation_factory=None):
@@ -51,6 +52,7 @@ class _Observing:
     canonical = True
 
     def __init__(self, control, observed):
+        self._control = control
         self._operations = ManagerOperations(
             control, None, mint_bearer=_refuses, deliver_bearer=_refuses,
             observe_exchange=_exchange_read(observed),
@@ -75,6 +77,10 @@ class _Observing:
     def refresh_runtime(self, stage):
         """Never. See the class docstring: this one would WRITE."""
         return None
+
+    def review_verdict(self, *, attempt_id, generation):
+        """W385263: the verdict bound to this review attempt and its candidate."""
+        return review_verdicts.matching(self._control, attempt_id=attempt_id, generation=generation)
 
 
 def _exchange_read(observed):
@@ -130,6 +136,7 @@ class _ReadOnly:
     canonical = True
 
     def __init__(self, control):
+        self._control = control
         # NO PORT, because none of the three members below reaches one: the
         # authority is spoken to by acts, and this object has none. Handing it
         # a real session would put a capability inside a read-only surface for
@@ -145,6 +152,10 @@ class _ReadOnly:
 
     def observe(self, stage):
         return self._operations.observe(stage)
+
+    def review_verdict(self, *, attempt_id, generation):
+        """W385263: the verdict bound to this review attempt and its candidate."""
+        return review_verdicts.matching(self._control, attempt_id=attempt_id, generation=generation)
 
     # NO `attach` AND NO `drain`, and review [P2, 2026-09-03] is why the
     # earlier draft's were removed rather than wired up. Attaching asks the

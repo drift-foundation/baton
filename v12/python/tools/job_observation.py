@@ -58,6 +58,14 @@ def _job_headline(job, phases):
         summary = f"{finished} finished · {failed} failed · {unselected} never selected"
         unknown = len(states) - finished - failed - unselected
         return "CLOSED", summary + (f" · {unknown} unknown" if unknown else "")
+    integrated = integration_receipt(job)
+    if integrated is not None:
+        # M386422: DONE comes only from the owner's recorded integration of
+        # this Job's accepted candidate; the phase evidence and the verdict
+        # stay readable beside it.
+        return DONE, ("Integrated as " + _status_text(integrated["target"]["commit"]) + " from accepted candidate "
+                      + _status_text(integrated["candidate"]["head_object"]) + "; recorded by "
+                      + _status_text(integrated["recorded_by"]["participant"]) + " at " + _status_text(integrated["recorded_at"]) + ".")
     if any(phase["state"] == "exceptional" and not (phase["live_attempt"] or {}).get("stop")
            for phase in phases):
         return "FAILED", ""
@@ -97,9 +105,22 @@ def _job_headline(job, phases):
     if any(state == "queued" and (not manual_open or stage.get("selected_at")) for stage, state in zip(stages, states)):
         return "QUEUED", ""
     if states and all(state == "completed" for state in states):
-        # job-status/9 publishes neither a final Job outcome nor an act of
-        # Job finalization. A completed *stage* establishes neither.
-        return "UNKNOWN", "The final Job outcome has not been recorded."
+        # W385263 (owner 2026-11-26): ALL PHASES COMPLETE, with the review
+        # verdict beside it only when one durable verdict is bound to this
+        # Job's own review attempt and candidate checkpoint. It is still not a
+        # final Job outcome and closes nothing: closure is an explicit act, and
+        # MANUAL Jobs were answered above by their own owner-close rules.
+        verdict = review_verdict(job)
+        if verdict is not None and verdict["disposition"] == "accepted" and verdict.get("importable") is True:
+            # M386422: the exact current, retained and importable candidate
+            # has its matching accepted verdict, and every higher-priority
+            # hold was answered above.
+            return READY_FOR_INTEGRATION, ("Accepted candidate " + _status_text(verdict.get("head_object")) + " on "
+                                           + _status_text(verdict["checkpoint_id"]) + "; record the target commit once it is integrated.")
+        if verdict is not None:
+            return (ALL_PHASES_COMPLETE + " · REVIEW " + verdict["disposition"].upper().replace("-", " "),
+                    "Review verdict recorded for this Job's review attempt on its candidate " + _status_text(verdict["checkpoint_id"]) + "; Job closure has not been recorded.")
+        return ALL_PHASES_COMPLETE, "No review verdict is recorded for this Job's review attempt and candidate checkpoint; Job closure has not been recorded."
     if "changes-requested" in states:
         return "CHANGES REQUESTED", ""
     if "awaiting-answer" in states:
@@ -109,6 +130,55 @@ def _job_headline(job, phases):
     if _externally_blocked(stages):
         return "BLOCKED", ""
     return "UNKNOWN", ""
+
+
+ALL_PHASES_COMPLETE = "ALL PHASES COMPLETE"
+READY_FOR_INTEGRATION = "READY FOR INTEGRATION"
+DONE = "DONE"
+
+
+def integration_receipt(job):
+    """M386422: the owner's integration receipt for this ordinary Job, or None."""
+    job = _mapping(job)
+    if job.get("mode") == "MANUAL":
+        return None
+    receipt = job.get("integration")
+    if type(receipt) is not dict or receipt.get("job_id") != job.get("job_id"):
+        return None
+    target, candidate, actor = (_mapping(receipt.get(name)) for name in ("target", "candidate", "recorded_by"))
+    if not all(type(value) is str and value for value in (target.get("commit"), candidate.get("head_object"),
+                                                         actor.get("participant"), receipt.get("recorded_at"))):
+        return None
+    return receipt
+_VERDICT_DISPOSITIONS = ("accepted", "changes-requested", "rejected")
+
+
+def review_verdict(job):
+    """W385263: the one published verdict bound to this Job's review attempt.
+
+    The product decides the match (`review_verdicts.matching`: the attempt's
+    own attachment, a verdict proved against its act, on the line's current
+    checkpoint) and publishes it on the review stage as `review_verdict`.
+    This reader accepts it only on the Job's ONE review stage, only when it
+    names that stage's current attempt, and only with a known disposition.
+    Anything else -- no review stage, two, an absent or null member, another
+    attempt, a damaged shape -- is no verdict, so it can never read as
+    REVIEW ACCEPTED.
+    """
+    reviews = [stage for stage in _rows(_mapping(job).get("stages")) if stage.get("kind") == "review"]
+    if len(reviews) != 1:
+        return None
+    stage = reviews[0]
+    verdict = stage.get("review_verdict")
+    if type(verdict) is not dict or verdict.get("disposition") not in _VERDICT_DISPOSITIONS:
+        return None
+    attempt = stage.get("attempt_id")
+    if type(attempt) is not str or not attempt or verdict.get("attempt_id") != attempt:
+        return None
+    checkpoint = verdict.get("checkpoint_id")
+    if type(checkpoint) is not str or not checkpoint:
+        return None
+    return verdict
 
 
 def _externally_blocked(stages):
@@ -982,5 +1052,6 @@ def job_view(document, job):
             summary += "; closed at " + _status_text(job["closed_at"])
         label = "MANUAL OPEN   " if job.get("lifecycle") == "open" else "MANUAL · "
     return {"headline": headline, "labelled_headline": label + headline, "headline_reason": reason, "phases": phases, "open_admitted": count,
+            "review_verdict": review_verdict(job), "integration": integration_receipt(job),
             "recorded_runtimes": sum(stage.get("runtime") is not None for stage in _rows(_mapping(job).get("stages"))),
             "summary": summary}

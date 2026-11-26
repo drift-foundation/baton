@@ -833,7 +833,12 @@ CONTRACTS = {
                       "attempt_id", "episodes", "corrections", "allocation",
                       "allocations", "gates", "receipts", "deferral",
                       "runtime", "exchange", "artifacts"),
-                     ("attempt_diagnostics", "diagnostic_degradation", "selected_at", "settled_at", "result", "execution_job_id", "execution_cancellation")),
+                     ("attempt_diagnostics", "diagnostic_degradation", "selected_at", "settled_at", "result", "execution_job_id", "execution_cancellation", "review_verdict")),
+    # W385263 added the OPTIONAL `review_verdict` member on a review stage: the
+    # one durable verdict bound to that stage's attempt and candidate
+    # checkpoint (`review_verdicts.matching`), `null` when the store was read
+    # and none matches, and ABSENT when no control store was read. Optional and
+    # additive, so a /9 or /10 reader that ignores it reads exactly as before.
     # W156162 added `execution_limits`, which is why STATUS_SCHEMA moved to /5.
     # W197661 added `deferral` to `stage.status`, which is why it is at /6: a
     # reader that must not mistake a re-enterable deferral for a state has to
@@ -847,7 +852,11 @@ CONTRACTS = {
     "job.status": (("job_id", "submission_id", "input_digest",
                     "policy_digest", "test_scope", "terminal_policy",
                     "execution_limits", "stages"), ("cancellation",
-                                                    "control", "created_at", "mode", "lifecycle", "budget", "closed_at")),
+                                                    "control", "created_at", "mode", "lifecycle", "budget", "closed_at",
+                                                    "integration")),
+    # W385263 / M386422 added the OPTIONAL `integration` member: the owner's
+    # integration receipt (`job_integration.record`), present only once it is
+    # recorded. Optional and additive, so a reader that ignores it is unchanged.
     # W383217: ONE JOB'S ADMITTED CONTROL, journalled inside its submission.
     "job.control": (("operation_id", "job_id", "profile", "resolved",
                      "admitted_at", "incarnation"), ()),

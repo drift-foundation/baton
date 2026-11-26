@@ -1308,7 +1308,7 @@ def instance_settings(place, environ):
     return document, prepared
 
 
-def monitor(root, *, interval, ticks, stream=sys.stdout, todo=False):
+def monitor(root, *, interval, ticks, stream=sys.stdout, todo=False, environ=None):
     """The read-only monitor, over the snapshot the PUBLISHER writes.
 
     W183883: an installed instance must be watchable without the development
@@ -1321,15 +1321,25 @@ def monitor(root, *, interval, ticks, stream=sys.stdout, todo=False):
 
     IT READS AND NOTHING ELSE. Leaving the monitor does not stop scheduling;
     that is `stop`.
+
+    W385263 (M386429): FOR AN INSTANCE IT READS THE SHARED DURABLE READER,
+    like `status` and `tui`, so it needs no publisher, no snapshot file and no
+    running service, and a retained export never wins over a newer durable
+    fact (an owner receipt read as DONE stays DONE here too). Without an
+    instance configuration it replays the snapshot file, as before.
     """
+    from tools import job_viewer
+
+    if environ is not None and any(environ.get(name) for name in REQUIRED):
+        from tools import job_status
+        return job_viewer.main(["--interval", str(interval), "--ticks", str(ticks)] + (["--todo"] if todo else []),
+                               stream=stream, source=job_status.source(configured(environ)))
     place = snapshot_path(root)
     if not place.exists():
         raise StackRefusal(
             "there is no snapshot at " + str(place) + " yet, so there is "
             "nothing to watch. Start this stack first, or ask it for `status` "
             "to see why it has not published one.")
-    from tools import job_viewer
-
     return job_viewer.main(["--status", str(place), "--interval", str(interval),
                             "--ticks", str(ticks)] + (["--todo"] if todo else []), stream=stream)
 
@@ -1483,6 +1493,7 @@ def main(argv=None, *, stream=sys.stdout, environ=None):
     commands.add_parser("repository")
     watching = commands.add_parser("monitor")
     watching.add_argument("--todo", action="store_true", help="show open MANUAL Jobs")
+    watching.add_argument("--snapshot", action="store_true", help="explicitly replay the publisher file instead of the durable read")
     watching.add_argument("--interval", type=float, default=5.0,
                           help="seconds between refreshes")
     watching.add_argument("--ticks", type=int, default=1000000,
@@ -1529,7 +1540,10 @@ def main(argv=None, *, stream=sys.stdout, environ=None):
             return repository(document, stream=stream)
         if taken.command == "monitor":
             return monitor(root, interval=taken.interval, ticks=taken.ticks,
-                           stream=stream, todo=taken.todo)
+                           stream=stream, todo=taken.todo,
+                           # THE INSTANCE MONITOR reads the shared durable read; a `--root` monitor and
+                           # an explicit `--snapshot` replay the publisher file exactly as before.
+                           environ=environ if taken.instance and not taken.snapshot else None)
         if taken.command == "tui":
             return tui(root, interval=taken.interval, environ=environ)
         return publish(root, environ=environ)

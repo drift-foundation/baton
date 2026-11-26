@@ -477,7 +477,7 @@ class JobOutcomesFirst(Fixture):
                       allocation={"episode":1,"assignment_id":"a"})
         jobs[4]["stages"][1]["gates"] = [{"stage_id":"another-job/input","state":"waiting","open":False}]
         text = self.shown(jobs)
-        for job_id, outcome in [("active", "IN PROGRESS"), ("queued", "QUEUED"), ("done", "UNKNOWN"), ("correction", "CHANGES REQUESTED"), ("held", "BLOCKED"), ("unknown", "UNKNOWN")]:
+        for job_id, outcome in [("active", "IN PROGRESS"), ("queued", "QUEUED"), ("done", "ALL PHASES COMPLETE"), ("correction", "CHANGES REQUESTED"), ("held", "BLOCKED"), ("unknown", "UNKNOWN")]:
             self.assertIn("Job " + job_id + ": " + outcome, text)
         self.assertNotIn("accepted", text)
 
@@ -2282,3 +2282,138 @@ class ValidIdleComposition(_stage_case.ServingCase if _stage_case else unittest.
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+class AnInstanceIsWatchedThroughTheSharedDurableReader(unittest.TestCase):
+    """W385263, M386429: with every service stopped, status, monitor and TUI all
+    read the shared durable reader for an instance, so the owner's integration
+    receipt reads DONE everywhere -- when no snapshot file exists, and when a
+    retained pre-receipt export still says READY FOR INTEGRATION. Explicit file
+    replay (`--snapshot`, or a `--root` with no instance configuration) and the
+    MANUAL to-do filter are preserved.
+
+    The durable read is the one `job_status.read` performs; here it answers the
+    M386415 document after the receipt (stood in by name, because the receipt
+    itself is driven against real stores in `test_job_integration`). No
+    manager, publisher or engine exists in this case.
+    """
+
+    JOB = "job-offline-status-successor-386415"
+    ENVIRON = {"BATON_V12_JOB_STORE": "/srv/d/db/jobs.sqlite3", "BATON_V12_CONTROL_STORE": "/srv/d/db/control.sqlite3",
+               "BATON_V12_AUTHORITY_UUID": "94d33f7439ac49f58471399b1b9581b4",
+               "BATON_V12_STAGE_EXECUTION_CONFIG": "/srv/d/deployment.json"}
+
+    def setUp(self):
+        room = tempfile.TemporaryDirectory(prefix="v12-w385263-monitor-")
+        self.addCleanup(room.cleanup)
+        self.root = Path(room.name)
+        self.done = self.document(integrated=True)
+        # The configuration `configured()` proves exists; the stores are never opened (the read is stood in).
+        self.ENVIRON = {name: str(self.root / Path(value).name) for name, value in self.ENVIRON.items()
+                        if name != "BATON_V12_AUTHORITY_UUID"}
+        self.ENVIRON["BATON_V12_AUTHORITY_UUID"] = "94d33f7439ac49f58471399b1b9581b4"
+        Path(self.ENVIRON["BATON_V12_STAGE_EXECUTION_CONFIG"]).write_text("{}")
+
+    def document(self, integrated):
+        verdict = {"disposition": "accepted", "verdict_id": "verdict-0dc0", "attachment_id": "review-2015",
+                   "attempt_id": "attempt-review", "checkpoint_id": "checkpoint-a9af", "line_id": "line-dbaa",
+                   "base_object": "6ac23589f24aa94fe8cfd9cb7d79eb57d78d061c",
+                   "head_object": "340f867479024e6dcffec92345a2dfc5d0263189",
+                   "tree_object": "35686824a2f560f9c20e80d6905873dd0c89c41e", "importable": True}
+        stages = [{"stage_id": self.JOB + "/implementation", "kind": "implementation", "state": "completed",
+                   "attempt_id": "attempt-impl", "episode": 1, "episodes": [{"episode": 1, "attempt_id": "attempt-impl"}]},
+                  {"stage_id": self.JOB + "/review", "kind": "review", "state": "completed",
+                   "attempt_id": "attempt-review", "episode": 1, "episodes": [{"episode": 1, "attempt_id": "attempt-review"}],
+                   "review_verdict": verdict}]
+        job = {"job_id": self.JOB, "submission_id": "sub-a", "stages": stages}
+        if integrated:
+            job["integration"] = {"job_id": self.JOB, "action": "record-integration", "operation_id": "op",
+                                  "recorded_at": "2026-11-26T19:00:00.000Z",
+                                  "recorded_by": {"participant": "baton.slaw", "principal": "principal:baton.slaw"},
+                                  "candidate": {"head_object": verdict["head_object"], "checkpoint_id": verdict["checkpoint_id"]},
+                                  "target": {"commit": "6540775d5f29bea86f71756486c092be9d0a3ccd", "tree": verdict["tree_object"]},
+                                  "phases": []}
+        now = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
+        return {"schema": stack.STATUS_SCHEMA, "observed_at": now, "canonical": True, "incarnation": "reader", "jobs": [job]}
+
+    def durable(self):
+        from tools import job_status
+        return mock.patch.object(job_status, "read", lambda settings: json.loads(json.dumps(self.done)))
+
+    def retain_ready_export(self):
+        stack.snapshot_path(self.root).write_text(json.dumps(self.document(integrated=False)))
+
+    def run_stack(self, *argv):
+        """`stack --instance <selector> <verb>`, with the selector's own settings.
+
+        `instance_settings` is stood in by name: it verifies a real installed
+        runtime, which this case does not have, and answers exactly the
+        document and settings the command then uses."""
+        out = io.StringIO()
+        selector = {"state": str(self.root), "logs": str(self.root / "logs")}
+        with self.durable(), mock.patch.object(stack, "instance_settings",
+                                               lambda place, environ: (selector, dict(self.ENVIRON))):
+            code = stack.main(["--instance", str(self.root / "instance.json"), *argv], stream=out, environ={})
+        return code, out.getvalue()
+
+    def tui_frame(self):
+        from tools import job_tui
+        taken = {}
+        with self.durable(), mock.patch.object(job_tui, "main", lambda argv, source=None: taken.update(source=source, argv=argv) or 0):
+            self.assertEqual(stack.tui(self.root, interval=2, environ=dict(self.ENVIRON)), 0)
+        self.assertIsNotNone(taken["source"], "the instance TUI reads the durable source, not the file")
+        with self.durable():
+            session = job_tui.Session(taken["source"])
+            session.read()
+            return "\n".join(session.frame(24, 160).lines)
+
+    def test_DONE_everywhere_with_NO_snapshot_file(self):
+        self.assertFalse(stack.snapshot_path(self.root).exists())
+        for argv in (("status",), ("monitor", "--ticks", "1")):
+            with self.subTest(argv=argv):
+                code, text = self.run_stack(*argv)
+                self.assertEqual(code, 0, text)
+                self.assertIn("Job " + self.JOB + ": DONE", text) if argv[0] == "status" else self.assertIn("DONE", text)
+                self.assertNotIn("READY FOR INTEGRATION", text)
+                self.assertNotIn("refused", text)
+        frame = self.tui_frame()
+        self.assertIn("DONE", frame)
+        self.assertNotIn("READY FOR INTEGRATION", frame)
+
+    def test_DONE_everywhere_while_a_retained_export_still_says_READY(self):
+        self.retain_ready_export()
+        for argv in (("status",), ("monitor", "--ticks", "1")):
+            with self.subTest(argv=argv):
+                code, text = self.run_stack(*argv)
+                self.assertEqual(code, 0, text)
+                self.assertIn("DONE", text)
+                self.assertNotIn("READY FOR INTEGRATION", text)
+        frame = self.tui_frame()
+        self.assertIn("DONE", frame)
+        self.assertNotIn("READY FOR INTEGRATION", frame)
+
+    def test_EXPLICIT_replay_still_shows_the_file_it_names(self):
+        self.retain_ready_export()
+        for argv in (("status", "--snapshot"), ("monitor", "--snapshot", "--ticks", "1")):
+            with self.subTest(argv=argv):
+                code, text = self.run_stack(*argv)
+                self.assertEqual(code, 0, text)
+                self.assertIn("READY FOR INTEGRATION", text)
+                self.assertNotIn("DONE", text)
+        for environ in ({}, dict(self.ENVIRON)):
+            with self.subTest(root_monitor_environment=bool(environ)):
+                out = io.StringIO()
+                self.assertEqual(stack.main(["--root", str(self.root), "monitor", "--ticks", "1"], stream=out, environ=environ), 0)
+                self.assertIn("READY FOR INTEGRATION", out.getvalue(), "a --root monitor replays its file as before")
+
+    def test_the_TODO_filter_still_reaches_the_durable_monitor(self):
+        from tools import job_viewer
+        seen = {}
+        def viewing(argv, *, stream=None, source=None):
+            seen.update(argv=list(argv), source=source)
+            return 0
+        with mock.patch.object(job_viewer, "main", viewing):
+            self.assertEqual(self.run_stack("monitor", "--todo", "--ticks", "1")[0], 0)
+        self.assertIn("--todo", seen["argv"])
+        self.assertNotIn("--status", seen["argv"])
+        self.assertIsNotNone(seen["source"])

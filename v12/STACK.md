@@ -380,8 +380,8 @@ refused. What no self-contained deployment can check is its own launcher's bytes
 before that launcher runs — nothing inside it is outside it — and that one check
 belongs to the build (`just test-packaging`) or to something you run from
 outside the deployment. A frozen command also refuses to drive an instance that
-is not its own. `just monitor` reads the snapshot the
-publisher writes, so leaving the monitor does not stop scheduling — that is
+is not its own. `just monitor` only reads (for an instance, the shared durable
+read), so leaving the monitor does not stop scheduling — that is
 `just stop`.
 
 The older form — no instance path, four exported operands, run from this
@@ -977,9 +977,13 @@ recorded Jobs, retained results and decisions without starting any service or
 refreshing a runtime. The read time does not replace worker activity timestamps.
 An old exported snapshot never overrides newer durable facts.
 
-`status --json` exports the same Job read as JSON on demand. `status --snapshot`
-explicitly selects the periodic publisher's file for diagnostics/replay;
-`monitor` and standalone `job_tui --status FILE` retain their file paths.
+`status --json` exports the same Job read as JSON on demand. For an instance,
+`monitor` uses the same shared durable read as `status` and `tui` (W385263,
+M386429). It needs no publisher file and never shows a retained export over a
+newer durable fact; `--todo` still filters to open MANUAL Jobs. `status --snapshot`
+and `monitor --snapshot` explicitly select the periodic publisher's file for
+diagnostics/replay. A `--root` monitor and the standalone
+`job_viewer --status FILE` or `job_tui --status FILE` replay their files.
 The periodic publisher, its atomic writes, and start/readiness checks are
 unchanged. The snapshot freshness line below describes that file separately
 from the default durable Job read.

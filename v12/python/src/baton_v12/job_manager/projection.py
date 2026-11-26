@@ -1073,7 +1073,7 @@ def status(store, operations, *, observed_at):
         stages = []
         for row in snapshot["stages_by_job"][job["job_id"]]:
             entry = held[row["stage_id"]]
-            stages.append(_stage_status(entry, held))
+            stages.append(_with_review_verdict(_stage_status(entry, held), operations))
         jobs.append(documents.job_status(
             job_id=job["job_id"], submission_id=job["submission_id"],
             created_at=snapshot["job_origins"][job["job_id"]],
@@ -1104,7 +1104,10 @@ def status(store, operations, *, observed_at):
             # the fence that closed the Job, if one did.
             control=job_control.reported(
                 snapshot["controls"].get(job["job_id"]),
-                snapshot["cancellations"].get(job["job_id"]))))
+                snapshot["cancellations"].get(job["job_id"])),
+            # W385263 / M386422: the owner's integration receipt, read from
+            # this Job store alone, so DONE needs no serving process.
+            **_integration_of(store, job["job_id"])))
     version = documents.STATUS_SCHEMA
     if snapshot["manual_jobs"]:
         from . import manual_status
@@ -1132,6 +1135,31 @@ def _job_limits(snapshot, job_id):
     held = snapshot["limits"][job_id]
     return execution_limits.resolved(held["requested"],
                                      held["compatibility_generation"])
+
+
+def _integration_of(store, job_id):
+    """`{"integration": receipt}` when the owner recorded one, else nothing."""
+    from . import job_integration
+    receipt = job_integration.receipt_of(store, job_id)
+    return {} if receipt is None else {"integration": receipt}
+
+
+def _with_review_verdict(stage, operations):
+    """W385263: a review stage's matching verdict, read by the operations' owner.
+
+    ONLY A SURFACE THAT HOLDS A CONTROL STORE CAN ANSWER, so the member is
+    added only when `operations` has the read (`reading._ReadOnly` and
+    `reading._Observing`); `Unobserved` has none and the member stays absent,
+    which says "not looked" rather than "no verdict". The attempt and the
+    reviewer's assignment generation are the ones this very document reports.
+    """
+    read = getattr(operations, "review_verdict", None)
+    if read is None or stage.get("kind") != "review":
+        return stage
+    assignment = (stage.get("runtime") or {}).get("assignment") or {}
+    verdict = read(attempt_id=stage.get("attempt_id"),
+                   generation=assignment.get("generation"))
+    return documents.stage_status(**stage, review_verdict=verdict)
 
 
 def _stage_status(entry, held):

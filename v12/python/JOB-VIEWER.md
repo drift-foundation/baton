@@ -21,8 +21,10 @@ and start no manager, publisher, worker, engine or provider. The document's
 `observed_at` describes the read; nested worker activity keeps its original
 source observation time. A new read is not new worker activity.
 
-For file diagnostics and replay, `status --snapshot` reads the instance's
-publisher file; `monitor` and the standalone viewer retain their file interface:
+For an instance, `monitor` reads the same shared durable read as `status` and
+`tui`, also with every service stopped (W385263, M386429). For file diagnostics
+and replay, `status --snapshot` and `monitor --snapshot` read the instance's
+publisher file, and the standalone viewer keeps its file interface:
 
 ```
 python3 tools/job_viewer.py --status export.json
@@ -382,8 +384,42 @@ A review still answering with no frozen result is
 in progress, because its verification may still be running.
 Phase rows still show the stopped attempt, active worker or named dependency.
 A closed gate on an unidentified dependency leaves the Job headline unknown.
-Completion of every phase does not establish the final Job outcome.
-The current status publisher has no Job finalization or final outcome field.
+When every phase of an ordinary Job is complete, the headline depends on the
+review verdict (W385263, M386422):
+- **ALL PHASES COMPLETE** is shown when completion is all that is established.
+- **READY FOR INTEGRATION** is shown when the review stage's published
+  `review_verdict` is the accepted verdict bound to this Job's own review
+  attempt. Its candidate must also be the line's retained, importable
+  (integration-eligible) checkpoint. An accepted verdict whose candidate is not
+  importable reads `ALL PHASES COMPLETE · REVIEW ACCEPTED`.
+- **DONE** is shown only after the owner records the existing target commit.
+
+The verdict is read once, by `job_manager.review_verdicts.matching`. It is
+published on the review stage as `review_verdict`: `null` when the store was
+read and no verdict matches, and absent when no control store was read. A
+missing verdict, or a verdict for another attempt or checkpoint, never reads as
+accepted.
+
+To record the target commit, after integrating the accepted candidate:
+
+```sh
+baton-v12-stack manager record-integration --instance <instance.json> --job <job_id> \
+    --candidate <accepted head commit> --commit <target commit> --repository <target repository>
+```
+
+This works with every service stopped:
+- **Checks before anything is written.** The Job must be ordinary and every
+  phase complete. Its accepted candidate must be retained and importable, and
+  `--candidate` must be that candidate's head. `--commit` must exist in
+  `--repository` with the same tree; this first form records exact-tree
+  integrations only.
+- **The receipt.** It is persisted in the Job store, and an identical retry
+  prints it unchanged. A different commit or candidate for the same Job is
+  refused. The status document carries the receipt as the Job's `integration`
+  member. Status, monitor and TUI then read DONE, with the phases and the
+  verdict still shown.
+
+MANUAL Jobs close only through `close-job`, as before.
 
 A review held because its worker had no usable report shows one of
 `Review held: review report missing`, `Review held: review report empty`,

@@ -630,13 +630,20 @@ def _source_from(place):
     return read
 
 
-def main(argv=None, *, stream=sys.stdout):
+def main(argv=None, *, stream=sys.stdout, source=None):
+    """`source` is an instance's shared durable reader (W385263, M386429).
+
+    Given one, every tick reads the current durable stores through it --
+    exactly what `status` and the instance TUI read -- so a stopped instance
+    is watchable and a retained export can never be shown over a newer durable
+    fact. Without one, `--status` names a file to replay, as before.
+    """
     parser = argparse.ArgumentParser(
         prog="job_viewer",
         description="Read-only view of submitted Jobs. Performs no act.")
-    parser.add_argument("--status", required=True,
+    parser.add_argument("--status", required=source is None,
                         help="path to a status document written by "
-                             "`job_manager ... status`")
+                             "`job_manager ... status`; replayed as a file")
     view = parser.add_mutually_exclusive_group()
     view.add_argument("--todo", action="store_true", help="list open MANUAL Jobs")
     view.add_argument("--job", default=None,
@@ -656,7 +663,7 @@ def main(argv=None, *, stream=sys.stdout):
                              "once and exits")
     taken = parser.parse_args(argv)
     try:
-        viewer = JobViewer(_source_from(taken.status),
+        viewer = JobViewer(source if source is not None else _source_from(taken.status),
                            interval=checked_interval(taken.interval))
         if taken.artifact is not None:
             return _drilled(viewer, taken, stream)
