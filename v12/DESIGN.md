@@ -1190,6 +1190,12 @@ ages. This selects Option A, not the original full-envelope migration or later
 CLI event parsing/metrics proposals. Decision and bounds:
 [shared liveness approval](../work/records/2026/11/finding-v12-shared-work-liveness/FINDING.md).
 
+Owner selection 2026-11-25 (W386308): a single-instance read-only TUI is the
+first operator interface built on that snapshot and shared read model. It reads
+the published document only, takes every word from the read model, and performs
+no act; leaving it does not affect execution. Decision:
+[read-only operator TUI](../work/records/2026/11/finding-v12-readonly-operator-tui/FINDING.md).
+
 **OBS-3.** Failures have a bounded typed cause, exact attempt/operation, originating
 component, observed time and safe diagnostic locator. Missing authority, engine
 unavailability, malformed worker output, provider failure and genuine code defects

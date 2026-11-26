@@ -438,6 +438,10 @@ PARALLEL_MODULES = ("tests.job_manager.test_accepted_offer_retirement",
     # The tests.tools package assigns this module to tools-pure.
     "tests.tools.test_job_observation",
     "tests.tools.test_job_viewer",
+    # W386308: pure screen functions over status documents, plus a child under
+    # a pseudo-terminal this module allocates itself; case-owned temporary
+    # files, no engine, provider, network or shared resource.
+    "tests.tools.test_job_tui",
     "tests.tools.test_live_ab",
     "tests.tools.test_managed_integration",
     "tests.tools.test_managed_preparation",

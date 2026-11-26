@@ -1323,6 +1323,18 @@ def monitor(root, *, interval, ticks, stream=sys.stdout, todo=False):
                             "--ticks", str(ticks)] + (["--todo"] if todo else []), stream=stream)
 
 
+def tui(root, *, interval):
+    """W386308: the read-only terminal interface, over the same published snapshot.
+
+    Like `monitor` it reads and nothing else; leaving it does not stop
+    scheduling. Unlike `monitor` it does not need a snapshot to exist yet: it
+    starts by saying nothing has been read and keeps looking.
+    """
+    from tools import job_tui
+
+    return job_tui.main(["--status", str(snapshot_path(root)), "--interval", str(interval)])
+
+
 def repository(document, *, stream=sys.stdout):
     """What this instance's repository IS, read and nothing else.
 
@@ -1458,6 +1470,9 @@ def main(argv=None, *, stream=sys.stdout, environ=None):
                           help="seconds between refreshes")
     watching.add_argument("--ticks", type=int, default=1000000,
                           help="bounded refreshes; Ctrl-C is the way out")
+    terminal = commands.add_parser("tui")
+    terminal.add_argument("--interval", type=float, default=5.0,
+                          help="seconds between reads of the snapshot")
     taken = parser.parse_args(argv)
     environ = os.environ if environ is None else environ
     try:
@@ -1492,6 +1507,8 @@ def main(argv=None, *, stream=sys.stdout, environ=None):
         if taken.command == "monitor":
             return monitor(root, interval=taken.interval, ticks=taken.ticks,
                            stream=stream, todo=taken.todo)
+        if taken.command == "tui":
+            return tui(root, interval=taken.interval)
         return publish(root, environ=environ)
     except StackRefusal as refusal:
         print("refused: " + str(refusal), file=stream)

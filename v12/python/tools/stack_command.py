@@ -274,6 +274,9 @@ COMMANDS = {
     # `monitor` derives this instance's own snapshot, so an operator watching a
     # deployment names the instance rather than a path inside it.
     "monitor": _stack("monitor"),
+    # W386308: THE READ-ONLY TERMINAL INTERFACE over the same snapshot `monitor`
+    # derives; it reads and nothing else.
+    "tui": _stack("tui"),
     # READ-ONLY, and part of the installed command because the question --
     # "what is this deployment's repository, actually?" -- is asked of a
     # deployment, from wherever it is installed.

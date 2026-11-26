@@ -374,3 +374,33 @@ review log; qualifying older logs use the last sentence. Missing or changed
 retained evidence is unknown and supplies no sentence. Attribution holds appear
 first when both facts are evidenced, and stale snapshots keep their stale marker.
 This diagnostic does not change the Job headline or authorize further execution.
+
+## The read-only TUI (W386308)
+
+`tui` is the same snapshot and the same words as `monitor`, kept on screen and
+navigable. It is read-only: it opens the published status file and nothing
+else, and quitting it leaves every Job as it was.
+
+```sh
+"$DEST/distro/baton-v12-stack" tui --instance "$DEST/instance.json"
+python3 -m tools.job_tui --status "$DEST/state/status.json"      # the same program over a named document
+```
+
+- **List**: one row per Job in the snapshot's own order, with its headline and,
+  beneath it, the reason when there is one. The header counts Jobs and how many
+  need a decision.
+- **Detail**: the selected Job's headline, reason and summary, then one row per
+  phase with its position and reason. The selected phase also shows its attempt
+  identity, recorded facts, timing and requested model.
+- **Keys**: `↑`/`k` and `↓`/`j` move; `PgUp`, `PgDn`, `Home`, `End` jump;
+  `Enter` opens the selected Job; `Esc` goes back; `n` moves to the next Job
+  needing a decision; `r` reads the snapshot now; `q` or `Ctrl-C` quits.
+- **Selection** is the Job's or phase's identity and survives refresh. One that
+  is no longer in the snapshot is shown as `… — not in the current snapshot`
+  until you move.
+- **Freshness**: `!! STALE` when the observation is at least 15 seconds old,
+  `!! DISCONNECTED` with the cause when a read fails (the last good content
+  stays), and `not read yet` before the first good read.
+- It refuses, with exit 2, when standard input or output is not a terminal;
+  `monitor` is the plain-text view. `--interval` sets the seconds between
+  reads (default 5).

@@ -148,7 +148,8 @@ class TheCommandIsBundledAndItsVocabularyIsItsOwn(WorkCommandCase):
 
     def test_the_existing_subcommands_are_untouched_and_work_is_additive(self):
         """The change to this table is ONE new name and nothing else."""
-        self.assertEqual(set(stack_command.COMMANDS) - {"work"}, BEFORE)
+        # W386308 added `tui`, the read-only terminal interface beside `monitor`.
+        self.assertEqual(set(stack_command.COMMANDS) - {"work", "tui"}, BEFORE)
 
     def test_the_four_verbs_are_the_whole_surface(self):
         self.assertEqual(sorted(work_command.VERBS),
