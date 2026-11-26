@@ -1,0 +1,295 @@
+{
+  "base": "b5abf7983fb07eb3a8268f2d4559a04de9c0f1bd",
+  "roots": {
+    ".dockerignore": 1,
+    ".gitignore": 1,
+    "DESIGN.md": 1,
+    "NEXT-RUN.md": 1,
+    "PLAN.md": 1,
+    "PROVENANCE.md": 1,
+    "PROVIDER-SELECTION.md": 1,
+    "QUICKSTART.md": 1,
+    "README.md": 1,
+    "REVIEW-UNCERTAINTY.md": 1,
+    "STACK.md": 1,
+    "bin": 1,
+    "evidence": 579,
+    "fixtures": 5,
+    "instance-inputs.json": 1,
+    "instance-retention.md": 1,
+    "justfile": 1,
+    "package-lock.json": 1,
+    "package.json": 1,
+    "poc.json": 1,
+    "python": 413,
+    "scripts": 2,
+    "spike": 8,
+    "src": 40,
+    "test": 28,
+    "testing": 46,
+    "w144813-submission.example.json": 1,
+    "worker": 22
+  },
+  "module_count": 177,
+  "function_count": 5373,
+  "modules": [
+    [
+      8285,
+      "v12/python/tools/stage_execution.py"
+    ],
+    [
+      7961,
+      "v12/worker/claude_agent.py"
+    ],
+    [
+      7690,
+      "v12/python/src/baton_v12/worker_manager/workspaces.py"
+    ],
+    [
+      6176,
+      "v12/python/src/baton_v12/worker_manager/intake.py"
+    ],
+    [
+      5576,
+      "v12/python/tools/dogfood_operator.py"
+    ],
+    [
+      5188,
+      "v12/python/src/baton_v12/worker_manager/review_cycles.py"
+    ],
+    [
+      4746,
+      "v12/python/tools/single_worker.py"
+    ],
+    [
+      4541,
+      "v12/python/src/baton_v12/worker_manager/oci.py"
+    ],
+    [
+      4117,
+      "v12/python/src/baton_v12/worker_manager/attempts.py"
+    ],
+    [
+      3943,
+      "v12/python/tools/bootstrap.py"
+    ],
+    [
+      3841,
+      "v12/python/src/baton_v12/integration/reconciliation.py"
+    ],
+    [
+      3416,
+      "v12/worker/baton_worker.py"
+    ],
+    [
+      3237,
+      "v12/python/src/baton_v12/job_manager/publication_recovery.py"
+    ],
+    [
+      3057,
+      "v12/python/src/baton_v12/authority/core.py"
+    ],
+    [
+      2957,
+      "v12/python/src/baton_v12/job_manager/publication_execution.py"
+    ],
+    [
+      2910,
+      "v12/python/tools/authoring_baseline.py"
+    ],
+    [
+      2769,
+      "v12/python/src/baton_v12/worker_manager/custody.py"
+    ],
+    [
+      2370,
+      "v12/python/src/baton_v12/job_manager/failure_analysis.py"
+    ],
+    [
+      2247,
+      "v12/python/src/baton_v12/job_manager/review_driver.py"
+    ],
+    [
+      2224,
+      "v12/python/src/baton_v12/integration/queue.py"
+    ],
+    [
+      2134,
+      "v12/python/src/baton_v12/job_manager/retained_recovery.py"
+    ],
+    [
+      1969,
+      "v12/python/tools/parallel_test.py"
+    ],
+    [
+      1957,
+      "v12/python/src/baton_v12/worker_manager/tokens.py"
+    ],
+    [
+      1939,
+      "v12/python/src/baton_v12/job_manager/retained_verification.py"
+    ],
+    [
+      1936,
+      "v12/python/tools/integration_worker.py"
+    ]
+  ],
+  "functions": [
+    [
+      561,
+      "v12/python/src/baton_v12/worker_manager/review_cycles.py:3945 restore_abandoned_correction"
+    ],
+    [
+      500,
+      "v12/python/src/baton_v12/worker_manager/oci.py:1342 run_vector"
+    ],
+    [
+      450,
+      "v12/python/src/baton_v12/worker_manager/oci.py:2613 start"
+    ],
+    [
+      418,
+      "v12/python/src/baton_v12/worker_manager/maintenance.py:1216 prepare"
+    ],
+    [
+      400,
+      "v12/python/tools/authoring_baseline.py:1067 _supervise"
+    ],
+    [
+      397,
+      "v12/python/tools/dossier_command.py:687 _check"
+    ],
+    [
+      381,
+      "v12/python/src/baton_v12/job_manager/integration_capacity.py:854 admit_integration_execution"
+    ],
+    [
+      369,
+      "v12/worker/claude_agent.py:2323 _work"
+    ],
+    [
+      364,
+      "v12/python/tools/stage_execution.py:7379 operations_from"
+    ],
+    [
+      327,
+      "v12/python/tools/integration_placement.py:648 publish_collected_integration"
+    ],
+    [
+      314,
+      "v12/python/tools/authoring_baseline.py:1966 _candidates"
+    ],
+    [
+      293,
+      "v12/python/src/baton_v12/worker_manager/intake.py:5647 reclaim_expired_resource"
+    ],
+    [
+      291,
+      "v12/python/tools/next_run_bindings.py:491 compose"
+    ],
+    [
+      291,
+      "v12/python/src/baton_v12/worker_manager/intake.py:2667 abandon_attempt"
+    ],
+    [
+      289,
+      "v12/python/src/baton_v12/worker_manager/oci.py:2243 __init__"
+    ],
+    [
+      283,
+      "v12/python/src/baton_v12/worker_manager/failure_cause.py:1643 attempt_failure_cause_of"
+    ],
+    [
+      279,
+      "v12/python/src/baton_v12/worker_manager/workspaces.py:5915 assignment_workspace"
+    ],
+    [
+      278,
+      "v12/python/src/baton_v12/job_manager/publication_recovery.py:2877 admit_publication"
+    ],
+    [
+      277,
+      "v12/python/tools/job_manager.py:1294 main"
+    ],
+    [
+      276,
+      "v12/python/src/baton_v12/worker_manager/attempts.py:1546 request_runtime_start"
+    ],
+    [
+      262,
+      "v12/python/src/baton_v12/worker_manager/offers.py:503 accept_offer"
+    ],
+    [
+      258,
+      "v12/python/tools/bootstrap.py:3450 install"
+    ],
+    [
+      256,
+      "v12/python/src/baton_v12/job_manager/review_driver.py:653 end_implementation"
+    ],
+    [
+      251,
+      "v12/python/tools/single_worker.py:288 _held"
+    ],
+    [
+      248,
+      "v12/python/src/baton_v12/integration/execution.py:742 import_authorized_result"
+    ]
+  ],
+  "duplicates": [
+    [
+      [
+        16,
+        "v12/python/src/baton_v12/job_manager/store.py:149 _statements"
+      ],
+      [
+        16,
+        "v12/python/src/baton_v12/worker_manager/store.py:76 _statements"
+      ]
+    ],
+    [
+      [
+        13,
+        "v12/python/src/baton_v12/job_manager/publication_recovery.py:1554 _records_of"
+      ],
+      [
+        13,
+        "v12/python/src/baton_v12/job_manager/retained_recovery.py:668 _records_of"
+      ],
+      [
+        13,
+        "v12/python/src/baton_v12/job_manager/retained_verification.py:580 _records_of"
+      ]
+    ],
+    [
+      [
+        13,
+        "v12/python/src/baton_v12/job_manager/publication_execution.py:259 member"
+      ],
+      [
+        11,
+        "v12/python/src/baton_v12/job_manager/retained_verification.py:375 member"
+      ]
+    ],
+    [
+      [
+        11,
+        "v12/python/src/baton_v12/job_manager/store.py:65 _is_contention"
+      ],
+      [
+        11,
+        "v12/python/src/baton_v12/worker_manager/store.py:63 _is_contention"
+      ]
+    ],
+    [
+      [
+        10,
+        "v12/python/src/baton_v12/job_manager/role_contract.py:487 _pairs"
+      ],
+      [
+        10,
+        "v12/python/src/baton_v12/native_handoff.py:347 _pairs"
+      ]
+    ]
+  ]
+}
