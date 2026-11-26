@@ -1,0 +1,78 @@
+observed at 2026-11-26T03:23:28.259Z   (2s old, read 0s ago)
+
+JOB field-survey   MANUAL · CLOSED
+  2 finished · 0 failed · 0 never selected
+  submission   unknown
+  input        unknown
+  policy       unknown
+  terminal     owner-close
+  Job age 1m35s
+  0 admitted attempt(s) in nonterminal phases; Job wall budget 28/360s charged; closed at 2026-11-26T03:23:25.850Z
+
+  STAGE field-survey/guide  [done; admission admitted]
+    attempt 1 attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+    result recorded: findings
+    offered
+    claimed
+    reserved on field-research
+    runtime recorded: 29a3c60f5b685bed57dd32598ab676e68585fbe24ba4f6e79402a42ed1a7dac8
+    runtime recorded: destroyed
+    Phase COMPLETED
+    Retained result for attempt attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+    Retained findings: file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/custody/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/findings
+    work         05297bfd-W174095723958573545860114872244961901962
+    role         research
+    dependencies none published
+    operation    unknown
+                 duration unknown
+    episode      1
+    offer        offer-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+    assigned to  field.research
+    assigned work {'authority_uuid': '05297bfd3f1e4900b85735e1785456f9', 'work_id': '05297bfd-W174095723958573545860114872244961901962'}
+    assigned gen 1
+    reserved worker field-research
+    reserved as  field.research
+    reservation  attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+    reservation state released
+    lane         review
+    pool generation 1
+    selection    initial
+    limit        timeout not applicable (stage ended)
+    activity     unknown
+    corrections  0
+    results
+      findings                    127  file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/custody/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/findings
+
+  STAGE field-survey/overview  [done; admission admitted]
+    attempt 1 attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01
+    result recorded: findings
+    offered
+    claimed
+    reserved on field-research
+    runtime recorded: 3ea78ad9ffca3cc39c8c0e4d03fc42fffa4dcb44e6455b5213097734c46a1e5e
+    runtime recorded: destroyed
+    Phase COMPLETED
+    Retained result for attempt attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01
+    Retained findings: file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/custody/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/findings
+    work         05297bfd-W64837883627975295942960296140620258353
+    role         research
+    dependencies none published
+    operation    unknown
+                 duration unknown
+    episode      1
+    offer        offer-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01
+    assigned to  field.research
+    assigned work {'authority_uuid': '05297bfd3f1e4900b85735e1785456f9', 'work_id': '05297bfd-W64837883627975295942960296140620258353'}
+    assigned gen 1
+    reserved worker field-research
+    reserved as  field.research
+    reservation  attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01
+    reservation state released
+    lane         review
+    pool generation 1
+    selection    initial
+    limit        timeout not applicable (stage ended)
+    activity     unknown
+    corrections  0
+    results
+      findings                    123  file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/custody/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/findings

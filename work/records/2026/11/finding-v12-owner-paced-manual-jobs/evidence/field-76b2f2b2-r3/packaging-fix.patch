@@ -1,0 +1,26 @@
+diff --git a/v12/python/packaging/stack.spec b/v12/python/packaging/stack.spec
+index 77146e48..0110f691 100644
+--- a/v12/python/packaging/stack.spec
++++ b/v12/python/packaging/stack.spec
+@@ -27,6 +27,13 @@ HERE = os.path.abspath(os.path.join(SPECPATH, ".."))
+ # The frozen schema assets, at the same package-relative place the code reads.
+ SCHEMA = os.path.join(HERE, "src", "baton_v12", "contracts", "schema")
+ 
++# W386295 (field run 2026-11-26): `provider_policy.worker_instructions()` reads
++# this file beside its own module, and no import statement points at it. The
++# first packaged `pool compose-worker` refused with "packaged worker
++# instructions are absent or unreadable" because the bundle did not carry it.
++INSTRUCTIONS = os.path.join(HERE, "src", "baton_v12", "provider_policy",
++                            "worker_instructions.md")
++
+ # THE BUILD STAMP IS CAPTURED HERE, once, while the source is in front of us.
+ # OWNER-VERSION-STAMP-20260916.md: the commit and the dirty flag are observed at
+ # PACKAGING time and embedded, so an installed build's reported identity cannot
+@@ -58,6 +65,7 @@ analysis = Analysis(
+     pathex=[HERE, os.path.join(HERE, "src")],
+     binaries=[],
+     datas=[(SCHEMA, os.path.join("baton_v12", "contracts", "schema")),
++           (INSTRUCTIONS, os.path.join("baton_v12", "provider_policy")),
+            # Beside the bundle's own resources, which is where
+            # `build_stamp.stamped()` reads it when frozen.
+            (STAMP, ".")],

@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "stack_command.py", line 347, in <module>
+  File "stack_command.py", line 343, in main
+  File "stack_command.py", line 82, in _manager
+  File "tools/job_manager.py", line 1301, in main
+  File "tools/manual_job.py", line 130, in main
+  File "tools/manual_job.py", line 39, in _phase_document
+baton_v12.contracts.errors.ContractRefusal: this deployment has no declared base; select source_commit
+[PYI-3289522:ERROR] Failed to execute script 'stack_command' due to unhandled exception!

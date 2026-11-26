@@ -1,0 +1,25 @@
+#!/usr/bin/python3
+"""Deterministic provider-process replacement for the two selected field assignments."""
+import hashlib
+import json
+import sys
+
+args = sys.argv[1:]
+if args == ["--version"]:
+    print("2.1.247 (Claude Code)")
+    sys.exit(0)
+if (args[args.index("--model") + 1] != "field-fixture"
+        or args[args.index("--tools") + 1] != ""
+        or json.loads(args[args.index("--mcp-config") + 1]) != {"mcpServers": {}}):
+    sys.exit("unexpected research authority")
+prefix, marker, source = args[-1].rpartition("\nSource: ")
+files = json.loads(source)
+if not marker or len(files) != 1:
+    sys.exit("expected one scoped input")
+path, content = next(iter(files.items()))
+if path not in ("v12/QUICKSTART.md", "v12/README.md") or not prefix.endswith("Measure " + path):
+    sys.exit("unexpected assignment")
+raw = content.encode()
+answer = f"Deterministic research: {path}, {len(raw)} bytes, sha256 {hashlib.sha256(raw).hexdigest()}"
+print(json.dumps(dict(type="result", subtype="success", is_error=False, result=answer,
+                      modelUsage={"field-fixture": {"outputTokens": 1}})))

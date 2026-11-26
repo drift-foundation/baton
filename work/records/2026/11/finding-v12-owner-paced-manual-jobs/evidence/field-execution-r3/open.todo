@@ -1,0 +1,38 @@
+observed at 2026-11-26T03:23:17.686Z   (1s old, read 0s ago)
+
+JOB field-survey   submission unknown   MANUAL OPEN   AWAITING ASSIGNMENT
+  All 2 planned phases finished.
+  Job age 1m25s
+  0 admitted attempt(s) in nonterminal phases; Job wall budget 28/360s charged
+  research         duration unknown    activity unknown  field-survey/guide
+      timeout not applicable (stage ended)
+      done; admission admitted
+      1 admitted attempt(s)
+      attempt 1 attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+      result recorded: findings
+      offered
+      claimed
+      reserved on field-research
+      runtime recorded: 29a3c60f5b685bed57dd32598ab676e68585fbe24ba4f6e79402a42ed1a7dac8
+      runtime recorded: destroyed
+      Phase COMPLETED
+      Retained result for attempt attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+      Retained findings: file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/custody/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/findings
+      operation unknown
+      Requested: field-fixture; mapped identity: field-fixture; Reported contributors: field-fixture; Requested model reported: yes; CLI build selected: 2.1.247; CLI build evidenced: 2.1.247; attribution: matched; Native worker role: research; context label: sha256:b61b06d36fed46b350d5f96c65d137602903b0ebfac174cb971dca496e7ca4a6; worker instructions: sha256:369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b; label reported: yes; Provider home: retained (fresh invocation); worker: field-research; holder: attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+  research         duration unknown    activity unknown  field-survey/overview
+      timeout not applicable (stage ended)
+      done; admission admitted
+      1 admitted attempt(s)
+      attempt 1 attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01
+      result recorded: findings
+      offered
+      claimed
+      reserved on field-research
+      runtime recorded: 3ea78ad9ffca3cc39c8c0e4d03fc42fffa4dcb44e6455b5213097734c46a1e5e
+      runtime recorded: destroyed
+      Phase COMPLETED
+      Retained result for attempt attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01
+      Retained findings: file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/custody/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/findings
+      operation unknown
+      Requested: field-fixture; mapped identity: field-fixture; Reported contributors: field-fixture; Requested model reported: yes; CLI build selected: 2.1.247; CLI build evidenced: 2.1.247; attribution: matched; Native worker role: research; context label: sha256:b61b06d36fed46b350d5f96c65d137602903b0ebfac174cb971dca496e7ca4a6; worker instructions: sha256:369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b; label reported: yes; Provider home: retained (fresh invocation); worker: field-research; holder: attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01

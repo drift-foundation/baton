@@ -1,0 +1,917 @@
+{
+  "schema": "baton.v12.job-status/10",
+  "observed_at": "2026-11-26T03:23:17.686Z",
+  "incarnation": "v12-stack-publisher",
+  "canonical": true,
+  "jobs": [
+    {
+      "job_id": "field-survey",
+      "submission_id": null,
+      "input_digest": null,
+      "policy_digest": null,
+      "test_scope": [],
+      "terminal_policy": "owner-close",
+      "execution_limits": null,
+      "stages": [
+        {
+          "stage_id": "field-survey/guide",
+          "job_id": "field-survey",
+          "kind": "research",
+          "state": "completed",
+          "work_id": "05297bfd-W174095723958573545860114872244961901962",
+          "profile_name": "claude-fresh-implementation",
+          "profile_digest": "sha256:84aa3bfd8c5b1cd2d0be699ff715de8c41cac9cce0cea70a4d12c85b4749e78f",
+          "episode": 1,
+          "offer_id": "offer-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30",
+          "attempt_id": "attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30",
+          "episodes": [
+            {
+              "stage_id": "manual-phase-01a79315e3ab51800faabc519a0771011931d0a4975f503d39bdda9c187c7654/research",
+              "episode": 1,
+              "offer_id": "offer-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30",
+              "attempt_id": "attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30",
+              "opened_at": "2026-11-26T03:22:27.146Z",
+              "incarnation": "v12-stack-3294480-1795663311864995049",
+              "ended_state": null,
+              "ended_revision": null,
+              "ended_at": null
+            }
+          ],
+          "corrections": 0,
+          "allocation": {
+            "assignment_id": "attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30",
+            "stage_id": "manual-phase-01a79315e3ab51800faabc519a0771011931d0a4975f503d39bdda9c187c7654/research",
+            "episode": 1,
+            "generation": 1,
+            "worker_id": "field-research",
+            "lane": "review",
+            "participant": "field.research",
+            "canonical_principal": "principal:field.research",
+            "preferred_worker_id": null,
+            "selection_outcome": "initial",
+            "allocation_state": "released",
+            "reserved_at": "2026-11-26T03:22:27.153Z",
+            "recovery_required_at": null,
+            "released_at": "2026-11-26T03:22:37.549Z",
+            "release_reason": "cleanup-retained",
+            "variant": "baton.v12.stage-execution-deployment/1",
+            "separation_class": "provider-diverse",
+            "generation_digest": "sha256:b6b683052eeaa1685eb3bcb93f24224a37cb76ce58f5369def6b34d2cd25afcc",
+            "worker_profile_name": "claude-fresh-implementation",
+            "worker_profile_digest": "sha256:84aa3bfd8c5b1cd2d0be699ff715de8c41cac9cce0cea70a4d12c85b4749e78f"
+          },
+          "allocations": [
+            {
+              "assignment_id": "attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30",
+              "stage_id": "manual-phase-01a79315e3ab51800faabc519a0771011931d0a4975f503d39bdda9c187c7654/research",
+              "episode": 1,
+              "generation": 1,
+              "worker_id": "field-research",
+              "lane": "review",
+              "participant": "field.research",
+              "canonical_principal": "principal:field.research",
+              "preferred_worker_id": null,
+              "selection_outcome": "initial",
+              "allocation_state": "released",
+              "reserved_at": "2026-11-26T03:22:27.153Z",
+              "recovery_required_at": null,
+              "released_at": "2026-11-26T03:22:37.549Z",
+              "release_reason": "cleanup-retained",
+              "variant": "baton.v12.stage-execution-deployment/1",
+              "separation_class": "provider-diverse",
+              "generation_digest": "sha256:b6b683052eeaa1685eb3bcb93f24224a37cb76ce58f5369def6b34d2cd25afcc",
+              "worker_profile_name": "claude-fresh-implementation",
+              "worker_profile_digest": "sha256:84aa3bfd8c5b1cd2d0be699ff715de8c41cac9cce0cea70a4d12c85b4749e78f"
+            }
+          ],
+          "gates": [],
+          "receipts": [
+            {
+              "stage_id": "manual-phase-01a79315e3ab51800faabc519a0771011931d0a4975f503d39bdda9c187c7654/research",
+              "episode": 1,
+              "act": "admit",
+              "operation_id": "offer.issue:offer-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30",
+              "state": "performed",
+              "recorded_at": "2026-11-26T03:22:27.158Z",
+              "detail": {
+                "canonical_state": "committed",
+                "refusal": null,
+                "result": {
+                  "expires_at": "2026-11-26T03:24:27.156Z",
+                  "issued_at": "2026-11-26T03:22:27.156Z",
+                  "offer_id": "offer-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30",
+                  "participant": "field.research",
+                  "runtime_attempt_id": "attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30",
+                  "verifier": "sha256:c25485bd4185a3ca673e607b8a73696d8ee4414382b14bf65bfbbad6e4d787db",
+                  "work_id": "05297bfd-W174095723958573545860114872244961901962"
+                },
+                "settled_at": "2026-11-26T03:22:27.157Z"
+              }
+            },
+            {
+              "stage_id": "manual-phase-01a79315e3ab51800faabc519a0771011931d0a4975f503d39bdda9c187c7654/research",
+              "episode": 1,
+              "act": "claim",
+              "operation_id": "offer.settle:offer-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30",
+              "state": "performed",
+              "recorded_at": "2026-11-26T03:22:32.174Z",
+              "detail": {
+                "canonical_state": "committed",
+                "refusal": null,
+                "result": {
+                  "assignment": {
+                    "generation": 1,
+                    "participant": "field.research",
+                    "work_ref": {
+                      "authority_uuid": "05297bfd3f1e4900b85735e1785456f9",
+                      "work_id": "05297bfd-W174095723958573545860114872244961901962"
+                    }
+                  },
+                  "claim_event": 1,
+                  "decision": {
+                    "effective_scope": "scope:manual-phase-01a79315e3ab51800faabc519a0771011931d0a4975f503d39bdda9c187c7654",
+                    "endpoint": "field.research",
+                    "grant": "direct",
+                    "policy_generation": 2,
+                    "principal": "principal:field.research",
+                    "role": "research"
+                  },
+                  "offer_id": "offer-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30",
+                  "state": "claimed"
+                },
+                "settled_at": "2026-11-26T03:22:32.174Z"
+              }
+            }
+          ],
+          "deferral": null,
+          "runtime": {
+            "runtime_id": "29a3c60f5b685bed57dd32598ab676e68585fbe24ba4f6e79402a42ed1a7dac8",
+            "model_attribution": "Requested: field-fixture; mapped identity: field-fixture; Reported contributors: field-fixture; Requested model reported: yes; CLI build selected: 2.1.247; CLI build evidenced: 2.1.247; attribution: matched; Native worker role: research; context label: sha256:b61b06d36fed46b350d5f96c65d137602903b0ebfac174cb971dca496e7ca4a6; worker instructions: sha256:369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b; label reported: yes; Provider home: retained (fresh invocation); worker: field-research; holder: attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30",
+            "execution_runtime": "destroyed",
+            "assignment": {
+              "work_ref": {
+                "authority_uuid": "05297bfd3f1e4900b85735e1785456f9",
+                "work_id": "05297bfd-W174095723958573545860114872244961901962"
+              },
+              "participant": "field.research",
+              "generation": 1
+            },
+            "activity": {
+              "attempt_id": "attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30",
+              "bytes_observed": null,
+              "observed_at": null
+            }
+          },
+          "exchange": null,
+          "artifacts": [
+            {
+              "output_name": "findings",
+              "artifact_id": "attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30:findings",
+              "media_type": "application/octet-stream",
+              "bytes": 127,
+              "content_digest": "sha256:ea432d799d81c70bdfd15fac2756ea3a1f77fc5b58424635446b2b3fc5442852",
+              "locator": "file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/custody/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/findings"
+            }
+          ],
+          "attempt_diagnostics": {
+            "schema": "baton.v12.attempt-failure-cause/1",
+            "attempt_id": "attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30",
+            "cause": null,
+            "unknown": {
+              "why": "no component of this manager recorded ordering a cessation for this attempt, and no start or preparation failure is recorded either; which component ended it, if any did, is unknown",
+              "absent": [
+                "attempt.cessation-*:expiry-reclaim",
+                "attempt.cessation-*:settlement",
+                "attempt.cessation-*:cancellation",
+                "resource-token.revoked:workspace:66306:21289725:1",
+                "runtime.start-failed",
+                "runtime.preparation-failed"
+              ]
+            },
+            "absent_records": [
+              "attempt.cessation-*:expiry-reclaim",
+              "attempt.cessation-*:settlement",
+              "attempt.cessation-*:cancellation",
+              "resource-token.revoked:workspace:66306:21289725:1",
+              "runtime.start-failed",
+              "runtime.preparation-failed"
+            ],
+            "worker_declaration": {
+              "disposition": {
+                "known": true,
+                "value": "completed",
+                "source": "outputs.disposition"
+              },
+              "result_id": {
+                "known": true,
+                "value": "result-attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30",
+                "source": "outputs.result_id"
+              },
+              "frozen_at": {
+                "known": true,
+                "value": "2026-11-26T03:22:37.451Z",
+                "source": "outputs.frozen_at"
+              },
+              "declared_ending": {
+                "known": false,
+                "value": null,
+                "why": "this attempt's frozen result carries no single present candidate output, so there is no typed worker result bound to it"
+              },
+              "failure_reason": {
+                "known": false,
+                "value": null,
+                "why": "this attempt's frozen result carries no single present candidate output, so there is no typed worker result bound to it"
+              },
+              "seconds_bound": {
+                "known": false,
+                "value": null,
+                "why": "this attempt's frozen result carries no single present candidate output, so there is no typed worker result bound to it"
+              },
+              "seconds_bound_source": {
+                "known": false,
+                "value": null,
+                "why": "this attempt's frozen result carries no single present candidate output, so there is no typed worker result bound to it"
+              },
+              "verification_attempted": {
+                "known": false,
+                "value": null,
+                "why": "this attempt's frozen result carries no single present candidate output, so there is no typed worker result bound to it"
+              },
+              "verification_status": {
+                "known": false,
+                "value": null,
+                "why": "this attempt's frozen result carries no single present candidate output, so there is no typed worker result bound to it"
+              }
+            },
+            "start_failure_recorded": {
+              "known": true,
+              "value": false,
+              "source": "attempts.attempt_start_failure_of"
+            },
+            "start_failure_runtime_id": {
+              "known": false,
+              "value": null,
+              "why": "this manager recorded no failed start naming a runtime for this attempt"
+            },
+            "preparation_failure_recorded": {
+              "known": true,
+              "value": false,
+              "source": "attempts.attempt_preparation_failure_of"
+            },
+            "preparation_failure_kind": {
+              "known": false,
+              "value": null,
+              "why": "no preparation failure kind was recorded"
+            },
+            "preparation_failure_category": {
+              "known": false,
+              "value": null,
+              "why": "no preparation failure category was recorded"
+            },
+            "preparation_failure_code": {
+              "known": false,
+              "value": null,
+              "why": "no preparation failure code was recorded"
+            },
+            "preparation_failure_message": {
+              "known": false,
+              "value": null,
+              "why": "no preparation failure message was recorded"
+            },
+            "preparation_failure_runtime_id": {
+              "known": false,
+              "value": null,
+              "why": "this manager recorded no failed preparation naming a runtime for this attempt"
+            },
+            "revocation": {
+              "known": false,
+              "value": null,
+              "why": "no revocation is journalled for this attempt's governed generation"
+            },
+            "revoked_expired_at": {
+              "known": false,
+              "value": null,
+              "why": "no revocation is journalled for this attempt's governed generation"
+            },
+            "revoked_container": {
+              "known": false,
+              "value": null,
+              "why": "no revocation naming a bound container is journalled for this generation"
+            },
+            "revoked_owner": {
+              "known": false,
+              "value": null,
+              "why": "no revocation naming an owner is journalled for this generation"
+            },
+            "completion": {
+              "known": true,
+              "value": true,
+              "source": "tokens:resource-token.returned"
+            },
+            "domain": {
+              "known": true,
+              "value": "workspace:66306:21289725",
+              "source": "tokens.domain_of"
+            },
+            "generation": {
+              "known": true,
+              "value": 1,
+              "source": "tokens.generation_of"
+            },
+            "token": {
+              "owner": {
+                "known": true,
+                "value": "37243a4427a1e446f2738335dc97bbacc4f34fefda4438de23cce395f55bc127",
+                "source": "tokens.token_of"
+              },
+              "container": {
+                "known": true,
+                "value": "29a3c60f5b685bed57dd32598ab676e68585fbe24ba4f6e79402a42ed1a7dac8",
+                "source": "tokens.token_of"
+              },
+              "expires_at": {
+                "known": true,
+                "value": "2026-11-26T05:24:32.209Z",
+                "source": "tokens.token_of"
+              },
+              "acquired_expires_at": {
+                "known": true,
+                "value": "2026-11-26T05:24:32.209Z",
+                "source": "tokens.token_of"
+              },
+              "renewed_at": {
+                "known": false,
+                "value": null,
+                "why": "this attempt's governed generation records no renewed_at"
+              },
+              "renewals": {
+                "known": true,
+                "value": 0,
+                "source": "tokens.token_of"
+              },
+              "renewals_remaining": {
+                "known": true,
+                "value": 4,
+                "source": "tokens.token_of"
+              },
+              "expired": {
+                "known": true,
+                "value": false,
+                "source": "tokens.token_of"
+              },
+              "expiry_judged_at": {
+                "known": false,
+                "value": null,
+                "why": "this attempt's governed generation records no expiry_judged_at"
+              },
+              "returned": {
+                "known": true,
+                "value": true,
+                "source": "tokens.token_of"
+              },
+              "activating": {
+                "known": true,
+                "value": false,
+                "source": "tokens.token_of"
+              },
+              "launch": {
+                "known": true,
+                "value": "runtime.start:0346ff773b66f5c1ccb6b40c1bdb6572e8383b5aaa46ff655cf2af6296b280ed",
+                "source": "tokens.token_of"
+              }
+            },
+            "renewal_limit": {
+              "known": true,
+              "value": 4,
+              "source": "tokens.RENEWAL_LIMIT"
+            },
+            "lifetime_seconds": {
+              "known": true,
+              "value": 900,
+              "source": "tokens.LIFETIME_SECONDS"
+            },
+            "execution": {
+              "execution_runtime": {
+                "known": true,
+                "value": "destroyed",
+                "source": "attempts"
+              },
+              "cleanup": {
+                "known": true,
+                "value": "retained",
+                "source": "attempts"
+              },
+              "observed_at": {
+                "known": true,
+                "value": "2026-11-26T03:22:37.534Z",
+                "source": "attempts"
+              },
+              "runtime_id": {
+                "known": true,
+                "value": "29a3c60f5b685bed57dd32598ab676e68585fbe24ba4f6e79402a42ed1a7dac8",
+                "source": "attempts"
+              },
+              "token_bound_runtime_id": {
+                "known": true,
+                "value": "29a3c60f5b685bed57dd32598ab676e68585fbe24ba4f6e79402a42ed1a7dac8",
+                "source": "tokens.token_of"
+              },
+              "activity_bytes": {
+                "known": false,
+                "value": null,
+                "why": "no session stream has been observed"
+              },
+              "activity_at": {
+                "known": false,
+                "value": null,
+                "why": "no session stream has been observed"
+              }
+            },
+            "workspace_object": {
+              "device": {
+                "known": true,
+                "value": 66306,
+                "source": "attempts"
+              },
+              "inode": {
+                "known": true,
+                "value": 21289725,
+                "source": "attempts"
+              },
+              "is_a_locator": false,
+              "why": "a device and inode identify a workspace object; they are not a path and resolve no retained output on their own"
+            }
+          },
+          "diagnostic_degradation": null,
+          "selected_at": "2026-11-26T03:22:22.525Z",
+          "settled_at": "2026-11-26T03:22:37.554Z",
+          "result": {
+            "artifact_id": "attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30:findings",
+            "attempt_id": "attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30",
+            "bytes": 127,
+            "content_digest": "sha256:ea432d799d81c70bdfd15fac2756ea3a1f77fc5b58424635446b2b3fc5442852",
+            "locator": "file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/custody/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/findings"
+          },
+          "execution_job_id": "manual-phase-01a79315e3ab51800faabc519a0771011931d0a4975f503d39bdda9c187c7654",
+          "execution_cancellation": null
+        },
+        {
+          "stage_id": "field-survey/overview",
+          "job_id": "field-survey",
+          "kind": "research",
+          "state": "completed",
+          "work_id": "05297bfd-W64837883627975295942960296140620258353",
+          "profile_name": "claude-fresh-implementation",
+          "profile_digest": "sha256:84aa3bfd8c5b1cd2d0be699ff715de8c41cac9cce0cea70a4d12c85b4749e78f",
+          "episode": 1,
+          "offer_id": "offer-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01",
+          "attempt_id": "attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01",
+          "episodes": [
+            {
+              "stage_id": "manual-phase-238a99af2ae03aeb1e73cfa3506a475c4cf1cb9b383e7fe91955f3b1fe946e63/research",
+              "episode": 1,
+              "offer_id": "offer-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01",
+              "attempt_id": "attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01",
+              "opened_at": "2026-11-26T03:23:06.328Z",
+              "incarnation": "v12-stack-3295239-1795663370923636401",
+              "ended_state": null,
+              "ended_revision": null,
+              "ended_at": null
+            }
+          ],
+          "corrections": 0,
+          "allocation": {
+            "assignment_id": "attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01",
+            "stage_id": "manual-phase-238a99af2ae03aeb1e73cfa3506a475c4cf1cb9b383e7fe91955f3b1fe946e63/research",
+            "episode": 1,
+            "generation": 1,
+            "worker_id": "field-research",
+            "lane": "review",
+            "participant": "field.research",
+            "canonical_principal": "principal:field.research",
+            "preferred_worker_id": null,
+            "selection_outcome": "initial",
+            "allocation_state": "released",
+            "reserved_at": "2026-11-26T03:23:06.355Z",
+            "recovery_required_at": null,
+            "released_at": "2026-11-26T03:23:16.866Z",
+            "release_reason": "cleanup-retained",
+            "variant": "baton.v12.stage-execution-deployment/1",
+            "separation_class": "provider-diverse",
+            "generation_digest": "sha256:b6b683052eeaa1685eb3bcb93f24224a37cb76ce58f5369def6b34d2cd25afcc",
+            "worker_profile_name": "claude-fresh-implementation",
+            "worker_profile_digest": "sha256:84aa3bfd8c5b1cd2d0be699ff715de8c41cac9cce0cea70a4d12c85b4749e78f"
+          },
+          "allocations": [
+            {
+              "assignment_id": "attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01",
+              "stage_id": "manual-phase-238a99af2ae03aeb1e73cfa3506a475c4cf1cb9b383e7fe91955f3b1fe946e63/research",
+              "episode": 1,
+              "generation": 1,
+              "worker_id": "field-research",
+              "lane": "review",
+              "participant": "field.research",
+              "canonical_principal": "principal:field.research",
+              "preferred_worker_id": null,
+              "selection_outcome": "initial",
+              "allocation_state": "released",
+              "reserved_at": "2026-11-26T03:23:06.355Z",
+              "recovery_required_at": null,
+              "released_at": "2026-11-26T03:23:16.866Z",
+              "release_reason": "cleanup-retained",
+              "variant": "baton.v12.stage-execution-deployment/1",
+              "separation_class": "provider-diverse",
+              "generation_digest": "sha256:b6b683052eeaa1685eb3bcb93f24224a37cb76ce58f5369def6b34d2cd25afcc",
+              "worker_profile_name": "claude-fresh-implementation",
+              "worker_profile_digest": "sha256:84aa3bfd8c5b1cd2d0be699ff715de8c41cac9cce0cea70a4d12c85b4749e78f"
+            }
+          ],
+          "gates": [],
+          "receipts": [
+            {
+              "stage_id": "manual-phase-238a99af2ae03aeb1e73cfa3506a475c4cf1cb9b383e7fe91955f3b1fe946e63/research",
+              "episode": 1,
+              "act": "admit",
+              "operation_id": "offer.issue:offer-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01",
+              "state": "performed",
+              "recorded_at": "2026-11-26T03:23:06.360Z",
+              "detail": {
+                "canonical_state": "committed",
+                "refusal": null,
+                "result": {
+                  "expires_at": "2026-11-26T03:25:06.357Z",
+                  "issued_at": "2026-11-26T03:23:06.357Z",
+                  "offer_id": "offer-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01",
+                  "participant": "field.research",
+                  "runtime_attempt_id": "attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01",
+                  "verifier": "sha256:cb6bd3132869512ae031c7b3ab174119dc063356aa453f40e53496e4746b1b6f",
+                  "work_id": "05297bfd-W64837883627975295942960296140620258353"
+                },
+                "settled_at": "2026-11-26T03:23:06.358Z"
+              }
+            },
+            {
+              "stage_id": "manual-phase-238a99af2ae03aeb1e73cfa3506a475c4cf1cb9b383e7fe91955f3b1fe946e63/research",
+              "episode": 1,
+              "act": "claim",
+              "operation_id": "offer.settle:offer-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01",
+              "state": "performed",
+              "recorded_at": "2026-11-26T03:23:11.422Z",
+              "detail": {
+                "canonical_state": "committed",
+                "refusal": null,
+                "result": {
+                  "assignment": {
+                    "generation": 1,
+                    "participant": "field.research",
+                    "work_ref": {
+                      "authority_uuid": "05297bfd3f1e4900b85735e1785456f9",
+                      "work_id": "05297bfd-W64837883627975295942960296140620258353"
+                    }
+                  },
+                  "claim_event": 3,
+                  "decision": {
+                    "effective_scope": "scope:manual-phase-238a99af2ae03aeb1e73cfa3506a475c4cf1cb9b383e7fe91955f3b1fe946e63",
+                    "endpoint": "field.research",
+                    "grant": "direct",
+                    "policy_generation": 2,
+                    "principal": "principal:field.research",
+                    "role": "research"
+                  },
+                  "offer_id": "offer-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01",
+                  "state": "claimed"
+                },
+                "settled_at": "2026-11-26T03:23:11.422Z"
+              }
+            }
+          ],
+          "deferral": null,
+          "runtime": {
+            "runtime_id": "3ea78ad9ffca3cc39c8c0e4d03fc42fffa4dcb44e6455b5213097734c46a1e5e",
+            "model_attribution": "Requested: field-fixture; mapped identity: field-fixture; Reported contributors: field-fixture; Requested model reported: yes; CLI build selected: 2.1.247; CLI build evidenced: 2.1.247; attribution: matched; Native worker role: research; context label: sha256:b61b06d36fed46b350d5f96c65d137602903b0ebfac174cb971dca496e7ca4a6; worker instructions: sha256:369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b; label reported: yes; Provider home: retained (fresh invocation); worker: field-research; holder: attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01",
+            "execution_runtime": "destroyed",
+            "assignment": {
+              "work_ref": {
+                "authority_uuid": "05297bfd3f1e4900b85735e1785456f9",
+                "work_id": "05297bfd-W64837883627975295942960296140620258353"
+              },
+              "participant": "field.research",
+              "generation": 1
+            },
+            "activity": {
+              "attempt_id": "attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01",
+              "bytes_observed": null,
+              "observed_at": null
+            }
+          },
+          "exchange": null,
+          "artifacts": [
+            {
+              "output_name": "findings",
+              "artifact_id": "attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01:findings",
+              "media_type": "application/octet-stream",
+              "bytes": 123,
+              "content_digest": "sha256:8cab148b8e495d23ad6c9f8bc371bb7bdc3bace594dc5aeeec271f008a14f032",
+              "locator": "file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/custody/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/findings"
+            }
+          ],
+          "attempt_diagnostics": {
+            "schema": "baton.v12.attempt-failure-cause/1",
+            "attempt_id": "attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01",
+            "cause": null,
+            "unknown": {
+              "why": "no component of this manager recorded ordering a cessation for this attempt, and no start or preparation failure is recorded either; which component ended it, if any did, is unknown",
+              "absent": [
+                "attempt.cessation-*:expiry-reclaim",
+                "attempt.cessation-*:settlement",
+                "attempt.cessation-*:cancellation",
+                "resource-token.revoked:workspace:66306:21289742:1",
+                "runtime.start-failed",
+                "runtime.preparation-failed"
+              ]
+            },
+            "absent_records": [
+              "attempt.cessation-*:expiry-reclaim",
+              "attempt.cessation-*:settlement",
+              "attempt.cessation-*:cancellation",
+              "resource-token.revoked:workspace:66306:21289742:1",
+              "runtime.start-failed",
+              "runtime.preparation-failed"
+            ],
+            "worker_declaration": {
+              "disposition": {
+                "known": true,
+                "value": "completed",
+                "source": "outputs.disposition"
+              },
+              "result_id": {
+                "known": true,
+                "value": "result-attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01",
+                "source": "outputs.result_id"
+              },
+              "frozen_at": {
+                "known": true,
+                "value": "2026-11-26T03:23:16.752Z",
+                "source": "outputs.frozen_at"
+              },
+              "declared_ending": {
+                "known": false,
+                "value": null,
+                "why": "this attempt's frozen result carries no single present candidate output, so there is no typed worker result bound to it"
+              },
+              "failure_reason": {
+                "known": false,
+                "value": null,
+                "why": "this attempt's frozen result carries no single present candidate output, so there is no typed worker result bound to it"
+              },
+              "seconds_bound": {
+                "known": false,
+                "value": null,
+                "why": "this attempt's frozen result carries no single present candidate output, so there is no typed worker result bound to it"
+              },
+              "seconds_bound_source": {
+                "known": false,
+                "value": null,
+                "why": "this attempt's frozen result carries no single present candidate output, so there is no typed worker result bound to it"
+              },
+              "verification_attempted": {
+                "known": false,
+                "value": null,
+                "why": "this attempt's frozen result carries no single present candidate output, so there is no typed worker result bound to it"
+              },
+              "verification_status": {
+                "known": false,
+                "value": null,
+                "why": "this attempt's frozen result carries no single present candidate output, so there is no typed worker result bound to it"
+              }
+            },
+            "start_failure_recorded": {
+              "known": true,
+              "value": false,
+              "source": "attempts.attempt_start_failure_of"
+            },
+            "start_failure_runtime_id": {
+              "known": false,
+              "value": null,
+              "why": "this manager recorded no failed start naming a runtime for this attempt"
+            },
+            "preparation_failure_recorded": {
+              "known": true,
+              "value": false,
+              "source": "attempts.attempt_preparation_failure_of"
+            },
+            "preparation_failure_kind": {
+              "known": false,
+              "value": null,
+              "why": "no preparation failure kind was recorded"
+            },
+            "preparation_failure_category": {
+              "known": false,
+              "value": null,
+              "why": "no preparation failure category was recorded"
+            },
+            "preparation_failure_code": {
+              "known": false,
+              "value": null,
+              "why": "no preparation failure code was recorded"
+            },
+            "preparation_failure_message": {
+              "known": false,
+              "value": null,
+              "why": "no preparation failure message was recorded"
+            },
+            "preparation_failure_runtime_id": {
+              "known": false,
+              "value": null,
+              "why": "this manager recorded no failed preparation naming a runtime for this attempt"
+            },
+            "revocation": {
+              "known": false,
+              "value": null,
+              "why": "no revocation is journalled for this attempt's governed generation"
+            },
+            "revoked_expired_at": {
+              "known": false,
+              "value": null,
+              "why": "no revocation is journalled for this attempt's governed generation"
+            },
+            "revoked_container": {
+              "known": false,
+              "value": null,
+              "why": "no revocation naming a bound container is journalled for this generation"
+            },
+            "revoked_owner": {
+              "known": false,
+              "value": null,
+              "why": "no revocation naming an owner is journalled for this generation"
+            },
+            "completion": {
+              "known": true,
+              "value": true,
+              "source": "tokens:resource-token.returned"
+            },
+            "domain": {
+              "known": true,
+              "value": "workspace:66306:21289742",
+              "source": "tokens.domain_of"
+            },
+            "generation": {
+              "known": true,
+              "value": 1,
+              "source": "tokens.generation_of"
+            },
+            "token": {
+              "owner": {
+                "known": true,
+                "value": "eb8ff925e89133baf44c273ac96d7b0249ebdd044351679c6ab009d7545ce62b",
+                "source": "tokens.token_of"
+              },
+              "container": {
+                "known": true,
+                "value": "3ea78ad9ffca3cc39c8c0e4d03fc42fffa4dcb44e6455b5213097734c46a1e5e",
+                "source": "tokens.token_of"
+              },
+              "expires_at": {
+                "known": true,
+                "value": "2026-11-26T05:25:11.463Z",
+                "source": "tokens.token_of"
+              },
+              "acquired_expires_at": {
+                "known": true,
+                "value": "2026-11-26T05:25:11.463Z",
+                "source": "tokens.token_of"
+              },
+              "renewed_at": {
+                "known": false,
+                "value": null,
+                "why": "this attempt's governed generation records no renewed_at"
+              },
+              "renewals": {
+                "known": true,
+                "value": 0,
+                "source": "tokens.token_of"
+              },
+              "renewals_remaining": {
+                "known": true,
+                "value": 4,
+                "source": "tokens.token_of"
+              },
+              "expired": {
+                "known": true,
+                "value": false,
+                "source": "tokens.token_of"
+              },
+              "expiry_judged_at": {
+                "known": false,
+                "value": null,
+                "why": "this attempt's governed generation records no expiry_judged_at"
+              },
+              "returned": {
+                "known": true,
+                "value": true,
+                "source": "tokens.token_of"
+              },
+              "activating": {
+                "known": true,
+                "value": false,
+                "source": "tokens.token_of"
+              },
+              "launch": {
+                "known": true,
+                "value": "runtime.start:7cfffe76c64658b629dae28e9c5a2c79bee1bdace5b424be8f4c8676677874ac",
+                "source": "tokens.token_of"
+              }
+            },
+            "renewal_limit": {
+              "known": true,
+              "value": 4,
+              "source": "tokens.RENEWAL_LIMIT"
+            },
+            "lifetime_seconds": {
+              "known": true,
+              "value": 900,
+              "source": "tokens.LIFETIME_SECONDS"
+            },
+            "execution": {
+              "execution_runtime": {
+                "known": true,
+                "value": "destroyed",
+                "source": "attempts"
+              },
+              "cleanup": {
+                "known": true,
+                "value": "retained",
+                "source": "attempts"
+              },
+              "observed_at": {
+                "known": true,
+                "value": "2026-11-26T03:23:16.837Z",
+                "source": "attempts"
+              },
+              "runtime_id": {
+                "known": true,
+                "value": "3ea78ad9ffca3cc39c8c0e4d03fc42fffa4dcb44e6455b5213097734c46a1e5e",
+                "source": "attempts"
+              },
+              "token_bound_runtime_id": {
+                "known": true,
+                "value": "3ea78ad9ffca3cc39c8c0e4d03fc42fffa4dcb44e6455b5213097734c46a1e5e",
+                "source": "tokens.token_of"
+              },
+              "activity_bytes": {
+                "known": false,
+                "value": null,
+                "why": "no session stream has been observed"
+              },
+              "activity_at": {
+                "known": false,
+                "value": null,
+                "why": "no session stream has been observed"
+              }
+            },
+            "workspace_object": {
+              "device": {
+                "known": true,
+                "value": 66306,
+                "source": "attempts"
+              },
+              "inode": {
+                "known": true,
+                "value": 21289742,
+                "source": "attempts"
+              },
+              "is_a_locator": false,
+              "why": "a device and inode identify a workspace object; they are not a path and resolve no retained output on their own"
+            }
+          },
+          "diagnostic_degradation": null,
+          "selected_at": "2026-11-26T03:23:02.772Z",
+          "settled_at": "2026-11-26T03:23:16.871Z",
+          "result": {
+            "artifact_id": "attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01:findings",
+            "attempt_id": "attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01",
+            "bytes": 123,
+            "content_digest": "sha256:8cab148b8e495d23ad6c9f8bc371bb7bdc3bace594dc5aeeec271f008a14f032",
+            "locator": "file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/custody/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/findings"
+          },
+          "execution_job_id": "manual-phase-238a99af2ae03aeb1e73cfa3506a475c4cf1cb9b383e7fe91955f3b1fe946e63",
+          "execution_cancellation": null
+        }
+      ],
+      "cancellation": null,
+      "created_at": "2026-11-26T03:21:52.644Z",
+      "mode": "MANUAL",
+      "lifecycle": "open",
+      "budget": {
+        "limit_seconds": 360,
+        "charged_milliseconds": 28906,
+        "charged_seconds": 28,
+        "remaining_seconds": 332,
+        "expired": false,
+        "timing": "trusted",
+        "deadline_at": null
+      },
+      "closed_at": null
+    }
+  ]
+}

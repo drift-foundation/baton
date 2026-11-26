@@ -1,0 +1,9 @@
+{
+  "kind": "research",
+  "statement": "Measure v12/README.md",
+  "scope": [
+    "v12/README.md"
+  ],
+  "depends_on": [],
+  "source_commit": "76b2f2b2359a1211139625f8f5062d980c5f68bf"
+}

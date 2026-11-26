@@ -1,0 +1,104 @@
+{
+ "packet_manifest": "df46073ef97dc30a232c65ff6098b2ff42620817b3612b223177c4b3cd706f9e",
+ "source_pin": "76b2f2b2359a1211139625f8f5062d980c5f68bf",
+ "packaged_commit": "a24fe259fe53b95b589e4f13072c9af7f8e9e6da",
+ "exit": 0,
+ "restart": {
+  "incarnation_before": "v12-stack-publisher",
+  "incarnation_after": "v12-stack-publisher",
+  "incarnation_changed": false,
+  "observed_before": "2026-11-26T03:22:39.618Z",
+  "observed_after": "2026-11-26T03:22:51.244Z",
+  "binding_equal": true,
+  "report_equal": true,
+  "charged_ms": [
+   14926,
+   14926
+  ],
+  "attempt": [
+   "attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30",
+   "attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30"
+  ]
+ },
+ "initial": [
+  [
+   "field-survey/guide",
+   "queued",
+   null,
+   null
+  ]
+ ],
+ "added": [
+  [
+   "field-survey/overview",
+   "queued",
+   null,
+   null
+  ],
+  [
+   "field-survey/guide",
+   "completed",
+   "2026-11-26T03:22:22.525Z",
+   "attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30"
+  ]
+ ],
+ "closed": {
+  "lifecycle": "closed",
+  "closed_at": "2026-11-26T03:23:25.850Z",
+  "charged_ms": 28906,
+  "limit_s": 360,
+  "phases": {
+   "guide": {
+    "state": "completed",
+    "attempt_id": "attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30",
+    "episodes": 1,
+    "selected_at": "2026-11-26T03:22:22.525Z",
+    "settled_at": "2026-11-26T03:22:37.554Z",
+    "frozen_bytes": 127,
+    "workers": [
+     "field-research"
+    ]
+   },
+   "overview": {
+    "state": "completed",
+    "attempt_id": "attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01",
+    "episodes": 1,
+    "selected_at": "2026-11-26T03:23:02.772Z",
+    "settled_at": "2026-11-26T03:23:16.871Z",
+    "frozen_bytes": 123,
+    "workers": [
+     "field-research"
+    ]
+   }
+  },
+  "distinct_attempts": 2
+ },
+ "reports": {
+  "guide": {
+   "report_bytes": 127,
+   "equals_text_computed_from_pinned_blob": true,
+   "custody_content_digest": "sha256:ea432d799d81c70bdfd15fac2756ea3a1f77fc5b58424635446b2b3fc5442852"
+  },
+  "overview": {
+   "report_bytes": 123,
+   "equals_text_computed_from_pinned_blob": true,
+   "custody_content_digest": "sha256:8cab148b8e495d23ad6c9f8bc371bb7bdc3bace594dc5aeeec271f008a14f032"
+  }
+ },
+ "todo": {
+  "open_lists_job": true,
+  "closed_lists_job": false,
+  "closed_detail_counts": true,
+  "closed_headline": [
+   "JOB field-survey   MANUAL \u00b7 CLOSED"
+  ]
+ },
+ "transcript": {
+  "sha256": "b27a6f6fa9e3b422cb673b21e15fb9423c1774a367997809388482aa0ef599bf",
+  "preflight_passed": true,
+  "image_removed": true,
+  "network_removed": true,
+  "retained_runtimes": false,
+  "tracebacks": 0
+ }
+}

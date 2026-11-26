@@ -1,0 +1,8 @@
+{
+  "job_id": "field-survey",
+  "scope": [
+    "v12/QUICKSTART.md",
+    "v12/README.md"
+  ],
+  "wall_seconds": 360
+}

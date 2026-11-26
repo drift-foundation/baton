@@ -1,0 +1,24 @@
+{
+ "job_id": "field-survey",
+ "lifecycle": "open",
+ "charged_ms": 0,
+ "ordinary_execution_jobs": 0,
+ "phases": {
+  "guide": {
+   "state": "planned",
+   "selected_at": null,
+   "settled_at": null,
+   "source_commit": "76b2f2b2359a1211139625f8f5062d980c5f68bf",
+   "work_origin": "generated",
+   "input_digest": "sha256:b985f10efe24"
+  },
+  "overview": {
+   "state": "planned",
+   "selected_at": null,
+   "settled_at": null,
+   "source_commit": "76b2f2b2359a1211139625f8f5062d980c5f68bf",
+   "work_origin": "generated",
+   "input_digest": "sha256:418b3dcb3c0d"
+  }
+ }
+}

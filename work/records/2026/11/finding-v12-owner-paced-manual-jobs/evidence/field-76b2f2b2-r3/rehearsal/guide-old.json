@@ -1,0 +1,8 @@
+{
+  "kind": "research",
+  "statement": "Measure v12/QUICKSTART.md",
+  "scope": [
+    "v12/QUICKSTART.md"
+  ],
+  "depends_on": []
+}

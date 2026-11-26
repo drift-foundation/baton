@@ -82,6 +82,32 @@ class Fixture(unittest.TestCase):
                                             "PATH": "/usr/bin:/bin"})
 
 
+class TheSpecCarriesEveryPackagedResource(unittest.TestCase):
+    """NEEDS NO BUNDLE, so it runs wherever this module runs.
+
+    W386295: a resource read from disk beside its module is invisible to
+    PyInstaller's import analysis. Every non-Python file under the package
+    must be named by the spec, by its own name or by a carried directory.
+    """
+
+    def test_every_non_python_file_under_the_package_is_named_by_the_spec(self):
+        spec = (_DISTRIBUTION / "packaging" / "stack.spec").read_text()
+        package = _DISTRIBUTION / "src" / "baton_v12"
+        carried_directories = [package / "contracts" / "schema"]
+        self.assertIn('"contracts", "schema"', spec)
+        missing = []
+        for path in sorted(package.rglob("*")):
+            if (not path.is_file() or path.suffix == ".py"
+                    or "__pycache__" in path.parts):
+                continue
+            if any(root in path.parents for root in carried_directories):
+                continue
+            if '"' + path.name + '"' not in spec:
+                missing.append(str(path.relative_to(package)))
+        self.assertEqual(missing, [], "package resources the bundle would not carry")
+        self.assertIn('(INSTRUCTIONS, os.path.join("baton_v12", "provider_policy"))', spec)
+
+
 class WhatTheBundleSaysItIs(Fixture):
     def test_it_answers_for_itself_with_nothing_from_this_checkout(self):
         done = self.ran("identity")
@@ -108,6 +134,17 @@ class WhatTheBundleSaysItIs(Fixture):
         for name, length in assets.items():
             self.assertGreater(length, 0, name)
             self.assertEqual(length, len(frozen.REQUIRED_ASSETS[name]), name)
+
+    def test_the_worker_instructions_travelled(self):
+        """W386295: `provider_policy.worker_instructions()` reads its file
+        beside its own module. The first field run's packaged
+        `pool compose-worker` refused because the bundle did not carry it."""
+        source = (_DISTRIBUTION / "src" / "baton_v12" / "provider_policy"
+                  / "worker_instructions.md")
+        carried = (self.distro / "_internal" / "baton_v12" / "provider_policy"
+                   / "worker_instructions.md")
+        self.assertTrue(carried.is_file(), str(carried))
+        self.assertEqual(carried.read_bytes(), source.read_bytes())
 
     def test_the_native_validator_is_ONE_OF_THE_FILES_THIS_BUNDLE_BINDS(self):
         """The defect a real build found. `rpds` has no pure-Python fallback,

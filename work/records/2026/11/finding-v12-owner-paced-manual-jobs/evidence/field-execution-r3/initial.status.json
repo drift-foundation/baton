@@ -1,0 +1,60 @@
+{
+  "schema": "baton.v12.job-status/10",
+  "observed_at": "2026-11-26T03:21:57.454Z",
+  "incarnation": "v12-stack-publisher",
+  "canonical": true,
+  "jobs": [
+    {
+      "job_id": "field-survey",
+      "submission_id": null,
+      "input_digest": null,
+      "policy_digest": null,
+      "test_scope": [],
+      "terminal_policy": "owner-close",
+      "execution_limits": null,
+      "stages": [
+        {
+          "stage_id": "field-survey/guide",
+          "job_id": "field-survey",
+          "kind": "research",
+          "state": "queued",
+          "work_id": "05297bfd-W174095723958573545860114872244961901962",
+          "profile_name": "claude-fresh-implementation",
+          "profile_digest": "sha256:84aa3bfd8c5b1cd2d0be699ff715de8c41cac9cce0cea70a4d12c85b4749e78f",
+          "episode": null,
+          "offer_id": null,
+          "attempt_id": null,
+          "episodes": [],
+          "corrections": 0,
+          "allocation": null,
+          "allocations": [],
+          "gates": [],
+          "receipts": [],
+          "deferral": null,
+          "runtime": null,
+          "exchange": null,
+          "artifacts": null,
+          "selected_at": null,
+          "settled_at": null,
+          "result": null,
+          "execution_job_id": "manual-phase-01a79315e3ab51800faabc519a0771011931d0a4975f503d39bdda9c187c7654",
+          "execution_cancellation": null
+        }
+      ],
+      "cancellation": null,
+      "created_at": "2026-11-26T03:21:52.644Z",
+      "mode": "MANUAL",
+      "lifecycle": "open",
+      "budget": {
+        "limit_seconds": 360,
+        "charged_milliseconds": 0,
+        "charged_seconds": 0,
+        "remaining_seconds": 360,
+        "expired": false,
+        "timing": "trusted",
+        "deadline_at": null
+      },
+      "closed_at": null
+    }
+  ]
+}

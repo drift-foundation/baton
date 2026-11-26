@@ -1,0 +1,677 @@
+Field evidence and retained instance: /var/tmp/baton-manual-field.lw8K8KWf
+Packaged source: 76b2f2b2359a1211139625f8f5062d980c5f68bf plus packaging-fix.patch 9ff28a6788fd50cbda1d7ed91a59fcc49e6219dcc98b18eca0a7b9f5b1091d15 = a24fe259fe53b95b589e4f13072c9af7f8e9e6da
+21 INFO: PyInstaller: 6.16.0, contrib hooks: 2026.7
+21 INFO: Python: 3.13.7
+22 INFO: Platform: Linux-6.17.0-41-generic-x86_64-with-glibc2.42
+22 INFO: Python environment: /home/sl/.local/state/baton-v12-venv
+23 INFO: Removing temporary files and cleaning cache in /home/sl/.cache/pyinstaller
+70 INFO: Module search paths (PYTHONPATH):
+['/var/tmp/baton-manual-field.lw8K8KWf/source/v12/python',
+ '/usr/lib/python313.zip',
+ '/usr/lib/python3.13',
+ '/usr/lib/python3.13/lib-dynload',
+ '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages',
+ '/var/tmp/baton-manual-field.lw8K8KWf/source/v12/python',
+ '/var/tmp/baton-manual-field.lw8K8KWf/source/v12/python',
+ '/var/tmp/baton-manual-field.lw8K8KWf/source/v12/python/src']
+132 INFO: Appending 'datas' from .spec
+133 INFO: checking Analysis
+133 INFO: Building Analysis because Analysis-00.toc is non existent
+133 INFO: Looking for Python shared library...
+137 INFO: Using Python shared library: /lib/x86_64-linux-gnu/libpython3.13.so.1.0
+138 INFO: Running Analysis Analysis-00.toc
+138 INFO: Target bytecode optimization level: 0
+138 INFO: Initializing module dependency graph...
+138 INFO: Initializing module graph hook caches...
+141 INFO: Analyzing modules for base_library.zip ...
+414 INFO: Processing standard module hook 'hook-encodings.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+1122 INFO: Processing standard module hook 'hook-pickle.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+1516 INFO: Processing standard module hook 'hook-heapq.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+1694 INFO: Caching module dependency graph...
+1708 INFO: Analyzing /var/tmp/baton-manual-field.lw8K8KWf/source/v12/python/tools/stack_command.py
+1742 INFO: Processing standard module hook 'hook-jsonschema.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/_pyinstaller_hooks_contrib/stdhooks'
+1786 INFO: Processing standard module hook 'hook-platform.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+1795 INFO: Processing standard module hook 'hook-_ctypes.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+1873 INFO: Processing pre-safe-import-module hook 'hook-typing_extensions.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+1873 INFO: SetuptoolsInfo: initializing cached setuptools info...
+2989 INFO: Setuptools: 'typing_extensions' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.typing_extensions'!
+2992 INFO: Processing standard module hook 'hook-setuptools.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+2997 INFO: Processing pre-safe-import-module hook 'hook-distutils.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+3016 INFO: Processing standard module hook 'hook-sysconfig.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+3019 INFO: Processing pre-safe-import-module hook 'hook-jaraco.functools.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+3019 INFO: Setuptools: 'jaraco.functools' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.jaraco.functools'!
+3024 INFO: Processing pre-safe-import-module hook 'hook-more_itertools.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+3024 INFO: Setuptools: 'more_itertools' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.more_itertools'!
+3084 INFO: Processing standard module hook 'hook-_osx_support.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+3091 INFO: Processing pre-safe-import-module hook 'hook-packaging.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+3237 INFO: Processing pre-safe-import-module hook 'hook-jaraco.text.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+3237 INFO: Setuptools: 'jaraco.text' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.jaraco.text'!
+3241 INFO: Processing standard module hook 'hook-setuptools._vendor.jaraco.text.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+3241 INFO: Processing pre-safe-import-module hook 'hook-importlib_resources.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+3241 INFO: Processing pre-safe-import-module hook 'hook-jaraco.context.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+3241 INFO: Setuptools: 'jaraco.context' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.jaraco.context'!
+3513 INFO: Processing pre-safe-import-module hook 'hook-tomli.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+3513 INFO: Setuptools: 'tomli' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.tomli'!
+3726 INFO: Processing pre-safe-import-module hook 'hook-wheel.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/pre_safe_import_module'
+3726 INFO: Setuptools: 'wheel' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.wheel'!
+3799 INFO: Processing standard module hook 'hook-jsonschema_specifications.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/_pyinstaller_hooks_contrib/stdhooks'
+4009 INFO: Processing standard module hook 'hook-sqlite3.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+5460 INFO: Analyzing hidden import 'tools.dogfood_operator'
+5518 INFO: Analyzing hidden import 'tools.worker_image'
+5523 INFO: Processing module hooks (post-graph stage)...
+5782 INFO: Processing standard module hook 'hook-multiprocessing.util.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+5828 INFO: Processing standard module hook 'hook-xml.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks'
+5966 INFO: Performing binary vs. data reclassification (35 entries)
+5968 INFO: Looking for ctypes DLLs
+5995 INFO: Analyzing run-time hooks ...
+5996 INFO: Including run-time hook 'pyi_rth_setuptools.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/rthooks'
+5997 INFO: Including run-time hook 'pyi_rth_pkgutil.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/rthooks'
+5998 INFO: Including run-time hook 'pyi_rth_multiprocessing.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/rthooks'
+5998 INFO: Including run-time hook 'pyi_rth_inspect.py' from '/home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/hooks/rthooks'
+6003 INFO: Creating base_library.zip...
+6011 INFO: Looking for dynamic libraries
+6077 INFO: Warnings written to /var/tmp/baton-manual-field.lw8K8KWf/build/stack/warn-stack.txt
+6087 INFO: Graph cross-reference written to /var/tmp/baton-manual-field.lw8K8KWf/build/stack/xref-stack.html
+6094 INFO: checking PYZ
+6094 INFO: Building PYZ because PYZ-00.toc is non existent
+6094 INFO: Building PYZ (ZlibArchive) /var/tmp/baton-manual-field.lw8K8KWf/build/stack/PYZ-00.pyz
+6428 INFO: Building PYZ (ZlibArchive) /var/tmp/baton-manual-field.lw8K8KWf/build/stack/PYZ-00.pyz completed successfully.
+6434 INFO: checking PKG
+6434 INFO: Building PKG because PKG-00.toc is non existent
+6434 INFO: Building PKG (CArchive) baton-v12-stack.pkg
+6441 INFO: Building PKG (CArchive) baton-v12-stack.pkg completed successfully.
+6442 INFO: Bootloader /home/sl/.local/state/baton-v12-venv/lib/python3.13/site-packages/PyInstaller/bootloader/Linux-64bit-intel/run
+6442 INFO: checking EXE
+6442 INFO: Building EXE because EXE-00.toc is non existent
+6442 INFO: Building EXE from EXE-00.toc
+6442 INFO: Copying bootloader EXE to /var/tmp/baton-manual-field.lw8K8KWf/build/stack/baton-v12-stack
+6442 INFO: Appending PKG archive to custom ELF section in EXE
+6454 INFO: Building EXE from EXE-00.toc completed successfully.
+6454 INFO: checking COLLECT
+6454 INFO: Building COLLECT because COLLECT-00.toc is non existent
+6454 INFO: Building COLLECT COLLECT-00.toc
+6462 INFO: Building COLLECT COLLECT-00.toc completed successfully.
+6462 INFO: Build complete! The results are available in: /var/tmp/baton-manual-field.lw8K8KWf/bundle
++ /home/sl/.local/state/baton-v12-venv/bin/python -B -m tools.bootstrap --inputs /var/tmp/baton-manual-field.lw8K8KWf/install.json --destination /var/tmp/baton-manual-field.lw8K8KWf/instance --distro /var/tmp/baton-manual-field.lw8K8KWf/bundle/distro --repository-source /var/tmp/baton-manual-field.lw8K8KWf/source
+repositories  2 prepared under /var/tmp/baton-manual-field.lw8K8KWf/instance/repo: target, workspace
+authority 05297bfd...    generated for this instance
+job   none; no Work, grant or placeholder was created
+configuration /var/tmp/baton-manual-field.lw8K8KWf/instance/deployment.json
+capacity      {"job_affinity": {}, "jobs": 0, "note": "this instance binds no Job and configures no execution capacity; it serves a real idle scheduler and publisher over empty stores, and a worker, a Work, a declared base, a canonical target and a producer are supplied together when a Job is created", "schema": "baton.v12.stage-execution-deployment/2", "targets": [], "workers_by_role": {"implementation": [], "integration": [], "review": []}}
+no Job was submitted and nothing was executed
+instance      /var/tmp/baton-manual-field.lw8K8KWf/instance/instance.json
+install       /var/tmp/baton-manual-field.lw8K8KWf/instance/install-inputs.json
+runtime       83 files, digest c547e7fdf2a5e42a...
+copied        30 directories, 83 files, 0 symlinks, each owned
+stores        /var/tmp/baton-manual-field.lw8K8KWf/instance/db
+repository    /var/tmp/baton-manual-field.lw8K8KWf/instance/repo
+justfile      /var/tmp/baton-manual-field.lw8K8KWf/instance/justfile
+
+The deployment is operated from the destination, and needs nothing else:
+
+    cd /var/tmp/baton-manual-field.lw8K8KWf/instance && just status
+    just --justfile /var/tmp/baton-manual-field.lw8K8KWf/instance/justfile start        # from anywhere
+
+or the command directly, which is the same program:
+
+    /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack status --instance /var/tmp/baton-manual-field.lw8K8KWf/instance/instance.json
++ /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack identity
++ /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack pool compose-worker --deployment /var/tmp/baton-manual-field.lw8K8KWf/instance/deployment.json --worker-id field-research --role research --participant field.research --image-reference sha256:71cb236a6dff9315353635448f1e030a464f28db294d0f821eff30f9c568b68e --image-digest sha256:71cb236a6dff9315353635448f1e030a464f28db294d0f821eff30f9c568b68e --cli-build 2.1.247 --provider claude --requested-model field-fixture --reported-identity field-fixture --network manual-field-lw8k8kwf --credential-sources /var/tmp/baton-manual-field.lw8K8KWf/registry.json --credential claude=operator-file:fixture --workspace-group 1000 --task-document /var/tmp/baton-manual-field.lw8K8KWf/task.json --record work/records/2026/11/finding-v12-owner-paced-manual-jobs --checkout /var/tmp/baton-manual-field.lw8K8KWf/records --verifier-layout /var/tmp/baton-manual-field.lw8K8KWf/source/v12/worker/verifier-layout-marker.json --into /var/tmp/baton-manual-field.lw8K8KWf/preflight-worker.json
+worker    field-research research
+work      05297bfd-W1
+image     sha256:71cb236a6dff9315353635448f1e030a464f28db294d0f821eff30f9c568b68e
+layout    trusted 1423c3aa9e41d7a8719297435798252133af88a55a6031491238ce0e412bc472
+profile   claude-fresh-implementation sha256:e8bc01e89d01b229d21d1ca5bcb8cf0183c14c1bcbd4a22e187161e5fef5a8e0
+template  baton.v12.manual-research/1 declaring findings
+task      /var/tmp/baton-manual-field.lw8K8KWf/task.json (manual-field)
+manifest  sha256:c1422e3dd4909cdb0a0cec6baa327bfc80419e27f6e2f30b51c3ea9fa1e8f240
+written   /var/tmp/baton-manual-field.lw8K8KWf/preflight-worker.json
+no Job was prepared, nothing was submitted, no Work was created or touched, and the instance's configuration was not changed
+PREFLIGHT PASSED: packaged compose-worker composed the research worker; no Docker object exists yet
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            BuildKit is currently disabled; enable it by removing the DOCKER_BUILDKIT=0
+            environment-variable.
+
+Sending build context to Docker daemon  486.4kB
+Step 1/9 : FROM 1105e4639a109741f952dc364a497cd3fa5155a1dcc5064ddd6fc1a96c0fc60d
+ ---> 1105e4639a10
+Step 2/9 : USER 0:0
+ ---> Using cache
+ ---> 081f9fa11b34
+Step 3/9 : RUN rm -f /usr/local/bin/claude
+ ---> Using cache
+ ---> 3e99d5599bc1
+Step 4/9 : COPY fixture-claude /usr/local/bin/claude
+ ---> Using cache
+ ---> 7e89c3ea1c12
+Step 5/9 : RUN chmod 0755 /usr/local/bin/claude
+ ---> Using cache
+ ---> c5f8c2237cf2
+Step 6/9 : COPY claude_agent.py /opt/baton/claude_agent.py
+ ---> Using cache
+ ---> ebff1f63ef73
+Step 7/9 : COPY provider_policy /opt/baton/provider_policy
+ ---> Using cache
+ ---> 985dd06ef8f9
+Step 8/9 : LABEL org.opencontainers.image.revision="76b2f2b2359a1211139625f8f5062d980c5f68bf" baton.field="lw8k8kwf"
+ ---> Running in bc5269e86789
+ ---> Removed intermediate container bc5269e86789
+ ---> 8bd8fa774dd5
+Step 9/9 : USER 65532:65532
+ ---> Running in 942b704b9ac0
+ ---> Removed intermediate container 942b704b9ac0
+ ---> 13af678e1599
+Successfully built 13af678e1599
+0e01dd0324c9586ac2ddc976a3f80f75841c2b12de4709b1e00af00b5d806b1d
++ /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack pool compose-worker --deployment /var/tmp/baton-manual-field.lw8K8KWf/instance/deployment.json --worker-id field-research --role research --participant field.research --image-reference sha256:13af678e159936fabfb789f9733eea1cc1a48380998d384093680bac57360408 --image-digest sha256:13af678e159936fabfb789f9733eea1cc1a48380998d384093680bac57360408 --cli-build 2.1.247 --provider claude --requested-model field-fixture --reported-identity field-fixture --network manual-field-lw8k8kwf --credential-sources /var/tmp/baton-manual-field.lw8K8KWf/registry.json --credential claude=operator-file:fixture --workspace-group 1000 --task-document /var/tmp/baton-manual-field.lw8K8KWf/task.json --record work/records/2026/11/finding-v12-owner-paced-manual-jobs --checkout /var/tmp/baton-manual-field.lw8K8KWf/records --verifier-layout /var/tmp/baton-manual-field.lw8K8KWf/source/v12/worker/verifier-layout-marker.json --into /var/tmp/baton-manual-field.lw8K8KWf/worker.json
+worker    field-research research
+work      05297bfd-W1
+image     sha256:13af678e159936fabfb789f9733eea1cc1a48380998d384093680bac57360408
+layout    trusted 1423c3aa9e41d7a8719297435798252133af88a55a6031491238ce0e412bc472
+profile   claude-fresh-implementation sha256:84aa3bfd8c5b1cd2d0be699ff715de8c41cac9cce0cea70a4d12c85b4749e78f
+template  baton.v12.manual-research/1 declaring findings
+task      /var/tmp/baton-manual-field.lw8K8KWf/task.json (manual-field)
+manifest  sha256:a9a8bac5c8325e164af8bf11b5f69059311b00992450fac2c493fefc3fb4663a
+written   /var/tmp/baton-manual-field.lw8K8KWf/worker.json
+no Job was prepared, nothing was submitted, no Work was created or touched, and the instance's configuration was not changed
++ /home/sl/.local/state/baton-v12-venv/bin/python -B -m tools.bootstrap --inputs /var/tmp/baton-manual-field.lw8K8KWf/configured.json --repository-source /var/tmp/baton-manual-field.lw8K8KWf/source
+prerequisite  workspace_storage /var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces
+prerequisite  launch_home /var/tmp/baton-manual-field.lw8K8KWf/instance/state/launch
+prerequisite  credential_home /var/tmp/baton-manual-field.lw8K8KWf/instance/state/credentials
+repositories  1 worker source(s) prepared from the instance's own target, 1 proved: source-field-research
+authority 05297bfd...    reused from this root's record
+route research       -> field.research
+job   none; no Work, grant or placeholder was created
+configuration /var/tmp/baton-manual-field.lw8K8KWf/instance/deployment.json
+capacity      {"job_affinity": {}, "jobs": 0, "note": "this instance configures a pool and binds no Job; a Work, a declared base and a canonical target are supplied when a Job is created", "schema": "baton.v12.stage-execution-deployment/2", "targets": [], "workers_by_role": {"implementation": [], "integration": [], "review": []}}
+no Job was submitted and nothing was executed
+
+Now export these and run `just start` from v12/:
+
+export BATON_V12_JOB_STORE="/var/tmp/baton-manual-field.lw8K8KWf/instance/db/jobs.sqlite3"
+export BATON_V12_CONTROL_STORE="/var/tmp/baton-manual-field.lw8K8KWf/instance/db/control.sqlite3"
+export BATON_V12_AUTHORITY_UUID="05297bfd3f1e4900b85735e1785456f9"
+export BATON_V12_STAGE_EXECUTION_CONFIG="/var/tmp/baton-manual-field.lw8K8KWf/instance/deployment.json"
+install       /var/tmp/baton-manual-field.lw8K8KWf/instance/install-inputs.json (kept in step with the configuration)
++ /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack start --instance /var/tmp/baton-manual-field.lw8K8KWf/instance/instance.json
+started: manager pid 3294481
+started: publisher pid 3294482
+ready: every manager this start ran acknowledged that its deployment composed, and the publisher wrote a valid, freshly observed snapshot
+state root: /var/tmp/baton-manual-field.lw8K8KWf/instance/state
+no Job was submitted; an empty configured stack is a valid idle state
++ /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack manager create --instance /var/tmp/baton-manual-field.lw8K8KWf/instance/instance.json --mode manual --document /var/tmp/baton-manual-field.lw8K8KWf/job.json
+{"action": "create", "job_id": "field-survey", "operation_id": "manual.create:d000f824c60cab52caca7ea40dc799c3bb34dde296828631d3b3f6909b62dc4d", "recorded_at": "2026-11-26T03:21:52.644Z"}
++ /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack manager add-phase --instance /var/tmp/baton-manual-field.lw8K8KWf/instance/instance.json --job field-survey --phase guide --document /var/tmp/baton-manual-field.lw8K8KWf/guide.json
+{"action": "add-phase", "execution_job_id": "manual-phase-01a79315e3ab51800faabc519a0771011931d0a4975f503d39bdda9c187c7654", "job_id": "field-survey", "operation_id": "manual.add-phase:88b2c49875b26259de4fc6b7558c4c6120ace2f0afaedb106915676d6ded2edd", "phase": "guide", "recorded_at": "2026-11-26T03:21:52.946Z"}
++ /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack monitor --instance /var/tmp/baton-manual-field.lw8K8KWf/instance/instance.json --todo --ticks 1
+observed at 2026-11-26T03:21:57.454Z   (1s old, read 0s ago)
+
+JOB field-survey   submission unknown   MANUAL OPEN   AWAITING ASSIGNMENT
+  Job age 4s
+  0 admitted attempt(s) in nonterminal phases; Job wall budget 0/360s charged
+  research         duration unknown    activity unknown  field-survey/guide
+      timeout unknown
+      ready; admission unknown
+      0 admitted attempt(s)
+      Ready for explicit start
+      operation unknown
++ /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack view --status /var/tmp/baton-manual-field.lw8K8KWf/instance/state/status.json --job field-survey
+observed at 2026-11-26T03:21:57.454Z   (2s old, read 0s ago)
+
+JOB field-survey   MANUAL OPEN   AWAITING ASSIGNMENT
+  submission   unknown
+  input        unknown
+  policy       unknown
+  terminal     owner-close
+  Job age 4s
+  0 admitted attempt(s) in nonterminal phases; Job wall budget 0/360s charged
+
+  STAGE field-survey/guide  [ready; admission unknown]
+    Ready for explicit start
+    work         05297bfd-W174095723958573545860114872244961901962
+    role         research
+    dependencies none published
+    operation    unknown
+                 duration unknown
+    limit        timeout unknown
+    activity     unknown
+    corrections  0
+    results      unavailable (no frozen output in this snapshot)
+Type [start guide] to continue, or Ctrl-C to stop: + /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack manager start-phase --instance /var/tmp/baton-manual-field.lw8K8KWf/instance/instance.json --job field-survey --phase guide
+{"action": "start-phase", "execution_job_id": "manual-phase-01a79315e3ab51800faabc519a0771011931d0a4975f503d39bdda9c187c7654", "job_id": "field-survey", "operation_id": "manual.start-phase:88b2c49875b26259de4fc6b7558c4c6120ace2f0afaedb106915676d6ded2edd", "phase": "guide", "recorded_at": "2026-11-26T03:22:22.525Z"}
++ cat /var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/custody/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/findings/report.txt
+Deterministic research: v12/QUICKSTART.md, 26309 bytes, sha256 c5270a6749fb18a158e35d6900c5f9b42c3d6fa879788b4c090d891b2f22b30d
+{"artifact_id":"attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30:findings","attempt_id":"attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30","bytes":127,"content_digest":"sha256:ea432d799d81c70bdfd15fac2756ea3a1f77fc5b58424635446b2b3fc5442852","locator":"file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/custody/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/findings"}
++ /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack monitor --instance /var/tmp/baton-manual-field.lw8K8KWf/instance/instance.json --todo --ticks 1
+observed at 2026-11-26T03:22:39.618Z   (1s old, read 0s ago)
+
+JOB field-survey   submission unknown   MANUAL OPEN   AWAITING ASSIGNMENT
+  The planned phase finished.
+  Job age 46s
+  0 admitted attempt(s) in nonterminal phases; Job wall budget 14/360s charged
+  research         duration unknown    activity unknown  field-survey/guide
+      timeout not applicable (stage ended)
+      done; admission admitted
+      1 admitted attempt(s)
+      attempt 1 attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+      result recorded: findings
+      offered
+      claimed
+      reserved on field-research
+      runtime recorded: 29a3c60f5b685bed57dd32598ab676e68585fbe24ba4f6e79402a42ed1a7dac8
+      runtime recorded: destroyed
+      Phase COMPLETED
+      Retained result for attempt attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+      Retained findings: file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/custody/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/findings
+      operation unknown
+      Requested: field-fixture; mapped identity: field-fixture; Reported contributors: field-fixture; Requested model reported: yes; CLI build selected: 2.1.247; CLI build evidenced: 2.1.247; attribution: matched; Native worker role: research; context label: sha256:b61b06d36fed46b350d5f96c65d137602903b0ebfac174cb971dca496e7ca4a6; worker instructions: sha256:369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b; label reported: yes; Provider home: retained (fresh invocation); worker: field-research; holder: attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
++ /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack view --status /var/tmp/baton-manual-field.lw8K8KWf/instance/state/status.json --job field-survey
+observed at 2026-11-26T03:22:39.618Z   (1s old, read 0s ago)
+
+JOB field-survey   MANUAL OPEN   AWAITING ASSIGNMENT
+  The planned phase finished.
+  submission   unknown
+  input        unknown
+  policy       unknown
+  terminal     owner-close
+  Job age 46s
+  0 admitted attempt(s) in nonterminal phases; Job wall budget 14/360s charged
+
+  STAGE field-survey/guide  [done; admission admitted]
+    attempt 1 attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+    result recorded: findings
+    offered
+    claimed
+    reserved on field-research
+    runtime recorded: 29a3c60f5b685bed57dd32598ab676e68585fbe24ba4f6e79402a42ed1a7dac8
+    runtime recorded: destroyed
+    Phase COMPLETED
+    Retained result for attempt attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+    Retained findings: file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/custody/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/findings
+    work         05297bfd-W174095723958573545860114872244961901962
+    role         research
+    dependencies none published
+    operation    unknown
+                 duration unknown
+    episode      1
+    offer        offer-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+    assigned to  field.research
+    assigned work {'authority_uuid': '05297bfd3f1e4900b85735e1785456f9', 'work_id': '05297bfd-W174095723958573545860114872244961901962'}
+    assigned gen 1
+    reserved worker field-research
+    reserved as  field.research
+    reservation  attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+    reservation state released
+    lane         review
+    pool generation 1
+    selection    initial
+    limit        timeout not applicable (stage ended)
+    activity     unknown
+    corrections  0
+    results
+      findings                    127  file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/custody/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/findings
+Type [restart manager] to continue, or Ctrl-C to stop: + /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack stop --instance /var/tmp/baton-manual-field.lw8K8KWf/instance/instance.json
+stopped: manager pid 3294481
+stopped: publisher pid 3294482
+runtime   0 admitted attempt(s) in nonterminal phases; 1 recorded runtime(s), observed 8.1s ago
+stores and evidence retained under the configured paths
++ /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack start --instance /var/tmp/baton-manual-field.lw8K8KWf/instance/instance.json
+started: manager pid 3295240
+started: publisher pid 3295241
+ready: every manager this start ran acknowledged that its deployment composed, and the publisher wrote a valid, freshly observed snapshot
+state root: /var/tmp/baton-manual-field.lw8K8KWf/instance/state
+no Job was submitted; an empty configured stack is a valid idle state
++ cat /var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/custody/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/findings/report.txt
+Deterministic research: v12/QUICKSTART.md, 26309 bytes, sha256 c5270a6749fb18a158e35d6900c5f9b42c3d6fa879788b4c090d891b2f22b30d
+{"artifact_id":"attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30:findings","attempt_id":"attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30","bytes":127,"content_digest":"sha256:ea432d799d81c70bdfd15fac2756ea3a1f77fc5b58424635446b2b3fc5442852","locator":"file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/custody/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/findings"}
++ /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack monitor --instance /var/tmp/baton-manual-field.lw8K8KWf/instance/instance.json --todo --ticks 1
+observed at 2026-11-26T03:22:51.244Z   (0s old, read 0s ago)
+
+JOB field-survey   submission unknown   MANUAL OPEN   AWAITING ASSIGNMENT
+  The planned phase finished.
+  Job age 58s
+  0 admitted attempt(s) in nonterminal phases; Job wall budget 14/360s charged
+  research         duration unknown    activity unknown  field-survey/guide
+      timeout not applicable (stage ended)
+      done; admission admitted
+      1 admitted attempt(s)
+      attempt 1 attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+      result recorded: findings
+      offered
+      claimed
+      reserved on field-research
+      runtime recorded: 29a3c60f5b685bed57dd32598ab676e68585fbe24ba4f6e79402a42ed1a7dac8
+      runtime recorded: destroyed
+      Phase COMPLETED
+      Retained result for attempt attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+      Retained findings: file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/custody/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/findings
+      operation unknown
+      Requested: field-fixture; mapped identity: field-fixture; Reported contributors: field-fixture; Requested model reported: yes; CLI build selected: 2.1.247; CLI build evidenced: 2.1.247; attribution: matched; Native worker role: research; context label: sha256:b61b06d36fed46b350d5f96c65d137602903b0ebfac174cb971dca496e7ca4a6; worker instructions: sha256:369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b; label reported: yes; Provider home: retained (fresh invocation); worker: field-research; holder: attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
++ /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack view --status /var/tmp/baton-manual-field.lw8K8KWf/instance/state/status.json --job field-survey
+observed at 2026-11-26T03:22:51.244Z   (0s old, read 0s ago)
+
+JOB field-survey   MANUAL OPEN   AWAITING ASSIGNMENT
+  The planned phase finished.
+  submission   unknown
+  input        unknown
+  policy       unknown
+  terminal     owner-close
+  Job age 58s
+  0 admitted attempt(s) in nonterminal phases; Job wall budget 14/360s charged
+
+  STAGE field-survey/guide  [done; admission admitted]
+    attempt 1 attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+    result recorded: findings
+    offered
+    claimed
+    reserved on field-research
+    runtime recorded: 29a3c60f5b685bed57dd32598ab676e68585fbe24ba4f6e79402a42ed1a7dac8
+    runtime recorded: destroyed
+    Phase COMPLETED
+    Retained result for attempt attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+    Retained findings: file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/custody/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/findings
+    work         05297bfd-W174095723958573545860114872244961901962
+    role         research
+    dependencies none published
+    operation    unknown
+                 duration unknown
+    episode      1
+    offer        offer-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+    assigned to  field.research
+    assigned work {'authority_uuid': '05297bfd3f1e4900b85735e1785456f9', 'work_id': '05297bfd-W174095723958573545860114872244961901962'}
+    assigned gen 1
+    reserved worker field-research
+    reserved as  field.research
+    reservation  attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+    reservation state released
+    lane         review
+    pool generation 1
+    selection    initial
+    limit        timeout not applicable (stage ended)
+    activity     unknown
+    corrections  0
+    results
+      findings                    127  file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/custody/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/findings
+Type [add overview] to continue, or Ctrl-C to stop: + /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack manager add-phase --instance /var/tmp/baton-manual-field.lw8K8KWf/instance/instance.json --job field-survey --phase overview --document /var/tmp/baton-manual-field.lw8K8KWf/overview.json
+{"action": "add-phase", "execution_job_id": "manual-phase-238a99af2ae03aeb1e73cfa3506a475c4cf1cb9b383e7fe91955f3b1fe946e63", "job_id": "field-survey", "operation_id": "manual.add-phase:fd4d9a83ad22b3e78cec486e552b7e3bf87deb42094d860ba4d04c11bc4b594f", "phase": "overview", "recorded_at": "2026-11-26T03:22:55.804Z"}
++ /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack view --status /var/tmp/baton-manual-field.lw8K8KWf/instance/state/status.json --job field-survey
+observed at 2026-11-26T03:22:56.529Z   (1s old, read 0s ago)
+
+JOB field-survey   MANUAL OPEN   AWAITING ASSIGNMENT
+  submission   unknown
+  input        unknown
+  policy       unknown
+  terminal     owner-close
+  Job age 1m03s
+  0 admitted attempt(s) in nonterminal phases; Job wall budget 14/360s charged
+
+  STAGE field-survey/overview  [ready; admission unknown]
+    Ready for explicit start
+    work         05297bfd-W64837883627975295942960296140620258353
+    role         research
+    dependencies none published
+    operation    unknown
+                 duration unknown
+    limit        timeout unknown
+    activity     unknown
+    corrections  0
+    results      unavailable (no frozen output in this snapshot)
+
+  STAGE field-survey/guide  [done; admission admitted]
+    attempt 1 attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+    result recorded: findings
+    offered
+    claimed
+    reserved on field-research
+    runtime recorded: 29a3c60f5b685bed57dd32598ab676e68585fbe24ba4f6e79402a42ed1a7dac8
+    runtime recorded: destroyed
+    Phase COMPLETED
+    Retained result for attempt attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+    Retained findings: file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/custody/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/findings
+    work         05297bfd-W174095723958573545860114872244961901962
+    role         research
+    dependencies none published
+    operation    unknown
+                 duration unknown
+    episode      1
+    offer        offer-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+    assigned to  field.research
+    assigned work {'authority_uuid': '05297bfd3f1e4900b85735e1785456f9', 'work_id': '05297bfd-W174095723958573545860114872244961901962'}
+    assigned gen 1
+    reserved worker field-research
+    reserved as  field.research
+    reservation  attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+    reservation state released
+    lane         review
+    pool generation 1
+    selection    initial
+    limit        timeout not applicable (stage ended)
+    activity     unknown
+    corrections  0
+    results
+      findings                    127  file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/custody/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/findings
+Type [start overview] to continue, or Ctrl-C to stop: + /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack manager start-phase --instance /var/tmp/baton-manual-field.lw8K8KWf/instance/instance.json --job field-survey --phase overview
+{"action": "start-phase", "execution_job_id": "manual-phase-238a99af2ae03aeb1e73cfa3506a475c4cf1cb9b383e7fe91955f3b1fe946e63", "job_id": "field-survey", "operation_id": "manual.start-phase:fd4d9a83ad22b3e78cec486e552b7e3bf87deb42094d860ba4d04c11bc4b594f", "phase": "overview", "recorded_at": "2026-11-26T03:23:02.772Z"}
++ cat /var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/custody/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/findings/report.txt
+Deterministic research: v12/README.md, 20934 bytes, sha256 d5e34558d0587c8a134ea6295404f8fcd775d6ebc50afa24e885d51aecb8e09a
+{"artifact_id":"attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01:findings","attempt_id":"attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01","bytes":123,"content_digest":"sha256:8cab148b8e495d23ad6c9f8bc371bb7bdc3bace594dc5aeeec271f008a14f032","locator":"file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/custody/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/findings"}
++ /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack monitor --instance /var/tmp/baton-manual-field.lw8K8KWf/instance/instance.json --todo --ticks 1
+observed at 2026-11-26T03:23:17.686Z   (1s old, read 0s ago)
+
+JOB field-survey   submission unknown   MANUAL OPEN   AWAITING ASSIGNMENT
+  All 2 planned phases finished.
+  Job age 1m25s
+  0 admitted attempt(s) in nonterminal phases; Job wall budget 28/360s charged
+  research         duration unknown    activity unknown  field-survey/guide
+      timeout not applicable (stage ended)
+      done; admission admitted
+      1 admitted attempt(s)
+      attempt 1 attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+      result recorded: findings
+      offered
+      claimed
+      reserved on field-research
+      runtime recorded: 29a3c60f5b685bed57dd32598ab676e68585fbe24ba4f6e79402a42ed1a7dac8
+      runtime recorded: destroyed
+      Phase COMPLETED
+      Retained result for attempt attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+      Retained findings: file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/custody/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/findings
+      operation unknown
+      Requested: field-fixture; mapped identity: field-fixture; Reported contributors: field-fixture; Requested model reported: yes; CLI build selected: 2.1.247; CLI build evidenced: 2.1.247; attribution: matched; Native worker role: research; context label: sha256:b61b06d36fed46b350d5f96c65d137602903b0ebfac174cb971dca496e7ca4a6; worker instructions: sha256:369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b; label reported: yes; Provider home: retained (fresh invocation); worker: field-research; holder: attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+  research         duration unknown    activity unknown  field-survey/overview
+      timeout not applicable (stage ended)
+      done; admission admitted
+      1 admitted attempt(s)
+      attempt 1 attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01
+      result recorded: findings
+      offered
+      claimed
+      reserved on field-research
+      runtime recorded: 3ea78ad9ffca3cc39c8c0e4d03fc42fffa4dcb44e6455b5213097734c46a1e5e
+      runtime recorded: destroyed
+      Phase COMPLETED
+      Retained result for attempt attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01
+      Retained findings: file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/custody/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/findings
+      operation unknown
+      Requested: field-fixture; mapped identity: field-fixture; Reported contributors: field-fixture; Requested model reported: yes; CLI build selected: 2.1.247; CLI build evidenced: 2.1.247; attribution: matched; Native worker role: research; context label: sha256:b61b06d36fed46b350d5f96c65d137602903b0ebfac174cb971dca496e7ca4a6; worker instructions: sha256:369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b; label reported: yes; Provider home: retained (fresh invocation); worker: field-research; holder: attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01
+JOB field-survey   submission unknown   MANUAL OPEN   AWAITING ASSIGNMENT
+  research         duration unknown    activity unknown  field-survey/guide
+  research         duration unknown    activity unknown  field-survey/overview
++ /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack view --status /var/tmp/baton-manual-field.lw8K8KWf/instance/state/status.json --job field-survey
+observed at 2026-11-26T03:23:17.686Z   (1s old, read 0s ago)
+
+JOB field-survey   MANUAL OPEN   AWAITING ASSIGNMENT
+  All 2 planned phases finished.
+  submission   unknown
+  input        unknown
+  policy       unknown
+  terminal     owner-close
+  Job age 1m25s
+  0 admitted attempt(s) in nonterminal phases; Job wall budget 28/360s charged
+
+  STAGE field-survey/guide  [done; admission admitted]
+    attempt 1 attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+    result recorded: findings
+    offered
+    claimed
+    reserved on field-research
+    runtime recorded: 29a3c60f5b685bed57dd32598ab676e68585fbe24ba4f6e79402a42ed1a7dac8
+    runtime recorded: destroyed
+    Phase COMPLETED
+    Retained result for attempt attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+    Retained findings: file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/custody/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/findings
+    work         05297bfd-W174095723958573545860114872244961901962
+    role         research
+    dependencies none published
+    operation    unknown
+                 duration unknown
+    episode      1
+    offer        offer-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+    assigned to  field.research
+    assigned work {'authority_uuid': '05297bfd3f1e4900b85735e1785456f9', 'work_id': '05297bfd-W174095723958573545860114872244961901962'}
+    assigned gen 1
+    reserved worker field-research
+    reserved as  field.research
+    reservation  attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+    reservation state released
+    lane         review
+    pool generation 1
+    selection    initial
+    limit        timeout not applicable (stage ended)
+    activity     unknown
+    corrections  0
+    results
+      findings                    127  file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/custody/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/findings
+
+  STAGE field-survey/overview  [done; admission admitted]
+    attempt 1 attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01
+    result recorded: findings
+    offered
+    claimed
+    reserved on field-research
+    runtime recorded: 3ea78ad9ffca3cc39c8c0e4d03fc42fffa4dcb44e6455b5213097734c46a1e5e
+    runtime recorded: destroyed
+    Phase COMPLETED
+    Retained result for attempt attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01
+    Retained findings: file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/custody/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/findings
+    work         05297bfd-W64837883627975295942960296140620258353
+    role         research
+    dependencies none published
+    operation    unknown
+                 duration unknown
+    episode      1
+    offer        offer-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01
+    assigned to  field.research
+    assigned work {'authority_uuid': '05297bfd3f1e4900b85735e1785456f9', 'work_id': '05297bfd-W64837883627975295942960296140620258353'}
+    assigned gen 1
+    reserved worker field-research
+    reserved as  field.research
+    reservation  attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01
+    reservation state released
+    lane         review
+    pool generation 1
+    selection    initial
+    limit        timeout not applicable (stage ended)
+    activity     unknown
+    corrections  0
+    results
+      findings                    123  file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/custody/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/findings
+Type [close field-survey] to continue, or Ctrl-C to stop: + /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack manager close-job --instance /var/tmp/baton-manual-field.lw8K8KWf/instance/instance.json --job field-survey
+{"action": "close-job", "job_id": "field-survey", "operation_id": "manual.close-job:d000f824c60cab52caca7ea40dc799c3bb34dde296828631d3b3f6909b62dc4d", "recorded_at": "2026-11-26T03:23:25.850Z"}
++ /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack monitor --instance /var/tmp/baton-manual-field.lw8K8KWf/instance/instance.json --todo --ticks 1
+observed at 2026-11-26T03:23:28.259Z   (1s old, read 0s ago)
+  No open MANUAL Jobs in this snapshot.
++ /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack view --status /var/tmp/baton-manual-field.lw8K8KWf/instance/state/status.json --job field-survey
+observed at 2026-11-26T03:23:28.259Z   (2s old, read 0s ago)
+
+JOB field-survey   MANUAL · CLOSED
+  2 finished · 0 failed · 0 never selected
+  submission   unknown
+  input        unknown
+  policy       unknown
+  terminal     owner-close
+  Job age 1m35s
+  0 admitted attempt(s) in nonterminal phases; Job wall budget 28/360s charged; closed at 2026-11-26T03:23:25.850Z
+
+  STAGE field-survey/guide  [done; admission admitted]
+    attempt 1 attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+    result recorded: findings
+    offered
+    claimed
+    reserved on field-research
+    runtime recorded: 29a3c60f5b685bed57dd32598ab676e68585fbe24ba4f6e79402a42ed1a7dac8
+    runtime recorded: destroyed
+    Phase COMPLETED
+    Retained result for attempt attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+    Retained findings: file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/custody/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/findings
+    work         05297bfd-W174095723958573545860114872244961901962
+    role         research
+    dependencies none published
+    operation    unknown
+                 duration unknown
+    episode      1
+    offer        offer-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+    assigned to  field.research
+    assigned work {'authority_uuid': '05297bfd3f1e4900b85735e1785456f9', 'work_id': '05297bfd-W174095723958573545860114872244961901962'}
+    assigned gen 1
+    reserved worker field-research
+    reserved as  field.research
+    reservation  attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30
+    reservation state released
+    lane         review
+    pool generation 1
+    selection    initial
+    limit        timeout not applicable (stage ended)
+    activity     unknown
+    corrections  0
+    results
+      findings                    127  file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/custody/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/findings
+
+  STAGE field-survey/overview  [done; admission admitted]
+    attempt 1 attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01
+    result recorded: findings
+    offered
+    claimed
+    reserved on field-research
+    runtime recorded: 3ea78ad9ffca3cc39c8c0e4d03fc42fffa4dcb44e6455b5213097734c46a1e5e
+    runtime recorded: destroyed
+    Phase COMPLETED
+    Retained result for attempt attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01
+    Retained findings: file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/custody/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/findings
+    work         05297bfd-W64837883627975295942960296140620258353
+    role         research
+    dependencies none published
+    operation    unknown
+                 duration unknown
+    episode      1
+    offer        offer-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01
+    assigned to  field.research
+    assigned work {'authority_uuid': '05297bfd3f1e4900b85735e1785456f9', 'work_id': '05297bfd-W64837883627975295942960296140620258353'}
+    assigned gen 1
+    reserved worker field-research
+    reserved as  field.research
+    reservation  attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01
+    reservation state released
+    lane         review
+    pool generation 1
+    selection    initial
+    limit        timeout not applicable (stage ended)
+    activity     unknown
+    corrections  0
+    results
+      findings                    123  file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/custody/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/findings
+  2 finished · 0 failed · 0 never selected
++ cat /var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/custody/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/findings/report.txt
+Deterministic research: v12/QUICKSTART.md, 26309 bytes, sha256 c5270a6749fb18a158e35d6900c5f9b42c3d6fa879788b4c090d891b2f22b30d
+{"artifact_id":"attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30:findings","attempt_id":"attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30","bytes":127,"content_digest":"sha256:ea432d799d81c70bdfd15fac2756ea3a1f77fc5b58424635446b2b3fc5442852","locator":"file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/custody/attempt-4bbe704bb1feefff5e67963a4f165bed8700d3607f0a575e63589414b9a42d30/findings"}
++ cat /var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/custody/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/findings/report.txt
+Deterministic research: v12/README.md, 20934 bytes, sha256 d5e34558d0587c8a134ea6295404f8fcd775d6ebc50afa24e885d51aecb8e09a
+{"artifact_id":"attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01:findings","attempt_id":"attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01","bytes":123,"content_digest":"sha256:8cab148b8e495d23ad6c9f8bc371bb7bdc3bace594dc5aeeec271f008a14f032","locator":"file:///var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/custody/attempt-8f6d1173f648d2c4c841598c548460a070483b603e8e8a45856ac7111862ec01/findings"}
++ /var/tmp/baton-manual-field.lw8K8KWf/instance/distro/baton-v12-stack stop --instance /var/tmp/baton-manual-field.lw8K8KWf/instance/instance.json
+stopped: manager pid 3295240
+stopped: publisher pid 3295241
+runtime   0 admitted attempt(s) in nonterminal phases; 2 recorded runtime(s), observed 5.1s ago
+stores and evidence retained under the configured paths
+Deleted: sha256:13af678e159936fabfb789f9733eea1cc1a48380998d384093680bac57360408
+manual-field-lw8k8kwf
+Exit 0; retained log, instance, status and findings under /var/tmp/baton-manual-field.lw8K8KWf

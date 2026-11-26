@@ -1,0 +1,262 @@
+{
+ "deployment": {
+  "adapter_digest": "sha256:8dd8b30624aeb73ae3035113c1c29546574558c43f8735ddb7ce728e9b41a9a6",
+  "adapter_name": "docker-single-worker",
+  "credential_home": "/var/tmp/baton-manual-field.lw8K8KWf/instance/state/credentials",
+  "credential_profile": {
+   "claude": {
+    "provider": "operator-file",
+    "reference": "fixture"
+   }
+  },
+  "credential_slots": [
+   "claude"
+  ],
+  "credential_sources": "/var/tmp/baton-manual-field.lw8K8KWf/registry.json",
+  "engine": "docker",
+  "image_digest": "sha256:71cb236a6dff9315353635448f1e030a464f28db294d0f821eff30f9c568b68e",
+  "input_manifest": {
+   "assignment_contract": "v12-assignment-1",
+   "created_at": "2026-11-26T03:21:46.000Z",
+   "credential_policy_digest": "sha256:69f4aac22e90b0fb7e36202a1f7bc5ff4cd740552ac2e0f7bacc50c23c7a3fbb",
+   "extensions": {},
+   "human_contract": {
+    "artifact_id": "manual-field",
+    "bytes": 93,
+    "content_digest": "sha256:e0ce58e162def16d5d6fbf2585f20d525c2d01d5559c8a0bfc43f4dafae1ceb0",
+    "locator": "artifact://contracts/manual-field",
+    "media_type": "application/json"
+   },
+   "manifest_digest": "sha256:c1422e3dd4909cdb0a0cec6baa327bfc80419e27f6e2f30b51c3ea9fa1e8f240",
+   "manifest_id": "input-manifest-field-research",
+   "mount_policy_digest": "sha256:e82b23a50fae74fc9d28201d3032dbcc8f2d838e80e050c90cd66abfb9c98b37",
+   "network_policy_digest": "sha256:8d6320e775ca43f637c91168467e4755d2645f94ab6f02050910f48809aa8346",
+   "outputs": [
+    {
+     "constraints": {
+      "allowed_media_types": [
+       "application/octet-stream"
+      ],
+      "link_policy": "forbid",
+      "max_bytes": 65536,
+      "max_entries": 1,
+      "validator_digest": null
+     },
+     "name": "findings",
+     "path": "findings",
+     "required": true,
+     "type": "directory-result"
+    }
+   ],
+   "policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917",
+   "record_binding": {
+    "finding_digest": "sha256:2eef30b07b24e814c81bc6fff49096dd8281c08a3daffff6beebdf927158acc7",
+    "path": "work/records/2026/11/finding-v12-owner-paced-manual-jobs",
+    "plan_digest": "sha256:a82cfb7bfe3a750583a9ebe704d57937426a81e1b6a6254571d28b0f77872c88",
+    "root": "baton-repository"
+   },
+   "resource_policy_digest": "sha256:7205e02e37db76ba642de3a041bffeb435cf5985ac6a460290cc746d7858db97",
+   "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+   "role_instructions_digest": "sha256:a5e351f24ffd1ed3abb5322697bb938950f383996475f84ab95e3133a229de98",
+   "runtime_profile_digest": "sha256:e8bc01e89d01b229d21d1ca5bcb8cf0183c14c1bcbd4a22e187161e5fef5a8e0",
+   "schema": "baton.worker-manifest/input",
+   "sources": [
+    {
+     "consumption": {
+      "baton.source-boundary/1": {
+       "delivery": "nominated-mount",
+       "profile": "git-line",
+       "workspace": "disk"
+      }
+     },
+     "content_manifest": {
+      "entries": [],
+      "entry_count": 0,
+      "total_bytes": 0,
+      "tree_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+     },
+     "destination": "source",
+     "name": "source",
+     "required": true
+    }
+   ],
+   "tool_policy_digest": "sha256:4721c6a05b14b8da07c7d278e03abe6e8830653fecdd331a72b3e01f8c40feb0",
+   "toolchain_digest": "sha256:ade8c442ed60273206a146122bae431aa65f85550fc0942bf88601fa25bab184",
+   "version": {
+    "major": 1,
+    "minor": 0
+   },
+   "work_ref": {
+    "authority_uuid": "05297bfd3f1e4900b85735e1785456f9",
+    "work_id": "05297bfd-W1"
+   },
+   "worker_image_digest": "sha256:71cb236a6dff9315353635448f1e030a464f28db294d0f821eff30f9c568b68e"
+  },
+  "launch_contract": "v12-assignment-1",
+  "launch_home": "/var/tmp/baton-manual-field.lw8K8KWf/instance/state/launch",
+  "network": "manual-field-lw8k8kwf",
+  "nominated_source": "/var/tmp/baton-manual-field.lw8K8KWf/instance/repo/source-field-research",
+  "policy_digest": "sha256:d8583ad9a55523f242afa52f0d58cabeb6fbd84c11ee6e917b0478292e195917",
+  "profile_digest": "sha256:e8bc01e89d01b229d21d1ca5bcb8cf0183c14c1bcbd4a22e187161e5fef5a8e0",
+  "profile_name": "claude-fresh-implementation",
+  "provider_context": null,
+  "provider_contract": {
+   "adapter": {
+    "adapter_name": "docker-single-worker",
+    "argv_policy": {
+     "fallback": null,
+     "fixed": [
+      "--print",
+      "--dangerously-skip-permissions",
+      "--output-format",
+      "json",
+      "--tools",
+      "",
+      "--strict-mcp-config",
+      "--mcp-config",
+      "{\"mcpServers\":{}}",
+      "--disable-slash-commands"
+     ],
+     "model_argument": "--model",
+     "program": "claude",
+     "prompt": "last"
+    },
+    "context_label": {
+     "bound": 2048,
+     "placement": "prompt-prefix",
+     "roles": [
+      "research"
+     ],
+     "schema": "baton.native-worker-context/1",
+     "template_sha256": "sha256:f08208bcaf3acead01ec35eed147e53ed56a6dcd7e9ce0dd08de5cfcad41a7f8"
+    },
+    "credential": {
+     "mode": "delivered",
+     "path": ".claude/.credentials.json"
+    },
+    "engine": "docker",
+    "entrypoint": [
+     "python3",
+     "/opt/baton/dogfood_entry.py"
+    ],
+    "environment_policy": {
+     "HOME": "/run/baton/provider-home",
+     "PATH": "/usr/local/bin:/usr/bin:/bin",
+     "PYTHONPYCACHEPREFIX": "fresh",
+     "TMPDIR": "fresh",
+     "XDG_CACHE_HOME": "fresh"
+    },
+    "home": "/run/baton/provider-home",
+    "implements_tool_policy": "sha256:4721c6a05b14b8da07c7d278e03abe6e8830653fecdd331a72b3e01f8c40feb0",
+    "managed_entries": [
+     {
+      "bytes": 5646,
+      "kind": "worker-instructions",
+      "path": ".claude/CLAUDE.md",
+      "sha256": "sha256:369ccb173d0bec1b4ba109127677d611d36e327e17f11b82c3bf13bf2f28627b"
+     }
+    ],
+    "network": "manual-field-lw8k8kwf",
+    "participation_sources": [
+     {
+      "field": "modelUsage",
+      "kind": "keys"
+     }
+    ],
+    "provider": "claude",
+    "realization": {
+     "credentials": {
+      "mode": "delivered",
+      "path": ".claude/.credentials.json"
+     },
+     "environment": {
+      "HOME": "/run/baton/provider-home",
+      "PATH": "/usr/local/bin:/usr/bin:/bin",
+      "PYTHONPYCACHEPREFIX": "fresh",
+      "TMPDIR": "fresh",
+      "XDG_CACHE_HOME": "fresh"
+     },
+     "ephemera": "fresh-scratch-roots",
+     "interaction": {
+      "after_permissions": [
+       "--output-format",
+       "json"
+      ],
+      "before_permissions": [
+       "--print"
+      ],
+      "program": "claude"
+     },
+     "model_substitution": {
+      "fallback": null,
+      "selector_argument": "--model"
+     },
+     "provider_sandbox": "container",
+     "tool_permission": [
+      "--dangerously-skip-permissions"
+     ],
+     "user_configuration": "private-home-managed-worker-instructions"
+    },
+    "research": true,
+    "schema": "baton.single-implementation-adapter/2"
+   },
+   "runtime_profile": {
+    "cli_build": "2.1.247",
+    "engine": "docker",
+    "image_digest": "sha256:71cb236a6dff9315353635448f1e030a464f28db294d0f821eff30f9c568b68e",
+    "image_reference": "sha256:71cb236a6dff9315353635448f1e030a464f28db294d0f821eff30f9c568b68e",
+    "model": "field-fixture",
+    "name": "claude-fresh-implementation",
+    "network": "manual-field-lw8k8kwf",
+    "note": "one bounded managed implementation; W239528",
+    "provider": "claude",
+    "reported_identity": "field-fixture",
+    "runtime_uid": 1000,
+    "schema": "baton.single-implementation-runtime-profile/2",
+    "scratch": {
+     "shm_bytes": 16777216,
+     "tmp_bytes": 67108864
+    },
+    "workspace_min_bytes": 83886081
+   },
+   "selection": {
+    "cli_build": "2.1.247",
+    "provider": "claude",
+    "reported_identity": "field-fixture",
+    "requested_model": "field-fixture"
+   }
+  },
+  "provider_home_root": "/var/tmp/baton-manual-field.lw8K8KWf/instance/state/job-work",
+  "retention_disposition": "retain",
+  "retention_policy_digest": "sha256:0f4cd2d13c46e81cb6e721119e48b342efb3a7a0d831e241c429601aa2eae45a",
+  "review_route": "owner",
+  "schema": "baton.v12.single-worker-deployment/7",
+  "task_document": "/var/tmp/baton-manual-field.lw8K8KWf/task.json",
+  "verifier_layout": {
+   "filesystem": "tmpfs",
+   "layout_digest": "1423c3aa9e41d7a8719297435798252133af88a55a6031491238ce0e412bc472",
+   "mode": 448,
+   "options": [
+    "nodev",
+    "noexec",
+    "nosuid",
+    "rw"
+   ],
+   "roots": {
+    "HOME": "/run/baton-verifier/home",
+    "PYTHONPYCACHEPREFIX": "/run/baton-verifier/pycache",
+    "TMPDIR": "/run/baton-verifier/tmp",
+    "XDG_CACHE_HOME": "/run/baton-verifier/cache"
+   },
+   "schema": "baton.v12.verifier-layout-marker/1"
+  },
+  "workspace_capacity": {
+   "max_bytes": 83886081
+  },
+  "workspace_group": 1000,
+  "workspace_storage": "/var/tmp/baton-manual-field.lw8K8KWf/instance/state/workspaces"
+ },
+ "participant": "field.research",
+ "role": "research",
+ "worker_id": "field-research"
+}
