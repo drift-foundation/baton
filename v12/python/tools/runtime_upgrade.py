@@ -38,6 +38,7 @@ import json
 import os
 from pathlib import Path
 
+from baton_v12.job_manager import scheduler
 from tools import instance, stack
 
 SCHEMA = "baton.v12.runtime-upgrade/1"
@@ -81,7 +82,7 @@ def _stopped(root):
                 "nothing was changed.")
 
 
-def unresolved(status):
+def unresolved(status, *, worker_id=None):
     """Every phase of a durable status document that is, or may be, executing.
 
     Read from what the document actually publishes for each stage: its
@@ -103,6 +104,14 @@ def unresolved(status):
         for stage in stages:
             stage = stage if type(stage) is dict else {}
             name = str(stage.get("stage_id") or "an unnamed phase")
+            if worker_id is not None:
+                allocations = stage.get("allocations")
+                if not isinstance(allocations, list):
+                    found.append(name + " has no allocation history")
+                else:
+                    for row in allocations:
+                        if row["worker_id"] == worker_id and row["allocation_state"] in scheduler.LIVE_STATES:
+                            found.append(f"stage {name}, attempt {row['assignment_id']} has a {row['allocation_state']} allocation on {worker_id}")
             state = stage.get("state")
             if state not in SETTLED_STATES:
                 found.append(name + " is " + str(state))
@@ -118,7 +127,7 @@ def unresolved(status):
     return found
 
 
-def _quiet(document, reader):
+def _quiet(document, reader, *, worker_id=None):
     """The durable read, by THIS code, completes and shows nothing executing.
 
     It opens the stores read-only and composes the deployment exactly as the
@@ -132,7 +141,7 @@ def _quiet(document, reader):
             "this runtime cannot read the instance's stores and configuration ("
             + type(failure).__name__ + ": " + str(failure)[:400]
             + "); nothing was changed.") from failure
-    found = unresolved(status)
+    found = unresolved(status, worker_id=worker_id)
     if found:
         raise UpgradeRefusal(
             "not settled: " + "; ".join(found)

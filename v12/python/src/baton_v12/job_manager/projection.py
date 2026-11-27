@@ -513,6 +513,7 @@ def materialized(store, stages=None):
         rows = stages if stages is not None else submission.stage_rows(store)
         jobs = submission.job_rows(store)
         owned = {}
+        pool = scheduler.active_pool_document(store)
         for stage in rows:
             stage_id = stage["stage_id"]
             # NOTHING CANONICAL IS READ FOR A STAGE THAT HAS NO LIVE EPISODE,
@@ -521,6 +522,8 @@ def materialized(store, stages=None):
             # with the ended offer's own facts and project a finished attempt
             # as this stage's current one.
             live = episodes.live_of(store, stage_id)
+            allocation = scheduler.allocation_of(store, live["attempt_id"]) if live is not None else None
+            stage = scheduler.effective_stage(stage, pool, allocation)
             owned[stage_id] = {
                 "stage": stage, "episode": live, "manual_phase": selections.get(stage["job_id"]),
                 "recovery_gate": execution_gate(store, stage["job_id"]),
@@ -610,9 +613,7 @@ def materialized(store, stages=None):
                     scheduler.allocation_refusal_of(store, live["attempt_id"])
                     if live is not None else None),
                 "allocations": scheduler.allocation_rows(store, stage_id),
-                "allocation": (scheduler.allocation_of(store,
-                                                       live["attempt_id"])
-                               if live is not None else None)}
+                "allocation": allocation}
         # THE JOBS AND THEIR STAGES, GROUPED FROM THE ONE ROW SET the states
         # are derived from. `stages_of` would be a second read at a second
         # moment, and that second moment is the defect: `stage_rows` orders by

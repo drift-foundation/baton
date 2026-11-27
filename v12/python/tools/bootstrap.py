@@ -102,7 +102,7 @@ _PROFILE = ("profile_kind", "profile_version", "integrator_participant",
 # the operator's requested managed preparation was silently disabled. Every one
 # of these is carried through, and `job_bindings` is absent on purpose because
 # this module DERIVES it from the Jobs.
-OPTIONAL = ("integration_target", "integration_target_reference",
+OPTIONAL = ("stage_image_upgrades", "integration_target", "integration_target_reference",
             "integration_workspace", "integration_observer",
             "integration_instructions", "integration_preparation",
             "result_judgment_workers", "recovery_verification",

@@ -854,6 +854,8 @@ Existing allocations keep their original identities and recovery obligations;
 new policy affects new admissions. A failed preferred worker may lead to another
 eligible offer only after the old offer/execution is safely resolved.
 
+A stopped instance may explicitly replace one configured provider worker’s image and CLI build while retaining its Jobs. Match the selected image’s installed adapter and entrypoint to the provider contract. New admissions for affected stages use the selected worker profile. Existing attempts remain bound to their original generation, and an interrupted replacement is safe to retry. A reserved or recovery-required allocation on the selected worker holds replacement before any write and identifies the stage and attempt to the operator. Other workers keep their configured images.
+
 ## 11. Review, acceptance and integration
 
 **REV-1.** Verification, independent technical review, owner acceptance and target

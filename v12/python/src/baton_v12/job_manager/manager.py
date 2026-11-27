@@ -845,10 +845,13 @@ def _refresh(store, operations):
     owner already holds.
     """
     refreshed = []
+    pool = scheduler.active_pool_document(store)
     for stage in submission.stage_rows(store):
         live = episodes.live_of(store, stage["stage_id"])
         if live is None:
             continue
+        if pool.get("stage_image_upgrades"):
+            stage = scheduler.effective_stage(stage, pool, scheduler.allocation_of(store, live["attempt_id"]))
         attempt = episodes.attempting(stage, live)
         members = {"stage_id": stage["stage_id"], "episode": live["episode"],
                    "attempt_id": live["attempt_id"]}

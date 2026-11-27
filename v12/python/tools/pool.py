@@ -277,6 +277,15 @@ def _would(pool, active):
 
 
 def admit(place, worker, *, stream=sys.stdout, opener=None, store=None):
+    from tools.fresh_attempt_ports import BindingRefusal, DeploymentBinding
+    try:
+        with DeploymentBinding(Path(place).parent)._publishing():
+            return _admit(place, worker, stream=stream, opener=opener, store=store)
+    except BindingRefusal as refusal:
+        raise PoolRefusal(str(refusal)) from refusal
+
+
+def _admit(place, worker, *, stream, opener, store):
     """Prove everything, then replace one file. In that order.
 
     The return is what was proved and what was written, so a caller that is not
@@ -1205,6 +1214,8 @@ def main(argv=None, *, stream=sys.stdout):
     adding.add_argument("--worker", required=True,
                         help="the one worker document to admit, naming "
                              + ", ".join(bootstrap._WORKER))
+    from tools import worker_image_upgrade
+    worker_image_upgrade.arguments(verbs)
     composing = verbs.add_parser(
         VERB_COMPOSE,
         help="compose one worker document for an installed instance from "
@@ -1300,6 +1311,8 @@ def main(argv=None, *, stream=sys.stdout):
                                 "(needs the nominated source to exist)")
     taken = parser.parse_args(argv)
     try:
+        if taken.verb == "upgrade-image":
+            return worker_image_upgrade.run(taken, stream)
         if taken.verb == VERB_COMPOSE \
                 and taken.role != bootstrap.PUBLICATION_ROLE:
             absent = [flag for flag, value in (

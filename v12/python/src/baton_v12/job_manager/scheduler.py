@@ -78,7 +78,7 @@ def _unique(values, what):
 def own_pool(document):
     """Own one closed pool document; principals arrive from deployment."""
     taken = boundaries.document(document, "a worker pool",
-                                required=POOL_MEMBERS)
+                                required=POOL_MEMBERS, optional=("stage_image_upgrades",))
     if taken["schema"] not in POOL_SCHEMAS:
         _refuse(f"a worker pool is one of "
                 f"{', '.join(name_value(one) for one in POOL_SCHEMAS)}; this "
@@ -150,7 +150,22 @@ def own_pool(document):
     # compared against, so rewriting a /1 deployment's pool as /2 would give
     # one configuration two identities and make an already-journalled
     # activation unreplayable the day this build shipped.
-    return {"schema": generation, "variant": variant,
+    updates = {}
+    if "stage_image_upgrades" in taken:
+        entries = taken["stage_image_upgrades"]
+        if type(entries) is not dict:
+            _refuse("stage image upgrades must name stages")
+        by_worker = {one["worker_id"]: one for one in owned}
+        for stage_id, entry in entries.items():
+            boundaries.identity(stage_id, "upgraded stage")
+            record = boundaries.document(entry, "stage image upgrade",
+                                         required=("worker_id", "kind", "original_name", "original_digest"))
+            worker = by_worker.get(boundaries.identity(record["worker_id"], "upgraded worker"))
+            if worker is None or record["kind"] not in ("implementation", "review") or record["kind"] not in worker["eligible_kinds"]:
+                _refuse("stage image upgrade does not name a worker for this role")
+            updates[stage_id] = {key: boundaries.text(value, key) for key, value in record.items()}
+    return {**({"stage_image_upgrades": updates} if updates else {}),
+            "schema": generation, "variant": variant,
             "separation_class": separation,
             "workers": sorted(owned, key=lambda one: one["worker_id"])}
 
@@ -173,6 +188,24 @@ def active_generation(store):
         "SELECT * FROM pool_generations ORDER BY generation DESC LIMIT 1"
     ).fetchone()
     return dict(row) if row is not None else None
+
+
+def active_pool_document(store):
+    active = active_generation(store)
+    return json.loads(active["document"]) if active else {}
+
+
+def effective_stage(stage, pool, allocation=None):
+    """An explicitly upgraded stage keeps the profile of every already reserved attempt."""
+    change = pool.get("stage_image_upgrades", {}).get(stage["stage_id"])
+    if not change or (stage["kind"], stage["profile_name"], stage["profile_digest"]) != (
+            change["kind"], change["original_name"], change["original_digest"]):
+        return stage
+    if allocation is not None:
+        return dict(stage, profile_name=allocation["worker_profile_name"],
+                    profile_digest=allocation["worker_profile_digest"])
+    worker = next(one for one in pool["workers"] if one["worker_id"] == change["worker_id"])
+    return dict(stage, profile_name=worker["profile_name"], profile_digest=worker["profile_digest"])
 
 
 def pool_workers(store, generation=None):

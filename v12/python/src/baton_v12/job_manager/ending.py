@@ -651,4 +651,7 @@ def attempt_of(store, intent):
     """
     taken = _selectors(intent, "a registered composed ending")
     stage, episode = _bound(store, taken)
-    return episodes.attempting(stage, episode)
+    from . import scheduler
+    profile = scheduler.effective_stage(stage, scheduler.active_pool_document(store),
+                                        scheduler.allocation_of(store, episode["attempt_id"]))
+    return episodes.attempting(profile, episode)

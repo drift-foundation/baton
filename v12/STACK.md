@@ -1329,3 +1329,29 @@ home**. Any v12 local execution authority is separate and explicitly named by
 It performs no version-control operation, starts no disposable proof run, and
 does not touch v11 services, stores or configuration. `just proof` and
 `just state-clean` above it remain the Node proof's, and are unrelated to these.
+
+### Upgrade a configured worker image
+
+Stop the instance and wait for its attempts to settle. An open Job can stay on
+the instance. Select the existing implementation or review worker by its pool
+ID, the immutable engine IDs of its current and replacement images, the exact
+CLI version, and the replacement image's matching v12 source directory.
+
+```sh
+"$INSTANCE/distro/baton-v12-stack" pool upgrade-image \
+  --instance "$INSTANCE/instance.json" --worker-id "$WORKER_ID" \
+  --from-image "$CURRENT_IMAGE_ID" --image "$NEXT_IMAGE_ID" \
+  --cli-build "$CLI_VERSION" --source "$SOURCE_CHECKOUT/v12"
+```
+
+The command compares the installed adapter and entrypoint with the selected
+source, then runs the provider's version command in the replacement image with
+networking disabled. It records the measurement under the instance and updates
+both the installation inputs and the active configuration. The next service
+start activates the new pool generation. Prior attempts keep their evidence.
+If publication is interrupted, retry the same command. An unresolved intent
+holds startup. An upgrade that cannot distinguish which of several workers
+owns an open stage's original profile reports that ambiguity.
+
+An observed CLI version qualifies the build identity. A Claude build still
+needs a qualified contributor evidence source for its turn to pass attribution.

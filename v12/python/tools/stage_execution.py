@@ -169,7 +169,7 @@ INTEGRATION_LAUNCH_SESSION = "integration-session"
 # THE ROUTE A MANAGED PREPARATION'S CHILD WORK IS CREATED ON.
 PREPARATION_ROUTE = "integration-preparation"
 
-_OPTIONAL_MEMBERS = ("job_bindings", "integration_target",
+_OPTIONAL_MEMBERS = ("stage_image_upgrades", "job_bindings", "integration_target",
                      "integration_workspace", "integration_observer",
                      "integration_target_reference",
                      "integration_instructions",
@@ -6538,6 +6538,12 @@ def servable_workers(given, binding, stage, job, job_task=None,
     """
     lane = [one for one in given["workers"]
             if one["role"] == stage.get("kind")]
+    change = given.get("stage_image_upgrades", {}).get(stage.get("stage_id"))
+    if change and change["kind"] == stage.get("kind"):
+        lane = [one for one in lane if one["worker_id"] == change["worker_id"]]
+        if lane and (stage.get("profile_name"), stage.get("profile_digest")) == (change["original_name"], change["original_digest"]):
+            target = lane[0]["deployment"]
+            stage = dict(stage, profile_name=target["profile_name"], profile_digest=target["profile_digest"])
     # THE DOCUMENT EACH ONE WOULD ACTUALLY SERVE THIS JOB UNDER, which is its
     # configured deployment for every role but integration, and that role's
     # per-Job operand set for integration. `_integration_operations` composes
@@ -7488,7 +7494,8 @@ def _pool(given, resolved):
                         "eligible_kinds": [one["role"]]})
     del resolved
     return {"schema": scheduler.POOL_SCHEMA, "variant": CONFIG_SCHEMA,
-            "separation_class": provider_separation(given["workers"]), "workers": workers}
+            "separation_class": provider_separation(given["workers"]), "workers": workers,
+            **({"stage_image_upgrades": given["stage_image_upgrades"]} if given.get("stage_image_upgrades") else {})}
 
 
 def operations_from(document, job_store, control_store, *, engine_run=None,

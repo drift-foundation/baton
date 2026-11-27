@@ -699,6 +699,8 @@ def start(root, environ=None, *, stream=sys.stdout, ready_seconds=None,
 
 def _start_admitted(root, settings, environ, *, stream, ready_seconds, sleep,
                     monotonic):
+    if (Path(settings[CONFIG_ENV]).parent / "worker-image-upgrade.json").exists():
+        raise StackRefusal("retry the pending pool upgrade-image before starting this instance")
     running = {name: read_record(root, name) for name in PROCESSES}
     held = {name: ownership(running[name]) for name in PROCESSES}
 

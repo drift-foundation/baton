@@ -250,6 +250,12 @@ BOUND_MEMBERS = ("record_binding", "retention_policy_digest",
                  "tool_policy_digest", "manifest_id", "created_at")
 
 
+def toolchain_digest(image_reference, image_digest, cli_build):
+    from baton_v12.contracts import digest
+    return digest({"schema": "baton.worker-toolchain/1", "image_reference": image_reference,
+                   "image_digest": image_digest, "cli_build": cli_build})
+
+
 def deployment_bounds(*, identities, provider_network, image_reference,
                       image_digest, cli_build, credential_profile,
                       template_version, role):
@@ -317,10 +323,7 @@ def deployment_bounds(*, identities, provider_network, image_reference,
             {"schema": "baton.worker-mount-policy/1",
              "source_destination": single_worker.SOURCE_DESTINATION,
              "consumption": source_boundary.source_consumption("git-line")}),
-        "toolchain_digest": digest(
-            {"schema": "baton.worker-toolchain/1",
-             "image_reference": image_reference,
-             "image_digest": image_digest, "cli_build": cli_build}),
+        "toolchain_digest": toolchain_digest(image_reference, image_digest, cli_build),
         "role_instructions_digest": digest(
             {"schema": "baton.worker-role-instructions/1",
              "template": template_version,

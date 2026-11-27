@@ -513,7 +513,7 @@ class DeploymentBinding:
             return self._bind(job_id, like=like, work_id=work_id)
 
     @contextmanager
-    def _publishing(self):
+    def _publishing(self, *, image_upgrade=False):
         """ONE WRITER AT A TIME over this instance's configuration.
 
         Review R5: the first cut read, modified and prepared with nothing in
@@ -532,6 +532,8 @@ class DeploymentBinding:
                              os.O_RDWR | os.O_CREAT | os.O_CLOEXEC, 0o600)
         try:
             fcntl.flock(descriptor, fcntl.LOCK_EX)
+            if not image_upgrade and (self._root / "worker-image-upgrade.json").exists():
+                raise BindingRefusal("retry the pending pool upgrade-image before publishing configuration")
             yield
         finally:
             os.close(descriptor)

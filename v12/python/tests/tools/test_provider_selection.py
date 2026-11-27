@@ -1319,6 +1319,257 @@ class CodexToClaude(SelectedBase):
     def test_launch_readers_hold_foreign_attempt_receipt(self):
         self.check_launch_readers("tampered")
 
+    def image_upgrade_instance(self):
+        from tools import instance
+        original_worker = self.worker
+        def distinct_images(role, **members):
+            value = original_worker(role, **members)
+            if role == "review":
+                deployment = value["deployment"]
+                profile = deployment["provider_contract"]["runtime_profile"]
+                deployment["image_digest"] = profile["image_digest"] = "sha256:" + "4" * 64
+                deployment["profile_name"] = profile["name"] = "initial-fixture-review"
+                deployment["profile_digest"] = digest(profile)
+                manifest = deployment["input_manifest"]
+                manifest.update(runtime_profile_digest=digest(profile), worker_image_digest=profile["image_digest"])
+                del manifest["manifest_digest"]
+                manifest["manifest_digest"] = digest(manifest)
+            return value
+        self.enterContext(mock.patch.object(self, "worker", side_effect=distinct_images))
+        review = self.worker("review")["deployment"]
+        for stage in self.submission["jobs"][0]["stages"]:
+            if stage["kind"] == "review":
+                stage.update(profile_name=review["profile_name"], profile_digest=review["profile_digest"])
+        places = instance.layout(self.root)
+        Path(places["stores"]).mkdir(mode=0o700)
+        os.rename(self.authority_path, places["authority_store"])
+        self.authority_path = self.config["authority_store"] = places["authority_store"]
+        self.job_path, self.control_path = places["job_store"], places["control_store"]
+        Path(places["distro"]).mkdir()
+        Path(places["command"]).write_text("disposable packaged runtime")
+        selector = instance.emit(self.root, authority_uuid=self.config["authority_uuid"],
+                                 identity={"fixture": True}, runtime=instance.manifest(places["distro"]), now=1)
+        instance.publish(places["instance"], selector)
+        document = self.composed_document(line_declared_base=self.base)
+        instance.publish(places["deployment"], document)
+        inputs = {"workers": [dict(one, participant=one["deployment"]["participant"]) for one in document["workers"]],
+                  "pool_generation": 1}
+        instance.publish(places["install_inputs"], inputs)
+        return places, selector, document
+
+    def image_upgrade_engine(self, places, document, provider="claude", version_output=None):
+        from tests.tools import test_installed_worker as images
+        from tools import worker_image_upgrade
+        layouts = images.Fixture()
+        layouts.setUp()
+        self.addCleanup(layouts.doCleanups)
+        (layouts.engine / "images.json").write_text(json.dumps(layouts.images))
+        if provider == "claude":
+            target, build, role = images.REVIEW, "2.1.248", "review"
+            version = build + " (Claude Code)"
+        else:
+            self.assertEqual(provider, "codex")
+            target, build, role = images.IMPL, "0.169.0", "implementation"
+            version = "codex-cli " + build
+        worker, = [one for one in document["workers"] if one["role"] == role]
+        argv = ["upgrade-image", "--instance", places["instance"], "--worker-id", worker["worker_id"],
+                "--from-image", worker["deployment"]["image_digest"], "--image", target, "--cli-build", build, "--source", str(images.V12)]
+        docker = worker_image_upgrade.installed_worker._docker
+        def scripted(program, *args):
+            if args[0] == "run":
+                self.assertEqual(args[-4:], ("--entrypoint", provider, target, "--version"))
+                self.assertIn("--network=none", args)
+                return (version if version_output is None else version_output).encode()
+            return docker(str(layouts.docker), *args)
+
+        return argv, scripted, target, build
+
+    def assert_upgrade_refused(self, places, argv, engine, *expected):
+        import io
+        from tools import pool, worker_image_upgrade
+        files = [Path(places[key]) for key in ("install_inputs", "deployment")]
+        before = [path.read_bytes() for path in files]
+        stream = io.StringIO()
+        with mock.patch.object(worker_image_upgrade.installed_worker, "_docker", side_effect=engine):
+            code = pool.main(argv, stream=stream)
+        self.assertEqual(code, 2, stream.getvalue())
+        for fragment in expected:
+            self.assertIn(fragment, stream.getvalue())
+        self.assertEqual([path.read_bytes() for path in files], before)
+        self.assertFalse((Path(self.root) / worker_image_upgrade.INTENT).exists())
+        self.assertEqual(list(Path(self.root).glob("worker-image-*.json")), [])
+
+    def check_allocated_upgrade(self, recovery):
+        from baton_v12.job_manager import episodes, scheduler, submission
+        from tools import stage_execution
+        places, _, document = self.image_upgrade_instance()
+        held = self.implemented()
+        stage, = [one for one in submission.stage_rows(held.job) if one["kind"] == "review"]
+        live = episodes.live_of(held.job, stage["stage_id"])
+        attempt = live["attempt_id"]
+        reserved = scheduler.reserve(held.job, episodes.attempting(stage, live))
+        state = "reserved"
+        if recovery:
+            scheduler.require_recovery(held.job, attempt)
+            state = "recovery-required"
+        held.composed.close()
+        argv, scripted, _, _ = self.image_upgrade_engine(places, document)
+        engine = mock.Mock(side_effect=scripted)
+        self.assert_upgrade_refused(places, argv, engine, reserved["worker_id"], state, stage["stage_id"], attempt)
+        engine.assert_not_called()
+        self.assertEqual(scheduler.allocation_of(held.job, attempt)["allocation_state"], state)
+        if not recovery:
+            saved = json.loads(Path(places["deployment"]).read_bytes())
+            serving = stage_execution.operations_from(saved, held.job, held.control, engine_run=self.engine,
+                credential_provider=lambda *_: self.secret, clock=lambda: fixtures.NOW, checkout=self.checkout)
+            self.addCleanup(serving.close)
+            self.drive(held.job, serving, "review", "waiting")
+            self.assertEqual(self.only_attempt(serving, "review"), attempt)
+            self.assertEqual(scheduler.allocation_of(held.job, attempt), reserved)
+            worker, = [one for one in document["workers"] if one["worker_id"] == reserved["worker_id"]]
+            self.assertEqual(self.engine.image, worker["deployment"]["image_digest"])
+
+    def test_reserved_before_offer_refuses_upgrade_and_original_attempt_launches(self):
+        self.check_allocated_upgrade(recovery=False)
+
+    def test_recovery_required_allocation_refuses_upgrade(self):
+        self.check_allocated_upgrade(recovery=True)
+
+    def test_wrong_cli_version_refuses_before_publication_for_each_provider(self):
+        import io
+        from tools import pool, worker_image_upgrade
+        places, _, document = self.image_upgrade_instance()
+        self.implemented().composed.close()
+        for provider, wrong in (("claude", "2.1.247 (Claude Code)"), ("codex", "codex-cli 0.168.0")):
+            with self.subTest(provider=provider):
+                argv, engine, _, build = self.image_upgrade_engine(places, document, provider, wrong)
+                self.assert_upgrade_refused(places, argv, engine, f"{provider} in the selected image did not report CLI build {build}")
+        # A blanket refusal of the Codex output format must also fail this regression.
+        argv, engine, _, _ = self.image_upgrade_engine(places, document, "codex")
+        stream = io.StringIO()
+        with mock.patch.object(worker_image_upgrade.installed_worker, "_docker", side_effect=engine):
+            self.assertEqual(pool.main(argv, stream=stream), 0, stream.getvalue())
+
+    def interrupted_image_upgrade(self, places, selector, document, argv, scripted):
+        import io
+        from tools import instance, pool, stack, worker_image_upgrade
+        publish = instance.publish
+        def interrupt(path, data):
+            if Path(path) == Path(places["deployment"]):
+                raise OSError("cut between install inputs and active configuration")
+            return publish(path, data)
+        stream = io.StringIO()
+        with mock.patch.object(worker_image_upgrade.installed_worker, "_docker", side_effect=scripted):
+            with mock.patch.object(instance, "publish", side_effect=interrupt):
+                self.assertEqual(pool.main(argv, stream=stream), 2, stream.getvalue())
+                self.assertIn("cut between", stream.getvalue())
+            self.assertEqual(json.loads(Path(places["deployment"]).read_bytes()), document)
+            self.assertTrue((Path(self.root) / worker_image_upgrade.INTENT).exists())
+            with self.assertRaisesRegex(stack.StackRefusal, "pending pool upgrade-image"):
+                stack.start(Path(selector["state"]), instance.settings(selector), stream=stream)
+            conflict = list(argv)
+            conflict[conflict.index("--cli-build") + 1] = "2.1.249"
+            self.assertEqual(pool.main(conflict, stream=stream), 2)
+            self.assertIn("another image upgrade is pending", stream.getvalue())
+            unlink = Path.unlink
+            def cut_after_receipt(path, *args, **kwargs):
+                if path.name == worker_image_upgrade.INTENT:
+                    raise OSError("cut after receipt")
+                return unlink(path, *args, **kwargs)
+            with mock.patch.object(Path, "unlink", cut_after_receipt):
+                self.assertEqual(pool.main(argv, stream=stream), 2)
+                self.assertIn("cut after receipt", stream.getvalue())
+            receipt_path, = Path(self.root).glob("worker-image-[0-9a-f]*.json")
+            committed = receipt_path.read_bytes()
+            self.assertEqual(pool.main(argv, stream=stream), 0, stream.getvalue())
+            self.assertEqual(pool.main(argv, stream=stream), 0, stream.getvalue())
+            self.assertEqual(receipt_path.read_bytes(), committed)
+        self.assertEqual(len(list(Path(self.root).glob("worker-image-*.json"))), 1)
+        self.assertFalse((Path(self.root) / worker_image_upgrade.INTENT).exists())
+        updated = json.loads(Path(places["deployment"]).read_bytes())
+        self.assertEqual(updated["workers"][0], document["workers"][0])
+        self.assertEqual(updated["pool_generation"], 2)
+        self.assertEqual(updated["workers"][1]["deployment"]["input_manifest"],
+                         json.loads(Path(places["install_inputs"]).read_bytes())["workers"][1]["deployment"]["input_manifest"])
+        return updated
+
+    def test_stopped_image_upgrade_replays_and_launches_only_the_new_claude_image(self):
+        from baton_v12.job_manager import scheduler
+        from tools import stage_execution
+
+        places, selector, document = self.image_upgrade_instance()
+        held = self.implemented()
+        prior = self.assert_recorded(held.control, held.attempt_id, "implementation")
+        prior_image_receipt = prior["launched_image"]
+        old_allocation = scheduler.allocation_of(held.job, held.attempt_id)
+        old_image = self.engine.image
+        self.assertNotEqual(old_image, document["workers"][1]["deployment"]["image_digest"])
+        held.composed.close()
+
+        argv, scripted, target, build = self.image_upgrade_engine(places, document)
+        updated = self.interrupted_image_upgrade(places, selector, document, argv, scripted)
+        serving = stage_execution.operations_from(updated, held.job, held.control, engine_run=self.engine,
+            credential_provider=lambda *_: self.secret, clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.addCleanup(serving.close)
+        self._composed = serving
+        self.drive(held.job, serving, "review", "waiting")
+        attempt = self.only_attempt(serving, "review")
+        self.assertEqual(self.engine.image, target)
+        delivered = self.provider_delivery_for("review", attempt)
+        self.assertEqual(delivered["contract"]["selection"]["cli_build"], build)
+        # The fixture's binary version belongs to the actually launched image.
+        self.measured_build = {target: build, old_image: "2.1.247"}[self.engine.image]
+        self.assertEqual(self.turn(held.control, "review", attempt, self.mounted(serving, "review", attempt),
+            edits={"review-report.json": json.dumps({"schema":"baton.review-report/1", "verdict":"accepted", "findings":"simulated"})}), 0)
+        self.assertIn(["claude", "--version"], self.invocations)
+        for _ in range(5):
+            sweep(held.job, serving, now=fixtures.NOW)
+        reviewer = model_attribution.assessment_of(held.control, attempt)
+        self.assertEqual(reviewer["attribution"]["selected_cli_build"], build)
+        self.assertEqual(reviewer["attribution"]["evidenced_cli_build"], build)
+        self.assertEqual(reviewer["outcome"], "held")  # synthetic new CLI has no qualified contribution source
+        old_delivery = model_attribution.selection_of(held.control, held.attempt_id)["delivery"]
+        self.assertEqual(old_delivery["contract"]["runtime_profile"]["image_digest"], old_image)
+        self.assertEqual(model_attribution.assessment_of(held.control, held.attempt_id)["launched_image"], prior_image_receipt)
+        self.assertEqual(scheduler.allocation_of(held.job, held.attempt_id), old_allocation)
+        self.assertEqual(model_attribution.assessment_of(held.control, held.attempt_id), prior)
+        self.assertEqual(prior["attribution"]["invocation"]["evidenced_cli_build"], "0.169.0")
+
+    def test_previous_claude_attempt_keeps_its_original_profile_image_and_cli_evidence(self):
+        import io
+        from baton_v12.job_manager import scheduler, status
+        from tools import pool, stage_execution, worker_image_upgrade
+
+        places, _selector, document = self.image_upgrade_instance()
+        held = self.implemented()
+        self.drive(held.job, held.composed, "review", "waiting")
+        attempt = self.only_attempt(held.composed, "review")
+        self.assertEqual(self.turn(held.control, "review", attempt, self.mounted(held.composed, "review", attempt),
+            edits={"review-report.json": json.dumps({"schema": "baton.review-report/1", "verdict": "accepted",
+                                                     "findings": "simulated"})}), 0)
+        self.drive(held.job, held.composed, "review", "completed")
+        prior = self.assert_recorded(held.control, attempt, "review")
+        selected = model_attribution.selection_of(held.control, attempt)
+        allocation = scheduler.allocation_of(held.job, attempt)
+        self.assertEqual(prior["attribution"]["evidenced_cli_build"], "2.1.247")
+        self.assertEqual(selected["delivery"]["contract"]["runtime_profile"]["image_digest"], self.engine.image)
+        held.composed.close()
+        argv, scripted, target, _build = self.image_upgrade_engine(places, document)
+        stream = io.StringIO()
+        with mock.patch.object(worker_image_upgrade.installed_worker, "_docker", side_effect=scripted):
+            self.assertEqual(pool.main(argv, stream=stream), 0, stream.getvalue())
+        updated = json.loads(Path(places["deployment"]).read_bytes())
+        serving = stage_execution.operations_from(updated, held.job, held.control, engine_run=self.engine,
+            credential_provider=lambda *_: self.secret, clock=lambda: fixtures.NOW, checkout=self.checkout)
+        self.addCleanup(serving.close)
+        phases = status(held.job, serving, observed_at=fixtures.NOW)["jobs"][0]["stages"]
+        review, = [one for one in phases if one["kind"] == "review"]
+        self.assertEqual(review["profile_digest"], allocation["worker_profile_digest"])
+        self.assertEqual(model_attribution.assessment_of(held.control, attempt), prior)
+        self.assertEqual(model_attribution.selection_of(held.control, attempt), selected)
+        self.assertNotEqual(selected["delivery"]["contract"]["runtime_profile"]["image_digest"], target)
+        self.assertEqual(scheduler.allocation_of(held.job, attempt), allocation)
+
     def test_configured_implementation_and_stronger_Claude_review(self):
         held = self.implemented()
         producer = self.assert_recorded(held.control, held.attempt_id, "implementation")
