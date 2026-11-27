@@ -920,6 +920,12 @@ def _attempts(stage, job):
                    "live": current, "allocation": allocation, "receipts": receipts,
                    "offered": offered, "ending": row.get("ended_state"), "ended_at": row.get("ended_at"),
                    "stop": _stop_word(target, _diagnostic(stage, identity) if current else {})}
+        cursor = _mapping(_mapping(stage.get("inbox_delivery")).get("attempts")).get(identity) if valid else None
+        if type(cursor) is int and 0 <= cursor < 2**63:
+            attempt["inbox_delivery"] = cursor
+        refused = _mapping(_mapping(stage.get("inbox_delivery")).get("refused")).get(identity) if valid else None
+        if type(refused) is str and refused:
+            attempt["inbox_refused"] = _status_text(refused[:512])
         attempts.append(attempt)
         if current:
             live = attempt
@@ -1032,6 +1038,10 @@ def attempt_lines(held, *, detail=False):
         if attempt["stop"]:
             line += " — " + attempt["stop"]
         lines.append(line)
+        if "inbox_delivery" in attempt:
+            lines.append("  inbox sequence " + str(attempt["inbox_delivery"]) + " — delivery only; comprehension and action unknown")
+        if "inbox_refused" in attempt:
+            lines.append("  inbox acknowledgement refused: " + attempt["inbox_refused"] + " — fetch cursor unchanged")
         if not attempt["live"]:
             allocation = attempt["allocation"]
             lines.append("  worker " + _status_text(allocation.get("worker_id")) + "; participant " + _status_text(allocation.get("participant"))

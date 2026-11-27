@@ -1075,7 +1075,17 @@ def status(store, operations, *, observed_at):
         stages = []
         for row in snapshot["stages_by_job"][job["job_id"]]:
             entry = held[row["stage_id"]]
-            stages.append(_with_review_verdict(_stage_status(entry, held), operations))
+            stage = _with_review_verdict(_stage_status(entry, held), operations)
+            from . import worker_inbox
+            cursors = {one["attempt_id"]: worker_inbox.fetched_of(store, job["job_id"], one["attempt_id"]) for one in stage["episodes"]}
+            cursors = {attempt: number for attempt, number in cursors.items() if number is not None}
+            refused = {one["attempt_id"]: worker_inbox.refused_of(store, job["job_id"], one["attempt_id"]) for one in stage["episodes"]}
+            refused = {attempt: reason for attempt, reason in refused.items() if reason is not None}
+            if cursors or refused:
+                stage["inbox_delivery"] = {"attempts": cursors, "meaning": "delivery only; comprehension and action unknown"}
+            if refused:
+                stage["inbox_delivery"]["refused"] = refused
+            stages.append(stage)
         jobs.append(documents.job_status(
             job_id=job["job_id"], submission_id=job["submission_id"],
             created_at=snapshot["job_origins"][job["job_id"]],

@@ -56,6 +56,7 @@ FROM ${PROVIDER_BASE}
 # proved nothing about either production image.
 COPY python/src/baton_v12/attempt_log_format.py \
      /opt/baton/attempt_log_format.py
+COPY worker/worker_inbox.py /opt/baton/worker_inbox.py
 COPY worker/baton_worker.py /opt/baton/baton_worker.py
 # W376586: THE SHARED TYPED DECLARATION REFUSAL, for the reason the fresh
 # recipe states. This overlay copies `claude_agent` without copying what it

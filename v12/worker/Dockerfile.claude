@@ -144,6 +144,7 @@ COPY python/src/baton_v12/attempt_log_format.py \
 # requires it to answer rather than ignore the member.
 COPY python/src/baton_v12/verification_context.py \
      /opt/baton/verification_context.py
+COPY worker/worker_inbox.py /opt/baton/worker_inbox.py
 COPY worker/baton_worker.py /opt/baton/baton_worker.py
 # W376586: THE SHARED TYPED DECLARATION REFUSAL, and it is NOT OPTIONAL.
 #

@@ -4684,6 +4684,9 @@ class ClaudeAgent:
         contextual = self._context_bound()
         if prompt is None:
             prompt = _prompt(task, self._context_feedback(contextual))
+        import worker_inbox
+        if contextual is None and worker_inbox.available():
+            prompt += worker_inbox.prompt()
         selected = self._provider_selection()
         argv = self.provider_argv(prompt)
         if selected is not None:

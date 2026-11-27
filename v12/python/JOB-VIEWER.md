@@ -472,3 +472,5 @@ REQUEST --phase PHASE --checkpoint CHECKPOINT --body TEXT` to answer one open
 owner question (with the same instance and Job options). Notes do not schedule
 work. Answers remain recorded awaiting delivery until the manager resumes the
 same Job. These commands share `job_manager.main_thread` with library clients.
+
+Each attempt may show an inbox sequence: delivery only, with comprehension and action unknown. This is the last fetched sequence claimed by the worker and validated against manager publications, not a scheduling signal. An absent member means no fetch evidence is recorded.

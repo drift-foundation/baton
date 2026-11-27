@@ -78,6 +78,9 @@ class ScriptedAgent:
         declaration, so two runs of the same assignment produce the same tree
         and a reproducibility case is possible at all.
         """
+        import worker_inbox
+        self.inbox_instructions = worker_inbox.prompt()
+        self.inbox_pages = []
         answers = []
         produced = []
         for one in declared:
@@ -94,6 +97,14 @@ class ScriptedAgent:
                 # format-specific to say says nothing; the manager carries this
                 # and never reads it either way.
                 "result_metadata": {}})
+        if worker_inbox.available():
+            cursor = 0
+            while True:
+                page = worker_inbox.fetch(cursor)
+                self.inbox_pages.append(page)
+                cursor = page["last_sequence"]
+                if not page["entries"]:
+                    break
         recap = ("scripted worker produced "
                  + ", ".join(produced))[:MAX_RECAP]
         return {"disposition": "completed", "outputs": answers,

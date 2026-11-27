@@ -87,3 +87,5 @@ transcripts out of ordinary output. Retain useful partial evidence on failure an
 name the exact blocked operation and safe continuation. Do not overwrite unrelated
 work, repair live instances or delete required evidence to make an outcome look
 clean. Report a product defect before using a clearly labelled authorized stopgap.
+
+During the turn, use `python3 /opt/baton/worker_inbox.py --after SEQUENCE` to fetch newer entries from your own Job main thread. Phase-start context includes existing entries and their last sequence; continue from `last_sequence` until a fetch returns no entries. Check for newer entries before handing off a candidate or verdict. The per-attempt cursor is delivery evidence only and implies neither comprehension nor action. Notes have no scheduling effect; targeted owner answers retain their existing continuation semantics.

@@ -29,6 +29,7 @@ FROM python@sha256:8fef26df932191825664e4957ff488c96dfe64918327634a357a55facbc99
 # source profiles. The worker contract the two ends share is spelled on both
 # sides and held equal by a conformance case, because a worker in a container
 # cannot import the manager.
+COPY worker_inbox.py /opt/baton/worker_inbox.py
 COPY baton_worker.py /opt/baton/baton_worker.py
 COPY publication_entry.py /opt/baton/publication_entry.py
 

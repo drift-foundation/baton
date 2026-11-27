@@ -13,6 +13,7 @@ COPY python/src/baton_v12/attempt_log_format.py \
      /opt/baton/attempt_log_format.py
 COPY python/src/baton_v12/verification_context.py \
      /opt/baton/verification_context.py
+COPY worker/worker_inbox.py /opt/baton/worker_inbox.py
 COPY worker/baton_worker.py /opt/baton/baton_worker.py
 COPY worker/adapter_refusal.py /opt/baton/adapter_refusal.py
 COPY worker/claude_agent.py /opt/baton/claude_agent.py

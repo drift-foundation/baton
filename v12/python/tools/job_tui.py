@@ -319,6 +319,11 @@ def _phase_block(phase, chosen, columns, *, label=None, label_width=15):
     if phase["attempt_count"]:
         block.append(_cut("      attempt " + str(phase["episode"]) + " " + str(phase["attempt_id"])
                           + (" · admitted" if phase["admission"] == "admitted" else ""), columns))
+    for attempt in phase.get("attempts", []):
+        if "inbox_delivery" in attempt:
+            block.append(_cut("      inbox delivery only; comprehension and action unknown — sequence " + str(attempt["inbox_delivery"]) + "; attempt " + str(attempt["attempt_id"]), columns))
+        if "inbox_refused" in attempt:
+            block.append(_cut("      inbox acknowledgement refused: " + str(attempt["inbox_refused"]) + " — fetch cursor unchanged; attempt " + str(attempt["attempt_id"]), columns))
     for fact in phase["facts"]:
         block.append(_cut("      " + str(fact), columns))
     block.append(_cut("      " + str(phase["duration"]) + " · " + str(phase["timeout"])

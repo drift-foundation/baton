@@ -1565,10 +1565,9 @@ class StageComposition:
         job_id = stage.get("job_id") if type(stage) is dict else None
         if jobs is None or job_id is None:
             return None
-        # THE CAPABILITY QUESTION FIRST, before any other member of the stage
-        # row is touched: a Job with no handoff branch -- every Job that
-        # existed before this slice, and every preparation driven without an
-        # episode row -- answers `None` here and reads nothing else.
+        if self.role in ("implementation", "review"):
+            from baton_v12.job_manager import worker_inbox
+            worker_inbox.phase_start(jobs, deployment.authority, job_id, stage["attempt_id"])
         if not native_handoffs.handoff_capable(jobs, job_id):
             return None
         document = native_handoffs.delivered_context(
@@ -5433,6 +5432,13 @@ class StageExecution:
         self._nothing_unserved("on resume")
         return self.pooled.recover(now=now)
 
+    def dispatch(self, stage, job):
+        # The first provider turn can start as soon as the command appears.
+        # Publish its frozen phase context before that command, even when
+        # preparation, launch and dispatch happen in one serving tick.
+        self._inbox_tick()
+        return self.pooled.dispatch(stage, job)
+
     def drain(self, handlers, *, quiescent=()):
         """The transport drain -- and the EVERY-TICK boundary.
 
@@ -5455,11 +5461,37 @@ class StageExecution:
         correction exists to avoid.
         """
         self._nothing_unserved("on this serving tick")
+        self._inbox_tick()
         result = self.pooled.drain(handlers, quiescent=quiescent)
         if self.deployment is not None:
             from baton_v12.job_manager import main_thread
             main_thread.reconcile(self.deployment.jobs, self.deployment.control, self.authority)
         return result
+
+    def _inbox_tick(self):
+        if self.deployment is None:
+            return
+        from baton_v12.job_manager import episodes, worker_inbox
+        from baton_v12.worker_manager import exchange
+        jobs = self.deployment.jobs
+        for row in jobs._connection.execute("SELECT stage_id, job_id, kind FROM stages WHERE kind IN ('implementation', 'review')").fetchall():
+            live = episodes.live_of(jobs, row["stage_id"])
+            if live is None:
+                continue
+            stage = dict(row, **{key: live[key] for key in ("attempt_id", "episode", "offer_id")})
+            allocation = allocation_of(jobs, stage["attempt_id"])
+            if allocation is None:
+                continue
+            operations = next((one["operations"] for one in self.workers if one["worker_id"] == allocation["worker_id"]), None)
+            worker = getattr(operations, "_worker", None)
+            if worker is None:
+                continue
+            runtime_state = attempt_runtime_of(self.deployment.control, stage["attempt_id"])
+            if runtime_state is None or runtime_state["runtime_id"] is None:
+                continue
+            launched = worker._adopted(stage)
+            if launched is not None and launched.exchange is not None:
+                worker_inbox.exchange_tick(jobs, self.authority, row["job_id"], launched.exchange)
 
     # -- stopping what is still executing ------------------------------------
 

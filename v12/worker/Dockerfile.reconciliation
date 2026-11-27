@@ -33,6 +33,7 @@ FROM ${PROVIDER_BASE}
 # and this recipe is where that pays: there is no manager, Authority or store
 # package here for it to have reached. A workload that could import the manager
 # would be a manager running under a worker's name.
+COPY worker/worker_inbox.py /opt/baton/worker_inbox.py
 COPY worker/baton_worker.py /opt/baton/baton_worker.py
 COPY worker/reconciliation_task.py /opt/baton/reconciliation_task.py
 COPY worker/reconciliation_entry.py /opt/baton/reconciliation_entry.py

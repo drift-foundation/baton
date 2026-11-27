@@ -22,6 +22,7 @@ FROM python@sha256:8fef26df932191825664e4957ff488c96dfe64918327634a357a55facbc99
 # the manager's capabilities, and the absence is enforced by a case rather than
 # by this comment.
 COPY baton_worker.py /opt/baton/baton_worker.py
+COPY worker_inbox.py /opt/baton/worker_inbox.py
 COPY scripted_agent.py /opt/baton/scripted_agent.py
 
 # AND THE FROZEN CONTRACT, AS DATA. W19784 review [P0]: the worker read the

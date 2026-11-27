@@ -2568,7 +2568,9 @@ def serve_exchange(agent, seen, expected, command_root, event_root,
         publisher = _activity_publisher(agent, event_root, command, digested,
                                         operation, one["operation_id"])
         try:
-            answer = handle(request, identity, seen, agent, spent)
+            import worker_inbox
+            with worker_inbox.channel(command_root, event_root):
+                answer = handle(request, identity, seen, agent, spent)
         except WorkerFault as fault:
             _stopped(publisher)
             return _faulted(event_root, command, digested, operation,

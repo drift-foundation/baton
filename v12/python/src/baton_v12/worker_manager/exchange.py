@@ -212,7 +212,7 @@ def state_document(operation):
 # contract does not describe".
 EVENT_DOCUMENTS = ((RECEIPT_DOCUMENT,)
                    + tuple(f"state-{one}.json" for one in OPERATIONS)
-                   + (TERMINAL_DOCUMENT, ACTIVITY_DOCUMENT, INVOCATION_DOCUMENT, ".invocation.json.tmp"))
+                   + (TERMINAL_DOCUMENT, ACTIVITY_DOCUMENT, INVOCATION_DOCUMENT, ".invocation.json.tmp", "inbox-fetched.json", ".inbox-fetched.json.tmp"))
 
 RECEIPT_MEMBERS = ("schema", "session", "attempt_id", "sequence_id",
                    "command_digest", "accepted_at")
@@ -288,7 +288,7 @@ MAX_ACTIVITY_BYTES = 2 ** 53 - 1
 # that budget does not degrade one document: `_foreign` refuses to enumerate
 # the namespace at all, which makes the whole exchange unreadable. That is why
 # the worker's activity publisher may hold exactly one temporary.
-ACTIVITY_NAMESPACE_ENTRIES = len(EVENT_DOCUMENTS) + 1
+ACTIVITY_NAMESPACE_ENTRIES = len(EVENT_DOCUMENTS) - 2 + 1  # inbox evidence and its temporary are separate
 
 # THE COMMAND DIRECTORY IS MANAGER-WRITABLE AND WORLD-READABLE, and both halves
 # are deliberate. The command is published AFTER the runtime starts -- that is
@@ -1546,3 +1546,47 @@ def discard(root):
             pass
     return not any(os.path.lexists(os.path.join(root, name))
                    for name in (COMMAND_DIRECTORY, EVENT_DIRECTORY))
+
+
+# Inbox publications are immutable, host-authored and mounted read-only. Each
+# entry has its own fixed numeric name, so an old cursor can never lose a page.
+def publish_inbox(delivery, page, *, initial=None):
+    def publish(name, document):
+        payload = canonical_bytes(document)
+        if not _publish_once(delivery.command_root, name, payload):
+            if _read_exact(delivery.command_root, name, what="inbox publication") != payload:
+                _refuse("existing inbox publication disagrees with its journal")
+    # Fixed dot-prefixed metadata is outside the command scanner's vocabulary.
+    # It is immutable and readable only through the shared inbox helper.
+    publish(".inbox.json", {"attempt_id": delivery.attempt_id})
+    if initial is not None:
+        publish(".inbox-start.json", initial)
+    for entry in page["entries"]:
+        document = {"attempt_id": delivery.attempt_id, "entry": entry}
+        publish(".inbox-" + str(entry["sequence"]) + ".json", document)
+
+
+def observed_inbox(delivery):
+    raw = _read_exact(delivery.event_root, "inbox-fetched.json", what="inbox delivery evidence")
+    if raw is None:
+        return None
+    if len(raw) > 1024:
+        _untrusted("inbox evidence exceeds 1024 bytes")
+    try:
+        def closed(pairs):
+            result = {}
+            for key, value in pairs:
+                if key in result:
+                    raise ValueError("duplicate member")
+                result[key] = value
+            return result
+        document = json.loads(raw, object_pairs_hook=closed)
+    except (ValueError, UnicodeError):
+        _untrusted("inbox evidence is not closed JSON")
+    if type(document) is not dict or set(document) != {"attempt_id", "last_sequence"}:
+        _untrusted("inbox evidence has exactly attempt_id and last_sequence")
+    if document["attempt_id"] != delivery.attempt_id:
+        _untrusted("inbox evidence names a foreign attempt")
+    if type(document["last_sequence"]) is not int or not 0 <= document["last_sequence"] < 2**63:
+        _untrusted("inbox evidence has an invalid sequence")
+    return document
