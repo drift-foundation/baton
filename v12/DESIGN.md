@@ -1485,3 +1485,5 @@ Incomplete, missing, mismatched, rerouted or faulted evidence MUST hold the
 implementation. A launcher observing that hold MUST promptly surface its reason.
 Configured-model acceptance leaves actual contributors unknown. Existing Claude
 participation requirements and historical decisions retain their evidence basis.
+
+W386542 (2026-11-27), REC-6. An owner may explicitly select the exact answered implementation attempt, completion digest and candidate head for recovery on its original line. A destroyed runtime alone is insufficient. Establish exclusive writer cessation, exact reservation, generation, base checkpoint and unchanged measured output. Preserve the destroyed runtime observation. Reuse ordinary attribution, intake, publication, checkpoint and review. Interruption and replay must converge on one checkpoint and one review without another implementation turn. Uncertain evidence leaves the reservation held.

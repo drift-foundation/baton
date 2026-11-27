@@ -14501,3 +14501,160 @@ def _research_worker_exchange(mounts, phase, channel, contributor):
         agent = claude_agent.ClaudeAgent(run=run, home=scratch)
         raise SystemExit(baton_worker.serve_exchange(agent, seen, seen["session"],
                                                      mounts[exchange.COMMAND_TARGET], mounts[exchange.EVENT_TARGET]))
+
+
+class AnsweredImplementationRecovery(unittest.TestCase):
+    """A real answered worker exchange and manager ending with synthetic runtime I/O."""
+
+    def test_recover_after_expiry(self):
+        self.recover(interrupt=True)
+
+    def test_stopped_owner_command_completes_from_original_hold(self):
+        self.recover(interrupt=False)
+
+    def recover(self, *, interrupt):
+        from datetime import datetime, timedelta
+        from pathlib import Path
+        from unittest.mock import patch
+        from baton_v12.job_manager import status, sweep
+        from baton_v12.worker_manager import attempts, intake, tokens, answered_recovery, frozen_output_of, review_cycles
+        from tests.tools.test_provider_selection import CodexToClaude
+        from tests.job_manager import fixtures
+        from tools.job_manager import _ReclaimAdapter
+
+        case = CodexToClaude()
+        self.addCleanup(case.doCleanups)
+        case.setUp()
+        from tools import instance, manual_job, job_manager, stopped_settlement
+        import io
+        places = instance.layout(case.root)
+        Path(places["stores"]).mkdir(mode=0o700)
+        os.rename(case.authority_path, places["authority_store"])
+        case.authority_path = case.config["authority_store"] = places["authority_store"]
+        case.job_path, case.control_path = places["job_store"], places["control_store"]
+        Path(places["distro"]).mkdir()
+        Path(places["command"]).write_text("fixture runtime")
+        selector = instance.emit(case.root, authority_uuid=case.config["authority_uuid"], identity={"fixture": True},
+                                 runtime=instance.manifest(places["distro"]), now=1)
+        instance.publish(places["instance"], selector)
+        instance.publish(places["install_inputs"], {"owner_participant": "fixture.owner"})
+        instance.publish(places["deployment"], case.composed_document(line_declared_base=case.base))
+        jobs, control, ops, attempt = case.started()
+        self.assertEqual(case.turn(control, "implementation", attempt, case.mounted(ops, "implementation", attempt),
+                                   edits={"harness.py": "print('changed')\n"}), 0)
+        later = (datetime.fromisoformat(fixtures.NOW.replace("Z", "+00:00")) + timedelta(seconds=tokens.LIFETIME_SECONDS + 60)).isoformat(timespec="milliseconds").replace("+00:00", "Z")
+        runtime = attempts.attempt_runtime_of(control, attempt)["runtime_id"]
+        case.engine.__dict__.setdefault("gone", set()).add(runtime)
+        adapter = _ReclaimAdapter("docker", case.engine, custodian_image_digest="sha256:" + "c"*64)
+        with patch.object(control, "_clock", return_value=later):
+            intake.reclaim_expired_resource(control, adapter, attempt_id=attempt, govern=tokens.workspace_governance())
+            intake.settle_revoked_resource(control, adapter, attempt_id=attempt, govern=tokens.workspace_governance())
+            for _ in range(3):
+                sweep(jobs, ops, now=later)
+        def stage():
+            return status(jobs, ops, observed_at=later)["jobs"][0]["stages"][0]
+        target = stage()
+        self.assertIn("still holds writer", str(target["deferral"]))
+        writer = review_cycles.writer_for_attempt(control, attempt_id=attempt, generation=attempts.assignment_of(control, attempt)["generation"])
+        line = review_cycles.line_of(control, writer["line_id"])
+        root = Path(line["line_path"])
+        head = case.worker_of(ops, "implementation").stage.deployment.profile.head_of(str(root))
+        args = dict(attempt=attempt, job="job-a", episode=1, manifest=target["exchange"]["terminal"]["manifest_digest"], head=head, actor=manual_job._owner_actor(selector, places["instance"]))
+        from baton_v12.contracts import ContractRefusal
+        from baton_v12.job_manager import review_driver
+        from baton_v12.worker_manager.oci import OciAdapter
+        receipt = answered_recovery.request_for(jobs, control, **args)
+
+
+        def restart():
+            nonlocal jobs, control, ops
+            engine = case.engine
+            ops.close()
+            with patch.object(case, "quiescing", return_value=engine):
+                jobs, control, ops = case.serving()
+
+        restart()
+        if interrupt:
+            wrong = answered_recovery.request_for(jobs, control, **dict(args, head="0" * 40))
+            with answered_recovery.nominated(control, wrong):
+                sweep(jobs, ops, now=later)
+            self.assertIn("differs from the selected candidate", str(stage()["deferral"]))
+            self.assertIsNone(answered_recovery.selection(control, attempt))
+            with answered_recovery.nominated(control, receipt), patch.object(OciAdapter, "surviving_helpers", return_value=None):
+                sweep(jobs, ops, now=later)
+                self.assertIn("cannot exclude", str(stage()["deferral"]))
+            proposal = root / "proposal" / "change.patch"
+            original = proposal.read_bytes()
+            proposal.write_bytes(original + b"altered")
+            with answered_recovery.nominated(control, receipt):
+                sweep(jobs, ops, now=later)
+            self.assertIn("differs", str(stage()["deferral"]))
+            self.assertIsNone(frozen_output_of(control, attempt))
+            self.assertEqual(review_cycles.writer_of(control, writer["writer_id"])["state"], "active")
+            with self.assertRaises(ContractRefusal):
+                answered_recovery.request_for(jobs, control, **dict(args, head="0" * 40))
+            proposal.write_bytes(original)
+            interrupted = ContractRefusal("refused", "precondition", "fixture interruption after checkpoint")
+            with patch.object(review_driver, "authorize_cleanup", side_effect=interrupted):
+                sweep(jobs, ops, now=later)
+            self.assertIn("fixture interruption", str(stage()["deferral"]))
+            checkpoint = review_cycles.line_of(control, line["line_id"])["current_checkpoint_id"]
+            self.assertEqual(review_cycles.checkpoint_of(control, checkpoint)["evidence"]["head"], head)
+            self.assertEqual(answered_recovery.request_for(jobs, control, **args), receipt)
+            restart()
+            with patch.object(intake, "_not_an_ending", side_effect=ContractRefusal("refused", "precondition", "fixture interruption after teardown")):
+                sweep(jobs, ops, now=later)
+            self.assertIn("fixture interruption after teardown", str(stage()["deferral"]))
+        ops.close()
+        argv = ["recover-answered", "--instance", places["instance"], "--job", "job-a", "--episode", "1",
+                "--attempt", attempt, "--manifest", args["manifest"], "--head", head]
+        def compose(document, job_store, control_store):
+            return stage_execution.operations_from(document, job_store, control_store, engine_run=case.engine,
+                credential_provider=lambda *unused: case.secret, clock=lambda: fixtures.NOW, checkout=case.checkout)
+        replies = []
+        with patch.object(stopped_settlement, "_composed", side_effect=compose) as compositions:
+            for _ in range(2):
+                stream = io.StringIO()
+                self.assertEqual(job_manager.main(argv, stream=stream, clock=lambda: fixtures.NOW), 0)
+                replies.append(json.loads(stream.getvalue()))
+            self.assertEqual(compositions.call_count, 1)
+        self.assertEqual(replies[0], replies[1])
+        settled_checkpoint = replies[0]["settlement"]["evidence"]["checkpoint_id"]
+        self.assertEqual(review_cycles.checkpoint_of(control, settled_checkpoint)["evidence"]["head"], head)
+        if interrupt:
+            self.assertEqual(settled_checkpoint, checkpoint)
+        restart()
+        case.drive(jobs, ops, "review", "waiting")
+        for _ in range(3):
+            sweep(jobs, ops, now=later)
+        target, review = status(jobs, ops, observed_at=later)["jobs"][0]["stages"][:2]
+        self.assertEqual(target["state"], "completed", str(target["deferral"]))
+        self.assertEqual(len(target["allocations"]), 1)
+        self.assertEqual(len(review["allocations"]), 1)
+        attachment = case.worker_of(ops, "review").stage._retained(review)["attachment_id"]
+        self.assertEqual(review_cycles.review_of(control, attachment)["checkpoint_id"], settled_checkpoint)
+        self.assertEqual(answered_recovery.request_for(jobs, control, **args), receipt)
+        self.assertEqual(len(case.invocations), 1)
+
+    def test_writer_inventory_refuses_unknown_and_overlapping_mounts(self):
+        import tempfile
+        from pathlib import Path
+        from types import SimpleNamespace
+        from unittest.mock import Mock
+        from baton_v12.contracts import ContractRefusal
+        from baton_v12.worker_manager.oci import OciAdapter
+
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder, "line")
+            root.mkdir()
+            for source, writable, refused in [(folder, True, True), (str(root), True, True),
+                                              (folder, False, False), (folder, None, True)]:
+                with self.subTest(source=source, writable=writable):
+                    reply = {"status": 0, "stdout": "a"*64}
+                    mounts = {"status": 0, "stdout": json.dumps([{"Source": source, "RW": writable, "Type": "bind"}])}
+                    adapter = SimpleNamespace(engine="fake", run=Mock(side_effect=[reply, mounts]))
+                    if refused:
+                        with self.assertRaises(ContractRefusal):
+                            OciAdapter.prove_no_writable_mount(adapter, str(root))
+                    else:
+                        OciAdapter.prove_no_writable_mount(adapter, str(root))

@@ -1406,6 +1406,9 @@ def main(argv, *, clock=None, stream=None):
                  or argv[0] == "create" and any(word == "--mode" or word.startswith("--mode=") for word in argv[1:])):
         from tools import manual_job
         return manual_job.main(argv, clock=clock, stream=stream)
+    if argv and argv[0] == "recover-answered":
+        from tools import recover_answered
+        return recover_answered.main(argv[1:], clock=clock, stream=stream)
     if argv and argv[0] == "record-integration":
         from tools import job_integration_command
         return job_integration_command.main(argv, clock=clock, stream=stream)

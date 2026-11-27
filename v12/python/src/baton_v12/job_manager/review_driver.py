@@ -728,7 +728,9 @@ def end_implementation(control, port, adapter, publication, *, attempt_id,
     # checkpoint revokes it -- so an ending re-entered after its cleanup
     # settled cannot get past the next line, and every step after it is about
     # a container that does not exist.
-    if _destroyed(control, attempt_id):
+    from ..worker_manager import answered_recovery
+    recovering = answered_recovery.permitted(control, attempt_id)
+    if _destroyed(control, attempt_id) and not recovering:
         return _resumed_implementation(
             control, port, adapter, publication, attempt_id=attempt_id,
             disposition=disposition, terminal=terminal, writer_id=writer_id,
@@ -754,7 +756,8 @@ def end_implementation(control, port, adapter, publication, *, attempt_id,
                          generation=generation)
     _profile_of_the_line(control, profile, writer["line_id"])
     _acting_for(control, port, attempt_id)
-    _quiesced(control, adapter, attempt_id)
+    if not recovering:
+        _quiesced(control, adapter, attempt_id)
     observe(control, attempt_id=attempt_id, axis="worker_disposition",
             value=disposition)
     # STEP THREE, AND ITS POSITION IS THE WHOLE OF W105982. The worker wrote

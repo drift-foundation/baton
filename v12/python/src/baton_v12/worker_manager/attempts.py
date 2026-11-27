@@ -31,6 +31,7 @@ ANSWER, not a later stage of the same one.
 import json
 from types import MappingProxyType
 
+from . import answered_recovery
 from ..contracts import (ContractRefusal, check_no_durable_secret,
                          digest)
 from ..contracts.errors import (MESSAGE_LIMIT, name_value,
@@ -4098,7 +4099,7 @@ def _quiescent(store, attempt_id, document):
     # positive observation of the exact runtime says the thing this operation
     # is named for, and it is deliberately not upgraded to absence -- a
     # quiescent runtime still exists and satisfies no authority gate.
-    if attempt["execution_runtime"] != "quiescent":
+    if attempt["execution_runtime"] != "quiescent" and not answered_recovery.permits_destroyed(store, attempt_id, attempt["execution_runtime"]):
         raise ContractRefusal(
             "refused", "precondition",
             f"attempt {name_value(attempt_id)} execution runtime is "

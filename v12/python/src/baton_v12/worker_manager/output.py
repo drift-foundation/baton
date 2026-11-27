@@ -58,6 +58,7 @@ compares against the RECORDED `worker_disposition` axis rather than accepting a
 turn outcome from its caller. A proof the caller can write is not a proof.
 """
 
+from . import answered_recovery
 from ..contracts import (ContractRefusal, canonical_bytes,
                          check_manifest_structure, digest,
                          verify_manifest_digest)
@@ -185,7 +186,7 @@ def request_freeze(store, port, adapter, *, attempt_id, disposition):
     # journal transaction, from a row re-read under the write lock; this
     # answers the ordinary case without taking one and refuses early enough
     # that a caller with a plainly unready attempt never reaches the journal.
-    _provable(attempt, attempt_id, disposition)
+    _provable(store, attempt, attempt_id, disposition)
     operation = freeze_operation(attempt)
     signature = manager_signature(
         "output.freeze", {"attempt_id": attempt_id, "expect": expect,
@@ -213,6 +214,7 @@ def request_freeze(store, port, adapter, *, attempt_id, disposition):
                            "context": label_context(store, attempt_id),
                            "disposition": disposition, "now": store._now(),
                            "operation": dict(operation)})
+    answered_recovery.check_seal(store, attempt_id, sealed)
     return record_frozen_result(store, attempt_id=attempt_id, sealed=sealed)
 
 
@@ -231,7 +233,7 @@ def _request(store, port, connection, attempt_id, expect, operation,
     # The check outside remains and is now what it always was: an OPTIMISTIC
     # early refusal that answers the ordinary case without taking a write
     # lock. It does not authorize the write. This does.
-    _provable(_attempt_of(connection, attempt_id), attempt_id, disposition)
+    _provable(store, _attempt_of(connection, attempt_id), attempt_id, disposition)
     live = port.assignment_of(expect["work_ref"]["work_id"],
                               expect["work_ref"]["authority_uuid"])
     if live is None:
@@ -251,7 +253,7 @@ def _request(store, port, connection, attempt_id, expect, operation,
         disposition=disposition)
 
 
-def _provable(attempt, attempt_id, disposition):
+def _provable(store, attempt, attempt_id, disposition):
     """The two preconditions that are read from the RUNTIME axes, in one place.
 
     Written once because they are decided twice -- optimistically before the
@@ -281,7 +283,7 @@ def _provable(attempt, attempt_id, disposition):
     this slice can decide is that a terminal disposition was RECORDED before
     the freeze and that the freeze declares that same one.
     """
-    if attempt["execution_runtime"] != "quiescent":
+    if attempt["execution_runtime"] != "quiescent" and not answered_recovery.permits_destroyed(store, attempt_id, attempt["execution_runtime"]):
         raise ContractRefusal(
             "runtime-observation", "quiescence-unknown",
             f"attempt {name_value(attempt_id)} execution is "

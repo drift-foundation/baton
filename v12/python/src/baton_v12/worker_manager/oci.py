@@ -2376,6 +2376,7 @@ class OciAdapter:
                 and type(launch_delivery) is not launch.LaunchDelivery:
             _refuse(f"a launch delivery is one this manager materialized; "
                     f"this is {name_value(launch_delivery)}")
+        self.removed_launch_root = None
         self.launch_delivery = launch_delivery
         # W325695: THE TRUSTED VERIFIER-LAYOUT SELECTION, owned at
         # construction on the same rule as every delivery above, and BOUND TO
@@ -3436,6 +3437,13 @@ class OciAdapter:
             # NOT `absent`, which is what the RUNTIME state beside this says.
             # One word meaning two things in one document is how a reader
             # concludes a launch document was removed because a container was.
+            if self.removed_launch_root is not None:
+                if proved_absent:
+                    try:
+                        os.lstat(self.removed_launch_root)
+                    except FileNotFoundError:
+                        return {"lifecycle_state": "torn-down"}
+                return {"lifecycle_state": "unresolved", "why": "previously removed launch root or runtime is present"}
             return {"lifecycle_state": "not-delivered"}
         if not proved_absent:
             return {"lifecycle_state": "unresolved", "why": why}
@@ -3686,6 +3694,36 @@ class OciAdapter:
         different helper.
         """
         return self.identity["image_digest"]
+
+    def prove_no_writable_mount(self, root):
+        """Also inspect foreign and stopped containers which could write this line."""
+        from .answered_recovery import refuse, mount_regions
+        protected = mount_regions(root)
+        listed = self.run([self.engine, "ps", "--all", "--no-trunc", "--format", "{{.ID}}"], seconds=30)
+        if listed["status"] != 0:
+            refuse("container inventory unavailable for writer exclusion")
+        for runtime in listed["stdout"].splitlines():
+            if not re.fullmatch("[0-9a-f]{64}", runtime):
+                refuse("container inventory returned an unknown identity")
+            raw = self.run([self.engine, "inspect", "--type", "container", "--format", "{{json .Mounts}}", runtime], seconds=30)
+            try:
+                mounts = json.loads(raw["stdout"])
+            except ValueError:
+                mounts = None
+            if raw["status"] != 0 or not isinstance(mounts, list):
+                refuse("container mount observation is incomplete")
+            for mount in mounts:
+                if not isinstance(mount, dict) or type(mount.get("RW")) is not bool:
+                    refuse("unknown container mount access")
+                if not mount["RW"] or mount.get("Type") == "tmpfs":
+                    continue
+                source = mount.get("Source")
+                if not isinstance(source, str) or not os.path.isabs(source):
+                    refuse("unknown writable container mount source")
+                exposed = mount_regions(source)
+                if any(a == b and os.path.commonpath((p, q)) in (p, q)
+                       for a, p in exposed for b, q in protected):
+                    refuse("a container retains a writable mount overlapping the implementation line")
 
     def prove_line_consumable(self, store, *, assignment_id, generation):
         """W105982: prove THIS adapter's roots are the line durable state names,

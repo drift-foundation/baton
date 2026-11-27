@@ -11,6 +11,7 @@ import json
 import os
 import threading
 
+from . import answered_recovery
 from ..contracts import ContractRefusal, canonical_text, digest
 from ..contracts.errors import name_value, sample_of
 from . import (attempts, boundaries, custody, intake, manifests, output, schema,
@@ -1426,7 +1427,7 @@ def _attempt(store, attempt_id):
 
 def _quiescent_completed(store, attempt_id, *, review=False):
     attempt = _attempt(store, attempt_id)
-    if attempt["runtime_id"] is None or attempt["execution_runtime"] != "quiescent":
+    if attempt["runtime_id"] is None or (attempt["execution_runtime"] != "quiescent" and not answered_recovery.permits_destroyed(store, attempt_id, attempt["execution_runtime"])):
         raise ContractRefusal(
             "refused", "precondition",
             "review completion requires the exact attached runtime to be "
@@ -2697,6 +2698,7 @@ def _freeze_checkpoint(store, *, writer_id, generation, profile, port, _recovery
             or evidence["profile"] != profile_name:
         raise ContractRefusal("integrity", "schema",
                               "checkpoint profile returned malformed evidence")
+    answered_recovery.check_head(store, writer["runtime_attempt_id"], evidence["head"])
     evidence = _evidence(evidence)
     if evidence["base"] != line["declared_base"]:
         raise ContractRefusal("integrity", "digest",

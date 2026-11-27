@@ -838,6 +838,8 @@ def sealed_result(request, *, roots, declared, identity, custody,
     # exactly the kind of member a credential rides in.
     check_no_durable_secret(body, what="a sealed result")
     # LAST, after every declared output is staged and frozen above.
+    from . import answered_recovery
+    answered_recovery.check_staged(taken["attempt_id"], body)
     return _commit(custody, {**body, "manifest_digest": digest(body)})
 
 

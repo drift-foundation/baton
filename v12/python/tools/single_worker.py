@@ -2374,6 +2374,48 @@ class _SingleWorker:
         except ContractRefusal:
             return None
 
+    def _recover_answered(self, stage, job, historical, selected):
+        from baton_v12.job_manager import scheduler
+        from baton_v12.worker_manager import answered_recovery, review_cycles
+        attempt = historical["attempt_id"]
+        deployment = self.stage.deployment
+        allocation = scheduler.allocation_of(deployment.jobs, attempt)
+        if (selected["job"] != stage["job_id"] or selected["episode"] != stage["episode"]
+                or not allocation or allocation["stage_id"] != stage["stage_id"]
+                or allocation["allocation_state"] != "reserved" or allocation["worker_id"] != self.stage.worker_id):
+            answered_recovery.refuse("original worker reservation or episode changed")
+        generation = historical["assignment"]["generation"]
+        writer = review_cycles.writer_for_attempt(self.control, attempt_id=attempt, generation=generation)
+        if not writer or writer["worker_id"] != allocation["worker_id"]:
+            answered_recovery.refuse("cannot identify original implementation writer")
+        line = review_cycles._consumable_line(self.control, writer["line_id"])
+        roots = dict(workspaces._revalidated_roots(self.given["workspace_storage"], attempt, "answered implementation recovery", control=self.control))
+        roots["workspace"] = line["line_path"]
+        workspaces.require_prepared(self.control, attempt, roots, "answered implementation recovery")
+        launched = self._adopted(stage)
+        if launched is None:
+            # Cleanup can remove the exchange before its local receipt commits.
+            # Only the already frozen checkpoint can resume past that cut.
+            checkpoint_id = line["current_checkpoint_id"]
+            checkpoint = review_cycles.checkpoint_of(self.control, checkpoint_id) if checkpoint_id else None
+            if (writer["state"] != "revoked" or not checkpoint or checkpoint["state"] != "frozen"
+                    or checkpoint["writer_id"] != writer["writer_id"] or checkpoint["evidence"]["head"] != selected["head"]):
+                answered_recovery.refuse("original exchange delivery is missing before checkpoint")
+            terminal = historical["terminal"]
+        else:
+            view = exchange.observation(launched.exchange)
+            if view["state"] != "answered" or view["foreign"] or view["unreadable"] or not view["terminal"]:
+                answered_recovery.refuse("original answered exchange cannot be verified")
+            terminal = view["terminal"]
+            if terminal["manifest_digest"] != historical["terminal"]["manifest_digest"]:
+                answered_recovery.refuse("answered exchange differs from the registered ending")
+        orphan = credentials.OrphanTeardown(attempt, homes=[self.credential_home]) if self.given["credential_resolution"] else None
+        adapter = self._adapter(roots, None, orphan, launched, stage=stage, attempt_id=attempt)
+        if launched is None:
+            adapter.removed_launch_root = os.path.join(self.given["launch_home"], attempt)
+        with answered_recovery.verified(self.control, adapter, deployment.profile, selected, terminal, writer, line):
+            return self.stage.end(self, stage, job, dict(historical, terminal=terminal, adapter=adapter, roots=roots))
+
     def _mounted(self, stage, attempt_id, *, checkpoint=True, writer=True):
         """This attempt's two roots and the mount custody composed over them.
 
@@ -3308,6 +3350,12 @@ class _SingleWorker:
                 return self._held_research_ending(stage, _assignment(row), hold)
         if self.stage is not None:
             historical = self.stage.historical(stage, _assignment(row))
+            if historical is not None and stage["kind"] == "implementation":
+                from baton_v12.worker_manager import answered_recovery
+                selected = answered_recovery.requested(self.control, attempt_id)
+                state = attempt_runtime_of(self.control, attempt_id)
+                if selected and state["cleanup"] in ("pending", "blocked-on-intake"):
+                    return self._recover_answered(stage, job, historical, selected)
             if historical is not None:
                 # W122060: THE ENDING AFTER THE CUSTODY IT EARNED, ENTERED
                 # WITHOUT ANY OF THE LIVE EVIDENCE BELOW.
