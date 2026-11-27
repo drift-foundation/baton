@@ -83,6 +83,11 @@ PARALLEL_MODULES = ("tests.job_manager.test_accepted_offer_retirement",
                     # runtime of ordinary files, no build, no Docker, engine,
                     # network or serial resource.
                     "tests.tools.test_instance",
+                    "tests.tools.test_runtime_upgrade",
+                    # W386447. The installed worker code of configured images,
+                    # read through a SCRIPTED engine executable; no real
+                    # Docker, network or serial resource.
+                    "tests.tools.test_installed_worker",
                     # W183883. The REAL one-folder bundle: subprocesses of the
                     # built command and digests of a copy of it. No Docker,
                     # engine, network or serial resource -- and it SKIPS with

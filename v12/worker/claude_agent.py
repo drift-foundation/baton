@@ -555,6 +555,8 @@ MAX_HANDOFF_REFERENCE = 512
 MAX_HANDOFF_EVIDENCE = 16
 MAX_HANDOFF_OPTIONS = 8
 MAX_HANDOFF_PARTICIPANT = 160
+# The owner decision bound is the main-thread text bound (main_thread._text).
+MAX_OWNER_DECISION_BODY = 16384
 # The delivered context: two retained messages at most, plus their envelope.
 MAX_HANDOFF_CONTEXT_BYTES = 1 << 16
 
@@ -6725,6 +6727,25 @@ def _handoff_context(role):
                     "the delivered continuation is missing or does not "
                     "digest to what the continued request committed; a "
                     "resumed turn is given the exact continuation it yielded")
+            # W386447: AN OWNER DECISION ON AN ESCALATION, when the host
+            # delivered one. It is bound to the exact request and escalation
+            # this continuation carries, or it is not read: a decision about
+            # another question is not this turn's answer.
+            decision = continuation.get("owner_decision")
+            if decision is not None:
+                if type(decision) is not dict:
+                    raise TaskRefusal("an owner decision is one object")
+                _handoff_text(decision.get("body"), MAX_OWNER_DECISION_BODY,
+                              "the owner's decision")
+                _handoff_text(decision.get("author"), MAX_HANDOFF_PARTICIPANT,
+                              "the deciding owner")
+                if body.get("disposition") != "escalate" \
+                        or decision.get("request_id") \
+                        != continuation["request"]["message_id"] \
+                        or decision.get("escalation_id") != reply["message_id"]:
+                    raise TaskRefusal(
+                        "the delivered owner decision does not answer the "
+                        "escalation of the continued request")
         return document
     _handoff_message(document.get("request"), "the pending request")
     checkpoint = document.get("checkpoint")
@@ -6917,20 +6938,34 @@ def _handoff_prompt(task, context):
     request = continuation["request"]["body"]
     reply = continuation["reply"]["body"]
     note = continuation["text"]
+    # W386447: an escalation the owner decided is resumed ON THAT DECISION.
+    # The reviewer's reply stays visible as what was escalated; the decision
+    # is what the turn continues under.
+    decision = continuation.get("owner_decision")
+    decided = ("" if decision is None else
+               f"THE OWNER'S DECISION ON THAT ESCALATION ({decision['author']}); "
+               f"it governs where it differs from the reviewer's reply:\n"
+               f"{decision['body']}"
+               + ("" if decision["body"].endswith("\n") else "\n") + "\n")
     return (opening + addendum
             + f"\nYOUR PREVIOUS TURN STOPPED AT THIS {request['kind']}:\n"
               f"{request['body']}\n\n"
               f"THE REVIEWER'S REPLY ({reply['disposition']}):\n"
               f"{reply['body']}\n"
               f"RATIONALE: {reply['rationale']}\n\n"
+              + decided +
               f"YOUR OWN NOTE OF WHAT REMAINED TO BE DONE, exactly as you "
               f"wrote it (also readable at "
               f"{HANDOFF_OUTPUT}/{HANDOFF_CONTINUATION}, read-only, "
               f"relative to this directory):\n{note}"
               + ("" if note.endswith("\n") else "\n")
-              + f"\nContinue the same task in this working copy from that "
-              f"note; the requirements and the verification command are "
-              f"unchanged.\n")
+              + (f"\nContinue the same task in this working copy from that "
+                 f"note; the requirements and the verification command are "
+                 f"unchanged.\n" if decision is None else
+                 f"\nContinue the same task in this working copy from that "
+                 f"note under the owner's decision; the requirements are "
+                 f"unchanged except where that decision says otherwise, and "
+                 f"the verification command is unchanged.\n"))
 
 
 def _response_prompt(task, source, context, report):

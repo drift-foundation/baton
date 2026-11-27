@@ -372,3 +372,60 @@ class ServingOwnerContinuation(composed_fixture.HandoffJobCase):
         self.assertEqual(self.operations(held.job, native_handoffs.CONTINUE_KIND), 1)
         self.assertEqual(len(self.attempts_of(held, 'implementation')), 1)
         self.assertEqual(held.job._connection.execute('SELECT count(*) FROM jobs').fetchone()[0], 1)
+
+
+class TheResumedProviderIsToldTheOwnerDecision(composed_fixture.HandoffJobCase):
+    """W386447: after an owner answer, the resumed provider is PROMPTED with the decision, not only delivered it."""
+
+    def resumed_after_answer(self):
+        response = dict(composed_fixture.ESCALATION, body='The launch.py repair is outside scope.',
+                        escalation={'ambiguity': 'launch.py is excluded',
+                                    'options': ['extend scope', 'separate Job'], 'recommendation': 'extend scope'})
+        with mock.patch.object(composed_fixture, 'REQUEST', dict(composed_fixture.REQUEST, body=QUESTION)):
+            held = self.answered(self.yielded(kind=native_handoff.FINDING_KIND), response=response)
+        self.drive(held.job, held.composed, 'review', native_handoffs.ANSWERED_STATE, ticks=12)
+        request = self.messages()[0]
+        yielded = native_handoffs.yield_of(held.job, 'job-a/implementation', 1)
+        authority = self.authority()
+        actor = dict(authority_uuid=authority.authority_uuid, participant=composed_fixture.OWNER,
+                     principal=authority.principal_of(composed_fixture.OWNER), uid=os.getuid())
+        held.composed.close()
+        main_thread.answer(held.job, authority, 'job-a', request['message_id'], ANSWER,
+                           phase='job-a/implementation', checkpoint_id=yielded['checkpoint_id'], actor=actor)
+        self.reconnected(held)
+        return self.resumed(held)
+
+    def test_the_resumed_prompt_carries_the_decision_after_the_reviewer_reply(self):
+        held = self.resumed_after_answer()
+        self.assertEqual(self.turn(held.control, 'implementation', held.resumed, held.resumed_roots,
+                                   edits={'harness.py': "print('extended')\n"}), 0)
+        prompt = self.prompts[-1]
+        reply_at = prompt.index("THE REVIEWER'S REPLY (escalate):")
+        decision_at = prompt.index("THE OWNER'S DECISION ON THAT ESCALATION (baton.slaw)")
+        self.assertLess(reply_at, decision_at)
+        self.assertIn(ANSWER, prompt[decision_at:])
+        self.assertIn("under the owner's decision", prompt)
+        self.assertNotIn("the requirements and the verification command are unchanged", prompt)
+
+    def test_a_decision_about_another_request_is_refused_before_the_provider(self):
+        held = self.resumed_after_answer()
+        place = Path(held.resumed_roots['inputs'], 'handoff.json')
+        document = json.loads(place.read_text())
+        import claude_agent
+        for change in ({'request_id': 'message-other'}, {'escalation_id': 'reply-other'}, {'body': ''}):
+            with self.subTest(change=change):
+                altered = copy.deepcopy(document)
+                altered['continuation']['owner_decision'].update(change)
+                with mock.patch.object(claude_agent, 'INPUT_ROOT', str(self.root)):
+                    Path(self.root, 'handoff.json').write_text(json.dumps(altered))
+                    with self.assertRaises(claude_agent.TaskRefusal):
+                        claude_agent._handoff_context('implementation')
+
+    def test_a_continuation_without_a_decision_keeps_its_prompt(self):
+        held = self.answered(self.yielded())
+        self.resumed(held)
+        self.assertEqual(self.turn(held.control, 'implementation', held.resumed, held.resumed_roots,
+                                   edits={'harness.py': "print('finished')\n"}), 0)
+        prompt = self.prompts[-1]
+        self.assertNotIn("THE OWNER'S DECISION", prompt)
+        self.assertIn("the requirements and the verification command are unchanged", prompt)

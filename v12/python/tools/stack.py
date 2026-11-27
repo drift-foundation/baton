@@ -1491,6 +1491,13 @@ def main(argv=None, *, stream=sys.stdout, environ=None):
     reading.add_argument("--json", action="store_true", help="export the same durable Job read as JSON")
     reading.add_argument("--snapshot", action="store_true", help="explicitly read the publisher file for diagnostics/replay")
     commands.add_parser("repository")
+    upgrading = commands.add_parser(
+        "upgrade-runtime",
+        help="replace a STOPPED instance's runtime in place, keeping its "
+             "stores, Jobs and configuration (W386447)")
+    upgrading.add_argument("--distro", required=True,
+                           help="the built one-folder runtime to install; run "
+                                "this command from that runtime")
     watching = commands.add_parser("monitor")
     watching.add_argument("--todo", action="store_true", help="show open MANUAL Jobs")
     watching.add_argument("--snapshot", action="store_true", help="explicitly replay the publisher file instead of the durable read")
@@ -1503,6 +1510,23 @@ def main(argv=None, *, stream=sys.stdout, environ=None):
                           help="seconds between reads of the snapshot")
     taken = parser.parse_args(argv)
     environ = os.environ if environ is None else environ
+    if taken.command == "upgrade-runtime":
+        # BEFORE `instance_settings`: that verifies the INSTALLED runtime is
+        # the one running, which is exactly what an upgrade is not, and a
+        # rerun after an interrupted upgrade must not be refused by it.
+        from tools import instance as instances, runtime_upgrade
+
+        if not taken.instance:
+            print("refused: `upgrade-runtime` replaces an instance's runtime, "
+                  "so it needs --instance", file=stream)
+            return 2
+        try:
+            return runtime_upgrade.upgrade(taken.instance, taken.distro,
+                                           stream=stream)
+        except (runtime_upgrade.UpgradeRefusal, instances.InstanceRefusal,
+                StackRefusal) as refusal:
+            print("refused: " + str(refusal), file=stream)
+            return 2
     try:
         if taken.instance:
             from tools import instance as instances

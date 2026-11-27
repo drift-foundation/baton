@@ -281,6 +281,9 @@ COMMANDS = {
     # "what is this deployment's repository, actually?" -- is asked of a
     # deployment, from wherever it is installed.
     "repository": _stack("repository"),
+    # W386447: THE OWNER-RUN IN-PLACE RUNTIME UPGRADE of a stopped instance,
+    # run from the NEW runtime: `upgrade-runtime --instance X --distro D`.
+    "upgrade-runtime": _stack("upgrade-runtime"),
     "manager": _manager, "view": _view, "logs": _logs,
     # THE CANONICAL RECORD SURFACE. W321688; read-only verbs take a read-only
     # authority handle, so asking a serving deployment where a record lives
