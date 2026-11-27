@@ -14512,7 +14512,40 @@ class AnsweredImplementationRecovery(unittest.TestCase):
     def test_stopped_owner_command_completes_from_original_hold(self):
         self.recover(interrupt=False)
 
-    def recover(self, *, interrupt):
+    def test_stopped_recovery_uses_profile_allocated_after_upgrade(self):
+        self.recover(interrupt=False, upgrade=True)
+
+    def start_after_upgrade(self, case):
+        import io
+        from pathlib import Path
+        from unittest.mock import patch
+        from baton_v12.job_manager import scheduler, submission
+        from tools import instance, pool, worker_image_upgrade
+
+        places, selector, old = case.image_upgrade_instance()
+        inputs = json.loads(Path(places["install_inputs"]).read_bytes())
+        instance.publish(places["install_inputs"], dict(inputs, owner_participant="fixture.owner"))
+        jobs, _, ops = case.serving()
+        submission.submit(jobs, case.submission)
+        original, = [one for one in submission.stages_of(jobs, "job-a") if one["kind"] == "implementation"]
+        ops.close()
+        argv, engine, image, _ = case.image_upgrade_engine(places, old, provider="codex")
+        stream = io.StringIO()
+        with patch.object(worker_image_upgrade.installed_worker, "_docker", side_effect=engine):
+            self.assertEqual(pool.main(argv, stream=stream), 0, stream.getvalue())
+        updated = json.loads(Path(places["deployment"]).read_bytes())
+        case.enterContext(patch.object(case, "composed_document", return_value=updated))
+        jobs, control, ops = case.serving()
+        case.drive(jobs, ops, "implementation", "waiting")
+        attempt = case.only_attempt(ops, "implementation")
+        allocation = scheduler.allocation_of(jobs, attempt)
+        self.assertNotEqual(original["profile_digest"], allocation["worker_profile_digest"])
+        self.assertEqual(allocation["worker_profile_digest"], next(w["deployment"]["profile_digest"]
+            for w in updated["workers"] if w["worker_id"] == allocation["worker_id"]))
+        self.assertEqual(case.engine.image, image)
+        return places, selector, jobs, control, ops, attempt
+
+    def recover(self, *, interrupt, upgrade=False):
         from datetime import datetime, timedelta
         from pathlib import Path
         from unittest.mock import patch
@@ -14527,19 +14560,22 @@ class AnsweredImplementationRecovery(unittest.TestCase):
         case.setUp()
         from tools import instance, manual_job, job_manager, stopped_settlement
         import io
-        places = instance.layout(case.root)
-        Path(places["stores"]).mkdir(mode=0o700)
-        os.rename(case.authority_path, places["authority_store"])
-        case.authority_path = case.config["authority_store"] = places["authority_store"]
-        case.job_path, case.control_path = places["job_store"], places["control_store"]
-        Path(places["distro"]).mkdir()
-        Path(places["command"]).write_text("fixture runtime")
-        selector = instance.emit(case.root, authority_uuid=case.config["authority_uuid"], identity={"fixture": True},
-                                 runtime=instance.manifest(places["distro"]), now=1)
-        instance.publish(places["instance"], selector)
-        instance.publish(places["install_inputs"], {"owner_participant": "fixture.owner"})
-        instance.publish(places["deployment"], case.composed_document(line_declared_base=case.base))
-        jobs, control, ops, attempt = case.started()
+        if upgrade:
+            places, selector, jobs, control, ops, attempt = self.start_after_upgrade(case)
+        else:
+            places = instance.layout(case.root)
+            Path(places["stores"]).mkdir(mode=0o700)
+            os.rename(case.authority_path, places["authority_store"])
+            case.authority_path = case.config["authority_store"] = places["authority_store"]
+            case.job_path, case.control_path = places["job_store"], places["control_store"]
+            Path(places["distro"]).mkdir()
+            Path(places["command"]).write_text("fixture runtime")
+            selector = instance.emit(case.root, authority_uuid=case.config["authority_uuid"], identity={"fixture": True},
+                                     runtime=instance.manifest(places["distro"]), now=1)
+            instance.publish(places["instance"], selector)
+            instance.publish(places["install_inputs"], {"owner_participant": "fixture.owner"})
+            instance.publish(places["deployment"], case.composed_document(line_declared_base=case.base))
+            jobs, control, ops, attempt = case.started()
         self.assertEqual(case.turn(control, "implementation", attempt, case.mounted(ops, "implementation", attempt),
                                    edits={"harness.py": "print('changed')\n"}), 0)
         later = (datetime.fromisoformat(fixtures.NOW.replace("Z", "+00:00")) + timedelta(seconds=tokens.LIFETIME_SECONDS + 60)).isoformat(timespec="milliseconds").replace("+00:00", "Z")
@@ -14615,7 +14651,7 @@ class AnsweredImplementationRecovery(unittest.TestCase):
         with patch.object(stopped_settlement, "_composed", side_effect=compose) as compositions:
             for _ in range(2):
                 stream = io.StringIO()
-                self.assertEqual(job_manager.main(argv, stream=stream, clock=lambda: fixtures.NOW), 0)
+                self.assertEqual(job_manager.main(argv, stream=stream, clock=lambda: fixtures.NOW), 0, stream.getvalue())
                 replies.append(json.loads(stream.getvalue()))
             self.assertEqual(compositions.call_count, 1)
         self.assertEqual(replies[0], replies[1])

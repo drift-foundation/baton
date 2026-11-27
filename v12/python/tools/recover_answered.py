@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 from baton_v12.contracts import ContractRefusal
-from baton_v12.job_manager import JobStore, ending, submission
+from baton_v12.job_manager import JobStore, ending, scheduler, submission
 from baton_v12.worker_manager import ControlStore, answered_recovery
 from tools import instance, runtime_upgrade, stack, stopped_settlement
 from tools.manual_job import _owner_actor
@@ -47,8 +47,9 @@ def recover(args, *, clock):
         stage_id = args.job + "/implementation"
         settled = ending.settlement_of(jobs, stage_id, args.episode)
         if settled is None:
-            stage, _ = stopped_settlement._stage(jobs, {"job_id": args.job, "stage_id": stage_id, "episode": args.episode,
+            stage, allocation = stopped_settlement._stage(jobs, {"job_id": args.job, "stage_id": stage_id, "episode": args.episode,
                                                        "request": {"attempt_id": args.attempt}})
+            stage = scheduler.effective_stage(stage, scheduler.active_pool_document(jobs), allocation)
             operations = stopped_settlement._composed(configuration, jobs, control)
             opened.callback(operations.close)
             with answered_recovery.nominated(control, receipt):
