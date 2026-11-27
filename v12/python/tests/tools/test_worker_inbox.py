@@ -201,6 +201,68 @@ from tests.tools import test_native_handoffs as composed_fixture
 
 
 class SameTurnInbox(composed_fixture.HandoffJobCase):
+    def test_standing_replacement_preserves_hold_and_is_visible_to_later_roles(self):
+        from baton_v12.contracts import ContractRefusal
+        from baton_v12.job_manager import episodes, native_handoffs, sweep
+        import worker_inbox as worker
+
+        held = self.answered(self.yielded(), response=composed_fixture.ESCALATION)
+        self.drive(held.job, held.composed, 'review', native_handoffs.ANSWERED_STATE)
+        authority = self.authority()
+        actor = dict(authority_uuid=authority.authority_uuid, participant=composed_fixture.OWNER,
+                     principal=authority.principal_of(composed_fixture.OWNER), uid=os.getuid())
+        stage = 'job-a/implementation'
+        def publish(key, text, *replaces):
+            return main_thread.ruling(held.job, authority, 'job-a', text, operation_id=key, supersedes=replaces, actor=actor)
+        def requests():
+            return main_thread.read(held.job, authority, 'job-a')['open_requests']
+
+        pending = requests()
+        self.assertEqual(len(pending), 1)
+        r1 = publish('r1', 'Permit the instruction mirror.')
+        r2 = publish('r2', 'Use python3.')
+        prior = main_thread.read(held.job, authority, 'job-a')['rulings']
+        self.assertEqual([one['status'] for one in prior], ['active', 'active'])
+        r3 = publish('r3', 'Keep both instruction copies identical.', r1['message_id'])
+        self.assertEqual(publish('r3', r3['body'], r1['message_id']), r3)
+        held.composed.close()
+        self.reconnected(held)
+        for _ in range(3):
+            sweep(held.job, held.composed, now=composed_fixture.fixtures.NOW)
+        self.assertEqual(requests(), pending)
+        self.assertEqual(episodes.live_of(held.job, stage)['episode'], 1)
+        self.assertEqual(self.operations(held.job, native_handoffs.CONTINUE_KIND), 0)
+        def answer(checkpoint):
+            return main_thread.answer(held.job, authority, 'job-a', pending[0]['request_id'], 'Proceed.',
+                                     phase=stage, checkpoint_id=checkpoint, actor=actor)
+        with self.assertRaises(ContractRefusal):
+            answer('other-checkpoint')
+        self.assertEqual(requests(), pending)
+        decision = answer(pending[0]['checkpoint_id'])
+        self.assertEqual(answer(pending[0]['checkpoint_id']), decision)
+        self.resumed(held)
+
+        def inspect(role):
+            live = episodes.live_of(held.job, 'job-a/' + role)
+            held.composed._inbox_tick()
+            adopted = self.worker_of(held.composed, role)._adopted(dict(live, job_id='job-a', kind=role))
+            command = adopted.exchange.command_root
+            actual = worker.rulings(command_root=command)['entries']
+            self.assertEqual([(r['message_id'], r['body']['text'], r['status']) for r in actual],
+                             [(r1['message_id'], r1['body'], 'superseded'), (r2['message_id'], r2['body'], 'active'),
+                              (r3['message_id'], r3['body'], 'active')])
+            self.assertEqual(actual[-1]['body']['supersedes'], [r1['message_id']])
+            with mock.patch.object(worker, 'MAX_ENTRIES', 1):
+                first = worker.rulings(command_root=command)
+                self.assertEqual(first['entries'], actual[:1])
+                self.assertEqual(worker.rulings(first['last_sequence'], command_root=command)['entries'], actual[1:2])
+        inspect('implementation')
+        self.assertEqual(self.turn(held.control, 'implementation', held.resumed, held.resumed_roots,
+                                   edits={'harness.py': "print('finished')\n"}), 0)
+        self.drive(held.job, held.composed, 'review', 'waiting', ticks=16)
+        inspect('review')
+        self.assertEqual(self.operations(held.job, native_handoffs.CONTINUE_KIND), 1)
+
     def test_note_fetched_before_candidate_in_same_attempt_and_after_restart(self):
         import worker_inbox as confined
         import claude_agent
@@ -319,6 +381,9 @@ class InboxPromptCompatibility(TestCase):
         canonical = Path(__file__).resolve().parents[4] / 'docs' / 'V12-WORKER-INSTRUCTIONS.md'
         self.assertEqual(provider_policy.worker_instructions(), canonical.read_bytes())
         self.assertIn(b'worker_inbox.py --after SEQUENCE', canonical.read_bytes())
+        for instructions in (canonical.read_text(), confined.INSTRUCTIONS):
+            self.assertIn('worker_inbox.py --rulings', instructions)
+            self.assertIn('If active rulings conflict without an explicit replacement, ask the owner', instructions)
 
     def test_unbound_prompt_addendum_requires_available_inbox(self):
         import claude_agent

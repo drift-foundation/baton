@@ -10,6 +10,7 @@ from ..contracts import ContractRefusal, digest
 from ..worker_manager import boundaries
 from .store import job_signature
 
+RULING = "main.ruling"
 NOTE = "main.note"
 DECISION = "main.owner-answer"
 
@@ -82,11 +83,15 @@ def read(store, authority, job_id, *, thread=None):
                                   "checkpoint_id": None if yielded is None else yielded["checkpoint_id"],
                                   "state": "delivered" if delivered else "answer-recorded" if decision else "open",
                                   "decision": decision})
-    for kind in (NOTE, DECISION):
+    for kind in (NOTE, DECISION, RULING):
         for record in _records(store, kind, job_id):
             entries.append(((record["after_messages"] - 1, 1, record["sequence"]), record))
-    return {"job_id": job_id, "name": "main", "thread_id": thread_id,
-            "entries": [entry for _, entry in sorted(entries, key=lambda pair: pair[0])],
+    ordered = [entry for _, entry in sorted(entries, key=lambda pair: pair[0])]
+    rulings = [entry for entry in ordered if entry["kind"] in (DECISION, RULING) and "supersedes" in entry]
+    replaced = {target for ruling in rulings for target in ruling["supersedes"]}
+    return {"rulings": [dict(ruling, status="superseded" if ruling["message_id"] in replaced else "active") for ruling in rulings],
+            "job_id": job_id, "name": "main", "thread_id": thread_id,
+            "entries": ordered,
             "requests": questions, "open_requests": [one for one in questions if one["state"] == "open"]}
 
 
@@ -108,6 +113,16 @@ def _text(text):
 def _write(store, kind, operation, operands, count):
     def act(connection):
         _job(store, operands["job_id"])
+        if "supersedes" in operands:
+            for target in operands["supersedes"]:
+                prior = store.operation_record(target)
+                if prior is None or prior["state"] != "committed" or prior["kind"] not in (RULING, DECISION):
+                    _refuse("replacement must name an earlier standing ruling of this Job")
+                record = json.loads(prior["result"])
+                if record["job_id"] != operands["job_id"] or "supersedes" not in record:
+                    _refuse("replacement must name an earlier standing ruling of this Job")
+            from . import worker_inbox
+            worker_inbox.check_ruling_size(dict(operands, kind=kind, message_id=operation))
         sequence = connection.execute("SELECT count(*) FROM operations").fetchone()[0] + 1
         return dict(operands, kind=kind, message_id=operation, recorded_at=store._now(),
                     after_messages=count, sequence=sequence)
@@ -124,7 +139,26 @@ def note(store, authority, job_id, body, *, actor, operation_id, thread=None):
                   dict(job_id=job_id, thread_id=thread_id, author=actor["participant"], actor=actor, body=_text(body), phase=None), len(messages))
 
 
-def answer(store, authority, job_id, request_id, body, *, phase, checkpoint_id, actor, thread=None):
+def _targets(supersedes):
+    if type(supersedes) not in (list, tuple) or any(type(target) is not str or not target for target in supersedes):
+        _refuse("replacement targets must be stable message IDs")
+    if len(set(supersedes)) != len(supersedes):
+        _refuse("duplicate ruling replacement target")
+    return sorted(supersedes)
+
+
+def ruling(store, authority, job_id, body, *, actor, operation_id, supersedes=(), thread=None):
+    thread_id = identity(job_id, thread)
+    actor = _actor(store, authority, actor)
+    messages = _messages(store, authority, job_id)
+    boundaries.identity(operation_id, "ruling operation")
+    operation = RULING + ":" + digest({"job_id": job_id, "operation": operation_id})[7:]
+    return _write(store, RULING, operation, dict(job_id=job_id, thread_id=thread_id,
+                  author=actor["participant"], actor=actor, body=_text(body), phase=None,
+                  supersedes=_targets(supersedes)), len(messages))
+
+
+def answer(store, authority, job_id, request_id, body, *, phase, checkpoint_id, actor, thread=None, standing=False, supersedes=()):
     """Record one exact decision; an identical retry replays, a conflict refuses.
 
     The trusted installation boundary authenticates actor, as for MANUAL finish.
@@ -147,11 +181,14 @@ def answer(store, authority, job_id, request_id, body, *, phase, checkpoint_id, 
     if hold is None or hold["request_id"] != request_id or hold["message_id"] != reply["message_id"] or hold["checkpoint_id"] != checkpoint_id:
         _refuse("the request has no matching durable escalation hold")
     operation = DECISION + ":" + digest({"job_id": job_id, "request_id": request_id})[7:]
+    if type(standing) is not bool or (not standing and supersedes):
+        _refuse("only an explicitly standing answer can replace rulings")
+    designation = {"supersedes": _targets(supersedes)} if standing else {}
     return _write(store, DECISION, operation,
                   dict(job_id=job_id, thread_id=thread_id, request_id=request_id, phase=phase,
                        checkpoint_id=checkpoint_id, checkpoint_ref=request["checkpoint_ref"],
                        escalation_id=reply["message_id"], author=actor["participant"], actor=actor,
-                       body=_text(body)), len(messages))
+                       body=_text(body), **designation), len(messages))
 
 
 def outstanding(store, job_id):

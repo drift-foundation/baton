@@ -197,6 +197,51 @@ raise SystemExit(job_manager.main(sys.argv[1:]))
                 self.assertIsNone(native_handoffs.continuation_of(jobs, 'job-a/implementation', 1))
         self.assertFalse(Path(places['state']).exists())
 
+    def test_stopped_owner_can_replace_multiple_rulings_with_a_standing_answer(self):
+        held, _ = self.escalation()
+        places = self.install_stopped()
+        def publish(key):
+            return self.client(places, ['ruling', '--operation', key, '--body', key])['rulings'][-1]['message_id']
+        one = publish('one')
+        two = publish('two')
+        args = ['answer', '--standing', '--request', held['message']['message_id'], '--phase', 'job-a/implementation',
+                '--checkpoint', held['checkpoint_id'], '--body', ANSWER, '--supersedes', two, '--supersedes', one]
+        result = self.client(places, args)
+        self.assertEqual(self.client(places, args), result)
+        self.assertEqual([r['status'] for r in result['rulings']], ['superseded', 'superseded', 'active'])
+        self.assertEqual(result['rulings'][-1]['supersedes'], sorted([one, two]))
+        self.assertEqual(result['requests'][0]['decision']['message_id'], result['rulings'][-1]['message_id'])
+
+    def test_replacement_refuses_foreign_nonruling_and_missing_message_ids(self):
+        from baton_v12.job_manager import submit
+        from tests.job_manager import fixtures
+        submit(self.jobs, fixtures.submission(submission_id='other', jobs=[fixtures.job('other')]))
+        foreign = main_thread.ruling(self.jobs, self.authority, 'other', 'foreign', actor=self.actor, operation_id='r')
+        note = main_thread.note(self.jobs, self.authority, 'job-a', 'note', actor=self.actor, operation_id='note')
+        held, _ = self.escalation()
+        plain = self.answer(held)
+        for target in (foreign['message_id'], note['message_id'], plain['message_id'], 'missing'):
+            with self.assertRaises(ContractRefusal):
+                main_thread.ruling(self.jobs, self.authority, 'job-a', 'replacement', supersedes=[target],
+                                   operation_id=target, actor=self.actor)
+        self.assertEqual(self.conversation()['rulings'], [])
+
+    def test_ruling_retries_bind_body_and_replacement_ids_and_respect_exchange_size(self):
+        def publish(key, body, *ids):
+            return main_thread.ruling(self.jobs, self.authority, 'job-a', body,
+                                      operation_id=key, supersedes=ids, actor=self.actor)
+        original = publish('first', 'Keep the original rule.')
+        other = publish('other', 'A separate rule.')
+        replacement = publish('replace', 'Apply both changes.', original['message_id'], other['message_id'])
+        self.assertEqual(publish('replace', replacement['body'], other['message_id'], original['message_id']), replacement)
+        for key, body, targets in [('replace', 'different text', replacement['supersedes']),
+                                   ('replace', replacement['body'], [other['message_id']]),
+                                   ('oversize', 'a' + chr(1) * 16000, [])]:
+            with self.assertRaises(ContractRefusal):
+                publish(key, body, *targets)
+        self.assertEqual([r['message_id'] for r in self.conversation()['rulings'] if r['status']=='active'],
+                         [replacement['message_id']])
+
     def test_case_5_status_json_and_tui_share_question_and_phase(self):
         held, _ = self.escalation()
         for recorded in (False, True):

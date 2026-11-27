@@ -16,7 +16,8 @@ INSTRUCTIONS = ('Use python3 /opt/baton/worker_inbox.py --after SEQUENCE to fetc
                 'a candidate or verdict, check for newer entries with this fetch. Continue '
                 'from last_sequence until no entries are returned. The recorded cursor is '
                 'delivery evidence only; it does not imply comprehension or action. Notes '
-                'have no scheduling effect.')
+                'have no scheduling effect. '
+                'Read standing owner rulings with python3 /opt/baton/worker_inbox.py --rulings. Apply active rulings; superseded rulings remain readable as history. If active rulings conflict without an explicit replacement, ask the owner before proceeding.')
 
 
 _channel = contextvars.ContextVar('worker_inbox_channel', default=None)
@@ -57,20 +58,20 @@ def _read(root, name, limit=MAX_BYTES):
     return json.loads(raw)
 
 
-def fetch(after=0, *, command_root=None, event_root=None):
-    configured_command, configured_event = roots()
-    command_root = configured_command if command_root is None else command_root
-    event_root = configured_event if event_root is None else event_root
-    if type(after) is not int or not 0 <= after < 2**63:
-        raise ValueError('invalid inbox cursor')
+def _binding(command_root):
     binding = _read(command_root, '.inbox.json', 1024)
     if type(binding) is not dict or set(binding) != {'attempt_id'} or type(binding['attempt_id']) is not str:
         raise ValueError('invalid inbox binding')
+    return binding
+
+
+def _entries(command_root, binding, after):
+    if type(after) is not int or not 0 <= after < 2**63:
+        raise ValueError('invalid inbox cursor')
     numbers = sorted(int(name[7:-5]) for name in os.listdir(command_root)
                      if re.fullmatch(r'\.inbox-[1-9][0-9]{0,18}\.json', name))
     if after > (numbers[-1] if numbers else 0):
         raise ValueError('cursor beyond this attempt inbox')
-    page = {'entries': [], 'last_sequence': after}
     for number in numbers:
         if number <= after:
             continue
@@ -80,6 +81,50 @@ def fetch(after=0, *, command_root=None, event_root=None):
         entry = item['entry']
         if type(entry) is not dict or set(entry) != {'message_id', 'sequence', 'author', 'kind', 'body', 'phase'} or entry['sequence'] != number:
             raise ValueError('invalid inbox entry')
+        yield entry
+
+
+def rulings(after=0, *, command_root=None):
+    """Read a bounded history page with the standing status at this observation."""
+    entries = []
+    replaced = set()
+    page_full = False
+    last = after
+    # Include later replacements even when their text falls on another page.
+    if type(after) is not int or not 0 <= after < 2**63:
+        raise ValueError('invalid ruling cursor')
+    command_root = command_root or roots()[0]
+    latest = 0
+    for entry in _entries(command_root, _binding(command_root), 0):
+        latest = entry['sequence']
+        if entry['kind'] != 'main.ruling':
+            continue
+        replaced.update(entry['body']['supersedes'])
+        if entry['sequence'] <= after or page_full:
+            continue
+        candidate = dict(entry, status='superseded')
+        proposed = {'entries': entries + [candidate], 'last_sequence': entry['sequence']}
+        if len(entries) == MAX_ENTRIES or len(json.dumps(proposed).encode()) > MAX_BYTES:
+            page_full = True
+            continue
+        entries.append(candidate)
+        last = entry['sequence']
+    if after > latest:
+        raise ValueError('cursor beyond this attempt inbox')
+    for entry in entries:
+        if entry['message_id'] not in replaced:
+            entry['status'] = 'active'
+    return {'entries': entries, 'last_sequence': last}
+
+
+def fetch(after=0, *, command_root=None, event_root=None):
+    configured_command, configured_event = roots()
+    command_root = configured_command if command_root is None else command_root
+    event_root = configured_event if event_root is None else event_root
+    page = {'entries': [], 'last_sequence': after}
+    binding = _binding(command_root)
+    for entry in _entries(command_root, binding, after):
+        number = entry['sequence']
         proposed = {'entries': page['entries'] + [entry], 'last_sequence': number}
         if len(json.dumps(proposed).encode()) > MAX_BYTES:
             break
@@ -123,4 +168,6 @@ def prompt():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=INSTRUCTIONS)
     parser.add_argument('--after', type=int, default=0)
-    print(json.dumps(fetch(parser.parse_args().after)))
+    parser.add_argument('--rulings', action='store_true', help='read standing ruling history without advancing the conversation cursor')
+    args = parser.parse_args()
+    print(json.dumps(rulings(args.after) if args.rulings else fetch(args.after)))

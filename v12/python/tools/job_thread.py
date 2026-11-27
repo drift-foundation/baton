@@ -13,7 +13,7 @@ def main(argv=None, *, clock=None, stream=None):
     from tools.manual_job import _owner_actor
 
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", nargs="?", default="read", choices=("read", "note", "answer"))
+    parser.add_argument("action", nargs="?", default="read", choices=("read", "note", "ruling", "answer"))
     parser.add_argument("--instance", required=True)
     parser.add_argument("--job", required=True)
     parser.add_argument("--thread", default="main", choices=("main",))
@@ -22,11 +22,17 @@ def main(argv=None, *, clock=None, stream=None):
     parser.add_argument("--request")
     parser.add_argument("--phase")
     parser.add_argument("--checkpoint")
+    parser.add_argument("--standing", action="store_true", help="designate a targeted answer as a standing ruling")
+    parser.add_argument("--supersedes", action="append", default=[], metavar="MESSAGE_ID", help="replace an earlier same-Job ruling (repeatable)")
     args = parser.parse_args(argv)
+    if args.standing and args.action != "answer":
+        parser.error("--standing applies to a targeted answer")
+    if args.supersedes and args.action != "ruling" and not args.standing:
+        parser.error("--supersedes requires a ruling or standing answer")
     if args.action != "read" and not args.body:
-        parser.error("note and answer require --body")
-    if args.action == "note" and not args.operation:
-        parser.error("note requires a stable --operation for safe retries")
+        parser.error("note, ruling and answer require --body")
+    if args.action in ("note", "ruling") and not args.operation:
+        parser.error("note and ruling require a stable --operation for safe retries")
     if args.action == "answer" and not all((args.request, args.phase, args.checkpoint)):
         parser.error("answer requires --request, --phase and --checkpoint")
     selector = instance.read(args.instance)
@@ -38,8 +44,11 @@ def main(argv=None, *, clock=None, stream=None):
         with Authority.open_readonly(places["authority_store"], expected_authority_uuid=selector["authority_uuid"]) as authority:
             if args.action == "note":
                 main_thread.note(jobs, authority, args.job, args.body, actor=actor, operation_id=args.operation, thread=args.thread)
+            elif args.action == "ruling":
+                main_thread.ruling(jobs, authority, args.job, args.body, actor=actor, operation_id=args.operation,
+                                   supersedes=args.supersedes, thread=args.thread)
             elif args.action == "answer":
-                main_thread.answer(jobs, authority, args.job, args.request, args.body, phase=args.phase, checkpoint_id=args.checkpoint, actor=actor, thread=args.thread)
+                main_thread.answer(jobs, authority, args.job, args.request, args.body, phase=args.phase, checkpoint_id=args.checkpoint, actor=actor, thread=args.thread, standing=args.standing, supersedes=args.supersedes)
             result = main_thread.read(jobs, authority, args.job, thread=args.thread)
     print(json.dumps(result, sort_keys=True), file=stream or sys.stdout)
     return 0

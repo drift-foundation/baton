@@ -1365,3 +1365,13 @@ baton-v12-stack manager recover-answered --instance INSTANCE/instance.json --job
 ```
 
 Select the digest from the answered exchange and the full commit from the retained proposal. The command verifies the installed owner's local account, the original reservation, writer exclusion and the candidate, then runs only that attempt's ordinary ending. Success prints the selection and settlement with its checkpoint. An identical retry returns the same receipt. Start the instance normally to dispatch ordinary review. For a stopped instance running an older host, the reviewed source command can perform this one ending with the prepared interpreter from `v12/python` using `PYTHONPATH=src:. python -m tools.stack_command manager recover-answered` and the same operands. The instance's installed runtime and workers remain in place.
+
+### Standing owner rulings
+
+Use the installed manager's thread commands with the same `--instance` and `--job` as a thread read.
+
+    manager thread ruling --instance INSTANCE --job JOB --operation KEY --body 'Full rule'
+    manager thread ruling --instance INSTANCE --job JOB --operation NEW_KEY --supersedes MESSAGE_ID --body 'Full replacement rule'
+    manager thread answer --instance INSTANCE --job JOB --request REQUEST --phase STAGE --checkpoint CHECKPOINT --standing --body 'Decision and standing rule'
+
+Repeat `--supersedes` for multiple earlier rulings. The thread read lists their message IDs, text and current status under `rulings`. A standalone ruling has no scheduling effect. A plain targeted answer retains its original scope. Use the same operation key and operands to retry a standalone ruling.

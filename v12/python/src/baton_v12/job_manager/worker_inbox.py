@@ -36,8 +36,21 @@ def _entry(entry):
     body = entry["body"]
     if type(body) is dict:
         body = body["body"]
+    kind = entry["kind"]
+    if kind in (main_thread.RULING, main_thread.DECISION) and "supersedes" in entry:
+        kind = main_thread.RULING
+        body = {"text": body, "supersedes": entry["supersedes"]}
     return {"message_id": entry["message_id"], "author": entry["author"],
-            "kind": entry["kind"], "body": body, "phase": None if entry.get("phase") is None else entry["phase"].rsplit("/", 1)[-1]}
+            "kind": kind, "body": body, "phase": None if entry.get("phase") is None else entry["phase"].rsplit("/", 1)[-1]}
+
+
+def check_ruling_size(record):
+    """Even a single heavily escaped ruling must fit the bounded exchange page."""
+    entry = dict(_entry(record), sequence=MAX_SEQUENCE, status="superseded")
+    page = {"entries": [entry], "last_sequence": MAX_SEQUENCE}
+    envelope = {"attempt_id": "attempt-" + "f" * 64, "entry": entry}
+    if max(len(json.dumps(document)) for document in (page, envelope)) > MAX_BYTES:
+        _refuse("standing ruling exceeds the inbox byte bound")
 
 
 def read(store, authority, job_id, *, after=0, limit=MAX_ENTRIES):

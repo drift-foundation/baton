@@ -930,6 +930,8 @@ intake, retention, authorized routing and cleanup. Their exact ordering follows
 the selected normal or cancellation contract. A partial ending cannot manufacture
 a passed review or erase an allocation. Each substep has its own stable replay.
 
+Owner amendment 2026-11-27 (W386530, standing rulings): a Job-scoped owner ruling stays available to every later implementation and review attempt of that Job until the owner supersedes it. Resuming a held attempt is a separate matter: only a targeted owner answer to the matching request, phase and checkpoint can do that. A standing ruling never resumes or releases anything by itself. Supersession is explicit. An owner ruling may name one or more earlier owner rulings of the same Job, each by its stable message ID. The named rulings stay readable as history and are marked superseded. Every other standing ruling stays active. A replacement should state the full rule that now applies. If active rulings conflict and no explicit replacement exists, the attempt asks the owner. Supersession alone has no scheduling effect. The owner can publish a standalone ruling or explicitly designate a targeted answer as standing. [Ruling](../work/records/2026/11/finding-v12-job-main-thread/findings/finding-v12-owner-decision-continuity/FINDING.md).
+
 **REC-7. Manager-owned fresh-attempt admission (owner 2026-10-23).**
 Routine fresh-attempt retry MUST be a supported deterministic Job manager operation
 exposed through the CLI, without a model preparing the run. A new Job identity is
