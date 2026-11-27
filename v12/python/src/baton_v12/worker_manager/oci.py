@@ -3696,12 +3696,25 @@ class OciAdapter:
         return self.identity["image_digest"]
 
     def prove_no_writable_mount(self, root):
-        """Also inspect foreign and stopped containers which could write this line."""
-        from .answered_recovery import refuse, mount_regions
+        """Also inspect foreign and stopped containers which could write this line.
+
+        W386542: the proof is about every container the engine holds, running or
+        exited, because an exited container can be restarted. Each writable mount
+        is judged by where it writes now or would write after a restart:
+          - a bind, by its source; a missing source by the place a restart would
+            recreate it (`answered_recovery.prospective_regions`);
+          - a local volume, by its engine-managed data directory, or by the host
+            path its bind options name; tmpfs-backed volumes write no host path;
+          - any other volume driver, option set or mount type that cannot be
+            located holds recovery.
+        Overlap with the implementation line, and any uncertainty, refuses. Each
+        refusal names the container, the mount type and the underlying cause.
+        """
+        from .answered_recovery import refuse, mount_regions, prospective_regions, overlaps
         protected = mount_regions(root)
         listed = self.run([self.engine, "ps", "--all", "--no-trunc", "--format", "{{.ID}}"], seconds=30)
         if listed["status"] != 0:
-            refuse("container inventory unavailable for writer exclusion")
+            refuse("container inventory unavailable for writer exclusion (" + _first_line(listed.get("stderr")) + ")")
         for runtime in listed["stdout"].splitlines():
             if not re.fullmatch("[0-9a-f]{64}", runtime):
                 refuse("container inventory returned an unknown identity")
@@ -3711,19 +3724,110 @@ class OciAdapter:
             except ValueError:
                 mounts = None
             if raw["status"] != 0 or not isinstance(mounts, list):
-                refuse("container mount observation is incomplete")
+                refuse(f"container {runtime}: mount observation is incomplete (" + _first_line(raw.get("stderr")) + ")")
             for mount in mounts:
                 if not isinstance(mount, dict) or type(mount.get("RW")) is not bool:
-                    refuse("unknown container mount access")
-                if not mount["RW"] or mount.get("Type") == "tmpfs":
+                    refuse(f"container {runtime}: unknown container mount access")
+                kind = mount.get("Type")
+                if not mount["RW"] or kind == "tmpfs":
                     continue
                 source = mount.get("Source")
-                if not isinstance(source, str) or not os.path.isabs(source):
-                    refuse("unknown writable container mount source")
-                exposed = mount_regions(source)
-                if any(a == b and os.path.commonpath((p, q)) in (p, q)
-                       for a, p in exposed for b, q in protected):
-                    refuse("a container retains a writable mount overlapping the implementation line")
+                where = f"container {runtime} {kind if isinstance(kind, str) else 'untyped'} mount {source!r}"
+                try:
+                    if kind == "bind":
+                        exposed = prospective_regions(source)
+                    elif kind == "volume":
+                        exposed = self._volume_regions(mount)
+                    else:
+                        if not isinstance(source, str) or not os.path.isabs(source):
+                            refuse("unknown writable container mount source")
+                        exposed = mount_regions(source)
+                except ContractRefusal as refusal:
+                    refuse(f"{where}: writer exclusion is uncertain: {refusal.message}")
+                if overlaps(exposed, protected):
+                    refuse(f"{where}: a container retains a writable mount overlapping the implementation line")
+
+    def _volume_regions(self, mount):
+        """Where one writable named volume writes on the host, or a refusal."""
+        from .answered_recovery import refuse, prospective_regions
+        name = mount.get("Name")
+        if not isinstance(name, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*", name):
+            refuse("volume mount has no usable volume name")
+        answer = self.run([self.engine, "volume", "inspect", "--format", "{{json .}}", name], seconds=30)
+        try:
+            volume = json.loads(answer["stdout"])
+        except ValueError:
+            volume = None
+        if answer["status"] != 0 or not isinstance(volume, dict):
+            refuse(f"volume {name!r} inspection failed (" + _first_line(answer.get("stderr")) + ")")
+        driver, options, point = volume.get("Driver"), volume.get("Options") or {}, volume.get("Mountpoint")
+        if driver != "local":
+            refuse(f"volume {name!r} uses driver {driver!r}, whose host backing cannot be located")
+        if not isinstance(options, dict):
+            refuse(f"volume {name!r} options are unreadable")
+        if options:
+            return self._local_option_regions(name, options)
+        root = self._engine_root()
+        expected = os.path.join(root, "volumes", name, "_data")
+        if not isinstance(point, str) or os.path.normpath(point) != expected:
+            refuse(f"volume {name!r} mountpoint {point!r} is not {expected!r} under the engine root")
+        if mount.get("Source") not in (None, point):
+            refuse(f"volume {name!r} mount source differs from its mountpoint")
+        # M386591: the engine's path is a name, not a location. The data directory,
+        # or any ancestor, may be a link, so it is walked physically like a bind
+        # source; where this operator cannot traverse the engine root, its backing
+        # is unknown and recovery holds.
+        return prospective_regions(point)
+
+    def _local_option_regions(self, name, options):
+        """Classify a local volume's driver options as exactly one backing, or hold.
+
+        M386600: the inspected options are excluded as tmpfs only when every one
+        agrees -- `type` is tmpfs, `device` is absent or the conventional `tmpfs`,
+        and each `o` flag is a memory-only mount option. A bind is judged at its
+        device only when `type` is none (or absent) and `o` names bind. A key,
+        flag or value outside those readings, or evidence for both, holds and
+        names the volume and the reason.
+        """
+        from .answered_recovery import refuse, prospective_regions
+        unknown = sorted(key for key in options if key not in ("type", "o", "device"))
+        if unknown:
+            refuse(f"volume {name!r} local options carry unsupported keys {unknown}")
+        kind, flags, device = options.get("type"), options.get("o", ""), options.get("device")
+        if not all(isinstance(value, str) for value in (kind if kind is not None else "", flags, device if device is not None else "")):
+            refuse(f"volume {name!r} local options are not strings")
+        flags = [flag for flag in flags.split(",") if flag]
+        names = [flag.split("=", 1)[0] for flag in flags]
+        binding = [flag for flag in names if flag in ("bind", "rbind")]
+        if kind == "tmpfs":
+            if binding:
+                refuse(f"volume {name!r} local options contradict: type tmpfs with {'/'.join(binding)} of device {device!r}")
+            if device not in (None, "tmpfs"):
+                refuse(f"volume {name!r} local options contradict: type tmpfs with device {device!r}")
+            odd = [flag for flag in flags if not (flag in _TMPFS_FLAGS or ("=" in flag and flag.split("=", 1)[0] in _TMPFS_VALUED))]
+            if odd:
+                refuse(f"volume {name!r} tmpfs options {odd} are not established as memory-only")
+            return []
+        if kind in (None, "none") and binding:
+            if not isinstance(device, str) or not os.path.isabs(device):
+                refuse(f"volume {name!r} bind options name no absolute device ({device!r})")
+            return prospective_regions(device)
+        refuse(f"volume {name!r} local options (type {kind!r}, o {','.join(flags)!r}) name neither a host bind nor tmpfs")
+
+    def _engine_root(self):
+        from .answered_recovery import refuse
+        held = getattr(self, "_engine_root_held", None)
+        if held is not None:
+            return held
+        answer = self.run([self.engine, "info", "--format", "{{json .DockerRootDir}}"], seconds=30)
+        try:
+            root = json.loads(answer["stdout"])
+        except ValueError:
+            root = None
+        if answer["status"] != 0 or not isinstance(root, str) or not os.path.isabs(root):
+            refuse("the container engine root is unavailable (" + _first_line(answer.get("stderr")) + ")")
+        self._engine_root_held = os.path.normpath(root)
+        return self._engine_root_held
 
     def prove_line_consumable(self, store, *, assignment_id, generation):
         """W105982: prove THIS adapter's roots are the line durable state names,
@@ -4577,3 +4681,17 @@ def _context_mounts(delivered, posture, others):
         if _within(source, other_source) or _within(other_source, source) or (other_target is not None and (_within(target, other_target) or _within(other_target, target))):
             _denied("context use overlaps another mount family")
     return [(source, target, writable)]
+
+
+# M386600: memory-only options a tmpfs volume may carry. Anything else -- above
+# all bind/rbind -- leaves its backing open to more than one reading.
+_TMPFS_FLAGS = frozenset(("ro", "rw", "noexec", "exec", "nosuid", "suid", "nodev", "dev", "noatime", "atime",
+                          "relatime", "norelatime", "strictatime", "nodiratime", "diratime"))
+_TMPFS_VALUED = frozenset(("size", "nr_blocks", "nr_inodes", "mode", "uid", "gid", "huge", "mpol"))
+
+
+def _first_line(text):
+    """One bounded line of engine diagnostics for a refusal; never a whole stream."""
+    if not isinstance(text, str) or not text.strip():
+        return "no diagnostic"
+    return text.strip().splitlines()[0][:240]

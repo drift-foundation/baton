@@ -14545,7 +14545,7 @@ class AnsweredImplementationRecovery(unittest.TestCase):
         self.assertEqual(case.engine.image, image)
         return places, selector, jobs, control, ops, attempt
 
-    def recover(self, *, interrupt, upgrade=False):
+    def recover(self, *, interrupt, upgrade=False, inventory=None):
         from datetime import datetime, timedelta
         from pathlib import Path
         from unittest.mock import patch
@@ -14644,8 +14644,37 @@ class AnsweredImplementationRecovery(unittest.TestCase):
         ops.close()
         argv = ["recover-answered", "--instance", places["instance"], "--job", "job-a", "--episode", "1",
                 "--attempt", attempt, "--manifest", args["manifest"], "--head", head]
+        engine_run = case.engine
+        if inventory is not None:
+            # W386542: the stopped command sees a field-shaped inventory of
+            # exited containers beside the fixture's own; `held` names the one
+            # that must hold recovery, which is removed before the retry.
+            containers, held = inventory(case, Path(line["line_path"]))
+            engine_run = InventoryEngine(case.engine, containers)
+            if held is not None:
+                stream = io.StringIO()
+                with patch.object(stopped_settlement, "_composed", side_effect=lambda document, job_store, control_store: stage_execution.operations_from(
+                        document, job_store, control_store, engine_run=engine_run, credential_provider=lambda *unused: case.secret,
+                        clock=lambda: fixtures.NOW, checkout=case.checkout)):
+                    for recreated in (False, True):
+                        if recreated:
+                            # A restart recreates the missing source; the verdict is the same.
+                            for one in containers[held]:
+                                if one.get("Type") == "bind":
+                                    Path(one["Source"]).mkdir(parents=True, exist_ok=True)
+                        stream = io.StringIO()
+                        self.assertEqual(job_manager.main(["recover-answered", "--instance", places["instance"], "--job", "job-a", "--episode", "1",
+                                                           "--attempt", attempt, "--manifest", args["manifest"], "--head", head],
+                                                          stream=stream, clock=lambda: fixtures.NOW), 1, stream.getvalue())
+                        self.assertIn("container " + held + " bind mount", stream.getvalue())
+                        self.assertIn("overlapping the implementation line", stream.getvalue())
+                from baton_v12.job_manager import ending
+                self.assertIsNone(ending.settlement_of(jobs, "job-a/implementation", 1))
+                self.assertIsNone(frozen_output_of(control, attempt))
+                self.assertEqual(review_cycles.writer_of(control, writer["writer_id"])["state"], "active")
+                del containers[held]
         def compose(document, job_store, control_store):
-            return stage_execution.operations_from(document, job_store, control_store, engine_run=case.engine,
+            return stage_execution.operations_from(document, job_store, control_store, engine_run=engine_run,
                 credential_provider=lambda *unused: case.secret, clock=lambda: fixtures.NOW, checkout=case.checkout)
         replies = []
         with patch.object(stopped_settlement, "_composed", side_effect=compose) as compositions:
@@ -14694,3 +14723,313 @@ class AnsweredImplementationRecovery(unittest.TestCase):
                             OciAdapter.prove_no_writable_mount(adapter, str(root))
                     else:
                         OciAdapter.prove_no_writable_mount(adapter, str(root))
+
+    # -- W386542: the writer inventory over exited containers (field, 2026-11-27) --
+
+    def adapter_over(self, containers, engine_root=None):
+        from types import SimpleNamespace
+        from baton_v12.worker_manager.oci import OciAdapter
+        adapter = SimpleNamespace(engine="fake", run=InventoryEngine(None, containers, engine_root=engine_root))
+        adapter._volume_regions = lambda mount: OciAdapter._volume_regions(adapter, mount)
+        adapter._engine_root = lambda: OciAdapter._engine_root(adapter)
+        adapter._local_option_regions = lambda name, options: OciAdapter._local_option_regions(adapter, name, options)
+        return adapter
+
+    def verdict(self, containers, root, engine_root=None):
+        from baton_v12.contracts import ContractRefusal
+        from baton_v12.worker_manager.oci import OciAdapter
+        try:
+            OciAdapter.prove_no_writable_mount(self.adapter_over(containers, engine_root), str(root))
+        except ContractRefusal as refusal:
+            return refusal.message
+        return None
+
+    def test_missing_bind_sources_are_judged_where_a_restart_recreates_them(self):
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder, "lines")
+            (root / "line-1").mkdir(parents=True)
+            elsewhere = Path(folder, "gone")
+            # The field shape: many exited containers whose bind sources were removed.
+            field = {f"{n:064x}": [{"Type": "bind", "Source": str(elsewhere / f"run-{n}" / "workspace"), "RW": True}]
+                     for n in range(1, 119)}
+            self.assertIsNone(self.verdict(field, root))
+            elsewhere.mkdir()
+            (elsewhere / "run-1" / "workspace").mkdir(parents=True)
+            self.assertIsNone(self.verdict(field, root), "a restart that recreates the source changes nothing")
+            link = Path(folder, "alias")
+            link.symlink_to(root)
+            hidden = Path(folder, "closed")
+            (hidden / "inner").mkdir(parents=True)
+            dangling = Path(folder, "dangling")
+            dangling.symlink_to(Path(folder, "nowhere"))
+            for label, source, expected in [
+                    ("missing under the line", root / "line-1" / "later" / "x", "overlapping the implementation line"),
+                    ("missing above the line", Path(folder, "lines-parent-gone"), None),
+                    ("missing through an alias of the line", link / "line-2" / "x", "overlapping the implementation line"),
+                    ("missing beneath an unreadable directory", hidden / "inner" / "x", "PermissionError"),
+                    ("a dangling link", dangling / "x", "does not resolve"),
+                    ("relative source", "relative/path", "not an absolute host path")]:
+                with self.subTest(label):
+                    container = "f" * 64
+                    hidden.chmod(0o000)
+                    try:
+                        message = self.verdict({container: [{"Type": "bind", "Source": str(source), "RW": True}]}, root)
+                    finally:
+                        hidden.chmod(0o700)
+                    if expected is None:
+                        self.assertIsNone(message)
+                    else:
+                        self.assertIn(expected, message)
+                        self.assertIn("container " + container + " bind mount", message)
+            # A missing source exactly at the line's parent overlaps the whole line tree.
+            self.assertIn("overlapping", self.verdict({"e" * 64: [{"Type": "bind", "Source": str(Path(folder, "lines", "removed")), "RW": True}]}, root))
+            # Read-only binds and tmpfs never write.
+            self.assertIsNone(self.verdict({"d" * 64: [{"Type": "bind", "Source": str(root / "line-1"), "RW": False},
+                                                       {"Type": "tmpfs", "Source": "", "RW": True}]}, root))
+
+    def test_volume_mounts_are_located_through_the_engine(self):
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder, "lines")
+            (root / "line-1").mkdir(parents=True)
+            engine_root = Path(folder, "engine-root")
+            volumes = engine_root / "volumes"
+            for name in ("cache-a", "cache-b"):
+                (volumes / name / "_data").mkdir(parents=True)
+            self.located_volumes(root, engine_root, volumes)
+
+    def located_volumes(self, root, engine_root, volumes):
+        from pathlib import Path
+        folder = str(root.parent)
+        data = str(volumes / "cache-a" / "_data")
+        container = "c" * 64
+        def volume(name, **inspected):
+            return {"Type": "volume", "Name": name, "Source": str(volumes / name / "_data"), "RW": True, "_volume": inspected}
+        plain = {"Driver": "local", "Options": None}
+        self.assertIsNone(self.verdict({container: [volume("cache-a", **plain), volume("cache-b", **plain)]}, root, str(engine_root)))
+        for label, mount, root_of_engine, expected in [
+                ("a local volume bound onto the line", volume("cache-a", Driver="local", Options={"type": "none", "o": "bind", "device": str(root / "line-1")}),
+                 str(engine_root), "overlapping the implementation line"),
+                ("a local volume bound elsewhere, missing", volume("cache-a", Driver="local", Options={"type": "none", "o": "bind", "device": str(Path(folder, "gone", "v"))}),
+                 str(engine_root), None),
+                ("a tmpfs volume", volume("cache-a", Driver="local", Options={"type": "tmpfs", "device": "tmpfs"}), str(engine_root), None),
+                ("an nfs volume", volume("cache-a", Driver="local", Options={"type": "nfs", "o": "addr=10.0.0.1", "device": ":/export"}),
+                 str(engine_root), "name neither a host bind nor tmpfs"),
+                ("another driver", volume("cache-a", Driver="vieux/sshfs", Options={}), str(engine_root), "driver 'vieux/sshfs'"),
+                ("a volume whose source is not its engine mountpoint", volume("cache-a", **plain), str(root / "line-1"), "differs from its mountpoint"),
+                ("a failing inspection", volume("cache-a", _status=1, _stderr="Error: No such volume: cache-a"), str(engine_root), "No such volume"),
+                ("an unnamed volume", {"Type": "volume", "Source": data, "RW": True}, str(engine_root), "no usable volume name")]:
+            with self.subTest(label):
+                message = self.verdict({container: [mount]}, root, root_of_engine)
+                if expected is None:
+                    self.assertIsNone(message)
+                else:
+                    self.assertIn(expected, message)
+                    self.assertIn("container " + container + " volume mount", message)
+        # An engine root that is itself the line's parent puts plain volumes inside the protected tree.
+        inside = root / "engine"
+        (inside / "volumes" / "cache-a" / "_data").mkdir(parents=True)
+        message = self.verdict({container: [{"Type": "volume", "Name": "cache-a", "Source": str(inside / "volumes" / "cache-a" / "_data"), "RW": True,
+                                             "_volume": plain}]}, root, str(inside))
+        self.assertIn("overlapping the implementation line", message)
+
+    def test_unreadable_volume_data_holds_and_names_the_volume(self):
+        """M386591: the field's two engine-managed volume directories cannot be
+        traversed by this operator, so nothing excludes a link in their path."""
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder, "lines")
+            (root / "line-1").mkdir(parents=True)
+            # The permission is restored below, before the directory is removed.
+            containers, _ = field_inventory(SimpleNamespace(root=folder, addCleanup=lambda *unused: None), root / "line-1", held=False, unreadable=True)
+            volumes = Path(folder, "engine-root", "volumes")
+            try:
+                with self.assertRaises(PermissionError):
+                    os.path.realpath(volumes / "field-a" / "_data", strict=True)
+                message = self.verdict(containers, root)
+            finally:
+                volumes.chmod(0o700)
+            self.assertIn("container " + "a" * 64 + " volume mount '" + str(volumes / "field-a" / "_data") + "'", message)
+            self.assertIn("writer exclusion is uncertain", message)
+            self.assertIn(repr(str(volumes / "field-a")), message)
+            self.assertIn("PermissionError: Permission denied", message)
+            # Once traversable, the same inventory is established and clear.
+            self.assertIsNone(self.verdict(containers, root))
+
+    def test_volume_aliases_of_the_line_are_judged_physically(self):
+        """M386591: a bind-option device whose `..` follows a link, and a plain
+        volume whose data directory is a link, are where the kernel writes."""
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as folder:
+            parent = Path(folder)
+            line = parent / "lines"
+            (line / "child").mkdir(parents=True)
+            alias = parent / "elsewhere" / "alias"
+            alias.parent.mkdir()
+            alias.symlink_to(line / "child")
+            device = str(alias) + "/.."
+            self.assertTrue(os.path.samefile(device, line))
+            engine = parent / "engine"
+            data = engine / "volumes" / "cache" / "_data"
+            data.mkdir(parents=True)
+            container = "c" * 64
+            def check(options, source=data):
+                mount = {"Type": "volume", "Name": "cache", "Source": str(source), "RW": True,
+                         "_volume": {"Driver": "local", "Options": options}}
+                return self.verdict({container: [mount]}, line, str(engine))
+            bound = {"type": "none", "o": "bind", "device": device}
+            self.assertIn("overlapping the implementation line", check(bound))
+            # The same text as a bind source holds too.
+            self.assertIn("overlapping", self.verdict({container: [{"Type": "bind", "Source": device, "RW": True}]}, line))
+            # Positive: `..` from a link to a safe place stays safe; lexical traversal of a real directory is exact.
+            safe = parent / "safe" / "inner"
+            safe.mkdir(parents=True)
+            (parent / "elsewhere" / "safe-alias").symlink_to(safe)
+            self.assertIsNone(check(dict(bound, device=str(parent / "elsewhere" / "safe-alias") + "/..")))
+            self.assertIsNone(check(dict(bound, device=str(line / "child") + "/../../safe")))
+            # A missing component followed by `..` depends on what a restart creates.
+            self.assertIn("climbs out of the missing component", check(dict(bound, device=str(parent / "gone") + "/../lines")))
+            # A plain volume whose data directory is a link to the line.
+            self.assertIsNone(check(None))
+            data.rmdir()
+            data.symlink_to(line, target_is_directory=True)
+            self.assertTrue(os.path.samefile(data, line))
+            self.assertIn("overlapping the implementation line", check(None))
+            # And one whose volume directory, an ancestor of _data, is the link.
+            data.unlink()
+            data.parent.rmdir()
+            (line / "cache-elsewhere" / "_data").mkdir(parents=True)
+            data.parent.symlink_to(line / "cache-elsewhere", target_is_directory=True)
+            self.assertIn("overlapping the implementation line", check(None))
+
+    def test_volume_options_exclude_tmpfs_only_when_unambiguous(self):
+        """M386600: C's contradictory inspection (tmpfs type, bind flag, device
+        the line) holds; only options that all read as memory-only exclude."""
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            line = root / "line"
+            line.mkdir()
+            point = root / "engine" / "volumes" / "cache" / "_data"
+            point.mkdir(parents=True)
+            container = "c" * 64
+            def check(options):
+                mount = {"Type": "volume", "Name": "cache", "Source": str(point), "RW": True,
+                         "_volume": {"Driver": "local", "Options": options}}
+                return self.verdict({container: [mount]}, line, str(root / "engine"))
+            for label, options, expected in [
+                    ("M386600: tmpfs type with a bind of the line", {"type": "tmpfs", "o": "bind", "device": str(line)},
+                     "contradict: type tmpfs with bind of device " + repr(str(line))),
+                    ("tmpfs type with rbind among size options", {"type": "tmpfs", "o": "size=64m,rbind", "device": "tmpfs"}, "contradict: type tmpfs with rbind"),
+                    ("tmpfs type naming a host device", {"type": "tmpfs", "device": str(line)}, "contradict: type tmpfs with device"),
+                    ("tmpfs with an option not known to be memory-only", {"type": "tmpfs", "device": "tmpfs", "o": "size=1m,x-weird"},
+                     "['x-weird'] are not established as memory-only"),
+                    ("an unsupported option key", {"type": "tmpfs", "device": "tmpfs", "extra": "1"}, "unsupported keys ['extra']"),
+                    ("a non-string option", {"type": "tmpfs", "o": ["bind"]}, "are not strings"),
+                    ("bind flags without a device", {"type": "none", "o": "bind"}, "name no absolute device"),
+                    ("bind flags under another filesystem type", {"type": "ext4", "o": "bind", "device": str(line)}, "name neither a host bind nor tmpfs"),
+                    ("genuine tmpfs", {"type": "tmpfs", "device": "tmpfs", "o": "size=100m,uid=1000,mode=1777,noexec"}, None),
+                    ("genuine tmpfs, device omitted", {"type": "tmpfs"}, None),
+                    ("a bind of the line", {"type": "none", "o": "bind", "device": str(line)}, "overlapping the implementation line"),
+                    ("a bind elsewhere", {"type": "none", "o": "rbind", "device": str(root / "elsewhere")}, None)]:
+                with self.subTest(label):
+                    message = check(options)
+                    if expected is None:
+                        self.assertIsNone(message)
+                    else:
+                        self.assertIsNotNone(message)
+                        self.assertIn(expected, message)
+                        self.assertIn("container " + container + " volume mount " + repr(str(point)), message)
+                        if "overlapping" not in expected:
+                            self.assertIn("volume 'cache'", message)
+
+    def test_stopped_recovery_clears_a_field_shaped_exited_inventory(self):
+        self.recover(interrupt=False, inventory=lambda case, line: field_inventory(case, line, held=False))
+
+    def test_stopped_recovery_holds_on_an_overlapping_missing_bind_then_completes(self):
+        self.recover(interrupt=False, inventory=lambda case, line: field_inventory(case, line, held=True))
+
+
+def field_inventory(case, line, *, held, unreadable=False):
+    """118 exited containers with removed bind sources and two exited containers
+    with plain local volumes -- the W386542 field inventory -- plus, when `held`,
+    one exited container whose removed source lies in the line tree.
+
+    The volumes are traversable here, a verified safe inventory. With
+    `unreadable`, their engine root is closed to this operator, as in the field;
+    M386591 makes that uncertainty hold recovery.
+    """
+    from pathlib import Path
+    gone = Path(case.root, "removed-runs")
+    containers = {f"{n:064x}": [{"Type": "bind", "Source": str(gone / f"run-{n}" / "workspace"), "RW": True}] for n in range(1, 119)}
+    engine_root = Path(case.root, "engine-root")
+    volumes = engine_root / "volumes"
+    for name in ("field-a", "field-b"):
+        (volumes / name / "_data").mkdir(parents=True)
+        containers[("a" if name == "field-a" else "b") * 64] = [
+            {"Type": "volume", "Name": name, "Source": str(volumes / name / "_data"), "RW": True,
+             "_volume": {"Driver": "local", "Options": None}}]
+    if unreadable:
+        volumes.chmod(0o000)
+        case.addCleanup(volumes.chmod, 0o700)
+    for one in containers.values():
+        for mount in one:
+            mount.setdefault("_engine_root", str(engine_root))
+    culprit = None
+    if held:
+        culprit = "9" * 64
+        containers[culprit] = [{"Type": "bind", "Source": str(line.parent / "removed-line" / "workspace"), "RW": True}]
+    return containers, culprit
+
+
+class InventoryEngine:
+    """The engine port, with an injected inventory of exited containers.
+
+    Answers `ps --all`, container mount inspection, `volume inspect` and the
+    engine root for the injected containers, and delegates everything else --
+    including the fixture's own containers -- to the wrapped engine.
+    """
+
+    def __init__(self, engine, containers, *, engine_root=None):
+        self.engine, self.containers, self.engine_root = engine, containers, engine_root
+
+    def __getattr__(self, name):
+        return getattr(self.engine, name)
+
+    def _root(self):
+        if self.engine_root is not None:
+            return self.engine_root
+        for mounts in self.containers.values():
+            for mount in mounts:
+                if "_engine_root" in mount:
+                    return mount["_engine_root"]
+        return "/var/lib/docker"
+
+    def __call__(self, argv, *, seconds=None):
+        def answer(stdout="", status=0, stderr=""):
+            return {"status": status, "stdout": stdout, "stderr": stderr}
+        public = lambda mount: {k: v for k, v in mount.items() if not k.startswith("_")}
+        if argv[1:] == ["ps", "--all", "--no-trunc", "--format", "{{.ID}}"]:
+            own = [] if self.engine is None else self.engine(argv, seconds=seconds)["stdout"].splitlines()
+            return answer("\n".join(own + list(self.containers)) + "\n")
+        if argv[1:5] == ["inspect", "--type", "container", "--format"] and argv[-1] in self.containers:
+            return answer(json.dumps([public(one) for one in self.containers[argv[-1]]]))
+        if argv[1:3] == ["volume", "inspect"]:
+            name = argv[-1]
+            for mounts in self.containers.values():
+                for mount in mounts:
+                    if mount.get("Name") == name and "_volume" in mount:
+                        held = dict(mount["_volume"])
+                        if held.get("_status"):
+                            return answer(status=held["_status"], stderr=held.get("_stderr", ""))
+                        return answer(json.dumps(dict(Name=name, Mountpoint=os.path.join(self._root(), "volumes", name, "_data"), **held)))
+            return answer(status=1, stderr="Error: No such volume: " + name)
+        if argv[1:2] == ["info"]:
+            return answer(json.dumps(self._root()))
+        return self.engine(argv, seconds=seconds)

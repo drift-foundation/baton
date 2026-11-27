@@ -104,19 +104,27 @@ def check_staged(attempt, sealed):
         refuse("sealed output differs from the selected worker completion manifest")
 
 
-def mount_regions(path):
-    """Filesystem coordinates exposed by a host bind, including nested bind aliases."""
+def _cause(failure):
+    """The underlying OS error, named, for a refusal an operator has to act on."""
+    detail = failure.strerror if isinstance(failure, OSError) and failure.strerror else str(failure)
+    return f"{type(failure).__name__}: {detail}"
+
+
+def _mount_table():
     from . import workspaces
     try:
-        path = os.path.realpath(path, strict=True)
         with open(workspaces.MOUNTINFO, encoding="utf-8") as table:
             mounts = []
             for entry in table:
                 fields = entry.split(" - ", 1)[0].split()
                 device, root, point = fields[2:5]
                 mounts.append((device, workspaces._unescaped(root), workspaces._unescaped(point)))
-    except (OSError, ValueError):
-        refuse("cannot resolve the filesystem backing a writable mount")
+    except (OSError, ValueError, IndexError) as failure:
+        refuse(f"cannot read the host mount table ({_cause(failure)})")
+    return mounts
+
+
+def _regions(path, mounts):
     parents = [m for m in mounts if os.path.commonpath((path, m[2])) == m[2]]
     if not parents:
         refuse("no filesystem identity for a writable mount")
@@ -126,6 +134,61 @@ def mount_regions(path):
                for dev, root, point in parents if len(point) == depth]
     regions.extend((dev, root) for dev, root, point in mounts if os.path.commonpath((path, point)) == path)
     return regions
+
+
+def mount_regions(path):
+    """Filesystem coordinates exposed by a host bind, including nested bind aliases."""
+    try:
+        path = os.path.realpath(path, strict=True)
+    except OSError as failure:
+        refuse(f"cannot resolve the filesystem backing a writable mount ({_cause(failure)})")
+    return _regions(path, _mount_table())
+
+
+def prospective_regions(path):
+    """Where a bind source is written now, or would be after a container restart.
+
+    W386542 (field, 2026-11-27): exited containers keep binds whose sources were
+    since removed. A restart can recreate such a source (the short `-v` form
+    creates missing directories), so absence is not exclusion: the place it
+    would be recreated is judged instead.
+
+    M386591: the walk is physical, component by component, as the kernel walks
+    it. Each existing component is resolved through its symlinks before the
+    next is applied, so `..` leaves the directory a link actually reached,
+    never the lexical parent of the link. Only a missing tail is joined
+    lexically; it can hold no mount point or link, and a `..` inside it would
+    depend on what a restart creates, so it refuses. Any failure to establish a
+    component -- permission, a dangling link, a loop, a non-directory -- is
+    uncertainty and refuses, naming the component.
+    """
+    if not isinstance(path, str) or not os.path.isabs(path):
+        refuse("writable mount source is not an absolute host path")
+    parts = [part for part in path.split("/") if part not in ("", ".")]
+    real = "/"
+    for index, part in enumerate(parts):
+        if part == "..":
+            real = os.path.dirname(real)  # `real` holds no link, so this is the physical parent
+            continue
+        probe = os.path.join(real, part)
+        try:
+            real = os.path.realpath(probe, strict=True)
+        except FileNotFoundError as failure:
+            if os.path.lexists(probe):
+                refuse(f"writable mount source component {probe!r} is a link that does not resolve ({_cause(failure)})")
+            tail = parts[index:]
+            if ".." in tail:
+                refuse(f"writable mount source {path!r} climbs out of the missing component {probe!r}")
+            return _regions(os.path.join(real, *tail), _mount_table())
+        except OSError as failure:
+            refuse(f"cannot establish writable mount source component {probe!r} ({_cause(failure)})")
+        if index + 1 < len(parts) and not os.path.isdir(real):
+            refuse(f"writable mount source component {probe!r} is not a directory")
+    return _regions(real, _mount_table())
+
+
+def overlaps(exposed, protected):
+    return any(a == b and os.path.commonpath((p, q)) in (p, q) for a, p in exposed for b, q in protected)
 
 
 @contextmanager
