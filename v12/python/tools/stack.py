@@ -1169,6 +1169,8 @@ def _print_job_outcomes(published, stream):
             for line in job_observation.attempt_lines(one) + one["facts"]:
                 print("    " + line, file=stream)
             print("    operation " + one["operation"], file=stream)
+            if one["model_attribution"]:
+                print("    " + one["model_attribution"], file=stream)
             print("    activity " + one["activity"] + ("; " + one["activity_when"] if one["activity_when"] else ""), file=stream)
             if one["reason"]:
                 print("    " + one["reason"], file=stream)

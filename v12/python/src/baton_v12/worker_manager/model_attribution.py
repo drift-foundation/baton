@@ -181,8 +181,6 @@ def diagnostic_of(control, attempt):
         return attribution.diagnostic(None)
     account = assessment_of(control, attempt)
     value = account.get("attribution") if account else None
-    if value is None:
-        value = attribution.record(selected["delivery"], phase=selected["phase"], evidenced_build=None, raw=None)
     from . import provider_home
     state = provider_home.status_of(selected.get("home_root"), selected["delivery"]["home_identity"])
     try:
@@ -196,11 +194,27 @@ def diagnostic_of(control, attempt):
     image_text = ""
     if image_receipts.required(selected):
         receipt, cause = image_receipts.evidence(control, attempt, selected)
-        observed = receipt.get("observation", {}).get("image_id") if receipt else None
-        image_text = "; host acceptance: " + ("held" if cause is not None else account["outcome"] if account else "not assessed") + "; engine-observed image: " + (observed or "unknown") + "; launched-image binding: " + (cause or "matched")
-        if receipt is not None:
+        observation = receipt.get("observation") if isinstance(receipt, dict) else None
+        observed = observation.get("image_id") if isinstance(observation, dict) else None
+        requested = selected["delivery"]["contract"]["selection"]["requested_model"]
+        selection_text = f"Requested: {requested}; basis: configured-model; actual participation unknown"
+        hold = (account or {}).get("cause") or cause
+        if account is None and cause not in ("launched-image-refused", "launched-image-invalid"):
+            diagnostic = "Model attribution pending. " + selection_text
+        elif hold:
+            diagnostic = f"Model attribution held: {hold}. " + selection_text + "; host acceptance: held"
+        else:
+            diagnostic = attribution.diagnostic(value) + "; host acceptance: matched"
+        image_text = "; engine-observed image: " + (observed or "unknown")
+        if receipt is not None or account is not None:
+            image_text += "; launched-image binding: " + (cause or "matched")
+        if isinstance(receipt, dict):
             image_text += "; image receipt: " + image_receipts.reference(attempt, receipt)["operation_id"]
-    return attribution.diagnostic(value) + image_text + context + "; Provider home: " + state["state"] + "; worker: " + state["worker_id"] + "; holder: " + (state["holder"] or "unknown")
+    else:
+        if value is None:
+            value = attribution.record(selected["delivery"], phase=selected["phase"], evidenced_build=None, raw=None)
+        diagnostic = attribution.diagnostic(value)
+    return diagnostic + image_text + context + "; Provider home: " + state["state"] + "; worker: " + state["worker_id"] + "; holder: " + (state["holder"] or "unknown")
 
 
 def observed_exchange(control, attempt, document):

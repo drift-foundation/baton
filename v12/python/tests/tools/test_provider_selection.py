@@ -1271,10 +1271,49 @@ class CodexToClaude(SelectedBase):
         with mock.patch.object(claude_agent, "ClaudeAgent", codex_agent.CodexAgent):
             return super().turn(control, role, attempt_id, roots, **operands)
 
+    def shared_attribution_text(self, job, composed, attempt):
+        import io
+        from baton_v12.job_manager import status
+        from tools import stack
+        from tools.job_observation import job_view
+
+        snapshot = status(job, composed, observed_at=fixtures.NOW)
+        view = job_view(snapshot, snapshot["jobs"][0])
+        phase, = [one for one in view["phases"] if one["attempt_id"] == attempt]
+        stream = io.StringIO()
+        stack._print_job_outcomes({"document": snapshot, "state": "fresh", "canonical": True}, stream)
+        self.assertIn(phase["model_attribution"], stream.getvalue())
+        return phase["model_attribution"]
+
+    def test_refused_image_shows_hold_before_assessment(self):
+        from baton_v12.worker_manager import image_receipts
+        job, control, composed, attempt = self.started()
+        model_attribution._write(control, image_receipts.KIND + "-refused", attempt, {"refused": True})
+        self.assertIsNone(model_attribution.assessment_of(control, attempt))
+        text = self.shared_attribution_text(job, composed, attempt)
+        self.assertTrue(text.startswith("Model attribution held: launched-image-refused."), text)
+
+    def test_missing_image_stays_pending_and_invalid_receipt_shows_hold_before_assessment(self):
+        from baton_v12.worker_manager import image_receipts
+        self.omit_image_evidence = True
+        job, control, composed, attempt = self.started()
+        selection = model_attribution.selection_of(control, attempt)
+        self.assertEqual(image_receipts.evidence(control, attempt, selection), (None, "launched-image-missing"))
+        self.assertTrue(self.shared_attribution_text(job, composed, attempt).startswith("Model attribution pending."))
+        model_attribution._write(control, image_receipts.KIND, attempt, {"observation": None})
+        self.assertIsNone(model_attribution.assessment_of(control, attempt))
+        text = self.shared_attribution_text(job, composed, attempt)
+        self.assertTrue(text.startswith("Model attribution held: launched-image-invalid."), text)
+
     def check_launch_readers(self, receipt_state):
         from baton_v12.contracts import ContractRefusal
         from baton_v12.worker_manager import frozen_output_of, load_manifest
         job, control, composed, attempt = self.started()
+        self.assertIsNone(model_attribution.assessment_of(control, attempt))
+        pending = self.shared_attribution_text(job, composed, attempt)
+        self.assertTrue(pending.startswith("Model attribution pending."), pending)
+        self.assertNotIn("accepted", pending)
+        self.assertNotIn("host-validated", pending)
         self.assertEqual(self.turn(control, "implementation", attempt,
             self.mounted(composed, "implementation", attempt), edits={"harness.py": "print('changed')\n"}), 0)
         selected = model_attribution.selection_of(control, attempt)
@@ -1290,6 +1329,8 @@ class CodexToClaude(SelectedBase):
         for _ in range(4):
             sweep(job, composed, now=fixtures.NOW)
         account = model_attribution.assess(control, attempt)
+        evaluated = self.shared_attribution_text(job, composed, attempt)
+        self.assertNotIn("Model attribution pending.", evaluated)
         frozen = frozen_output_of(control, attempt)
         manifest = load_manifest(control, frozen["manifest_digest"], "resultManifest")
         claim, = [meta["baton.model-attribution/2"] for output in manifest["outputs"]
@@ -1299,6 +1340,8 @@ class CodexToClaude(SelectedBase):
                         result_digest=frozen["manifest_digest"], claim=claim)
         if receipt_state == "intact":
             self.assertEqual(account["outcome"], "matched")
+            self.assertIn("Configured model accepted", evaluated)
+            self.assertIn("actual participation unknown", evaluated)
             bound = model_attribution.recovery_evidence(control, attempt, **recovery)
             self.assertEqual(bound["attempt_id"], attempt)
             self.assertEqual(bound["attribution"], account["attribution"])
@@ -1307,6 +1350,8 @@ class CodexToClaude(SelectedBase):
         else:
             expected = "missing" if receipt_state == "missing" else "invalid"
             self.assertEqual((account["outcome"], account["cause"]), ("held", "model-attribution-" + expected))
+            self.assertIn(f"Model attribution held: {account['cause']}.", evaluated)
+            self.assertNotIn("Configured model accepted", evaluated)
             with self.assertRaisesRegex(ContractRefusal, "model-attribution-invalid"):
                 model_attribution.recovery_evidence(control, attempt, **recovery)
 
