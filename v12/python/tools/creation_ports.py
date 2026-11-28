@@ -19,7 +19,7 @@ import json
 from pathlib import Path
 
 from baton_v12.contracts import ContractRefusal
-from baton_v12.contracts.errors import name_value
+from baton_v12.contracts.errors import name_value, path_value
 from baton_v12.contracts.manifest import job_input_identity
 
 from tools.fresh_attempt_ports import (BindingRefusal, DeploymentBinding,
@@ -28,6 +28,10 @@ from tools.fresh_attempt_ports import (BindingRefusal, DeploymentBinding,
 
 __all__ = ["BindingRefusal", "DeploymentDerivation", "InstanceOwnership",
            "NewJobBinding", "WorkAuthorization", "instance_identity"]
+
+
+class ImplementationWorkerRequired(BindingRefusal):
+    code = "implementation-worker-required"
 
 
 class DeploymentDerivation:
@@ -100,10 +104,25 @@ class DeploymentDerivation:
         than by a later comparison.
         """
         held = self.held()
+        producer = None
+        if isinstance(selection, dict):
+            selection = dict(selection)
+            producer = selection.pop("implementation_worker", None)
         lanes = {}
         for kind in self._kinds:
             found = [one for one in held["workers"]
                      if one["role"] == kind]
+            if kind == "implementation" and producer is not None:
+                found = [worker for worker in found if worker["worker_id"] == producer]
+                if not found:
+                    raise BindingRefusal(f"no configured implementation worker named {producer!r}")
+            elif kind == "implementation" and selection is not None and len(found) > 1:
+                workers = sorted(worker["worker_id"] for worker in found)
+                choices = ", ".join(path_value(worker) for worker in workers[:3])
+                if len(workers) > 3:
+                    choices += f" and {len(workers) - 3} more"
+                raise ImplementationWorkerRequired(
+                    f"Choose an implementation worker ({choices}) with --implementation-worker WORKER_ID.")
             if not found:
                 raise BindingRefusal(
                     f"this instance configures no {kind!r} worker, and a Job "
@@ -295,12 +314,12 @@ class NewJobBinding(DeploymentBinding):
     instance.
     """
 
-    def create_binding(self, job_id, *, work_id, template_version):
+    def create_binding(self, job_id, *, work_id, template_version, implementation_worker=None):
         with self._publishing():
             return self._create(job_id, work_id=work_id,
-                                template_version=template_version)
+                                template_version=template_version, implementation_worker=implementation_worker)
 
-    def _create(self, job_id, *, work_id, template_version):
+    def _create(self, job_id, *, work_id, template_version, implementation_worker=None):
         import sys
 
         from tools import bootstrap
@@ -309,6 +328,8 @@ class NewJobBinding(DeploymentBinding):
         # may have published exactly this.
         existing = self.binding_of(job_id)
         if existing is not None:
+            if implementation_worker is not None and existing["source_worker_id"] != implementation_worker:
+                raise BindingRefusal(f"Job {job_id!r} is already bound to another implementation worker")
             return existing
         document = self._install()
         jobs = [dict(one) for one in self._install_jobs(document)]
@@ -330,6 +351,8 @@ class NewJobBinding(DeploymentBinding):
             # interrupted publication, finished by preparing the document it
             # already describes rather than by appending a second entry.
             fresh = [one for one in jobs if one.get("job_id") == job_id][0]
+            if implementation_worker is not None and fresh.get("source_worker_id") != implementation_worker:
+                raise BindingRefusal(f"installed Job {job_id!r} names another implementation worker")
             if fresh.get("work_id") != work_id:
                 raise BindingRefusal(
                     f"this instance's install document already names Job "
@@ -339,7 +362,7 @@ class NewJobBinding(DeploymentBinding):
         else:
             document = dict(document,
                             jobs=jobs + [self._entry(document, jobs, job_id,
-                                                     work_id)])
+                                                     work_id, implementation_worker)])
         # THE INPUT FILE FIRST, which is the inherited recovery story: an
         # input naming a Job the configuration does not yet bind is the
         # harmless direction, and `prepare` is what makes it real.
@@ -349,7 +372,7 @@ class NewJobBinding(DeploymentBinding):
                           else sys.stdout)
         return self.binding_of(job_id)
 
-    def _entry(self, document, jobs, job_id, work_id):
+    def _entry(self, document, jobs, job_id, work_id, implementation_worker=None):
         """One `bootstrap._JOB` entry, every member DERIVED from the instance.
 
         `_JOB` is `("job_id", "work_id", "line_declared_base",
@@ -368,7 +391,7 @@ class NewJobBinding(DeploymentBinding):
                     f"so a created Job has no declared base or canonical "
                     f"target to be bound to. Nothing was changed")
             held[member] = found
-        producer = self._producer(document, jobs)
+        producer = implementation_worker or self._producer(document, jobs)
         held["source_worker_id"] = producer
         return held
 

@@ -875,6 +875,7 @@ def composed(held, *, worker_id, role, participant, image_reference,
         selected = provider_policy.selection(provider_selection)
         deployment.update(
             schema=single_worker.PROVIDER_CONFIG_SCHEMA,
+            launch_home=os.path.join(places["state"], "launch", worker_id),
             provider_context=None, verifier_layout=layout,
             provider_home_root=os.path.join(places["state"], "job-work"),
             provider_contract={"selection": selected,

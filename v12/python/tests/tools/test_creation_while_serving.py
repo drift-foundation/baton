@@ -48,7 +48,7 @@ def factory(job_store, control_store):
     return stage_execution.operations_from(
         json.loads(Path(SERVING["configuration"]).read_text()), job_store,
         control_store, engine_run=SERVING["engine"],
-        credential_provider=lambda provider, reference: "a-secret",
+        credential_provider=SERVING.get("credential_provider", lambda provider, reference: "a-secret"),
         checkout=SERVING["checkout"], checkpoint_profile=SERVING["profile"])
 
 
@@ -88,7 +88,7 @@ class ServingCase(test_connected_creation.ConnectedCreationCase):
             code = bootstrap.main(["--inputs", place, *operands, "--repository-source", self.SOURCE], stream=out, runner=self.git)
         self.assertEqual(code, 0, out.getvalue())
 
-    def pool(self):
+    def pool(self, *, two_codex=False):
         """Install, compose two workers by the product's own verb, configure."""
         from baton_v12.worker_manager import source_boundary
         from tests.job_manager.test_review_driver import Profile
@@ -113,15 +113,23 @@ class ServingCase(test_connected_creation.ConnectedCreationCase):
         record.mkdir(parents=True, exist_ok=True)
         (record / "FINDING.md").write_text("# Finding\n")
         (record / "PLAN.md").write_text("# Plan\n")
-        workers = [pool.composed(
-            before, worker_id=worker_id, role=role, participant=participant, image_reference="baton-v12-worker:test",
-            image_digest=self.config["image_digest"], cli_build="2.1.247", network=self.config["network"],
-            credential_sources=os.path.join(self.root, "credential-sources.json"),
-            credentials=["claude=operator-file:w202663-development"], workspace_group=self.config["workspace_group"],
-            task_document=task, record_path=record_path, checkout=self.checkout,
-            verifier_layout=source_boundary.image_layout_marker())["worker"]
-            for worker_id, role, participant in (("impl-a", "implementation", "baton.impl-a"),
-                                                 ("review-a", "review", "baton.reviewer"))]
+        lanes = [("impl-a", "implementation", "baton.impl-a"), ("review-a", "review", "baton.reviewer")]
+        if two_codex:
+            lanes.append(("impl-b", "implementation", "baton.impl-b"))
+        workers = []
+        for worker_id, role, participant in lanes:
+            codex = two_codex and role == "implementation"
+            build = "0.169.0" if codex else "2.1.247"
+            selected = dict(provider="codex", requested_model="gpt-6-astra", reported_identity="gpt-6-astra", cli_build=build) if codex else None
+            if two_codex and not codex:
+                selected = dict(provider="claude", requested_model="claude-fable-5", reported_identity="claude-fable-5", cli_build=build)
+            worker = pool.composed(before, worker_id=worker_id, role=role, participant=participant,
+                image_reference="baton-v12-worker:test", image_digest=self.config["image_digest"], cli_build=build,
+                network=self.config["network"], credential_sources=os.path.join(self.root, "credential-sources.json"),
+                credentials=["codex=operator-file:" + worker_id if codex else "claude=operator-file:w202663-development"],
+                workspace_group=self.config["workspace_group"], task_document=task, record_path=record_path, checkout=self.checkout,
+                verifier_layout=source_boundary.image_layout_marker(), provider_selection=selected)["worker"]
+            workers.append(worker)
         carried = {name: before[name] for name in ("integration_target", "integration_workspace") if before.get(name)}
         self.bootstrapped(self.document(workers=workers, **common, **carried))
         self.place = self.configuration()["workers"][0]["deployment"]["workspace_storage"]
@@ -166,23 +174,30 @@ class ServingCase(test_connected_creation.ConnectedCreationCase):
         """
         failed, ended, said = [], threading.Event(), io.StringIO()
 
+        def before_serve(number, frame):
+            pass
+
         def driven():
             try:
                 limit = time.monotonic() + 60
-                while not workspaces.holders_of(self.place) and not ended.is_set():
-                    self.assertLess(time.monotonic(), limit, "the manager never held its instance")
-                    time.sleep(0.02)
-                if script is not None and not ended.is_set():
+                if script is None:
+                    self.assertTrue(ended.wait(60), "the expected manager interruption never occurred")
+                    return
+                # Instance ownership can precede the serving loop's stop handler.
+                while signal.getsignal(signal.SIGTERM) is before_serve and not ended.wait(0.02):
+                    self.assertLess(time.monotonic(), limit, "the manager never installed its stop handler")
+                if not ended.is_set():
                     script()
             except BaseException as failure:
                 failed.append(failure)
             finally:
-                os.kill(os.getpid(), signal.SIGTERM)
+                if not ended.is_set():
+                    os.kill(os.getpid(), signal.SIGTERM)
 
         kept = {one: signal.getsignal(one) for one in (signal.SIGINT, signal.SIGTERM)}
         # A manager that failed before installing its own handler must not
         # leave the script's stop signal to end the test process.
-        signal.signal(signal.SIGTERM, lambda number, frame: None)
+        signal.signal(signal.SIGTERM, before_serve)
         beside = threading.Thread(target=driven)
         beside.start()
         raised = None
@@ -262,6 +277,83 @@ class ServingCase(test_connected_creation.ConnectedCreationCase):
 
 class TwoJobsAreSubmittedToOneServingManager(ServingCase):
     """Contract cases 1 to 4, 7, 8, 10 and 15, in one served run."""
+
+    def test_omitted_worker_names_both_choices_and_creates_no_job(self):
+        self.pool(two_codex=True)
+
+        def operator():
+            answer = self.command("missing-worker", "No worker selected.")
+            self.assertNotEqual(answer.code, 0)
+            self.assertIsNone(answer.said)
+            self.assertEqual(answer.err.splitlines(), [
+                "refused: Choose an implementation worker ('impl-a', 'impl-b') with --implementation-worker WORKER_ID."])
+            held = self.recorded()
+            self.assertEqual(held.requests["job-missing-worker"]["state"], "refused")
+            self.assertNotIn("job-missing-worker", held.jobs)
+            self.assertNotIn("job-missing-worker", held.stages)
+            self.assertEqual(held.operations, [])
+
+        self.serve(operator)
+
+    def test_selected_codex_workers_overlap_with_distinct_credentials(self):
+        from tests.tools.test_stage_execution import _ConcurrentEngine
+        self.pool(two_codex=True)
+        self.engine = SERVING["engine"] = _ConcurrentEngine()
+        requests = []
+        def provide(provider, reference):
+            requests.append((provider, reference))
+            return ("synthetic-" + reference).encode()
+        SERVING["credential_provider"] = provide
+        def operator():
+            commands = [("capacity-" + suffix, "Independent coding task " + suffix,
+                         "--implementation-worker", "impl-" + suffix) for suffix in ("a", "b")]
+            answers = self.together(*commands)
+            for command, answer in zip(commands, answers):
+                self.assertEqual(answer.code, 0, answer.err)
+                self.assertEqual(answer.said["binding"]["source_worker_id"], command[-1])
+                self.assertEqual(self.command(*command).out, answer.out)
+            changed = self.command(*commands[0][:-1], "impl-b")
+            self.assertNotEqual(changed.code, 0)
+            self.assertIn("DIFFERENT", changed.err)
+            deadline = time.monotonic() + 30
+            while sum(record["running"] for record in self.engine.records.values()) < 2:
+                if time.monotonic() > deadline:
+                    self.fail(self.diagnosis())
+                time.sleep(0.1)
+            from concurrent.futures import ThreadPoolExecutor
+            from baton_v12.worker_manager import launch
+            from codex_agent import CodexAgent
+
+            both_inside_provider = threading.Barrier(2, timeout=10)
+
+            def run_provider(record):
+                mounts = {m["Destination"]: Path(m["Source"]) for m in record["mounts"]}
+                home = mounts["/run/baton/provider-home"]
+                identity = json.loads((home.parent / "record.json").read_bytes())["identity"]
+                worker = identity["worker_id"]
+                self.assertEqual(identity["job_id"], "job-capacity-" + worker[-1])
+                agent = CodexAgent()
+                agent._seen = launch.payload_of(json.loads(mounts[launch.LAUNCH_TARGET].read_bytes()))
+                scratch = Path(self.root, "scratch-" + worker)
+                scratch.mkdir(mode=0o700)
+                _, roots = agent._new_ephemera(str(scratch), "provider")
+                # Translate this container's retained-home mount into the fixture.
+                with mock.patch.object(agent, "_retained_home", return_value=str(home)):
+                    environment = agent._closed_environment(home=str(home), roots=roots, scratch=str(scratch))
+                argv = agent.provider_argv("Implement " + identity["job_id"])
+                self.assertEqual(argv[0:2], ["codex", "exec"])
+                self.assertEqual(argv[-3:], ["--model", "gpt-6-astra", "Implement " + identity["job_id"]])
+                both_inside_provider.wait()
+                return worker, (Path(environment["CODEX_HOME"]) / "auth.json").read_bytes()
+
+            with ThreadPoolExecutor(max_workers=2) as providers:
+                self.assertEqual(dict(providers.map(run_provider, list(self.engine.records.values()))),
+                                 {"impl-a": b"synthetic-impl-a", "impl-b": b"synthetic-impl-b"})
+        self.serve(operator)
+        self.assertCountEqual(requests, [("operator-file", "impl-a"), ("operator-file", "impl-b")])
+        self.assertEqual(len(self.engine.starts), 2)
+        self.assertEqual(len(self.engine.records), 2)
+        self.assertEqual(sum(v[1] == "start" for v in self.engine.vectors), 2)
 
     def test_two_independent_jobs_a_replay_a_changed_intent_and_a_refusal(self):
         self.pool()
@@ -478,6 +570,11 @@ class TheDelayedPath(ServingCase):
 
         def operator():
             seen["answer"] = self.command("crash-one", "The interrupted task.")
+            # A replay can read the created Job before the manager repairs its request row.
+            deadline = time.monotonic() + 30
+            while self.recorded().requests["job-crash-one"]["state"] == "pending":
+                self.assertLess(time.monotonic(), deadline, "the manager never settled the interrupted request")
+                time.sleep(0.02)
 
         self.serve(operator)
         self.assertEqual(seen["answer"].code, 0, seen["answer"].err)

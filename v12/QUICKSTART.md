@@ -34,8 +34,12 @@ Paths below are derived from the one destination, never configured twice
 | authority store / its identity | `$DEST/db/authority.sqlite3`, `$DEST/authority-identity.json` |
 | Job store / control store | `$DEST/db/jobs.sqlite3`, `$DEST/db/control.sqlite3` |
 | the published status document | `$DEST/state/status.json` |
-| an attempt's retained raw output | `$DEST/state/launch/logs` |
+| an attempt's retained raw output | `$DEST/state/launch/$WORKER_ID/logs` |
 | the supervisors' own output | `$DEST/logs` |
+
+For a newly composed provider-selected worker, set `WORKER_ID` to the installed ID of the worker
+that ran the attempt, including on a single-worker instance. For an older
+or legacy deployment, use the `logs` directory under that worker’s configured `launch_home`.
 
 The Job is `quickstart-d` with two stages, `implementation` then `review`, and
 no integration stage; its terminal policy is `report-and-hold`. Its Work is
@@ -74,7 +78,7 @@ pair and appends the verb).
 | `manager <the same three operands> fresh-attempt --prior-job <job> --control $DEST/db/control.sqlite3 --authority $DEST/db/authority.sqlite3 --instance $DEST` | admit a fresh attempt at a Job **whose execution failed** — see the boundary below |
 | `view --status $DEST/state/status.json --job quickstart-d` | one Job in detail: stage state, work, episode, offer, **attempt**, runtime, assignment, and the frozen result locators |
 | `attempt-diagnostics $DEST/state/status.json` | a read-only diagnostic projection over one status document |
-| `logs --logs $DEST/state/launch/logs --attempt <attempt-id> …` | one attempt's retained raw output; opens no store and reaches no engine |
+| `logs --logs $DEST/state/launch/$WORKER_ID/logs --attempt <attempt-id> …` | one attempt's retained raw output; opens no store and reaches no engine |
 | `record …` | the canonical dossier (`read`, `bind`, `cite`, `verify`) and the retained-instance recovery set (`recovery-manifest`, `recovery-check`) |
 | `disposition …` | the owner's own surface: `pending`, `approve`/`deny`, `integrated`, `close` |
 
@@ -220,7 +224,7 @@ complete it.
    same document into the failure axes — which component ordered a runtime
    stopped, which records are absent, what is simply unknown. It resolves no
    locator and judges no freshness; it tells you which attempt to read.
-3. Read its output. `logs --logs $DEST/state/launch/logs --attempt <attempt-id>
+3. Read its output. `logs --logs $DEST/state/launch/$WORKER_ID/logs --attempt <attempt-id>
    locators` names every stream, where it is and what it honestly is; then
    `logs … read --stream provider.stderr --text` (or `worker.stdout`,
    `worker.stderr`, `provider.stdout`, `verification.stdout`,
@@ -340,6 +344,10 @@ once 120 seconds have passed since the request without that proof, and a manager
 that is not serving leaves targets `pending`. Completed outcomes, verdicts and
 outputs are untouched, and a cancelled Job admits no replacement episode,
 correction round or fresh attempt.
+
+### Choose a preconfigured implementation worker
+
+When creating independent implementation Jobs on an instance with several producers, add `--implementation-worker WORKER_ID` to each ordinary `manager create` command. Use the installed worker ID, such as `impl-a` for one Job and `impl-b` for the other. Both workers must be configured before starting the manager and eligible for the implementation Work route. Each Job uses its bound worker's input manifest, profile and credential reference. The creation receipt identifies the worker under `binding.source_worker_id`. An identical retry reuses that binding.
 
 ### Finite Job control: deadlines and the correction allowance
 

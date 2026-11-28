@@ -239,6 +239,8 @@ def create_template_job(store, operations, *, request, derivation,
                     template_version=resolution["template"]["version"],
                     labels=asked["labels"],
                     resolution_digest=templates.resolution_digest(resolution))
+        if "implementation_worker" in asked["request"]:
+            held["implementation_worker"] = asked["request"]["implementation_worker"]
         return _owned(store, resolution=resolution, operands=held,
                       derived=derived, authorization=authorization,
                       binding=binding, owner=owner)
@@ -442,7 +444,7 @@ def _asked(request):
         required=("schema", "task", "source_selection", "scope",
                   "acceptance"),
         optional=("template", "overrides", "control", "verification",
-                  "labels"))
+                  "labels", "implementation_worker"))
     if taken["schema"] != templates.REQUEST_SCHEMA:
         _refuse(f"an ordinary Job creation request is "
                 f"{name_value(templates.REQUEST_SCHEMA)}, the resolver's own "
@@ -526,6 +528,8 @@ def _asked(request):
     # ABSENT IS NOT THE SAME AS EMPTY. A request without the member says
     # nothing about labels, which is what every creation before this option
     # meant; the member is rewritten only when it is there.
+    if "implementation_worker" in taken:
+        boundaries.identity(taken["implementation_worker"], "the selected implementation worker")
     labels = None
     if "labels" in taken:
         labels = _labels(taken["labels"])
@@ -649,12 +653,15 @@ def _resolved(asked, derivation, held=None):
         "scope": {"work": list(asked["scope"]["work"]),
                   "tests": list(asked["scope"]["tests"])},
         "template_version": version}
+    if "implementation_worker" in asked["request"]:
+        selection["implementation_worker"] = asked["request"]["implementation_worker"]
     if asked.get("verification") is not None:
         selection["verification"] = list(asked["verification"])
     derived = (_derived(derivation, selection=selection) if held is None
                else held)
     request = dict(asked["request"])
     del request["source_selection"]
+    request.pop("implementation_worker", None)
     # THE VERIFICATION IS THE TASK'S, NOT THE RESOLUTION'S: it reached the
     # worker through the composed task bytes above and is inside the Job's
     # input identity; the resolver's request contract does not carry it.
@@ -1171,8 +1178,11 @@ def _bound(binding, operands, *, resolution):
     the safe half to publish before the submission.
     """
     job_id = operands["job_id"]
+    selected = operands.get("implementation_worker")
     existing = binding.binding_of(job_id)
     if existing is not None:
+        if selected is not None and existing.get("source_worker_id") != selected:
+            raise _incomplete(f"Job {job_id!r} is already bound to another implementation worker", reserved=job_id)
         if existing.get("job_work_id") not in (None, operands["work_id"]):
             raise _incomplete(
                 f"this deployment already binds Job {name_value(job_id)} to "
@@ -1190,11 +1200,14 @@ def _bound(binding, operands, *, resolution):
     # INCOMPLETE account below for the refusals it does decide.
     published = binding.create_binding(
         job_id, work_id=operands["work_id"],
-        template_version=operands["template_version"])
+        template_version=operands["template_version"],
+        **({"implementation_worker": selected} if selected is not None else {}))
     if published is None:
         raise _incomplete(f"this deployment reported no binding for Job "
                           f"{name_value(job_id)} after publishing one",
                           reserved=job_id)
+    if selected is not None and published.get("source_worker_id") != selected:
+        raise _incomplete(f"Job {job_id!r} was published with another implementation worker", reserved=job_id)
     return published
 
 

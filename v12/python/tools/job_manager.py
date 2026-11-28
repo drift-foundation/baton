@@ -896,7 +896,7 @@ def _performed(taken, store, control, held, place):
 
     from baton_v12.job_manager import creation, creation_requests
     from baton_v12.worker_manager import workspaces
-    from tools.creation_ports import BindingRefusal, InstanceOwnership, NewJobBinding
+    from tools.creation_ports import BindingRefusal, ImplementationWorkerRequired, InstanceOwnership, NewJobBinding
 
     # Keep the instance guard through settlement. A delayed caller must check
     # its attempt again after acquiring the guard and before making any Work.
@@ -909,6 +909,8 @@ def _performed(taken, store, control, held, place):
             current = creation_requests.attempt_status(store, held["job_id"], held["request_id"], held["attempts"], place=place)
             if current["state"] == "refused":
                 refusal = current["answer"]
+                if refusal["code"] == ImplementationWorkerRequired.code:
+                    raise ImplementationWorkerRequired(refusal["message"])
                 raise ContractRefusal(refusal["category"], refusal["code"], refusal["message"])
             answer = _created(taken, store, control, held["request"], place, identity, deployment, ownership)
         except workspaces.ManagerActive:
@@ -942,7 +944,7 @@ def _created(taken, store, control, request, place, identity, deployment, owners
     authorization = WorkAuthorization.opened(
         place["authority"], authority_uuid=taken.authority_uuid,
         route=_first_work_route(place["route"]), identity=identity,
-        producers=_producers_of(deployment.configuration()))
+        producers=_producers_of(deployment.configuration(), worker_id=request.get("implementation_worker")))
     try:
         return create_template_job(
             store, _ReadOnly(control), request=request,
@@ -1000,7 +1002,11 @@ def _requested(taken, stream, store, request, held):
         if held["state"] == "created":
             return _emit(creation.recorded_creation(store, request)[1], stream)
         if held["state"] == "refused":
+            from tools.creation_ports import ImplementationWorkerRequired
+
             answer = held["answer"]
+            if answer["code"] == ImplementationWorkerRequired.code:
+                raise ImplementationWorkerRequired(answer["message"])
             raise ContractRefusal(
                 answer["category"], answer["code"],
                 f"the serving manager refused creation request "
@@ -1041,6 +1047,8 @@ def _creation_request(taken):
                "scope": {"work": list(taken.work_scope),
                          "tests": list(taken.test_scope or ())},
                "acceptance": list(taken.acceptance)}
+    if getattr(taken, "implementation_worker", None) is not None:
+        request["implementation_worker"] = taken.implementation_worker
     if taken.template is not None:
         request["template"] = taken.template
     if taken.job_id is not None:
@@ -1380,13 +1388,15 @@ def _first_work_route(named):
     return bootstrap.ROUTES["implementation"] if named is None else named
 
 
-def _producers_of(configuration):
+def _producers_of(configuration, *, worker_id=None):
     """The configured implementation workers' participants: who a first Work
     must be claimable by."""
     # THE EMITTED CONFIGURATION'S SHAPE: a configured worker's participant is
     # its `deployment`'s, which is what the serving composition reads.
     found = []
     for one in configuration.get("workers") or []:
+        if worker_id is not None and one.get("worker_id") != worker_id:
+            continue
         deployment = one.get("deployment") or {}
         role = one.get("role") or deployment.get("launch_role")
         participant = deployment.get("participant")
@@ -1541,6 +1551,7 @@ def main(argv, *, clock=None, stream=None):
                           help="what this Job is called, in the operator's "
                                "own words; the Job and submission identities "
                                "are derived from it unless named")
+    creating.add_argument("--implementation-worker", help="bind this Job to this installed implementation worker ID")
     creating.add_argument("--statement", required=True,
                           help="the task as stated. Preserved in the "
                                "resolution and enforced by nothing; the "
@@ -1695,9 +1706,14 @@ def main(argv, *, clock=None, stream=None):
                               "roots are not accounted for, so it stays held")
     serving.set_defaults(run=_serve)
 
+    from tools.creation_ports import ImplementationWorkerRequired
+
     taken = parser.parse_args(argv)
-    return taken.run(taken, clock or _utc_clock(),
-                     stream if stream is not None else sys.stdout)
+    try:
+        return taken.run(taken, clock or _utc_clock(), stream if stream is not None else sys.stdout)
+    except ImplementationWorkerRequired as refusal:
+        print(f"refused: {refusal}", file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":
