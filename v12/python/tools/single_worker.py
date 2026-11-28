@@ -3238,6 +3238,16 @@ class _SingleWorker:
                                                 launched, seconds=seconds)
         adapter = self._adapter(roots, delivery, orphan, launched,
                                 stage=stage, attempt_id=attempt_id)
+        # W386766 (owner ruling 2026-11-28): BEFORE THE EXCHANGE IS REMOVED, KEEP ITS TERMINAL. The removal takes
+        # the delivery with it, and its terminal was the only record of how the attempt ended. Retained only when
+        # it is still readable and bound to this attempt; first write wins, so a replayed removal -- which finds
+        # no launch material -- keeps what the first one retained.
+        if launched is not None and getattr(launched, "exchange", None) is not None:
+            try:
+                observed = exchange.observation(launched.exchange)
+            except ContractRefusal:
+                observed = None
+            intake.retain_removal_terminal(self.control, attempt_id=attempt_id, observation=observed)
         answered = intake.abandon_attempt(
             self.control, self.port, adapter, attempt_id=attempt_id,
             reason=reason,

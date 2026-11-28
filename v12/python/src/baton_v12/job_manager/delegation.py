@@ -164,7 +164,7 @@ OBSERVATION_MEMBERS = ("claimed_by", "runtime", "activity", "output",
 # W383215: AND THE OWNER'S OWN RECORD OF WHAT A CANCELLATION'S STOP ANSWERED.
 # `None` is "no cancellation outcome recorded"; an intent axis alone is not one.
 OBSERVATION_OPTIONAL = ("integration", "diagnostics", "diagnostic_degradation",
-                        "cessation")
+                        "cessation", "removal")
 
 # W126558, `work/records/2026/09/finding-v12-composed-ending-consumer/findings/
 # finding-integration-stage-observation/OBSERVATION.md` revision 1.
@@ -419,6 +419,7 @@ def _bound(observed, stage):
     held.setdefault("diagnostics", None)
     held.setdefault("diagnostic_degradation", None)
     held.setdefault("cessation", None)
+    held.setdefault("removal", None)
     holder = held["claimed_by"]
     if holder is None:
         return unobserved()
@@ -1124,6 +1125,32 @@ class ManagerOperations:
             return {"schema": DIAGNOSTIC_SCHEMA, "attempt_id": attempt_id,
                     "unavailable": True}
 
+    def _removal(self, attempt_id):
+        """W386766: a settlement removal of this attempt, and the terminal facts retained before it, or `None`.
+
+        `reason` is the removal's committed declaration; `terminal` is what `intake.retain_removal_terminal`
+        kept from the exchange before it was removed, or `None` when nothing attempt-bound was readable or the
+        removal predates the retention. Only what the product recorded is reported.
+
+        W386766 review 2026-11-28T06-17-31Z R2: A DECLARATION IS NOT A REMOVAL. `abandon_attempt` commits the
+        declaration before its fence and destroy, and can be cut between them, so `removed` is true only when the
+        attempt's own runtime record says `destroyed` with its cleanup settled `retained` or `complete`.
+        `execution_runtime` and `cleanup` are that record as read, so an interrupted removal shows where it stopped.
+        """
+        from ..worker_manager import intake
+        try:
+            declared = intake.abandonment_declared(self.control, attempt_id=attempt_id)
+            if declared is None:
+                return None
+            runtime = attempt_runtime_of(self.control, attempt_id) or {}
+            execution, cleanup = runtime.get("execution_runtime"), runtime.get("cleanup")
+            return {"attempt_id": attempt_id, "reason": declared["reason"],
+                    "removed": execution == "destroyed" and cleanup in ("retained", "complete"),
+                    "execution_runtime": execution, "cleanup": cleanup,
+                    "terminal": intake.removal_terminal_of(self.control, attempt_id=attempt_id)}
+        except (ContractRefusal, ValueError, KeyError, TypeError):
+            return None
+
     def observe(self, stage):
         """Every canonical fact the projection needs, from public readers.
 
@@ -1188,6 +1215,8 @@ class ManagerOperations:
                 # attempt therefore reaches ordinary status with an honest
                 # unknown rather than with nothing at all.
                 "diagnostics": self._diagnostics(attempt_id),
+                # W386766: AND A SETTLEMENT REMOVAL, with what it retained of the ending.
+                "removal": self._removal(attempt_id),
                 "diagnostic_degradation": (
                     {"known": True, "value": True,
                      "source": "ManagerOperations carrier observation; process-local"}

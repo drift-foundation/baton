@@ -373,6 +373,15 @@ def _conversing(entry):
     """
     found = entry["observed"].get("exchange")
     if type(found) is not dict:
+        # W386766 (owner ruling 2026-11-28): ABSENCE MEANS `starting` ONLY WHILE THE RUNTIME CAN STILL BE
+        # COMING UP. A settlement removal destroys the runtime, settles cleanup and takes the exchange with it;
+        # that attempt is over, and reading it as a container still starting owed it a dispatch on every sweep.
+        # A destroyed runtime whose ending's cleanup is settled is therefore `exceptional` (which owes nothing);
+        # every other runtime value -- `running`, `starting`, an unsettled cleanup -- keeps `starting`.
+        runtime = entry["observed"].get("runtime")
+        if type(runtime) is dict and runtime.get("execution_runtime") == "destroyed" \
+                and runtime.get("cleanup") in _CLEANUP_SETTLED:
+            return "exceptional"
         return "starting"
     state = found.get("state")
     held = _EXCHANGE_STATES.get(state, "exceptional")
@@ -1270,4 +1279,6 @@ def _stage_status(entry, held):
         # not decide a stage state either. `exceptional` keeps coming from the
         # frozen disposition through `_DISPOSITIONS` and from nowhere else.
         attempt_diagnostics=observed.get("diagnostics"),
-        diagnostic_degradation=observed.get("diagnostic_degradation"))
+        diagnostic_degradation=observed.get("diagnostic_degradation"),
+        # W386766: A SETTLEMENT REMOVAL AND WHAT IT RETAINED of the ending, as the Worker Manager recorded them.
+        **({"removal": observed["removal"]} if type(observed.get("removal")) is dict else {}))

@@ -3242,6 +3242,65 @@ def _abandoned_absence(store, taken, attempt_id, operation, what):
     return cleanup
 
 
+REMOVAL_TERMINAL_KIND = "attempt.removal-terminal"
+_REMOVAL_TERMINAL_FACTS = ("ending", "fault_code", "answered", "disposition", "manifest_digest", "terminal_digest")
+
+
+def _removal_terminal_operation(attempt_id):
+    return REMOVAL_TERMINAL_KIND + ":" + digest({"attempt_id": attempt_id})[7:]
+
+
+def retain_removal_terminal(store, *, attempt_id, observation):
+    """W386766 (owner ruling 2026-11-28): keep an exchange's terminal facts BEFORE its delivery is removed.
+
+    A settlement removal (`abandon_attempt`) takes the attempt's exchange with it, and the terminal it held --
+    `faulted`/`agent`, what was answered, whether a manifest was frozen -- was read live and journalled nowhere,
+    so the reason a removed attempt failed was lost. The composition calls this first with
+    `exchange.observation` of the attempt's own delivery.
+
+    ONLY AN ATTEMPT-BOUND TERMINAL IS KEPT. The observation's `sequence_id` and its command's must both be
+    `exchange.sequence_of(attempt_id)` -- the name this attempt's exchange is published under -- and the
+    terminal must carry a text `ending`. Anything else (unreadable, no terminal, another attempt's exchange)
+    keeps nothing and answers `None`; nothing is inferred.
+
+    FIRST WRITE WINS. The signature binds the attempt alone, so a later call -- a replayed removal that finds the
+    exchange already gone, or a second reading -- replays the committed facts and never overwrites them.
+    """
+    from .exchange import sequence_of
+    boundaries.identity(attempt_id, "a runtime attempt id")
+    operation_id = _removal_terminal_operation(attempt_id)
+    signature = manager_signature(REMOVAL_TERMINAL_KIND, {"attempt_id": attempt_id})
+    found, value = store.replay(operation_id, signature, kind=REMOVAL_TERMINAL_KIND)
+    if found:
+        return value
+    if type(observation) is not dict or observation.get("unreadable") is not None:
+        return None
+    command, terminal = observation.get("command"), observation.get("terminal")
+    sequence = sequence_of(attempt_id)
+    if type(command) is not dict or type(terminal) is not dict or observation.get("sequence_id") != sequence \
+            or command.get("sequence_id") != sequence or type(terminal.get("ending")) is not str \
+            or not terminal["ending"]:
+        return None
+    facts = {name: terminal.get(name) for name in _REMOVAL_TERMINAL_FACTS}
+    adapter = terminal.get("adapter_failure")
+    facts["adapter_failure"] = ({name: adapter.get(name) for name in ("component", "code")}
+                                if type(adapter) is dict else None)
+    facts.update(sequence_id=sequence, command_digest=command.get("command_digest"))
+    return store.transact(operation_id, REMOVAL_TERMINAL_KIND, signature,
+                          lambda connection: {"attempt_id": attempt_id, "terminal": facts})
+
+
+def removal_terminal_of(store, *, attempt_id):
+    """The terminal facts retained before this attempt's removal, or `None` (none was readable, or it predates W386766)."""
+    boundaries.identity(attempt_id, "a runtime attempt id")
+    found, value = store.replay(_removal_terminal_operation(attempt_id),
+                                manager_signature(REMOVAL_TERMINAL_KIND, {"attempt_id": attempt_id}),
+                                kind=REMOVAL_TERMINAL_KIND)
+    if not found or type(value) is not dict or value.get("attempt_id") != attempt_id:
+        return None
+    return value.get("terminal") if type(value.get("terminal")) is dict else None
+
+
 def abandonment_declared(store, *, attempt_id):
     """The committed abandonment DECLARATION of this exact attempt, or `None`.
 

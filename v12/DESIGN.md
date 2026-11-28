@@ -1024,6 +1024,27 @@ Decision record: [W385695 R1 approval](../work/records/2026/11/finding-v12-outpu
 
 Decision record: [W385695 consolidated owner selection](../work/records/2026/11/finding-v12-output-publication-recovery/FINDING.md#consolidated-owner-selection--2026-11-22).
 
+**REC-10. A settled removal ends its episode (owner amendment 2026-11-28, W386766).**
+A settlement removal (`settlement-remove`) of a positively stopped attempt destroys
+its runtime and settles its cleanup; that episode is over and MUST NOT be offered,
+dispatched or reported as starting again, also across restart. An attempt with no
+readable exchange stays `starting` only while its runtime can still be coming up.
+Before the removal takes the attempt's exchange, the Worker Manager MUST retain the
+attempt-bound terminal facts when they are readable (ending, fault code, answered
+operations, disposition, manifest, command and sequence identity); first write wins
+and a replay never overwrites them. Known outcomes are preserved: a completed
+attempt stays completed. For a removal that predates this retention only what the
+product recorded is reported: `Stopped — runtime removed by settlement. Original
+ending unknown.` When a fault was retained, the phase shows that fault and the
+settlement reason. A recorded failure keeps FAILED priority, with the Job's
+cancellation shown separately, whatever the cancellation target history (an
+`ended-before-request` or a `ceased` target); a legacy unknown ending whose Job
+cancellation has completed reads CANCELLED. A removal is reported as done
+("Runtime removed by settlement") only once the attempt's runtime record confirms
+it: runtime `destroyed` with its cleanup settled. A removal that has only been
+declared shows the recorded runtime and cleanup state, and the attempt's current
+fault and runtime evidence stay visible (owner follow-up 2026-11-28, M386780). [Ruling](../work/records/2026/11/finding-v12-settled-attempt-phase-state/FINDING.md).
+
 ## 13. Security, credentials and trust
 
 **SEC-1.** This v12 deployment uses trusted selected worker images with strict

@@ -80,8 +80,28 @@ def _job_headline(job, phases):
                                 + _status_text(declined["candidate"]["checkpoint_id"]) + "; recorded by "
                                 + _status_text(declined["recorded_by"]["participant"]) + " at "
                                 + _status_text(declined["recorded_at"]) + ".")
-    if any(phase["state"] == "exceptional" and not (phase["live_attempt"] or {}).get("stop")
-           for phase in phases):
+    # W386766 (owner ruling 2026-11-28): A RECORDED FAILURE KEEPS FAILED, with any cancellation shown on its
+    # own line. A legacy removal records no ending at all, so once the Job's cancellation has completed it is
+    # not a failure this view can claim: that Job reads CANCELLED below.
+    cancelled = type(job.get("cancellation")) is dict and job["cancellation"].get("shutdown") == "complete"
+
+    def failed(stage, phase):
+        if phase["state"] != "exceptional":
+            return False
+        removal = settled_removal(stage)
+        # W386766 review R1: A RETAINED ENDING IS A RECORDED FAILURE, whatever the cancellation target history
+        # (`ceased` puts a stop word on the attempt, `ended-before-request` does not); it keeps FAILED.
+        if removal is not None and removal["terminal"] is not None:
+            return True
+        if (phase["live_attempt"] or {}).get("stop"):
+            return False
+        return not (cancelled and removal is not None and removal["terminal"] is None)
+    if any(failed(stage, phase) for stage, phase in zip(stages, phases)):
+        # The cancellation is shown separately, on the reason line every surface prints.
+        if type(job.get("cancellation")) is dict:
+            held = job["cancellation"]
+            return "FAILED", ("Cancellation also recorded: " + _status_text(held.get("trigger")) + "; shutdown "
+                              + _status_text(held.get("shutdown")) + ".")
         return "FAILED", ""
     questions = _rows(job.get("owner_questions"))
     if questions:
@@ -847,7 +867,92 @@ def held_review(stage, state):
     return review_report_sentence(declared.get("review_report"))
 
 
+LEGACY_REMOVAL = "Stopped — runtime removed by settlement. Original ending unknown."
+
+
+def declared_removal(stage):
+    """W386766: the published settlement-removal record of this stage's CURRENT attempt, or None.
+
+    It may be only a DECLARATION (review 2026-11-28T06-17-31Z R2): see `settled_removal` for a confirmed one.
+    `terminal` is None when the product recorded no ending before the removal (a legacy removal, or nothing
+    attempt-bound was readable); otherwise it holds the facts retained from the attempt's own exchange.
+    """
+    removal = _mapping(stage).get("removal")
+    attempt = _mapping(stage).get("attempt_id")
+    if type(removal) is not dict or type(attempt) is not str or not attempt or removal.get("attempt_id") != attempt:
+        return None
+    if type(removal.get("reason")) is not str or not removal["reason"]:
+        return None
+    terminal = removal.get("terminal")
+    if terminal is not None and (type(terminal) is not dict or type(terminal.get("ending")) is not str):
+        return None
+    return removal
+
+
+def settled_removal(stage):
+    """A CONFIRMED settlement removal, or None: the producer's `removed` is true and the published runtime is
+    `destroyed`. Only this one may be read as "Runtime removed by settlement"."""
+    removal = declared_removal(stage)
+    runtime = _mapping(_mapping(stage).get("runtime"))
+    if removal is None or removal.get("removed") is not True or runtime.get("execution_runtime") != "destroyed":
+        return None
+    return removal
+
+
+def _unconfirmed_removal(stage):
+    """A declared removal not yet confirmed, in this view's words, or ""; the recorded state is shown as read."""
+    removal = declared_removal(stage)
+    if removal is None or settled_removal(stage) is not None:
+        return ""
+    runtime = _mapping(_mapping(stage).get("runtime"))
+
+    def recorded(name):
+        # The published runtime first: it is the attempt's current record. The removal's copy answers only a
+        # member the runtime publication does not carry (`cleanup`).
+        value = runtime.get(name) if type(runtime.get(name)) is str and runtime.get(name) else removal.get(name)
+        return _status_text(value) if type(value) is str and value else UNKNOWN
+    return ("settlement removal declared, not confirmed: runtime " + recorded("execution_runtime")
+            + ", cleanup " + recorded("cleanup"))
+
+
+def _removal_ending(terminal):
+    """The retained ending in this view's words: only what the terminal recorded."""
+    ending, fault = terminal.get("ending"), terminal.get("fault_code")
+    if ending == "faulted":
+        text = fault + " fault" if fault in _STATUS_FAULT_CODES else "fault, cause unknown"
+        adapter = _mapping(terminal.get("adapter_failure"))
+        if fault == "agent" and adapter.get("component") == "role-adapter" and adapter.get("code") in _STATUS_ADAPTER_CODES:
+            text = "agent fault; " + adapter["code"]
+    elif ending == "answered":
+        text = "answered " + (_status_text(terminal["disposition"]) if type(terminal.get("disposition")) is str else "with no disposition")
+    else:
+        text = "ending " + _status_text(ending)
+    answered = [one for one in terminal.get("answered") or [] if type(one) is str and one] if type(terminal.get("answered")) is list else []
+    if answered:
+        text += " after " + ", ".join(_status_text(one) for one in answered)
+    if terminal.get("manifest_digest") is None:
+        text += " (no manifest)"
+    return text
+
+
+def removal_sentence(stage):
+    """W386766 (owner wording): the row's account of a settlement removal, or None."""
+    removal = settled_removal(stage)
+    if removal is None:
+        return None
+    if removal["terminal"] is None:
+        return LEGACY_REMOVAL
+    return ("Stopped — " + _removal_ending(removal["terminal"]) + ". Runtime removed by settlement: "
+            + json.dumps(removal["reason"], ensure_ascii=True) + ".")
+
+
 def _reason(stage, state):
+    # W386766 R2: an interrupted removal keeps the ordinary account of the attempt and says where it stopped.
+    reason, pending = _ordinary_reason(stage, state), _unconfirmed_removal(stage)
+    return reason + ("; " if reason else "") + pending if pending else reason
+
+
+def _ordinary_reason(stage, state):
     diagnostic = _diagnostic(stage, stage.get("attempt_id"))
     report = (review_report_sentence(_mapping(diagnostic.get("worker_declaration")).get("review_report"))
               if stage.get("kind") == "review" and state == "answering" else "")
@@ -859,6 +964,8 @@ def _reason(stage, state):
     if stage.get("kind") == "review" and state == "answering" and _declared_fact(
             _mapping(diagnostic.get("worker_declaration")), "review_report") == "not-read":
         return _declared_ending(stage) or ""
+    if state == "exceptional" and removal_sentence(stage) is not None:
+        return removal_sentence(stage)
     if state == "exceptional":
         exchange = stage.get("exchange")
         terminal = exchange.get("terminal") if type(exchange) is dict else None
@@ -998,6 +1105,8 @@ def _position(stage, held):
     elif held["admission"] == "admitted" and held_review(stage, state):
         # W386395: a frozen review without a usable report is not progress.
         position = "held"
+    if state == "exceptional" and held["admission"] == "admitted" and settled_removal(stage) is not None:
+        position = "stopped"        # W386766: a settlement removal; the reason line says what is known
     stop = (held["live_attempt"] or {}).get("stop")
     if held["admission"] == "admitted" and stop and type(state) is str and state in _POSITIONS:
         position = position + " — " + stop if stop.startswith("stopping") and state != "exceptional" else stop

@@ -833,7 +833,9 @@ CONTRACTS = {
                       "attempt_id", "episodes", "corrections", "allocation",
                       "allocations", "gates", "receipts", "deferral",
                       "runtime", "exchange", "artifacts"),
-                     ("inbox_delivery", "attempt_diagnostics", "diagnostic_degradation", "selected_at", "settled_at", "result", "execution_job_id", "execution_cancellation", "review_verdict")),
+                     ("inbox_delivery", "attempt_diagnostics", "diagnostic_degradation", "selected_at", "settled_at", "result", "execution_job_id", "execution_cancellation", "review_verdict", "removal")),
+    # W386766 added the OPTIONAL `removal` member: a settlement removal of the stage's attempt (`reason`) and the
+    # terminal facts retained before its exchange was removed (`terminal`, `null` when none was recorded).
     # W385263 added the OPTIONAL `review_verdict` member on a review stage: the
     # one durable verdict bound to that stage's attempt and candidate
     # checkpoint (`review_verdicts.matching`), `null` when the store was read

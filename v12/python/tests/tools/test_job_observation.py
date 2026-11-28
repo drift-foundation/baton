@@ -1934,3 +1934,96 @@ class AllPhasesCompleteShowsOnlyItsOwnVerdict(unittest.TestCase):
         self.assertEqual(model.job_view(doc, job)["headline"], "AWAITING ASSIGNMENT")
         job.update(lifecycle="closed", closed_at=NOW)
         self.assertEqual(model.job_view(doc, job)["headline"], "CLOSED")
+
+
+class ASettledRemovalReadsWhatTheProductRecorded(unittest.TestCase):
+    """W386766 (owner ruling 2026-11-28): a settlement removal on every surface, from its published record."""
+
+    check = JobHeadlines.check
+    LEGACY = "Stopped — runtime removed by settlement. Original ending unknown."
+    RETAINED = 'Stopped — agent fault after describe (no manifest). Runtime removed by settlement: "settlement: M386700".'
+
+    def removed(self, terminal=None, cancellation=None):
+        doc = document()
+        job = doc["jobs"][0]
+        job["stages"][0].update(state="exceptional", exchange=None,
+                                removal={"attempt_id": "attempt-a", "reason": "settlement: M386700", "removed": True,
+                                         "execution_runtime": "destroyed", "cleanup": "retained", "terminal": terminal})
+        job["stages"][0]["runtime"]["execution_runtime"] = "destroyed"
+        if cancellation:
+            job["cancellation"] = {"trigger": "operator", "shutdown": cancellation, "targets": [
+                {"stage_id": "implementation", "episode": 1, "attempt_id": "attempt-a", "state": "ended-before-request"}]}
+        return doc
+
+    FAULT = {"ending": "faulted", "fault_code": "agent", "answered": ["describe"], "disposition": None, "manifest_digest": None}
+
+    def test_a_legacy_removal_says_its_ending_is_unknown_and_is_FAILED_until_cancellation_completes(self):
+        self.check(self.removed(), "FAILED", "stopped; admission admitted", self.LEGACY)
+        self.check(self.removed(cancellation="unresolved"), "FAILED", self.LEGACY,
+                   reason="Cancellation also recorded: operator; shutdown unresolved.")
+        self.check(self.removed(cancellation="complete"), "CANCELLED", "stopped; admission admitted", self.LEGACY,
+                   reason="Cancellation shutdown complete")
+
+    def test_a_retained_fault_shows_the_fault_and_the_settlement_reason_and_keeps_FAILED(self):
+        self.check(self.removed(self.FAULT), "FAILED", "stopped; admission admitted", self.RETAINED)
+        self.check(self.removed(self.FAULT, cancellation="complete"), "FAILED", self.RETAINED,
+                   reason="Cancellation also recorded: operator; shutdown complete.")
+        adapter = dict(self.FAULT, adapter_failure={"component": "role-adapter", "code": next(iter(model._STATUS_ADAPTER_CODES))})
+        self.check(self.removed(adapter), "FAILED", "agent fault; " + adapter["adapter_failure"]["code"] + " after describe")
+
+    def test_R1_a_retained_fault_keeps_FAILED_for_BOTH_cancellation_target_histories(self):
+        """Review 2026-11-28T06-17-31Z R1: a `ceased` target puts a stop word on the attempt; the fault still wins."""
+        for target in ("ended-before-request", "ceased"):
+            with self.subTest(target=target):
+                doc = self.removed(self.FAULT, cancellation="complete")
+                doc["jobs"][0]["cancellation"]["targets"][0]["state"] = target
+                self.check(doc, "FAILED", self.RETAINED, reason="Cancellation also recorded: operator; shutdown complete.")
+                legacy = self.removed(cancellation="complete")
+                legacy["jobs"][0]["cancellation"]["targets"][0]["state"] = target
+                self.check(legacy, "CANCELLED", self.LEGACY, reason="Cancellation shutdown complete")
+
+    def test_R2_a_DECLARED_removal_is_not_a_removal_until_the_runtime_record_confirms_it(self):
+        """Review R2: the declaration commits before the fence and destroy; an interrupted removal shows where it stopped."""
+        for runtime, cleanup, removed in (("running", "pending", False), ("quiescent", None, False),
+                                          ("destroyed", "pending", False), ("destroyed", "retained", None)):
+            with self.subTest(runtime=runtime, cleanup=cleanup, removed=removed):
+                doc = self.removed(self.FAULT)
+                stage = doc["jobs"][0]["stages"][0]
+                stage["runtime"]["execution_runtime"] = runtime
+                stage["removal"].update(removed=removed, execution_runtime=runtime, cleanup=cleanup)
+                if runtime == "running":    # a stale removal copy never overrides the published runtime
+                    stage["removal"].update(execution_runtime="destroyed")
+                stage["exchange"] = {"terminal": dict(self.FAULT, fault_code="agent")}
+                rendered = "".join(views(doc))
+                self.assertNotIn("Runtime removed by settlement", rendered)
+                self.assertIn("settlement removal declared, not confirmed: runtime " + runtime + ", cleanup "
+                              + (cleanup or "unknown"), rendered)
+                self.assertIn("agent fault", rendered)          # the current fault evidence stays visible
+                self.assertIn("failed; admission admitted", rendered)
+                self.check(doc, "FAILED")
+                legacy = self.removed(cancellation="complete")
+                legacy["jobs"][0]["stages"][0]["removal"].update(removed=removed, execution_runtime=runtime, cleanup=cleanup)
+                legacy["jobs"][0]["stages"][0]["runtime"]["execution_runtime"] = runtime
+                self.assertNotIn(self.LEGACY, "".join(views(legacy)))
+        # And once the record confirms it, the same removal reads as removed.
+        self.check(self.removed(self.FAULT), "FAILED", "stopped; admission admitted", self.RETAINED)
+
+    def test_a_completed_or_genuinely_starting_attempt_is_not_read_as_removed(self):
+        doc = self.removed(self.FAULT)
+        doc["jobs"][0]["stages"][0]["state"] = "completed"
+        self.check(doc, "ALL PHASES COMPLETE", "done; admission admitted")
+        self.assertNotIn("Runtime removed by settlement", "".join(views(doc)))
+        doc = document()
+        doc["jobs"][0]["stages"][0].update(state="starting", exchange=None)
+        self.check(doc, "ADMITTED", "admitted; admission admitted")
+        self.assertNotIn("Stopped", "".join(views(doc)))
+
+    def test_a_foreign_or_damaged_removal_record_is_ignored(self):
+        for removal in ({"attempt_id": "attempt-b", "reason": "x", "terminal": None}, {"attempt_id": "attempt-a", "reason": "", "terminal": None},
+                        {"attempt_id": "attempt-a", "reason": "x", "terminal": "faulted"}, "removed"):
+            with self.subTest(removal=removal):
+                doc = self.removed()
+                doc["jobs"][0]["stages"][0]["removal"] = removal
+                rendered = "".join(views(doc))
+                self.assertNotIn("removed by settlement", rendered)
+                self.assertIn("failed; admission admitted", rendered)

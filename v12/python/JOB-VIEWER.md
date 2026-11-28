@@ -384,6 +384,18 @@ A review still answering with no frozen result is
 in progress, because its verification may still be running.
 Phase rows still show the stopped attempt, active worker or named dependency.
 A closed gate on an unidentified dependency leaves the Job headline unknown.
+An attempt removed by `settlement-remove` reads `stopped` and is never dispatched
+again (W386766, DESIGN REC-10). Its reason line says what the product recorded:
+`Stopped — <fault> after <operations> (no manifest). Runtime removed by
+settlement: "<reason>".` when the exchange's ending was retained before the
+removal, or `Stopped — runtime removed by settlement. Original ending unknown.`
+for a removal that predates that retention. These two are shown only once the
+attempt's runtime record confirms the removal (`destroyed`, cleanup settled). A
+removal that is only declared keeps the attempt's ordinary row and reason and adds
+`settlement removal declared, not confirmed: runtime <state>, cleanup <state>`.
+A retained failure keeps the Job FAILED, whatever the cancellation target history,
+with `Cancellation also recorded: …` on the line below; an unknown ending whose
+Job cancellation completed reads CANCELLED.
 When every phase of an ordinary Job is complete, the headline depends on the
 review verdict (W385263, M386422):
 - **ALL PHASES COMPLETE** is shown when completion is all that is established.

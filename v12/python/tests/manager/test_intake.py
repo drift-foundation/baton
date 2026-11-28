@@ -4235,3 +4235,43 @@ class TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence(IntakeCase):
                                         retention_policy_digest=RETENTION))
         self.assertIsNone(self.read())
         self.assertIsNone(abandoned_gate_discharge_of(self.store, ATTEMPT))
+
+
+class ARemovalKeepsTheTerminalItCouldStillRead(IntakeCase):
+    """W386766 (owner ruling 2026-11-28): before a settlement removal takes the exchange, its terminal is kept."""
+
+    def view(self, attempt_id=ATTEMPT, **terminal):
+        from baton_v12.worker_manager.exchange import sequence_of
+        sequence = sequence_of(attempt_id)
+        return {"transport": "baton.worker-exchange/1", "sequence_id": sequence, "state": "faulted",
+                "command": {"sequence_id": sequence, "command_digest": "sha256:" + "c" * 64,
+                            "operations": ["describe", "work"]},
+                "receipt": None, "states": [], "foreign": [], "unreadable": None,
+                "terminal": {"ending": "faulted", "answered": ["describe"], "disposition": None,
+                             "fault_code": "agent", "manifest_digest": None, "adapter_failure": None,
+                             "terminal_digest": "sha256:" + "d" * 64, "secret_looking": "not kept", **terminal}}
+
+    def test_an_attempt_bound_terminal_is_retained_once_and_survives_a_restart(self):
+        kept = intake.retain_removal_terminal(self.store, attempt_id=ATTEMPT, observation=self.view())
+        self.assertEqual(kept["terminal"]["fault_code"], "agent")
+        self.assertEqual(kept["terminal"]["answered"], ["describe"])
+        self.assertNotIn("secret_looking", kept["terminal"])
+        # FIRST WRITE WINS: a replayed removal that reads another terminal, or none, keeps the first.
+        later = self.view(ending="answered", fault_code=None)
+        self.assertEqual(intake.retain_removal_terminal(self.store, attempt_id=ATTEMPT, observation=later), kept)
+        self.assertEqual(intake.retain_removal_terminal(self.store, attempt_id=ATTEMPT, observation=None), kept)
+        self.store.close()
+        self.store = ControlStore.open(self.path, incarnation="manager-2", clock=lambda: NOW)
+        self.addCleanup(self.store.close)
+        self.assertEqual(intake.removal_terminal_of(self.store, attempt_id=ATTEMPT), kept["terminal"])
+
+    def test_nothing_attempt_bound_retains_nothing_and_a_legacy_removal_reads_none(self):
+        self.assertIsNone(intake.removal_terminal_of(self.store, attempt_id=ATTEMPT))
+        foreign = self.view(attempt_id="attempt-other")
+        unreadable = dict(self.view(), unreadable={"category": "integrity", "code": "schema"})
+        for observation in (None, "faulted", {}, foreign, unreadable, dict(self.view(), terminal=None),
+                            self.view(ending=None)):
+            with self.subTest(observation=observation):
+                self.assertIsNone(intake.retain_removal_terminal(self.store, attempt_id=ATTEMPT,
+                                                                 observation=observation))
+        self.assertIsNone(intake.removal_terminal_of(self.store, attempt_id=ATTEMPT))

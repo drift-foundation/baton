@@ -9,7 +9,7 @@ from baton_v12.authority import Authority
 from baton_v12.contracts import ContractRefusal
 from baton_v12.worker_manager import ControlStore, attempts, exchange, launch, tokens, sessions, custody
 from baton_v12.worker_manager import stopped_settlement as settlement
-from tools import job_manager, stack_command, stopped_settlement as command
+from tools import job_manager, single_worker, stack_command, stopped_settlement as command
 from tests.job_manager import fixtures
 from tests.manager import test_worker_image  # installs the ordinary worker import path
 # W384870: through the module, so the sibling TestCase is not collected twice.
@@ -156,3 +156,112 @@ class JoinedSettlement(settlement_command.InstalledSettlement):
             with mock.patch.object(command, '_runtime', side_effect=observe):
                 self.assertEqual(self.argv('settle-stopped', request)['state'], 'held')
             self.assertEqual(self.logical(), before)
+
+    # W386766 (owner ruling 2026-11-28), on the real exchange and the composition's own removal. The M386700
+    # shape: a real agent fault after `describe`, settled stopped, then `settlement-remove`. Before the removal
+    # takes the exchange its terminal is retained; afterwards the episode is over -- status, the sweep and the
+    # display all agree with the durable evidence, across a restart, and nothing is dispatched again.
+
+    def removing_engine(self):
+        """The fixture engine, except that `rm` removes and a removed identity then inspects absent."""
+        engine, real = self.engine, type(self.engine).__call__
+
+        class Removing(type(engine)):
+            def __call__(inner, argv, *, seconds=None):
+                if argv[1] == "rm":
+                    engine.vectors.append(list(argv))
+                    engine.runtime_id = None
+                    return engine.answer()
+                if argv[1] == "inspect" and engine.runtime_id is None:
+                    engine.vectors.append(list(argv))
+                    return engine.answer(status=1, stderr="Error response from daemon: No such container: " + argv[-1])
+                return real(engine, argv, seconds=seconds)
+        removing = Removing.__new__(Removing)
+        removing.__dict__ = engine.__dict__
+        return removing
+
+    def composed(self, incarnation):
+        from baton_v12.worker_manager import workspaces
+        jobs, control = self.stores(incarnation)
+        operations = type(self).operations(self, jobs, control, self.engine)
+
+        def close():
+            operations.close()
+            workspaces.held_manager_instance(self.storage).release()
+            jobs.close()
+            control.close()
+        return jobs, control, operations, close
+
+    def test_a_removal_retains_the_fault_and_the_settled_episode_never_dispatches_again(self):
+        from baton_v12.job_manager import status, sweep
+        from baton_v12.worker_manager import intake
+        from tools import job_observation
+        self.assertEqual(self.argv('settle-stopped', self.preview()['request'])['state'], 'settled')
+        self.runner.stop()
+        self.addCleanup(self.runner.start)
+        self.engine = self.removing_engine()
+        with mock.patch.object(single_worker, 'effective_engine_run', return_value=self.engine):
+            jobs, control, operations, close = self.composed('w386766-quiesce')
+            self.assertEqual(operations.refresh_runtime(self.stage)['execution_runtime'], 'quiescent')
+            close()
+            remove = lambda: command.remove(self.places['instance'], job_id='job-a', stage_id=self.stage['stage_id'],
+                                            episode=1, reason='settlement: M386700 shape', clock=lambda: fixtures.NOW,
+                                            compose=lambda configuration, j, c: type(self).operations(self, j, c, self.engine))
+            # Review 2026-11-28T06-17-31Z R2: THE DECLARATION COMMITS BEFORE THE FENCE AND DESTROY. Cut there, the
+            # removal is declared and NOT done: status must show the recorded runtime and the live fault, never
+            # "Runtime removed by settlement".
+            real = ControlStore.transact
+
+            def cut(store, operation, kind, signature, action):
+                answered = real(store, operation, kind, signature, action)
+                if kind == 'attempt.abandon':
+                    raise RuntimeError('lost reply after the abandonment declaration')
+                return answered
+            with mock.patch.object(ControlStore, 'transact', cut):
+                with self.assertRaises(RuntimeError):
+                    remove()
+            jobs, control, operations, close = self.composed('w386766-interrupted')
+            try:
+                document = status(jobs, operations, observed_at=fixtures.SOON)
+            finally:
+                close()
+            job = next(one for one in document['jobs'] if one['job_id'] == 'job-a')
+            stage = next(one for one in job['stages'] if one['stage_id'] == self.stage['stage_id'])
+            self.assertIs(stage['removal']['removed'], False)
+            self.assertEqual(stage['removal']['execution_runtime'], 'quiescent')
+            view = job_observation.job_view(document, job)
+            phase = next(one for one in view['phases'] if one['stage_id'] == self.stage['stage_id'])
+            self.assertNotIn('Runtime removed by settlement', phase['reason'])
+            self.assertIn('settlement removal declared, not confirmed: runtime quiescent', phase['reason'])
+            self.assertIn('agent fault', phase['reason'])       # the exchange is still there, and so is its fault
+            self.assertEqual(stage['state'], 'exceptional')
+            self.assertNotEqual(phase['row_position'].split(';')[0], 'stopped')
+            # The repeated removal replays the committed declaration and finishes it.
+            removed = remove()
+            self.assertTrue(removed['removed'])
+            self.assertEqual(removed['after'], {'execution_runtime': 'destroyed', 'cleanup': 'retained'})
+            retained = intake.removal_terminal_of(self.control, attempt_id=self.ATTEMPT)
+            self.assertEqual((retained['ending'], retained['fault_code'], retained['answered'], retained['manifest_digest']),
+                             ('faulted', 'agent', ['describe'], None))
+            self.assertEqual(retained['sequence_id'], exchange.sequence_of(self.ATTEMPT))
+            for incarnation in ('w386766-serving-1', 'w386766-serving-2'):     # a restart between the two
+                jobs, control, operations, close = self.composed(incarnation)
+                try:
+                    with mock.patch.object(type(operations), 'dispatch', side_effect=AssertionError('redispatch')) as dispatch:
+                        for _ in range(3):
+                            sweep(jobs, operations, now=fixtures.SOON)
+                    self.assertEqual(dispatch.call_count, 0)
+                    document = status(jobs, operations, observed_at=fixtures.SOON)
+                finally:
+                    close()
+                job = next(one for one in document['jobs'] if one['job_id'] == 'job-a')
+                stage = next(one for one in job['stages'] if one['stage_id'] == self.stage['stage_id'])
+                self.assertEqual(stage['state'], 'exceptional')
+                self.assertEqual(stage['removal']['terminal'], retained)
+                self.assertEqual(stage['removal']['reason'], 'settlement: M386700 shape')
+                view = job_observation.job_view(document, job)
+                phase = next(one for one in view['phases'] if one['stage_id'] == self.stage['stage_id'])
+                self.assertEqual(view['headline'], 'FAILED')
+                self.assertEqual(phase['row_position'].split(';')[0], 'stopped')
+                self.assertEqual(phase['reason'], 'Stopped — agent fault after describe (no manifest). '
+                                                  'Runtime removed by settlement: "settlement: M386700 shape".')

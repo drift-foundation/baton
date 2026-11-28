@@ -744,3 +744,52 @@ class AnIntegrationStageOwesConcludeAndNeverDispatch(ExchangeCase):
         self.observing("answered")
         sweep(self.jobs, self.acts, now=SOON)
         self.assertEqual([one[0] for one in self.spoke()], ["conclude"])
+
+
+class ASettledRemovalIsOverAndNeverRedispatched(ExchangeCase):
+    """W386766 (owner ruling 2026-11-28): a settlement removal ends the episode.
+
+    `settlement-remove` destroys the runtime, settles cleanup and takes the exchange with it, leaving the episode
+    open. M386700 then projected `starting`, which owes `dispatch`, and every sweep asked for a refused dispatch.
+    """
+
+    def removed(self, terminal=None):
+        self.started()
+        held = self.acts.observations[STAGE]
+        held["runtime"] = dict(held["runtime"], execution_runtime="destroyed", cleanup="retained")
+        held["exchange"] = None
+        held["removal"] = {"attempt_id": held["runtime"]["attempt_id"], "reason": "settlement", "removed": True,
+                           "execution_runtime": "destroyed", "cleanup": "retained", "terminal": terminal}
+
+    def dispatches(self):
+        return [one for one in self.acts.calls if one[0] == "dispatch"]
+
+    def test_a_settled_removal_is_exceptional_and_owes_nothing_across_a_restart(self):
+        self.removed()
+        before = len(self.dispatches())
+        self.assertEqual(self.state()["state"], "exceptional")
+        sweep(self.jobs, self.acts, now=SOON)
+        self.jobs.close()
+        self.jobs = self.store(incarnation="jobs-2")
+        for _ in range(3):
+            sweep(self.jobs, self.acts, now=SOON)
+        self.assertEqual(len(self.dispatches()), before)
+        held = self.state()
+        self.assertEqual(held["state"], "exceptional")
+        self.assertEqual(held["removal"]["reason"], "settlement")
+
+    def test_a_genuinely_starting_attempt_still_starts_and_is_dispatched(self):
+        self.started()
+        for axis, cleanup in (("running", None), ("starting", None), ("destroyed", None), ("destroyed", "pending")):
+            with self.subTest(execution_runtime=axis, cleanup=cleanup):
+                held = self.acts.observations[STAGE]
+                held["runtime"] = dict(held["runtime"], execution_runtime=axis, cleanup=cleanup)
+                held["exchange"] = None
+                self.assertEqual(self.state()["state"], "starting")
+                self.assertNotIn("removal", self.state())
+
+    def test_a_completed_attempt_keeps_completed(self):
+        self.answered()
+        self.acts.frozen(STAGE, "completed", execution_runtime="destroyed", cleanup="retained")
+        self.acts.observations[STAGE]["exchange"] = None
+        self.assertEqual(self.state()["state"], "completed")

@@ -156,7 +156,9 @@ class Observation(JobManagerCase):
                                     "diagnostic_degradation": None,
                                     # W383215: and no cancellation outcome
                                     # was ever recorded for it.
-                                    "cessation": None})
+                                    "cessation": None,
+                                    # W386766: and no settlement removal.
+                                    "removal": None})
 
     def test_the_closed_surface_is_what_a_deployment_must_supply(self):
         acts = self.operations()
