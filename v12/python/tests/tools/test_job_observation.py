@@ -1825,6 +1825,56 @@ class AllPhasesCompleteShowsOnlyItsOwnVerdict(unittest.TestCase):
                     self.assertIn("DONE", text)
                     self.assertIn("6540775d5f29bea86f71756486c092be9d0a3ccd", text)
 
+    # W386746 (owner ruling 2026-11-28): the owner's FINAL decision not to integrate the accepted candidate.
+    DECLINED = {"job_id": JOB, "action": "decline-integration", "operation_id": "job.integration-recorded:x",
+                "recorded_at": "2026-11-28T06:00:00.000Z",
+                "recorded_by": {"participant": "baton.slaw", "principal": "principal:baton.slaw"},
+                "candidate": {"checkpoint_id": CHECKPOINT, "head_object": "340f867479024e6dcffec92345a2dfc5d0263189",
+                              "tree_object": "35686824a2f560f9c20e80d6905873dd0c89c41e", "verdict_id": "verdict-x",
+                              "review_attempt_id": "attempt-review"},
+                "reason": "Probe only; the owner keeps main unchanged.", "phases": []}
+
+    def test_after_the_owner_DECLINES_it_reads_NOT_INTEGRATED_everywhere_with_the_accepted_review_and_candidate_readable(self):
+        ready = self.snapshot(dict(self.VERDICT))
+        doc = self.snapshot(dict(self.VERDICT))
+        doc["jobs"][0]["integration_declined"] = copy.deepcopy(self.DECLINED)
+        before = copy.deepcopy(doc)
+        view = model.job_view(doc, doc["jobs"][0])
+        self.assertEqual(view["headline"], "NOT INTEGRATED")
+        self.assertEqual(view["headline_reason"],
+                         'Owner declined to integrate accepted candidate 340f867479024e6dcffec92345a2dfc5d0263189; reason: '
+                         '"Probe only; the owner keeps main unchanged."; checkpoint ' + self.CHECKPOINT
+                         + "; recorded by baton.slaw at 2026-11-28T06:00:00.000Z.")
+        self.assertEqual(view["review_verdict"], self.VERDICT)
+        self.assertEqual(view["integration_declined"], self.DECLINED)
+        self.assertIsNone(view["integration"])
+        self.assertEqual(view["phases"], model.job_view(ready, ready["jobs"][0])["phases"], "phase rows are unchanged")
+        for text in self.surfaces(doc):
+            self.assertIn("NOT INTEGRATED", text)
+            self.assertNotIn("READY FOR INTEGRATION", text)
+            self.assertNotIn("DONE", text)
+        status_text, monitor_list, detail, tui_list, tui_detail = self.surfaces(doc)
+        for text in (status_text, detail, tui_list, tui_detail):
+            self.assertIn("340f867479024e6dcffec92345a2dfc5d0263189", text)
+            self.assertIn("Probe only; the owner keeps main unchanged.", text)
+        self.assertEqual(doc, before, "interpretation must be pure")
+
+    def test_a_DAMAGED_or_FOREIGN_decline_and_a_MANUAL_Job_never_read_NOT_INTEGRATED(self):
+        for label, change in (("another Job", {"job_id": "job-other"}), ("no reason", {"reason": ""}),
+                              ("no candidate", {"candidate": {}}), ("no checkpoint", {"candidate": {"head_object": "340f8674"}}),
+                              ("no actor", {"recorded_by": None}), ("not a mapping", None)):
+            with self.subTest(label):
+                doc = self.snapshot(dict(self.VERDICT))
+                doc["jobs"][0]["integration_declined"] = None if change is None else dict(self.DECLINED, **change)
+                self.assertEqual(model.job_view(doc, doc["jobs"][0])["headline"], "READY FOR INTEGRATION")
+        doc = self.snapshot(dict(self.VERDICT))
+        doc["schema"] = stack.MANUAL_STATUS_SCHEMA
+        job = doc["jobs"][0]
+        job.update(mode="MANUAL", lifecycle="open", integration_declined=copy.deepcopy(self.DECLINED))
+        for stage in job["stages"]:
+            stage["selected_at"] = NOW
+        self.assertEqual(model.job_view(doc, job)["headline"], "AWAITING ASSIGNMENT")
+
     def test_a_DAMAGED_or_FOREIGN_receipt_and_a_MANUAL_Job_never_read_DONE(self):
         for label, change in (("another Job", {"job_id": "job-other"}), ("no target", {"target": {}}),
                               ("no actor", {"recorded_by": None}), ("not a mapping", None)):

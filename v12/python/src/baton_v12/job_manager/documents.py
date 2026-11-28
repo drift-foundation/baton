@@ -853,10 +853,13 @@ CONTRACTS = {
                     "policy_digest", "test_scope", "terminal_policy",
                     "execution_limits", "stages"), ("cancellation",
                                                     "control", "created_at", "mode", "lifecycle", "budget", "closed_at",
-                                                    "integration")),
+                                                    "integration", "integration_declined")),
     # W385263 / M386422 added the OPTIONAL `integration` member: the owner's
     # integration receipt (`job_integration.record`), present only once it is
     # recorded. Optional and additive, so a reader that ignores it is unchanged.
+    # W386746 added the OPTIONAL `integration_declined` member the same way: the
+    # owner's final decision not to integrate the accepted candidate
+    # (`job_integration.decline`). At most one of the two is ever present.
     # W383217: ONE JOB'S ADMITTED CONTROL, journalled inside its submission.
     "job.control": (("operation_id", "job_id", "profile", "resolved",
                      "admitted_at", "incarnation"), ()),

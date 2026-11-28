@@ -393,12 +393,25 @@ review verdict (W385263, M386422):
   (integration-eligible) checkpoint. An accepted verdict whose candidate is not
   importable reads `ALL PHASES COMPLETE · REVIEW ACCEPTED`.
 - **DONE** is shown only after the owner records the existing target commit.
+- **NOT INTEGRATED** is shown after the owner records the final decision not to
+  integrate the accepted candidate (W386746). Its line names the candidate, its
+  checkpoint and the owner's reason. The review verdict and every phase row stay
+  as they were. A Job has at most one of DONE and NOT INTEGRATED.
 
 The verdict is read once, by `job_manager.review_verdicts.matching`. It is
 published on the review stage as `review_verdict`: `null` when the store was
 read and no verdict matches, and absent when no control store was read. A
 missing verdict, or a verdict for another attempt or checkpoint, never reads as
 accepted.
+
+To record that the accepted candidate will not be integrated (final for the Job;
+an identical retry returns the same receipt, a different decision is refused
+naming the existing one):
+
+```sh
+baton-v12-stack manager decline-integration --instance <instance.json> --job <job_id> \
+    --candidate <accepted head commit> --reason "<the owner's reason>"
+```
 
 To record the target commit, after integrating the accepted candidate:
 

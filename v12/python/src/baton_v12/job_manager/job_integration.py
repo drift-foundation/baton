@@ -10,6 +10,20 @@ retry returns it unchanged, a conflicting receipt or a mismatched candidate is
 refused, and status, monitor and TUI show DONE from that receipt -- also with
 every service stopped. MANUAL closure (`manual.close_job`) is unchanged.
 
+W386746 (owner ruling 2026-11-28): THE OTHER FINAL DISPOSITION. The owner may
+instead DECLINE to integrate the accepted candidate (`decline`). That is final
+for the Job and bound to the Job, its accepted candidate and the owner's reason;
+status, monitor and TUI show NOT INTEGRATED from it, also with every service
+stopped, and the accepted review and candidate stay readable beside it.
+
+ONE DISPOSITION PER JOB, DECIDED BY THE JOURNAL. Both acts take the SAME
+operation identity (`operation_of`, derived from the Job alone) with their own
+kind and signature, so the Job store's journal -- whose collision check runs
+inside `BEGIN IMMEDIATE` -- lets exactly one of them commit even when
+`record-integration` and `decline-integration` race; the loser is refused and
+told the disposition that exists. An identical retry of either replays its
+original receipt, including after a restart.
+
 ONE RECEIPT PER JOB. The operation identity is derived from the Job alone and
 the signature from (Job, candidate head, target commit), so the journal
 (`JobStore.transact`) replays an identical retry and refuses a second,
@@ -40,11 +54,15 @@ from . import job_control, projection, review_verdicts
 from .store import job_signature
 
 KIND = "job.integration-recorded"
+DECLINE_KIND = "job.integration-declined"
+MAX_REASON_CHARACTERS = 1000
 _OBJECT = re.compile(r"[0-9a-f]{40}|[0-9a-f]{64}")
 
 
 def operation_of(job_id):
-    """The one integration-receipt operation identity of this Job."""
+    """The one integration-disposition operation identity of this Job.
+
+    Shared by `record` and `decline` (W386746): one Job, one disposition."""
     boundaries.identity(job_id, "a Job identity")
     return KIND + ":" + digest({"job_id": job_id}).split(":", 1)[1]
 
@@ -131,11 +149,8 @@ def record(store, job_id, *, candidate, target, actor, operations, control):
     signature = job_signature(KIND, {"job_id": job_id, "candidate": candidate, "commit": target["commit"]})
     existing = store.operation_record(operation)
     if existing is not None and existing["signature"] != signature:
-        recorded = receipt_of(store, job_id) or {}
-        _refuse(f"Job {job_id} already has an integration receipt (candidate "
-                f"{(recorded.get('candidate') or {}).get('head_object')}, commit "
-                f"{(recorded.get('target') or {}).get('commit')}); a different one is refused")
-    found, value = store.replay(operation, signature, kind=KIND)
+        _refuse(disposition_of(store, job_id) + "; a different decision is refused")
+    found, value = _replayed(store, job_id, operation, signature, KIND)
     if found:
         return value
     if type(actor) is not dict or not actor.get("participant") or not actor.get("principal"):
@@ -157,15 +172,105 @@ def record(store, job_id, *, candidate, target, actor, operations, control):
                 "target": {"commit": target["commit"], "tree": target["tree"]},
                 "phases": phases}
 
-    return store.transact(operation, KIND, signature, perform)
+    return _transacted(store, job_id, operation, KIND, signature, perform)
 
 
-def receipt_of(store, job_id):
-    """The committed integration receipt of this Job, or None."""
+def _reason(reason):
+    """The owner's own words, kept exactly: non-empty, bounded, no surrounding whitespace."""
+    boundaries.text(reason, "the owner's reason")
+    if reason != reason.strip() or len(reason) > MAX_REASON_CHARACTERS:
+        _refuse(f"the owner's reason is 1 to {MAX_REASON_CHARACTERS} characters with no leading or trailing whitespace")
+    return reason
+
+
+def decline(store, job_id, *, candidate, reason, actor, operations, control):
+    """W386746: record that this Job's accepted candidate will NOT be integrated; the receipt.
+
+    FINAL for the Job. The same preconditions as `record` minus a target
+    commit: an ordinary report-and-hold Job, every phase completed, the accepted
+    verdict bound to this Job's review attempt on its retained, importable
+    candidate, and `candidate` naming that verdict's head commit. Nothing about
+    the Job's stages, attempts, line, custody or verdict changes.
+    """
+    operation = operation_of(job_id)
+    if type(candidate) is not str or not _OBJECT.fullmatch(candidate):
+        _refuse("the candidate is the accepted head commit, in full")
+    reason = _reason(reason)
+    signature = job_signature(DECLINE_KIND, {"job_id": job_id, "candidate": candidate, "reason": reason})
+    existing = store.operation_record(operation)
+    if existing is not None and existing["signature"] != signature:
+        _refuse(disposition_of(store, job_id) + "; a different decision is refused")
+    found, value = _replayed(store, job_id, operation, signature, DECLINE_KIND)
+    if found:
+        return value
+    if type(actor) is not dict or not actor.get("participant") or not actor.get("principal"):
+        _refuse("declining an integration requires the verified owner binding")
+    phases, verdict = accepted_candidate(store, job_id, operations, control)
+    if candidate != verdict["head_object"]:
+        _refuse(f"candidate {candidate} is not Job {job_id}'s accepted candidate {verdict['head_object']}")
+
+    def perform(connection):
+        now = store._now()
+        if job_control.advance_watermark(connection, now) > now:
+            _refuse("the clock is earlier than the persisted Job Store watermark")
+        held = {name: verdict[name] for name in ("checkpoint_id", "line_id", "verdict_id", "base_object", "head_object", "tree_object")}
+        held["review_attempt_id"] = verdict.get("attempt_id")
+        return {"job_id": job_id, "action": "decline-integration", "operation_id": operation, "recorded_at": now,
+                "recorded_by": {"participant": actor["participant"], "principal": actor["principal"]},
+                "candidate": held, "reason": reason, "phases": phases}
+
+    return _transacted(store, job_id, operation, DECLINE_KIND, signature, perform)
+
+
+def _replayed(store, job_id, operation, signature, kind):
+    try:
+        return store.replay(operation, signature, kind=kind)
+    except ContractRefusal as refusal:
+        if refusal.code != "operation-collision":
+            raise
+        _refuse(disposition_of(store, job_id) + "; a different decision is refused")
+
+
+def _transacted(store, job_id, operation, kind, signature, perform):
+    """The journalled act; a RACE lost inside the lock reports the disposition that won."""
+    try:
+        return store.transact(operation, kind, signature, perform)
+    except ContractRefusal as refusal:
+        if refusal.code != "operation-collision":
+            raise
+        _refuse(disposition_of(store, job_id) + "; a different decision is refused")
+
+
+def _committed(store, job_id, kind):
     record_ = store.operation_record(operation_of(job_id))
-    if record_ is None or record_["kind"] != KIND or record_["state"] != "committed":
+    if record_ is None or record_["kind"] != kind or record_["state"] != "committed":
         return None
     result = record_["result"]
     if isinstance(result, str):
         result = json.loads(result)
     return result if type(result) is dict and result.get("job_id") == job_id else None
+
+
+def declined_of(store, job_id):
+    """The committed decline receipt of this Job, or None."""
+    return _committed(store, job_id, DECLINE_KIND)
+
+
+def disposition_of(store, job_id):
+    """One sentence naming the owner disposition this Job already has."""
+    integrated = receipt_of(store, job_id)
+    if integrated is not None:
+        return (f"Job {job_id} already has an integration receipt (candidate "
+                f"{(integrated.get('candidate') or {}).get('head_object')}, commit "
+                f"{(integrated.get('target') or {}).get('commit')})")
+    declined = declined_of(store, job_id)
+    if declined is not None:
+        return (f"Job {job_id}'s integration was already declined by "
+                f"{(declined.get('recorded_by') or {}).get('participant')} at {declined.get('recorded_at')} "
+                f"(candidate {(declined.get('candidate') or {}).get('head_object')}; reason: {json.dumps(declined.get('reason'))})")
+    return f"Job {job_id} already has another owner integration disposition"
+
+
+def receipt_of(store, job_id):
+    """The committed integration receipt of this Job, or None."""
+    return _committed(store, job_id, KIND)

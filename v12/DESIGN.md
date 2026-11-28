@@ -897,6 +897,18 @@ trailers are useful display metadata, not authority. Import only reviewed conten
 after checking base, target, path ownership and drift. Never improvise a correction
 while claiming it is the already-reviewed candidate.
 
+**REV-8.** Owner amendment 2026-11-28 (W386746, declined integration): for an
+ordinary Job whose accepted, importable candidate the owner deliberately does not
+import, the owner records a final `decline-integration` disposition bound to the
+Job, that accepted candidate and the owner's reason. It is final for the Job: one
+owner integration disposition per Job, either the integration receipt or the
+decline, never both. If `record-integration` and `decline-integration` race,
+exactly one succeeds; an identical retry returns the original receipt, also after
+restart, and a conflicting decision is refused naming the disposition that exists.
+Status, monitor and TUI show NOT INTEGRATED with the candidate and reason, also
+with every service stopped. The accepted review, its verdict and the candidate
+stay readable; no stage, attempt, line, custody or verdict changes.
+
 ## 12. Failure, cancellation and recovery
 
 **REC-1.** Keep workflow, runtime, permission, provider invocation, artifact,

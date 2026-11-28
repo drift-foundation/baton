@@ -66,6 +66,20 @@ def _job_headline(job, phases):
         return DONE, ("Integrated as " + _status_text(integrated["target"]["commit"]) + " from accepted candidate "
                       + _status_text(integrated["candidate"]["head_object"]) + "; recorded by "
                       + _status_text(integrated["recorded_by"]["participant"]) + " at " + _status_text(integrated["recorded_at"]) + ".")
+    declined = integration_declined(job)
+    if declined is not None:
+        # W386746 (owner ruling 2026-11-28): the owner's FINAL decision not to
+        # integrate. It names the declined candidate and the owner's reason; the
+        # accepted review, its verdict and the candidate's results stay in the
+        # phase rows exactly as before.
+        # The owner's words come before the long checkpoint name, so a one-line
+        # surface cut to its width (the TUI) still shows the candidate and reason.
+        return NOT_INTEGRATED, ("Owner declined to integrate accepted candidate "
+                                + _status_text(declined["candidate"]["head_object"]) + "; reason: "
+                                + json.dumps(declined["reason"], ensure_ascii=True) + "; checkpoint "
+                                + _status_text(declined["candidate"]["checkpoint_id"]) + "; recorded by "
+                                + _status_text(declined["recorded_by"]["participant"]) + " at "
+                                + _status_text(declined["recorded_at"]) + ".")
     if any(phase["state"] == "exceptional" and not (phase["live_attempt"] or {}).get("stop")
            for phase in phases):
         return "FAILED", ""
@@ -163,6 +177,25 @@ def integration_receipt(job):
                                                          actor.get("participant"), receipt.get("recorded_at"))):
         return None
     return receipt
+NOT_INTEGRATED = "NOT INTEGRATED"
+
+
+def integration_declined(job):
+    """W386746: the owner's final decision not to integrate this Job's accepted candidate, or None."""
+    job = _mapping(job)
+    if job.get("mode") == "MANUAL":
+        return None
+    receipt = job.get("integration_declined")
+    if type(receipt) is not dict or receipt.get("job_id") != job.get("job_id"):
+        return None
+    candidate, actor = (_mapping(receipt.get(name)) for name in ("candidate", "recorded_by"))
+    if not all(type(value) is str and value for value in (candidate.get("head_object"), candidate.get("checkpoint_id"),
+                                                         receipt.get("reason"), actor.get("participant"),
+                                                         receipt.get("recorded_at"))):
+        return None
+    return receipt
+
+
 _VERDICT_DISPOSITIONS = ("accepted", "changes-requested", "rejected")
 
 
@@ -1076,5 +1109,6 @@ def job_view(document, job):
         label = "MANUAL OPEN   " if job.get("lifecycle") == "open" else "MANUAL · "
     return {"headline": headline, "labelled_headline": label + headline, "headline_reason": reason, "phases": phases, "open_admitted": count,
             "review_verdict": review_verdict(job), "integration": integration_receipt(job),
+            "integration_declined": integration_declined(job),
             "recorded_runtimes": sum(stage.get("runtime") is not None for stage in _rows(_mapping(job).get("stages"))),
             "summary": summary}

@@ -1419,7 +1419,7 @@ def main(argv, *, clock=None, stream=None):
     if argv and argv[0] == "recover-answered":
         from tools import recover_answered
         return recover_answered.main(argv[1:], clock=clock, stream=stream)
-    if argv and argv[0] == "record-integration":
+    if argv and argv[0] in ("record-integration", "decline-integration"):
         from tools import job_integration_command
         return job_integration_command.main(argv, clock=clock, stream=stream)
     if argv and argv[0] in credential_recovery.COMMANDS:

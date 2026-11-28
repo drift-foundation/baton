@@ -1154,10 +1154,14 @@ def _job_limits(snapshot, job_id):
 
 
 def _integration_of(store, job_id):
-    """`{"integration": receipt}` when the owner recorded one, else nothing."""
+    """`{"integration": receipt}` or `{"integration_declined": receipt}` when the
+    owner recorded that disposition (W386746: at most one), else nothing."""
     from . import job_integration
     receipt = job_integration.receipt_of(store, job_id)
-    return {} if receipt is None else {"integration": receipt}
+    if receipt is not None:
+        return {"integration": receipt}
+    declined = job_integration.declined_of(store, job_id)
+    return {} if declined is None else {"integration_declined": declined}
 
 
 def _with_review_verdict(stage, operations):
