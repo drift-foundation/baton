@@ -1824,6 +1824,18 @@ class StageComposition:
             retention_disposition=deployment.retention_disposition,
             retention_policy_digest=deployment.retention_policy_digest)
 
+    def cancelled_unable(self, stage, disposition):
+        if self.role != "implementation" or disposition != "unable" or not stage.get("job_id"):
+            return None
+        from baton_v12.job_manager import cancellation
+        from baton_v12.worker_manager import model_attribution
+        fence = cancellation.fence_of(self.deployment.jobs, stage["job_id"])
+        if cancellation.selected_attempt(fence, stage["stage_id"], stage["episode"], stage["attempt_id"]):
+            account = model_attribution.assessment_of(self.deployment.control, stage["attempt_id"])
+            if account and account["outcome"] == "held":
+                return account
+        return None
+
     def historical(self, stage, assignment):
         """The recorded obligation of an attempt whose runtime is already gone.
 
@@ -1854,7 +1866,7 @@ class StageComposition:
         if intent is None:
             return None
         state = attempt_runtime_of(self.deployment.control, attempt_id)
-        if (state or {}).get("execution_runtime") != "destroyed":
+        if (state or {}).get("execution_runtime") != "destroyed" and not self.cancelled_unable(stage, intent["disposition"]):
             return None
         # THE WORKER'S OWN ENVELOPE, AS RECORDED. `_correlated` compares this
         # against the manifest the manager validated over the bytes it read,
@@ -1958,6 +1970,17 @@ class StageComposition:
         job_id = stage.get("job_id")
         capable = job_id is not None and native_handoffs.handoff_capable(
             deployment.jobs, job_id)
+        account = self.cancelled_unable(stage, context["disposition"])
+        if account is not None:
+            retired = review_driver.retire_held_unable(deployment.control, worker.port, context["adapter"],
+                attempt_id=attempt_id, terminal=context["terminal"], writer_id=prepared["writer_id"],
+                generation=prepared["generation"], profile=deployment.profile, assessment=account,
+                retention_disposition=deployment.retention_disposition, retention_policy_digest=deployment.retention_policy_digest)
+            discharge = self._discharged(worker, retired)
+            if self._fenced_gate(retired) and discharge is None:
+                _refuse("cancelled unable implementation still owes its quiescence gate discharge")
+            ending.settle_ending(deployment.jobs, stage, assignment=assignment, evidence=self._evidence(retired, None, discharge))
+            return retired
         if self.role == "implementation":
             answered = review_driver.end_implementation(
                 deployment.control, worker.port, context["adapter"],

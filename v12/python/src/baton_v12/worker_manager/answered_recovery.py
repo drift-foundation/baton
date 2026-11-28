@@ -9,6 +9,7 @@ from ..contracts import ContractRefusal
 from .store import manager_signature
 
 KIND = "implementation.recover-answered"
+_retiring = ContextVar("verified_unable_writer_release", default=None)
 _requested = ContextVar("answered_request", default=None)
 _active = ContextVar("answered_recovery", default=None)
 
@@ -80,6 +81,10 @@ def permitted(control, attempt):
 
 def permits_destroyed(control, attempt, state):
     return state == "destroyed" and permitted(control, attempt)
+
+
+def retiring_unable(control, attempt):
+    return _retiring.get() == (control, attempt)
 
 
 def check_head(control, attempt, head):
@@ -243,3 +248,52 @@ def verified(control, adapter, profile, request, terminal, writer, line):
         yield
     finally:
         _active.reset(token)
+
+
+def unable_workspace_token(control, attempt):
+    from . import attempts, tokens
+    row = attempts._require_attempt(control, attempt)
+    operation = attempts._start_operation_id(row)
+    domain = tokens.domain_of("workspace", tokens.workspace_identity(row))
+    generation = tokens.generation_of(control, domain, execution=attempt, operation=operation)
+    token = tokens.token_of(control, domain, generation) if generation is not None else None
+    if (not token or token["activation_started"] is not True or not token["launch"] or not token["container"]
+            or token["container"] != row["runtime_id"] or not attempts.start_submission_returned(control, row)):
+        refuse("the unable attempt has no verified launch on its original reservation")
+    return token
+
+
+@contextmanager
+def verified_unable_writer(control, port, adapter, profile, writer_id, *, reason):
+    """Remove only the stopped, token-bound runtime. Keep the token through writer exclusion."""
+    from . import attempts, intake, review_cycles
+    writer = review_cycles.writer_of(control, writer_id)
+    attempt = writer["runtime_attempt_id"]
+    row = attempts._require_attempt(control, attempt)
+    line = review_cycles._consumable_line(control, writer["line_id"])
+    if (writer["state"] != "active" or row["worker_disposition"] != "unable" or row["execution_runtime"] not in ("quiescent", "destroyed")
+            or line["state"] != "writing" or writer["based_checkpoint_id"] != line["current_checkpoint_id"]):
+        refuse("the retained unable attempt no longer owns its original implementation line")
+    token = unable_workspace_token(control, attempt)
+    if token["returned"] or token["revoked"]:
+        refuse("the original unable attempt no longer holds its workspace reservation")
+    helpers, unknown = intake._surviving_writers(adapter, control, attempt)
+    if helpers or unknown:
+        refuse("cannot exclude surviving custody writers of the unable attempt")
+    state, _, _ = attempts._observed(adapter, token["container"])
+    if state not in ("quiescent", "absent"):
+        refuse("unable attempt runtime is not positively stopped")
+    # The original release replays this same durable assignment fence. A
+    # stopped container must lose its authority before its mounts are removed.
+    attempts.finalize_quiescent_assignment(control, port, attempt_id=attempt, reason=reason)
+    adapter.remove_stopped_writer(token["container"])
+    adapter.prove_no_writable_mount(os.path.dirname(line["line_path"]))
+    base = (review_cycles.checkpoint_of(control, writer["based_checkpoint_id"])["head_object"]
+            if writer["based_checkpoint_id"] else line["declared_base"])
+    if profile.head_of(line["line_path"]) != base:
+        refuse("unable implementation line differs from its entry head")
+    active = _retiring.set((control, attempt))
+    try:
+        yield
+    finally:
+        _retiring.reset(active)

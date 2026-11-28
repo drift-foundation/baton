@@ -425,6 +425,19 @@ def effect_for(state, observed, targets=()):
     return ORDER_CESSATION
 
 
+def selected_attempt(fence, stage_id, episode, attempt_id):
+    return (fence is not None and fence.get("trigger") == "operator" and any(
+        seen["stage_id"] == stage_id and seen["episode"] == episode and seen["attempt_id"] == attempt_id
+        for seen in fence["observed"]))
+
+
+def pending_unable_retirement(entry, observed):
+    intent = (entry.get("ending") or {}).get("intent")
+    return bool(intent and entry["ending"]["settlement"] is None and intent["disposition"] == "unable"
+                and entry["stage"]["kind"] == "implementation" and (observed.get("runtime") or {}).get("model_attribution_hold")
+                and selected_attempt(entry.get("cancellation"), intent["stage_id"], intent["episode"], intent["attempt_id"]))
+
+
 def target_state(entry, observed, targets, requested_at):
     """One target's reported state, from persisted rows and live facts only.
 
@@ -451,6 +464,8 @@ def target_state(entry, observed, targets, requested_at):
         if "claim" not in receipts:
             return "awaiting-offer-lapse"
         return "fenced-unstarted" if fenced_unstarted is not None else "pending"
+    if pending_unable_retirement(entry, observed):
+        return "ending-in-progress"
     if _ceased(axes):
         # OVER, AND WHOSE DOING IT WAS: an attempt this request ordered or
         # fenced is `ceased`; one that ended with no order from this request
@@ -506,7 +521,7 @@ def reported(record, targets, entries, *, observed_of, now):
         observed = observed if observed is not None else {}
         axes = observed.get("runtime")
         cessation = observed.get("cessation")
-        state = target_state(entry, observed, targets, record["requested_at"])
+        state = target_state(dict(entry, cancellation=record), observed, targets, record["requested_at"])
         settled = settled and state in SETTLED_STATES
         orders = [one for one in targets
                   if attempt is not None

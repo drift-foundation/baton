@@ -729,6 +729,8 @@ def reconcile_allocations(store, held=None):
         runtime = observed.get("runtime") or {}
         cleanup = runtime.get("cleanup")
         pending = release_blocker(store, allocation["assignment_id"]) is not None
+        if cancellation.pending_unable_retirement(entry, observed):
+            continue  # The stopped runtime can precede the original token return.
         if cleanup in ("complete", "retained") and not pending:
             moved.append(release(store, allocation["assignment_id"],
                                 f"cleanup-{cleanup}"))

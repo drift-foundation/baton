@@ -1425,9 +1425,11 @@ def _attempt(store, attempt_id):
     return attempts._require_attempt(store, attempt_id)
 
 
-def _quiescent_completed(store, attempt_id, *, review=False):
+def _quiescent_completed(store, attempt_id, *, review=False, releasing=False):
     attempt = _attempt(store, attempt_id)
-    if attempt["runtime_id"] is None or (attempt["execution_runtime"] != "quiescent" and not answered_recovery.permits_destroyed(store, attempt_id, attempt["execution_runtime"])):
+    state = attempt["execution_runtime"]
+    retired = releasing and state == "destroyed" and answered_recovery.retiring_unable(store, attempt_id)
+    if attempt["runtime_id"] is None or (state != "quiescent" and not retired and not answered_recovery.permits_destroyed(store, attempt_id, state)):
         raise ContractRefusal(
             "refused", "precondition",
             "review completion requires the exact attached runtime to be "
@@ -2231,7 +2233,7 @@ def release_writer(store, *, writer_id, generation, port, reason):
             "refused", "precondition",
             f"line state {line['state']!r} is not a writer's to release; "
             f"only the line a writer is holding comes back this way")
-    attempt = _quiescent_completed(store, writer["runtime_attempt_id"])
+    attempt = _quiescent_completed(store, writer["runtime_attempt_id"], releasing=True)
     # THE ELIGIBILITY THIS OPERATION IS NAMED AFTER, PROVED FROM THE RECORD.
     #
     # W365075 review 2026-10-27T01-42-10Z [R1]. `_quiescent_completed` proves

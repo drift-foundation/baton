@@ -1102,6 +1102,8 @@ replace that expiry. A changes-requested verdict remains a verdict, not acceptan
 or authority to open a prohibited successor. Reuse existing correction-policy
 owners where applicable.
 
+An explicit cancellation that observed the exact implementation episode may retire its attribution-held, frozen `unable` result when custody and retention are verified and the line has no new candidate. The manager fences the exact assignment, excludes all remaining writers, releases the implementation line, and finishes governed cleanup against the original reservation. Uncertain identity or writer safety holds settlement across restart. The frozen failure and prior review verdict remain readable. This retirement publishes no candidate and schedules no further work.
+
 Owner 2026-11-22 additionally selects immutable `native-handoff-heavy/1` for
 future implementation/review Jobs: 7200 seconds per provider invocation,
 9000 seconds per stage and 21600 seconds per Job including queue time; ordinary

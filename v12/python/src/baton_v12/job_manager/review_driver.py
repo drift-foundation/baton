@@ -647,6 +647,41 @@ def prepare_review(control, *, checkpoint_id, attempt_id, generation,
             "boundary": boundary}
 
 
+def retire_held_unable(control, port, adapter, *, attempt_id, terminal, writer_id, generation,
+                      profile, retention_disposition, retention_policy_digest, assessment):
+    """Settle a fenced no-candidate ending without binding a successful attribution or publishing work."""
+    from ..worker_manager import answered_recovery, intake, tokens
+    frozen, receipt, artifacts, _, retained = _retained(control, attempt_id,
+        disposition="unable", terminal=terminal, retention_disposition=retention_disposition,
+        retention_policy_digest=retention_policy_digest, what="cancelled unable implementation")
+    if (assessment["attempt_id"] != attempt_id or assessment["outcome"] != "held"
+            or assessment["result_id"] != frozen["result_id"] or assessment["manifest_digest"] != frozen["manifest_digest"]
+            or receipt["custody"] != "accepted" or receipt["result_id"] != frozen["result_id"]
+            or receipt["manifest_digest"] != frozen["manifest_digest"] or retention_disposition != "retain"
+            or {a["artifact_id"] for a in artifacts} != {a["artifact_id"] for a in retained}):
+        _refuse("held attribution and retained custody must identify the exact frozen unable result")
+    manifest = load_manifest(control, frozen["manifest_digest"], "resultManifest")
+    if any("baton.git-proposal/1" in output.get("result_metadata", {}) for output in manifest["outputs"]):
+        _refuse("unable implementation includes a candidate proposal")
+    writer = review_cycles.writer_for_attempt(control, attempt_id=attempt_id, generation=generation)
+    if writer is None or writer["writer_id"] != writer_id:
+        _refuse("cancellation does not own this implementation writer")
+    _profile_of_the_line(control, profile, writer["line_id"])
+    if writer["state"] == "active":
+        with answered_recovery.verified_unable_writer(control, port, adapter, profile, writer_id, reason=_NO_CANDIDATE):
+            released = review_cycles.release_writer(control, writer_id=writer_id, generation=generation,
+                port=port, reason=_NO_CANDIDATE)
+    else:
+        released = _released_round(control, port, writer, generation=generation, what="cancelled unable implementation")
+    intake.finish_removed_cleanup(control, port, adapter, attempt_id=attempt_id, retention_policy_digest=retention_policy_digest,
+                                 govern=tokens.workspace_governance())
+    _let_go(control, attempt_id=attempt_id, retention_policy_digest=retention_policy_digest, what="cancelled unable implementation")
+    if not answered_recovery.unable_workspace_token(control, attempt_id)["returned"]:
+        _refuse("cancelled implementation cleanup has not returned the original reservation")
+    return {"attempt_id": attempt_id, "result_id": frozen["result_id"], "manifest_digest": frozen["manifest_digest"],
+            "receipt_digest": receipt["receipt_digest"], "released": released}
+
+
 # -- the two endings ---------------------------------------------------------
 
 

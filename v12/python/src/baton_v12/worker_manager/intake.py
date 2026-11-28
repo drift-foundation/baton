@@ -1210,8 +1210,16 @@ def _released(store, govern, attempt, attempt_id, settled):
                    cessation=cessation, reclaiming=True)
 
 
-def authorize_cleanup(store, port, adapter, *, attempt_id,
-                      retention_policy_digest, govern=None):
+def authorize_cleanup(store, port, adapter, *, attempt_id, retention_policy_digest, govern=None):
+    return _authorize_cleanup(store, port, adapter, attempt_id, retention_policy_digest, govern, require_absence=False)
+
+
+def finish_removed_cleanup(store, port, adapter, *, attempt_id, retention_policy_digest, govern):
+    """Settle the original governed destroy when writer exclusion already removed its runtime."""
+    return _authorize_cleanup(store, port, adapter, attempt_id, retention_policy_digest, govern, require_absence=True)
+
+
+def _authorize_cleanup(store, port, adapter, attempt_id, retention_policy_digest, govern, *, require_absence):
     """Destroy the runtime, and end the cleanup axis at the ending it reached.
 
     `blocked-on-intake` IS A STATE, NOT A RETRY. The frozen axis has it, which
@@ -1336,7 +1344,7 @@ def authorize_cleanup(store, port, adapter, *, attempt_id,
     # this capability refusal instead of their own.
     _ending_capable(adapter, attempt_id)
     observed = _destroyed(adapter, attempt, attempt_id, operation,
-                          receipt["receipt_digest"], retention_policy_digest)
+                          receipt["receipt_digest"], retention_policy_digest, require_absence=require_absence)
     # AN UNSETTLED CLEANUP IS NOT JOURNALLED, and W6636 found out why the hard
     # way. `_settle` returned `cleanup_unsettled` from INSIDE the transaction,
     # so the operation committed with that document as its result -- and an
@@ -5336,7 +5344,7 @@ def _unsettled_providers(answer):
 
 
 def _destroyed(adapter, attempt, attempt_id, operation, receipt_digest,
-               retention_policy_digest):
+               retention_policy_digest, *, require_absence=False):
     """What became of the runtime, as an OBSERVATION rather than a status.
 
     POSITIVE ABSENCE OR NOTHING. The adapter's `destroy` orders a removal and
@@ -5396,14 +5404,16 @@ def _destroyed(adapter, attempt, attempt_id, operation, receipt_digest,
     # makes the adapter guess which protocol operation it is executing. The
     # operation rides beside the body so the delivery is effectively-once at
     # the adapter too.
-    answer = boundaries.document(
-        adapter.destroy({**documents.destroy_command(
+    command = {**documents.destroy_command(
             assignment_ref=_fixed_assignment(attempt),
             runtime_attempt_id=attempt_id,
             runtime_id=attempt["runtime_id"],
             intake_receipt_digest=receipt_digest,
             retention_policy_digest=retention_policy_digest),
-            "operation": dict(operation)}),
+            "operation": dict(operation)}
+    observed = adapter.finish_removed_runtime(command) if require_absence else adapter.destroy(command)
+    answer = boundaries.document(
+        observed,
         "a destroy observation",
         # W6636 [P0]: THE PROVIDER ENDINGS ARE NAMED AND REQUIRED. They were
         # not named at all first -- so `boundaries.document` refused the real

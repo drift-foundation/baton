@@ -3610,11 +3610,18 @@ class OciAdapter:
         # crossing, one step past the retention seam that was missing
         # altogether. Surfaced by composing the arc; invisible to either side's
         # own suite, because each was right about its own half.
+        return self._destroy_command(command, require_absence=False)
+
+    def finish_removed_runtime(self, command):
+        """Finish delivery teardown only after observing the already removed exact runtime."""
+        return self._destroy_command(command, require_absence=True)
+
+    def _destroy_command(self, command, *, require_absence):
         taken = boundaries.document(command, "a destroy command",
                                     required=documents.DESTROY_COMMAND,
                                     optional=("operation",))
         return self._removed(taken["runtime_id"], "a destroyed",
-                             attempt_id=taken["runtime_attempt_id"])
+                             attempt_id=taken["runtime_attempt_id"], require_absence=require_absence)
 
     def destroy_failed_start(self, command):
         """W34998: remove the runtime a FAILED START created, and prove it.
@@ -3694,6 +3701,20 @@ class OciAdapter:
         different helper.
         """
         return self.identity["image_digest"]
+
+    def remove_stopped_writer(self, runtime_id):
+        """Drop the stopped runtime's restartable mounts without tearing down retained delivery."""
+        from .answered_recovery import refuse
+        before = self.observe(runtime_id)
+        if before["state"] == "absent":
+            return
+        if before["state"] != "quiescent":
+            refuse("unable attempt runtime is not positively stopped")
+        # Non-forced removal refuses an intervening restart. Ordinary governed
+        # cleanup still owns the delivery teardown and reservation return.
+        self.run([self.engine, "rm", "--volumes", runtime_id], seconds=30)
+        if self.observe(runtime_id)["state"] != "absent":
+            refuse("unable attempt runtime removal has not established absence")
 
     def prove_no_writable_mount(self, root):
         """Also inspect foreign and stopped containers which could write this line.
@@ -4020,7 +4041,7 @@ class OciAdapter:
         return self._removed(taken["runtime_id"], "a deadline",
                              attempt_id=taken["runtime_attempt_id"])
 
-    def _removed(self, named, what, *, attempt_id=None, seconds=None):
+    def _removed(self, named, what, *, attempt_id=None, seconds=None, require_absence=False):
         """Force-remove one exact identity and answer what became of it.
 
         NOTHING IN THE COMMAND IS INTERPRETED HERE. This core answers facts
@@ -4056,10 +4077,12 @@ class OciAdapter:
         # a bounded caller may only ask for less than `REMOVE_SECONDS`.
         from . import custody as _custody
 
-        self.run(destroy_vector(self.engine, runtime_id=runtime_id),
-                 seconds=None if seconds is None
-                 else _custody.allowed(seconds, REMOVE_SECONDS))
+        if not require_absence:
+            self.run(destroy_vector(self.engine, runtime_id=runtime_id),
+                     seconds=None if seconds is None else _custody.allowed(seconds, REMOVE_SECONDS))
         observed = self.observe(runtime_id, seconds=seconds)
+        if require_absence and observed["state"] != "absent":
+            raise ContractRefusal("refused", "precondition", "cancelled implementation runtime absence is unproved")
         return {"runtime_id": runtime_id, "state": observed["state"],
                 "why": observed["why"],
                 "credentials": self._torn_down(observed),

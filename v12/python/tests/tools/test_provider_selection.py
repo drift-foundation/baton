@@ -1271,6 +1271,123 @@ class CodexToClaude(SelectedBase):
         with mock.patch.object(claude_agent, "ClaudeAgent", codex_agent.CodexAgent):
             return super().turn(control, role, attempt_id, roots, **operands)
 
+    def test_cancellation_of_frozen_authentication_failure(self):
+        from baton_v12.job_manager import cancellation, ending, scheduler, status, JobStore
+        from baton_v12.worker_manager import frozen_output_of, intake, review_cycles, attempts, tokens, ControlStore
+        from tools import stage_execution
+
+        held = SelectedCase.reviewed(self, "changes-requested")
+        job, control, composed = held.job, held.control, held.composed
+        self.drive(job, composed, "implementation", "waiting", ticks=12)
+        attempt, = [a for a in self.worker_of(composed, "implementation").stage._prepared if a != held.attempt_id]
+        prior = model_attribution._read(control, "provider.attribution-ending", held.review)
+        verdict = review_cycles.verdict_of(control, prior["verdict_id"])
+        self.assertEqual(verdict["disposition"], "changes-requested")
+        uncertain = True
+        base_engine = type(self.engine).__call__
+        def inspect_engine(engine, argv, **kwargs):
+            if argv[1] == "ps" and (argv[-1].startswith("name=") or argv[-1] == "{{.ID}}"):
+                return engine.answer(status=1, stderr="fixture inventory unavailable") if uncertain and argv[-1] == "{{.ID}}" else engine.answer(stdout="")
+            return base_engine(engine, argv, **kwargs)
+        self.enterContext(mock.patch.object(type(self.engine), "__call__", inspect_engine))
+        original = self.provider
+
+        def failing_provider(**kwargs):
+            run = original(**kwargs)
+            def invoke(argv, **opts):
+                if argv[:2] == ["codex", "exec"]:
+                    os.write(opts["stderr"], b"authentication failed (synthetic)\n")
+                    return subprocess.CompletedProcess(argv, 1)
+                return run(argv, **opts)
+            return invoke
+
+        with mock.patch.object(self, "provider", failing_provider):
+            self.turn(control, "implementation", attempt, self.mounted(composed, "implementation", attempt))
+        sweep(job, composed, now=fixtures.NOW)
+        selected = model_attribution.selection_of(control, attempt)
+        diagnostic = Path(selected["logs_root"], attempt, "provider.stderr.log")
+        failure = diagnostic.read_bytes()
+        self.assertIn(b"authentication failed (synthetic)", failure)
+        account = model_attribution.assessment_of(control, attempt)
+        self.assertEqual(account["cause"], "model-attribution-faulted")
+        frozen = frozen_output_of(control, attempt)
+        self.assertEqual(frozen["disposition"], "unable")
+        receipt = intake.intake_receipt_of(control, attempt)
+        job_id = self.submission["jobs"][0]["job_id"]
+        def cancel_status():
+            return cancellation.report(job, job_id, now=fixtures.NOW,
+                observed_of=lambda entry: cancellation.observed_from(control, entry["attempt"]["attempt_id"]))
+
+        cancellation.request(job, job_id=job_id, reason="retire failed correction")
+        alloc = scheduler.allocation_of(job, attempt)
+        row = attempts._require_attempt(control, attempt)
+        domain = tokens.domain_of("workspace", tokens.workspace_identity(row))
+        gen = tokens.generation_of(control, domain, execution=attempt, operation=attempts._start_operation_id(row))
+        writer = self.worker_of(composed, "implementation").stage._prepared[attempt]["writer_id"]
+        def restart():
+            nonlocal job, control, composed
+            composed.close()
+            job.close()
+            control.close()
+            job = JobStore.open(self.job_path, authority_uuid=self.config["authority_uuid"], incarnation="retire-restart", clock=lambda: fixtures.NOW)
+            control = ControlStore.open(self.control_path, incarnation="retire-restart", clock=lambda: fixtures.NOW)
+            self.addCleanup(job.close)
+            self.addCleanup(control.close)
+            self.image_test_control = control
+            composed = stage_execution.operations_from(self.composed_document(line_declared_base=self.base), job, control,
+                engine_run=self.engine, credential_provider=lambda *args: self.fail("unexpected new credential request"),
+                clock=lambda: fixtures.NOW, checkout=self.checkout)
+            self.addCleanup(composed.close)
+        restart()
+        for _ in range(2):
+            report = sweep(job, composed, now=fixtures.NOW)
+            self.assertIn("inventory unavailable", str(report["spoken"]))
+            self.assertEqual(review_cycles.writer_of(control, writer)["state"], "active")
+            self.assertFalse(tokens.token_of(control, domain, gen)["returned"])
+            self.assertEqual(scheduler.allocation_of(job, attempt)["allocation_state"], "reserved")
+            self.assertEqual(cancel_status()["targets"][0]["state"], "ending-in-progress")
+            restart()
+        uncertain = False
+        from baton_v12.contracts import ContractRefusal
+        interrupted = ContractRefusal("unavailable", "transport", "simulated interruption before token return")
+        with mock.patch.object(intake, "_released", side_effect=interrupted):
+            report = sweep(job, composed, now=fixtures.NOW)
+        self.assertIn("simulated interruption", str(report["spoken"]))
+        self.assertIsNotNone(intake.cleanup_of(control, attempt_id=attempt, retention_policy_digest=self.config["retention_policy_digest"]))
+        self.assertFalse(tokens.token_of(control, domain, gen)["returned"])
+        self.assertEqual(scheduler.allocation_of(job, attempt)["allocation_state"], "reserved")
+        self.assertIsNone(ending.settlement_of(job, alloc["stage_id"], alloc["episode"]))
+        restart()
+        for _ in range(2):
+            report = sweep(job, composed, now=fixtures.NOW)
+        settled = ending.settlement_of(job, alloc["stage_id"], alloc["episode"])
+        self.assertIsNotNone(settled, report)
+        cleanup = intake.cleanup_of(control, attempt_id=attempt, retention_policy_digest=self.config["retention_policy_digest"])
+        self.assertIsNotNone(cleanup)
+        self.assertTrue(tokens.token_of(control, domain, gen)["returned"])
+        self.assertEqual(scheduler.allocation_of(job, attempt)["allocation_state"], "released")
+        returned = control.operation_record(tokens._returned_id(domain, gen))
+        self.assertEqual(returned["kind"], tokens.RETURNED_KIND)
+        self.assertEqual(sum(v[1:3] == ["rm", "--volumes"] and v[-1] == row["runtime_id"] for v in self.engine.vectors), 1)
+        self.assertFalse(any(v[1:3] == ["rm", "--force"] and v[-1] == row["runtime_id"] for v in self.engine.vectors))
+        before = list(self.engine.vectors)
+        restart()
+        cancellation.request(job, job_id=job_id, reason="retire failed correction")
+        sweep(job, composed, now=fixtures.NOW)
+        self.assertFalse(any(v[1] in ("start", "rm") for v in self.engine.vectors[len(before):]))
+        self.assertEqual(ending.settlement_of(job, alloc["stage_id"], alloc["episode"]), settled)
+        self.assertEqual(intake.cleanup_of(control, attempt_id=attempt, retention_policy_digest=self.config["retention_policy_digest"]), cleanup)
+        self.assertEqual(review_cycles.verdict_of(control, prior["verdict_id"]), verdict)
+        self.assertEqual(diagnostic.read_bytes(), failure)
+        self.assertEqual(control.operation_record(tokens._returned_id(domain, gen)), returned)
+        self.assertEqual(review_cycles.line_of(control, verdict["line_id"])["current_checkpoint_id"], verdict["checkpoint_id"])
+        snapshot = status(job, composed, observed_at=fixtures.NOW)["jobs"][0]["cancellation"]
+        self.assertEqual(snapshot["shutdown"], "complete", snapshot["targets"])
+        self.assertEqual(cancel_status(), snapshot)
+        self.assertEqual(model_attribution.assessment_of(control, attempt), account)
+        self.assertEqual(intake.intake_receipt_of(control, attempt), receipt)
+        self.assertEqual(frozen_output_of(control, attempt), frozen)
+
     def shared_attribution_text(self, job, composed, attempt):
         import io
         from baton_v12.job_manager import status
