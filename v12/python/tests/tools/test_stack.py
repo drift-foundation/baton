@@ -521,6 +521,19 @@ class JobOutcomesFirst(Fixture):
         self.assertNotIn("PRIVATE PROSE", text)
         self.assertIn("cause unknown", text)
 
+    def test_a_completed_cancellation_shutdown_reads_CANCELLED_in_status(self):
+        """W386732: status says CANCELLED once the shutdown is complete, and keeps the request wording before it."""
+        job = self.job(states=("claimed", "blocked"))
+        job["cancellation"] = {"trigger": "operator", "shutdown": "unresolved"}
+        text = self.shown([job])
+        self.assertIn("CANCELLATION REQUESTED", text)
+        self.assertNotIn("CANCELLED", text.replace("CANCELLATION", ""))
+        job["cancellation"]["shutdown"] = "complete"
+        text = self.shown([job])
+        self.assertIn("Job job-a: CANCELLED", text)
+        self.assertIn("shutdown complete", text)
+        self.assertNotIn("CANCELLATION REQUESTED", text)
+
     def test_cancellation_does_not_turn_unresolved_shutdown_into_completion(self):
         job = self.job(states=("claimed", "blocked"))
         job["cancellation"] = {"trigger": "stage-deadline", "shutdown": "unresolved"}

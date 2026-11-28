@@ -80,6 +80,13 @@ def _job_headline(job, phases):
         if hold and phase["live_attempt"] and phase["state"] not in ("completed", "changes-requested") and not _owner_decision(stage, job):
             return "DECISION NEEDED", phase["stage_id"] + ": " + hold + "; owner action needed"
     if type(job.get("cancellation")) is dict:
+        # W386732: A CANCELLATION IS CANCELLED ONLY ONCE ITS SHUTDOWN IS COMPLETE. The published report's own
+        # `shutdown` decides: `complete` means every target settled (M386700 after settlement: implementation
+        # ended-before-request, review retired-before-admission). Anything else -- pending cleanup, unresolved,
+        # within-bound, absent or unreadable -- is still a request. A failure or owner decision answered above
+        # keeps priority, and every phase row below is unchanged either way.
+        if job["cancellation"].get("shutdown") == "complete":
+            return "CANCELLED", "Cancellation shutdown complete: every target has settled and nothing further is admitted."
         return "CANCELLATION REQUESTED", ""
     if manual_open and _mapping(job.get("budget")).get("expired") is True:
         return "BUDGET EXHAUSTED", "The Job wall budget has expired; further phase starts are refused."

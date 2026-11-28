@@ -1146,6 +1146,34 @@ class JobHeadlines(unittest.TestCase):
                 job["stages"].append({"stage_id":"failed","state":"exceptional"})
                 self.check(doc, "FAILED", "model-attribution-missing")
 
+    def test_a_completed_cancellation_shutdown_is_CANCELLED_and_a_pending_one_is_still_a_request(self):
+        """W386732 (M386700 after settlement): the headline follows the published report's own shutdown."""
+        for state, position in (("running","in progress"), ("offered","admitted"), ("queued","ready"), ("starting","admitted")):
+            with self.subTest(state=state):
+                doc = document()
+                job = doc["jobs"][0]
+                job["stages"][0]["state"] = state
+                job["cancellation"] = {"trigger":"operator", "shutdown":"complete"}
+                self.check(doc, "CANCELLED", position + "; admission",
+                           reason="Cancellation shutdown complete: every target has settled and nothing further is admitted.")
+                for pending in ("unresolved", "within-bound", None, "", "COMPLETE", 1):
+                    job["cancellation"] = {"trigger":"operator", "shutdown":pending}
+                    self.check(doc, "CANCELLATION REQUESTED", position + "; admission")
+                job["cancellation"] = {"trigger":"operator"}
+                self.check(doc, "CANCELLATION REQUESTED", position + "; admission")
+
+    def test_a_completed_cancellation_keeps_a_failure_and_an_owner_decision_first(self):
+        """The original failure and review details stay as they were; only the cancellation line's word changes."""
+        doc = document()
+        job = doc["jobs"][0]
+        job["cancellation"] = {"trigger":"operator", "shutdown":"complete"}
+        stage = job["stages"][0]
+        stage["state"] = "answering"
+        stage["runtime"]["model_attribution_hold"] = "model-attribution-missing"
+        self.check(doc, "DECISION NEEDED", reason="model-attribution-missing")
+        job["stages"].append({"stage_id":"failed","state":"exceptional"})
+        self.check(doc, "FAILED", "model-attribution-missing")
+
     def test_dependency_chain_is_order_independent_and_needs_external_evidence(self):
         doc = document()
         def waiting(name, dependency):
