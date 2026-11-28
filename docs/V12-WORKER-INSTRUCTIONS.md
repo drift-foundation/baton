@@ -81,6 +81,17 @@ stop new work and follow the supported ending path. Do not renew your own author
 reset clocks, repeat uncertain dispatch or claim cessation from a stop request.
 The host owns positive runtime cessation and permission settlement.
 
+Keep disposable data out of the checkout. Put comparison trees, exported or
+extracted base copies, archives, build output and other scratch under the
+delivered `/scratch` or another delivered private area, never inside the checkout
+or a declared output. Everything in the checkout, including Git-ignored paths, is
+read back and counts toward the line's byte and entry limits; the host convention
+of an ignored `work/scratch/` does not apply to native workers. Keep required
+handoff and verification evidence in the declared outputs, and record how scratch
+was produced (for example the base commit of an exported tree) instead of keeping
+the scratch. If `/scratch` is absent or too small, report that limitation instead
+of staging data in the checkout.
+
 Preserve durable continuation before supported compaction or replacement; do not
 reset active sessions or start duplicate consumers. Keep secrets and private
 transcripts out of ordinary output. Retain useful partial evidence on failure and

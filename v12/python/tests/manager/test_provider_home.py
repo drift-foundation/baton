@@ -366,6 +366,21 @@ class WorkerInstructionDelivery(unittest.TestCase):
                                  "sha256": "sha256:" + hashlib.sha256(canonical).hexdigest()})
         self.assertLessEqual(len(canonical), provider_policy.INSTRUCTIONS_BOUND)
 
+    def test_delivered_instructions_keep_disposable_data_out_of_the_checkout(self):
+        # W385853, owner 2026-11-27 (M386624 rank 1): M386446's attempt staged a 3.34 GB base
+        # export under the checkout's ignored work/scratch/ and its line crossed the 4 GiB
+        # consumption ceiling. The delivered bytes must direct scratch to /scratch and keep
+        # required evidence in the declared outputs.
+        from baton_v12 import provider_policy
+        text = " ".join(provider_policy.worker_instructions().decode().split())
+        for rule in ("Keep disposable data out of the checkout.",
+                     "under the delivered `/scratch` or another delivered private area, never inside the checkout or a declared output.",
+                     "including Git-ignored paths",
+                     "the host convention of an ignored `work/scratch/` does not apply to native workers.",
+                     "Keep required handoff and verification evidence in the declared outputs",
+                     "If `/scratch` is absent or too small, report that limitation instead of staging data in the checkout."):
+            self.assertIn(rule, text)
+
     def test_packaged_copy_travels_as_package_data(self):
         text = (Path(__file__).resolve().parents[2] / "pyproject.toml").read_text()
         self.assertIn('"provider_policy/worker_instructions.md"', text)
