@@ -1,0 +1,3238 @@
+{
+ "schema": "baton.retired-evidence/1",
+ "work": "W386626",
+ "reason": "tip retirement of closed PyInstaller build output (M386624 rank 2)",
+ "retired_from_commit": "f07e7b2a6afe40bfe1458e557bc846a69a3b9974",
+ "remote": "origin refs/heads/main",
+ "entries": 461,
+ "bytes": 247625051,
+ "files": [
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/build.log",
+   "mode": "100644",
+   "blob": "6e6042f48097f98bbabdf9b0acd6d8df4212db4d",
+   "bytes": 9338,
+   "sha256": "8048377e078217cc1c4277e3e0ad41673acade131114603f6cca733b44d02549"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/attrs-26.1.0.dist-info/INSTALLER",
+   "mode": "100644",
+   "blob": "a1b589e38a32041e49332e5e81c2d363dc418d68",
+   "bytes": 4,
+   "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/attrs-26.1.0.dist-info/METADATA",
+   "mode": "100644",
+   "blob": "5cf16a040efe125c907111f521c576edde40109f",
+   "bytes": 8754,
+   "sha256": "4cd40e690f23bf37cbcad34efd6758e062df1df07c86833f7e3ce95bf1fa38cc"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/attrs-26.1.0.dist-info/RECORD",
+   "mode": "100644",
+   "blob": "6fd592f7b5e17854fc8b8d764798c9f2e7d20a27",
+   "bytes": 3643,
+   "sha256": "40de9b239d81f3e4ff3b005e4749cda91549d56e10415ffce54a25c0c995df10"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/attrs-26.1.0.dist-info/REQUESTED",
+   "mode": "100644",
+   "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+   "bytes": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/attrs-26.1.0.dist-info/WHEEL",
+   "mode": "100644",
+   "blob": "b1b94fd58e7e9ed0ef3449473bc48de68afcc3fe",
+   "bytes": 87,
+   "sha256": "41c708c5adba6e097513ab8ccb9f1d7865a2fb469e22491a9e01dcc64da459fc"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/attrs-26.1.0.dist-info/licenses/LICENSE",
+   "mode": "100644",
+   "blob": "2bd6453d255e19b973f19b128596a8b6dd65b2c3",
+   "bytes": 1109,
+   "sha256": "882115c95dfc2af1eeb6714f8ec6d5cbcabf667caff8729f42420da63f714e9f"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/base_library.zip",
+   "mode": "100644",
+   "blob": "803b5101eb152f0645331878c1d0b66e2b889bcd",
+   "bytes": 1401218,
+   "sha256": "28e3013c254ac7c7ecddaf9552e75ee446d201f02949d4f847a407ec37591550"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/baton_v12/contracts/schema/agent-session-1.0.schema.json",
+   "mode": "100644",
+   "blob": "4728726b2ed40ea55159b6930f034d30ba4ad1a8",
+   "bytes": 48212,
+   "sha256": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/baton_v12/contracts/schema/worker-control-1.0.schema.json",
+   "mode": "100644",
+   "blob": "0cba806d9a1b4166b4293670b0b1f8d983d9361a",
+   "bytes": 51419,
+   "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/build-stamp.json",
+   "mode": "100644",
+   "blob": "07858f468ae0b2f66f42b44f574a6c52206ca205",
+   "bytes": 214,
+   "sha256": "58c8fac5e95b53bd33946e044c8e17aba75513e07277dbb6b20d722db4123df9"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/INSTALLER",
+   "mode": "100644",
+   "blob": "a1b589e38a32041e49332e5e81c2d363dc418d68",
+   "bytes": 4,
+   "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/METADATA",
+   "mode": "100644",
+   "blob": "ba828d2ee3ae2f249d3522ba707b8eb46cf582d7",
+   "bytes": 7592,
+   "sha256": "05b189866ca98a96da3934bf6b83687ced3ff85325273b77e16b705f6d8b26d2"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/RECORD",
+   "mode": "100644",
+   "blob": "5cb8bfeba7ffeb70539a92537dac2cc29ca575ed",
+   "bytes": 6415,
+   "sha256": "473f7af882f4287adcd1747f4f2f85ccf410f3ca3e4ff9e50a5b59e8e507abf9"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/REQUESTED",
+   "mode": "100644",
+   "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+   "bytes": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/WHEEL",
+   "mode": "100644",
+   "blob": "ae8ec1bdaa94d726ceb907542d76cbd5d38cafcd",
+   "bytes": 87,
+   "sha256": "58b82a17209f9bf2804afe161f2632d0fde933f9bb2792fd936b2474a2e2ac2f"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/entry_points.txt",
+   "mode": "100644",
+   "blob": "eecef9d8fad351de6b048532776160696a796ef9",
+   "bytes": 51,
+   "sha256": "bceeeb5f816cff1215272da99c0b4a8134b17e99e8cc0550d038c29a93319d61"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/licenses/COPYING",
+   "mode": "100644",
+   "blob": "af9cfbdb134f42e5205ecbad597421d778826481",
+   "bytes": 1057,
+   "sha256": "4f92a015a13c4d1a040bef018aa13430b4f1bc73b41b16bb846c346766de7439"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema/benchmarks/issue232/issue.json",
+   "mode": "100644",
+   "blob": "804c340845fa0694e8db1083cfe7c290c04f36b1",
+   "bytes": 117105,
+   "sha256": "79a3ce663311bb9bbc4692abb00f6e93bb9c3d94b9b64286e03fe190e4d0dc79"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/metaschema.json",
+   "mode": "100644",
+   "blob": "2248a0c80bbfc51b67863f848f60466f135cdb2b",
+   "bytes": 1785,
+   "sha256": "7b761b3e121f0a0ca1ea2a0b8e2cc856bcf801604b8268d71bacaa202bc0c13b"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/applicator",
+   "mode": "100644",
+   "blob": "24a1cc4f4f54b5a556de93c2799853b31e78e512",
+   "bytes": 1860,
+   "sha256": "6895100e99726fbb107058512bbec3ecfd4b24e8fd2facee3e505ee72b0d4c31"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/content",
+   "mode": "100644",
+   "blob": "f6752a8efbeb74a7b7b2e74cbb272c422a975363",
+   "bytes": 517,
+   "sha256": "9b7d4f55a4e2fdb02c430068fdffabc732addce238da3f1df2690249c3353274"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/core",
+   "mode": "100644",
+   "blob": "eb708a56044146bb7903fd59159725a0c693aefe",
+   "bytes": 1531,
+   "sha256": "b5a2c4957f6495d0a5081f0409ebe8a14e4139acb203fc748471f8ede2af5b2c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/format",
+   "mode": "100644",
+   "blob": "09bbfdda972ca77cd26e290d70ab59db4bbe8a27",
+   "bytes": 403,
+   "sha256": "50ebbfe790611a849b8cc400a09c1d0e0fb6ab5c0d43a0f22201fd3625056bf4"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/meta-data",
+   "mode": "100644",
+   "blob": "da04cff6d346f26bfe5bd21b636609fecd583628",
+   "bytes": 892,
+   "sha256": "d47e2445dd6a82271a298d83cc6c6cb8d4ae1e15e0dc56becd37a163ecf01286"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/validation",
+   "mode": "100644",
+   "blob": "9f59677b30c238f07a358c0c8ee72c3b710dc24d",
+   "bytes": 2834,
+   "sha256": "1e526c1d335a734805fc82cf5798c12b960ad7da2517c66cda5a1b09359c3c1c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/metaschema.json",
+   "mode": "100644",
+   "blob": "d5e2d31c3c88e61f4c204cb6616887bba7e105dd",
+   "bytes": 2452,
+   "sha256": "41da76f5afb7ce062d248f762463a92f7ca47e4e0f905b224ba6afeef91ded0f"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/applicator",
+   "mode": "100644",
+   "blob": "ca69923096f3a2e4fe5eb8152a92d87d146cf021",
+   "bytes": 1659,
+   "sha256": "c4a6e4147b91fef7fea6dc058cb1bf93402f7414b76578a8b16aaf1dad6aacef"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/content",
+   "mode": "100644",
+   "blob": "2f6e056a9ac2399582eaf05985a26acf9161f213",
+   "bytes": 519,
+   "sha256": "08343747764e4a5814262793cf4d652057a7913863c5950d43297e8e1fdac5b6"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/core",
+   "mode": "100644",
+   "blob": "dfc092d9646e1ea89e4d771bfcf2a4ca87eeac75",
+   "bytes": 1564,
+   "sha256": "c2d12a8e4dd11d336dfc83a3f663aa4c69f0b49b3beb094ffeb25b5316f4803d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/format-annotation",
+   "mode": "100644",
+   "blob": "51ef7ea118c34e8ac3da66c973bae02b9e8325d8",
+   "bytes": 448,
+   "sha256": "abc775adfefd89d22358170d9bf93f4ebd2349563bbbedd60f02bef7c812bcc0"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/format-assertion",
+   "mode": "100644",
+   "blob": "5e73fd7571e504990f7a055da960056f07dcdb19",
+   "bytes": 445,
+   "sha256": "c52242b9a1bb786b26c3e82c7add428c31f9c96e575dce99e56ea5feaa6da20c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/meta-data",
+   "mode": "100644",
+   "blob": "05cbc22afde5ebe6ba84957ca412277bde1e4b08",
+   "bytes": 892,
+   "sha256": "8f76d6e14f41b9b92ef933b708cdc5144c8b5268651ad11918485fb1754f1c76"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/unevaluated",
+   "mode": "100644",
+   "blob": "5f62a3ffa20be07dc813d6b8a154fa8451d0dc61",
+   "bytes": 506,
+   "sha256": "2dbfbcb73994b670b0976492adee1fffb46c21682784d2f5a4ca561f9e2d0cb4"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/validation",
+   "mode": "100644",
+   "blob": "606b87ba2ec213d63b9e2035a6acc4edcb4b8357",
+   "bytes": 2834,
+   "sha256": "7010a31e541f32d2be721e2de348df75c9b36876a3ed304877fc0abda1d37a58"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft3/metaschema.json",
+   "mode": "100644",
+   "blob": "8b26b1f89f9852e4f69f466dd7d718b21ba5b989",
+   "bytes": 2600,
+   "sha256": "2cf75f64436fb5be374a2eaa27ab8b7e1fd651c9b46daea6c67b02fd64e2458b"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft4/metaschema.json",
+   "mode": "100644",
+   "blob": "bcbb84743e3838fab7cbec5f0a5bcbafcfc99136",
+   "bytes": 4357,
+   "sha256": "e1489d0b4755f02793302591d3fcb8f07b6893a82a94f24895f8e4edf11b82e2"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft6/metaschema.json",
+   "mode": "100644",
+   "blob": "a0d2bf7896c2619ae657cd3b3266660156021706",
+   "bytes": 4437,
+   "sha256": "c29dfce9f54835c3a06c03b3c5d5ec0eda77706568f9c4df7cfbc7566a51006d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft7/metaschema.json",
+   "mode": "100644",
+   "blob": "746cde9690134529bdcde889f72c7ad5259f24ad",
+   "bytes": 4819,
+   "sha256": "3d5392088261606c559b603f385329c9f1ab45b5d667eb990687453b055d405e"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/libbz2.so.1.0",
+   "mode": "100755",
+   "blob": "4dfb2a0013cb60db4b415ec5bdf0509a0a236af7",
+   "bytes": 83192,
+   "sha256": "0e276ebe9060dc27ccff9d08e928127a1ee194c064e88b9262beb7f3ee76f3d7"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/libcrypto.so.3",
+   "mode": "100755",
+   "blob": "e176cccf63ff3644c6cd9a3c2adeeb2db54ea8d4",
+   "bytes": 6353776,
+   "sha256": "4769ffaae2d5fcb04ab023d06370ee0481f03857de88356f565a85792de39d76"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/libexpat.so.1",
+   "mode": "100755",
+   "blob": "e9fc84a81e5e45e3b9bfd7808d2489939a2756c1",
+   "bytes": 182608,
+   "sha256": "510dc18b54fcd0f6957974bf5019347218edc0f74a43522b6be72d686ed0a3a3"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/libffi.so.8",
+   "mode": "100755",
+   "blob": "c82e31d8836a49f42f1aa3c504691f5cb94ef489",
+   "bytes": 47824,
+   "sha256": "f9e062f25194c7f4ecf0a58469cb6ab76b8a95f522c290e47a5c9dd688e7d6be"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/libgcc_s.so.1",
+   "mode": "100755",
+   "blob": "158a6877174a2090c6c07351576181541f196ad7",
+   "bytes": 178928,
+   "sha256": "e21d29dd2609dff45f898b5002c9a2268a0e8eece4eff8417e5087e77d2a136c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/liblzma.so.5",
+   "mode": "100755",
+   "blob": "974f84ec8cef208135a60f4b332354fd20595706",
+   "bytes": 215448,
+   "sha256": "bb0cc2b52f9602da45e3a5088e156b07548a79cf4c822e321a4c119b8c8b7650"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/libncursesw.so.6",
+   "mode": "100755",
+   "blob": "158d93b58a23f6bf7cdba6e6dea652bf90893fe9",
+   "bytes": 240008,
+   "sha256": "7dbbb6bea122614f846cad9e099550ce7f62b425057298da1586b2304dc79214"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/libobjc.so.4",
+   "mode": "100755",
+   "blob": "aa5cc3ca120c0b14746368ff8f3c97b26d3a7bb2",
+   "bytes": 92192,
+   "sha256": "2d64c020c448724c2f063cf61ae6fa4f4629d99ef1ba1bb73e1e68e4882c15df"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/libpython3.13.so.1.0",
+   "mode": "100755",
+   "blob": "040019dca4ed60dc382423a27b3ee1e64c46f598",
+   "bytes": 7508808,
+   "sha256": "1b7613e0039be781d480c4613041c68efcd8be52240e3baf1e09ae21775746a2"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/libreadline.so.8",
+   "mode": "100755",
+   "blob": "010d1ac924b530de9beaf7a8a68f68203fcb031b",
+   "bytes": 389304,
+   "sha256": "3183f28b78d21c148bd844c0b0e356ceb132de370c44591171aa7ea1488c8e60"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/libsqlite3.so.0",
+   "mode": "100755",
+   "blob": "29c3117ef5020bd8f8d9110b656b335e51772248",
+   "bytes": 1518056,
+   "sha256": "a19187db849e9a95b33f2e6fa6d7c3218f8de6f284865832409224bef741dd4a"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/libssl.so.3",
+   "mode": "100755",
+   "blob": "b94d7248ad1b2c1cc6f041c31d6a583d278ddbff",
+   "bytes": 1106088,
+   "sha256": "e2f779425f91a9bbb2a5817d975b6ddb8f9fec40ad4c060ddae350c4e4986c5d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/libtinfo.so.6",
+   "mode": "100755",
+   "blob": "37c86a623695bc5bf9b18e5052d9fd5219ace3ad",
+   "bytes": 212504,
+   "sha256": "51cdf4890364a45c5dea607d011caf2546f45acdfa036adaacb6a932ab641267"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/libuuid.so.1",
+   "mode": "100755",
+   "blob": "2886a470fe23e73e4ee32001b0d1809ced48e29f",
+   "bytes": 35184,
+   "sha256": "427e04ce400955eae6a5f3d737d1f5fed6bb2f7ad4dcea9d017a6e93c0b8d1bc"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/libz.so.1",
+   "mode": "100755",
+   "blob": "52430473302c7f6cedc54b594cd2a613d1d74906",
+   "bytes": 125440,
+   "sha256": "a83ec9e0fee275a2c2b1f2b3773fef6277d7d8fa57f6d50bf0806301b438e281"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/libzstd.so.1",
+   "mode": "100755",
+   "blob": "52868f3258966b9155f24b2113bcde29a37d65a0",
+   "bytes": 817376,
+   "sha256": "f501ac1465c6c254bade367fa5c079b5beb8a6f2c3e9a51da128ce7202f66ca1"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/python3.13/lib-dynload/_bz2.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "14cd44d18ca684ef922689016498e95b2e44b624",
+   "bytes": 32192,
+   "sha256": "1db37b946a0cdfe9d56b296d8616b71d8b85753001a1856769a7aa43c21796f5"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/python3.13/lib-dynload/_codecs_cn.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "9e5c3ef6b2d58e031b0782635102a39bd256565e",
+   "bytes": 154240,
+   "sha256": "17f6cf505d7b35797b4886eafeba11913d53bdbbb9684f12663a614118e0486a"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/python3.13/lib-dynload/_codecs_hk.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "379a3b58a5a3f62680cbd7434e754636804aa518",
+   "bytes": 162464,
+   "sha256": "f123c4ad45c9a845a2a73a2dd9a7ccab4ca12e53f930c696b66761f03c6396c8"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/python3.13/lib-dynload/_codecs_iso2022.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "e88fde6b233a9c7dbb86a004755d16b595483538",
+   "bytes": 31392,
+   "sha256": "692b39a825400739b8f1dd28ad2c7ba021d9962cd1697cb8c2daef16afc3d360"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/python3.13/lib-dynload/_codecs_jp.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "47cd39fb74812603f778164b53424c03ca7162bd",
+   "bytes": 273024,
+   "sha256": "e65f9bdc1e9187272b57bbcbb411efb40538b1b6a7e31bcbf3de5ae445943aef"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/python3.13/lib-dynload/_codecs_kr.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "26b41c5ac937a3ab34e8ae84942244eb53af3f6e",
+   "bytes": 141952,
+   "sha256": "6725f1d9756f0fc87107245c85662b63d2d22a005b837e146619bc3eead6b1af"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/python3.13/lib-dynload/_codecs_tw.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "a6edc14c8c07f9a0d10cd278a48310473cca3620",
+   "bytes": 113280,
+   "sha256": "6b78f534cfb41ae6a75efe75e4a8941a57876b047212c5e04059a74404fd7de4"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/python3.13/lib-dynload/_contextvars.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "b2863de44d545b0d8ee282cd8fda4138ad6649c7",
+   "bytes": 14616,
+   "sha256": "6abe2beb3f377b5f1991deb39deeae277be17d44a0b02f8b9e1af191e3695a91"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/python3.13/lib-dynload/_ctypes.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "1beee15774add332e2c80b4449f3c04a1eb2edd7",
+   "bytes": 154816,
+   "sha256": "c7f5c03cb9fe5abc8f246dce5cef71888ea44e27f0899ffa3f57d6b1c0e1a48c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/python3.13/lib-dynload/_curses.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "9105e2da22134e95aa2181448bee2a7238a55b8a",
+   "bytes": 128664,
+   "sha256": "ae96e666f0a54a5f093f1c5e9bca3e45dcf54f7766ed1d81a1be07b999efba88"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/python3.13/lib-dynload/_decimal.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "6c930a03c4e9528d02c6ade24dd4463bb38263f0",
+   "bytes": 351352,
+   "sha256": "3a01f5030ca6beaa727166c8a562e859c7c955fa81625fbd7ab813fc9e159f1c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/python3.13/lib-dynload/_hashlib.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "a9e2bf9f35f1bd1201b61aff952f4e7255375494",
+   "bytes": 68512,
+   "sha256": "b6b8f95a045e64adb9b862785089f688b236bd73734d0e8cc52af8bd69eed6e2"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/python3.13/lib-dynload/_lzma.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "8b8755e35f83587e010516bfdfc9dfb106e5a299",
+   "bytes": 45184,
+   "sha256": "105d6f054f59bddd0ff06f4e5ee85ef75622bce9b319d4e4e0b629cd15fa2807"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/python3.13/lib-dynload/_multibytecodec.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "871523094b66d5b943d928eb4cbc25e7704ac941",
+   "bytes": 50648,
+   "sha256": "7caaf2b15aa6535d32cec32b9e217238630171598928fab57cd8ed61c7dd0baa"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/python3.13/lib-dynload/_multiprocessing.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "edb153a9110542559614f961a3e26b821f7d3edc",
+   "bytes": 24328,
+   "sha256": "8c7d5e09db92e056bbf49f40ab9aa4f7862082c9bb125cb56e22f5773ecd2c04"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/python3.13/lib-dynload/_posixshmem.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "36588d3942f056da8441a897a70592728fae8412",
+   "bytes": 14960,
+   "sha256": "9bbce1a1112c8edb655ad63e151518e254a5fd76bcda9a2b6645fa6b196a7962"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/python3.13/lib-dynload/_queue.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "fc7f6454a00146fced9a41783e42fef3b5385e0e",
+   "bytes": 24000,
+   "sha256": "e5d33dbbe1a0b977680d81f28b7dbd209bf784d75bb3eab1a491dbf229515079"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/python3.13/lib-dynload/_sqlite3.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "e5183230abcb714f9873b96019e1436efbf7a8f8",
+   "bytes": 145048,
+   "sha256": "bc47aa134738716ee4789c86907bc13aa7e46369911571df6fd5ecc3add8343d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/python3.13/lib-dynload/_ssl.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "a7d06efe8fcb199fad4de70a86919309a9fa79e3",
+   "bytes": 232128,
+   "sha256": "3bb0b8c0392d68b19915c0b975d39faaba2a5232fa823e2cbc406873d9f308a3"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/python3.13/lib-dynload/_uuid.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "dd69d82e6d7ebe1ede3596499f15fb87313828f9",
+   "bytes": 14800,
+   "sha256": "2f41fc9f3eb1a6f63c74a91b075b0f62627be926757bd85471c65df01c16ceb4"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/python3.13/lib-dynload/mmap.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "e5c23bd14d779b54841c93c77574ca58a541cd59",
+   "bytes": 32712,
+   "sha256": "2021518293aedf55a25372a1114de3dcdccb3b96bad8affa0ddd702fbc129e9c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/python3.13/lib-dynload/readline.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "0f999fbea6cf85f650866b7d131c1b4825a122be",
+   "bytes": 40720,
+   "sha256": "2ed5141e320395b4659086a3340ae3a5ddbd7283afee7d0b3d90bba70986441d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/python3.13/lib-dynload/resource.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "367e5325684bb8b36b70e266b3d46ac1aa435cb1",
+   "bytes": 23632,
+   "sha256": "ae7244a9624046d1d57ffbc79e9e8a45e566474fc49316926fce9f6c13eeff7a"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/python3.13/lib-dynload/termios.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "25ea3a6c493bbdd6b8a714687a4f56885d6fcd0f",
+   "bytes": 35728,
+   "sha256": "a32df9cb3dc03642366408fe91f48fec32b0a87327d4323ce8463e90cd13d79e"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/rpds/rpds.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "d0a6c504215bfc1c07d65135e92adaf20a7751ea",
+   "bytes": 965608,
+   "sha256": "bddb35d7ceaef748a4661a73774e1ff8d5ae76969b31e1cc7f757fb424bd8ed5"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/_internal/setuptools/_vendor/jaraco/text/Lorem ipsum.txt",
+   "mode": "100644",
+   "blob": "986f944b60b9900c22464a0c027d713854cc204e",
+   "bytes": 1335,
+   "sha256": "37fedcffbf73c4eb9f058f47677cb33203a436ff9390e4d38a8e01c9dad28e0b"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/out/distro/baton-v12-stack",
+   "mode": "100755",
+   "blob": "fd604d0139ffc9a43a33b70a640e4b6eec384576",
+   "bytes": 5784248,
+   "sha256": "eeead28159360f186cd7ceb8cb43438dec6f47919e9f3bccfb8dcb3950bc9343"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/work/stack/Analysis-00.toc",
+   "mode": "100644",
+   "blob": "f547f42f245c31aab6129b1e3890e0014f3e7052",
+   "bytes": 85068,
+   "sha256": "2fd550b60ac032efe7ddc2495d5669a27f118ae47504c09f27b07dc8af68d1f0"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/work/stack/COLLECT-00.toc",
+   "mode": "100644",
+   "blob": "7eb0c491bd1891430dbad277be75edc5e1a1730d",
+   "bytes": 13057,
+   "sha256": "96aad4e393766ff891ac4717785756d032f67cd41104ae3d17c69e1329d661f2"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/work/stack/EXE-00.toc",
+   "mode": "100644",
+   "blob": "3623f69a9f3c977eff08aa64ee719d24a69215f6",
+   "bytes": 2506,
+   "sha256": "511883c329d9e2011e880a9cad904e4c3ea4847888f28f4998cec24db456205d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/work/stack/PKG-00.toc",
+   "mode": "100644",
+   "blob": "958504f9deac63f0a9ba1bc8c65a0c8921756d29",
+   "bytes": 2287,
+   "sha256": "7bb3f4fadc1ba6154f57cf9da5a4a6fcc19465d7f0fa2ba0c8651b6bf3a27298"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/work/stack/PYZ-00.pyz",
+   "mode": "100644",
+   "blob": "9c91d1dfe1c4dd74805a0b8800f34b25408b5314",
+   "bytes": 5688762,
+   "sha256": "ccebef482aee7bb017ee5921ba6a222144a258c0431828abf4c7067efdf47b3c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/work/stack/PYZ-00.toc",
+   "mode": "100644",
+   "blob": "94cced3b007c43fcd4575ec98d56cb1cd06c728e",
+   "bytes": 57767,
+   "sha256": "716291c34200fa837127203090168a8b95a415a68957e8f37bbb61e953d065f7"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/work/stack/base_library.zip",
+   "mode": "100644",
+   "blob": "803b5101eb152f0645331878c1d0b66e2b889bcd",
+   "bytes": 1401218,
+   "sha256": "28e3013c254ac7c7ecddaf9552e75ee446d201f02949d4f847a407ec37591550"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/work/stack/baton-v12-stack",
+   "mode": "100755",
+   "blob": "fd604d0139ffc9a43a33b70a640e4b6eec384576",
+   "bytes": 5784248,
+   "sha256": "eeead28159360f186cd7ceb8cb43438dec6f47919e9f3bccfb8dcb3950bc9343"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/work/stack/baton-v12-stack.pkg",
+   "mode": "100644",
+   "blob": "210fb99cdf9a66bb25bd329a26bfe2f1ca21e620",
+   "bytes": 5719959,
+   "sha256": "36837682fb332472041ccd9c5b82964a1038bc9a5e27bd201ae58ed942d0485e"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/work/stack/warn-stack.txt",
+   "mode": "100644",
+   "blob": "a604694a0c6677e2a07fb46733359ea322ef7243",
+   "bytes": 10836,
+   "sha256": "e9dfcdff8285e7bcd0446578f1e828d906d1b9b521a2873d279266ff946ebe88"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro/work/stack/xref-stack.html",
+   "mode": "100644",
+   "blob": "791e8e7c436ddc6ed52b436430bb619d7d28f4fd",
+   "bytes": 898204,
+   "sha256": "3bd5f97e407d82c3393b796f9fa494f22d2587f8de2cb7d9b2ae0a80d0720627"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/attrs-26.1.0.dist-info/INSTALLER",
+   "mode": "100644",
+   "blob": "a1b589e38a32041e49332e5e81c2d363dc418d68",
+   "bytes": 4,
+   "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/attrs-26.1.0.dist-info/METADATA",
+   "mode": "100644",
+   "blob": "5cf16a040efe125c907111f521c576edde40109f",
+   "bytes": 8754,
+   "sha256": "4cd40e690f23bf37cbcad34efd6758e062df1df07c86833f7e3ce95bf1fa38cc"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/attrs-26.1.0.dist-info/RECORD",
+   "mode": "100644",
+   "blob": "6fd592f7b5e17854fc8b8d764798c9f2e7d20a27",
+   "bytes": 3643,
+   "sha256": "40de9b239d81f3e4ff3b005e4749cda91549d56e10415ffce54a25c0c995df10"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/attrs-26.1.0.dist-info/REQUESTED",
+   "mode": "100644",
+   "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+   "bytes": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/attrs-26.1.0.dist-info/WHEEL",
+   "mode": "100644",
+   "blob": "b1b94fd58e7e9ed0ef3449473bc48de68afcc3fe",
+   "bytes": 87,
+   "sha256": "41c708c5adba6e097513ab8ccb9f1d7865a2fb469e22491a9e01dcc64da459fc"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/attrs-26.1.0.dist-info/licenses/LICENSE",
+   "mode": "100644",
+   "blob": "2bd6453d255e19b973f19b128596a8b6dd65b2c3",
+   "bytes": 1109,
+   "sha256": "882115c95dfc2af1eeb6714f8ec6d5cbcabf667caff8729f42420da63f714e9f"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/base_library.zip",
+   "mode": "100644",
+   "blob": "fbebc5b6ca024d9890ac31a04f28da0b2b137412",
+   "bytes": 1401218,
+   "sha256": "40855c08699d11135d881ec51a541929bad89145ebefd8476025dc6d0a95303f"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/baton_v12/contracts/schema/agent-session-1.0.schema.json",
+   "mode": "100644",
+   "blob": "4728726b2ed40ea55159b6930f034d30ba4ad1a8",
+   "bytes": 48212,
+   "sha256": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/baton_v12/contracts/schema/worker-control-1.0.schema.json",
+   "mode": "100644",
+   "blob": "0cba806d9a1b4166b4293670b0b1f8d983d9361a",
+   "bytes": 51419,
+   "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/build-stamp.json",
+   "mode": "100644",
+   "blob": "70e89c64e77de42022ca6dd77ceb92ad786854f8",
+   "bytes": 214,
+   "sha256": "e48de6c68e80798aafdf8701355f56b266493087a0a85b2cb0edfa5fbeee3375"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema-4.26.0.dist-info/INSTALLER",
+   "mode": "100644",
+   "blob": "a1b589e38a32041e49332e5e81c2d363dc418d68",
+   "bytes": 4,
+   "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema-4.26.0.dist-info/METADATA",
+   "mode": "100644",
+   "blob": "ba828d2ee3ae2f249d3522ba707b8eb46cf582d7",
+   "bytes": 7592,
+   "sha256": "05b189866ca98a96da3934bf6b83687ced3ff85325273b77e16b705f6d8b26d2"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema-4.26.0.dist-info/RECORD",
+   "mode": "100644",
+   "blob": "5cb8bfeba7ffeb70539a92537dac2cc29ca575ed",
+   "bytes": 6415,
+   "sha256": "473f7af882f4287adcd1747f4f2f85ccf410f3ca3e4ff9e50a5b59e8e507abf9"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema-4.26.0.dist-info/REQUESTED",
+   "mode": "100644",
+   "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+   "bytes": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema-4.26.0.dist-info/WHEEL",
+   "mode": "100644",
+   "blob": "ae8ec1bdaa94d726ceb907542d76cbd5d38cafcd",
+   "bytes": 87,
+   "sha256": "58b82a17209f9bf2804afe161f2632d0fde933f9bb2792fd936b2474a2e2ac2f"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema-4.26.0.dist-info/entry_points.txt",
+   "mode": "100644",
+   "blob": "eecef9d8fad351de6b048532776160696a796ef9",
+   "bytes": 51,
+   "sha256": "bceeeb5f816cff1215272da99c0b4a8134b17e99e8cc0550d038c29a93319d61"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema-4.26.0.dist-info/licenses/COPYING",
+   "mode": "100644",
+   "blob": "af9cfbdb134f42e5205ecbad597421d778826481",
+   "bytes": 1057,
+   "sha256": "4f92a015a13c4d1a040bef018aa13430b4f1bc73b41b16bb846c346766de7439"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema/benchmarks/issue232/issue.json",
+   "mode": "100644",
+   "blob": "804c340845fa0694e8db1083cfe7c290c04f36b1",
+   "bytes": 117105,
+   "sha256": "79a3ce663311bb9bbc4692abb00f6e93bb9c3d94b9b64286e03fe190e4d0dc79"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema_specifications/schemas/draft201909/metaschema.json",
+   "mode": "100644",
+   "blob": "2248a0c80bbfc51b67863f848f60466f135cdb2b",
+   "bytes": 1785,
+   "sha256": "7b761b3e121f0a0ca1ea2a0b8e2cc856bcf801604b8268d71bacaa202bc0c13b"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/applicator",
+   "mode": "100644",
+   "blob": "24a1cc4f4f54b5a556de93c2799853b31e78e512",
+   "bytes": 1860,
+   "sha256": "6895100e99726fbb107058512bbec3ecfd4b24e8fd2facee3e505ee72b0d4c31"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/content",
+   "mode": "100644",
+   "blob": "f6752a8efbeb74a7b7b2e74cbb272c422a975363",
+   "bytes": 517,
+   "sha256": "9b7d4f55a4e2fdb02c430068fdffabc732addce238da3f1df2690249c3353274"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/core",
+   "mode": "100644",
+   "blob": "eb708a56044146bb7903fd59159725a0c693aefe",
+   "bytes": 1531,
+   "sha256": "b5a2c4957f6495d0a5081f0409ebe8a14e4139acb203fc748471f8ede2af5b2c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/format",
+   "mode": "100644",
+   "blob": "09bbfdda972ca77cd26e290d70ab59db4bbe8a27",
+   "bytes": 403,
+   "sha256": "50ebbfe790611a849b8cc400a09c1d0e0fb6ab5c0d43a0f22201fd3625056bf4"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/meta-data",
+   "mode": "100644",
+   "blob": "da04cff6d346f26bfe5bd21b636609fecd583628",
+   "bytes": 892,
+   "sha256": "d47e2445dd6a82271a298d83cc6c6cb8d4ae1e15e0dc56becd37a163ecf01286"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/validation",
+   "mode": "100644",
+   "blob": "9f59677b30c238f07a358c0c8ee72c3b710dc24d",
+   "bytes": 2834,
+   "sha256": "1e526c1d335a734805fc82cf5798c12b960ad7da2517c66cda5a1b09359c3c1c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema_specifications/schemas/draft202012/metaschema.json",
+   "mode": "100644",
+   "blob": "d5e2d31c3c88e61f4c204cb6616887bba7e105dd",
+   "bytes": 2452,
+   "sha256": "41da76f5afb7ce062d248f762463a92f7ca47e4e0f905b224ba6afeef91ded0f"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/applicator",
+   "mode": "100644",
+   "blob": "ca69923096f3a2e4fe5eb8152a92d87d146cf021",
+   "bytes": 1659,
+   "sha256": "c4a6e4147b91fef7fea6dc058cb1bf93402f7414b76578a8b16aaf1dad6aacef"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/content",
+   "mode": "100644",
+   "blob": "2f6e056a9ac2399582eaf05985a26acf9161f213",
+   "bytes": 519,
+   "sha256": "08343747764e4a5814262793cf4d652057a7913863c5950d43297e8e1fdac5b6"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/core",
+   "mode": "100644",
+   "blob": "dfc092d9646e1ea89e4d771bfcf2a4ca87eeac75",
+   "bytes": 1564,
+   "sha256": "c2d12a8e4dd11d336dfc83a3f663aa4c69f0b49b3beb094ffeb25b5316f4803d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/format-annotation",
+   "mode": "100644",
+   "blob": "51ef7ea118c34e8ac3da66c973bae02b9e8325d8",
+   "bytes": 448,
+   "sha256": "abc775adfefd89d22358170d9bf93f4ebd2349563bbbedd60f02bef7c812bcc0"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/format-assertion",
+   "mode": "100644",
+   "blob": "5e73fd7571e504990f7a055da960056f07dcdb19",
+   "bytes": 445,
+   "sha256": "c52242b9a1bb786b26c3e82c7add428c31f9c96e575dce99e56ea5feaa6da20c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/meta-data",
+   "mode": "100644",
+   "blob": "05cbc22afde5ebe6ba84957ca412277bde1e4b08",
+   "bytes": 892,
+   "sha256": "8f76d6e14f41b9b92ef933b708cdc5144c8b5268651ad11918485fb1754f1c76"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/unevaluated",
+   "mode": "100644",
+   "blob": "5f62a3ffa20be07dc813d6b8a154fa8451d0dc61",
+   "bytes": 506,
+   "sha256": "2dbfbcb73994b670b0976492adee1fffb46c21682784d2f5a4ca561f9e2d0cb4"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/validation",
+   "mode": "100644",
+   "blob": "606b87ba2ec213d63b9e2035a6acc4edcb4b8357",
+   "bytes": 2834,
+   "sha256": "7010a31e541f32d2be721e2de348df75c9b36876a3ed304877fc0abda1d37a58"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema_specifications/schemas/draft3/metaschema.json",
+   "mode": "100644",
+   "blob": "8b26b1f89f9852e4f69f466dd7d718b21ba5b989",
+   "bytes": 2600,
+   "sha256": "2cf75f64436fb5be374a2eaa27ab8b7e1fd651c9b46daea6c67b02fd64e2458b"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema_specifications/schemas/draft4/metaschema.json",
+   "mode": "100644",
+   "blob": "bcbb84743e3838fab7cbec5f0a5bcbafcfc99136",
+   "bytes": 4357,
+   "sha256": "e1489d0b4755f02793302591d3fcb8f07b6893a82a94f24895f8e4edf11b82e2"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema_specifications/schemas/draft6/metaschema.json",
+   "mode": "100644",
+   "blob": "a0d2bf7896c2619ae657cd3b3266660156021706",
+   "bytes": 4437,
+   "sha256": "c29dfce9f54835c3a06c03b3c5d5ec0eda77706568f9c4df7cfbc7566a51006d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/jsonschema_specifications/schemas/draft7/metaschema.json",
+   "mode": "100644",
+   "blob": "746cde9690134529bdcde889f72c7ad5259f24ad",
+   "bytes": 4819,
+   "sha256": "3d5392088261606c559b603f385329c9f1ab45b5d667eb990687453b055d405e"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/libbz2.so.1.0",
+   "mode": "100755",
+   "blob": "4dfb2a0013cb60db4b415ec5bdf0509a0a236af7",
+   "bytes": 83192,
+   "sha256": "0e276ebe9060dc27ccff9d08e928127a1ee194c064e88b9262beb7f3ee76f3d7"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/libcrypto.so.3",
+   "mode": "100755",
+   "blob": "e176cccf63ff3644c6cd9a3c2adeeb2db54ea8d4",
+   "bytes": 6353776,
+   "sha256": "4769ffaae2d5fcb04ab023d06370ee0481f03857de88356f565a85792de39d76"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/libexpat.so.1",
+   "mode": "100755",
+   "blob": "e9fc84a81e5e45e3b9bfd7808d2489939a2756c1",
+   "bytes": 182608,
+   "sha256": "510dc18b54fcd0f6957974bf5019347218edc0f74a43522b6be72d686ed0a3a3"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/libffi.so.8",
+   "mode": "100755",
+   "blob": "c82e31d8836a49f42f1aa3c504691f5cb94ef489",
+   "bytes": 47824,
+   "sha256": "f9e062f25194c7f4ecf0a58469cb6ab76b8a95f522c290e47a5c9dd688e7d6be"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/libgcc_s.so.1",
+   "mode": "100755",
+   "blob": "158a6877174a2090c6c07351576181541f196ad7",
+   "bytes": 178928,
+   "sha256": "e21d29dd2609dff45f898b5002c9a2268a0e8eece4eff8417e5087e77d2a136c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/liblzma.so.5",
+   "mode": "100755",
+   "blob": "974f84ec8cef208135a60f4b332354fd20595706",
+   "bytes": 215448,
+   "sha256": "bb0cc2b52f9602da45e3a5088e156b07548a79cf4c822e321a4c119b8c8b7650"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/libncursesw.so.6",
+   "mode": "100755",
+   "blob": "158d93b58a23f6bf7cdba6e6dea652bf90893fe9",
+   "bytes": 240008,
+   "sha256": "7dbbb6bea122614f846cad9e099550ce7f62b425057298da1586b2304dc79214"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/libobjc.so.4",
+   "mode": "100755",
+   "blob": "aa5cc3ca120c0b14746368ff8f3c97b26d3a7bb2",
+   "bytes": 92192,
+   "sha256": "2d64c020c448724c2f063cf61ae6fa4f4629d99ef1ba1bb73e1e68e4882c15df"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/libpython3.13.so.1.0",
+   "mode": "100755",
+   "blob": "040019dca4ed60dc382423a27b3ee1e64c46f598",
+   "bytes": 7508808,
+   "sha256": "1b7613e0039be781d480c4613041c68efcd8be52240e3baf1e09ae21775746a2"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/libreadline.so.8",
+   "mode": "100755",
+   "blob": "010d1ac924b530de9beaf7a8a68f68203fcb031b",
+   "bytes": 389304,
+   "sha256": "3183f28b78d21c148bd844c0b0e356ceb132de370c44591171aa7ea1488c8e60"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/libsqlite3.so.0",
+   "mode": "100755",
+   "blob": "29c3117ef5020bd8f8d9110b656b335e51772248",
+   "bytes": 1518056,
+   "sha256": "a19187db849e9a95b33f2e6fa6d7c3218f8de6f284865832409224bef741dd4a"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/libssl.so.3",
+   "mode": "100755",
+   "blob": "b94d7248ad1b2c1cc6f041c31d6a583d278ddbff",
+   "bytes": 1106088,
+   "sha256": "e2f779425f91a9bbb2a5817d975b6ddb8f9fec40ad4c060ddae350c4e4986c5d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/libtinfo.so.6",
+   "mode": "100755",
+   "blob": "37c86a623695bc5bf9b18e5052d9fd5219ace3ad",
+   "bytes": 212504,
+   "sha256": "51cdf4890364a45c5dea607d011caf2546f45acdfa036adaacb6a932ab641267"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/libuuid.so.1",
+   "mode": "100755",
+   "blob": "2886a470fe23e73e4ee32001b0d1809ced48e29f",
+   "bytes": 35184,
+   "sha256": "427e04ce400955eae6a5f3d737d1f5fed6bb2f7ad4dcea9d017a6e93c0b8d1bc"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/libz.so.1",
+   "mode": "100755",
+   "blob": "52430473302c7f6cedc54b594cd2a613d1d74906",
+   "bytes": 125440,
+   "sha256": "a83ec9e0fee275a2c2b1f2b3773fef6277d7d8fa57f6d50bf0806301b438e281"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/libzstd.so.1",
+   "mode": "100755",
+   "blob": "52868f3258966b9155f24b2113bcde29a37d65a0",
+   "bytes": 817376,
+   "sha256": "f501ac1465c6c254bade367fa5c079b5beb8a6f2c3e9a51da128ce7202f66ca1"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/python3.13/lib-dynload/_bz2.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "14cd44d18ca684ef922689016498e95b2e44b624",
+   "bytes": 32192,
+   "sha256": "1db37b946a0cdfe9d56b296d8616b71d8b85753001a1856769a7aa43c21796f5"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/python3.13/lib-dynload/_codecs_cn.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "9e5c3ef6b2d58e031b0782635102a39bd256565e",
+   "bytes": 154240,
+   "sha256": "17f6cf505d7b35797b4886eafeba11913d53bdbbb9684f12663a614118e0486a"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/python3.13/lib-dynload/_codecs_hk.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "379a3b58a5a3f62680cbd7434e754636804aa518",
+   "bytes": 162464,
+   "sha256": "f123c4ad45c9a845a2a73a2dd9a7ccab4ca12e53f930c696b66761f03c6396c8"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/python3.13/lib-dynload/_codecs_iso2022.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "e88fde6b233a9c7dbb86a004755d16b595483538",
+   "bytes": 31392,
+   "sha256": "692b39a825400739b8f1dd28ad2c7ba021d9962cd1697cb8c2daef16afc3d360"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/python3.13/lib-dynload/_codecs_jp.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "47cd39fb74812603f778164b53424c03ca7162bd",
+   "bytes": 273024,
+   "sha256": "e65f9bdc1e9187272b57bbcbb411efb40538b1b6a7e31bcbf3de5ae445943aef"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/python3.13/lib-dynload/_codecs_kr.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "26b41c5ac937a3ab34e8ae84942244eb53af3f6e",
+   "bytes": 141952,
+   "sha256": "6725f1d9756f0fc87107245c85662b63d2d22a005b837e146619bc3eead6b1af"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/python3.13/lib-dynload/_codecs_tw.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "a6edc14c8c07f9a0d10cd278a48310473cca3620",
+   "bytes": 113280,
+   "sha256": "6b78f534cfb41ae6a75efe75e4a8941a57876b047212c5e04059a74404fd7de4"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/python3.13/lib-dynload/_contextvars.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "b2863de44d545b0d8ee282cd8fda4138ad6649c7",
+   "bytes": 14616,
+   "sha256": "6abe2beb3f377b5f1991deb39deeae277be17d44a0b02f8b9e1af191e3695a91"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/python3.13/lib-dynload/_ctypes.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "1beee15774add332e2c80b4449f3c04a1eb2edd7",
+   "bytes": 154816,
+   "sha256": "c7f5c03cb9fe5abc8f246dce5cef71888ea44e27f0899ffa3f57d6b1c0e1a48c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/python3.13/lib-dynload/_curses.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "9105e2da22134e95aa2181448bee2a7238a55b8a",
+   "bytes": 128664,
+   "sha256": "ae96e666f0a54a5f093f1c5e9bca3e45dcf54f7766ed1d81a1be07b999efba88"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/python3.13/lib-dynload/_decimal.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "6c930a03c4e9528d02c6ade24dd4463bb38263f0",
+   "bytes": 351352,
+   "sha256": "3a01f5030ca6beaa727166c8a562e859c7c955fa81625fbd7ab813fc9e159f1c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/python3.13/lib-dynload/_hashlib.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "a9e2bf9f35f1bd1201b61aff952f4e7255375494",
+   "bytes": 68512,
+   "sha256": "b6b8f95a045e64adb9b862785089f688b236bd73734d0e8cc52af8bd69eed6e2"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/python3.13/lib-dynload/_lzma.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "8b8755e35f83587e010516bfdfc9dfb106e5a299",
+   "bytes": 45184,
+   "sha256": "105d6f054f59bddd0ff06f4e5ee85ef75622bce9b319d4e4e0b629cd15fa2807"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/python3.13/lib-dynload/_multibytecodec.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "871523094b66d5b943d928eb4cbc25e7704ac941",
+   "bytes": 50648,
+   "sha256": "7caaf2b15aa6535d32cec32b9e217238630171598928fab57cd8ed61c7dd0baa"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/python3.13/lib-dynload/_multiprocessing.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "edb153a9110542559614f961a3e26b821f7d3edc",
+   "bytes": 24328,
+   "sha256": "8c7d5e09db92e056bbf49f40ab9aa4f7862082c9bb125cb56e22f5773ecd2c04"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/python3.13/lib-dynload/_posixshmem.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "36588d3942f056da8441a897a70592728fae8412",
+   "bytes": 14960,
+   "sha256": "9bbce1a1112c8edb655ad63e151518e254a5fd76bcda9a2b6645fa6b196a7962"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/python3.13/lib-dynload/_queue.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "fc7f6454a00146fced9a41783e42fef3b5385e0e",
+   "bytes": 24000,
+   "sha256": "e5d33dbbe1a0b977680d81f28b7dbd209bf784d75bb3eab1a491dbf229515079"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/python3.13/lib-dynload/_sqlite3.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "e5183230abcb714f9873b96019e1436efbf7a8f8",
+   "bytes": 145048,
+   "sha256": "bc47aa134738716ee4789c86907bc13aa7e46369911571df6fd5ecc3add8343d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/python3.13/lib-dynload/_ssl.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "a7d06efe8fcb199fad4de70a86919309a9fa79e3",
+   "bytes": 232128,
+   "sha256": "3bb0b8c0392d68b19915c0b975d39faaba2a5232fa823e2cbc406873d9f308a3"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/python3.13/lib-dynload/_uuid.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "dd69d82e6d7ebe1ede3596499f15fb87313828f9",
+   "bytes": 14800,
+   "sha256": "2f41fc9f3eb1a6f63c74a91b075b0f62627be926757bd85471c65df01c16ceb4"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/python3.13/lib-dynload/mmap.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "e5c23bd14d779b54841c93c77574ca58a541cd59",
+   "bytes": 32712,
+   "sha256": "2021518293aedf55a25372a1114de3dcdccb3b96bad8affa0ddd702fbc129e9c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/python3.13/lib-dynload/readline.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "0f999fbea6cf85f650866b7d131c1b4825a122be",
+   "bytes": 40720,
+   "sha256": "2ed5141e320395b4659086a3340ae3a5ddbd7283afee7d0b3d90bba70986441d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/python3.13/lib-dynload/resource.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "367e5325684bb8b36b70e266b3d46ac1aa435cb1",
+   "bytes": 23632,
+   "sha256": "ae7244a9624046d1d57ffbc79e9e8a45e566474fc49316926fce9f6c13eeff7a"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/python3.13/lib-dynload/termios.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "25ea3a6c493bbdd6b8a714687a4f56885d6fcd0f",
+   "bytes": 35728,
+   "sha256": "a32df9cb3dc03642366408fe91f48fec32b0a87327d4323ce8463e90cd13d79e"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/rpds/rpds.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "d0a6c504215bfc1c07d65135e92adaf20a7751ea",
+   "bytes": 965608,
+   "sha256": "bddb35d7ceaef748a4661a73774e1ff8d5ae76969b31e1cc7f757fb424bd8ed5"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/_internal/setuptools/_vendor/jaraco/text/Lorem ipsum.txt",
+   "mode": "100644",
+   "blob": "986f944b60b9900c22464a0c027d713854cc204e",
+   "bytes": 1335,
+   "sha256": "37fedcffbf73c4eb9f058f47677cb33203a436ff9390e4d38a8e01c9dad28e0b"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/out/distro/baton-v12-stack",
+   "mode": "100755",
+   "blob": "4dd732db61531ae155c4d0b4d6ba3bd744e660d7",
+   "bytes": 5785736,
+   "sha256": "29318993db8ac59430079939f6306f2996038c59e2533736458b2cda33b46abb"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/work/stack/Analysis-00.toc",
+   "mode": "100644",
+   "blob": "838e0d3363a3d1f55349c7f484a9bcd0a710f750",
+   "bytes": 85069,
+   "sha256": "3cbdf6c9c7d6859ba66ebad585092c685158fd0772692b6cd0eb34a01abf7db3"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/work/stack/COLLECT-00.toc",
+   "mode": "100644",
+   "blob": "d6d7cb1a59fa28dc29b5d7994c6f7c8a0aae53a0",
+   "bytes": 13059,
+   "sha256": "b9a3169a089fb17fd60c087430bebfc833b0bd77a3e319c387f8c0a42cc857e3"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/work/stack/EXE-00.toc",
+   "mode": "100644",
+   "blob": "3e48fcd93d7da19d4bf250b3c2cf580877fef73c",
+   "bytes": 2513,
+   "sha256": "305cb8e69759ff53e52cfce29f92a76f28f999629d086fda58524818a999051c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/work/stack/PKG-00.toc",
+   "mode": "100644",
+   "blob": "16766322885179365f9f6a752b64f05ada80f7cd",
+   "bytes": 2293,
+   "sha256": "c76bb1fd8a8b62970ad4be25fa99bc5f77dfc61c02d252aa895d73105e476414"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/work/stack/PYZ-00.pyz",
+   "mode": "100644",
+   "blob": "bf92dc5014ef59906a5551cd5beda5bd92820fb2",
+   "bytes": 5690244,
+   "sha256": "2f92d87fae37671fac71c18dad8afdb81b851f28e90b6b60ed0327dcc16a8de7"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/work/stack/PYZ-00.toc",
+   "mode": "100644",
+   "blob": "92c03c3ac6ac3d858b11e5a96b44877ecfc75a17",
+   "bytes": 57768,
+   "sha256": "3607dd109a0ef336ba6510494e686ddd338d4171a826f489a8e2a4e8538efa01"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/work/stack/base_library.zip",
+   "mode": "100644",
+   "blob": "fbebc5b6ca024d9890ac31a04f28da0b2b137412",
+   "bytes": 1401218,
+   "sha256": "40855c08699d11135d881ec51a541929bad89145ebefd8476025dc6d0a95303f"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/work/stack/baton-v12-stack",
+   "mode": "100755",
+   "blob": "4dd732db61531ae155c4d0b4d6ba3bd744e660d7",
+   "bytes": 5785736,
+   "sha256": "29318993db8ac59430079939f6306f2996038c59e2533736458b2cda33b46abb"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/work/stack/baton-v12-stack.pkg",
+   "mode": "100644",
+   "blob": "7707d4cc7def6de072ae34d64a5e724b0317b284",
+   "bytes": 5721441,
+   "sha256": "0630ee217dc827d84c12e06561012b4b87b57e07363e69bf94bf3e95870b7522"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/work/stack/warn-stack.txt",
+   "mode": "100644",
+   "blob": "0d1b5111240e810258a4cbaef0c22c4daded418b",
+   "bytes": 10836,
+   "sha256": "d601fc3c9ca3720d869578402c85f0125293546eb8eef7125c19fa151d1995e2"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200000/build/distro2/work/stack/xref-stack.html",
+   "mode": "100644",
+   "blob": "cdcb3e2bab9e4e3c1daeccf5b2e7db0257d4a86c",
+   "bytes": 898338,
+   "sha256": "9f7fcb83afe2b8de24ba77bbad25200e05e07321f9a2fdf66a5a8819c5ea328a"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/attrs-26.1.0.dist-info/INSTALLER",
+   "mode": "100644",
+   "blob": "a1b589e38a32041e49332e5e81c2d363dc418d68",
+   "bytes": 4,
+   "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/attrs-26.1.0.dist-info/METADATA",
+   "mode": "100644",
+   "blob": "5cf16a040efe125c907111f521c576edde40109f",
+   "bytes": 8754,
+   "sha256": "4cd40e690f23bf37cbcad34efd6758e062df1df07c86833f7e3ce95bf1fa38cc"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/attrs-26.1.0.dist-info/RECORD",
+   "mode": "100644",
+   "blob": "6fd592f7b5e17854fc8b8d764798c9f2e7d20a27",
+   "bytes": 3643,
+   "sha256": "40de9b239d81f3e4ff3b005e4749cda91549d56e10415ffce54a25c0c995df10"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/attrs-26.1.0.dist-info/REQUESTED",
+   "mode": "100644",
+   "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+   "bytes": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/attrs-26.1.0.dist-info/WHEEL",
+   "mode": "100644",
+   "blob": "b1b94fd58e7e9ed0ef3449473bc48de68afcc3fe",
+   "bytes": 87,
+   "sha256": "41c708c5adba6e097513ab8ccb9f1d7865a2fb469e22491a9e01dcc64da459fc"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/attrs-26.1.0.dist-info/licenses/LICENSE",
+   "mode": "100644",
+   "blob": "2bd6453d255e19b973f19b128596a8b6dd65b2c3",
+   "bytes": 1109,
+   "sha256": "882115c95dfc2af1eeb6714f8ec6d5cbcabf667caff8729f42420da63f714e9f"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/base_library.zip",
+   "mode": "100644",
+   "blob": "5ae8d1b4d97ea7ac500ad5b54d1060840b48775f",
+   "bytes": 1401218,
+   "sha256": "d6e3fc4efed757c42e1a4262f8dd8981d87d4939bd59ccc27b6df78519cc7eb3"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/baton_v12/contracts/schema/agent-session-1.0.schema.json",
+   "mode": "100644",
+   "blob": "4728726b2ed40ea55159b6930f034d30ba4ad1a8",
+   "bytes": 48212,
+   "sha256": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/baton_v12/contracts/schema/worker-control-1.0.schema.json",
+   "mode": "100644",
+   "blob": "0cba806d9a1b4166b4293670b0b1f8d983d9361a",
+   "bytes": 51419,
+   "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/build-stamp.json",
+   "mode": "100644",
+   "blob": "b6f0489c19e23ba065059ea6b618be561fc31d7c",
+   "bytes": 214,
+   "sha256": "4771cf50e70d59d285f1ee22e6cab48bb551ca0d20cff6dc5eeb63840d6599df"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/INSTALLER",
+   "mode": "100644",
+   "blob": "a1b589e38a32041e49332e5e81c2d363dc418d68",
+   "bytes": 4,
+   "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/METADATA",
+   "mode": "100644",
+   "blob": "ba828d2ee3ae2f249d3522ba707b8eb46cf582d7",
+   "bytes": 7592,
+   "sha256": "05b189866ca98a96da3934bf6b83687ced3ff85325273b77e16b705f6d8b26d2"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/RECORD",
+   "mode": "100644",
+   "blob": "5cb8bfeba7ffeb70539a92537dac2cc29ca575ed",
+   "bytes": 6415,
+   "sha256": "473f7af882f4287adcd1747f4f2f85ccf410f3ca3e4ff9e50a5b59e8e507abf9"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/REQUESTED",
+   "mode": "100644",
+   "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+   "bytes": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/WHEEL",
+   "mode": "100644",
+   "blob": "ae8ec1bdaa94d726ceb907542d76cbd5d38cafcd",
+   "bytes": 87,
+   "sha256": "58b82a17209f9bf2804afe161f2632d0fde933f9bb2792fd936b2474a2e2ac2f"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/entry_points.txt",
+   "mode": "100644",
+   "blob": "eecef9d8fad351de6b048532776160696a796ef9",
+   "bytes": 51,
+   "sha256": "bceeeb5f816cff1215272da99c0b4a8134b17e99e8cc0550d038c29a93319d61"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/licenses/COPYING",
+   "mode": "100644",
+   "blob": "af9cfbdb134f42e5205ecbad597421d778826481",
+   "bytes": 1057,
+   "sha256": "4f92a015a13c4d1a040bef018aa13430b4f1bc73b41b16bb846c346766de7439"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema/benchmarks/issue232/issue.json",
+   "mode": "100644",
+   "blob": "804c340845fa0694e8db1083cfe7c290c04f36b1",
+   "bytes": 117105,
+   "sha256": "79a3ce663311bb9bbc4692abb00f6e93bb9c3d94b9b64286e03fe190e4d0dc79"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/metaschema.json",
+   "mode": "100644",
+   "blob": "2248a0c80bbfc51b67863f848f60466f135cdb2b",
+   "bytes": 1785,
+   "sha256": "7b761b3e121f0a0ca1ea2a0b8e2cc856bcf801604b8268d71bacaa202bc0c13b"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/applicator",
+   "mode": "100644",
+   "blob": "24a1cc4f4f54b5a556de93c2799853b31e78e512",
+   "bytes": 1860,
+   "sha256": "6895100e99726fbb107058512bbec3ecfd4b24e8fd2facee3e505ee72b0d4c31"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/content",
+   "mode": "100644",
+   "blob": "f6752a8efbeb74a7b7b2e74cbb272c422a975363",
+   "bytes": 517,
+   "sha256": "9b7d4f55a4e2fdb02c430068fdffabc732addce238da3f1df2690249c3353274"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/core",
+   "mode": "100644",
+   "blob": "eb708a56044146bb7903fd59159725a0c693aefe",
+   "bytes": 1531,
+   "sha256": "b5a2c4957f6495d0a5081f0409ebe8a14e4139acb203fc748471f8ede2af5b2c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/format",
+   "mode": "100644",
+   "blob": "09bbfdda972ca77cd26e290d70ab59db4bbe8a27",
+   "bytes": 403,
+   "sha256": "50ebbfe790611a849b8cc400a09c1d0e0fb6ab5c0d43a0f22201fd3625056bf4"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/meta-data",
+   "mode": "100644",
+   "blob": "da04cff6d346f26bfe5bd21b636609fecd583628",
+   "bytes": 892,
+   "sha256": "d47e2445dd6a82271a298d83cc6c6cb8d4ae1e15e0dc56becd37a163ecf01286"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/validation",
+   "mode": "100644",
+   "blob": "9f59677b30c238f07a358c0c8ee72c3b710dc24d",
+   "bytes": 2834,
+   "sha256": "1e526c1d335a734805fc82cf5798c12b960ad7da2517c66cda5a1b09359c3c1c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/metaschema.json",
+   "mode": "100644",
+   "blob": "d5e2d31c3c88e61f4c204cb6616887bba7e105dd",
+   "bytes": 2452,
+   "sha256": "41da76f5afb7ce062d248f762463a92f7ca47e4e0f905b224ba6afeef91ded0f"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/applicator",
+   "mode": "100644",
+   "blob": "ca69923096f3a2e4fe5eb8152a92d87d146cf021",
+   "bytes": 1659,
+   "sha256": "c4a6e4147b91fef7fea6dc058cb1bf93402f7414b76578a8b16aaf1dad6aacef"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/content",
+   "mode": "100644",
+   "blob": "2f6e056a9ac2399582eaf05985a26acf9161f213",
+   "bytes": 519,
+   "sha256": "08343747764e4a5814262793cf4d652057a7913863c5950d43297e8e1fdac5b6"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/core",
+   "mode": "100644",
+   "blob": "dfc092d9646e1ea89e4d771bfcf2a4ca87eeac75",
+   "bytes": 1564,
+   "sha256": "c2d12a8e4dd11d336dfc83a3f663aa4c69f0b49b3beb094ffeb25b5316f4803d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/format-annotation",
+   "mode": "100644",
+   "blob": "51ef7ea118c34e8ac3da66c973bae02b9e8325d8",
+   "bytes": 448,
+   "sha256": "abc775adfefd89d22358170d9bf93f4ebd2349563bbbedd60f02bef7c812bcc0"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/format-assertion",
+   "mode": "100644",
+   "blob": "5e73fd7571e504990f7a055da960056f07dcdb19",
+   "bytes": 445,
+   "sha256": "c52242b9a1bb786b26c3e82c7add428c31f9c96e575dce99e56ea5feaa6da20c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/meta-data",
+   "mode": "100644",
+   "blob": "05cbc22afde5ebe6ba84957ca412277bde1e4b08",
+   "bytes": 892,
+   "sha256": "8f76d6e14f41b9b92ef933b708cdc5144c8b5268651ad11918485fb1754f1c76"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/unevaluated",
+   "mode": "100644",
+   "blob": "5f62a3ffa20be07dc813d6b8a154fa8451d0dc61",
+   "bytes": 506,
+   "sha256": "2dbfbcb73994b670b0976492adee1fffb46c21682784d2f5a4ca561f9e2d0cb4"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/validation",
+   "mode": "100644",
+   "blob": "606b87ba2ec213d63b9e2035a6acc4edcb4b8357",
+   "bytes": 2834,
+   "sha256": "7010a31e541f32d2be721e2de348df75c9b36876a3ed304877fc0abda1d37a58"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft3/metaschema.json",
+   "mode": "100644",
+   "blob": "8b26b1f89f9852e4f69f466dd7d718b21ba5b989",
+   "bytes": 2600,
+   "sha256": "2cf75f64436fb5be374a2eaa27ab8b7e1fd651c9b46daea6c67b02fd64e2458b"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft4/metaschema.json",
+   "mode": "100644",
+   "blob": "bcbb84743e3838fab7cbec5f0a5bcbafcfc99136",
+   "bytes": 4357,
+   "sha256": "e1489d0b4755f02793302591d3fcb8f07b6893a82a94f24895f8e4edf11b82e2"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft6/metaschema.json",
+   "mode": "100644",
+   "blob": "a0d2bf7896c2619ae657cd3b3266660156021706",
+   "bytes": 4437,
+   "sha256": "c29dfce9f54835c3a06c03b3c5d5ec0eda77706568f9c4df7cfbc7566a51006d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft7/metaschema.json",
+   "mode": "100644",
+   "blob": "746cde9690134529bdcde889f72c7ad5259f24ad",
+   "bytes": 4819,
+   "sha256": "3d5392088261606c559b603f385329c9f1ab45b5d667eb990687453b055d405e"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/libbz2.so.1.0",
+   "mode": "100755",
+   "blob": "4dfb2a0013cb60db4b415ec5bdf0509a0a236af7",
+   "bytes": 83192,
+   "sha256": "0e276ebe9060dc27ccff9d08e928127a1ee194c064e88b9262beb7f3ee76f3d7"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/libcrypto.so.3",
+   "mode": "100755",
+   "blob": "e176cccf63ff3644c6cd9a3c2adeeb2db54ea8d4",
+   "bytes": 6353776,
+   "sha256": "4769ffaae2d5fcb04ab023d06370ee0481f03857de88356f565a85792de39d76"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/libexpat.so.1",
+   "mode": "100755",
+   "blob": "e9fc84a81e5e45e3b9bfd7808d2489939a2756c1",
+   "bytes": 182608,
+   "sha256": "510dc18b54fcd0f6957974bf5019347218edc0f74a43522b6be72d686ed0a3a3"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/libffi.so.8",
+   "mode": "100755",
+   "blob": "c82e31d8836a49f42f1aa3c504691f5cb94ef489",
+   "bytes": 47824,
+   "sha256": "f9e062f25194c7f4ecf0a58469cb6ab76b8a95f522c290e47a5c9dd688e7d6be"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/libgcc_s.so.1",
+   "mode": "100755",
+   "blob": "158a6877174a2090c6c07351576181541f196ad7",
+   "bytes": 178928,
+   "sha256": "e21d29dd2609dff45f898b5002c9a2268a0e8eece4eff8417e5087e77d2a136c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/liblzma.so.5",
+   "mode": "100755",
+   "blob": "974f84ec8cef208135a60f4b332354fd20595706",
+   "bytes": 215448,
+   "sha256": "bb0cc2b52f9602da45e3a5088e156b07548a79cf4c822e321a4c119b8c8b7650"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/libncursesw.so.6",
+   "mode": "100755",
+   "blob": "158d93b58a23f6bf7cdba6e6dea652bf90893fe9",
+   "bytes": 240008,
+   "sha256": "7dbbb6bea122614f846cad9e099550ce7f62b425057298da1586b2304dc79214"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/libobjc.so.4",
+   "mode": "100755",
+   "blob": "aa5cc3ca120c0b14746368ff8f3c97b26d3a7bb2",
+   "bytes": 92192,
+   "sha256": "2d64c020c448724c2f063cf61ae6fa4f4629d99ef1ba1bb73e1e68e4882c15df"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/libpython3.13.so.1.0",
+   "mode": "100755",
+   "blob": "040019dca4ed60dc382423a27b3ee1e64c46f598",
+   "bytes": 7508808,
+   "sha256": "1b7613e0039be781d480c4613041c68efcd8be52240e3baf1e09ae21775746a2"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/libreadline.so.8",
+   "mode": "100755",
+   "blob": "010d1ac924b530de9beaf7a8a68f68203fcb031b",
+   "bytes": 389304,
+   "sha256": "3183f28b78d21c148bd844c0b0e356ceb132de370c44591171aa7ea1488c8e60"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/libsqlite3.so.0",
+   "mode": "100755",
+   "blob": "29c3117ef5020bd8f8d9110b656b335e51772248",
+   "bytes": 1518056,
+   "sha256": "a19187db849e9a95b33f2e6fa6d7c3218f8de6f284865832409224bef741dd4a"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/libssl.so.3",
+   "mode": "100755",
+   "blob": "b94d7248ad1b2c1cc6f041c31d6a583d278ddbff",
+   "bytes": 1106088,
+   "sha256": "e2f779425f91a9bbb2a5817d975b6ddb8f9fec40ad4c060ddae350c4e4986c5d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/libtinfo.so.6",
+   "mode": "100755",
+   "blob": "37c86a623695bc5bf9b18e5052d9fd5219ace3ad",
+   "bytes": 212504,
+   "sha256": "51cdf4890364a45c5dea607d011caf2546f45acdfa036adaacb6a932ab641267"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/libuuid.so.1",
+   "mode": "100755",
+   "blob": "2886a470fe23e73e4ee32001b0d1809ced48e29f",
+   "bytes": 35184,
+   "sha256": "427e04ce400955eae6a5f3d737d1f5fed6bb2f7ad4dcea9d017a6e93c0b8d1bc"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/libz.so.1",
+   "mode": "100755",
+   "blob": "52430473302c7f6cedc54b594cd2a613d1d74906",
+   "bytes": 125440,
+   "sha256": "a83ec9e0fee275a2c2b1f2b3773fef6277d7d8fa57f6d50bf0806301b438e281"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/libzstd.so.1",
+   "mode": "100755",
+   "blob": "52868f3258966b9155f24b2113bcde29a37d65a0",
+   "bytes": 817376,
+   "sha256": "f501ac1465c6c254bade367fa5c079b5beb8a6f2c3e9a51da128ce7202f66ca1"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/python3.13/lib-dynload/_bz2.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "14cd44d18ca684ef922689016498e95b2e44b624",
+   "bytes": 32192,
+   "sha256": "1db37b946a0cdfe9d56b296d8616b71d8b85753001a1856769a7aa43c21796f5"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/python3.13/lib-dynload/_codecs_cn.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "9e5c3ef6b2d58e031b0782635102a39bd256565e",
+   "bytes": 154240,
+   "sha256": "17f6cf505d7b35797b4886eafeba11913d53bdbbb9684f12663a614118e0486a"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/python3.13/lib-dynload/_codecs_hk.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "379a3b58a5a3f62680cbd7434e754636804aa518",
+   "bytes": 162464,
+   "sha256": "f123c4ad45c9a845a2a73a2dd9a7ccab4ca12e53f930c696b66761f03c6396c8"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/python3.13/lib-dynload/_codecs_iso2022.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "e88fde6b233a9c7dbb86a004755d16b595483538",
+   "bytes": 31392,
+   "sha256": "692b39a825400739b8f1dd28ad2c7ba021d9962cd1697cb8c2daef16afc3d360"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/python3.13/lib-dynload/_codecs_jp.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "47cd39fb74812603f778164b53424c03ca7162bd",
+   "bytes": 273024,
+   "sha256": "e65f9bdc1e9187272b57bbcbb411efb40538b1b6a7e31bcbf3de5ae445943aef"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/python3.13/lib-dynload/_codecs_kr.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "26b41c5ac937a3ab34e8ae84942244eb53af3f6e",
+   "bytes": 141952,
+   "sha256": "6725f1d9756f0fc87107245c85662b63d2d22a005b837e146619bc3eead6b1af"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/python3.13/lib-dynload/_codecs_tw.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "a6edc14c8c07f9a0d10cd278a48310473cca3620",
+   "bytes": 113280,
+   "sha256": "6b78f534cfb41ae6a75efe75e4a8941a57876b047212c5e04059a74404fd7de4"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/python3.13/lib-dynload/_contextvars.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "b2863de44d545b0d8ee282cd8fda4138ad6649c7",
+   "bytes": 14616,
+   "sha256": "6abe2beb3f377b5f1991deb39deeae277be17d44a0b02f8b9e1af191e3695a91"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/python3.13/lib-dynload/_ctypes.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "1beee15774add332e2c80b4449f3c04a1eb2edd7",
+   "bytes": 154816,
+   "sha256": "c7f5c03cb9fe5abc8f246dce5cef71888ea44e27f0899ffa3f57d6b1c0e1a48c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/python3.13/lib-dynload/_curses.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "9105e2da22134e95aa2181448bee2a7238a55b8a",
+   "bytes": 128664,
+   "sha256": "ae96e666f0a54a5f093f1c5e9bca3e45dcf54f7766ed1d81a1be07b999efba88"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/python3.13/lib-dynload/_decimal.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "6c930a03c4e9528d02c6ade24dd4463bb38263f0",
+   "bytes": 351352,
+   "sha256": "3a01f5030ca6beaa727166c8a562e859c7c955fa81625fbd7ab813fc9e159f1c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/python3.13/lib-dynload/_hashlib.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "a9e2bf9f35f1bd1201b61aff952f4e7255375494",
+   "bytes": 68512,
+   "sha256": "b6b8f95a045e64adb9b862785089f688b236bd73734d0e8cc52af8bd69eed6e2"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/python3.13/lib-dynload/_lzma.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "8b8755e35f83587e010516bfdfc9dfb106e5a299",
+   "bytes": 45184,
+   "sha256": "105d6f054f59bddd0ff06f4e5ee85ef75622bce9b319d4e4e0b629cd15fa2807"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/python3.13/lib-dynload/_multibytecodec.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "871523094b66d5b943d928eb4cbc25e7704ac941",
+   "bytes": 50648,
+   "sha256": "7caaf2b15aa6535d32cec32b9e217238630171598928fab57cd8ed61c7dd0baa"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/python3.13/lib-dynload/_multiprocessing.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "edb153a9110542559614f961a3e26b821f7d3edc",
+   "bytes": 24328,
+   "sha256": "8c7d5e09db92e056bbf49f40ab9aa4f7862082c9bb125cb56e22f5773ecd2c04"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/python3.13/lib-dynload/_posixshmem.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "36588d3942f056da8441a897a70592728fae8412",
+   "bytes": 14960,
+   "sha256": "9bbce1a1112c8edb655ad63e151518e254a5fd76bcda9a2b6645fa6b196a7962"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/python3.13/lib-dynload/_queue.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "fc7f6454a00146fced9a41783e42fef3b5385e0e",
+   "bytes": 24000,
+   "sha256": "e5d33dbbe1a0b977680d81f28b7dbd209bf784d75bb3eab1a491dbf229515079"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/python3.13/lib-dynload/_sqlite3.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "e5183230abcb714f9873b96019e1436efbf7a8f8",
+   "bytes": 145048,
+   "sha256": "bc47aa134738716ee4789c86907bc13aa7e46369911571df6fd5ecc3add8343d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/python3.13/lib-dynload/_ssl.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "a7d06efe8fcb199fad4de70a86919309a9fa79e3",
+   "bytes": 232128,
+   "sha256": "3bb0b8c0392d68b19915c0b975d39faaba2a5232fa823e2cbc406873d9f308a3"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/python3.13/lib-dynload/_uuid.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "dd69d82e6d7ebe1ede3596499f15fb87313828f9",
+   "bytes": 14800,
+   "sha256": "2f41fc9f3eb1a6f63c74a91b075b0f62627be926757bd85471c65df01c16ceb4"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/python3.13/lib-dynload/mmap.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "e5c23bd14d779b54841c93c77574ca58a541cd59",
+   "bytes": 32712,
+   "sha256": "2021518293aedf55a25372a1114de3dcdccb3b96bad8affa0ddd702fbc129e9c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/python3.13/lib-dynload/readline.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "0f999fbea6cf85f650866b7d131c1b4825a122be",
+   "bytes": 40720,
+   "sha256": "2ed5141e320395b4659086a3340ae3a5ddbd7283afee7d0b3d90bba70986441d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/python3.13/lib-dynload/resource.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "367e5325684bb8b36b70e266b3d46ac1aa435cb1",
+   "bytes": 23632,
+   "sha256": "ae7244a9624046d1d57ffbc79e9e8a45e566474fc49316926fce9f6c13eeff7a"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/python3.13/lib-dynload/termios.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "25ea3a6c493bbdd6b8a714687a4f56885d6fcd0f",
+   "bytes": 35728,
+   "sha256": "a32df9cb3dc03642366408fe91f48fec32b0a87327d4323ce8463e90cd13d79e"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/rpds/rpds.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "d0a6c504215bfc1c07d65135e92adaf20a7751ea",
+   "bytes": 965608,
+   "sha256": "bddb35d7ceaef748a4661a73774e1ff8d5ae76969b31e1cc7f757fb424bd8ed5"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/_internal/setuptools/_vendor/jaraco/text/Lorem ipsum.txt",
+   "mode": "100644",
+   "blob": "986f944b60b9900c22464a0c027d713854cc204e",
+   "bytes": 1335,
+   "sha256": "37fedcffbf73c4eb9f058f47677cb33203a436ff9390e4d38a8e01c9dad28e0b"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/out/distro/baton-v12-stack",
+   "mode": "100755",
+   "blob": "24b4726310249cf8b45db3cca3c1e10011a4988d",
+   "bytes": 5786016,
+   "sha256": "08febc4d45ef111894f6c249be4e95a4e134324a0b4051c8fb6eef6cc964b678"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/work/stack/Analysis-00.toc",
+   "mode": "100644",
+   "blob": "0cd2ad6c6df291190decef8014f6bab8a830268a",
+   "bytes": 85068,
+   "sha256": "f336e297504b4ad1e4e1c8196c353ad54eadb9c3758c84d3a68c171ab6d248e5"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/work/stack/COLLECT-00.toc",
+   "mode": "100644",
+   "blob": "bd0a9832adc6a99576f543030b4685dc84339e06",
+   "bytes": 13057,
+   "sha256": "20bce79e9d39d310620993d3517dd50efc800eb7cbd6ec4b7d6a742e6bd2d5a9"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/work/stack/EXE-00.toc",
+   "mode": "100644",
+   "blob": "e8065b2fcecf9d413600a557e435ab3246eebfc3",
+   "bytes": 2506,
+   "sha256": "46d037261d6201d2aad361534815edeb5ee2001c710e7c7dc8d02de0f4d069b4"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/work/stack/PKG-00.toc",
+   "mode": "100644",
+   "blob": "ee646430f7ffb54a42fe8f825a57781844962859",
+   "bytes": 2287,
+   "sha256": "ea2d395c95c5cf647a261b2125bdf8afb1ddbb279f5f3772a42c36499af207ff"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/work/stack/PYZ-00.pyz",
+   "mode": "100644",
+   "blob": "eaf10b2daa239250d6040c76c6bcca09da99c56e",
+   "bytes": 5690526,
+   "sha256": "f37b544bdee668b62f61a2361a03bbeed3a289980ed0870322918af75a079eda"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/work/stack/PYZ-00.toc",
+   "mode": "100644",
+   "blob": "7580c682def09d2a6bd83d5ffb82a054cc4c99a3",
+   "bytes": 57767,
+   "sha256": "8ff41ecb5b6b43391d60623e2a2e9549add9f17040951c1aebebd71827bbf02e"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/work/stack/base_library.zip",
+   "mode": "100644",
+   "blob": "5ae8d1b4d97ea7ac500ad5b54d1060840b48775f",
+   "bytes": 1401218,
+   "sha256": "d6e3fc4efed757c42e1a4262f8dd8981d87d4939bd59ccc27b6df78519cc7eb3"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/work/stack/baton-v12-stack",
+   "mode": "100755",
+   "blob": "24b4726310249cf8b45db3cca3c1e10011a4988d",
+   "bytes": 5786016,
+   "sha256": "08febc4d45ef111894f6c249be4e95a4e134324a0b4051c8fb6eef6cc964b678"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/work/stack/baton-v12-stack.pkg",
+   "mode": "100644",
+   "blob": "b591f301463a3033af55daa254979f817b0b33f7",
+   "bytes": 5721723,
+   "sha256": "491684fc6fe8c5a04ac1fab45cd580d1713bf9301c6b31ef35ecb39f17767d46"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/work/stack/warn-stack.txt",
+   "mode": "100644",
+   "blob": "a604694a0c6677e2a07fb46733359ea322ef7243",
+   "bytes": 10836,
+   "sha256": "e9dfcdff8285e7bcd0446578f1e828d906d1b9b521a2873d279266ff946ebe88"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200254/build/distro/work/stack/xref-stack.html",
+   "mode": "100644",
+   "blob": "cdcb3e2bab9e4e3c1daeccf5b2e7db0257d4a86c",
+   "bytes": 898338,
+   "sha256": "9f7fcb83afe2b8de24ba77bbad25200e05e07321f9a2fdf66a5a8819c5ea328a"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/attrs-26.1.0.dist-info/INSTALLER",
+   "mode": "100644",
+   "blob": "a1b589e38a32041e49332e5e81c2d363dc418d68",
+   "bytes": 4,
+   "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/attrs-26.1.0.dist-info/METADATA",
+   "mode": "100644",
+   "blob": "5cf16a040efe125c907111f521c576edde40109f",
+   "bytes": 8754,
+   "sha256": "4cd40e690f23bf37cbcad34efd6758e062df1df07c86833f7e3ce95bf1fa38cc"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/attrs-26.1.0.dist-info/RECORD",
+   "mode": "100644",
+   "blob": "6fd592f7b5e17854fc8b8d764798c9f2e7d20a27",
+   "bytes": 3643,
+   "sha256": "40de9b239d81f3e4ff3b005e4749cda91549d56e10415ffce54a25c0c995df10"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/attrs-26.1.0.dist-info/REQUESTED",
+   "mode": "100644",
+   "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+   "bytes": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/attrs-26.1.0.dist-info/WHEEL",
+   "mode": "100644",
+   "blob": "b1b94fd58e7e9ed0ef3449473bc48de68afcc3fe",
+   "bytes": 87,
+   "sha256": "41c708c5adba6e097513ab8ccb9f1d7865a2fb469e22491a9e01dcc64da459fc"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/attrs-26.1.0.dist-info/licenses/LICENSE",
+   "mode": "100644",
+   "blob": "2bd6453d255e19b973f19b128596a8b6dd65b2c3",
+   "bytes": 1109,
+   "sha256": "882115c95dfc2af1eeb6714f8ec6d5cbcabf667caff8729f42420da63f714e9f"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/base_library.zip",
+   "mode": "100644",
+   "blob": "d9b320e1ca96af57ab8cb288f93bf1a10dd507e6",
+   "bytes": 1401218,
+   "sha256": "450675c08b3b488541d75a07b6f224a2c43c00ff1be64f1bfb23e67213e3bd7b"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/baton_v12/contracts/schema/agent-session-1.0.schema.json",
+   "mode": "100644",
+   "blob": "4728726b2ed40ea55159b6930f034d30ba4ad1a8",
+   "bytes": 48212,
+   "sha256": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/baton_v12/contracts/schema/worker-control-1.0.schema.json",
+   "mode": "100644",
+   "blob": "0cba806d9a1b4166b4293670b0b1f8d983d9361a",
+   "bytes": 51419,
+   "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/build-stamp.json",
+   "mode": "100644",
+   "blob": "8db54303edde964cc99d1d1b4ce05dd33066c79d",
+   "bytes": 214,
+   "sha256": "09ee4b3885992c2fd144c9cecb0ae9673e9dabc33672ece975b9a823367be636"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/INSTALLER",
+   "mode": "100644",
+   "blob": "a1b589e38a32041e49332e5e81c2d363dc418d68",
+   "bytes": 4,
+   "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/METADATA",
+   "mode": "100644",
+   "blob": "ba828d2ee3ae2f249d3522ba707b8eb46cf582d7",
+   "bytes": 7592,
+   "sha256": "05b189866ca98a96da3934bf6b83687ced3ff85325273b77e16b705f6d8b26d2"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/RECORD",
+   "mode": "100644",
+   "blob": "5cb8bfeba7ffeb70539a92537dac2cc29ca575ed",
+   "bytes": 6415,
+   "sha256": "473f7af882f4287adcd1747f4f2f85ccf410f3ca3e4ff9e50a5b59e8e507abf9"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/REQUESTED",
+   "mode": "100644",
+   "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+   "bytes": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/WHEEL",
+   "mode": "100644",
+   "blob": "ae8ec1bdaa94d726ceb907542d76cbd5d38cafcd",
+   "bytes": 87,
+   "sha256": "58b82a17209f9bf2804afe161f2632d0fde933f9bb2792fd936b2474a2e2ac2f"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/entry_points.txt",
+   "mode": "100644",
+   "blob": "eecef9d8fad351de6b048532776160696a796ef9",
+   "bytes": 51,
+   "sha256": "bceeeb5f816cff1215272da99c0b4a8134b17e99e8cc0550d038c29a93319d61"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/licenses/COPYING",
+   "mode": "100644",
+   "blob": "af9cfbdb134f42e5205ecbad597421d778826481",
+   "bytes": 1057,
+   "sha256": "4f92a015a13c4d1a040bef018aa13430b4f1bc73b41b16bb846c346766de7439"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema/benchmarks/issue232/issue.json",
+   "mode": "100644",
+   "blob": "804c340845fa0694e8db1083cfe7c290c04f36b1",
+   "bytes": 117105,
+   "sha256": "79a3ce663311bb9bbc4692abb00f6e93bb9c3d94b9b64286e03fe190e4d0dc79"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/metaschema.json",
+   "mode": "100644",
+   "blob": "2248a0c80bbfc51b67863f848f60466f135cdb2b",
+   "bytes": 1785,
+   "sha256": "7b761b3e121f0a0ca1ea2a0b8e2cc856bcf801604b8268d71bacaa202bc0c13b"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/applicator",
+   "mode": "100644",
+   "blob": "24a1cc4f4f54b5a556de93c2799853b31e78e512",
+   "bytes": 1860,
+   "sha256": "6895100e99726fbb107058512bbec3ecfd4b24e8fd2facee3e505ee72b0d4c31"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/content",
+   "mode": "100644",
+   "blob": "f6752a8efbeb74a7b7b2e74cbb272c422a975363",
+   "bytes": 517,
+   "sha256": "9b7d4f55a4e2fdb02c430068fdffabc732addce238da3f1df2690249c3353274"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/core",
+   "mode": "100644",
+   "blob": "eb708a56044146bb7903fd59159725a0c693aefe",
+   "bytes": 1531,
+   "sha256": "b5a2c4957f6495d0a5081f0409ebe8a14e4139acb203fc748471f8ede2af5b2c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/format",
+   "mode": "100644",
+   "blob": "09bbfdda972ca77cd26e290d70ab59db4bbe8a27",
+   "bytes": 403,
+   "sha256": "50ebbfe790611a849b8cc400a09c1d0e0fb6ab5c0d43a0f22201fd3625056bf4"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/meta-data",
+   "mode": "100644",
+   "blob": "da04cff6d346f26bfe5bd21b636609fecd583628",
+   "bytes": 892,
+   "sha256": "d47e2445dd6a82271a298d83cc6c6cb8d4ae1e15e0dc56becd37a163ecf01286"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/validation",
+   "mode": "100644",
+   "blob": "9f59677b30c238f07a358c0c8ee72c3b710dc24d",
+   "bytes": 2834,
+   "sha256": "1e526c1d335a734805fc82cf5798c12b960ad7da2517c66cda5a1b09359c3c1c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/metaschema.json",
+   "mode": "100644",
+   "blob": "d5e2d31c3c88e61f4c204cb6616887bba7e105dd",
+   "bytes": 2452,
+   "sha256": "41da76f5afb7ce062d248f762463a92f7ca47e4e0f905b224ba6afeef91ded0f"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/applicator",
+   "mode": "100644",
+   "blob": "ca69923096f3a2e4fe5eb8152a92d87d146cf021",
+   "bytes": 1659,
+   "sha256": "c4a6e4147b91fef7fea6dc058cb1bf93402f7414b76578a8b16aaf1dad6aacef"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/content",
+   "mode": "100644",
+   "blob": "2f6e056a9ac2399582eaf05985a26acf9161f213",
+   "bytes": 519,
+   "sha256": "08343747764e4a5814262793cf4d652057a7913863c5950d43297e8e1fdac5b6"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/core",
+   "mode": "100644",
+   "blob": "dfc092d9646e1ea89e4d771bfcf2a4ca87eeac75",
+   "bytes": 1564,
+   "sha256": "c2d12a8e4dd11d336dfc83a3f663aa4c69f0b49b3beb094ffeb25b5316f4803d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/format-annotation",
+   "mode": "100644",
+   "blob": "51ef7ea118c34e8ac3da66c973bae02b9e8325d8",
+   "bytes": 448,
+   "sha256": "abc775adfefd89d22358170d9bf93f4ebd2349563bbbedd60f02bef7c812bcc0"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/format-assertion",
+   "mode": "100644",
+   "blob": "5e73fd7571e504990f7a055da960056f07dcdb19",
+   "bytes": 445,
+   "sha256": "c52242b9a1bb786b26c3e82c7add428c31f9c96e575dce99e56ea5feaa6da20c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/meta-data",
+   "mode": "100644",
+   "blob": "05cbc22afde5ebe6ba84957ca412277bde1e4b08",
+   "bytes": 892,
+   "sha256": "8f76d6e14f41b9b92ef933b708cdc5144c8b5268651ad11918485fb1754f1c76"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/unevaluated",
+   "mode": "100644",
+   "blob": "5f62a3ffa20be07dc813d6b8a154fa8451d0dc61",
+   "bytes": 506,
+   "sha256": "2dbfbcb73994b670b0976492adee1fffb46c21682784d2f5a4ca561f9e2d0cb4"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/validation",
+   "mode": "100644",
+   "blob": "606b87ba2ec213d63b9e2035a6acc4edcb4b8357",
+   "bytes": 2834,
+   "sha256": "7010a31e541f32d2be721e2de348df75c9b36876a3ed304877fc0abda1d37a58"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft3/metaschema.json",
+   "mode": "100644",
+   "blob": "8b26b1f89f9852e4f69f466dd7d718b21ba5b989",
+   "bytes": 2600,
+   "sha256": "2cf75f64436fb5be374a2eaa27ab8b7e1fd651c9b46daea6c67b02fd64e2458b"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft4/metaschema.json",
+   "mode": "100644",
+   "blob": "bcbb84743e3838fab7cbec5f0a5bcbafcfc99136",
+   "bytes": 4357,
+   "sha256": "e1489d0b4755f02793302591d3fcb8f07b6893a82a94f24895f8e4edf11b82e2"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft6/metaschema.json",
+   "mode": "100644",
+   "blob": "a0d2bf7896c2619ae657cd3b3266660156021706",
+   "bytes": 4437,
+   "sha256": "c29dfce9f54835c3a06c03b3c5d5ec0eda77706568f9c4df7cfbc7566a51006d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft7/metaschema.json",
+   "mode": "100644",
+   "blob": "746cde9690134529bdcde889f72c7ad5259f24ad",
+   "bytes": 4819,
+   "sha256": "3d5392088261606c559b603f385329c9f1ab45b5d667eb990687453b055d405e"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/libbz2.so.1.0",
+   "mode": "100755",
+   "blob": "4dfb2a0013cb60db4b415ec5bdf0509a0a236af7",
+   "bytes": 83192,
+   "sha256": "0e276ebe9060dc27ccff9d08e928127a1ee194c064e88b9262beb7f3ee76f3d7"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/libcrypto.so.3",
+   "mode": "100755",
+   "blob": "e176cccf63ff3644c6cd9a3c2adeeb2db54ea8d4",
+   "bytes": 6353776,
+   "sha256": "4769ffaae2d5fcb04ab023d06370ee0481f03857de88356f565a85792de39d76"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/libexpat.so.1",
+   "mode": "100755",
+   "blob": "e9fc84a81e5e45e3b9bfd7808d2489939a2756c1",
+   "bytes": 182608,
+   "sha256": "510dc18b54fcd0f6957974bf5019347218edc0f74a43522b6be72d686ed0a3a3"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/libffi.so.8",
+   "mode": "100755",
+   "blob": "c82e31d8836a49f42f1aa3c504691f5cb94ef489",
+   "bytes": 47824,
+   "sha256": "f9e062f25194c7f4ecf0a58469cb6ab76b8a95f522c290e47a5c9dd688e7d6be"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/libgcc_s.so.1",
+   "mode": "100755",
+   "blob": "158a6877174a2090c6c07351576181541f196ad7",
+   "bytes": 178928,
+   "sha256": "e21d29dd2609dff45f898b5002c9a2268a0e8eece4eff8417e5087e77d2a136c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/liblzma.so.5",
+   "mode": "100755",
+   "blob": "974f84ec8cef208135a60f4b332354fd20595706",
+   "bytes": 215448,
+   "sha256": "bb0cc2b52f9602da45e3a5088e156b07548a79cf4c822e321a4c119b8c8b7650"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/libncursesw.so.6",
+   "mode": "100755",
+   "blob": "158d93b58a23f6bf7cdba6e6dea652bf90893fe9",
+   "bytes": 240008,
+   "sha256": "7dbbb6bea122614f846cad9e099550ce7f62b425057298da1586b2304dc79214"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/libobjc.so.4",
+   "mode": "100755",
+   "blob": "aa5cc3ca120c0b14746368ff8f3c97b26d3a7bb2",
+   "bytes": 92192,
+   "sha256": "2d64c020c448724c2f063cf61ae6fa4f4629d99ef1ba1bb73e1e68e4882c15df"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/libpython3.13.so.1.0",
+   "mode": "100755",
+   "blob": "040019dca4ed60dc382423a27b3ee1e64c46f598",
+   "bytes": 7508808,
+   "sha256": "1b7613e0039be781d480c4613041c68efcd8be52240e3baf1e09ae21775746a2"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/libreadline.so.8",
+   "mode": "100755",
+   "blob": "010d1ac924b530de9beaf7a8a68f68203fcb031b",
+   "bytes": 389304,
+   "sha256": "3183f28b78d21c148bd844c0b0e356ceb132de370c44591171aa7ea1488c8e60"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/libsqlite3.so.0",
+   "mode": "100755",
+   "blob": "29c3117ef5020bd8f8d9110b656b335e51772248",
+   "bytes": 1518056,
+   "sha256": "a19187db849e9a95b33f2e6fa6d7c3218f8de6f284865832409224bef741dd4a"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/libssl.so.3",
+   "mode": "100755",
+   "blob": "b94d7248ad1b2c1cc6f041c31d6a583d278ddbff",
+   "bytes": 1106088,
+   "sha256": "e2f779425f91a9bbb2a5817d975b6ddb8f9fec40ad4c060ddae350c4e4986c5d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/libtinfo.so.6",
+   "mode": "100755",
+   "blob": "37c86a623695bc5bf9b18e5052d9fd5219ace3ad",
+   "bytes": 212504,
+   "sha256": "51cdf4890364a45c5dea607d011caf2546f45acdfa036adaacb6a932ab641267"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/libuuid.so.1",
+   "mode": "100755",
+   "blob": "2886a470fe23e73e4ee32001b0d1809ced48e29f",
+   "bytes": 35184,
+   "sha256": "427e04ce400955eae6a5f3d737d1f5fed6bb2f7ad4dcea9d017a6e93c0b8d1bc"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/libz.so.1",
+   "mode": "100755",
+   "blob": "52430473302c7f6cedc54b594cd2a613d1d74906",
+   "bytes": 125440,
+   "sha256": "a83ec9e0fee275a2c2b1f2b3773fef6277d7d8fa57f6d50bf0806301b438e281"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/libzstd.so.1",
+   "mode": "100755",
+   "blob": "52868f3258966b9155f24b2113bcde29a37d65a0",
+   "bytes": 817376,
+   "sha256": "f501ac1465c6c254bade367fa5c079b5beb8a6f2c3e9a51da128ce7202f66ca1"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/python3.13/lib-dynload/_bz2.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "14cd44d18ca684ef922689016498e95b2e44b624",
+   "bytes": 32192,
+   "sha256": "1db37b946a0cdfe9d56b296d8616b71d8b85753001a1856769a7aa43c21796f5"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/python3.13/lib-dynload/_codecs_cn.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "9e5c3ef6b2d58e031b0782635102a39bd256565e",
+   "bytes": 154240,
+   "sha256": "17f6cf505d7b35797b4886eafeba11913d53bdbbb9684f12663a614118e0486a"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/python3.13/lib-dynload/_codecs_hk.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "379a3b58a5a3f62680cbd7434e754636804aa518",
+   "bytes": 162464,
+   "sha256": "f123c4ad45c9a845a2a73a2dd9a7ccab4ca12e53f930c696b66761f03c6396c8"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/python3.13/lib-dynload/_codecs_iso2022.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "e88fde6b233a9c7dbb86a004755d16b595483538",
+   "bytes": 31392,
+   "sha256": "692b39a825400739b8f1dd28ad2c7ba021d9962cd1697cb8c2daef16afc3d360"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/python3.13/lib-dynload/_codecs_jp.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "47cd39fb74812603f778164b53424c03ca7162bd",
+   "bytes": 273024,
+   "sha256": "e65f9bdc1e9187272b57bbcbb411efb40538b1b6a7e31bcbf3de5ae445943aef"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/python3.13/lib-dynload/_codecs_kr.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "26b41c5ac937a3ab34e8ae84942244eb53af3f6e",
+   "bytes": 141952,
+   "sha256": "6725f1d9756f0fc87107245c85662b63d2d22a005b837e146619bc3eead6b1af"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/python3.13/lib-dynload/_codecs_tw.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "a6edc14c8c07f9a0d10cd278a48310473cca3620",
+   "bytes": 113280,
+   "sha256": "6b78f534cfb41ae6a75efe75e4a8941a57876b047212c5e04059a74404fd7de4"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/python3.13/lib-dynload/_contextvars.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "b2863de44d545b0d8ee282cd8fda4138ad6649c7",
+   "bytes": 14616,
+   "sha256": "6abe2beb3f377b5f1991deb39deeae277be17d44a0b02f8b9e1af191e3695a91"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/python3.13/lib-dynload/_ctypes.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "1beee15774add332e2c80b4449f3c04a1eb2edd7",
+   "bytes": 154816,
+   "sha256": "c7f5c03cb9fe5abc8f246dce5cef71888ea44e27f0899ffa3f57d6b1c0e1a48c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/python3.13/lib-dynload/_curses.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "9105e2da22134e95aa2181448bee2a7238a55b8a",
+   "bytes": 128664,
+   "sha256": "ae96e666f0a54a5f093f1c5e9bca3e45dcf54f7766ed1d81a1be07b999efba88"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/python3.13/lib-dynload/_decimal.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "6c930a03c4e9528d02c6ade24dd4463bb38263f0",
+   "bytes": 351352,
+   "sha256": "3a01f5030ca6beaa727166c8a562e859c7c955fa81625fbd7ab813fc9e159f1c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/python3.13/lib-dynload/_hashlib.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "a9e2bf9f35f1bd1201b61aff952f4e7255375494",
+   "bytes": 68512,
+   "sha256": "b6b8f95a045e64adb9b862785089f688b236bd73734d0e8cc52af8bd69eed6e2"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/python3.13/lib-dynload/_lzma.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "8b8755e35f83587e010516bfdfc9dfb106e5a299",
+   "bytes": 45184,
+   "sha256": "105d6f054f59bddd0ff06f4e5ee85ef75622bce9b319d4e4e0b629cd15fa2807"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/python3.13/lib-dynload/_multibytecodec.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "871523094b66d5b943d928eb4cbc25e7704ac941",
+   "bytes": 50648,
+   "sha256": "7caaf2b15aa6535d32cec32b9e217238630171598928fab57cd8ed61c7dd0baa"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/python3.13/lib-dynload/_multiprocessing.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "edb153a9110542559614f961a3e26b821f7d3edc",
+   "bytes": 24328,
+   "sha256": "8c7d5e09db92e056bbf49f40ab9aa4f7862082c9bb125cb56e22f5773ecd2c04"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/python3.13/lib-dynload/_posixshmem.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "36588d3942f056da8441a897a70592728fae8412",
+   "bytes": 14960,
+   "sha256": "9bbce1a1112c8edb655ad63e151518e254a5fd76bcda9a2b6645fa6b196a7962"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/python3.13/lib-dynload/_queue.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "fc7f6454a00146fced9a41783e42fef3b5385e0e",
+   "bytes": 24000,
+   "sha256": "e5d33dbbe1a0b977680d81f28b7dbd209bf784d75bb3eab1a491dbf229515079"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/python3.13/lib-dynload/_sqlite3.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "e5183230abcb714f9873b96019e1436efbf7a8f8",
+   "bytes": 145048,
+   "sha256": "bc47aa134738716ee4789c86907bc13aa7e46369911571df6fd5ecc3add8343d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/python3.13/lib-dynload/_ssl.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "a7d06efe8fcb199fad4de70a86919309a9fa79e3",
+   "bytes": 232128,
+   "sha256": "3bb0b8c0392d68b19915c0b975d39faaba2a5232fa823e2cbc406873d9f308a3"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/python3.13/lib-dynload/_uuid.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "dd69d82e6d7ebe1ede3596499f15fb87313828f9",
+   "bytes": 14800,
+   "sha256": "2f41fc9f3eb1a6f63c74a91b075b0f62627be926757bd85471c65df01c16ceb4"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/python3.13/lib-dynload/mmap.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "e5c23bd14d779b54841c93c77574ca58a541cd59",
+   "bytes": 32712,
+   "sha256": "2021518293aedf55a25372a1114de3dcdccb3b96bad8affa0ddd702fbc129e9c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/python3.13/lib-dynload/readline.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "0f999fbea6cf85f650866b7d131c1b4825a122be",
+   "bytes": 40720,
+   "sha256": "2ed5141e320395b4659086a3340ae3a5ddbd7283afee7d0b3d90bba70986441d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/python3.13/lib-dynload/resource.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "367e5325684bb8b36b70e266b3d46ac1aa435cb1",
+   "bytes": 23632,
+   "sha256": "ae7244a9624046d1d57ffbc79e9e8a45e566474fc49316926fce9f6c13eeff7a"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/python3.13/lib-dynload/termios.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "25ea3a6c493bbdd6b8a714687a4f56885d6fcd0f",
+   "bytes": 35728,
+   "sha256": "a32df9cb3dc03642366408fe91f48fec32b0a87327d4323ce8463e90cd13d79e"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/rpds/rpds.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "d0a6c504215bfc1c07d65135e92adaf20a7751ea",
+   "bytes": 965608,
+   "sha256": "bddb35d7ceaef748a4661a73774e1ff8d5ae76969b31e1cc7f757fb424bd8ed5"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/_internal/setuptools/_vendor/jaraco/text/Lorem ipsum.txt",
+   "mode": "100644",
+   "blob": "986f944b60b9900c22464a0c027d713854cc204e",
+   "bytes": 1335,
+   "sha256": "37fedcffbf73c4eb9f058f47677cb33203a436ff9390e4d38a8e01c9dad28e0b"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/out/distro/baton-v12-stack",
+   "mode": "100755",
+   "blob": "c6075423cec21c6c74ae20689670509d07c0f6e5",
+   "bytes": 5786624,
+   "sha256": "dfee25604e86c1c907aa58441f9306a4132b5a0174fae064bf106aafbe0f17f7"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/work/stack/Analysis-00.toc",
+   "mode": "100644",
+   "blob": "b84a77b209aa2871058d28b6e92a0bf4737ba288",
+   "bytes": 85068,
+   "sha256": "0481b2b551c5f9b9b37a48c442ab26eeeaca1f2c9244ab19b9b0c0d89ccecfb9"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/work/stack/COLLECT-00.toc",
+   "mode": "100644",
+   "blob": "6c2e50dc8680cc7138a71a2ee35f0a42f4871a6c",
+   "bytes": 13057,
+   "sha256": "70bac523f29595dbdd559290e136134ea22dd8e1318fff7f4858dab3b250c84a"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/work/stack/EXE-00.toc",
+   "mode": "100644",
+   "blob": "ca3443b0019227e0f35919b0928a461914dbffaf",
+   "bytes": 2506,
+   "sha256": "34a69da640fcabecf50e2128c7d926b7d3266370e01f514f5e676d3bc0de720e"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/work/stack/PKG-00.toc",
+   "mode": "100644",
+   "blob": "feaab9e3b333d9ba99ac47163c65babb2f0e3d90",
+   "bytes": 2287,
+   "sha256": "ebaa1140546bdda3daf0e78f4734315249b849894227b21f673473b1bfe8d9b6"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/work/stack/PYZ-00.pyz",
+   "mode": "100644",
+   "blob": "2b4ba9ac1c153df93542f970f624bf2ae0763173",
+   "bytes": 5691139,
+   "sha256": "1c5c99d04f7ab36777bd1b57f39522228bc84657bd20571b02936831fd54f2dc"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/work/stack/PYZ-00.toc",
+   "mode": "100644",
+   "blob": "3eb593be05beb41504745f5c3dd3cbab1cbd5bbf",
+   "bytes": 57767,
+   "sha256": "b760853fd730547c627c2a2852a00ac3f7d23af77ab07c88fe7cfb98eae91308"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/work/stack/base_library.zip",
+   "mode": "100644",
+   "blob": "d9b320e1ca96af57ab8cb288f93bf1a10dd507e6",
+   "bytes": 1401218,
+   "sha256": "450675c08b3b488541d75a07b6f224a2c43c00ff1be64f1bfb23e67213e3bd7b"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/work/stack/baton-v12-stack",
+   "mode": "100755",
+   "blob": "c6075423cec21c6c74ae20689670509d07c0f6e5",
+   "bytes": 5786624,
+   "sha256": "dfee25604e86c1c907aa58441f9306a4132b5a0174fae064bf106aafbe0f17f7"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/work/stack/baton-v12-stack.pkg",
+   "mode": "100644",
+   "blob": "97a3a71190ca86c786e9d330db82c463a61654c2",
+   "bytes": 5722336,
+   "sha256": "ce2e93e81d48345ba46153997028b504606da69ffd9e5078a049c57d6d250280"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/work/stack/warn-stack.txt",
+   "mode": "100644",
+   "blob": "a604694a0c6677e2a07fb46733359ea322ef7243",
+   "bytes": 10836,
+   "sha256": "e9dfcdff8285e7bcd0446578f1e828d906d1b9b521a2873d279266ff946ebe88"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-200564/build/distro/work/stack/xref-stack.html",
+   "mode": "100644",
+   "blob": "3ca2369022fd72cfc2bf3ec5c8bd70bd47e484fb",
+   "bytes": 898520,
+   "sha256": "64babca22d0cdddd821836f2ecd72e9adfe5e99ae4c3180a3aaebf793ddd2b66"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/attrs-26.1.0.dist-info/INSTALLER",
+   "mode": "100644",
+   "blob": "a1b589e38a32041e49332e5e81c2d363dc418d68",
+   "bytes": 4,
+   "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/attrs-26.1.0.dist-info/METADATA",
+   "mode": "100644",
+   "blob": "5cf16a040efe125c907111f521c576edde40109f",
+   "bytes": 8754,
+   "sha256": "4cd40e690f23bf37cbcad34efd6758e062df1df07c86833f7e3ce95bf1fa38cc"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/attrs-26.1.0.dist-info/RECORD",
+   "mode": "100644",
+   "blob": "6fd592f7b5e17854fc8b8d764798c9f2e7d20a27",
+   "bytes": 3643,
+   "sha256": "40de9b239d81f3e4ff3b005e4749cda91549d56e10415ffce54a25c0c995df10"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/attrs-26.1.0.dist-info/REQUESTED",
+   "mode": "100644",
+   "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+   "bytes": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/attrs-26.1.0.dist-info/WHEEL",
+   "mode": "100644",
+   "blob": "b1b94fd58e7e9ed0ef3449473bc48de68afcc3fe",
+   "bytes": 87,
+   "sha256": "41c708c5adba6e097513ab8ccb9f1d7865a2fb469e22491a9e01dcc64da459fc"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/attrs-26.1.0.dist-info/licenses/LICENSE",
+   "mode": "100644",
+   "blob": "2bd6453d255e19b973f19b128596a8b6dd65b2c3",
+   "bytes": 1109,
+   "sha256": "882115c95dfc2af1eeb6714f8ec6d5cbcabf667caff8729f42420da63f714e9f"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/base_library.zip",
+   "mode": "100644",
+   "blob": "d9b320e1ca96af57ab8cb288f93bf1a10dd507e6",
+   "bytes": 1401218,
+   "sha256": "450675c08b3b488541d75a07b6f224a2c43c00ff1be64f1bfb23e67213e3bd7b"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/baton_v12/contracts/schema/agent-session-1.0.schema.json",
+   "mode": "100644",
+   "blob": "4728726b2ed40ea55159b6930f034d30ba4ad1a8",
+   "bytes": 48212,
+   "sha256": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/baton_v12/contracts/schema/worker-control-1.0.schema.json",
+   "mode": "100644",
+   "blob": "0cba806d9a1b4166b4293670b0b1f8d983d9361a",
+   "bytes": 51419,
+   "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/build-stamp.json",
+   "mode": "100644",
+   "blob": "8db54303edde964cc99d1d1b4ce05dd33066c79d",
+   "bytes": 214,
+   "sha256": "09ee4b3885992c2fd144c9cecb0ae9673e9dabc33672ece975b9a823367be636"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/INSTALLER",
+   "mode": "100644",
+   "blob": "a1b589e38a32041e49332e5e81c2d363dc418d68",
+   "bytes": 4,
+   "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/METADATA",
+   "mode": "100644",
+   "blob": "ba828d2ee3ae2f249d3522ba707b8eb46cf582d7",
+   "bytes": 7592,
+   "sha256": "05b189866ca98a96da3934bf6b83687ced3ff85325273b77e16b705f6d8b26d2"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/RECORD",
+   "mode": "100644",
+   "blob": "5cb8bfeba7ffeb70539a92537dac2cc29ca575ed",
+   "bytes": 6415,
+   "sha256": "473f7af882f4287adcd1747f4f2f85ccf410f3ca3e4ff9e50a5b59e8e507abf9"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/REQUESTED",
+   "mode": "100644",
+   "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+   "bytes": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/WHEEL",
+   "mode": "100644",
+   "blob": "ae8ec1bdaa94d726ceb907542d76cbd5d38cafcd",
+   "bytes": 87,
+   "sha256": "58b82a17209f9bf2804afe161f2632d0fde933f9bb2792fd936b2474a2e2ac2f"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/entry_points.txt",
+   "mode": "100644",
+   "blob": "eecef9d8fad351de6b048532776160696a796ef9",
+   "bytes": 51,
+   "sha256": "bceeeb5f816cff1215272da99c0b4a8134b17e99e8cc0550d038c29a93319d61"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema-4.26.0.dist-info/licenses/COPYING",
+   "mode": "100644",
+   "blob": "af9cfbdb134f42e5205ecbad597421d778826481",
+   "bytes": 1057,
+   "sha256": "4f92a015a13c4d1a040bef018aa13430b4f1bc73b41b16bb846c346766de7439"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema/benchmarks/issue232/issue.json",
+   "mode": "100644",
+   "blob": "804c340845fa0694e8db1083cfe7c290c04f36b1",
+   "bytes": 117105,
+   "sha256": "79a3ce663311bb9bbc4692abb00f6e93bb9c3d94b9b64286e03fe190e4d0dc79"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/metaschema.json",
+   "mode": "100644",
+   "blob": "2248a0c80bbfc51b67863f848f60466f135cdb2b",
+   "bytes": 1785,
+   "sha256": "7b761b3e121f0a0ca1ea2a0b8e2cc856bcf801604b8268d71bacaa202bc0c13b"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/applicator",
+   "mode": "100644",
+   "blob": "24a1cc4f4f54b5a556de93c2799853b31e78e512",
+   "bytes": 1860,
+   "sha256": "6895100e99726fbb107058512bbec3ecfd4b24e8fd2facee3e505ee72b0d4c31"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/content",
+   "mode": "100644",
+   "blob": "f6752a8efbeb74a7b7b2e74cbb272c422a975363",
+   "bytes": 517,
+   "sha256": "9b7d4f55a4e2fdb02c430068fdffabc732addce238da3f1df2690249c3353274"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/core",
+   "mode": "100644",
+   "blob": "eb708a56044146bb7903fd59159725a0c693aefe",
+   "bytes": 1531,
+   "sha256": "b5a2c4957f6495d0a5081f0409ebe8a14e4139acb203fc748471f8ede2af5b2c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/format",
+   "mode": "100644",
+   "blob": "09bbfdda972ca77cd26e290d70ab59db4bbe8a27",
+   "bytes": 403,
+   "sha256": "50ebbfe790611a849b8cc400a09c1d0e0fb6ab5c0d43a0f22201fd3625056bf4"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/meta-data",
+   "mode": "100644",
+   "blob": "da04cff6d346f26bfe5bd21b636609fecd583628",
+   "bytes": 892,
+   "sha256": "d47e2445dd6a82271a298d83cc6c6cb8d4ae1e15e0dc56becd37a163ecf01286"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft201909/vocabularies/validation",
+   "mode": "100644",
+   "blob": "9f59677b30c238f07a358c0c8ee72c3b710dc24d",
+   "bytes": 2834,
+   "sha256": "1e526c1d335a734805fc82cf5798c12b960ad7da2517c66cda5a1b09359c3c1c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/metaschema.json",
+   "mode": "100644",
+   "blob": "d5e2d31c3c88e61f4c204cb6616887bba7e105dd",
+   "bytes": 2452,
+   "sha256": "41da76f5afb7ce062d248f762463a92f7ca47e4e0f905b224ba6afeef91ded0f"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/applicator",
+   "mode": "100644",
+   "blob": "ca69923096f3a2e4fe5eb8152a92d87d146cf021",
+   "bytes": 1659,
+   "sha256": "c4a6e4147b91fef7fea6dc058cb1bf93402f7414b76578a8b16aaf1dad6aacef"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/content",
+   "mode": "100644",
+   "blob": "2f6e056a9ac2399582eaf05985a26acf9161f213",
+   "bytes": 519,
+   "sha256": "08343747764e4a5814262793cf4d652057a7913863c5950d43297e8e1fdac5b6"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/core",
+   "mode": "100644",
+   "blob": "dfc092d9646e1ea89e4d771bfcf2a4ca87eeac75",
+   "bytes": 1564,
+   "sha256": "c2d12a8e4dd11d336dfc83a3f663aa4c69f0b49b3beb094ffeb25b5316f4803d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/format-annotation",
+   "mode": "100644",
+   "blob": "51ef7ea118c34e8ac3da66c973bae02b9e8325d8",
+   "bytes": 448,
+   "sha256": "abc775adfefd89d22358170d9bf93f4ebd2349563bbbedd60f02bef7c812bcc0"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/format-assertion",
+   "mode": "100644",
+   "blob": "5e73fd7571e504990f7a055da960056f07dcdb19",
+   "bytes": 445,
+   "sha256": "c52242b9a1bb786b26c3e82c7add428c31f9c96e575dce99e56ea5feaa6da20c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/meta-data",
+   "mode": "100644",
+   "blob": "05cbc22afde5ebe6ba84957ca412277bde1e4b08",
+   "bytes": 892,
+   "sha256": "8f76d6e14f41b9b92ef933b708cdc5144c8b5268651ad11918485fb1754f1c76"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/unevaluated",
+   "mode": "100644",
+   "blob": "5f62a3ffa20be07dc813d6b8a154fa8451d0dc61",
+   "bytes": 506,
+   "sha256": "2dbfbcb73994b670b0976492adee1fffb46c21682784d2f5a4ca561f9e2d0cb4"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft202012/vocabularies/validation",
+   "mode": "100644",
+   "blob": "606b87ba2ec213d63b9e2035a6acc4edcb4b8357",
+   "bytes": 2834,
+   "sha256": "7010a31e541f32d2be721e2de348df75c9b36876a3ed304877fc0abda1d37a58"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft3/metaschema.json",
+   "mode": "100644",
+   "blob": "8b26b1f89f9852e4f69f466dd7d718b21ba5b989",
+   "bytes": 2600,
+   "sha256": "2cf75f64436fb5be374a2eaa27ab8b7e1fd651c9b46daea6c67b02fd64e2458b"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft4/metaschema.json",
+   "mode": "100644",
+   "blob": "bcbb84743e3838fab7cbec5f0a5bcbafcfc99136",
+   "bytes": 4357,
+   "sha256": "e1489d0b4755f02793302591d3fcb8f07b6893a82a94f24895f8e4edf11b82e2"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft6/metaschema.json",
+   "mode": "100644",
+   "blob": "a0d2bf7896c2619ae657cd3b3266660156021706",
+   "bytes": 4437,
+   "sha256": "c29dfce9f54835c3a06c03b3c5d5ec0eda77706568f9c4df7cfbc7566a51006d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/jsonschema_specifications/schemas/draft7/metaschema.json",
+   "mode": "100644",
+   "blob": "746cde9690134529bdcde889f72c7ad5259f24ad",
+   "bytes": 4819,
+   "sha256": "3d5392088261606c559b603f385329c9f1ab45b5d667eb990687453b055d405e"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/libbz2.so.1.0",
+   "mode": "100755",
+   "blob": "4dfb2a0013cb60db4b415ec5bdf0509a0a236af7",
+   "bytes": 83192,
+   "sha256": "0e276ebe9060dc27ccff9d08e928127a1ee194c064e88b9262beb7f3ee76f3d7"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/libcrypto.so.3",
+   "mode": "100755",
+   "blob": "e176cccf63ff3644c6cd9a3c2adeeb2db54ea8d4",
+   "bytes": 6353776,
+   "sha256": "4769ffaae2d5fcb04ab023d06370ee0481f03857de88356f565a85792de39d76"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/libexpat.so.1",
+   "mode": "100755",
+   "blob": "e9fc84a81e5e45e3b9bfd7808d2489939a2756c1",
+   "bytes": 182608,
+   "sha256": "510dc18b54fcd0f6957974bf5019347218edc0f74a43522b6be72d686ed0a3a3"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/libffi.so.8",
+   "mode": "100755",
+   "blob": "c82e31d8836a49f42f1aa3c504691f5cb94ef489",
+   "bytes": 47824,
+   "sha256": "f9e062f25194c7f4ecf0a58469cb6ab76b8a95f522c290e47a5c9dd688e7d6be"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/libgcc_s.so.1",
+   "mode": "100755",
+   "blob": "158a6877174a2090c6c07351576181541f196ad7",
+   "bytes": 178928,
+   "sha256": "e21d29dd2609dff45f898b5002c9a2268a0e8eece4eff8417e5087e77d2a136c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/liblzma.so.5",
+   "mode": "100755",
+   "blob": "974f84ec8cef208135a60f4b332354fd20595706",
+   "bytes": 215448,
+   "sha256": "bb0cc2b52f9602da45e3a5088e156b07548a79cf4c822e321a4c119b8c8b7650"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/libncursesw.so.6",
+   "mode": "100755",
+   "blob": "158d93b58a23f6bf7cdba6e6dea652bf90893fe9",
+   "bytes": 240008,
+   "sha256": "7dbbb6bea122614f846cad9e099550ce7f62b425057298da1586b2304dc79214"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/libobjc.so.4",
+   "mode": "100755",
+   "blob": "aa5cc3ca120c0b14746368ff8f3c97b26d3a7bb2",
+   "bytes": 92192,
+   "sha256": "2d64c020c448724c2f063cf61ae6fa4f4629d99ef1ba1bb73e1e68e4882c15df"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/libpython3.13.so.1.0",
+   "mode": "100755",
+   "blob": "040019dca4ed60dc382423a27b3ee1e64c46f598",
+   "bytes": 7508808,
+   "sha256": "1b7613e0039be781d480c4613041c68efcd8be52240e3baf1e09ae21775746a2"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/libreadline.so.8",
+   "mode": "100755",
+   "blob": "010d1ac924b530de9beaf7a8a68f68203fcb031b",
+   "bytes": 389304,
+   "sha256": "3183f28b78d21c148bd844c0b0e356ceb132de370c44591171aa7ea1488c8e60"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/libsqlite3.so.0",
+   "mode": "100755",
+   "blob": "29c3117ef5020bd8f8d9110b656b335e51772248",
+   "bytes": 1518056,
+   "sha256": "a19187db849e9a95b33f2e6fa6d7c3218f8de6f284865832409224bef741dd4a"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/libssl.so.3",
+   "mode": "100755",
+   "blob": "b94d7248ad1b2c1cc6f041c31d6a583d278ddbff",
+   "bytes": 1106088,
+   "sha256": "e2f779425f91a9bbb2a5817d975b6ddb8f9fec40ad4c060ddae350c4e4986c5d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/libtinfo.so.6",
+   "mode": "100755",
+   "blob": "37c86a623695bc5bf9b18e5052d9fd5219ace3ad",
+   "bytes": 212504,
+   "sha256": "51cdf4890364a45c5dea607d011caf2546f45acdfa036adaacb6a932ab641267"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/libuuid.so.1",
+   "mode": "100755",
+   "blob": "2886a470fe23e73e4ee32001b0d1809ced48e29f",
+   "bytes": 35184,
+   "sha256": "427e04ce400955eae6a5f3d737d1f5fed6bb2f7ad4dcea9d017a6e93c0b8d1bc"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/libz.so.1",
+   "mode": "100755",
+   "blob": "52430473302c7f6cedc54b594cd2a613d1d74906",
+   "bytes": 125440,
+   "sha256": "a83ec9e0fee275a2c2b1f2b3773fef6277d7d8fa57f6d50bf0806301b438e281"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/libzstd.so.1",
+   "mode": "100755",
+   "blob": "52868f3258966b9155f24b2113bcde29a37d65a0",
+   "bytes": 817376,
+   "sha256": "f501ac1465c6c254bade367fa5c079b5beb8a6f2c3e9a51da128ce7202f66ca1"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/python3.13/lib-dynload/_bz2.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "14cd44d18ca684ef922689016498e95b2e44b624",
+   "bytes": 32192,
+   "sha256": "1db37b946a0cdfe9d56b296d8616b71d8b85753001a1856769a7aa43c21796f5"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/python3.13/lib-dynload/_codecs_cn.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "9e5c3ef6b2d58e031b0782635102a39bd256565e",
+   "bytes": 154240,
+   "sha256": "17f6cf505d7b35797b4886eafeba11913d53bdbbb9684f12663a614118e0486a"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/python3.13/lib-dynload/_codecs_hk.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "379a3b58a5a3f62680cbd7434e754636804aa518",
+   "bytes": 162464,
+   "sha256": "f123c4ad45c9a845a2a73a2dd9a7ccab4ca12e53f930c696b66761f03c6396c8"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/python3.13/lib-dynload/_codecs_iso2022.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "e88fde6b233a9c7dbb86a004755d16b595483538",
+   "bytes": 31392,
+   "sha256": "692b39a825400739b8f1dd28ad2c7ba021d9962cd1697cb8c2daef16afc3d360"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/python3.13/lib-dynload/_codecs_jp.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "47cd39fb74812603f778164b53424c03ca7162bd",
+   "bytes": 273024,
+   "sha256": "e65f9bdc1e9187272b57bbcbb411efb40538b1b6a7e31bcbf3de5ae445943aef"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/python3.13/lib-dynload/_codecs_kr.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "26b41c5ac937a3ab34e8ae84942244eb53af3f6e",
+   "bytes": 141952,
+   "sha256": "6725f1d9756f0fc87107245c85662b63d2d22a005b837e146619bc3eead6b1af"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/python3.13/lib-dynload/_codecs_tw.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "a6edc14c8c07f9a0d10cd278a48310473cca3620",
+   "bytes": 113280,
+   "sha256": "6b78f534cfb41ae6a75efe75e4a8941a57876b047212c5e04059a74404fd7de4"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/python3.13/lib-dynload/_contextvars.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "b2863de44d545b0d8ee282cd8fda4138ad6649c7",
+   "bytes": 14616,
+   "sha256": "6abe2beb3f377b5f1991deb39deeae277be17d44a0b02f8b9e1af191e3695a91"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/python3.13/lib-dynload/_ctypes.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "1beee15774add332e2c80b4449f3c04a1eb2edd7",
+   "bytes": 154816,
+   "sha256": "c7f5c03cb9fe5abc8f246dce5cef71888ea44e27f0899ffa3f57d6b1c0e1a48c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/python3.13/lib-dynload/_curses.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "9105e2da22134e95aa2181448bee2a7238a55b8a",
+   "bytes": 128664,
+   "sha256": "ae96e666f0a54a5f093f1c5e9bca3e45dcf54f7766ed1d81a1be07b999efba88"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/python3.13/lib-dynload/_decimal.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "6c930a03c4e9528d02c6ade24dd4463bb38263f0",
+   "bytes": 351352,
+   "sha256": "3a01f5030ca6beaa727166c8a562e859c7c955fa81625fbd7ab813fc9e159f1c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/python3.13/lib-dynload/_hashlib.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "a9e2bf9f35f1bd1201b61aff952f4e7255375494",
+   "bytes": 68512,
+   "sha256": "b6b8f95a045e64adb9b862785089f688b236bd73734d0e8cc52af8bd69eed6e2"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/python3.13/lib-dynload/_lzma.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "8b8755e35f83587e010516bfdfc9dfb106e5a299",
+   "bytes": 45184,
+   "sha256": "105d6f054f59bddd0ff06f4e5ee85ef75622bce9b319d4e4e0b629cd15fa2807"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/python3.13/lib-dynload/_multibytecodec.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "871523094b66d5b943d928eb4cbc25e7704ac941",
+   "bytes": 50648,
+   "sha256": "7caaf2b15aa6535d32cec32b9e217238630171598928fab57cd8ed61c7dd0baa"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/python3.13/lib-dynload/_multiprocessing.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "edb153a9110542559614f961a3e26b821f7d3edc",
+   "bytes": 24328,
+   "sha256": "8c7d5e09db92e056bbf49f40ab9aa4f7862082c9bb125cb56e22f5773ecd2c04"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/python3.13/lib-dynload/_posixshmem.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "36588d3942f056da8441a897a70592728fae8412",
+   "bytes": 14960,
+   "sha256": "9bbce1a1112c8edb655ad63e151518e254a5fd76bcda9a2b6645fa6b196a7962"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/python3.13/lib-dynload/_queue.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "fc7f6454a00146fced9a41783e42fef3b5385e0e",
+   "bytes": 24000,
+   "sha256": "e5d33dbbe1a0b977680d81f28b7dbd209bf784d75bb3eab1a491dbf229515079"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/python3.13/lib-dynload/_sqlite3.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "e5183230abcb714f9873b96019e1436efbf7a8f8",
+   "bytes": 145048,
+   "sha256": "bc47aa134738716ee4789c86907bc13aa7e46369911571df6fd5ecc3add8343d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/python3.13/lib-dynload/_ssl.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "a7d06efe8fcb199fad4de70a86919309a9fa79e3",
+   "bytes": 232128,
+   "sha256": "3bb0b8c0392d68b19915c0b975d39faaba2a5232fa823e2cbc406873d9f308a3"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/python3.13/lib-dynload/_uuid.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "dd69d82e6d7ebe1ede3596499f15fb87313828f9",
+   "bytes": 14800,
+   "sha256": "2f41fc9f3eb1a6f63c74a91b075b0f62627be926757bd85471c65df01c16ceb4"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/python3.13/lib-dynload/mmap.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "e5c23bd14d779b54841c93c77574ca58a541cd59",
+   "bytes": 32712,
+   "sha256": "2021518293aedf55a25372a1114de3dcdccb3b96bad8affa0ddd702fbc129e9c"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/python3.13/lib-dynload/readline.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "0f999fbea6cf85f650866b7d131c1b4825a122be",
+   "bytes": 40720,
+   "sha256": "2ed5141e320395b4659086a3340ae3a5ddbd7283afee7d0b3d90bba70986441d"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/python3.13/lib-dynload/resource.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "367e5325684bb8b36b70e266b3d46ac1aa435cb1",
+   "bytes": 23632,
+   "sha256": "ae7244a9624046d1d57ffbc79e9e8a45e566474fc49316926fce9f6c13eeff7a"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/python3.13/lib-dynload/termios.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "25ea3a6c493bbdd6b8a714687a4f56885d6fcd0f",
+   "bytes": 35728,
+   "sha256": "a32df9cb3dc03642366408fe91f48fec32b0a87327d4323ce8463e90cd13d79e"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/rpds/rpds.cpython-313-x86_64-linux-gnu.so",
+   "mode": "100755",
+   "blob": "d0a6c504215bfc1c07d65135e92adaf20a7751ea",
+   "bytes": 965608,
+   "sha256": "bddb35d7ceaef748a4661a73774e1ff8d5ae76969b31e1cc7f757fb424bd8ed5"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/_internal/setuptools/_vendor/jaraco/text/Lorem ipsum.txt",
+   "mode": "100644",
+   "blob": "986f944b60b9900c22464a0c027d713854cc204e",
+   "bytes": 1335,
+   "sha256": "37fedcffbf73c4eb9f058f47677cb33203a436ff9390e4d38a8e01c9dad28e0b"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/out/distro/baton-v12-stack",
+   "mode": "100755",
+   "blob": "c6075423cec21c6c74ae20689670509d07c0f6e5",
+   "bytes": 5786624,
+   "sha256": "dfee25604e86c1c907aa58441f9306a4132b5a0174fae064bf106aafbe0f17f7"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/work/stack/Analysis-00.toc",
+   "mode": "100644",
+   "blob": "b84a77b209aa2871058d28b6e92a0bf4737ba288",
+   "bytes": 85068,
+   "sha256": "0481b2b551c5f9b9b37a48c442ab26eeeaca1f2c9244ab19b9b0c0d89ccecfb9"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/work/stack/COLLECT-00.toc",
+   "mode": "100644",
+   "blob": "6c2e50dc8680cc7138a71a2ee35f0a42f4871a6c",
+   "bytes": 13057,
+   "sha256": "70bac523f29595dbdd559290e136134ea22dd8e1318fff7f4858dab3b250c84a"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/work/stack/EXE-00.toc",
+   "mode": "100644",
+   "blob": "ca3443b0019227e0f35919b0928a461914dbffaf",
+   "bytes": 2506,
+   "sha256": "34a69da640fcabecf50e2128c7d926b7d3266370e01f514f5e676d3bc0de720e"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/work/stack/PKG-00.toc",
+   "mode": "100644",
+   "blob": "feaab9e3b333d9ba99ac47163c65babb2f0e3d90",
+   "bytes": 2287,
+   "sha256": "ebaa1140546bdda3daf0e78f4734315249b849894227b21f673473b1bfe8d9b6"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/work/stack/PYZ-00.pyz",
+   "mode": "100644",
+   "blob": "2b4ba9ac1c153df93542f970f624bf2ae0763173",
+   "bytes": 5691139,
+   "sha256": "1c5c99d04f7ab36777bd1b57f39522228bc84657bd20571b02936831fd54f2dc"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/work/stack/PYZ-00.toc",
+   "mode": "100644",
+   "blob": "3eb593be05beb41504745f5c3dd3cbab1cbd5bbf",
+   "bytes": 57767,
+   "sha256": "b760853fd730547c627c2a2852a00ac3f7d23af77ab07c88fe7cfb98eae91308"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/work/stack/base_library.zip",
+   "mode": "100644",
+   "blob": "d9b320e1ca96af57ab8cb288f93bf1a10dd507e6",
+   "bytes": 1401218,
+   "sha256": "450675c08b3b488541d75a07b6f224a2c43c00ff1be64f1bfb23e67213e3bd7b"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/work/stack/baton-v12-stack",
+   "mode": "100755",
+   "blob": "c6075423cec21c6c74ae20689670509d07c0f6e5",
+   "bytes": 5786624,
+   "sha256": "dfee25604e86c1c907aa58441f9306a4132b5a0174fae064bf106aafbe0f17f7"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/work/stack/baton-v12-stack.pkg",
+   "mode": "100644",
+   "blob": "97a3a71190ca86c786e9d330db82c463a61654c2",
+   "bytes": 5722336,
+   "sha256": "ce2e93e81d48345ba46153997028b504606da69ffd9e5078a049c57d6d250280"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/work/stack/warn-stack.txt",
+   "mode": "100644",
+   "blob": "a604694a0c6677e2a07fb46733359ea322ef7243",
+   "bytes": 10836,
+   "sha256": "e9dfcdff8285e7bcd0446578f1e828d906d1b9b521a2873d279266ff946ebe88"
+  },
+  {
+   "path": "work/records/2026/09/finding-v12-worker-launch-version-mismatch/instance-201492/build/distro/work/stack/xref-stack.html",
+   "mode": "100644",
+   "blob": "3ca2369022fd72cfc2bf3ec5c8bd70bd47e484fb",
+   "bytes": 898520,
+   "sha256": "64babca22d0cdddd821836f2ecd72e9adfe5e99ae4c3180a3aaebf793ddd2b66"
+  }
+ ]
+}
